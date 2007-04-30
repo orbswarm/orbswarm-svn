@@ -1,8 +1,19 @@
 Swarm Orb Electronic Speed Control API
-v11.0
-17-April-2007
+v14.0
+30-April-2007
 Petey the Programmer
 
+-----------------
+
+Chanage Log
+
+	v11.0	First draft of API doc.
+	v12.0	Change to OSSC H-Bridge Hardware.
+			Remove Fwd/Rev commands - Torque now uses plus-minus for Fwd/Rev
+	v13.0	Write Steering & Motor PID values to EEPROM
+			Add Fail Safe function to prevent Orb run-away if com link fails.
+			Added Ki factor to steering PID
+			
 -----------------
 
 The API into the speed controller is an ASCII based serial protocol.
@@ -14,36 +25,17 @@ To set the torque to 50% The chars sent to the ESC will be:  $t50* or $t 50*
 
 The ESC has an internal buffer of 32 bytes, and processes chars very quickly, but if more than 32 chars are sent at once (I don't know why you would) it may over run the buffer. (I've never over run it)  All chars are processed within 0.1ms of being received. (160,000 chars per second)  Commands execute as soon as the * char is received.
 
+The only commands needed to operate the Orb are Stop, Set_Drive_PWM, Set_Drive_Torque and Set_Steering_Position.
+
+All of the "Set Gain" and "PID" commands are for testing, debug, and tuning.
+
 -----------------
 
 ALL_STOP
-	Panic stop.  Immediately turns off the drive motor.
+	Immediately turns off the drive motor.
 	Cmd: 'STOP'  or just 'S'
 	Example:  $STOP*  or $S*
 
-Set_Direction_Forward
-	Setup the controller for Forward direction
-	When using PID torque control, the host controller should bring the orb to a
-	stop (or close to it) before reversing directions.
-	Cmd:  'Fwd' or 'F'
-	Example:  $Fwd*
-	
-Set_Direction_Reverse
-	Setup the controller for Reverse direction
-	Cmd: 'Rev' or 'R'
-	Example:  $Rev*
-
-Set_Drive_Torque
-	Set the amount of torque sent to drive motor.  Turns ON PID control.
-	Cmd = 't'
-	Values are -100 to +100 as percentage of available torque.
-	Negative values are for braking.  Zero sets controller to coast.
-	Example: $t50* will set the torque to 50%
-	Direction must be set using the Fwd / Rev commands.
-
-	If we don't want braking or coasting, this can be changed to +100 to -100
-	for direct Fwd / Reverse control.  Positive = Fwd, Neg = Rev. 0 = Stop.
-	
 Set_Drive_PWM
 	Set the Duty Cycle of the H-Bridge directly. Turns OFF PID control.
 	Cmd = 'p'
@@ -51,6 +43,13 @@ Set_Drive_PWM
 	Positive values are forward direction, negative values are reverse.
 	Example:  $p33*   sets the PWM to 33% forward.  $p-50* sets 50% reverse.
 
+Set_Drive_Torque
+	Set the amount of torque sent to drive motor.  Turns ON PID control.
+	Cmd = 't'
+	Values are -100 to +100 as percentage of available torque.
+	Positive values are Forward, Negative values are reverse.  Zero = stop.
+	Example: $t50* will set the torque to 50% forward.
+	
 Set_Steering_Position
 	Set the steering servo's position.
 	Cmd = 's'
@@ -127,6 +126,18 @@ Set_Steering_Kp
 	Values: 0 to 9999
 	Example: $v8*  sets steering Kp to 8
 	
+Set_Steering_Ki
+	Sets integral gain factor.
+	Cmd: 'f'
+	Values: 0 to 9999
+	Example: $f8*  sets steering Ki to 8
+	
+Set_Steering_Kd
+	Sets derivative gain factor.
+	Cmd: 'e'
+	Values: 0 to 9999
+	Example: $e8*  sets steering Kd to 8
+	
 
 Set_Steering_Dead_Band
 	Sets size of dead-band area around the set point.
@@ -163,13 +174,35 @@ Set_Steering_Max_Drive
 	
 ---------------
 
+Write_EEPROM
+	Saves Steering or Motor PID gain factors to EEPROM
+	Cmd: W 
+	Values: M or S for Motor / Steering
+	Example: WM saves Motor PID data
+			 WS saves Steering PID data
+			 
+---------------
+
+Fail_Safe
+	Turn On / Off Fail Safe function. 
+	When Fail Safe is ON, Orb will STOP if no cmds received within 1 second.
+	Default is ON.
+	Cmd: 'F1' or 'F0' for On / Off
+	
+---------------
+
 Dump_Data
 	Request the ESC to return debug data about motor, steering & PIDs
 	Cmd: '?'
-	Response is dependant on what I'm debugging.
+	Response is dependant on what I'm debugging.  See code for format & details.
 	Example response:
 	Steer:  -00185 -00168 Gain:  +00010 +00010 +00255 +00030 +00005
 	Motor:  +00010 +00010 +00255  PID: +00030 +00005 +00030 +00005
+
+Log_Data
+	Turn On / Off debug output of certain functions. 
+	Depends on what's being worked on.
+	Cmd: 'L1' or 'L0' for On / Off
 	
 ---------------
 

@@ -2,7 +2,7 @@
 // UART.c
 // Routines for interrupt controlled UART
 // Last modified: 6-Apr-07
-// Modified by: MrPete
+// Modified by: MrPete from AVR sample code.
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 /* Includes */

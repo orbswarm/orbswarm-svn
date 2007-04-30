@@ -98,7 +98,7 @@ void putint(int number)
 
 void putS16(short number)
 {
-  char value[6]={0,0,0,0};
+  char value[6]={0,0,0,0,0,0};
 
   if(number >= 0)
   {

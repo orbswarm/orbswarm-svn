@@ -5,4 +5,4 @@
 
 void A2D_Init(void);
 void A2D_poll_adc(void);
-unsigned short A2D_read_channel(unsigned char chanNum);
+unsigned short A2D_read_channel(uint8_t chanNum);

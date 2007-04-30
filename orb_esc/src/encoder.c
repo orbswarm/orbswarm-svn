@@ -4,6 +4,8 @@
 //
 //	Wheel & Shaft Encoders for Orb Motor & Steering Control
 //
+//	Version 14.0
+//	30-Apr-2007
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #include <avr/signal.h>  
@@ -93,7 +95,7 @@ unsigned short Encoder_read_count(unsigned char channelNum)
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------
 // sample the encoders 10 times a second.
-// during tesing, I'm using a wheel encoder that's only spinning at 60 rpm
+// during testing, I'm using a wheel encoder that's only spinning at 60 rpm
 // this only gives us a few clicks per 100ms sample -- too few.
 // because I'm using a very slow motor, I'm agregating the samples over 1 second.
 
