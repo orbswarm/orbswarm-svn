@@ -12,7 +12,7 @@
 #include <avr/io.h>
 #include "encoder.h"   
 
-/* global variables for encoder interupt routines */
+/* global variables for encoder interrupt routines */
 
 volatile unsigned short encoder1_count;
 volatile unsigned short encoder2_count;
@@ -23,7 +23,7 @@ static short encoder2_speed;
 static unsigned char prevSample[MAX_SAMPLES];
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------
-// Interupt routines to handle Shaft Encoder Inputs
+// Interrupt routines to handle Shaft Encoder Inputs
 
 SIGNAL(SIG_INTERRUPT0)
 {
@@ -36,7 +36,7 @@ SIGNAL(SIG_INTERRUPT1)
 }
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------
-// Setup inputs for Interupt on Change
+// Setup inputs for Interrupt on Change
 // Pins IN0 & IN1 - PortD 2:3
 
 void Encoder_Init(void)
@@ -49,8 +49,8 @@ void Encoder_Init(void)
   encoder1_count = 0;
   encoder2_count = 0;
   
-  MCUCR |= ((1<<ISC10) | (1<<ISC00));	// Any logical change generates interupt
-  GICR |= ((1<<INT0) | (1<<INT1));		// Enable Enternal Interupts on Pins IN0 & IN1
+  MCUCR |= ((1<<ISC10) | (1<<ISC00));	// Any logical change generates interrupt
+  GICR |= ((1<<INT0) | (1<<INT1));		// Enable Enternal Interrupts on Pins IN0 & IN1
 }
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -59,9 +59,9 @@ void Encoder_reset(unsigned char channelNum)
 {
 	if (channelNum == MOTOR1_SHAFT_ENCODER)
 		{
-		GICR &= ~(1<<INT0);		// Disable Enternal Interupts on Pins IN0
+		GICR &= ~(1<<INT0);		// Disable Enternal Interrupts on Pins IN0
 		encoder1_count = 0;
-		GICR |= (1<<INT0);		// Enable Enternal Interupts on Pins IN0
+		GICR |= (1<<INT0);		// Enable Enternal Interrupts on Pins IN0
 		}
 	else
 		{
@@ -79,9 +79,9 @@ unsigned short Encoder_read_count(unsigned char channelNum)
 
 	if (channelNum == MOTOR1_SHAFT_ENCODER)
 		{
-		GICR &= ~(1<<INT0);		// Disable Enternal Interupts on Pins IN0
+		GICR &= ~(1<<INT0);		// Disable Enternal Interrupts on Pins IN0
 		encoder_count = encoder1_count;
-		GICR |= (1<<INT0);		// Enable Enternal Interupts on Pins IN0
+		GICR |= (1<<INT0);		// Enable Enternal Interrupts on Pins IN0
 		}
 	else
 		{

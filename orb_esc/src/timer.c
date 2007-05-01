@@ -10,7 +10,7 @@ volatile unsigned short Timer0_ticks;
 volatile unsigned char Timer0_10hz_Flag;
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------
-// Interupt routine to handle Timer0 overflow
+// Interrupt routine to handle Timer0 overflow
 
 SIGNAL(SIG_OVERFLOW0)
 {

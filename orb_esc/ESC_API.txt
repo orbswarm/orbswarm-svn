@@ -1,6 +1,6 @@
 Swarm Orb Electronic Speed Control API
-v14.0
-30-April-2007
+v14.1
+1-May-2007
 Petey the Programmer
 
 -----------------
@@ -13,10 +13,12 @@ Chanage Log
 	v13.0	Write Steering & Motor PID values to EEPROM
 			Add Fail Safe function to prevent Orb run-away if com link fails.
 			Added Ki factor to steering PID
-			
+	v14.1	Added IMU formatted output
+	
 -----------------
 
-The API into the speed controller is an ASCII based serial protocol.
+The API into the speed controller is an ASCII based 38.4k baud serial protocol.
+
 The commands to the ESC (electronic speed control) all start with a dollar sign '$' and end with an asterisk '*'.  Only chars between these two delimiters will be processed - anything else is ignored.  (which means you can add CR-LF after the * so they are read-able on a terminal for debugging, and the ESC will ignore them.)
 
 Most commands consist of a single ascii chr, followed by a numeric value.
@@ -28,6 +30,15 @@ The ESC has an internal buffer of 32 bytes, and processes chars very quickly, bu
 The only commands needed to operate the Orb are Stop, Set_Drive_PWM, Set_Drive_Torque and Set_Steering_Position.
 
 All of the "Set Gain" and "PID" commands are for testing, debug, and tuning.
+
+---
+
+The 5DOF IMU (5 degrees of freedom, Inertial Measurement Unit - from Spark Fun Electronics) consists of 2 rate gyros, and 3 accelerometers.  The output from this device is read by the A2D converters, formated just like the GPS data, and output 10 times per second.
+
+IMU sample output:  "$IMU,0,500,512,985,23,635,1023,435*C5"
+
+Sequence is: Speed, Steer, xGyro, yGyro, xAccel, yAccel, zAccel, vRef * checksum
+Checksum is 8-Bit XOR of everything between $ and * (not including $ or *)
 
 -----------------
 

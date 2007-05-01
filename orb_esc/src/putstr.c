@@ -8,7 +8,7 @@
 // Send a string of chars out the UART port.
 // Chrs are put into circular ring buffer.
 // Routine returns immediately unless no room in Ring Buf. 
-// Interupts Transmit chrs out of ring buf.
+// Interrupts Transmit chrs out of ring buf.
 
 void putstr(char *str)
 {

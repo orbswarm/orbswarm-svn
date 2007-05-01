@@ -20,10 +20,10 @@ void eeprom_Write(unsigned short addr, unsigned char val)
     while(EECR & (1 << EEWE));
     EEAR = addr;
     EEDR = val;
-    cli();					// turn OFF interupts
+    cli();					// turn OFF interrupts
     EECR |= (1 << EEMWE);	// setup to write to eeprom
     EECR |= (1 << EEWE);	// must follow within 4 cycles -- therefore cli()
-    sei();					// turn interupts back ON
+    sei();					// turn interrupts back ON
 }
 
 unsigned char eeprom_Read(unsigned short addr)

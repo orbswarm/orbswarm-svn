@@ -39,7 +39,7 @@ static volatile unsigned char UART_TxTail;
 
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------
-// Init UART - Enable Rx Interupts
+// Init UART - Enable Rx Interrupts
 
 void UART_Init( unsigned int baud ) 
 { 

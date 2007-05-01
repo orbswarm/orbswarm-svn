@@ -7,7 +7,7 @@
 #include <avr/io.h>
 #include "a2d.h"
  
-// Static variables holding the last value from the ADC
+// Static variables holding the latest values from the ADC
 
 static unsigned short ADValue[8];
 

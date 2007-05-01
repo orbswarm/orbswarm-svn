@@ -2,51 +2,53 @@
 Burning Man Swarm-Orb
 Petey the Programmer '07
 Created: 6-Apr-07
-Last Modified: 30-Apr-07
-Version 14.0
+Last Modified: 1-May-07
+Version 14.1
 
 -- main.c --
 
 Project: ORB Electronc Speed Control for ATMega8 chip
 
 	Features: 
-		Interupt driven Hardware UART for receiving commands via RS-232 port.
+		Interrupt driven Hardware UART for receiving commands via RS-232 port.
 		2 channels of hardware PWM for Drive Motor & Steering Motor control.
-		2 channels of A/D converters for Current Sense on Motor1 and Steering Feedback pot.
-		2 channels of interupt on change inputs for shaft encoders.
+		8 channels of A/D converters for Motor Current, Steering Feedback, and 5DOF IMU.
+		2 channels of interrupt on change inputs for shaft or Quadrature encoders.
 		API supports tuning of PIDs via serial input - can use XBee for remote tuning.
 		
 ----------------------
 
 Change Log
 
-	v1 : Interupt driven Background timer.
+	v1 : Interrupt driven Background timer.
 	v2 : polled USART routines.
-	v3 : Interupt driven USART routines.
+	v3 : Interrupt driven USART routines.
 	v4 : Now handles processing Command Strings.
 	v6 : PWM working.
 	v7 : Move to ATMega8 chip - get A2D functions working.
 	v8 : Added Timer0 .. Re-name A2D files.
 	v9 : Hardware H-Bridge connected.  Works.  XBee connected.  Works.
-		 Added Wheel Encoder interupts.
+		 Added Wheel Encoder interrupts.
 		 Renamed some files and functions, clean up a little.
    v10 : Add PID function framework - need real motors before tuning can begin.
 		 Framework is now pretty much done.  Need specific API for Commands.
    v11 : Get Steering Servo functions working.
    v12 : Change to Open Source Speed Controller (OSSC) H-Bridge Hardware.
    v13 : Save PID params to eeprom.  Rework A2D code - setup for IMU & oversampling.
-		 Change encoder from interupts to polling for Quadrature encoder.
-		 and changed back again to interupts for single dir sprocket encoder.
+		 Change encoder from interrupts to polling for Quadrature encoder.
+		 and changed back again to interrupts for single dir sprocket encoder.
 		 Added Fail Safe cmd.  1 second w/o com data, Orb will stop.
  v13.4 : Added iTerm to Steering PID function.
 		 Added Velocity / Torque PID control.
+ v14.1 : Added 5DOF IMU output.
+		 IMU, Orb Speed, and Steering data is output 10 times per second to Linux Brain
 		 
 ----------------------
 
 	Port Pin Assignments:
 	
 	USART	PortD 0:1	Rx/Tx Rs-232
-	Shaft	PortD 2:3	Interupt on change shaft encoder inputs
+	Shaft	PortD 2:3	Interrupt on change shaft encoder inputs
 	ESC		PortD 4:5	Motor2 Dir/Disable Pins - outputs
 	ESC		PortD 6:7	Motor1 Dir/Disable Pins - outputs
 	PWM		PortB 1:2	Motor 1&2 PWM Outputs
@@ -67,10 +69,10 @@ Change Log
 #include "encoder.h"
 #include "a2d.h"
 #include "steering.h"
+#include "IMU.h"
 
 #define ON	1
 #define OFF 0
-
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Prototypes
@@ -101,7 +103,6 @@ extern volatile unsigned char Timer0_10hz_Flag;
 
 volatile uint8_t Debug_Output;
 
-
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Init hardware
 // This stuff is very chip dependant
@@ -131,7 +132,7 @@ void Init_Chip(void)
 
 // ---
 
-	putstr("\r\n--- Orb ESC v14.0 ---\r\n");
+	putstr("\r\n--- Orb ESC v14.1 ---\r\n");
 	pause();
 	
 //	turn_LED(4,OFF);	// ports come up set to zero, LEDs are inverted.
@@ -175,6 +176,9 @@ int main (void)
 			Motor_do_motor_control(using_iTerm_PID);
 		
 		Steering_do_Servo_Task();
+
+// IMU isn't installed yet...
+		IMU_output_data_string();		// Send out 5DOF IMU data to Central Linux Brain
 		}
 		
   } // forever loop
@@ -205,8 +209,10 @@ unsigned char build_up_command_string(unsigned char c)
 }
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// we have a complete command string - execute the command.
+// We have a complete command string - execute the command.
 // Command_String looks like "$A 25*" or "$s -35*" for now.
+// While testing / tuning, we're sending out feedback about the commands.  
+// This might change. (brain should know what it sent - no need to clog data stream)
 
 void process_command_string(void)
 {
@@ -242,7 +248,7 @@ void process_command_string(void)
 				}			
 			break;
 		
-		case 's':	// set steering  -512 .. 0 .. 512 --- needs to change to 0-100%
+		case 's':	// set steering  -512 .. 0 .. 512 --- change to 0-100% ???
 			putstr("Steer: ");
 			putS16( theData );
 			putstr("\r\n");
@@ -262,22 +268,12 @@ void process_command_string(void)
 			Steering_dump_data();
 			break;
 		
-		case 'P':	// Select which PID to use
+		case 'P':	// Select which PID to use - user should also reset PID gain values.
 			using_iTerm_PID = theData;
 			if (using_iTerm_PID)
-				{
 				putstr("Using iTerm PID\r\n");
-				Motor_set_Kp(8);
-				Motor_set_Kd(10);
-				Motor_set_Ki(4);
-				}
 			else
-				{
 				putstr("Using Std PID\r\n");
-				Motor_set_Kp(4);
-				Motor_set_Kd(4);
-				Motor_set_Ki(1);
-				}
 			break;
 		
 		case 'V':	// Select either Velocity or Torque PID control

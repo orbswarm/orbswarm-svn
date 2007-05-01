@@ -1,4 +1,4 @@
-# Makefile for orb_ESC v10 - Orb Electronic Speed Control code
+# Makefile for orb_ESC v14 - Orb Electronic Speed Control code
 # Setup to run on ATMeag8 chip
 # Compiled using avr-gcc 4.02-1
 
@@ -37,13 +37,17 @@ motor.o: motor.c encoder.h UART.h putstr.h motor.h eprom.h
 steering.o: steering.c a2d.h motor.h steering.h eprom.h
 	avr-gcc -c -g -O3 -Wall -mmcu=atmega8 -I. steering.c -o steering.o
 
+# compile IMU.c into IMU.o
+IMU.o: IMU.c IMU.h a2d.h UART.h putstr.h encoder.h steering.h motor.h
+	avr-gcc -c -g -O3 -Wall -mmcu=atmega8 -I. IMU.c -o IMU.o
+
 # compile main.c into main.o
-main.o: main.c a2d.h putstr.h motor.h steering.h encoder.h timer.h eprom.h
+main.o: main.c a2d.h putstr.h motor.h steering.h encoder.h timer.h eprom.h IMU.h
 	avr-gcc -c -g -O3 -Wall -mmcu=atmega8 -I. main.c -o main.o
 
 # link up obj files into orb_ESC.elf
-orb_ESC.elf: eprom.o UART.o putstr.o timer.o encoder.o motor.o steering.o a2d.o main.o
-	avr-gcc eprom.o UART.o putstr.o timer.o encoder.o motor.o steering.o a2d.o main.o -Wl,-Map=orb_ESC.map,--cref -mmcu=atmega8 -o orb_ESC.elf
+orb_ESC.elf: eprom.o UART.o putstr.o timer.o encoder.o motor.o steering.o a2d.o IMU.o main.o
+	avr-gcc eprom.o UART.o putstr.o timer.o encoder.o motor.o steering.o a2d.o IMU.o main.o -Wl,-Map=orb_ESC.map,--cref -mmcu=atmega8 -o orb_ESC.elf
 
 # copy ROM (FLASH) object out of orb_ESC.elf into orb_ESC.rom
 orb_ESC.rom: orb_ESC.elf
