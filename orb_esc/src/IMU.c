@@ -1,6 +1,6 @@
 /* IMU.c */
 
-// Version 14.1
+// Version 14.2
 // Date: 1-May-2007
 // Petey the Programmer
 
@@ -22,16 +22,21 @@ void num_to_Str( short v, char *str);
 // Send out the data from the 5DOF IMU, plus the steering and motor data.
 // Format the data just like that comming from the GPS units.
 //
-// Output String: "$IMU,0,500,512,985,23,635,1023,435*C5"
+// Output String: "$IMU,0,512,985,23,635,1023,435*C5"
 //
-// Sequence is: Speed, Steer, xGyro, yGyro, xAccel, yAccel, zAccel, vRef * checksum
+// Sequence is: Speed, xGyro, yGyro, xAccel, yAccel, zAccel, vRef * checksum
 // Checksum is XOR of everything between $ and * (not including $ or *)
 //
 // 5DOF unit puts out 5 signals, 1 for each measurement, plus a reference voltage.
 // Unit uses 3.3v max output.  A2D is setup using 3.3v as its AD_vRef for full scale input.
 // Each measurement is a 10 bit number [0..1023] centered at 512
 // vRef is 1.23v reference signal.
-
+//
+// Steering Axle tilt and Ballast box swing angle can be calculated using the
+// raw accelerometer data via the arctan function:
+// Steering_Axle_tilt = atan(yAccel-512, zAccel-512)
+// Ballast_Swing_Angle = atan(xAccel-512, zAccel-512)
+//
 
 void IMU_output_data_string(void)
 {
@@ -44,11 +49,6 @@ void IMU_output_data_string(void)
 	putstr(theStr);
 	
 	v = Encoder_read_speed(MOTOR1_SHAFT_ENCODER);
-	num_to_Str(v,theStr);
-	calc_check_sum( &checkSum, theStr );
-	putstr(theStr);
-	
-	v = Steering_Read_Position();
 	num_to_Str(v,theStr);
 	calc_check_sum( &checkSum, theStr );
 	putstr(theStr);
