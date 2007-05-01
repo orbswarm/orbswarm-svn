@@ -35,10 +35,16 @@ All of the "Set Gain" and "PID" commands are for testing, debug, and tuning.
 
 The 5DOF IMU (5 degrees of freedom, Inertial Measurement Unit - from Spark Fun Electronics) consists of 2 rate gyros, and 3 accelerometers.  The output from this device is read by the A2D converters, formated just like the GPS data, and output 10 times per second.
 
-IMU sample output:  "$IMU,0,500,512,985,23,635,1023,435*C5"
+IMU sample output:  "$IMU,0,512,985,23,635,1023,435*C5"
 
-Sequence is: Speed, Steer, xGyro, yGyro, xAccel, yAccel, zAccel, vRef * checksum
+Sequence is: Speed, xGyro, yGyro, xAccel, yAccel, zAccel, vRef * checksum
 Checksum is 8-Bit XOR of everything between $ and * (not including $ or *)
+
+Steering Axle tilt and Ballast box Swing Angle can be calculated using the
+raw accelerometer data via the arctan function:
+
+	Steering_Axle_tilt = atan(yAccel-512, zAccel-512)
+	Ballast_Swing_Angle = atan(xAccel-512, zAccel-512)
 
 -----------------
 
