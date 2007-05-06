@@ -1,3 +1,15 @@
+<<<<<<< .mine
+This directory contains code for Pete's ESC (Electronic speed control). 
+Of interest for those interfacing with it is the serial api. 
+This is documented in ESC_API.txt. If you change anything, be sure to update the API documentation!
+
+This is ATMEL AVR code using WinAVR utilities to compile/download
+
+I assume ATMEGA8515
+
+UART operates at 9600 baud, on pins PD0 and PD1
+
+=======
 This directory contains code for Pete's ESC (Electronic Speed Control). 
 Of interest for those interfacing with it is the serial api. 
 This is documented in ESC_API.txt. 
@@ -18,3 +30,4 @@ See the ESC-API.txt for info on the serial commands used to control the ESC.
 
 Petey the Programmer.
 30-Apr-07
+>>>>>>> .r11
