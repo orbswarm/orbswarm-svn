@@ -2,17 +2,17 @@
 //
 //	File: encoder.c
 //
-//	Wheel & Shaft Encoders for Orb Motor & Steering Control
+//	Wheel/Shaft Encoders for Orb Motor Control Unit
 //
-//	Version 14.0
-//	30-Apr-2007
+//	Version 14.3
+//	7-May-2007
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #include <avr/signal.h>  
 #include <avr/io.h>
 #include "encoder.h"   
 
-/* global variables for encoder interrupt routines */
+/* Variables for encoder interrupt routines */
 
 volatile unsigned short encoder1_count;
 volatile unsigned short encoder2_count;
@@ -21,6 +21,8 @@ static short encoder2_speed;
 
 #define MAX_SAMPLES	10
 static unsigned char prevSample[MAX_SAMPLES];
+
+void Encoder_reset(unsigned char channelNum);
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Interrupt routines to handle Shaft Encoder Inputs
@@ -114,7 +116,6 @@ void Encoder_sample_speed(unsigned char channelNum)
 		}
 	else
 		encoder2_speed = theCount;
-
 }
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -134,7 +135,6 @@ unsigned short Encoder_read_speed(unsigned char channelNum)
 		}
 	else
 		return encoder2_speed;
-	
 }
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------

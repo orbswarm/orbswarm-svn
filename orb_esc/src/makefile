@@ -1,9 +1,9 @@
-# Makefile for orb_ESC v14 - Orb Electronic Speed Control code
+# Makefile for Orb_MCU v14 - Orb Motor Control Unit
 # Setup to run on ATMeag8 chip
 # Compiled using avr-gcc 4.02-1
 
 # default target when "make" is run w/o arguments
-all: orb_ESC.rom
+all: Orb_MCU.rom
 
 # compile UART.c into UART.o
 UART.o: UART.c UART.h
@@ -45,17 +45,17 @@ IMU.o: IMU.c IMU.h a2d.h UART.h putstr.h encoder.h steering.h motor.h
 main.o: main.c a2d.h putstr.h motor.h steering.h encoder.h timer.h eprom.h IMU.h
 	avr-gcc -c -g -O3 -Wall -mmcu=atmega8 -I. main.c -o main.o
 
-# link up obj files into orb_ESC.elf
-orb_ESC.elf: eprom.o UART.o putstr.o timer.o encoder.o motor.o steering.o a2d.o IMU.o main.o
-	avr-gcc eprom.o UART.o putstr.o timer.o encoder.o motor.o steering.o a2d.o IMU.o main.o -Wl,-Map=orb_ESC.map,--cref -mmcu=atmega8 -o orb_ESC.elf
+# link up obj files into Orb_MCU.elf
+Orb_MCU.elf: eprom.o UART.o putstr.o timer.o encoder.o motor.o steering.o a2d.o IMU.o main.o
+	avr-gcc eprom.o UART.o putstr.o timer.o encoder.o motor.o steering.o a2d.o IMU.o main.o -Wl,-Map=Orb_MCU.map,--cref -mmcu=atmega8 -o Orb_MCU.elf
 
-# copy ROM (FLASH) object out of orb_ESC.elf into orb_ESC.rom
-orb_ESC.rom: orb_ESC.elf
-	avr-objcopy -O ihex orb_ESC.elf orb_ESC.rom
+# copy ROM (FLASH) object out of Orb_MCU.elf into Orb_MCU.rom
+Orb_MCU.rom: Orb_MCU.elf
+	avr-objcopy -O ihex Orb_MCU.elf Orb_MCU.rom
 
 # command to program chip 
 install:
-	avrdude -p m8 -U flash:w:orb_ESC.rom
+	avrdude -p m8 -U flash:w:Orb_MCU.rom
 
 # command to clean up junk (not source files) (invoked by "make clean")
 clean:

@@ -1,13 +1,14 @@
 /************************************************
-Burning Man Swarm-Orb
-Petey the Programmer '07
+Burning Man Swarm-Orb Motor Control Unit
+http://www.orbswarm.com
+Written by Petey the Programmer '07
 Created: 6-Apr-07
-Last Modified: 1-May-07
-Version 14.1
+Last Modified: 7-May-07
+Version 14.3
 
 -- main.c --
 
-Project: ORB Electronc Speed Control for ATMega8 chip
+Project: ORB Motor Control Unit for ATMega8 chip
 
 	Features: 
 		Interrupt driven Hardware UART for receiving commands via RS-232 port.
@@ -52,7 +53,7 @@ Change Log
 	ESC		PortD 4:5	Motor2 Dir/Disable Pins - outputs
 	ESC		PortD 6:7	Motor1 Dir/Disable Pins - outputs
 	PWM		PortB 1:2	Motor 1&2 PWM Outputs
-	ADC		PortC 0:1	A/D converter inputs 0..+5volts	
+	ADC		PortC 0:7	A/D converter inputs 0..+5volts	
 	LED		PortC 5		Heartbeat LED on Olimex Board
 	
 ************************************************/
@@ -132,7 +133,7 @@ void Init_Chip(void)
 
 // ---
 
-	putstr("\r\n--- Orb ESC v14.1 ---\r\n");
+	putstr("\r\n--- Orb MCU v14.3 ---\r\n");
 	pause();
 	
 //	turn_LED(4,OFF);	// ports come up set to zero, LEDs are inverted.

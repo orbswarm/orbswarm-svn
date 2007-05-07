@@ -1,33 +1,23 @@
-<<<<<<< .mine
-This directory contains code for Pete's ESC (Electronic speed control). 
-Of interest for those interfacing with it is the serial api. 
-This is documented in ESC_API.txt. If you change anything, be sure to update the API documentation!
-
-This is ATMEL AVR code using WinAVR utilities to compile/download
-
-I assume ATMEGA8515
-
-UART operates at 9600 baud, on pins PD0 and PD1
-
-=======
-This directory contains code for Pete's ESC (Electronic Speed Control). 
-Of interest for those interfacing with it is the serial api. 
-This is documented in ESC_API.txt. 
+This directory contains code for the Orb's Motor Control Unit (MCU)
+Of interest for those interfacing with it is the Serial API. 
+This is documented in MCU_API.txt. 
 If you change anything, be sure to update the API documentation!
 
-
-
 This code runs on an ATMEL Atmega8 chip, running at 8.0 Mhz.
-
 It was compiled on a Mac running OS-X using avr-gcc 4.02, and was downloaded to the Chip 
 using AvrDude and the ATMEL STK500 dev board / programmer.
 
 (It will also compile using AVR Studio 4 running on Windows)
 
-The current version (13.4 of 29-April-2007) is setup for +5volt operation, and talks to the OSSC H-Bridge Hardware.
+The current version (14.3 of 7-May-2007) is setup for +5 volt VCC operation, and talks to the OSSC H-Bridge Hardware.
 
-See the ESC-API.txt for info on the serial commands used to control the ESC.
+The schematic for wiring the MCU is shown in MCU_Schematic.pdf
+NOTE: The schematic shows the Analogue to Digital converter unit wired for AVREF operation at 3.3 volts.
+The current code (v14.3) is still setup for AVCC ref of +5 volts. (AVREF not connected)
+There is a define in a2d.c that sets up the ADC for either +5v AVCC ref or +3.3v AVREF operation.
+
+See the MCU-API.txt for info on the serial commands used to control the MCU.
 
 Petey the Programmer.
-30-Apr-07
->>>>>>> .r11
+7-May-2007
+

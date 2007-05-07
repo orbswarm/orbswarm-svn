@@ -1,6 +1,7 @@
-Swarm Orb Electronic Speed Control API
-v14.1
-1-May-2007
+Swarm Orb Motor Control Unit API
+http://www.orbswarm.com
+v14.3
+7-May-2007
 Petey the Programmer
 
 -----------------
@@ -14,18 +15,19 @@ Chanage Log
 			Add Fail Safe function to prevent Orb run-away if com link fails.
 			Added Ki factor to steering PID
 	v14.1	Added IMU formatted output
+	v14.3   Add ability to output signed value for Orb_Speed in IMU output
 	
 -----------------
 
-The API into the speed controller is an ASCII based 38.4k baud serial protocol.
+The API into the motor controller is an ASCII based 38.4k baud serial protocol.
 
-The commands to the ESC (electronic speed control) all start with a dollar sign '$' and end with an asterisk '*'.  Only chars between these two delimiters will be processed - anything else is ignored.  (which means you can add CR-LF after the * so they are read-able on a terminal for debugging, and the ESC will ignore them.)
+The commands to the Motor Control Unit (MCU) all start with a dollar sign '$' and end with an asterisk '*'.  Only chars between these two delimiters will be processed - anything else is ignored.  (which means you can add CR-LF after the * so they are read-able on a terminal for debugging, and the MCU will ignore them.)
 
 Most commands consist of a single ascii chr, followed by a numeric value.
 An example is Set_Drive_Torque, the Cmd is the letter 't'.  The numeric values range from -100 to +100, as a percent of total available torque.  (We can change the precision if we want, to -1000 to +1000 to represent 100.0 percent)  A single space can be added between the Cmd and numeric values for read-ability if desired.  (the space is ignored)
-To set the torque to 50% The chars sent to the ESC will be:  $t50* or $t 50*  
+To set the torque to 50% The chars sent to the MCU will be:  $t50* or $t 50*  
 
-The ESC has an internal buffer of 32 bytes, and processes chars very quickly, but if more than 32 chars are sent at once (I don't know why you would) it may over run the buffer. (I've never over run it)  All chars are processed within 0.1ms of being received. (160,000 chars per second)  Commands execute as soon as the * char is received.
+The MCU has an internal buffer of 32 bytes, and processes chars very quickly, but if more than 32 chars are sent at once (I don't know why you would) it may over run the buffer. (I've never over run it)  All chars are processed within 0.1ms of being received. (160,000 chars per second)  Commands execute as soon as the * char is received.
 
 The only commands needed to operate the Orb are Stop, Set_Drive_PWM, Set_Drive_Torque and Set_Steering_Position.
 
@@ -43,8 +45,8 @@ Checksum is 8-Bit XOR of everything between $ and * (not including $ or *)
 Steering Axle tilt and Ballast box Swing Angle can be calculated using the
 raw accelerometer data via the arctan function:
 
-	Steering_Axle_tilt = atan(yAccel-512, zAccel-512)
-	Ballast_Swing_Angle = atan(xAccel-512, zAccel-512)
+	Steering_Axle_tilt = atan2(yAccel-512, zAccel-512)
+	Ballast_Swing_Angle = atan2(xAccel-512, zAccel-512)
 
 -----------------
 
@@ -88,7 +90,7 @@ Motor_Drive = (P_Factor * Kp) + (D_Factor * Kd) + (I_Factor * Ki)
 Actual values depend on which PID function is being used.
 The values are NOT saved to EPROM, and if changed, must be reset after each re-boot. Once we like the values, I will burn them into the startup code.
 
-The default startup values for the ESC are:
+The default startup values for the MCU are:
 	Use the iTerm PID (P1)
 	Kp = 8
 	Ki = 10
@@ -209,7 +211,7 @@ Fail_Safe
 ---------------
 
 Dump_Data
-	Request the ESC to return debug data about motor, steering & PIDs
+	Request the MCU to return debug data about motor, steering & PIDs
 	Cmd: '?'
 	Response is dependant on what I'm debugging.  See code for format & details.
 	Example response:

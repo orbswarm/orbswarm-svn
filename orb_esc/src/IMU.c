@@ -1,7 +1,7 @@
 /* IMU.c */
 
-// Version 14.2
-// Date: 1-May-2007
+// Version 14.3
+// Date: 7-May-2007
 // Petey the Programmer
 
 #include <avr/io.h>
@@ -34,14 +34,14 @@ void num_to_Str( short v, char *str);
 //
 // Steering Axle tilt and Ballast box swing angle can be calculated using the
 // raw accelerometer data via the arctan function:
-// Steering_Axle_tilt = atan(yAccel-512, zAccel-512)
-// Ballast_Swing_Angle = atan(xAccel-512, zAccel-512)
+// Steering_Axle_tilt = atan2(yAccel-512, zAccel-512)
+// Ballast_Swing_Angle = atan2(xAccel-512, zAccel-512)
 //
 
 void IMU_output_data_string(void)
 {
 	char checkSum = 0;
-	char theStr[] = "$IMU\0\0";		// must be at least 6 chrs long
+	char theStr[] = "$IMU\0\0\0\0";		// must be at least 7 chrs long: ",-1023\0"
 	uint8_t n;
 	short v;
 	
@@ -101,10 +101,15 @@ void check_sum_to_HexStr( char checkSum, char *str)
 
 void num_to_Str( short v, char *str)
 {
-	uint8_t n = 1;
+	uint8_t n = 0;
 	short mx, maxVal = 0;
 	
-	str[0] = ',';
+	str[n++] = ',';	
+	if (v < 0) 
+		{
+		str[n++] = '-';
+		v = -v;
+		}
 	
 	if (v > 10) maxVal = 10;
 	if (v > 100) maxVal = 100;
