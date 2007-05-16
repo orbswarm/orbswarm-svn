@@ -1,7 +1,7 @@
 /* IMU.c */
 
-// Version 14.3
-// Date: 7-May-2007
+// Version 14.4
+// Date: 16-May-2007
 // Petey the Programmer
 
 #include <avr/io.h>
@@ -110,10 +110,11 @@ void num_to_Str( short v, char *str)
 		str[n++] = '-';
 		v = -v;
 		}
+	if (v > 1-24) v = 1024;
 	
-	if (v > 10) maxVal = 10;
-	if (v > 100) maxVal = 100;
-	if (v > 1000) maxVal = 1000;
+	if (v > 9) maxVal = 10;
+	if (v > 99) maxVal = 100;
+	if (v > 999) maxVal = 1000;
 	
 	if (maxVal)
 	for (mx = maxVal; mx > 1; mx = mx / 10)
