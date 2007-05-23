@@ -1,7 +1,7 @@
 // steering.c - Steering motor control functions for Swarm Orb-Bot
 //
 // Version 14.0
-// Last Update: 30-Apr-07
+// Last Update: 23-May-07
 // Petey the Programmer
  
 #include <avr/io.h>
@@ -31,17 +31,18 @@ static short iSum;
 extern volatile uint8_t Debug_Output;	// flag for outputing PID tuning info
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------
+// New inital values provided by Jon & Michael 20-May-07
 
 void Steering_Init(void)
 {
 	target_Pos = 0;		// start with steering centered
-	Kp = 10;			// this will be divided by 10 for fractional gain values
-	Ki = 0;
+	Kp = 16;			// this will be divided by 10 for fractional gain values
+	Ki = 20;
 	Kd = 10;
-	dead_band = 20;		// Set high to stop chatter, decrease for precision
-	minDrive = 15;
-	maxDrive = 100;
-	maxAccel = 10;
+	dead_band = 10;		// Set high to stop chatter, decrease for precision
+	minDrive = 60;
+	maxDrive = 200;
+	maxAccel = 255;
 	crntPWM = 0;
 	iSum = 0;
 	last_pos_error = 0;
