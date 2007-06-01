@@ -109,7 +109,7 @@ include makelib.mk
 
 # Combine all necessary flags and optional flags.
 # Add target processor to flags.
-ALL_CFLAGS = -I$(LIB_SRC) $(CFLAGS)
+ALL_CFLAGS = -I$(LIB_SRC) -I$(GLOBAL_SHARED_INCLUDE)  $(CFLAGS)
 ALL_ASFLAGS = -mmcu=$(MCU) -I$(LIB_SRC)  -I$(GLOBAL_SHARED_INCLUDE) -x assembler-with-cpp $(ASFLAGS)
 
 
