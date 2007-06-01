@@ -3,7 +3,7 @@ MCU = atmega8
 F_CPU =16000000   
 MYSRC = $(SVN_TRUNK)/aggregator/aggregator_src/c
 MYBIN = $(SVN_TRUNK)/aggregator/binaries
-
+GLOBAL_SHARED_INCLUDE = $(SVN_TRUNK)/shared/include
 #TARGET=uart_test
 TARGET=timer0_test
 
@@ -110,7 +110,7 @@ include makelib.mk
 # Combine all necessary flags and optional flags.
 # Add target processor to flags.
 ALL_CFLAGS = -I$(LIB_SRC) $(CFLAGS)
-ALL_ASFLAGS = -mmcu=$(MCU) -I$(LIB_SRC)  -x assembler-with-cpp $(ASFLAGS)
+ALL_ASFLAGS = -mmcu=$(MCU) -I$(LIB_SRC)  -I$(GLOBAL_SHARED_INCLUDE) -x assembler-with-cpp $(ASFLAGS)
 
 
 # Eye candy.
