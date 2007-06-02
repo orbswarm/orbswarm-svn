@@ -414,7 +414,7 @@ void check_heart_beat(unsigned char *state)
 {
 //	short theData;
 	
-	if (Timer0_ticks > 511) {	//  512 tics per second - heart-beat LED
+	if (Timer0_ticks > TICKS_PER_SECOND) {	//  490 tics per second - heart-beat LED
 		Timer0_reset();
 				
 		if (*state == 0) {
