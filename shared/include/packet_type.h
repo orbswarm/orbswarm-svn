@@ -14,6 +14,8 @@ enum ELinkPacketType {
   eLinkCCS,                   // Command Control and Status
   eLinkConsole,
   eLinkCodeDownload,
+  eLinkLoopback,
+  eLinkSonar,
   eLinkLastPacketType
 };
 
