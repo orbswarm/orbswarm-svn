@@ -1,0 +1,44 @@
+package org.trebor.swarmcon;
+
+   /** This class is linkage to a live orb */
+
+public class LiveModel extends MotionModel
+{
+         /** orb communications object */
+
+      private OrbIo orbIo;
+
+         /** Construct a live motion model which links to a real orb
+          * rolling around in the world.
+          *
+          * @param orbIo the commincations linkn to the physical orb
+          */
+      
+      public LiveModel(OrbIo orbIo)
+      {
+         this.orbIo = orbIo;
+      }
+         /** update the models state */
+
+      public void update(double time)
+      {
+      }
+         /** Get the current velocity of the orb.
+          *
+          * @returns velocity in meters per second
+          */
+
+      public double getVelocity()
+      {
+         return 0;
+      }
+         /** Get the yaw rate of the orb.
+          *
+          * @returns yaw reate in degrees per second
+          */
+      
+      public double getYawRate()
+      {
+         return 0;
+      }
+}
