@@ -1,18 +1,25 @@
-Last updated 21 May 2007 by Robert Harris, orbswarm.com@trebor.org.
+Last updated 12 June 2007 by Robert Harris, orbswarm.com@trebor.org.
 
-OrbSim is intended as a simple simlutor for exploring orb swarm
-behaviors. It could be expanded in a number of usefull ways. :)
+SwarmCon is intended is intended to provide a complete set of swarm
+services including:
+
+   - orb simulation       
+   - a laboratory for development of a library of orb behaviors
+   - a tool for choreographing performances
+   - a real time swarm control interface
 
 Requirements:
 
-- Java 1.5 or later
+   - Java 1.5 or later
+   - Ant 1.6 or later
 
 Features:
 
-- asbstract rate class
-- extensible behavior classe
-- a number of simple behaviors
-- PD orb motions controllers
+   - asbstract rate class
+   - motion model classes
+   - extensible behavior classe
+   - a number of simple behaviors
+   - PD orb motions controllers
 
 -------------------------------------------------------------------------------
 

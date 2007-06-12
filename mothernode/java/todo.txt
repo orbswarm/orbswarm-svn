@@ -1,0 +1,21 @@
+Last updated 12 June 2007 by Robert Harris, orbswarm.com@trebor.org.
+
+The big todo list for SwarmCon:
+
+   - create a new more advanced motion model by extending SimModel class
+   - complete the communcations class OrbIo
+   - complete the live motion model class LiveModel
+   - provide ways to display message
+   - complete Button class
+   - provide ways to specify route
+   - improve control interface
+   - develope orb state display
+   - develope interface to control orb:
+      - behavior/choreography/emergency-stop
+      - lighting
+      - audio
+
+done:
+
+   - check code into subversion (12 June 2007)
+   - create todo list :) (12 June 2007)
