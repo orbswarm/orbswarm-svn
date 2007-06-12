@@ -131,7 +131,7 @@ The text of the MIT license apears in the mit-license.txt file.
       <classpath>
           <fileset refid = "libraries"/>
           <pathelement location = "${build-dir}"/>
-          <pathelement location = "${resources}"/>
+          <pathelement location = "."/>
       </classpath>
     </javac>
   </target>
@@ -148,7 +148,7 @@ The text of the MIT license apears in the mit-license.txt file.
       <classpath>
           <fileset refid = "libraries"/>
           <pathelement location = "${build-dir}"/>
-          <pathelement location = "${resources}"/>
+          <pathelement location = "."/>
       </classpath>
     </java>
   </target>

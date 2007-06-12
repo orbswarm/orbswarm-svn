@@ -11,13 +11,9 @@ public class JarLibrary
          String libname;
          
          if (osname.equals ("Mac OS X")) 
-         {
-	    libname = "./lib/lib" + name + ".jnilib";
-         }
+	    libname = "lib/lib" + name + ".jnilib";
          else
-         {
 	    throw new Exception ("Unsupported platform: \"" + osname + "\"");
-         }
          
          try 
          {
