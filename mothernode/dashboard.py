@@ -10,19 +10,27 @@ import sys
 
 
 # User settings. OK to edit these if you know what you are doing 
-comport = "COM4"
+comport = "COM5"
 baudrate = 38400
+logFileName = 'dash-log.txt'
 
 # User settings: max/min steering and power values. OK to edit!
 powerMax = 25
 powerMin = -25
+powerMax = 40
+powerMin = -40
 steerMax = 100
 steerMin = -100
+
 
 
 # don't edit these
 powerRange = powerMax - powerMin
 steerRange = steerMax - steerMin
+
+
+currentlyLogging = 0 # set if we are writing to the logfile
+
 
 class Dashboard(wx.Frame):
     
@@ -50,6 +58,14 @@ class Dashboard(wx.Frame):
         
         self.CreateStatusBar()
         self.InitSerial(comport,baudrate)
+        self.ser.write('$v16*')  # Kp -- PID prop. gain
+        self.ser.write('$f20*')  # Ki -- PID integral
+        self.ser.write('$e10*')  # Kd -- PID derivative
+        self.ser.write('$b60*')  # Min drive
+        self.ser.write('$c200*') # Max drive
+        self.ser.write('$a255*') # Max accel
+        self.ser.write('$d10*')  # dead band
+       
         self.InitJoystick()
         self.InitTimer(100)
         self.Bind(wx.EVT_TIMER, self.OnTimerEvt)
@@ -106,11 +122,17 @@ class Dashboard(wx.Frame):
         # send any command typed into commandbox
         sendBtn = wx.Button(panel, -1, "Send custom command")
 
+        # start/stop logging command
+        self.logBtn = wx.Button(panel, -1, "Start logging")
+        self.logBtn.SetForegroundColour((0,255,0))
+        self.currentlyLogging = 0 # set if we are writing to the logfile
+        
         # bind the control events to handlers
         self.Bind(wx.EVT_SCROLL, self.OnSlideEvt,self.power)
         self.Bind(wx.EVT_SCROLL, self.OnSlideEvt,self.steer)
         self.Bind(wx.EVT_BUTTON, self.OnStopBtn, stopBtn)
         self.Bind(wx.EVT_BUTTON, self.OnSendBtn, sendBtn)
+        self.Bind(wx.EVT_BUTTON, self.OnLogBtn, self.logBtn)
 
         # Bind commandbox "enter" key to execute command
         self.Bind(wx.EVT_TEXT_ENTER , self.OnSendBtn, self.commandbox)
@@ -131,7 +153,7 @@ class Dashboard(wx.Frame):
             (sendBtn,        0, wx.ALIGN_CENTER),
             (self.commandbox,0, wx.ALIGN_LEFT),
             #fifth row
-            ((20,20),        0, wx.ALIGN_CENTER),
+            (self.logBtn,        0, wx.ALIGN_CENTER),
             (self.resultbox,0, wx.ALIGN_LEFT),
             ])
         panel.SetSizer(bigGrid)
@@ -148,6 +170,21 @@ class Dashboard(wx.Frame):
         """Event handler for the Stop button."""
         self.ser.write("$STOP*")
         self.power.SetValue(0)
+
+    def OnLogBtn(self, evt):
+        """Event handler for the Log button."""
+        if  self.currentlyLogging == 0:
+            # start logging
+            self.currentlyLogging = 1
+            self.logBtn.SetForegroundColour((255,0,0))
+            self.logBtn.SetLabel('Stop logging')
+            self.logfile = open(logFileName,'w')
+            self.logfile.write('opened\n')
+        else:
+            self.logBtn.SetForegroundColour((0,255,0))
+            self.logBtn.SetLabel('Start logging')
+            self.currentlyLogging = 0
+            self.logfile.close
 
     def OnSendBtn(self, evt):
         """Event handler for the Send button.
@@ -180,19 +217,19 @@ class Dashboard(wx.Frame):
     # (This is so commands are not sent too fast as requested by Pete.)
     # (oldpower and oldsteer mimic static vars with immutable Python lists)
 
-    def SendSerial(self,oldpower=[0],oldsteer=[0]):
-        self.statusbox.AppendText(self.ReadSerial())
+    def SendSerial(self,oldpower=[0],oldsteer=[0]): 
+        self.outputStatus(self.ReadSerial())
         power = self.power.GetValue()
         if power != oldpower[0]:
             print "Power: %d" % power
             self.ser.write('$p%d*' % power)
             oldpower[0] = power
-            self.statusbox.AppendText(self.ReadSerial())
+            self.outputStatus(self.ReadSerial())
         steer = self.steer.GetValue()
         if steer != oldsteer[0]:
             print "Steer: %d" % steer
             self.ser.write('$s%d*' % steer)
-            self.statusbox.AppendText(self.ReadSerial())
+            self.outputStatus(self.ReadSerial())
             oldsteer[0] = steer
         # send any queued serial commands
         while (len(self.outQ) > 0) :
@@ -201,7 +238,8 @@ class Dashboard(wx.Frame):
             self.resultbox.AppendText(self.ReadSerial())
         # send status query command:
         self.ser.write('$?*')
-        self.statusbox.AppendText(self.ReadSerial())
+        self.outputStatus(self.ReadSerial())
+ 
             
     def ReadSerial(self):
         incount = self.ser.inWaiting()
@@ -209,10 +247,14 @@ class Dashboard(wx.Frame):
         while (incount > 0):
             readstring += self.ser.read(incount)
             incount = self.ser.inWaiting()
-        #print "got %s" % outstr
+        #print "got %s" % readstring
         return readstring
 
-
+    def outputStatus(self,statusText):
+        #self.statusbox.Clear()
+        self.statusbox.AppendText(statusText)
+        if (self.currentlyLogging):
+            self.logfile.write(statusText)       
 ########################################  joystick handling 
 
     def SendJoyCommand(self):
