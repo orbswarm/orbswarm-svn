@@ -22,8 +22,14 @@ public class SwarmCon extends JFrame
 
          // some general parameters
 
+      public static final double ORB_RADIUS        =   0.5; // meters
       public static final double MAX_VELOCITY      =   0.5; // meters/sec
       public static final double DVELOCITY_DT      =   2.0; // meters/sec
+      public static final double MAX_ROLL          =  45.0; // deg
+      public static final double MAX_ROLL_RATE     =  30.0; // deg/sec
+      public static final double DROLL_RATE_DT     =  10.0; // deg/sec
+      public static final double MAX_PITCH_RATE    = 114.6; // deg/sec
+      public static final double DPITCH_RATE_DT    =  10.0; // deg/sec
       public static final double MAX_YAW_RATE      =  30.0; // deg/sec
       public static final double DYAW_RATE_DT      =  30.0; // deg/sec
       public static final double ORB_DIAMETER      =   1.0; // meters
@@ -80,6 +86,10 @@ public class SwarmCon extends JFrame
          /** last time mobects were updated */
       
       Calendar lastUpdate = Calendar.getInstance();
+
+         /** start time of session */
+
+      Calendar startTime = Calendar.getInstance();
       
          /** format for printing heading values */
       
@@ -194,7 +204,7 @@ public class SwarmCon extends JFrame
          swarm.add(preveouse);
             // construct the swarm
 
-         for (int i = 0; i < INITIAL_ORBS; ++i)
+            //for (int i = 0; i < INITIAL_ORBS; ++i)
          {
                // create an orb
 
@@ -203,11 +213,23 @@ public class SwarmCon extends JFrame
                // add behvaiors
 
             swarm.add(orb);
+            Behavior nb = new Behavior("none")
+               {
+                     double totalTime = 0;
+                     public void update(double time, MotionModel model) 
+                     {
+                        totalTime += time;
+                        double tr = .5 * sin(totalTime / 2) + .5;
+                        double tp = .5 * sin(totalTime / 3) + .5;
+                        model.setTargetRates(tr, 1d);
+                     }
+               };
             Behavior fb = new FollowBehavior(preveouse);
             Behavior rb = new RandomBehavior();
             Behavior cb = new ClusterBehavior();
             Behavior fab = new AvoidBehavior(fb);
             Behavior cab = new AvoidBehavior(cb);
+            orb.add(nb);
             orb.add(fb);
             orb.add(rb);
             orb.add(cb);
@@ -395,7 +417,9 @@ public class SwarmCon extends JFrame
                      g.drawString(
                         orb.getId() + ": " + 
                         (behavior != null ? behavior.toString() : "[none]") +
-                        " H: " + HeadingFormat.format(round(orb.getHeading())) + 
+                        " R: " + HeadingFormat.format(round(orb.getRoll ())) +
+                        " P: " + HeadingFormat.format(round(orb.getPitch())) +
+                        " Y: " + HeadingFormat.format(round(orb.getYaw  ())) +
                         " V: " + round(orb.getVelocity() * 100) / 100d,
                         5, id++ * 15);
 

@@ -27,8 +27,7 @@ public class Orb extends Mobject
 
          /** shape of the orb */
 
-      public static final Shape shape = 
-         scale(createOrbShape(), ORB_DIAMETER, ORB_DIAMETER);
+      private Shape shape;
 
          /** library of behaviors available to the orb */
 
@@ -57,7 +56,6 @@ public class Orb extends Mobject
          this.swarm = swarm;
          id = nextId++;
          randomizePos();
-         model.setPosition(getX(), getY());
       }
          // randomize position of orb
 
@@ -66,6 +64,9 @@ public class Orb extends Mobject
          Rectangle2D.Double arena = swarm.getArena();
          setPosition(arena.getX() + RND.nextDouble() * arena.getWidth(),
                      arena.getY() + RND.nextDouble() * arena.getHeight());
+
+         setPosition(swarm.getCenter());
+         model.setPosition(getX(), getY());
       }
          // get swarm
 
@@ -122,26 +123,29 @@ public class Orb extends Mobject
                behaviors.size());
          }
       }
-         // get orb heading
+         // get orb roll
 
-      public double getHeading()
+      public double getRoll()
       {
-         return model.getHeading();
+         return model.getRoll();
+      }
+         // get orb pitch
+
+      public double getPitch()
+      {
+         return model.getPitch();
+      }
+         // get orb yaw
+
+      public double getYaw()
+      {
+         return model.getYaw();
       }
          // get actual current velocity
 
       public double getVelocity()
       {
          return model.getVelocity();
-      }
-         /** Get the motion model assocated with this orb.
-          *
-          * @returns this orbs motion model
-          */
-
-      public MotionModel getModel()
-      {
-         return model;
       }
          // update positon
 
@@ -150,15 +154,7 @@ public class Orb extends Mobject
             // update the vehicle behavior
 
          if (behavior != null)
-            behavior.update(time);
-
-            // we no longer know what's nearest
-
-         resetNearest();
-
-            // update children
-
-         super.update(time);
+            behavior.update(time, model);
 
             // update the model
 
@@ -167,6 +163,15 @@ public class Orb extends Mobject
             // set location to the model location
 
          setPosition(model.getPosition());
+
+            // update children
+
+         super.update(time);
+
+            // we no longer know what's nearest
+
+         resetNearest();
+
       }
          // get nearest mobject
 
@@ -218,19 +223,40 @@ public class Orb extends Mobject
 
       public void paint(Graphics2D g)
       {
+         shape = scale(createOrbShape(), ORB_DIAMETER, ORB_DIAMETER);
+
          setColor(g, isSelected() ? SEL_ORB_CLR : ORB_CLR);
-         g.fill(translate(rotateAboutCenter(shape, getHeading()),
+         g.fill(translate(rotateAboutCenter(shape, getYaw()),
                           getX(), getY()));
 
          Shape line = new Line2D.Double(0, 0, 0, -1);
-         line = scale(line, getModel().getVelocity(), 
-                      getModel().getVelocity());
-         line = rotate(line, getModel().getTargetHeading());
+         line = scale(line, model.getVelocity(), 
+                      model.getVelocity());
+         line = rotate(line, model.getYaw());
          g.setStroke(new BasicStroke((float)(ORB_DIAMETER / 8),
                                      BasicStroke.CAP_ROUND,
                                      BasicStroke.JOIN_ROUND));
          setColor(g, VECTOR_CRL);
          g.draw(translate(line, getX(), getY()));
          super.paint(g);
+      }
+         // create orb shape
+
+      public Shape createOrbShape()
+      {
+         double strokeWidth = ORB_DIAMETER / 16;
+         double width = sin(toRadians(model.getRoll()));
+         Area area = new Area();
+         area.add(new Area(createCirlcle()));
+         Shape arc = new Arc2D.Double(-abs(width / 2), 
+                                      -(0.5 + strokeWidth / 2),
+                                      abs(width), 1 + strokeWidth,
+                                      width > 0 ? 270 : 90, 180,
+                                      Arc2D.Double.OPEN);
+         Stroke s = new BasicStroke((float)strokeWidth,
+                                    BasicStroke.CAP_ROUND,
+                                    BasicStroke.JOIN_ROUND);
+         area.subtract(new Area(s.createStrokedShape(arc)));
+         return area;
       }
 }

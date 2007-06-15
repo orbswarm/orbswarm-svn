@@ -16,14 +16,12 @@ public class ClusterBehavior extends Behavior
       }
          // update
 
-      public void update(double time)
+      public void update(double time, MotionModel model)
       {
             // head towards centroid
 
-         setTargetHeading(orb.headingTo(orb.getCentroid()));
-
-            // keep nearest guy at safe distance
-
-         setTargetDistance(distance, orb.getNearestDistance());
+         model.setYawDistance(
+            orb.headingTo(orb.getCentroid()),
+            distance - orb.getNearestDistance());
       }
 }

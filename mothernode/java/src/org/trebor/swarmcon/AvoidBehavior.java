@@ -21,12 +21,11 @@ public class AvoidBehavior extends Behavior
       }
          // update
 
-      public void update(double time)
+      public void update(double time, MotionModel model)
       {
             // first compute what the other behavior would do
 
-         other.update(time);
-         cloneValues(other);
+         other.update(time, model);
 
             // nearest is not so near, we're done
 
@@ -37,32 +36,20 @@ public class AvoidBehavior extends Behavior
 
          double nDist = orb.getNearestDistance();
 
-            // set our distance to that of nearest
-
-         setTargetDistance(SAFE_DISTANCE, nDist);
-
             // if inside critical distance take over completely
          
          if (orb.getNearestDistance() < CRITICAL_DISTANCE)
          {
-            setTargetHeading(orb.headingTo(orb.getNearest()));
+            model.setYawDistance(
+               orb.headingTo(orb.getNearest()),
+               SAFE_DISTANCE - orb.getNearestDistance());
             return;
          }
-            // otherwise average two headings weigted by how 
-            // close we are to critical distance
-
-         double weight = (nDist - CRITICAL_DISTANCE) / 
-            (SAFE_DISTANCE - CRITICAL_DISTANCE);
-
-         setTargetHeading(
-            ((other.getTargetHeading() * (1 - weight) + 
-              orb.headingTo(orb.getNearest()) * weight +
-              360) % 360) / 2);
       }
          // overide to string
 
       public String toString()
       {
-         return other.toString() + " and Avoid";
+         return other.toString() + " and " + super.toString();
       }
 }

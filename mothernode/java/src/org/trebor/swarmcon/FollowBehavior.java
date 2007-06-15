@@ -17,13 +17,10 @@ public class FollowBehavior extends Behavior
       }
          // update
 
-      public void update(double time)
+      public void update(double time, MotionModel model)
       {
-         orb.getModel().setHeadingDistance(
+         model.setYawDistance(
             orb.headingTo(target),
             SAFE_DISTANCE - orb.distanceTo(target));
-
-         setTargetHeading(orb.headingTo(target));
-         setTargetDistance(SAFE_DISTANCE, orb.distanceTo(target));
       }
 }

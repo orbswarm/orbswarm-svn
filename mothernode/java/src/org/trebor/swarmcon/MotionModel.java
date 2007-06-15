@@ -1,8 +1,10 @@
 package org.trebor.swarmcon;
 
+import static org.trebor.swarmcon.SwarmCon.*;
+import static java.lang.Math.*;
+
    /** This class models the motion of an orb.  It may be a simulated
     * motion model or a linkage to a live orb */
-
 
 abstract public class MotionModel
 {
@@ -12,13 +14,21 @@ abstract public class MotionModel
 
       private Point position = new Point(0, 0);
 
-         /** heading of orb */
+         /** yaw of orb */
       
-      private double heading;
+      private double yaw;
+
+         /** pitch of orb */
+
+      private double pitch;
+
+         /** roll of orb */
+
+      private double roll;
 
          /** velocity of orb */
 
-      private double velocity;
+      private double velocity = 0;
 
          // ------- rate control parameters --------
 
@@ -30,11 +40,11 @@ abstract public class MotionModel
 
       private double targetVelocity;
 
-         // ------- heading / distance control parameters --------
+         // ------- yaw / distance control parameters --------
 
-         /** target heading */
+         /** target yaw */
 
-      private double targetHeading;
+      private double targetYaw;
 
          /** error between target distance and current distance */
 
@@ -65,8 +75,19 @@ abstract public class MotionModel
           * @returns velocity in meters per second
           */
 
-      abstract public double getVelocity();
+      public double getVelocity()
+      {
+         return velocity;
+      }
+         /** Set the current velocity of the orb.
+          *
+          * @param velocity orb velocity in meters per second
+          */
 
+      protected void setVelocity(double velocity)
+      {
+         this.velocity = velocity;
+      }
          /** Command low level rate control.
           *
           * @param targetYawRate target yaw rate
@@ -79,16 +100,16 @@ abstract public class MotionModel
          this.targetYawRate = targetYawRate;
          this.targetVelocity = targetVelocity;
       }
-         /** Command heading and distance.
+         /** Command yaw and distance.
           *
-          * @param targetHeading target heading
+          * @param targetYaw target yaw
           * @param distanceError error between target and desired distance
           */
 
-      public void setHeadingDistance(double targetHeading, 
+      public void setYawDistance(double targetYaw, 
                                      double distanceError)
       {
-         this.targetHeading = targetHeading % 360;
+         this.targetYaw = targetYaw % 360;
          this.distanceError = distanceError;
       }
          /** Command position.
@@ -100,29 +121,74 @@ abstract public class MotionModel
       {
          targetPosition = target;
       }
-         /** Get target heading */
+         /** Get target yaw. */
       
-      public double getTargetHeading()
+      public double getTargetYaw()
       {
-         return targetHeading;
+         return targetYaw;
       }
-         // get heading
+         // get yaw
 
-      public double getHeading()
+      public double getYaw()
       {
-         return heading;
+         return yaw;
       }
-         // set heading
+         // set yaw
 
-      protected void setHeading(double heading)
+      protected void setYaw(double yaw)
       {
-         this.heading = (heading + 360) % 360;
+         this.yaw = (yaw + 360) % 360;
+      }
+         // set delta yaw
+
+      protected void setDeltaYaw(double dYaw)
+      {
+         setYaw(this.yaw + dYaw);
+      }
+         // get pitch
+
+      public double getPitch()
+      {
+         return pitch;
+      }
+         // set pitch
+
+      protected void setPitch(double pitch)
+      {
+         this.pitch = (pitch + 360) % 360;
+      }
+         // set delta pitch
+
+      protected void setDeltaPitch(double dPitch)
+      {
+         setPitch(this.pitch + dPitch);
+      }
+         // get roll
+
+      public double getRoll()
+      {
+         return roll;
+      }
+         // set roll
+
+      protected double setRoll(double roll)
+      {
+         double newRoll = max(min(MAX_ROLL, roll), -MAX_ROLL);
+         double deltaRoll = newRoll - this.roll;
+         this.roll = newRoll;
+         return deltaRoll;
+      }
+         // set delta roll
+
+      protected double setDeltaRoll(double dRoll)
+      {
+         return setRoll(this.roll + dRoll);
       }
          // reverse the sense of the vehicle
 
       public void reverse()
       {
-         setHeading(getHeading() + 180);
+         setYaw(getYaw() + 180);
       }
          // positon getter 
 
@@ -144,20 +210,20 @@ abstract public class MotionModel
       }
          // position setter
 
-      void setPosition(Point position)
+      protected void setPosition(Point position)
       {
          setPosition(position.getX(), position.getY());
       }
          // position setter
 
-      void setPosition(double x, double y)
+      protected void setPosition(double x, double y)
       {
-         this.position.setLocation(x, y);
+         position.setLocation(x, y);
       }
          // set delta position
 
-      void deltaPosition(double dX, double dY)
+      protected void setDeltaPosition(double dX, double dY)
       {
-         this.position.setLocation(getX() + dX, getY() + dY);
+         setPosition(getX() + dX, getY() + dY);
       }      
 }

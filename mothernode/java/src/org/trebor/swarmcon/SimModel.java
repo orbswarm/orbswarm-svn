@@ -9,65 +9,64 @@ public class SimModel extends MotionModel
 {
          // rates
 
-      private Rate velocity = 
-         new Rate("velocity", -MAX_VELOCITY, MAX_VELOCITY, DVELOCITY_DT);
-      private Rate yawRate  = 
-         new Rate("yaw", -MAX_YAW_RATE, MAX_YAW_RATE, DYAW_RATE_DT);
+      private Rate pitchRate = new Rate(
+         "pitchRate", -MAX_PITCH_RATE, MAX_PITCH_RATE, DPITCH_RATE_DT);
+      private Rate rollRate  = new Rate(
+         "roll", -MAX_ROLL_RATE, MAX_ROLL_RATE, DROLL_RATE_DT);
 
          // controllers
 
-      Controller yawCtrl      = new PDController(0.13f, 10000);
-      Controller velocityCtrl = new PDController(2f, 1000);
+      Controller rollCtrl      = new PDController(0.13f, 10000);
+      Controller pitchRateCtrl = new PDController(2f, 1000);
 
          /** Command low level rate control.
           *
           * @param targetYawRate target yaw rate
-          * @param targetVelocity target velocity
+          * @param targetPitchRate target pitchRate
           */
 
-      public void setTargetRates(double targetYawRate, 
-                                 double targetVelocity)
+      public void setTargetRates(double targetRollRate,
+                                 double targetPitchRate)
       {
-         super.setTargetRates(targetYawRate, targetVelocity);
-         yawRate.setNormalizedTarget(targetYawRate);
-         velocity.setNormalizedTarget(targetVelocity);
+         super.setTargetRates(targetRollRate, targetPitchRate);
+         rollRate.setNormalizedTarget(targetRollRate);
+         pitchRate.setNormalizedTarget(targetPitchRate);
       }
-         /** Command heading and distance.
+         /** Command yaw and distance.
           *
-          * @param targetHeading target heading
+          * @param targetYaw target yaw
           * @param distanceError error between target and desired distance
           */
 
-      public void setHeadingDistance(double targetHeading, 
-                                     double distanceError)
+      public void setYawDistance(double targetYaw, double distanceError)
       {
-         super.setHeadingDistance(targetHeading, distanceError);
+         super.setYawDistance(targetYaw, distanceError);
 
-            // compute heading error
+            // compute yaw error
 
-         double headingError = (getHeading() - getTargetHeading());
+         double yawError = (getYaw() - getTargetYaw());
 
             // if it would be better to reverse direction, do so
          
-         if (abs(headingError) > 90 && abs(headingError) < 270)
+         if (abs(yawError) > 90 && abs(yawError) < 270)
                reverse();
 
-            // set heading goal correcting for heading wrap around
+            // set yaw goal correcting for yaw wrap around
 
-         yawCtrl.setTarget(headingError < -180
-                           ? - (360 - getTargetHeading())
-                           : (headingError > 180 
-                              ? targetHeading + 360
-                              : targetHeading));
+         rollCtrl.setTarget(yawError < -180
+                           ? - (360 - getTargetYaw())
+                           : (yawError > 180 
+                              ? targetYaw + 360
+                              : targetYaw));
 
-            // set velocity goal based on error
+            // set pitchRate goal based on error
 
-         velocityCtrl.setTarget(0);
+         pitchRateCtrl.setTarget(0);
 
             // set target rates
 
-         setTargetRates(yawCtrl.compute(getHeading()),
-                        velocityCtrl.compute(distanceError));
+         setTargetRates(rollCtrl.compute(getYaw()),
+                        pitchRateCtrl.compute(distanceError));
          
       }
          /** Reverse direction of the orb */
@@ -75,28 +74,50 @@ public class SimModel extends MotionModel
       public void reverse()
       {
          super.reverse();
-         velocity.setRate(-velocity.getRate());
+         pitchRate.setRate(-pitchRate.getRate());
       }
          // update positon
 
       public void update(double time)
       {
-            // update velocity and yaw rate
+            // update pitch and roll rate
 
-         velocity.update(time);
-         yawRate.update(time);
+         pitchRate.update(time);
+         rollRate .update(time);
                
-            // if moving, update heading and position
+            // copute delta pitch and roll
+         
+         double dPitch = pitchRate.getRate() * time;
+         double dRoll  =  rollRate.getRate() * time;
 
-         if (velocity.getRate() != 0)
-         {
-            setHeading(getHeading() + yawRate.getRate() * time);
-            deltaPosition(
-               velocity.getRate() * time * 
-               cos(toRadians(getHeading() - 90)),
-               velocity.getRate() * time * 
-               sin(toRadians(getHeading() - 90)));
-         }
+            // update absolute pitch and roll
+
+         setDeltaPitch(dPitch);
+         rollRate.setRate(setDeltaRoll(dRoll ) / time);
+
+            // compute yaw
+
+         setDeltaYaw(toDegrees(sin(toRadians(getRoll())) * 
+                               toRadians(dPitch)));
+
+            //double dYaw = ;
+            //System.out.println(" dp: " + dPitch + 
+            //" dr: " + dRoll + 
+            //" dy: " + dYaw);
+
+            // radius of wide end of the rolling cone
+
+         double p = ORB_RADIUS * cos(toRadians(getRoll()));
+
+            // compute delta x and y
+
+         double dX = toRadians(dPitch) * p * cos(toRadians(getYaw() - 90));
+         double dY = toRadians(dPitch) * p * sin(toRadians(getYaw() - 90));
+         
+            // set position and velocity
+
+         setVelocity(sqrt(pow(dX, 2) + pow(dY, 2)) / time);
+         setDeltaPosition(dX, dY);
       }
          /** Get the yaw rate of the orb.
           *
@@ -105,15 +126,6 @@ public class SimModel extends MotionModel
 
       public double getYawRate()
       {
-         return yawRate.getRate();
-      }
-         /** Get the current velocity of the orb.
-          *
-          * @returns velocity in meters per second
-          */
-
-      public double getVelocity()
-      {
-         return velocity.getRate();
+         return rollRate.getRate();
       }
 }
