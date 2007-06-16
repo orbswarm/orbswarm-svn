@@ -12,6 +12,10 @@ public class JarLibrary
          
          if (osname.equals ("Mac OS X")) 
 	    libname = "lib/lib" + name + ".jnilib";
+         else if (osname.equals ("Linux")) 
+	    libname = "lib/lib" + name + ".so";
+         else if (osname.equals ("Windows")) 
+	    libname = "lib/" + name + ".dll";
          else
 	    throw new Exception ("Unsupported platform: \"" + osname + "\"");
          

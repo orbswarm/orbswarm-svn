@@ -38,7 +38,7 @@ abstract public class MotionModel
 
          /** target velocity */
 
-      private double targetVelocity;
+      private double targetPitchRate;
 
          // ------- yaw / distance control parameters --------
 
@@ -91,14 +91,14 @@ abstract public class MotionModel
          /** Command low level rate control.
           *
           * @param targetYawRate target yaw rate
-          * @param targetVelocity target velocity
+          * @param targetPitchRate target velocity
           */
 
       public void setTargetRates(double targetYawRate, 
-                                 double targetVelocity)
+                                 double targetPitchRate)
       {
          this.targetYawRate = targetYawRate;
-         this.targetVelocity = targetVelocity;
+         this.targetPitchRate = targetPitchRate;
       }
          /** Command yaw and distance.
           *
@@ -107,7 +107,7 @@ abstract public class MotionModel
           */
 
       public void setYawDistance(double targetYaw, 
-                                     double distanceError)
+                                 double distanceError)
       {
          this.targetYaw = targetYaw % 360;
          this.distanceError = distanceError;

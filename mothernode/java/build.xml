@@ -35,6 +35,8 @@ The text of the MIT license apears in the mit-license.txt file.
   <fileset dir = "." id = "resources">
     <include name = "${resources}/readme.txt"/>
     <include name = "${lib-dir}/librxtxSerial.jnilib"/>
+    <include name = "${lib-dir}/librxtxSerial.so"/>
+    <include name = "${lib-dir}/rxtxSerial.dll"/>
     <include name = "${resources}/mit-license.txt"/>
   </fileset>
 
