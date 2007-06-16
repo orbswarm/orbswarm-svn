@@ -99,7 +99,7 @@ public class SimpleSimModel extends MotionModel
       }
          /** Get the yaw rate of the orb.
           *
-          * @returns yaw reate in degrees per second
+          * @return yaw reate in degrees per second
           */
 
       public double getYawRate()
@@ -108,7 +108,7 @@ public class SimpleSimModel extends MotionModel
       }
          /** Get the current velocity of the orb.
           *
-          * @returns velocity in meters per second
+          * @return velocity in meters per second
           */
 
       public double getVelocity()

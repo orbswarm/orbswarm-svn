@@ -21,8 +21,8 @@ public class SimModel extends MotionModel
 
          /** Command low level rate control.
           *
-          * @param targetYawRate target yaw rate
-          * @param targetPitchRate target pitchRate
+          * @param targetRollRate target rate of roll
+          * @param targetPitchRate target rate of pitch
           */
 
       public void setTargetRates(double targetRollRate,
@@ -121,7 +121,7 @@ public class SimModel extends MotionModel
       }
          /** Get the yaw rate of the orb.
           *
-          * @returns yaw reate in degrees per second
+          * @return yaw reate in degrees per second
           */
 
       public double getYawRate()

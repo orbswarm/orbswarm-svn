@@ -85,6 +85,11 @@ The text of the MIT license apears in the mit-license.txt file.
         packagenames = "${domain-scope}.${app-name}.*"
         sourcepath   = "${source-dir}"
         destdir      = "${doc-dir}">
+      <classpath>
+        <fileset refid = "libraries"/>
+        <pathelement location = "${build-dir}"/>
+        <pathelement location = "."/>
+      </classpath>
     </javadoc>
   </target>
 

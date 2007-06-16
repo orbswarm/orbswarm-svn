@@ -37,7 +37,7 @@ public class Swarm extends Mobjects
    }
       /** Compute center of arena. 
        *
-       * @returns center of the arena
+       * @return center of the arena
        */
 
    public Point2D.Double getCenter()

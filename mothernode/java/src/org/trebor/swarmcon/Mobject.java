@@ -78,7 +78,7 @@ public class Mobject
       }
          /** Get the size of this mobject.
           *
-          * @returns the nominal of this mobject
+          * @return the nominal of this mobject
           */
 
       public double getSize()
@@ -132,17 +132,18 @@ public class Mobject
           *
           * @param child child mobject
           */
-      public void addChild(Mobject mobject)
+
+      public void addChild(Mobject child)
       {
-         children.add(mobject);
+         children.add(child);
       }
          /** Add a child mobject to this mobject.
           *
           * @param child child mobject
           */
-      public void removeChild(Mobject mobject)
+      public void removeChild(Mobject child)
       {
-         children.add(mobject);
+         children.add(child);
       }
          // paint this object onto a graphics area
 
@@ -194,7 +195,7 @@ public class Mobject
       }
          /** Get current master alpha value.
           *
-          * @returns normalized value (0..1) of master alpha
+          * @return normalized value (0..1) of master alpha
           */
       
       public double getMasterAlpha()
@@ -203,7 +204,7 @@ public class Mobject
       }
          /** Set current master alpha value.
           *
-          * @param normalized master alpha value from 0 to 1
+          * @param masterAlpha normalized master alpha value from 0 to 1
           */
       
       public void setMasterAlpha(double masterAlpha)
@@ -214,8 +215,8 @@ public class Mobject
          /** Sets the color of a grapics object taking into account the
           * master alpha.
           * 
+          * @param g graphics to set color for
           * @param color color to apply alpha to 
-          * @param graphics graphics to set color for
           */
       
       public void setColor(Graphics2D g, Color color)

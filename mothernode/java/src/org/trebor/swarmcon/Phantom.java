@@ -92,7 +92,7 @@ public class Phantom extends Mobject
       }
          /** Return mobject that this is a phantom of.
           *
-          * @returns contained Mobject
+          * @return contained Mobject
           */
 
       public Mobject getMobject()
@@ -114,8 +114,8 @@ public class Phantom extends Mobject
          /** Compute mapping between linear progress and smooth motion
           * between origin and target.
           *
-          * @param prograss linear progress
-          * @return smooth motion progress
+          * @param progress linear progress
+          * @return smooth non-linear motion progress
           */
 
       public double motion(double progress)
@@ -126,7 +126,7 @@ public class Phantom extends Mobject
       }
          /** Computes dynamic scale as phantom travels to target.
           *
-          * @param prograss linear progress
+          * @param progress linear progress
           * @return scale
           */
 
@@ -163,7 +163,7 @@ public class Phantom extends Mobject
       }
          /** Is this phantom activly moving?
           * 
-          * @returns true if this phantom is still expected to exist
+          * @return true if this phantom is still expected to exist
           */
 
       boolean isActive()
