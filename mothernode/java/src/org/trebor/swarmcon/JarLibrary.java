@@ -10,11 +10,11 @@ public class JarLibrary
          String osname = System.getProperties().getProperty ("os.name");
          String libname;
          
-         if (osname.equals ("Mac OS X")) 
+         if (osname.equals("Mac OS X")) 
 	    libname = "lib/lib" + name + ".jnilib";
-         else if (osname.equals ("Linux")) 
+         else if (osname.contains("Linux")) 
 	    libname = "lib/lib" + name + ".so";
-         else if (osname.equals ("Windows")) 
+         else if (osname.contains("Windows")) 
 	    libname = "lib/" + name + ".dll";
          else
 	    throw new Exception ("Unsupported platform: \"" + osname + "\"");
