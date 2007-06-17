@@ -1,4 +1,5 @@
 #!/bin/sh
+# From http://wolfpaulus.com/journal/embedded/arduino2.html
 CMD="avrdude" 
 OPTS="-p m8 -b 115200 -P usb -c avrispmkII" 
 
