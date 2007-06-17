@@ -20,8 +20,8 @@ public class SerialWriter {
 	{
 		CommPortIdentifier id = CommPortIdentifier.getPortIdentifier(strPortIdentifier);
 		if(id == null || id.getPortType() != CommPortIdentifier.PORT_SERIAL)
-			throw new RuntimeException("didn't get port");
-		SerialPort port = (SerialPort)id.open("swarm aggregator test harness", 5000);;
+			throw new RuntimeException("serial port not found");
+		SerialPort port = (SerialPort)id.open("swarm aggregator test harness", 5000);
 		try{
 			OutputStream os = port.getOutputStream();
 			try{

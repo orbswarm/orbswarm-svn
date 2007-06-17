@@ -1,11 +1,11 @@
 
-MCU = atmega8
+MCU = atmega8515
 F_CPU =16000000   
 MYSRC = $(SVN_TRUNK)/aggregator/aggregator_src/c
 MYBIN = $(SVN_TRUNK)/aggregator/binaries
 GLOBAL_SHARED_INCLUDE = $(SVN_TRUNK)/shared/include
 #TARGET=uart_test
-TARGET=timer0_test
+TARGET=blinky_test
 
 
 # Default target.
@@ -17,14 +17,30 @@ all: 	begin gccversion \
 
 # Programming support using avrdude. Settings and variables.
 
-UPLOAD_RATE = 19200
+#####AVRDUDE saection for the arduino
+#UPLOAD_RATE = 19200
+#AVRDUDE=avrdude
+#AVRDUDE_PROGRAMMER = stk500
+#AVRDUDE_PORT = /dev/cu.usbserial-A1000fOr
+#AVRDUDE_PORT = /dev/tty.USA19H3b1P1.1
+#AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
+#AVRDUDE_FLAGS = -F -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) \
+#  -b $(UPLOAD_RATE)
+#FORMAT = ihex 		# create a .hex file
+
+########AVRDUDE section for the stk500
+###programming mode is ISP
+###set up is usb --> keyspan --> stk DB9 
 AVRDUDE=avrdude
-AVRDUDE_PROGRAMMER = stk500
-AVRDUDE_PORT = /dev/cu.usbserial-A1000fOr
-AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
-AVRDUDE_FLAGS = -F -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) \
-  -b $(UPLOAD_RATE)
+AVRDUDE_PROGRAMMER = stk500v2
+AVRDUDE_PORT = /dev/cu.KeySerial1 
+UPLOAD_RATE = 115200
+AVRDUDE_WRITE_FLASH = -U flash:w:$(MYBIN)/$(TARGET).hex
+AVRDUDE_FLAGS = -e -p $(MCU) -b $(UPLOAD_RATE) -P $(AVRDUDE_PORT) \
+	-c $(AVRDUDE_PROGRAMMER)
 FORMAT = ihex 		# create a .hex file
+
+
 
 # Program the device.  
 upload: $(MYBIN)/$(TARGET).hex 

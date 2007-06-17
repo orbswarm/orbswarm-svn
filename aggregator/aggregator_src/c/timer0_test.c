@@ -2,6 +2,7 @@
 
 int main(void)
 {
+
   DDRB=0xff;
   //PORTB= 1<<PB5;
   DDRC=0xff;
@@ -24,5 +25,5 @@ int main(void)
   //PORTB=0;
   while(1)
     ;
-  
+
 }
