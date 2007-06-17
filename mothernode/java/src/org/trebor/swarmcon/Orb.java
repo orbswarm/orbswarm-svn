@@ -64,8 +64,13 @@ public class Orb extends Mobject
          Rectangle2D.Double arena = swarm.getArena();
          setPosition(arena.getX() + RND.nextDouble() * arena.getWidth(),
                      arena.getY() + RND.nextDouble() * arena.getHeight());
-
          setPosition(swarm.getCenter());
+      }
+         // position setter
+
+      void setPosition(double x, double y)
+      {
+         super.setPosition(x, y);
          model.setPosition(getX(), getY());
       }
          // get swarm
@@ -224,15 +229,20 @@ public class Orb extends Mobject
       public void paint(Graphics2D g)
       {
          shape = scale(createOrbShape(), ORB_DIAMETER, ORB_DIAMETER);
-
          setColor(g, isSelected() ? SEL_ORB_CLR : ORB_CLR);
          g.fill(translate(rotateAboutCenter(shape, getYaw()),
                           getX(), getY()));
+         
+         Shape frame = scale(createOrbFrameShape(), 
+                             ORB_DIAMETER, ORB_DIAMETER);
+         setColor(g, ORB_FRAME_CLR);
+         g.fill(translate(rotateAboutCenter(frame, getYaw()),
+                          getX(), getY()));
 
          Shape line = new Line2D.Double(0, 0, 0, -1);
-         line = scale(line, model.getVelocity(), 
+         line = scale(line, model.getVelocity(),
                       model.getVelocity());
-         line = rotate(line, model.getYaw());
+         line = rotate(line, model.getDirection());
          g.setStroke(new BasicStroke((float)(ORB_DIAMETER / 8),
                                      BasicStroke.CAP_ROUND,
                                      BasicStroke.JOIN_ROUND));
@@ -244,19 +254,58 @@ public class Orb extends Mobject
 
       public Shape createOrbShape()
       {
-         double strokeWidth = ORB_DIAMETER / 16;
-         double width = sin(toRadians(model.getRoll()));
-         Area area = new Area();
-         area.add(new Area(createCirlcle()));
-         Shape arc = new Arc2D.Double(-abs(width / 2), 
-                                      -(0.5 + strokeWidth / 2),
-                                      abs(width), 1 + strokeWidth,
-                                      width > 0 ? 270 : 90, 180,
-                                      Arc2D.Double.OPEN);
+         return createCirlcle();
+      }
+         // create orb shape
+
+      public Shape createOrbFrameShape()
+      {
+         GeneralPath arcs = new GeneralPath();
+
+            // add a ring around the cirlce
+
+         double strokeWidth = ORB_DIAMETER / 32;
          Stroke s = new BasicStroke((float)strokeWidth,
                                     BasicStroke.CAP_ROUND,
                                     BasicStroke.JOIN_ROUND);
-         area.subtract(new Area(s.createStrokedShape(arc)));
-         return area;
+         Shape arc = new Arc2D.Double(-0.5, -0.5, 1, 1, 0, 360,
+                                      Arc2D.Double.OPEN);
+         arcs.append(s.createStrokedShape(arc), true);
+
+            // add the equator
+
+         double width = sin(toRadians(model.getRoll()));
+         arc = new Arc2D.Double(-abs(width / 2),
+                                -0.5,
+                                abs(width),
+                                1,
+                                width > 0 ? 270 : 90, 180,
+                                Arc2D.Double.OPEN);
+         arcs.append(s.createStrokedShape(arc), true);
+
+            // add longitude lines
+
+         strokeWidth = ORB_DIAMETER / 128;
+         s = new BasicStroke((float)strokeWidth,
+                             BasicStroke.CAP_ROUND,
+                             BasicStroke.JOIN_ROUND);
+
+         double pitch = model.getPitch();
+         for (int i = 0; i < ORB_SPAR_COUNT; ++i)
+         {
+            width = sin(toRadians(pitch));
+            arc = new Arc2D.Double(-0.5,
+                                   -abs(width / 2),
+                                   1,
+                                   abs(width),
+                                   pitch > 180 && pitch < 270 ||
+                                   pitch < 90 ? 0 : 180, 180,
+                                   Arc2D.Double.OPEN);
+            arcs.append(s.createStrokedShape(arc), true);
+            pitch = (pitch + 180 / ORB_SPAR_COUNT) % 360;
+         }
+            // return frame a composition of arcs
+
+         return arcs;
       }
 }

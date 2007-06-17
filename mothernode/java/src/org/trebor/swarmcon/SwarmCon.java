@@ -20,12 +20,16 @@ public class SwarmCon extends JFrame
 
       public static final Random RND = new Random();
 
+         /** minimum frame delay in milliseconds */
+
+      public static final long MIN_FRAME_DELAY = 50;
+
          // some general parameters
 
       public static final double ORB_RADIUS        =   0.5; // meters
       public static final double MAX_VELOCITY      =   0.5; // meters/sec
       public static final double DVELOCITY_DT      =   2.0; // meters/sec
-      public static final double MAX_ROLL          =  45.0; // deg
+      public static final double MAX_ROLL          =  35.0; // deg
       public static final double MAX_ROLL_RATE     =  30.0; // deg/sec
       public static final double DROLL_RATE_DT     =  10.0; // deg/sec
       public static final double MAX_PITCH_RATE    = 114.6; // deg/sec
@@ -35,8 +39,9 @@ public class SwarmCon extends JFrame
       public static final double ORB_DIAMETER      =   1.0; // meters
       public static final double SAFE_DISTANCE     =   3.0; // meters
       public static final double CRITICAL_DISTANCE =   2.0; // meters
-      public static final int    INITIAL_ORBS      =   6  ; // orbs
-
+      public static final int    INITIAL_ORBS      =   1  ; // orbs
+      public static final int    ORB_SPAR_COUNT    =   4  ; // arcs
+      
          /** time in seconds for a phantom to move to it's target postion */
 
       public static final double PHANTOM_PERIOD    =  2  ;
@@ -55,15 +60,16 @@ public class SwarmCon extends JFrame
 
          // color
 
-      public static Color BACKGROUND  = WHITE;
-      public static Color TEXT_CLR    = new Color(0, 0, 0, 128);
-      public static Color ORB_CLR     = new Color(128, 128, 128);
-      public static Color SEL_ORB_CLR = new Color(64, 64, 64);
-      public static Color VECTOR_CRL  = new Color(255, 0, 0, 128);
-      public static Font  MISC_FONT   = new Font("Helvetica", 
-                                                 Font.PLAIN, 15);
-      public static Font  ORB_FONT    = new Font("Helvetica", 
-                                                 Font.PLAIN, 10);
+      public static Color BACKGROUND    = WHITE;
+      public static Color TEXT_CLR      = new Color(  0,   0,   0, 128);
+      public static Color ORB_CLR       = new Color(196, 196, 196);
+      public static Color ORB_FRAME_CLR = new Color( 64,  64,  64);
+      public static Color SEL_ORB_CLR   = new Color(255, 196, 255);
+      public static Color VECTOR_CRL    = new Color(255,   0,   0, 128);
+      public static Font  MISC_FONT     = new Font("Helvetica", 
+                                                   Font.PLAIN, 15);
+      public static Font  ORB_FONT      = new Font("Helvetica", 
+                                                   Font.PLAIN, 10);
          /** Standard button font */
 
       public static Font BUTTON_FONT = (new Font("Lucida Grande",
@@ -178,18 +184,17 @@ public class SwarmCon extends JFrame
          {
                public void run()
                {
+                  try
+                  {
+                     Thread.sleep(50);
+                  }
+                  catch (Exception ex)
+                  {
+                     System.out.println(ex);
+                  }
                   while (true)
                   {
-                     
-                     try
-                     {
-                        update();
-                        sleep(50);
-                     }
-                     catch (Exception ex)
-                     {
-                        System.out.println(ex);
-                     }
+                     update();
                   }
                }
          }.start();
@@ -202,9 +207,10 @@ public class SwarmCon extends JFrame
       {
          Mobject preveouse = new MouseMobject(arena);
          swarm.add(preveouse);
+
             // construct the swarm
 
-            //for (int i = 0; i < INITIAL_ORBS; ++i)
+         for (int i = 0; i < INITIAL_ORBS; ++i)
          {
                // create an orb
 
@@ -213,23 +219,13 @@ public class SwarmCon extends JFrame
                // add behvaiors
 
             swarm.add(orb);
-            Behavior nb = new Behavior("none")
-               {
-                     double totalTime = 0;
-                     public void update(double time, MotionModel model) 
-                     {
-                        totalTime += time;
-                        double tr = .5 * sin(totalTime / 2) + .5;
-                        double tp = .5 * sin(totalTime / 3) + .5;
-                        model.setTargetRates(tr, 1d);
-                     }
-               };
+            Behavior wb = new WanderBehavior();
             Behavior fb = new FollowBehavior(preveouse);
             Behavior rb = new RandomBehavior();
             Behavior cb = new ClusterBehavior();
             Behavior fab = new AvoidBehavior(fb);
             Behavior cab = new AvoidBehavior(cb);
-            orb.add(nb);
+            orb.add(wb);
             orb.add(fb);
             orb.add(rb);
             orb.add(cb);
@@ -247,11 +243,26 @@ public class SwarmCon extends JFrame
       {
          synchronized (swarm)
          {
-               // establish the time since last update
+               // sleep until it's been a minimum frame delay
+            
+            try
+            {
+               long start = lastUpdate.getTimeInMillis();
+               while (currentTimeMillis() - start < MIN_FRAME_DELAY)
+                  Thread.sleep(10);
+            }
+            catch (Exception ex)
+            {
+               System.out.println(ex);
+            }
+               // get now
 
             Calendar now = Calendar.getInstance();
             double time = (now.getTimeInMillis() 
                            - lastUpdate.getTimeInMillis()) / 1000d;
+
+               // establish the time since last update
+
             lastUpdate = now;
 
                // update all the objects
@@ -389,6 +400,8 @@ public class SwarmCon extends JFrame
           * @param graphics graphics object to paint onto
           */
 
+      Calendar lastPaint = Calendar.getInstance();
+
       public void paintArena(Graphics graphics)
       {
             // config graphics
@@ -398,6 +411,13 @@ public class SwarmCon extends JFrame
          g.fillRect(0, 0, getWidth(), getHeight());
          g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
                             RenderingHints.VALUE_ANTIALIAS_ON);
+
+         g.setColor(TEXT_CLR);
+         g.setFont(MISC_FONT);
+         g.drawString("frame delay: " + 
+                      (currentTimeMillis() - lastPaint.getTimeInMillis())
+                      + "ms", 5, 15);
+         lastPaint = Calendar.getInstance();
 
             // draw current behavior
                      
@@ -421,7 +441,7 @@ public class SwarmCon extends JFrame
                         " P: " + HeadingFormat.format(round(orb.getPitch())) +
                         " Y: " + HeadingFormat.format(round(orb.getYaw  ())) +
                         " V: " + round(orb.getVelocity() * 100) / 100d,
-                        5, id++ * 15);
+                        5, 15 + id++ * 15);
 
                      g.setFont(ORB_FONT);
                      g.drawString(

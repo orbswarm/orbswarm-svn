@@ -1353,9 +1353,8 @@ model}</string>
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
 \f0\fs96 \cf0 orb\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
-\fs24 \cf0 software}</string>
+\fs24 software}</string>
 			</dict>
 			<key>TextPlacement</key>
 			<integer>0</integer>
@@ -1467,7 +1466,7 @@ model}</string>
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2007-06-13 21:48:30 -0700</string>
+	<string>2007-06-16 01:44:31 -0700</string>
 	<key>Modifier</key>
 	<string>Robert Harris</string>
 	<key>NotesVisible</key>

@@ -48,8 +48,8 @@ public class SimModel extends MotionModel
 
             // if it would be better to reverse direction, do so
          
-         if (abs(yawError) > 90 && abs(yawError) < 270)
-               reverse();
+            //if (abs(yawError) > 90 && abs(yawError) < 270)
+            //reverse();
 
             // set yaw goal correcting for yaw wrap around
 
@@ -92,18 +92,19 @@ public class SimModel extends MotionModel
 
             // update absolute pitch and roll
 
-         setDeltaPitch(dPitch);
-         rollRate.setRate(setDeltaRoll(dRoll ) / time);
+         dPitch = setDeltaPitch(dPitch);
+         dRoll  = setDeltaRoll (dRoll );
+
+            // feed back to actual pitch and roll rate in case
+            // in case the orb hit some limit
+
+         pitchRate.setRate(dPitch / time);
+         rollRate.setRate(dRoll / time);
 
             // compute yaw
 
          setDeltaYaw(toDegrees(sin(toRadians(getRoll())) * 
                                toRadians(dPitch)));
-
-            //double dYaw = ;
-            //System.out.println(" dp: " + dPitch + 
-            //" dr: " + dRoll + 
-            //" dy: " + dYaw);
 
             // radius of wide end of the rolling cone
 
@@ -114,10 +115,16 @@ public class SimModel extends MotionModel
          double dX = toRadians(dPitch) * p * cos(toRadians(getYaw() - 90));
          double dY = toRadians(dPitch) * p * sin(toRadians(getYaw() - 90));
          
-            // set position and velocity
-
-         setVelocity(sqrt(pow(dX, 2) + pow(dY, 2)) / time);
+            // correct for latteral displacement due to roll
+         
+         dX += toRadians(dRoll) * ORB_RADIUS * cos(toRadians(getYaw()));
+         dY += toRadians(dRoll) * ORB_RADIUS * sin(toRadians(getYaw()));
+         
+            // set position and velocity and direction
+         
          setDeltaPosition(dX, dY);
+         setVelocity(hypot(dX, dY) / time);
+         setDirection(toDegrees(PI - atan2(dX, dY)));
       }
          /** Get the yaw rate of the orb.
           *

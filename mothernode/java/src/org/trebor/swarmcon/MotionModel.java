@@ -28,7 +28,11 @@ abstract public class MotionModel
 
          /** velocity of orb */
 
-      private double velocity = 0;
+      private double velocity;
+
+         /** actual direction of travel */
+
+      private double direction;
 
          // ------- rate control parameters --------
 
@@ -87,6 +91,24 @@ abstract public class MotionModel
       protected void setVelocity(double velocity)
       {
          this.velocity = velocity;
+      }
+         /** Get the current direction of the orb.
+          *
+          * @return direction in meters per second
+          */
+
+      public double getDirection()
+      {
+         return direction;
+      }
+         /** Set the current direction of the orb.
+          *
+          * @param direction orb direction in meters per second
+          */
+
+      protected void setDirection(double direction)
+      {
+         this.direction = direction;
       }
          /** Command low level rate control.
           *
@@ -153,15 +175,17 @@ abstract public class MotionModel
       }
          // set pitch
 
-      protected void setPitch(double pitch)
+      protected double setPitch(double pitch)
       {
+         double deltaPitch = pitch - this.pitch;
          this.pitch = (pitch + 360) % 360;
+         return deltaPitch;
       }
          // set delta pitch
 
-      protected void setDeltaPitch(double dPitch)
+      protected double setDeltaPitch(double dPitch)
       {
-         setPitch(this.pitch + dPitch);
+         return setPitch(this.pitch + dPitch);
       }
          // get roll
 
