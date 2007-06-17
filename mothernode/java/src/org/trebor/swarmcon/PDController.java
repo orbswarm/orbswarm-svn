@@ -12,6 +12,14 @@ public class PDController extends Controller
          this.kp = kp;
          this.kd = kd;
       }
+         // set tuner
+
+      public void setTuner(PidTuner tuner)
+      {
+         super.setTuner(tuner);
+         tuner.setP(getKp());
+         tuner.setD(getKd());
+      }
          // compute result
 
       public double compute(double measurement)
@@ -22,8 +30,40 @@ public class PDController extends Controller
          totalErr += currentErr;
          previousErr = currentErr;
          
+            // if there is a tuner, get values from it
+
+         if (tuner != null)
+         {
+            setKp(tuner.getP());
+            setKd(tuner.getD());
+            tuner.addSample(getTarget(), measurement);
+         }
             // return computed command
 
          return kp * currentErr + kd * deltaErr();
+      }
+         // set kp
+
+      public void setKp(double kp)
+      {
+         this.kp = kp;
+      }
+         // get kp
+
+      public double getKp()
+      {
+         return kp;
+      }
+         // set kd
+
+      public void setKd(double kd)
+      {
+         this.kd = kd;
+      }
+         // get kd
+
+      public double getKd()
+      {
+         return kd;
       }
 }

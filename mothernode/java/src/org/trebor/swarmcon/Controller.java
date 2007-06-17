@@ -6,7 +6,14 @@ public abstract class Controller
       protected double currentErr;
       protected double previousErr;
       protected double totalErr;
+      protected PidTuner tuner;
 
+         // set tuner
+
+      public void setTuner(PidTuner tuner)
+      {
+         this.tuner = tuner;
+      }
          // set target
 
       public void setTarget(double target)
@@ -22,5 +29,11 @@ public abstract class Controller
       public double deltaErr()
       {
          return currentErr - previousErr;
+      }
+         // get current target
+
+      public double getTarget()
+      {
+         return target;
       }
 }

@@ -7,17 +7,25 @@ import static org.trebor.swarmcon.SwarmCon.*;
 
 public class SimModel extends MotionModel
 {
-         // rates
+         /** pitch rate model */
 
       private Rate pitchRate = new Rate(
          "pitchRate", -MAX_PITCH_RATE, MAX_PITCH_RATE, DPITCH_RATE_DT);
+
+         /** roll rate model */
+
       private Rate rollRate  = new Rate(
          "roll", -MAX_ROLL_RATE, MAX_ROLL_RATE, DROLL_RATE_DT);
 
-         // controllers
+         /** pitch rate controller */
 
-      Controller rollCtrl      = new PDController(0.13f, 10000);
-      Controller pitchRateCtrl = new PDController(2f, 1000);
+      private PDController pitchCtrl = 
+         new PDController(2, 1000);
+
+         /** roll rate controller */
+
+      private PDController rollCtrl = 
+         new PDController(1, Float.MAX_VALUE);
 
          /** Command low level rate control.
           *
@@ -40,6 +48,10 @@ public class SimModel extends MotionModel
 
       public void setYawDistance(double targetYaw, double distanceError)
       {
+         assert(false);
+
+            // update parent
+
          super.setYawDistance(targetYaw, distanceError);
 
             // compute yaw error
@@ -61,13 +73,24 @@ public class SimModel extends MotionModel
 
             // set pitchRate goal based on error
 
-         pitchRateCtrl.setTarget(0);
+         pitchCtrl.setTarget(0);
 
             // set target rates
 
          setTargetRates(rollCtrl.compute(getYaw()),
-                        pitchRateCtrl.compute(distanceError));
-         
+                        pitchCtrl.compute(distanceError));
+      }
+         /** Set pitch tuner. */
+
+      public void setPitchTuner(PidTuner tuner)
+      {
+         pitchCtrl.setTuner(tuner);
+      }
+         /** Set roll tuner. */
+
+      public void setRollTuner(PidTuner tuner)
+      {
+         rollCtrl.setTuner(tuner);
       }
          /** Reverse direction of the orb */
 
@@ -90,6 +113,7 @@ public class SimModel extends MotionModel
          double dPitch = pitchRate.getRate() * time;
          double dRoll  =  rollRate.getRate() * time;
 
+
             // update absolute pitch and roll
 
          dPitch = setDeltaPitch(dPitch);
@@ -97,7 +121,7 @@ public class SimModel extends MotionModel
 
             // feed back to actual pitch and roll rate in case
             // in case the orb hit some limit
-
+         
          pitchRate.setRate(dPitch / time);
          rollRate.setRate(dRoll / time);
 

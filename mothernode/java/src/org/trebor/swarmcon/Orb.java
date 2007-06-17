@@ -73,6 +73,12 @@ public class Orb extends Mobject
          super.setPosition(x, y);
          model.setPosition(getX(), getY());
       }
+         /** Return the current orbs motion model */
+      
+      public MotionModel getModel()
+      {
+         return model;
+      }
          // get swarm
 
       public Swarm getSwarm()

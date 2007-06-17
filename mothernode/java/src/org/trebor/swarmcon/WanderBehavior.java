@@ -13,15 +13,15 @@ public class WanderBehavior extends Behavior
       public WanderBehavior()
       {
          super("Wander");
-         adjust = RND.nextDouble() * .5;
+         adjust = RND.nextDouble();
       }
          // update
 
       public void update(double time, MotionModel model)
       {
          totalTime += time;
-         double tr = adjust * sin(totalTime / 2) + .5;
-         double tp = adjust * sin(totalTime / 3) + .5;
+         double tr = adjust * sin(totalTime / 2);
+         double tp = adjust * sin(totalTime / 3);
          model.setTargetRates(tr, tp);
       }
 }

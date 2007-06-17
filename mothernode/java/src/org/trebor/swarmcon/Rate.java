@@ -24,6 +24,7 @@ public class Rate
 
       public void setRate(double rate)
       {
+         assert(false);
          this.rate = max(min, min(rate, max));
       }
          // get current rate
@@ -33,30 +34,17 @@ public class Rate
          return rate;
       }
          // set target rate
-
+      
       public void setTarget(double target)
       {
-         setWeightedTarget(target, 1);
+         this.target = target;
       }
-         // set weighted target rate
-
-      public void setWeightedTarget(double target, double weight)
-      {
-         assert(weight >= 0 && weight <= 1);
-         this.target = (1 - weight) * this.target + 
-            weight * max(min, min(target, max));
-      }
-         // set target as normalized value from 0 to 1
+         // set target as normalized value from -1 to 1
 
       public void setNormalizedTarget(double target)
       {
-         setNormalizedWeightedTarget(target, 1);
-      }
-         // set target as normalized value from 0 to 1
-
-      public void setNormalizedWeightedTarget(double target, double weight)
-      {
-         setWeightedTarget(min + (max - min) * target, weight);
+         assert(target >= -1 && target <= 1);
+         setTarget(min + (max - min) * ((target + 1) / 2));
       }
          // get target
 
@@ -68,7 +56,7 @@ public class Rate
 
       public double getNormalizedTarget()
       {
-         return (target - min) / (max - min);
+         return ((target - min) / (max - min)) * 2 - 1;
       }
          // update the rate
 
@@ -82,4 +70,3 @@ public class Rate
          return rate;
       }
 }
-

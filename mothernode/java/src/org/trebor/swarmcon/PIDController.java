@@ -28,4 +28,40 @@ public class PIDController extends Controller
 
          return kp * currentErr + ki * totalErr + kd * deltaErr();
       }
+         // set kp
+
+      public void setKp(double kp)
+      {
+         this.kp = kp;
+      }
+         // get kp
+
+      public double getKp()
+      {
+         return kp;
+      }
+         // set ki
+
+      public void setKi(double ki)
+      {
+         this.ki = ki;
+      }
+         // get ki
+
+      public double getKi()
+      {
+         return ki;
+      }
+         // set kd
+
+      public void setKd(double kd)
+      {
+         this.kd = kd;
+      }
+         // get kd
+
+      public double getKd()
+      {
+         return kd;
+      }
 }

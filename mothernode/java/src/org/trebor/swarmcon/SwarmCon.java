@@ -52,7 +52,11 @@ public class SwarmCon extends JFrame
 
          /** arena in which we play */
 
-      JPanel   arena;
+      JPanel arena;
+
+         /** arena in which we play */
+
+      public PidTuner tuner;
 
          /** communcation with the outside world */
       
@@ -178,29 +182,19 @@ public class SwarmCon extends JFrame
                     arena.getBounds().getHeight() / PIXLES_PER_METER);
          swarm = new Swarm(bounds);
          
+            // add the orbs
+         
+         addOrbs();
+         
             // start the animation thread
 
          new Thread()
          {
                public void run()
                {
-                  try
-                  {
-                     Thread.sleep(50);
-                  }
-                  catch (Exception ex)
-                  {
-                     System.out.println(ex);
-                  }
-                  while (true)
-                  {
-                     update();
-                  }
+                  while (true) {update();}
                }
          }.start();
-         
-         addOrbs();
-            //swarm.add(new Button("We!", BUTTON_FONT, 10, 15));
       }
 
       public void addOrbs()
@@ -215,6 +209,7 @@ public class SwarmCon extends JFrame
                // create an orb
 
             Orb orb = new Orb(swarm, new SimModel());
+            ((SimModel)orb.getModel()).setRollTuner(tuner);
 
                // add behvaiors
 
@@ -225,7 +220,7 @@ public class SwarmCon extends JFrame
             Behavior cb = new ClusterBehavior();
             Behavior fab = new AvoidBehavior(fb);
             Behavior cab = new AvoidBehavior(cb);
-            orb.add(wb);
+               //orb.add(wb);
             orb.add(fb);
             orb.add(rb);
             orb.add(cb);
@@ -271,7 +266,7 @@ public class SwarmCon extends JFrame
             
                // repaint the screen
 
-            repaint();
+            arena.repaint();
          }
       }
          // place gui object into frame
@@ -302,6 +297,7 @@ public class SwarmCon extends JFrame
          arena.addMouseMotionListener(mia);
          arena.addMouseListener(mia);
          frame.add(arena, BorderLayout.CENTER);
+         frame.add(tuner = new PidTuner(), BorderLayout.EAST);
 
             // add a key listener
          
