@@ -1,6 +1,8 @@
 
-MCU = atmega8515
-F_CPU =16000000   
+#MCU = atmega8
+#F_CPU= 16000000   
+MCU = atmega640
+F_CPU = 14745600
 MYSRC = $(SVN_TRUNK)/aggregator/aggregator_src/c
 MYBIN = $(SVN_TRUNK)/aggregator/binaries
 GLOBAL_SHARED_INCLUDE = $(SVN_TRUNK)/shared/include
@@ -18,15 +20,18 @@ all: 	begin gccversion \
 # Programming support using avrdude. Settings and variables.
 
 #####AVRDUDE saection for the arduino
-#UPLOAD_RATE = 19200
-#AVRDUDE=avrdude
-#AVRDUDE_PROGRAMMER = stk500
-#AVRDUDE_PORT = /dev/cu.usbserial-A1000fOr
-#AVRDUDE_PORT = /dev/tty.USA19H3b1P1.1
-#AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
-#AVRDUDE_FLAGS = -F -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) \
-#  -b $(UPLOAD_RATE)
-#FORMAT = ihex 		# create a .hex file
+ARDUINO_UPLOAD_RATE = 19200
+ARDUINO_AVRDUDE=avrdude
+ARDUINO_AVRDUDE_PROGRAMMER = stk500
+ARDUINO_AVRDUDE_PORT = /dev/tty.usbserial-A1000fOr
+ARDUINO_AVRDUDE_WRITE_FLASH = -U flash:w:$(MYBIN)/$(TARGET).hex
+ARDUINO_AVRDUDE_FLAGS = -F -p $(MCU) -P $(ARDUINO_AVRDUDE_PORT) -c $(ARDUINO_AVRDUDE_PROGRAMMER) \
+  -b $(ARDUINO_UPLOAD_RATE)
+ARDUINO_FORMAT = ihex 		# create a .hex file
+
+arduino_upload: $(MYBIN)/$(TARGET).hex 
+	$(ARDUINO_AVRDUDE) $(ARDUINO_AVRDUDE_FLAGS) $(ARDUINO_AVRDUDE_WRITE_FLASH)
+
 
 ########AVRDUDE section for the stk500
 ###programming mode is ISP
@@ -161,11 +166,13 @@ $(MYBIN)/%.hex : $(MYBIN)/%.elf
 .PRECIOUS : $(OBJ)
 
 
-$(MYBIN)/%.elf: $(MYBIN)/%.o  $(LIB_BIN)/timer0.o $(LIB_BIN)/uart.o 
+#$(MYBIN)/%.elf: $(MYBIN)/%.o  $(LIB_BIN)/timer0.o $(LIB_BIN)/uart.o 
+$(MYBIN)/%.elf: $(MYBIN)/%.o  $(LIB_BIN)/timer0.o 
 	@echo
 	@echo $(MSG_LINKING) $@
 #	$(CC) $(ALL_CFLAGS)  $<  --output $@  $(LDFLAGS)
-	$(CC) $(ALL_CFLAGS)  $<  --output $@ $(LIB_BIN)/uart.o $(LIB_BIN)/timer0.o $(LDFLAGS)
+#	$(CC) $(ALL_CFLAGS)  $<  --output $@ $(LIB_BIN)/uart.o $(LIB_BIN)/timer0.o $(LDFLAGS)
+	$(CC) $(ALL_CFLAGS)  $<  --output $@ $(LIB_BIN)/timer0.o $(LDFLAGS)
 
 
 
