@@ -8,8 +8,9 @@ public class PIDController extends Controller
       
          // create a PD controller
 
-      public PIDController(double kp, double ki, double kd)
+      public PIDController(String name, double kp, double ki, double kd)
       {
+         super(name);
          this.kp = kp;
          this.ki = ki;
          this.kd = kd;

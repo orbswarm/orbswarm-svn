@@ -7,7 +7,18 @@ public abstract class Controller
       protected double previousErr;
       protected double totalErr;
       protected PidTuner tuner;
+      protected String name;
 
+      public Controller(String name)
+      {
+         this.name = name;
+      }
+         // convert to string
+
+      public String toString()
+      {
+         return name;
+      }
          // set tuner
 
       public void setTuner(PidTuner tuner)

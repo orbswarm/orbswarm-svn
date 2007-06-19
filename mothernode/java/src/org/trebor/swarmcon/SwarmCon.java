@@ -66,7 +66,7 @@ public class SwarmCon extends JFrame
 
          /** communcation with the outside world */
       
-      OrbIo orbIo;
+         //OrbIo orbIo;
 
          // color
 
@@ -123,10 +123,6 @@ public class SwarmCon extends JFrame
          /** last time mobects were updated */
       
       Calendar lastUpdate = Calendar.getInstance();
-
-         /** start time of session */
-
-      Calendar startTime = Calendar.getInstance();
       
          /** format for printing heading values */
       
@@ -156,8 +152,8 @@ public class SwarmCon extends JFrame
       public SwarmCon()
       {
             // create OrbIo instance
-
-         orbIo = new OrbIo("/dev/cu.usbserial0");
+         
+            //orbIo = new OrbIo("/dev/cu.usbserial0");
 
             // construct the frame
          
@@ -186,40 +182,27 @@ public class SwarmCon extends JFrame
             setVisible(true);
          }
 
-            // init Swarm
-
-         Rectangle2D.Double bounds = new Rectangle2D
-            .Double(arena.getBounds().getX() / PIXLES_PER_METER,
-                    arena.getBounds().getY() / PIXLES_PER_METER,
-                    arena.getBounds().getWidth()  / PIXLES_PER_METER,
-                    arena.getBounds().getHeight() / PIXLES_PER_METER);
-         swarm = new Swarm(bounds);
-         
-            // add the orbs
-         
-         addOrbs();
-
-            // repaint everything
-
-         repaint();
-
             // start the animation thread
 
          new Thread()
          {
                public void run()
                {
-                  try {sleep(100);} 
+                  try {sleep(1000); repaint();} 
                   catch (Exception e) {e.printStackTrace();}
+                  lastUpdate = Calendar.getInstance();
                   while (true) {update();}
                }
          }.start();
       }
 
-      public void addOrbs()
+      public Controller[] addOrbs(Rectangle2D.Double bounds)
       {
+         swarm = new Swarm(bounds);
+         
          Mobject preveouse = new MouseMobject(arena);
          swarm.add(preveouse);
+         Controller[] controllers = null;
 
             // construct the swarm
 
@@ -228,8 +211,7 @@ public class SwarmCon extends JFrame
                // create an orb
 
             Orb orb = new Orb(swarm, new SimModel());
-            ((SimModel)orb.getModel()).setRollTuner(tuner);
-
+            controllers = ((SimModel)orb.getModel()).getControllers();
                // add behvaiors
 
             swarm.add(orb);
@@ -239,7 +221,7 @@ public class SwarmCon extends JFrame
             Behavior cb = new ClusterBehavior();
             Behavior fab = new AvoidBehavior(fb);
             Behavior cab = new AvoidBehavior(cb);
-            orb.add(wb);
+               //orb.add(wb);
             orb.add(fb);
             orb.add(rb);
             orb.add(cb);
@@ -250,6 +232,7 @@ public class SwarmCon extends JFrame
          }
          swarm.nextBehavior();
 
+         return controllers;
       }
          // update the world
 
@@ -309,7 +292,26 @@ public class SwarmCon extends JFrame
          arena.addMouseMotionListener(mia);
          arena.addMouseListener(mia);
          frame.add(arena, BorderLayout.CENTER);
-         frame.add(tuner = new PidTuner(), BorderLayout.EAST);
+
+            // add pid tuner
+
+/*         controllers = 
+         {
+            new PDController("test1", 2, 10),
+            new PDController("test2", 1, 5),
+         };
+
+*/
+            // init Swarm
+
+         Controller[] controllers = addOrbs(new Rectangle2D
+                                            .Double(0, 0, 10, 10));
+//             .Double(arena.getBounds().getX() / PIXLES_PER_METER,
+//                     arena.getBounds().getY() / PIXLES_PER_METER,
+//                     arena.getBounds().getWidth()  / PIXLES_PER_METER,
+//                     arena.getBounds().getHeight() / PIXLES_PER_METER));
+
+         frame.add(tuner = new PidTuner(controllers), BorderLayout.EAST);
 
             // add a key listener
          

@@ -20,22 +20,30 @@ public class SimModel extends MotionModel
          /** pitch rate controller */
 
       private PDController velocityToDistanceCtrl = 
-         new PDController(.2, 0);
+         new PDController("2:dist->vel", .2, 0);
 
          /** roll rate controller */
 
       private PDController yawRateToYawCtrl = 
-         new PDController(1, 0);
+         new PDController("2:yaw->yawRate", 1, 0);
 
          /** pitch rate to velocity controller */
 
       private PDController pitchToVelocityCtrl = 
-         new PDController(3.2E2, 1E36);
+         new PDController("1:vel->pitchRate", 3.2E2, 1E36);
 
          /** roll rate to yaw rate controller */
 
       private PDController rollToYawRateCtrl = 
-         new PDController(1.25E-1, 0);
+         new PDController("1:yawRate->roll", 1.25E-1, 0);
+
+      Controller[] controllers =
+      {
+         pitchToVelocityCtrl,
+         rollToYawRateCtrl,
+         velocityToDistanceCtrl,
+         yawRateToYawCtrl,
+      };
 
          /** Command low level rate control.
           *
@@ -48,7 +56,7 @@ public class SimModel extends MotionModel
       {
          super.setTargetRollPitchRates(targetRollRate, targetPitchRate);
          rollRate.setNormalizedTarget(targetRollRate);
-         pitchRate.setNormalizedTarget(targetPitchRate);
+         pitchRate.setNormalizedTarget(.2); //targetPitchRate);
       }
          /** Command target yaw rate and velocity.
           *
@@ -63,10 +71,8 @@ public class SimModel extends MotionModel
          rollToYawRateCtrl.setTarget(targetYawRate);
          pitchToVelocityCtrl.setTarget(targetVelocity);
          setTargetRollPitchRates(
-            -1,  //rollToYawRateCtrl.compute(getYawRate()),
+            -rollToYawRateCtrl.compute(getYawRate()),
             pitchToVelocityCtrl.compute(getSpeed()));
-
-               //pitchToVelocityCtrl.compute(getVelocity()));
       }
          /** Command yaw and distance.
           *
@@ -105,19 +111,11 @@ public class SimModel extends MotionModel
             yawRateToYawCtrl.compute(yawError),
             velocityToDistanceCtrl.compute(distanceError));
       }
-         /** Set pitch tuner. */
+         /** Get controllers in the system. */
 
-      public void setPitchTuner(PidTuner tuner)
+      public Controller[] getControllers()
       {
-            //pitchToVelocityCtrl.setTuner(tuner);
-         velocityToDistanceCtrl.setTuner(tuner);
-      }
-         /** Set roll tuner. */
-
-      public void setRollTuner(PidTuner tuner)
-      {
-         rollToYawRateCtrl.setTuner(tuner);
-            //yawRateToYawCtrl.setTuner(tuner);
+         return controllers;
       }
          /** Reverse direction of the orb */
 

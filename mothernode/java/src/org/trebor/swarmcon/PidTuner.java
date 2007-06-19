@@ -31,6 +31,7 @@ class PidTuner extends JPanel
          // internal controller
 
       PIDController controller;
+      Controller[] controllers;
 
          // normalize a double
 
@@ -261,23 +262,18 @@ class PidTuner extends JPanel
 
          // constructor
 
-      public PidTuner()
+      public PidTuner(Controller[] controllers)
       {
+         this.controllers = controllers;
          constructFrame();
-      }
-         // set active controller
-
-      public void setController(PIDController controller)
-      {
-         this.controller = controller;
       }
          // create the elements which make up the visual frame
 
       public void constructFrame()
       {
-            // set title 
+            // add border to panel 
 
-            //setTitle("PID Tuner");
+         setBorder(new LineBorder(Color.GRAY, 10));
 
             // create the spinner number editors
 
@@ -353,14 +349,56 @@ class PidTuner extends JPanel
          graph.setPreferredSize(new Dimension(20, 400));
          add(graph);
          
+            // add current reading
 
-            // pack, position and show the frame
+         JPanel cPan = new JPanel();
+         final PidTuner tuner = this;
+         for (final Controller c: controllers)
+         {
+            JButton button = new JButton(c.toString());
+            cPan.add(button);
+            button.addActionListener(new ActionListener()
+               {
+                     public void actionPerformed(ActionEvent e)
+                     {
+                        c.setTuner(tuner);
+                        min = Double.MAX_VALUE;
+                        max = Double.MIN_VALUE;
+                        samples.clear();
+                        references.clear();
+                     }
+               });
+         }
+         add(cPan);
 
-            //pack();
-            //Rectangle gcBounds = getGraphicsConfiguration().getBounds();
-            //setLocation((gcBounds.width  - getWidth ()) / 2,
-            //(gcBounds.height - getHeight()) / 2);
-            //setVisible(true);
+            // add writter
+
+         JButton button = new JButton("write");
+         button.addActionListener(new ActionListener()
+            {
+                  public void actionPerformed(ActionEvent e)
+                  {
+                     for (final Controller c: controllers)
+                     {
+                        if (c instanceof PDController)
+                        {
+                           PDController pd = (PDController)c;
+                           System.out.println("Contoller: " + c.toString());
+                           System.out.println(" P: " + pd.getKp());
+                           System.out.println(" D: " + pd.getKd());
+                        }
+                        if (c instanceof PIDController)
+                        {
+                           PIDController pid = (PIDController)c;
+                           System.out.println("Contoller: " + c.toString());
+                           System.out.println(" P: " + pid.getKp());
+                           System.out.println(" I: " + pid.getKi());
+                           System.out.println(" D: " + pid.getKd());
+                        }
+                     }
+                  }
+            });
+         add(button);
       }
          // construct parameter panel
 
@@ -390,7 +428,7 @@ class PidTuner extends JPanel
 
       public static void main(String[] args)
       {
-         new PidTuner();
+         new PidTuner(null);
       }
          // add sample to graph
 

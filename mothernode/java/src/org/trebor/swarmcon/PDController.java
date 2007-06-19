@@ -7,8 +7,9 @@ public class PDController extends Controller
       
          // create a PD controller
 
-      public PDController(double kp, double kd)
+      public PDController(String name, double kp, double kd)
       {
+         super(name);
          this.kp = kp;
          this.kd = kd;
       }

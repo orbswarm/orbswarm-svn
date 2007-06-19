@@ -58,7 +58,7 @@ public class Angle
 
       public void setAngle(double angle)
       {
-         this.angle = (360 + angle) % 360;
+         this.angle = angle % 360;
       }
          /** Sets the value of this angle.  It accepts radians or degrees.
           *
