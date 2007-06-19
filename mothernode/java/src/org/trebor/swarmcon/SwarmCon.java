@@ -48,11 +48,17 @@ public class SwarmCon extends JFrame
 
          /** scale for graphics */
 
-      public static final double PIXLES_PER_METER  = 30.0;
+      public static final double PIXLES_PER_METER  = 65.0;
 
          /** arena in which we play */
 
-      JPanel arena;
+      final JPanel arena = new JPanel()
+         {
+               public void paint(Graphics graphics)
+               {
+                  paintArena(graphics);
+               }
+         };
 
          /** arena in which we play */
 
@@ -72,13 +78,34 @@ public class SwarmCon extends JFrame
       public static Color VECTOR_CRL    = new Color(255,   0,   0, 128);
       public static Font  MISC_FONT     = new Font("Helvetica", 
                                                    Font.PLAIN, 15);
-      public static Font  ORB_FONT      = new Font("Helvetica", 
-                                                   Font.PLAIN, 10);
+      public static Font  ORB_FONT      =  new Font("Helvetica", 
+                                                    Font.PLAIN, 10);
+
+      static
+      {
+         ORB_FONT = scaleFont(ORB_FONT);
+      }
+
+         /** Scale a font which are to be used in arena units 
+          *
+          * @param original font to be scale
+          * @return a scaled copy of the font
+          */
+
+      public static Font scaleFont(Font original)
+      {
+         return original.deriveFont(
+            (float)(original.getSize() 
+                    / PIXLES_PER_METER));
+      }
+
          /** Standard button font */
 
       public static Font BUTTON_FONT = (new Font("Lucida Grande",
                                                  Font.PLAIN, 1)).
                                         deriveFont(2f);
+
+         // fix font sizes
 
          /** swarm of mobjects (not just orbs) (maybe this should not be
           * called the swarm?) */
@@ -121,22 +148,8 @@ public class SwarmCon extends JFrame
 
       public static void main(String[] args)
       {
-/*
-  try
-         {
-            OrbIo oio = new OrbIo("/dev/cu.usbserial0");
-            System.out.println("mark 1");
-            for (int i = 0; i < 100; ++i)
-               oio.send("hello world!\n");
-            System.out.println("mark 2");
-         }
-         catch (Exception e)
-         {
-            e.printStackTrace();
-         }
-         System.out.println("mark 3");*/
-
          SwarmCon c = new SwarmCon();
+            //Angle.unitTest();
       }
          // construct a swarm
 
@@ -185,13 +198,19 @@ public class SwarmCon extends JFrame
             // add the orbs
          
          addOrbs();
-         
+
+            // repaint everything
+
+         repaint();
+
             // start the animation thread
 
          new Thread()
          {
                public void run()
                {
+                  try {sleep(100);} 
+                  catch (Exception e) {e.printStackTrace();}
                   while (true) {update();}
                }
          }.start();
@@ -220,7 +239,7 @@ public class SwarmCon extends JFrame
             Behavior cb = new ClusterBehavior();
             Behavior fab = new AvoidBehavior(fb);
             Behavior cab = new AvoidBehavior(cb);
-               //orb.add(wb);
+            orb.add(wb);
             orb.add(fb);
             orb.add(rb);
             orb.add(cb);
@@ -287,13 +306,6 @@ public class SwarmCon extends JFrame
          
             // setup paint area
          
-         arena = new JPanel()
-            {
-                  public void paint(Graphics graphics)
-                  {
-                     paintArena(graphics);
-                  }
-            };
          arena.addMouseMotionListener(mia);
          arena.addMouseListener(mia);
          frame.add(arena, BorderLayout.CENTER);
@@ -432,28 +444,26 @@ public class SwarmCon extends JFrame
                      g.setFont(MISC_FONT);
                      g.drawString(
                         orb.getId() + ": " + 
-                        (behavior != null ? behavior.toString() : "[none]") +
-                        " R: " + HeadingFormat.format(round(orb.getRoll ())) +
-                        " P: " + HeadingFormat.format(round(orb.getPitch())) +
-                        " Y: " + HeadingFormat.format(round(orb.getYaw  ())) +
-                        " V: " + round(orb.getVelocity() * 100) / 100d,
+                        (behavior != null 
+                         ? behavior.toString() 
+                         : "[none]") +
+                        " R: " + HeadingFormat.
+                        format(round(orb.getRoll ())) +
+                        " P: " + HeadingFormat.
+                        format(round(orb.getPitch())) +
+                        " Y: " + HeadingFormat.
+                        format(round(orb.getYaw  ())) +
+                        " YR: " + HeadingFormat.
+                        format(round(orb.getYawRate())) +
+                        " V: " + round(orb.getSpeed() * 100) / 100d,
                         5, 15 + id++ * 15);
-
-                     g.setFont(ORB_FONT);
-                     g.drawString(
-                        "" + orb.getId(), 
-                        (int)((orb.getX() - ORB_DIAMETER / 2)
-                              * PIXLES_PER_METER),
-                        (int)((orb.getY() - ORB_DIAMETER / 2)
-                              * PIXLES_PER_METER));
                   }
             }
          }
-                     
-            // scale for meters
-                     
-         g.setTransform(AffineTransform.getScaleInstance(
-                           PIXLES_PER_METER, PIXLES_PER_METER));
+            // set 0,0 to lower left corner, and scale for meters
+
+         g.translate(0, getHeight());
+         g.scale(PIXLES_PER_METER, -PIXLES_PER_METER);
                      
             // draw mobjects
                      
@@ -471,6 +481,8 @@ public class SwarmCon extends JFrame
 
       public class MouseMobject extends Mobject
       {
+            JPanel arenax = arena;
+
                // shape to be drawn
 
             Shape shape = new Ellipse2D.Double(
@@ -486,8 +498,9 @@ public class SwarmCon extends JFrame
                   {
                         public void mouseMoved(MouseEvent e)
                         {
-                           setPosition(e.getX() / PIXLES_PER_METER, 
-                                       e.getY() / PIXLES_PER_METER);
+                           setPosition(e.getX() / PIXLES_PER_METER,
+                                       (arenax.getHeight() - e.getY()) /
+                                       PIXLES_PER_METER);
                         }
                   };
                
@@ -631,6 +644,22 @@ public class SwarmCon extends JFrame
          rTriangle.subtract(new Area(new Rectangle2D.Double(-2, 0, 4, 2)));
          return rTriangle;
       }
+         /** joystick position */
+
+      static public Point joystick = new Point(0, 0);
+
+         /** set the "joystick" position based on mouse location.  The
+          * joystick values are normalized to be between -1 and 1.
+          *
+          * @param event the mouse event from which to work
+          */
+
+      public void setMouseJoy(MouseEvent e)
+      {
+         joystick.setLocation(
+            ((double)e.getX() / arena.getWidth()) * 2 - 1,
+            ((double)e.getY() / arena.getHeight()) * 2 - 1);
+      }
          /** swarm mouse input adapter */
 
       class SwarmMia extends MouseInputAdapter
@@ -644,6 +673,7 @@ public class SwarmCon extends JFrame
             
             public void mouseMoved(MouseEvent e)
             {
+               setMouseJoy(e);
             }
                // mouse clicked event
             
@@ -653,7 +683,7 @@ public class SwarmCon extends JFrame
 
                Point2D.Double point = new Point2D.Double(
                   e.getX() / PIXLES_PER_METER, 
-                  e.getY() / PIXLES_PER_METER);
+                  (arena.getHeight() - e.getY()) / PIXLES_PER_METER);
 
                   // find nearest selectable mobject
 

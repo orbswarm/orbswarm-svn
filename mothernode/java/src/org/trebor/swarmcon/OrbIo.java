@@ -242,4 +242,25 @@ public class OrbIo
       {
          orbs.get(id).handleMessage(message);
       }
+         /** Loop back test serial port. */
+
+      public void loopBackTest()
+      {
+/*
+  try
+         {
+            OrbIo oio = new OrbIo("/dev/cu.usbserial0");
+            System.out.println("mark 1");
+            for (int i = 0; i < 100; ++i)
+               oio.send("hello world!\n");
+            System.out.println("mark 2");
+         }
+         catch (Exception e)
+         {
+            e.printStackTrace();
+         }
+         System.out.println("mark 3");
+*/
+
+      }
   }

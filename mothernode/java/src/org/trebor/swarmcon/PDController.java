@@ -36,7 +36,7 @@ public class PDController extends Controller
          {
             setKp(tuner.getP());
             setKd(tuner.getD());
-            tuner.addSample(getTarget(), measurement);
+            tuner.addSample(measurement, getTarget());
          }
             // return computed command
 

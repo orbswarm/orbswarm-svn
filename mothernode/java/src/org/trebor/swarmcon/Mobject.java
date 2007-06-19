@@ -119,7 +119,7 @@ public class Mobject
 
       void deltaPosition(double dX, double dY)
       {
-         this.position.setLocation(getX() + dX, getY() + dY);
+         setPosition(getX() + dX, getY() + dY);
       }
          // update state of this object
 
@@ -178,8 +178,8 @@ public class Mobject
       {
          double dx = point.getX() - getPosition().getX();
          double dy = point.getY() - getPosition().getY();
-         double angle = atan(dy / (dx == 0 ? Double.MIN_VALUE : dx));
-         return toDegrees(angle) + (dx > 0 ? 90 : 270);
+         double angle = atan2(dx, dy);
+         return toDegrees(angle) + (dx < 0 ? 360 : 0);
       }
          // compute distance to some point
 

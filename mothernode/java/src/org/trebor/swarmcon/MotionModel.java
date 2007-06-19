@@ -16,33 +16,47 @@ abstract public class MotionModel
 
          /** yaw of orb */
       
-      private double yaw;
+      private Angle yaw = new Angle();
 
          /** pitch of orb */
 
-      private double pitch;
+      private Angle pitch = new Angle();
 
          /** roll of orb */
 
-      private double roll;
+      private Angle roll = new Angle();
 
-         /** velocity of orb */
+         /** actual velocity of orb */
 
       private double velocity;
 
          /** actual direction of travel */
 
-      private double direction;
+      private Angle direction = new Angle();
 
-         // ------- rate control parameters --------
+         /** actual yaw rate */
+
+      private double yawRate;
+
+         // ------- pitch roll rate control parameters --------
+
+         /** target roll rate */
+
+      private double targetRollRate;
+
+         /** target pitch rate */
+
+      private double targetPitchRate;
+
+         // ------- yaw rate velocity control parameters --------
 
          /** target yaw rate */
 
       private double targetYawRate;
 
-         /** target velocity */
+         /** target pitch rate */
 
-      private double targetPitchRate;
+      private double targetVelocity;
 
          // ------- yaw / distance control parameters --------
 
@@ -69,12 +83,37 @@ abstract public class MotionModel
 
          /** Get the yaw rate of the orb.
           *
-          * @return yaw reate in degrees per second
+          * @return yaw rate in degrees per second
           */
 
-      abstract public double getYawRate();
+      public double getYawRate()
+      {
+         return yawRate;
+      }
+         /** Set the yaw rate of the orb.
+          *
+          * @param yawRate yaw rate in degrees per second
+          */
 
-         /** Get the current velocity of the orb.
+      protected void setYawRate(double yawRate)
+      {
+         this.yawRate = yawRate;
+      }
+         /** Get the current speed of the orb. This takes into account
+          * which way the orb is facing and will return negitive values
+          * if the orb is backing up.
+          *
+          * @return velocity in meters per second
+          */
+
+      public double getSpeed()
+      {
+         return abs(yaw.difference(direction).degrees()) < 90
+            ? getVelocity()
+            : -getVelocity();
+      }
+         /** Get the current velocity of the orb. Always returns a
+          * postive value.
           *
           * @return velocity in meters per second
           */
@@ -99,28 +138,40 @@ abstract public class MotionModel
 
       public double getDirection()
       {
-         return direction;
+         return direction.degrees();
       }
          /** Set the current direction of the orb.
           *
-          * @param direction orb direction in meters per second
+          * @param direction orb direction (headign in degrees)
           */
 
       protected void setDirection(double direction)
       {
-         this.direction = direction;
+         this.direction.setAngle(direction);
       }
          /** Command low level rate control.
           *
-          * @param targetYawRate target yaw rate
+          * @param targetRollRate target roll rate
           * @param targetPitchRate target velocity
           */
 
-      public void setTargetRates(double targetYawRate, 
-                                 double targetPitchRate)
+      public void setTargetRollPitchRates(double targetRollRate, 
+                                          double targetPitchRate)
+      {
+         this.targetRollRate = targetRollRate;
+         this.targetPitchRate = targetPitchRate;
+      }
+         /** Command target yaw rate and velocity.
+          *
+          * @param targetYawRate target yaw rate
+          * @param targetVelocity target velocity
+          */
+
+      public void setTargetYawRateVelocity(double targetYawRate, 
+                                          double targetVelocity)
       {
          this.targetYawRate = targetYawRate;
-         this.targetPitchRate = targetPitchRate;
+         this.targetVelocity = targetVelocity;
       }
          /** Command yaw and distance.
           *
@@ -153,60 +204,60 @@ abstract public class MotionModel
 
       public double getYaw()
       {
-         return yaw;
+         return yaw.degrees();
       }
          // set yaw
 
       protected void setYaw(double yaw)
       {
-         this.yaw = (yaw + 360) % 360;
+         this.yaw.setAngle(yaw);
       }
          // set delta yaw
 
       protected void setDeltaYaw(double dYaw)
       {
-         setYaw(this.yaw + dYaw);
+         yaw.setDeltaAngle(dYaw);
       }
          // get pitch
 
       public double getPitch()
       {
-         return pitch;
+         return pitch.degrees();
       }
          // set pitch
 
       protected double setPitch(double pitch)
       {
-         double deltaPitch = pitch - this.pitch;
-         this.pitch = (pitch + 360) % 360;
+         double deltaPitch = pitch - this.pitch.degrees();
+         this.pitch.setAngle(pitch);
          return deltaPitch;
       }
          // set delta pitch
 
       protected double setDeltaPitch(double dPitch)
       {
-         return setPitch(this.pitch + dPitch);
+         return setPitch(this.pitch.degrees() + dPitch);
       }
          // get roll
 
       public double getRoll()
       {
-         return roll;
+         return roll.degrees();
       }
          // set roll
 
       protected double setRoll(double roll)
       {
          double newRoll = max(min(MAX_ROLL, roll), -MAX_ROLL);
-         double deltaRoll = newRoll - this.roll;
-         this.roll = newRoll;
+         double deltaRoll = newRoll - this.roll.degrees();
+         this.roll.setAngle(newRoll);
          return deltaRoll;
       }
          // set delta roll
 
       protected double setDeltaRoll(double dRoll)
       {
-         return setRoll(this.roll + dRoll);
+         return setRoll(this.roll.degrees() + dRoll);
       }
          // reverse the sense of the vehicle
 

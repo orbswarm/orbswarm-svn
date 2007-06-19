@@ -23,6 +23,11 @@ class PidTuner extends JPanel
       double min = Double.MAX_VALUE;
       double max = Double.MIN_VALUE;
 
+         // some colors
+      
+      public static final Color GRAPH_COLOR = new Color(128, 128, 128);
+      public static final Color EDGE_COLOR = new Color(  32,  32,  32);
+
          // internal controller
 
       PIDController controller;
@@ -37,7 +42,6 @@ class PidTuner extends JPanel
 
       JPanel graph = new JPanel()
          {
-               BasicStroke stroke = new BasicStroke(0.5f);
                public void paint(Graphics graphics)
                {
                      // configure graphics
@@ -45,7 +49,6 @@ class PidTuner extends JPanel
                   Graphics2D g = (Graphics2D)graphics;
                   g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
                                      RenderingHints.VALUE_ANTIALIAS_ON);
-                  g.setStroke(stroke);
                   Rectangle bounds = g.getClipBounds();
                   
                      // set white background
@@ -60,8 +63,13 @@ class PidTuner extends JPanel
 
                      // compute graph adjstments
                   
+                  double scale = bounds.getHeight() / (max - min); 
+                  g.scale(1.0d, scale);
                   g.translate(0, -min);
-                  g.scale(1.0d, bounds.getHeight() / (max - min));
+                  g.setStroke(
+                     new BasicStroke((float)(scale / 1), 
+                                     BasicStroke.CAP_BUTT, 
+                                     BasicStroke.JOIN_MITER));
 
 /*                  float ref0 = references.get(0).floatValue();
                   float refn = references.lastElement().floatValue();
@@ -95,22 +103,23 @@ class PidTuner extends JPanel
                      double sample = samples.get(i);
                      double reference = references.get(i);
 
+                     g.setColor(GRAPH_COLOR);
                      g.draw(new Line2D.Double(i, sample, i, reference));
 
                         // if we've got some history draw lines
+                     
+//                      if (i > 0)
+//                      {
+//                         g.setColor(EDGE_COLOR);
+//                         g.draw(new Line2D.Double(i, oldSample, 
+//                                                  i, sample));
+//                         g.draw(new Line2D.Double(i, oldReference, 
+//                                                  i, reference));
+//                      }
+//                         // record history
 
-                     if (i > 0)
-                     {
-                        g.draw(new Line2D.Double(i, oldSample, 
-                                                 i, sample));
-                        g.setColor(new Color(0, 0, 0));
-                        g.draw(new Line2D.Double(i, oldReference, 
-                                                 i, reference));
-                     }
-                        // record history
-
-                     oldSample = sample;
-                     oldReference = reference;
+//                      oldSample = sample;
+//                      oldReference = reference;
                   }
                }
          };
@@ -148,6 +157,13 @@ class PidTuner extends JPanel
                                 -Double.MAX_VALUE,
                                 Double.MAX_VALUE,
                                 1.0d));
+
+      
+         // sample and reference fields
+
+      JTextField sampleFld = new JTextField();
+      JTextField referenceFld = new JTextField();
+
          // actions
 
       PidAction pt10 = new PidAction(
@@ -317,6 +333,19 @@ class PidTuner extends JPanel
          mmPan.add(createLabel("MAX"));
          add(mmPan);
 
+            // add current reading
+
+         JPanel rsPan = new JPanel();
+         d = referenceFld.getPreferredSize();
+         d.width = 60;
+         sampleFld.setPreferredSize(d);
+         referenceFld.setPreferredSize(d);
+         rsPan.add(createLabel("Sample"));
+         rsPan.add(sampleFld);
+         rsPan.add(createLabel("Reference"));
+         rsPan.add(referenceFld);
+         add(rsPan);
+
             // add graph
          
             //graph.setBorder(new LineBorder(Color.BLACK, 20));
@@ -367,6 +396,8 @@ class PidTuner extends JPanel
 
       public void addSample(double sample, double reference)
       {
+         sampleFld.setText("" + sample);
+         referenceFld.setText("" + reference);
          samples.add(0, sample);
          references.add(0, reference);
          min = Math.min(min, sample);
@@ -374,6 +405,8 @@ class PidTuner extends JPanel
          min = Math.min(min, reference);
          max = Math.max(max, reference);
 
+            //minOutput.setValue(min);
+            //maxOutput.setValue(max);
          if (samples.size() > graph.getWidth())
             samples.setSize(graph.getWidth());
 

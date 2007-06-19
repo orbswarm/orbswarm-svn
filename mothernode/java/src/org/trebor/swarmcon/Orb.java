@@ -152,11 +152,23 @@ public class Orb extends Mobject
       {
          return model.getYaw();
       }
+         // get orb yaw rate
+
+      public double getYawRate()
+      {
+         return model.getYawRate();
+      }
          // get actual current velocity
 
       public double getVelocity()
       {
          return model.getVelocity();
+      }
+         // get actual current speed
+
+      public double getSpeed()
+      {
+         return model.getSpeed();
       }
          // update positon
 
@@ -236,25 +248,51 @@ public class Orb extends Mobject
       {
          shape = scale(createOrbShape(), ORB_DIAMETER, ORB_DIAMETER);
          setColor(g, isSelected() ? SEL_ORB_CLR : ORB_CLR);
-         g.fill(translate(rotateAboutCenter(shape, getYaw()),
+         g.fill(translate(rotateAboutCenter(shape, -getYaw()),
                           getX(), getY()));
          
          Shape frame = scale(createOrbFrameShape(), 
                              ORB_DIAMETER, ORB_DIAMETER);
          setColor(g, ORB_FRAME_CLR);
-         g.fill(translate(rotateAboutCenter(frame, getYaw()),
+         g.fill(translate(rotateAboutCenter(frame, -getYaw()),
                           getX(), getY()));
 
          Shape line = new Line2D.Double(0, 0, 0, -1);
          line = scale(line, model.getVelocity(),
                       model.getVelocity());
-         line = rotate(line, model.getDirection());
+         line = rotate(line, 180 - model.getDirection());
          g.setStroke(new BasicStroke((float)(ORB_DIAMETER / 8),
                                      BasicStroke.CAP_ROUND,
                                      BasicStroke.JOIN_ROUND));
          setColor(g, VECTOR_CRL);
          g.draw(translate(line, getX(), getY()));
          super.paint(g);
+
+         g.setFont(ORB_FONT);
+         g.setColor(TEXT_CLR);
+         drawText(g, getX() - ORB_DIAMETER / 2, 
+                     getY() + ORB_DIAMETER / 2, "" + getId());
+      }
+         // draw text at a given location
+
+      public void drawText(Graphics2D g, double x, double y, String text)
+      {
+         drawText(g, new Point(x, y), text);
+      }
+         // draw text at a given location
+
+      public void drawText(Graphics2D g, Point2D point, String text)
+      {
+         AffineTransform old = g.getTransform();
+         g.setTransform(new AffineTransform());
+         g.setFont(g.getFont().deriveFont(
+                      old.getScaleInstance(old.getScaleX(),
+                                           -old.getScaleY())));
+
+                         //(float)(g.getFont().getSize() * old.getScaleX())));
+         Point2D n = old.transform(point, new Point2D.Double());
+         g.drawString(text, (int)n.getX(), (int)n.getY());
+         g.setTransform(old);
       }
          // create orb shape
 
@@ -296,7 +334,7 @@ public class Orb extends Mobject
                              BasicStroke.CAP_ROUND,
                              BasicStroke.JOIN_ROUND);
 
-         double pitch = model.getPitch();
+         double pitch = (360 + model.getPitch()) % 360;
          for (int i = 0; i < ORB_SPAR_COUNT; ++i)
          {
             width = sin(toRadians(pitch));
@@ -305,7 +343,7 @@ public class Orb extends Mobject
                                    1,
                                    abs(width),
                                    pitch > 180 && pitch < 270 ||
-                                   pitch < 90 ? 0 : 180, 180,
+                                   pitch < 90 ? 180 : 0, 180,
                                    Arc2D.Double.OPEN);
             arcs.append(s.createStrokedShape(arc), true);
             pitch = (pitch + 180 / ORB_SPAR_COUNT) % 360;

@@ -7,13 +7,15 @@ public class WanderBehavior extends Behavior
 {
       double totalTime;
       double adjust;
+      public double targetYawRate  = 0;
+      public double targetVelocity = 0;
 
          // create a Wander behavior
 
       public WanderBehavior()
       {
          super("Wander");
-         adjust = RND.nextDouble();
+         adjust = 1 + RND.nextDouble();
       }
          // update
 
@@ -22,6 +24,9 @@ public class WanderBehavior extends Behavior
          totalTime += time;
          double tr = adjust * sin(totalTime / 2);
          double tp = adjust * sin(totalTime / 3);
-         model.setTargetRates(tr, tp);
+            //model.setTargetRollPitchRates(0, );
+         model.setTargetYawRateVelocity(15, .75);
+               //0,
+               //- ((SwarmCon.joystick.getY())));
       }
 }

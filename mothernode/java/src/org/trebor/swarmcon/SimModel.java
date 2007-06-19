@@ -19,13 +19,23 @@ public class SimModel extends MotionModel
 
          /** pitch rate controller */
 
-      private PDController pitchCtrl = 
-         new PDController(2, 1000);
+      private PDController velocityToDistanceCtrl = 
+         new PDController(.2, 0);
 
          /** roll rate controller */
 
-      private PDController rollCtrl = 
-         new PDController(1, Float.MAX_VALUE);
+      private PDController yawRateToYawCtrl = 
+         new PDController(1, 0);
+
+         /** pitch rate to velocity controller */
+
+      private PDController pitchToVelocityCtrl = 
+         new PDController(3.2E2, 1E36);
+
+         /** roll rate to yaw rate controller */
+
+      private PDController rollToYawRateCtrl = 
+         new PDController(1.25E-1, 0);
 
          /** Command low level rate control.
           *
@@ -33,12 +43,30 @@ public class SimModel extends MotionModel
           * @param targetPitchRate target rate of pitch
           */
 
-      public void setTargetRates(double targetRollRate,
-                                 double targetPitchRate)
+      public void setTargetRollPitchRates(double targetRollRate,
+                                          double targetPitchRate)
       {
-         super.setTargetRates(targetRollRate, targetPitchRate);
+         super.setTargetRollPitchRates(targetRollRate, targetPitchRate);
          rollRate.setNormalizedTarget(targetRollRate);
          pitchRate.setNormalizedTarget(targetPitchRate);
+      }
+         /** Command target yaw rate and velocity.
+          *
+          * @param targetYawRate target yaw rate
+          * @param targetVelocity target velocity
+          */
+
+      public void setTargetYawRateVelocity(double targetYawRate, 
+                                          double targetVelocity)
+      {
+         super.setTargetYawRateVelocity(targetYawRate, targetVelocity);
+         rollToYawRateCtrl.setTarget(targetYawRate);
+         pitchToVelocityCtrl.setTarget(targetVelocity);
+         setTargetRollPitchRates(
+            -1,  //rollToYawRateCtrl.compute(getYawRate()),
+            pitchToVelocityCtrl.compute(getSpeed()));
+
+               //pitchToVelocityCtrl.compute(getVelocity()));
       }
          /** Command yaw and distance.
           *
@@ -48,49 +76,48 @@ public class SimModel extends MotionModel
 
       public void setYawDistance(double targetYaw, double distanceError)
       {
-         assert(false);
-
             // update parent
 
          super.setYawDistance(targetYaw, distanceError);
 
             // compute yaw error
 
-         double yawError = (getYaw() - getTargetYaw());
+         double yawError = Angle.difference(getYaw(), getTargetYaw());
 
-            // if it would be better to reverse direction, do so
-         
-            //if (abs(yawError) > 90 && abs(yawError) < 270)
-            //reverse();
 
             // set yaw goal correcting for yaw wrap around
 
-         rollCtrl.setTarget(yawError < -180
-                           ? - (360 - getTargetYaw())
-                           : (yawError > 180 
-                              ? targetYaw + 360
-                              : targetYaw));
+            //rollCtrl.setTarget(yawError < -180
+            //? - (360 - getTargetYaw())
+            //: (yawError > 180 
+            //? targetYaw + 360
+            //: targetYaw));
 
             // set pitchRate goal based on error
 
-         pitchCtrl.setTarget(0);
 
-            // set target rates
+            // set targets
 
-         setTargetRates(rollCtrl.compute(getYaw()),
-                        pitchCtrl.compute(distanceError));
+         yawRateToYawCtrl.setTarget(0);
+         velocityToDistanceCtrl.setTarget(0);
+
+         setTargetYawRateVelocity(
+            yawRateToYawCtrl.compute(yawError),
+            velocityToDistanceCtrl.compute(distanceError));
       }
          /** Set pitch tuner. */
 
       public void setPitchTuner(PidTuner tuner)
       {
-         pitchCtrl.setTuner(tuner);
+            //pitchToVelocityCtrl.setTuner(tuner);
+         velocityToDistanceCtrl.setTuner(tuner);
       }
          /** Set roll tuner. */
 
       public void setRollTuner(PidTuner tuner)
       {
-         rollCtrl.setTuner(tuner);
+         rollToYawRateCtrl.setTuner(tuner);
+            //yawRateToYawCtrl.setTuner(tuner);
       }
          /** Reverse direction of the orb */
 
@@ -110,25 +137,27 @@ public class SimModel extends MotionModel
                
             // copute delta pitch and roll
          
-         double dPitch = pitchRate.getRate() * time;
-         double dRoll  =  rollRate.getRate() * time;
+         Angle dPitch = new Angle(pitchRate.getRate() * time);
+         Angle dRoll  = new Angle(rollRate.getRate() * time);
 
 
             // update absolute pitch and roll
 
-         dPitch = setDeltaPitch(dPitch);
-         dRoll  = setDeltaRoll (dRoll );
+         dPitch.setAngle(setDeltaPitch(dPitch.degrees()));
+         dRoll .setAngle(setDeltaRoll (dRoll .degrees()));
 
             // feed back to actual pitch and roll rate in case
             // in case the orb hit some limit
          
-         pitchRate.setRate(dPitch / time);
-         rollRate.setRate(dRoll / time);
+         pitchRate.setRate(dPitch.degrees() / time);
+         rollRate.setRate(dRoll.degrees()   / time);
 
             // compute yaw
 
-         setDeltaYaw(toDegrees(sin(toRadians(getRoll())) * 
-                               toRadians(dPitch)));
+         double dYaw = toDegrees(sin(toRadians(getRoll())) * 
+                                 dPitch.radians());
+         setDeltaYaw(dYaw);
+         setYawRate(dYaw / time);
 
             // radius of wide end of the rolling cone
 
@@ -136,27 +165,20 @@ public class SimModel extends MotionModel
 
             // compute delta x and y
 
-         double dX = toRadians(dPitch) * p * cos(toRadians(getYaw() - 90));
-         double dY = toRadians(dPitch) * p * sin(toRadians(getYaw() - 90));
-         
+         Point delta = Angle.cartesian(
+            getYaw(), false, dPitch.radians() * p, true, 0, 0);
+
             // correct for latteral displacement due to roll
-         
-         dX += toRadians(dRoll) * ORB_RADIUS * cos(toRadians(getYaw()));
-         dY += toRadians(dRoll) * ORB_RADIUS * sin(toRadians(getYaw()));
+
+         delta.translate(
+            Angle.cartesian(
+               getYaw() + 90, false, dRoll.radians() * ORB_RADIUS,
+               true, 0, 0));
          
             // set position and velocity and direction
          
-         setDeltaPosition(dX, dY);
-         setVelocity(hypot(dX, dY) / time);
-         setDirection(toDegrees(PI - atan2(dX, dY)));
-      }
-         /** Get the yaw rate of the orb.
-          *
-          * @return yaw reate in degrees per second
-          */
-
-      public double getYawRate()
-      {
-         return rollRate.getRate();
+         setDeltaPosition(delta.getX(), delta.getY());
+         setVelocity(hypot(delta.getX(), delta.getY()) / time);
+         setDirection(toDegrees(atan2(delta.getX(), delta.getY())));
       }
 }
