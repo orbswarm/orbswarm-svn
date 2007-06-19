@@ -1,0 +1,264 @@
+Netlist
+
+Exported from swarm-agg1.sch at  6/19/2007 05:56:52a
+
+EAGLE Version 4.16r1 Copyright (c) 1988-2006 CadSoft
+
+Net      Part     Pad      Pin        Sheet
+
+GND      C1       2        2          1
+         C10      2        2          1
+         C11      2        2          1
+         C12      2        2          1
+         C13      2        2          1
+         C14      2        2          1
+         C15      2        2          1
+         C19      2        2          1
+         C2       2        2          1
+         C20      2        2          1
+         C24      2        2          1
+         C25      2        2          1
+         C27      2        2          1
+         C3       2        2          1
+         C4       2        2          1
+         C5       2        2          1
+         C6       2        2          1
+         C7       2        2          1
+         C8       2        2          1
+         C9       2        2          1
+         IC3      GND      GND        1
+         J1       1        1          1
+         J2       2        S          1
+         J3       1        1          1
+         J3       5        5          1
+         J4       6        6          1
+         U1       11       GND        1
+         U1       32       GND1       1
+         U1       62       GND2       1
+         U1       81       GND3       1
+         U1       99       AGND       1
+         U2       15       GND        1
+         U3       15       GND        1
+         X2       2        S          1
+         XB1      10       GND        1
+
+N$1      U1       3        (TXD0)PE1  1
+         U2       11       T1IN       1
+
+N$2      C26      2        2          1
+         U1       100      AVCC       1
+
+N$3      C16      2        2          1
+         U2       1        C1+        1
+
+N$4      J1       3        3          1
+         U2       14       T1OUT      1
+
+N$5      J1       4        4          1
+         U2       13       R1IN       1
+
+N$6      J1       5        5          1
+         U2       7        T2OUT      1
+
+N$7      J1       6        6          1
+         U2       8        R2IN       1
+
+N$8      U1       2        (RXD0/PCINT8)PE0 1
+         U2       12       R1OUT      1
+
+N$9      SV6      3        3          1
+         U2       9        R2OUT      1
+
+N$10     J2       3        S          1
+         U1       45       (RXD1/INT2)PD2 1
+         U2       10       T2IN       1
+
+N$11     SV6      1        1          1
+         U1       46       (TXD1/INT3)PD3 1
+
+N$12     J2       4        S          1
+         SV6      2        2          1
+
+N$13     J1       7        7          1
+         U3       14       T1OUT      1
+
+N$14     J1       8        8          1
+         U3       13       R1IN       1
+
+N$15     J2       5        S          1
+         U1       12       (RXD2)PH0  1
+         U3       11       T1IN       1
+
+N$16     C3       1        1          1
+         IC3      IN       IN         1
+         L1       2        2          1
+
+N$17     C1       1        1          1
+         C2       1        1          1
+         J1       2        2          1
+         L1       1        1          1
+
+N$18     C24      1        1          1
+         J3       3        3          1
+         U1       97       PF0(ADC0)  1
+
+N$19     C25      1        1          1
+         J3       7        7          1
+         U1       96       PF1(ADC1)  1
+
+N$20     J1       9        9          1
+         U3       7        T2OUT      1
+
+N$21     J1       10       10         1
+         U3       8        R2IN       1
+
+N$22     J2       6        S          1
+         SV4      2        2          1
+
+N$23     SV4      3        3          1
+         U3       12       R1OUT      1
+
+N$24     SV5      3        3          1
+         U3       9        R2OUT      1
+
+N$25     U1       63       (RXD3/PCINT9)PJ0 1
+         U3       10       T2IN       1
+         XB1      2        DOUT       1
+
+N$26     SV5      1        1          1
+         U1       64       (TXD3/PCINT10)PJ1 1
+
+N$27     SV5      2        2          1
+         XB1      3        DIN/CONFIG\ 1
+
+N$28     SV4      1        1          1
+         U1       13       (TXD2)PH1  1
+
+N$29     C6       1        1          1
+         Q1       2        2          1
+         U1       33       XTAL2      1
+
+N$30     J4       1        1          1
+         U1       22       (MISO/PCINT3)PB3 1
+
+N$31     J4       3        3          1
+         U1       20       (SCK/PCINT1)PB1 1
+
+N$32     J1       12       12         1
+         X2       1        S          1
+
+N$33     J1       11       11         1
+         J4       5        5          1
+         R3       1        1          1
+         U1       30       RESET      1
+
+N$34     J4       4        4          1
+         U1       21       (MOSI/PCINT2)PB2 1
+
+N$35     C7       1        1          1
+         Q1       1        1          1
+         U1       34       XTAL1      1
+
+N$36     J3       4        4          1
+         U1       41       PL6        1
+
+N$37     J3       8        8          1
+         U1       42       PL7        1
+
+N$38     C16      1        1          1
+         U2       3        C1-        1
+
+N$39     C17      2        2          1
+         U2       4        C2+        1
+
+N$40     C17      1        1          1
+         U2       5        C2-        1
+
+N$41     C19      1        1          1
+         U2       6        V-         1
+
+N$42     C18      1        1          1
+         U2       2        V+         1
+
+N$43     C23      1        1          1
+         U3       2        V+         1
+
+N$44     C20      1        1          1
+         U3       6        V-         1
+
+N$45     C21      1        1          1
+         U3       5        C2-        1
+
+N$46     C21      2        2          1
+         U3       4        C2+        1
+
+N$47     C22      1        1          1
+         U3       3        C1-        1
+
+N$48     C22      2        2          1
+         U3       1        C1+        1
+
+N$49     L2       2        2          1
+         U1       98       AREF       1
+
+N$50     LED2     C        C          1
+         R1       2        2          1
+
+N$51     R1       1        1          1
+         U1       25       (OC1B/PCINT6)PB6 1
+
+N$52     LED1     C        C          1
+         R2       2        2          1
+
+N$53     R2       1        1          1
+         U1       26       (OC0A/OC1C)PB7 1
+
+N$54     U1       79       PJ7        1
+         XB1      5        RESET\     1
+
+N$55     U1       69       (PCINT15)PJ6 1
+         XB1      13       ON/SLEEP\  1
+
+N$56     U1       68       (PCINT14)PJ5 1
+         XB1      9        DTR\/SLEEP_RQ/DI8 1
+
+N$57     U1       67       (PCINT13)PJ4 1
+         XB1      12       CTS\/DIO7  1
+
+N$58     U1       66       (PCINT12)PJ3 1
+         XB1      16       RTS\/AD6/DIO6 1
+
+N$59     J1       13       13         1
+         J2       7        S          1
+
+VCC      C10      1        1          1
+         C11      1        1          1
+         C12      1        1          1
+         C13      1        1          1
+         C14      1        1          1
+         C15      1        1          1
+         C18      2        2          1
+         C23      2        2          1
+         C26      1        1          1
+         C27      1        1          1
+         C4       1        1          1
+         C5       1        1          1
+         C8       1        1          1
+         C9       1        1          1
+         IC3      OUT      OUT        1
+         J2       1        S          1
+         J2       8        S          1
+         J3       2        2          1
+         J3       6        6          1
+         L2       1        1          1
+         LED1     A        A          1
+         LED2     A        A          1
+         R3       2        2          1
+         U1       10       VCC        1
+         U1       31       VCC1       1
+         U1       61       VCC2       1
+         U1       80       VCC3       1
+         U2       16       VCC        1
+         U3       16       VCC        1
+         XB1      1        VCC        1
+
