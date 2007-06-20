@@ -178,7 +178,7 @@ $(MYBIN)/%.elf: $(MYBIN)/%.o  $(LIB_BIN)/timer0.o
 
 
 # Compile: create object files from C source files.
-$(MYBIN)/%.o : $(MYSRC)/%.c $(GLOBAL_SHARED_INCLUDE)/xbee.h $(GLOBAL_SHARED_INCLUDE)/packet_type.h
+$(MYBIN)/%.o : $(MYSRC)/%.c $(GLOBAL_SHARED_INCLUDE)/xbee.h $(GLOBAL_SHARED_INCLUDE)/packet_type.h $(GLOBAL_SHARED_INCLUDE)/swarm_message_types.h
 	@echo
 	@echo $(MSG_COMPILING) $<
 	$(CC) -c $(ALL_CFLAGS) $< -o $@
