@@ -2,7 +2,8 @@
 #MCU = atmega8
 #F_CPU= 16000000   
 MCU = atmega640
-F_CPU = 14745600
+F_CPU = 14700000
+
 MYSRC = $(SVN_TRUNK)/aggregator/aggregator_src/c
 MYBIN = $(SVN_TRUNK)/aggregator/binaries
 GLOBAL_SHARED_INCLUDE = $(SVN_TRUNK)/shared/include
@@ -41,7 +42,7 @@ AVRDUDE_PROGRAMMER = stk500v2
 AVRDUDE_PORT = /dev/cu.KeySerial1 
 UPLOAD_RATE = 115200
 AVRDUDE_WRITE_FLASH = -U flash:w:$(MYBIN)/$(TARGET).hex
-AVRDUDE_FLAGS = -e -p $(MCU) -b $(UPLOAD_RATE) -P $(AVRDUDE_PORT) \
+AVRDUDE_FLAGS = -F -e -p $(MCU) -b $(UPLOAD_RATE) -P $(AVRDUDE_PORT) \
 	-c $(AVRDUDE_PROGRAMMER)
 FORMAT = ihex 		# create a .hex file
 
@@ -177,7 +178,7 @@ $(MYBIN)/%.elf: $(MYBIN)/%.o  $(LIB_BIN)/timer0.o
 
 
 # Compile: create object files from C source files.
-$(MYBIN)/%.o : $(MYSRC)/%.c 
+$(MYBIN)/%.o : $(MYSRC)/%.c $(GLOBAL_SHARED_INCLUDE)/xbee.h $(GLOBAL_SHARED_INCLUDE)/packet_type.h
 	@echo
 	@echo $(MSG_COMPILING) $<
 	$(CC) -c $(ALL_CFLAGS) $< -o $@
