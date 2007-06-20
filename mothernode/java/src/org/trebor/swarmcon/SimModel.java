@@ -17,10 +17,10 @@ public class SimModel extends MotionModel
       private Rate rollRate  = new Rate(
          "roll", -MAX_ROLL_RATE, MAX_ROLL_RATE, DROLL_RATE_DT);
 
-         /** velocity to pitch rate controller */
+         /** yaw to yaw rate controller */
 
-      private Controller velocityToPitchCtrl = 
-         new PDController("veloctiy", "pitchRate", 3.2E2, 1E36);
+      private Controller yawToYawRateCtrl = 
+         new PDController("yaw", "yawRate", -0.16, 2E17);
 
          /** yaw rate to roll rate controller */
 
@@ -32,19 +32,19 @@ public class SimModel extends MotionModel
       private Controller distanceToVelocityCtrl = 
          new PDController("distance", "velocity", .2, 0);
 
-         /** yaw to yaw rate controller */
+         /** velocity to pitch rate controller */
 
-      private Controller yawToYawRateCtrl = 
-         new PDController("yaw", "yawRate", 0.16, 2E17);
+      private Controller velocityToPitchCtrl = 
+         new PDController("veloctiy", "pitchRate", 3.2E2, 1E36);
 
          /** all the controllers in an array */
 
       Controller[] controllers =
       {
-         velocityToPitchCtrl,
+         yawToYawRateCtrl,
          yawRateToRollCtrl,
          distanceToVelocityCtrl,
-         yawToYawRateCtrl,
+         velocityToPitchCtrl,
       };
 
          /** Command low level rate control.
@@ -110,7 +110,7 @@ public class SimModel extends MotionModel
          distanceToVelocityCtrl.setTarget(0);
 
          setTargetYawRateVelocity(
-            -yawToYawRateCtrl.compute(yawError),
+            yawToYawRateCtrl.compute(yawError),
             distanceToVelocityCtrl.compute(distanceError));
       }
          /** Get controllers in the system. */
