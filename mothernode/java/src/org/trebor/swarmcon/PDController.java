@@ -7,9 +7,10 @@ public class PDController extends Controller
       
          // create a PD controller
 
-      public PDController(String name, double kp, double kd)
+      public PDController(String inputName, String outputName, 
+                          double kp, double kd)
       {
-         super(name);
+         super(inputName, outputName);
          this.kp = kp;
          this.kd = kd;
       }
@@ -18,8 +19,11 @@ public class PDController extends Controller
       public void setTuner(PidTuner tuner)
       {
          super.setTuner(tuner);
-         tuner.setP(getKp());
-         tuner.setD(getKd());
+         if (tuner != null)
+         {
+            tuner.setP(getKp());
+            tuner.setD(getKd());
+         }
       }
          // compute result
 

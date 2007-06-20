@@ -163,6 +163,8 @@ class PidTuner extends JPanel
          // sample and reference fields
 
       JTextField sampleFld = new JTextField();
+      JTextField inputFld = new JTextField();
+      JTextField outputFld = new JTextField();
       JTextField referenceFld = new JTextField();
 
          // actions
@@ -329,6 +331,22 @@ class PidTuner extends JPanel
          mmPan.add(createLabel("MAX"));
          add(mmPan);
 
+            // add input output labels
+
+         JPanel ioPan = new JPanel();
+         d = inputFld.getPreferredSize();
+         d.width = 90;
+         inputFld.setPreferredSize(d);
+         inputFld.setEditable(false);
+         ioPan.add(inputFld);
+         ioPan.add(createLabel("      "));
+         d = outputFld.getPreferredSize();
+         d.width = 90;
+         outputFld.setPreferredSize(d);
+         outputFld.setEditable(false);
+         ioPan.add(outputFld);
+         add(ioPan);
+
             // add current reading
 
          JPanel rsPan = new JPanel();
@@ -344,12 +362,10 @@ class PidTuner extends JPanel
 
             // add graph
          
-            //graph.setBorder(new LineBorder(Color.BLACK, 20));
-            //new BevelBorder(BevelBorder.LOWERED));
          graph.setPreferredSize(new Dimension(20, 400));
          add(graph);
          
-            // add current reading
+            // add controller library
 
          JPanel cPan = new JPanel();
          final PidTuner tuner = this;
@@ -361,11 +377,15 @@ class PidTuner extends JPanel
                {
                      public void actionPerformed(ActionEvent e)
                      {
+                        for (final Controller c: controllers)
+                           c.setTuner(null);
                         c.setTuner(tuner);
                         min = Double.MAX_VALUE;
                         max = Double.MIN_VALUE;
                         samples.clear();
                         references.clear();
+                        inputFld.setText(c.getInputName());
+                        outputFld.setText(c.getOutputName());
                      }
                });
          }

@@ -48,7 +48,7 @@ public class SwarmCon extends JFrame
 
          /** scale for graphics */
 
-      public static final double PIXLES_PER_METER  = 65.0;
+      public static final double PIXLES_PER_METER  = 40.0;
 
          /** arena in which we play */
 
@@ -659,7 +659,7 @@ public class SwarmCon extends JFrame
       public void setMouseJoy(MouseEvent e)
       {
          joystick.setLocation(
-            ((double)e.getX() / arena.getWidth()) * 2 - 1,
+            ((double)e.getX() / arena.getWidth() ) * 2 - 1,
             ((double)e.getY() / arena.getHeight()) * 2 - 1);
       }
          /** swarm mouse input adapter */

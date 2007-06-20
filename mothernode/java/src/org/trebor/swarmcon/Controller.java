@@ -7,17 +7,31 @@ public abstract class Controller
       protected double previousErr;
       protected double totalErr;
       protected PidTuner tuner;
-      protected String name;
+      protected String inputName;
+      protected String outputName;
 
-      public Controller(String name)
+      public Controller(String inputName, String outputName)
       {
-         this.name = name;
+         this.inputName = inputName;
+         this.outputName = outputName;
       }
          // convert to string
 
       public String toString()
       {
-         return name;
+         return getInputName() + "->" + getOutputName();
+      }
+         // get input name
+      
+      public String getInputName()
+      {
+         return inputName;
+      }
+         // get input name
+      
+      public String getOutputName()
+      {
+         return outputName;
       }
          // set tuner
 

@@ -24,8 +24,10 @@ public class WanderBehavior extends Behavior
          totalTime += time;
          double tr = adjust * sin(totalTime / 2);
          double tp = adjust * sin(totalTime / 3);
-            //model.setTargetRollPitchRates(0, );
-         model.setTargetYawRateVelocity(15, .75);
+            //model.setTargetRollPitchRates(
+         model.setTargetYawRateVelocity(
+            10 * SwarmCon.joystick.getX(),
+            1.1 + SwarmCon.joystick.getY());
                //0,
                //- ((SwarmCon.joystick.getY())));
       }

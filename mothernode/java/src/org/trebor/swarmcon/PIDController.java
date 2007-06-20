@@ -8,12 +8,25 @@ public class PIDController extends Controller
       
          // create a PD controller
 
-      public PIDController(String name, double kp, double ki, double kd)
+      public PIDController(String inputName, String outputName,
+                           double kp, double ki, double kd)
       {
-         super(name);
+         super(inputName, outputName);
          this.kp = kp;
          this.ki = ki;
          this.kd = kd;
+      }
+         // set tuner
+
+      public void setTuner(PidTuner tuner)
+      {
+         super.setTuner(tuner);
+         if (tuner != null)
+         {
+            tuner.setP(getKp());
+            tuner.setI(getKi());
+            tuner.setD(getKd());
+         }
       }
          // compute result
 

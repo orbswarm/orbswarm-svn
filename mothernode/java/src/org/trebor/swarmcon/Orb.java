@@ -64,7 +64,7 @@ public class Orb extends Mobject
          Rectangle2D.Double arena = swarm.getArena();
          setPosition(arena.getX() + RND.nextDouble() * arena.getWidth(),
                      arena.getY() + RND.nextDouble() * arena.getHeight());
-         setPosition(swarm.getCenter());
+            //setPosition(swarm.getCenter());
       }
          // position setter
 
@@ -250,6 +250,10 @@ public class Orb extends Mobject
          setColor(g, isSelected() ? SEL_ORB_CLR : ORB_CLR);
          g.fill(translate(rotateAboutCenter(shape, -getYaw()),
                           getX(), getY()));
+         Shape shadow = scale(createOrbShadowShape(), 
+                             ORB_DIAMETER, ORB_DIAMETER);
+         setColor(g, g.getColor().darker());
+         g.fill(translate(shadow, getX(), getY()));
          
          Shape frame = scale(createOrbFrameShape(), 
                              ORB_DIAMETER, ORB_DIAMETER);
@@ -270,7 +274,7 @@ public class Orb extends Mobject
 
          g.setFont(ORB_FONT);
          g.setColor(TEXT_CLR);
-         drawText(g, getX() - ORB_DIAMETER / 2, 
+         drawText(g, getX() - ORB_DIAMETER / 2,
                      getY() + ORB_DIAMETER / 2, "" + getId());
       }
          // draw text at a given location
@@ -299,6 +303,21 @@ public class Orb extends Mobject
       public Shape createOrbShape()
       {
          return createCirlcle();
+      }
+         // create orb shadow shape
+
+      public Shape createOrbShadowShape()
+      {
+         Area shadow = new Area(createCirlcle());
+         Area hole = new Area(createCirlcle());
+         shadow.subtract(translate(hole, -0.06, 0.06));
+         return shadow;
+      }
+         // create orb shadow shape
+
+      public Shape createOrbFlairShape()
+      {
+         return translate(scale(createCirlcle(), .10, .10), -0.25, 0.25);
       }
          // create orb shape
 
