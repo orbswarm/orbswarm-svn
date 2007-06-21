@@ -13,6 +13,8 @@ import java.text.*;
 import static java.lang.System.*;
 import static java.awt.Color.*;
 import static java.lang.Math.*;
+import static javax.swing.KeyStroke.*;
+import static java.awt.event.KeyEvent.*;
 
 public class SwarmCon extends JFrame
 {
@@ -293,75 +295,28 @@ public class SwarmCon extends JFrame
          arena.addMouseListener(mia);
          frame.add(arena, BorderLayout.CENTER);
 
-            // add pid tuner
-
-/*         controllers = 
-         {
-            new PDController("test1", 2, 10),
-            new PDController("test2", 1, 5),
-         };
-
-*/
             // init Swarm
 
          Controller[] controllers = addOrbs(new Rectangle2D
-                                            .Double(0, 0, 10, 10));
+                                            .Double(0, 0, 20, 20));
 //             .Double(arena.getBounds().getX() / PIXLES_PER_METER,
 //                     arena.getBounds().getY() / PIXLES_PER_METER,
 //                     arena.getBounds().getWidth()  / PIXLES_PER_METER,
 //                     arena.getBounds().getHeight() / PIXLES_PER_METER));
-
-         frame.add(tuner = new PidTuner(controllers), BorderLayout.EAST);
-
-            // add a key listener
          
-         addKeyListener(new KeyAdapter()
-            {
-                  public void keyPressed(KeyEvent e)
-                  {
-                     int key = e.getKeyCode();
-                     int mods = e.getModifiers();
+            // add pid tuner
 
-                           // handle unmodified events
+         add(tuner = new PidTuner(controllers), BorderLayout.EAST);
 
-                     switch (key)
-                     {
-                              // move right action
-                           
-                        case KeyEvent.VK_R:
-                           swarm.randomize();
-                           break;
+            // add actions
 
-                           // move left action
-                        
-                        case KeyEvent.VK_UP:
-                           swarm.nextBehavior();
-                           break;
-                           
-                              // move right action
-                           
-                        case KeyEvent.VK_DOWN:
-                           swarm.previousBehavior();
-                           break;
-                           
-                              // move left action
-                           
-                        case KeyEvent.VK_LEFT:
-                           break;
-                           
-                              // move right action
-                           
-                        case KeyEvent.VK_RIGHT:
-                           break;
-                           
-                              // exist the system
-                           
-                        case KeyEvent.VK_ESCAPE:
-                           System.exit(0);
-                           break;
-                     }
-                  }
-            });
+         InputMap inputMap = getRootPane().getInputMap();
+         ActionMap actionMap = getRootPane().getActionMap();
+         for (SwarmAction a: actions)
+         {
+            inputMap.put(a.getAccelerator(), a.getName());
+            actionMap.put(a.getName(), a);
+         }
       }
          /** Establish the pattern of phantoms on the screen. */
 
@@ -728,4 +683,96 @@ public class SwarmCon extends JFrame
                }
             }
       }
+         /** SwarmCon action class */
+
+      abstract class SwarmAction extends AbstractAction
+      {
+               // construct the action
+
+            public SwarmAction(String name, KeyStroke key, String description)
+            {
+               super(name);
+               putValue(NAME, name);
+               putValue(SHORT_DESCRIPTION, description);
+               putValue(ACCELERATOR_KEY, key);
+            }
+               /** Return accelerator key for this action.
+                *
+                * @return accelerator key for this action
+                */
+
+            public KeyStroke getAccelerator()
+            {
+               return (KeyStroke)getValue(ACCELERATOR_KEY);
+            }
+               /** Return name of this action.
+                *
+                * @return name of this action
+                */
+
+            public String getName()
+            {
+               return (String)getValue(NAME);
+            }
+      }
+         /** Action to reset simulation state */
+      
+      SwarmAction reset = new SwarmAction(
+         "reset sim", 
+         getKeyStroke(VK_R, 0),
+         "reset simulation state")
+         {
+               public void actionPerformed(ActionEvent e)
+               {
+                  swarm.randomize();
+               }
+         };
+
+         /** action to select next orb behavior */
+      
+      SwarmAction nextBehavior = new SwarmAction(
+         "next behavior", 
+         getKeyStroke(VK_UP, 0),
+         "select next orb behavior")
+         {
+               public void actionPerformed(ActionEvent e)
+               {
+                  swarm.nextBehavior();
+               }
+         };
+      
+         /** action to select previous orb behavior */
+      
+      SwarmAction previousBehavior = new SwarmAction(
+         "previous behavior", 
+         getKeyStroke(VK_DOWN, 0),
+         "select previous orb behavior")
+         {
+            public void actionPerformed(ActionEvent e)
+            {
+               swarm.previousBehavior();
+            }
+      };
+         /** action to exist the system */
+      
+      SwarmAction exit = new SwarmAction(
+         "exit", 
+         getKeyStroke(VK_ESCAPE, 0),
+         "exit this program")
+         {
+               public void actionPerformed(ActionEvent e)
+               {
+                  System.exit(0);
+               }
+         };
+      
+         /** all the actions in one handy place */
+
+      SwarmAction[] actions = 
+      {
+         reset,
+         nextBehavior,
+         previousBehavior,
+         exit,
+      };
 }

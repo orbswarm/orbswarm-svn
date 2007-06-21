@@ -27,7 +27,22 @@ public class Orb extends Mobject
 
          /** shape of the orb */
 
-      private Shape shape;
+      private Shape shape = createOrbShape();
+
+         /** shadow of the orb */
+
+      Shape shadow = createOrbShadowShape();
+
+         /** vector line for this orb */
+
+      Shape vectorLine = new Line2D.Double(0, 0, 0, 1);
+
+      /** vector stroke */
+
+      BasicStroke vectorStroke = 
+         new BasicStroke((float)(ORB_DIAMETER / 8),
+                         BasicStroke.CAP_ROUND,
+                         BasicStroke.JOIN_ROUND);
 
          /** library of behaviors available to the orb */
 
@@ -246,36 +261,49 @@ public class Orb extends Mobject
 
       public void paint(Graphics2D g)
       {
-         shape = scale(createOrbShape(), ORB_DIAMETER, ORB_DIAMETER);
-         setColor(g, isSelected() ? SEL_ORB_CLR : ORB_CLR);
-         g.fill(translate(rotateAboutCenter(shape, -getYaw()),
-                          getX(), getY()));
-         Shape shadow = scale(createOrbShadowShape(), 
-                             ORB_DIAMETER, ORB_DIAMETER);
-         setColor(g, g.getColor().darker());
-         g.fill(translate(shadow, getX(), getY()));
-         
-         Shape frame = scale(createOrbFrameShape(), 
-                             ORB_DIAMETER, ORB_DIAMETER);
-         setColor(g, ORB_FRAME_CLR);
-         g.fill(translate(rotateAboutCenter(frame, -getYaw()),
-                          getX(), getY()));
-
-         Shape line = new Line2D.Double(0, 0, 0, -1);
-         line = scale(line, model.getVelocity(),
-                      model.getVelocity());
-         line = rotate(line, 180 - model.getDirection());
-         g.setStroke(new BasicStroke((float)(ORB_DIAMETER / 8),
-                                     BasicStroke.CAP_ROUND,
-                                     BasicStroke.JOIN_ROUND));
-         setColor(g, VECTOR_CRL);
-         g.draw(translate(line, getX(), getY()));
          super.paint(g);
+
+            // record old transform and make the orb the center of the
+            // world
+         
+         AffineTransform old = g.getTransform();
+         g.translate(getX(), getY());
+         g.scale(ORB_DIAMETER, ORB_DIAMETER);
+
+            // draw orb shape
+
+         setColor(g, isSelected() ? SEL_ORB_CLR : ORB_CLR);
+         g.fill(shape);
+         
+            // draw orb shadow
+
+         setColor(g, g.getColor().darker());
+         g.fill(shadow);
+
+            // draw orb frame
+
+         setColor(g, ORB_FRAME_CLR);
+         g.fill(rotateAboutCenter(createOrbFrameShape(), -getYaw()));
+
+            // draw vector line
+
+         g.setStroke(vectorStroke);
+         setColor(g, VECTOR_CRL);
+         g.draw(rotate(scale(vectorLine, 
+                             model.getVelocity(), 
+                             model.getVelocity()), 
+                       -model.getDirection()));
+
+            // draw orb id
 
          g.setFont(ORB_FONT);
          g.setColor(TEXT_CLR);
-         drawText(g, getX() - ORB_DIAMETER / 2,
-                     getY() + ORB_DIAMETER / 2, "" + getId());
+         drawText(g, -ORB_DIAMETER / 2, 
+                  ORB_DIAMETER / 2, "" + getId());
+
+            // restore old transform
+         
+         g.setTransform(old);
       }
          // draw text at a given location
 
@@ -309,9 +337,9 @@ public class Orb extends Mobject
       public Shape createOrbShadowShape()
       {
          Area shadow = new Area(createCirlcle());
-         Area hole = new Area(createCirlcle());
-         shadow.subtract(translate(hole, -0.06, 0.06));
-         return shadow;
+         shadow.subtract(
+            translate(new Area(createCirlcle()), -0.06, 0.06));
+         return new GeneralPath(shadow);
       }
          // create orb shadow shape
 
