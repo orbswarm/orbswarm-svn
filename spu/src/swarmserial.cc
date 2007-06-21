@@ -95,6 +95,7 @@ int writeCharsToSerialPort(int port_fd, char* buff,
      fprintf(stderr,"write() of %d bytes failed!\n", numBytesToWrite);
      status = SWARM_SERIAL_WRITE_ERR;
    }
-   tcflush(port_fd, TCOFLUSH);
+   //tcflush(port_fd, TCOFLUSH);
+   //tcdrain(port_fd);
    return status;
 }
