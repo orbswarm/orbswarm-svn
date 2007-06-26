@@ -8,7 +8,8 @@ MYSRC = $(SVN_TRUNK)/aggregator/aggregator_src/c
 MYBIN = $(SVN_TRUNK)/aggregator/binaries
 GLOBAL_SHARED_INCLUDE = $(SVN_TRUNK)/shared/include
 #TARGET=uart_test
-TARGET=blinky_test
+#TARGET=blinky_test
+TARGET=main
 
 
 # Default target.
@@ -167,18 +168,15 @@ $(MYBIN)/%.hex : $(MYBIN)/%.elf
 .PRECIOUS : $(OBJ)
 
 
-#$(MYBIN)/%.elf: $(MYBIN)/%.o  $(LIB_BIN)/timer0.o $(LIB_BIN)/uart.o 
-$(MYBIN)/%.elf: $(MYBIN)/%.o  $(LIB_BIN)/timer0.o 
+$(MYBIN)/%.elf: $(MYBIN)/%.o  $(LIB_BIN)/timer0.o  $(LIB_BIN)/uart.o  $(LIB_BIN)/xbee.o 
 	@echo
 	@echo $(MSG_LINKING) $@
-#	$(CC) $(ALL_CFLAGS)  $<  --output $@  $(LDFLAGS)
-#	$(CC) $(ALL_CFLAGS)  $<  --output $@ $(LIB_BIN)/uart.o $(LIB_BIN)/timer0.o $(LDFLAGS)
-	$(CC) $(ALL_CFLAGS)  $<  --output $@ $(LIB_BIN)/timer0.o $(LDFLAGS)
+	$(CC) $(ALL_CFLAGS)  $<  --output $@ $(LIB_BIN)/timer0.o $(LIB_BIN)/uart.o  $(LIB_BIN)/xbee.o $(LDFLAGS)
 
 
 
 # Compile: create object files from C source files.
-$(MYBIN)/%.o : $(MYSRC)/%.c $(GLOBAL_SHARED_INCLUDE)/xbee.h $(GLOBAL_SHARED_INCLUDE)/packet_type.h $(GLOBAL_SHARED_INCLUDE)/swarm_message_types.h
+$(MYBIN)/%.o : $(MYSRC)/%.c $(GLOBAL_SHARED_INCLUDE)/swarm_messaging.h $(GLOBAL_SHARED_INCLUDE)/packet_type.h
 	@echo
 	@echo $(MSG_COMPILING) $<
 	$(CC) -c $(ALL_CFLAGS) $< -o $@
