@@ -7,6 +7,8 @@ F_CPU = 14700000
 MYSRC = $(SVN_TRUNK)/aggregator/aggregator_src/c
 MYBIN = $(SVN_TRUNK)/aggregator/binaries
 GLOBAL_SHARED_INCLUDE = $(SVN_TRUNK)/shared/include
+GLOBAL_SHARED_SRC = $(SVN_TRUNK)/shared
+LIB_SRC= $(SVN_TRUNK)/aggregator/aggregator_src/c/shared
 #TARGET=uart_test
 #TARGET=blinky_test
 TARGET=main
@@ -168,18 +170,19 @@ $(MYBIN)/%.hex : $(MYBIN)/%.elf
 .PRECIOUS : $(OBJ)
 
 
-$(MYBIN)/%.elf: $(MYBIN)/%.o  $(LIB_BIN)/timer0.o  $(LIB_BIN)/uart.o  $(LIB_BIN)/xbee.o 
+$(MYBIN)/%.elf: $(MYBIN)/%.o  
 	@echo
 	@echo $(MSG_LINKING) $@
-	$(CC) $(ALL_CFLAGS)  $<  --output $@ $(LIB_BIN)/timer0.o $(LIB_BIN)/uart.o  $(LIB_BIN)/xbee.o $(LDFLAGS)
+		$(CC) $(ALL_CFLAGS)  $<  $(LIB_BIN)/timer0.o $(LIB_BIN)/uart.o  $(LIB_BIN)/xbee.o  $(LIB_BIN)/spu.o $(LIB_BIN_GLOBAL)/swarm_messaging.o $(LDFLAGS) -o $@ 
+#	$(CC) $(ALL_CFLAGS)  $<  --output $@
 
 
 
 # Compile: create object files from C source files.
-$(MYBIN)/%.o : $(MYSRC)/%.c $(GLOBAL_SHARED_INCLUDE)/swarm_messaging.h $(GLOBAL_SHARED_INCLUDE)/packet_type.h
+$(MYBIN)/%.o : $(MYSRC)/%.c $(GLOBAL_SHARED_INCLUDE)/swarm_messaging.h $(GLOBAL_SHARED_INCLUDE)/packet_type.h $(LIB_SRC)/timer0.h  $(LIB_SRC)/uart.h  $(LIB_SRC)/xbee.h  $(LIB_SRC)/spu.h
 	@echo
 	@echo $(MSG_COMPILING) $<
-	$(CC) -c $(ALL_CFLAGS) $< -o $@
+	$(CC) $(ALL_CFLAGS) -c $< -o $@
 
 
 # Target: clean project.

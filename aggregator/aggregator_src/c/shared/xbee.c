@@ -1,19 +1,27 @@
-#include "xbee.h"
 
+#include <stdlib.h>
+//#include "uart.h"
+#include <swarm_messaging.h>
+#include "xbee.h"
 
 static int rx_state=eRxStateStart;
 static int rx_state_byte_num=0;
 static long rx_exp_payload_len=0;
-static struct XBEE_RX_PACKET rx_packet;
+volatile static struct XBEE_RX_PACKET rx_packet;
 
-void initRxBuffers()
+static void initRxBuffers(void)
 {
   rx_state=eRxStateStart;
   rx_state_byte_num=0;
   rx_exp_payload_len=0;
 }
 
-void handleXBeeRx(char c, int isError)
+static void handleXBeePacket(struct XBEE_RX_PACKET packet)
+{
+    //TO DO: handle the actual msg(queue it) and ack
+}
+
+void handleXBeeSerialRx(char c, int isError)
 {
   switch(c){
   case eRxStateStart : 
@@ -89,7 +97,7 @@ void handleXBeeRx(char c, int isError)
   case eRxStatePayload:
     if(rx_state_byte_num< rx_exp_payload_len)
       {
-	rx_packet.payload[rx_state_byte_num] = c;
+	rx_packet.payload[rx_state_byte_num++] = c;
 	break;
       }
     else
@@ -99,8 +107,11 @@ void handleXBeeRx(char c, int isError)
       }
   case eRxStateChksum:
     rx_packet.checksum=c;
+    //fall through to init
+    handleXBeePacket(rx_packet);
   default:
     //initialise stuff here
     initRxBuffers();
   }
 }
+

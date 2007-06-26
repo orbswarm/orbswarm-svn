@@ -1,7 +1,9 @@
+#include <avr/io.h>		// include I/O definitions (port names, pin names, etc)
+#include <avr/interrupt.h>	// include interrupt support
 #include "uart.h"
 
-static void (*_handleXBeeRecv)(char, int) ;
-static void (*_handleSpuRecv)(char, int) ;
+static void (*_handleXBeeRecv)(unsigned char, int) ;
+static void (*_handleSpuRecv)(unsigned char, int) ;
 
 ISR(SIG_USART3_RECV)
 {
@@ -39,7 +41,7 @@ ISR(SIG_USART0_RECV)
   (*_handleSpuRecv)(UDR0, nErrors);
 }
 
-void sendXBeeMsg(char *s)
+void sendXBeeMsg(unsigned char *s)
 {
   while(*s)
     {
@@ -53,7 +55,7 @@ void sendXBeeMsg(char *s)
     }
 }
 
-void sendSpuMsg(char *s)
+void sendSpuMsg(unsigned char *s)
 {
   while(*s)
     {
@@ -67,8 +69,8 @@ void sendSpuMsg(char *s)
     }
 }
 
-int init(void (*handleXBeeRecv)(char c, int isError),
-	 void (*handleSpuRecv)(char c, int isErrror))
+int uart_init(void (*handleXBeeRecv)(unsigned char c, int isError),
+	 void (*handleSpuRecv)(unsigned char c, int isErrror))
 {
   //Set up XBee on USART3
   //Asynchronous UART, no parity, 1 stop bit, 8 data bits, 9600 baud

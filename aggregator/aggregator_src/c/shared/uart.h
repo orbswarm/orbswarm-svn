@@ -1,9 +1,10 @@
-#include <avr/io.h>		// include I/O definitions (port names, pin names, etc)
-#include <avr/interrupt.h>	// include interrupt support
+//#if !defined(UART_HDR)
+//#define UART_HDR
 
-int init(void (*handleXBeeRecv)(char c, int isError),
-	 void (*handleSpuRecv)(char c, int isErrror));
+int uart_init(void (*handleXBeeRecv)(unsigned char c, int isError),
+	 void (*handleSpuRecv)(unsigned char c, int isErrror));
 
-void sendXBeeMsg(char *s);
+void sendXBeeMsg(unsigned char *s);
 
-void sendSpuMsg(char *s);
+void sendSpuMsg(unsigned char *s);
+//#endif
