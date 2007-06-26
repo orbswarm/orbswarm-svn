@@ -4,6 +4,12 @@ int main(int argc, char *argv[])
 {
   fprintf(stderr,"\nSTART swarmspuutils toggleSpuLed TESTS");
 
+  fprintf(stderr,"\nReset daughterboard MCU\n");
+  toggleSpuLed(SPU_LED_RED_ON);  
+  resetOrbMCU();
+  toggleSpuLed(SPU_LED_RED_OFF);  
+
+  return(0);
   fprintf(stderr,"\nSwitching on Red spu led for 5 seconds");
   toggleSpuLed(SPU_LED_RED_ON);  
   sleep(5);
@@ -19,6 +25,6 @@ int main(int argc, char *argv[])
   sleep(5);
   fprintf(stderr,"\nSwitching both spu leds off");
   toggleSpuLed(SPU_LED_BOTH_OFF);  
-  fprintf(stderr,"\nEND swarmspuutils toggleSpuLed TESTS");
+  fprintf(stderr,"\nEND swarmspuutils toggleSpuLed TESTS\n");
  return 0;
 }

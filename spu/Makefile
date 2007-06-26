@@ -1,32 +1,62 @@
 SRC = src
 INC = include
 LIBS =  
-##########GCC 3
-#CC = /opt/crosstool/gcc-3.3.4-glibc-2.3.2/arm-unknown-linux-gnu/arm-unknown-linux-gnu/bin/gcc
 
-#########GCC 4
-#CC = /opt/crosstool/gcc-4.0.1-glibc-2.3.5/arm-unknown-linux-gnu/arm-unknown-linux-gnu/bin/gcc
+# Crosstools are slightly different versions for cygwin and linux; 
+LINUXCC = /opt/crosstool/gcc-4.0.1-glibc-2.3.5/arm-unknown-linux-gnu/arm-unknown-linux-gnu/bin/gcc
+LINUXCPP = /opt/crosstool/gcc-4.0.1-glibc-2.3.5/arm-unknown-linux-gnu/arm-unknown-linux-gnu/bin/g++
+CYGWINCC = /opt/crosstool/gcc-3.3.4-glibc-2.3.2/arm-unknown-linux-gnu/arm-unknown-linux-gnu/bin/gcc
+CYGWINCPP = /opt/crosstool/gcc-3.3.4-glibc-2.3.2/arm-unknown-linux-gnu/arm-unknown-linux-gnu/bin/g++
 
-CC = gcc
+
+# select them here
+# (I'm sure there's a more elegant way to do this...)
+
+CC = $(CYGWINCC)
+CPP = $(CYGWINCPP)
 CFLAGS = -Wall -g -O3 -D_REENTRANT 
 
 # -----------------------------------------------------------------------
 # Makefile script for generating spu binary 
-spu: spu.o swarmserial.o
-	$(CC) $(LIBS) $(CFLAGS) spu.o swarmserial.o -o spu 
 
 testspuutils: testspuutils.o swarmspuutils.o
 	$(CC) $(LIBS) $(CFLAGS) testspuutils.o swarmspuutils.o -o testspuutils
 
-spu.o: $(SRC)/spu.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h
-	$(CC) $(CFLAGS)-c $(SRC)/spu.cc
-
 testspuutils.o: $(SRC)/testspuutils.cc $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmdefines.h
 	$(CC) $(CFLAGS)-c $(SRC)/testspuutils.cc
 
-swarmserial.o: $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h
-	$(CC) $(CFLAGS)-c $(SRC)/swarmserial.cc
+setled: setled.o swarmspuutils.o
+	$(CC) $(LIBS) $(CFLAGS) setled.o swarmspuutils.o -o setled
+
+setled.o: $(SRC)/setled.cc $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmdefines.h
+	$(CC) $(CFLAGS)-c $(SRC)/setled.cc
+
 
 swarmspuutils.o: $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmdefines.h
 	$(CC) $(CFLAGS)-c $(SRC)/swarmspuutils.cc
 
+readcom: readcom.o swarmserial.o 
+	$(CC) $(LIBS) $(CFLAGS) readcom.o swarmserial.o -o readcom 
+
+readcom.o: $(SRC)/readcom.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h 
+	$(CC) $(CFLAGS)-c $(SRC)/readcom.cc
+
+
+writecom: writecom.o swarmserial.o 
+	$(CC) $(LIBS) $(CFLAGS) writecom.o swarmserial.o -o writecom 
+
+writecom.o: $(SRC)/writecom.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h 
+	$(CC) $(CFLAGS)-c $(SRC)/writecom.cc
+
+
+spu: spu.o swarmserial.o 
+	$(CC) $(LIBS) $(CFLAGS) spu.o swarmserial.o -o spu 
+
+spu.o: $(SRC)/spu.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h 
+	$(CC) $(CFLAGS)-c $(SRC)/spu.cc
+
+swarmserial.o: $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h
+	$(CC) $(CFLAGS)-c $(SRC)/swarmserial.cc
+
+clean:
+	rm *.o 
