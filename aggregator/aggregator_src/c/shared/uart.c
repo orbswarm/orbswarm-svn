@@ -1,54 +1,87 @@
 #include "uart.h"
 
-volatile unsigned int qCntr, sendCntr;
-volatile unsigned int isSendInProgress=0;
-volatile unsigned char queue[100];
+static void (*_handleXBeeRecv)(char, int) ;
+static void (*_handleSpuRecv)(char, int) ;
 
-ISR(SIG_UART_TRANS)
+ISR(SIG_USART3_RECV)
 {
-  if(qCntr != sendCntr)
-    UDR=queue[sendCntr++];
-  else
-     PORTB = 1 << PB5;
+  int nErrors=0;
+  if((UCSR3A<<(8-FE3))>>7)
+    {
+      nErrors=1;
+      //flip error bit back
+      UCSR3A=UCSR3A ^ (1<<FE3);
+    }
+  if((UCSR3A<<(8-DOR3))>>7)
+    {
+      nErrors=1;
+      //flip error bit back
+      UCSR3A=UCSR3A ^ (1<<DOR3);
+    }
+  (*_handleXBeeRecv)(UDR3, nErrors);
 }
 
-void sendmsg(char *s)
+ISR(SIG_USART0_RECV)
 {
-  qCntr=0;
-  sendCntr=1;
-  queue[qCntr++] = 0x0d;
-  queue[qCntr++] = 0x0a;
+  int nErrors=0;
+  if((UCSR0A<<(8-FE0))>>7)
+    {
+      nErrors=1;
+      //flip error bit back
+      UCSR0A=UCSR0A ^ (1<<FE0);
+    }
+  if((UCSR0A<<(8-DOR0))>>7)
+    {
+      nErrors=1;
+      //flip error bit back
+      UCSR0A=UCSR0A ^ (1<<DOR0);
+    }
+  (*_handleSpuRecv)(UDR0, nErrors);
+}
+
+void sendXBeeMsg(char *s)
+{
   while(*s)
-    queue[qCntr++] = *s++;
-  UDR=queue[0];
+    {
+      UDR3 = *s++;
+      while(1)
+	{
+	  //Now wait for byte to be sent
+	  if(UCSR3A & (1<<UDRE3))
+	    break;
+	}
+    }
 }
 
-
-void (*_handle)(char) ;
-
-void loop(void)
+void sendSpuMsg(char *s)
 {
-    while(1){
-    //check RXC status bit in USR
-    if(UCSRA & (1<< RXC))
-      {
-	PORTB = 0;
-	char ch =UDR;
-	(*_handle)(ch);
-
-      }
-  }
+  while(*s)
+    {
+      UDR0 = *s++;
+      while(1)
+	{
+	  //Now wait for byte to be sent
+	  if(UCSR0A & (1<<UDRE0))
+	    break;
+	}
+    }
 }
 
-int init(void (*handle)(char) )
+int init(void (*handleXBeeRecv)(char c, int isError),
+	 void (*handleSpuRecv)(char c, int isErrror))
 {
-  //enable rx, tx and tx complete interrupt
-  UCSRB = (1<<RXEN) | (1<<TXEN) | (1<< TXCIE);
-  //baud rate = 19200
-  UBRRL = 0x33;
-  DDRB=0xff;
-  PORTB = 1 << PB5;
+  //Set up XBee on USART3
+  //Asynchronous UART, no parity, 1 stop bit, 8 data bits, 9600 baud
+  UCSR3B = (1<<RXCIE3) | (1<<RXEN3) | (1<<TXEN3);
+  UCSR3C = (1<<UCSZ31) | (1<< UCSZ32);
+  UBRR3 = 95;
+  _handleXBeeRecv=handleXBeeRecv;
+  //Set up SPU on USART0
+  //Asynchronous UART, no parity, 1 stop bit, 8 data bits, 9600 baud
+  UCSR0B = (1<<RXCIE0) | (1<<RXEN0) | (1<<TXEN0);
+  UCSR0C = (1<<UCSZ01) | (1<< UCSZ02);
+  UBRR0 = 95;
+  _handleSpuRecv  = handleSpuRecv;
   sei();
-  _handle=handle;
   return 0;
 }

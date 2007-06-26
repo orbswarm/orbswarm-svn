@@ -1,29 +1,9 @@
 #include <avr/io.h>		// include I/O definitions (port names, pin names, etc)
 #include <avr/interrupt.h>	// include interrupt support
-/**
-   Typical usage:
-void handle(char ch)
-{
-  	switch(ch)
-	  {
-	  case 'a':
-	    sendmsg("Got it");
-	    break;
-	  default:
-	    sendmsg("huh!");
-	  }
-}
 
-int main(void)
-{
-  init(handle);
-  loop();
-  return 0;
-}
- */
+int init(void (*handleXBeeRecv)(char c, int isError),
+	 void (*handleSpuRecv)(char c, int isErrror));
 
-void loop(void);
+void sendXBeeMsg(char *s);
 
-int init(void (*handle)(char) );
-
-void sendmsg(char *s);
+void sendSpuMsg(char *s);

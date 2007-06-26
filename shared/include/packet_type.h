@@ -16,6 +16,7 @@ enum ELinkPacketType {
   eLinkCodeDownload,
   eLinkLoopback,
   eLinkSonar,
+  eLinkAck,
   eLinkLastPacketType
 };
 
