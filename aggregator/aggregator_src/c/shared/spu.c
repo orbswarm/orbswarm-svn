@@ -8,7 +8,16 @@
 static int spu_state= eSpuStateStart;
 static int spu_state_byte_num=0;
 static long spu_exp_payload_len=0;
-volatile static struct SWARM_MSG spu_recv_msg;
+static struct SWARM_MSG volatile spu_recv_msg;
+static void (* volatile _handleSpuSerialRxStartCallback)(void)=0;
+static void (* volatile _handleSpuSwarmMsgStartCallback)(void)=0;
+
+void setupSpuCallbacks(void (*handleSpuSerialRxStartCallback)(void),
+		       void (*handleSpuSwarmMsgStartCallback)(void))
+{
+  _handleSpuSerialRxStartCallback=handleSpuSerialRxStartCallback;
+  _handleSpuSwarmMsgStartCallback=handleSpuSwarmMsgStartCallback;
+}
 
 static void initSpuVars(void)
 {
@@ -19,6 +28,8 @@ static void initSpuVars(void)
 
 static void handleSpuSwarmMsg(struct SWARM_MSG msg)
 {
+  if(0 != _handleSpuSwarmMsgStartCallback)
+    (*_handleSpuSwarmMsgStartCallback)();
   if(msg.swarm_msg_type == eLinkLoopback)
     {
       struct SWARM_ACK ack;
@@ -35,6 +46,8 @@ void handleSpuSerialRx(unsigned char c, int isError)
 {
   switch(c){
   case eSpuStateStart :
+    if(0 != _handleSpuSerialRxStartCallback)
+      (*_handleSpuSerialRxStartCallback)();
     spu_recv_msg.swarm_msg_type=c;
     spu_state = eSpuStateMsgType;
   case eSpuStateMsgType :

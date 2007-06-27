@@ -2,8 +2,8 @@
 #include <avr/interrupt.h>	// include interrupt support
 #include "uart.h"
 
-static void (*_handleXBeeRecv)(unsigned char, int) ;
-static void (*_handleSpuRecv)(unsigned char, int) ;
+static void (* volatile _handleXBeeRecv)(unsigned char, int) ;
+static void (* volatile _handleSpuRecv)(unsigned char, int) ;
 
 ISR(SIG_USART3_RECV)
 {
