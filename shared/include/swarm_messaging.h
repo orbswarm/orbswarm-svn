@@ -15,7 +15,7 @@ struct SWARM_MSG{
 };
 
 enum ESwarmRespCodes{
-  eSwarmRespOk = 0x00,
+  eSwarmRespOk,
   eSwarmRespBadMsg,
   eSwarmRespQueueFull
 };

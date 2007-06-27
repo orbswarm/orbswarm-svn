@@ -9,11 +9,11 @@ static int spu_state= eSpuStateStart;
 static int spu_state_byte_num=0;
 static long spu_exp_payload_len=0;
 static struct SWARM_MSG volatile spu_recv_msg;
-static void (* volatile _handleSpuSerialRxStartCallback)(void)=0;
-static void (* volatile _handleSpuSwarmMsgStartCallback)(void)=0;
+static void (*  _handleSpuSerialRxStartCallback)(void)=0;
+static void (*  _handleSpuSwarmMsgStartCallback)(void)=0;
 
-void setupSpuCallbacks(void (*handleSpuSerialRxStartCallback)(void),
-		       void (*handleSpuSwarmMsgStartCallback)(void))
+void setupSpuCallbacks(void (*  handleSpuSerialRxStartCallback)(void),
+		       void (*  handleSpuSwarmMsgStartCallback)(void))
 {
   _handleSpuSerialRxStartCallback=handleSpuSerialRxStartCallback;
   _handleSpuSwarmMsgStartCallback=handleSpuSwarmMsgStartCallback;
