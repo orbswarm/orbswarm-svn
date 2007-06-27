@@ -282,16 +282,25 @@ void Motor_set_PID_feedback(char c)
 
 void Motor_dump_data(void)
 {
-	putstr("Motor1: ");
-	putS16(motor1.target_value);
-	putS16(motor1.crnt_value);
-	putS16(motor1.PWM_Set);
-	putstr("  PID:");
-	putS16(motor1.Kp);
-	putS16(motor1.Ki);
-	putS16(motor1.Kd);
-	putstr("  ISav:");
-	putS16(motor1.I_State);	
+  short theData;
+  putstr("Motor1: ");
+  putS16(motor1.target_value);
+  putS16(motor1.crnt_value);
+  putS16(motor1.PWM_Set);
+  putstr("  PID:");
+  putS16(motor1.Kp);
+  putS16(motor1.Ki);
+  putS16(motor1.Kd);
+  putstr("  ISav:");
+  putS16(motor1.I_State);	
+
+  putstr("\n  encoderSpeed:");
+  theData = Encoder_read_speed(MOTOR1_SHAFT_ENCODER);
+  putS16(theData);	
+
+  putstr("\n  currentSense:");
+  theData = A2D_read_channel(CURRENT_SENSE_CHANNEL) - 512;
+  putS16(theData);	
 	
 	if (motor1.doing_Velocity_PID)
 		putstr("  Velocity");

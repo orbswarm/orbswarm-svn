@@ -1,7 +1,8 @@
 /* timer.c */
 
-#include <avr/signal.h>  
 #include <avr/io.h>
+#include <avr/interrupt.h>
+#include "global.h"
 #include "timer.h"   
 
 /* global variables */
@@ -15,12 +16,12 @@ volatile unsigned char Timer0_10hz_Flag;
 SIGNAL(SIG_OVERFLOW0)
 {
 	Timer0_ticks++;						// increment slow counter
-	if ((Timer0_ticks % TICKS_PER_10HZ) == 0)
+	if ((Timer0_ticks % 51) == 0)		// flag on 510, not on zero
 		Timer0_10hz_Flag = 1;			// set flag for 10 Hz sample rates
 }
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------
-// Init Timer0 so we get 488 tics per second from timer0_ticks (use 490 for calcs)
+// Init Timer0 so we get 512 tics per second from timer0_ticks
 // 51 tics = 1/10 second.
 
 void Timer0_Init(void)

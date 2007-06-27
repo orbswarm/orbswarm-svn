@@ -1,8 +1,8 @@
 /* IMU.c */
 
-// Version 14.4
-// Date: 16-May-2007
-// Petey the Programmer
+// Version 16.0
+// Date: June-2007
+// JTF from original from Petey the Programmer
 
 #include <avr/io.h>
 #include "UART.h"
@@ -17,7 +17,7 @@ void calc_check_sum( char *checkSum, char *str);
 void check_sum_to_HexStr( char checkSum, char *str);
 void num_to_Str( short v, char *str);
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // This routine is called 10 times per second from the main loop.
 // Send out the data from the 5DOF IMU, plus the steering and motor data.
 // Format the data just like that comming from the GPS units.
@@ -35,39 +35,66 @@ void num_to_Str( short v, char *str);
 // Steering Axle tilt and Ballast box swing angle can be calculated using the
 // raw accelerometer data via the arctan function:
 // Steering_Axle_tilt = atan2(yAccel-512, zAccel-512)
-// Ballast_Swing_Angle = atan2(xAccel-512, zAccel-512)
+// Ballast_Swing_Angle = atan2(xAccel-512, zAccel-512)11
 //
+
+// associate signal names with adc channels
+static char *sigName[] = {"ADC0",  /* ADC0, pin 23 */
+			  "ADC1",  /* ADC1, pin 24 */
+			  "RATEX", /* ADC2, pin 25, header 13  gyro X*/
+			  "RATEY", /* ADC3, pin 26, header 11  gyro Y*/
+			  "ACCZ",  /* ADC4, pin 27, header 9   accel Z */
+			  "ACCX",  /* ADC5, pin 28, header 7   accel X */
+			  "NC",    /* ADC6, pin 19, header 5   */
+			  "ACCY"}; /* ADC7, pin 22, header 3,  accel y*/
+
 
 void IMU_output_data_string(void)
 {
-	char checkSum = 0;
-	char theStr[] = "$IMU\0\0\0\0";		// must be at least 7 chrs long: ",-1023\0"
-	uint8_t n;
-	short v;
-	
-	calc_check_sum( &checkSum, theStr );
-	putstr(theStr);
-	
-	v = Encoder_read_speed(MOTOR1_SHAFT_ENCODER);
-	num_to_Str(v,theStr);
-	calc_check_sum( &checkSum, theStr );
-	putstr(theStr);
-	
-	for (n = IMU_FIRST_CHANNEL; n <= IMU_LAST_CHANNEL; n++)
-		{
-		v = A2D_read_channel(n);
-		num_to_Str(v,theStr);
-		calc_check_sum( &checkSum, theStr );
-		putstr(theStr);
-		}
-		
-	check_sum_to_HexStr( checkSum, theStr );	
-	putstr("*");
-	putstr(theStr);
-	putstr("\r\n");
+  char checkSum = 0;
+  char theStr[] = "$IMU\0\0\0\0";		// must be at least 7 chrs long: ",-1023\0"
+  uint8_t n;
+  short v;
+  
+  calc_check_sum( &checkSum, theStr );
+  putstr(theStr);
+  
+  v = Encoder_read_speed(MOTOR1_SHAFT_ENCODER);
+  num_to_Str(v,theStr);
+  calc_check_sum( &checkSum, theStr );
+  putstr(theStr);
+  
+  for (n = IMU_FIRST_CHANNEL; n <= IMU_LAST_CHANNEL; n++){
+    v = A2D_read_channel(n);
+    num_to_Str(v,theStr);
+    calc_check_sum( &checkSum, theStr );
+    putstr(theStr);
+  }
+  
+  check_sum_to_HexStr( checkSum, theStr );	
+  putstr("*");
+  putstr(theStr);
+  putstr("\r\n");
 }
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// New, easier-to-parse version by JTF. No checksum, etc. 
+void IMU_output_data(void)
+{
+  unsigned char n;
+  short v;
+  
+  putstr("ADC\n");
+  
+  for (n = 0; n <= 7; n++){
+    v = A2D_read_channel(n);
+    putstr(sigName[n]);
+    putstr(": ");
+    putS16(v);
+    putstr("\n");
+  }
+}
+// -----------------------------------------------------------------------------------
 
 void calc_check_sum( char *checkSum, char *str)
 {
