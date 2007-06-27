@@ -70,7 +70,6 @@ CFLAGS = -g -O$(OPT) \
 -Wall -Wstrict-prototypes \
 -DF_CPU=$(F_CPU) \
 -Wa,-adhlns=$(<:.c=.lst) \
-$(patsubst %,-I%,$(EXTRAINCDIRS)) \
 -mmcu=$(MCU)
 
 

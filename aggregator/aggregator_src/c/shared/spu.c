@@ -72,7 +72,7 @@ void handleSpuSerialRx(unsigned char c, int isError)
 	spu_recv_msg.swarm_msg_payload[spu_state_byte_num++]=c;
 	break;
       }
-    else
+    if(((spu_state_byte_num+1)== spu_exp_payload_len)
       {
 	//handle msh here
 	handleSpuSwarmMsg(spu_recv_msg);

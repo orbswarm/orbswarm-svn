@@ -7,17 +7,18 @@ build_lib: $(LIB_BIN)/timer0.o $(LIB_BIN)/uart.o $(LIB_BIN)/xbee.o  $(LIB_BIN)/s
 		
 $(LIB_BIN)/%.o : $(LIB_SRC)/%.c	
 	@echo  '-----Building libraries--------'
-	avr-gcc 	-c -I. -I $(GLOBAL_SHARED_INCLUDE) -g -Os 	-funsigned-char \
-	-funsigned-bitfields -fpack-struct 	\
-	-fshort-enums -Wall -Wstrict-prototypes -DF_CPU=$(F_CPU) \
- 	-Wa,-adhlns=$*.lst  -mmcu=$(MCU) -std=gnu99 $< -o $@
+#	avr-gcc 	-c -I. -I $(GLOBAL_SHARED_INCLUDE) -g -Os 	-funsigned-char \
+#	-funsigned-bitfields -fpack-struct 	\
+#	-fshort-enums -Wall -Wstrict-prototypes -DF_CPU=$(F_CPU) \
+# 	-Wa,-adhlns=$*.lst  -mmcu=$(MCU) -std=gnu99 $< -o $@
+		$(CC) -c $(ALL_CFLAGS)  $< -o $@
 
 $(LIB_BIN_GLOBAL)/%.o : $(GLOBAL_SHARED_SRC)/%.c
-		avr-gcc 	-c -I. -I $(GLOBAL_SHARED_INCLUDE) -g -Os 	-funsigned-char \
-	-funsigned-bitfields -fpack-struct 	\
-	-fshort-enums -Wall -Wstrict-prototypes -DF_CPU=$(F_CPU) \
- 	-Wa,-adhlns=$*.lst  -mmcu=$(MCU) -std=gnu99 $< -o $@
-	
+#		avr-gcc 	-c -I. -I $(GLOBAL_SHARED_INCLUDE) -g -Os 	-funsigned-char \
+#	-funsigned-bitfields -fpack-struct 	\
+#	-fshort-enums -Wall -Wstrict-prototypes -DF_CPU=$(F_CPU) \
+# 	-Wa,-adhlns=$*.lst  -mmcu=$(MCU) -std=gnu99 $< -o $@
+	$(CC) -c $(ALL_CFLAGS)  $< -o $@
 clean_lib:
 	rm -f $(LIB_BIN)/*.o
 	rm -f $(LIB_BIN_GLOBAL)/*.o 
