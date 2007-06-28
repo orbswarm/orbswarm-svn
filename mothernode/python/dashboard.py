@@ -1,13 +1,14 @@
 #----------------------------------------------------------------------
 # dashboard.py: SWARM Python dashboard to connect with Orb SPU
 #               Send commands and receive/display telemetry and status info
-#               v1.0  J. Foote 5/07
+#               v1.1  J. Foote 6/07
 #----------------------------------------------------------------------
 
 import wx
 import serial
 import sys
 
+import csv
 
 # User settings. OK to edit these if you know what you are doing 
 comport = "COM5"
@@ -31,6 +32,7 @@ steerRange = steerMax - steerMin
 
 currentlyLogging = 0 # set if we are writing to the logfile
 
+fileLen = 0 # number of data points logged to file
 
 class Dashboard(wx.Frame):
     
@@ -126,7 +128,8 @@ class Dashboard(wx.Frame):
         self.logBtn = wx.Button(panel, -1, "Start logging")
         self.logBtn.SetForegroundColour((0,255,0))
         self.currentlyLogging = 0 # set if we are writing to the logfile
-        
+        self.fileLen = 0 #  number of data points written to logfile
+
         # bind the control events to handlers
         self.Bind(wx.EVT_SCROLL, self.OnSlideEvt,self.power)
         self.Bind(wx.EVT_SCROLL, self.OnSlideEvt,self.steer)
@@ -180,11 +183,17 @@ class Dashboard(wx.Frame):
             self.logBtn.SetLabel('Stop logging')
             self.logfile = open(logFileName,'w')
             self.logfile.write('opened\n')
+            self.csvfile = open("log.csv", "wb")
+            self.logger = csv.writer(self.csvfile)
+            writer.writerows(someiterable)
+
         else:
             self.logBtn.SetForegroundColour((0,255,0))
             self.logBtn.SetLabel('Start logging')
             self.currentlyLogging = 0
+            self.fileLen = 0
             self.logfile.close
+            self.csvfile.close
 
     def OnSendBtn(self, evt):
         """Event handler for the Send button.
@@ -218,18 +227,18 @@ class Dashboard(wx.Frame):
     # (oldpower and oldsteer mimic static vars with immutable Python lists)
 
     def SendSerial(self,oldpower=[0],oldsteer=[0]): 
-        self.outputStatus(self.ReadSerial())
+        #self.outputStatus(self.ReadSerial())
         power = self.power.GetValue()
         if power != oldpower[0]:
             print "Power: %d" % power
             self.ser.write('$p%d*' % power)
             oldpower[0] = power
-            self.outputStatus(self.ReadSerial())
+            #self.outputStatus(self.ReadSerial())
         steer = self.steer.GetValue()
         if steer != oldsteer[0]:
             print "Steer: %d" % steer
             self.ser.write('$s%d*' % steer)
-            self.outputStatus(self.ReadSerial())
+            #self.outputStatus(self.ReadSerial())
             oldsteer[0] = steer
         # send any queued serial commands
         while (len(self.outQ) > 0) :
@@ -237,9 +246,10 @@ class Dashboard(wx.Frame):
             self.resultbox.SetValue('')  # clear result box
             self.resultbox.AppendText(self.ReadSerial())
         # send status query command:
-        self.ser.write('$?*')
-        self.outputStatus(self.ReadSerial())
- 
+        #self.ser.write('$?*')
+        #self.outputStatus(self.ReadSerial())
+        self.ser.write('$QI*')
+        self.parseStatus(self.ReadSerial())
             
     def ReadSerial(self):
         incount = self.ser.inWaiting()
@@ -255,6 +265,30 @@ class Dashboard(wx.Frame):
         self.statusbox.AppendText(statusText)
         if (self.currentlyLogging):
             self.logfile.write(statusText)       
+
+    # parse stuff out of the output given key value pairs
+    def parseStatus(self,statusText):
+        
+        #print "status: %s\n" % statusText
+        statusList = statusText.split()
+        #print "status list length %d\n" % len(statusList)
+        if (self.currentlyLogging):
+            if self.fileLen == 0:
+                dataHeader = statusList[0:len(statusList):2]
+                print dataHeader
+                strList= [str(value) for value in dataHeader]
+                self.logger.writerow(strList)
+            
+        dataLine =  statusList[1:len(statusList):2]
+        print dataLine
+        if (self.currentlyLogging):
+            intList= [int(value) for value in dataLine]
+            self.logger.writerow(intList)
+            self.fileLen += 1
+
+
+
+
 ########################################  joystick handling 
 
     def SendJoyCommand(self):
