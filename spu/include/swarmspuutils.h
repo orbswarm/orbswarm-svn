@@ -14,5 +14,6 @@
  */
 int toggleSpuLed(const unsigned int ledState);  
 //void set_led(int led);
+int resetOrbMCU(void);
 
 #endif
