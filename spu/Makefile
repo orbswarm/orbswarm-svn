@@ -8,6 +8,7 @@ LINUXCPP = /opt/crosstool/gcc-4.0.1-glibc-2.3.5/arm-unknown-linux-gnu/arm-unknow
 CYGWINCC = /opt/crosstool/gcc-3.3.4-glibc-2.3.2/arm-unknown-linux-gnu/arm-unknown-linux-gnu/bin/gcc
 CYGWINCPP = /opt/crosstool/gcc-3.3.4-glibc-2.3.2/arm-unknown-linux-gnu/arm-unknown-linux-gnu/bin/g++
 
+NATIVECC = gcc
 
 # select them here
 # (I'm sure there's a more elegant way to do this...)
@@ -31,6 +32,11 @@ setled: setled.o swarmspuutils.o
 setled.o: $(SRC)/setled.cc $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmdefines.h
 	$(CC) $(CFLAGS)-c $(SRC)/setled.cc
 
+logtest: logtest.o swarmspuutils.o $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h
+	$(CC) $(LIBS) $(CFLAGS) logtest.o swarmspuutils.o -o logtest 
+
+logtest.o: $(SRC)/logtest.cc $(INC)/swarmdefines.h $(INC)/swarmspuutils.h
+	$(CC) $(CFLAGS)-c $(SRC)/logtest.cc
 
 swarmspuutils.o: $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmdefines.h
 	$(CC) $(CFLAGS)-c $(SRC)/swarmspuutils.cc
