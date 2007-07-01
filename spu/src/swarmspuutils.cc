@@ -67,9 +67,98 @@ int toggleSpuLed(const unsigned int ledState)
      {
        fprintf(stderr,"\nUNKNOWN LED STATE");
      }
-   
-
    close(fd);
    return 0;
+}
+
+//Returns file descriptor for log file and 
+FILE* openCurrentLogFile(char* logdir )
+{
+  char logfilename[MAX_LOG_FILE_NAME_SZ]; 
+  long int prevfilemodtime = 0; 
+  FILE *logfileFD = NULL;
+  for (int lognum = 1; lognum <=  MAX_NUM_LOG_FILES; lognum++)
+  {
+    if(logdir == NULL)
+    {
+      sprintf(logfilename,"%s/%s%d",DEFAULT_LOG_PATH, LOG_FILE_BASE_NAME,lognum); 
+    }
+    else
+    {
+      sprintf(logfilename,"%s/%s%d",logdir, LOG_FILE_BASE_NAME,lognum); 
+    }
+    struct stat stat_p;		/* 'stat_p' is a pointer to a structure
+				 * of type 'stat'.  			*/
+    if ( -1 ==  stat (logfilename, &stat_p))
+    {
+      if(errno == ENOENT) //log file not created yet so ok to create and use
+      {
+        logfileFD = fopen(logfilename,"w");  
+        break;
+      }
+      else //some other error so report and return an error status 
+      {
+        fprintf(stderr,"Error occoured attempting to stat %s\n", logfilename);
+        logfileFD = NULL; 
+        break;
+      }
+    }
+    //Stat was successful so check the file size to see if it is ok to use 
+    //fprintf(stderr,"\nMod Time is %d for file: %s", stat_p.st_mtime,logfilename);
+    if(stat_p.st_size < MAX_LOG_FILE_SZ) //File is smaller than max so open  
+    { 
+        logfileFD = fopen(logfilename,"a"); //open in append mode  
+        break;
+    }
+    else if(stat_p.st_mtime < prevfilemodtime) 
+    {
+      //file is older than previous so ok to truncate and use
+      logfileFD = fopen(logfilename,"w"); //open in truncate mode  
+      break;
+    }
+    else if(lognum == MAX_NUM_LOG_FILES)
+    {
+      //all of the logs are full so we need to start with the first log again
+      if(logdir == NULL)
+      {
+        sprintf(logfilename,"%s/%s%d",DEFAULT_LOG_PATH, LOG_FILE_BASE_NAME,1); 
+      }
+      else
+      {
+        sprintf(logfilename,"%s/%s%d",logdir, LOG_FILE_BASE_NAME,1); 
+      }
+      logfileFD = fopen(logfilename,"w"); //open in truncate mode  
+      break; 
+    }
+    prevfilemodtime =  stat_p.st_mtime;
+  } 
+  return logfileFD;
+}
+
+int spulog(char* msg, int msgSize, char* logdir)
+{ 
+  int bytesWritten = 0;
+  FILE* logFD = openCurrentLogFile(logdir);
+  if(logFD != NULL)
+  {
+    char logentbuf[MAX_LOG_ENTRY_SZ];
+    if(msgSize >= (MAX_LOG_ENTRY_SZ - 1))
+    {
+      //fprintf(stderr,"IN max size if msgSize = %d\n",msgSize);
+      strncpy(logentbuf,msg,MAX_LOG_ENTRY_SZ - 1);
+      logentbuf[MAX_LOG_ENTRY_SZ - 1] = '\n';
+      logentbuf[MAX_LOG_ENTRY_SZ] = 0;
+      //fprintf(stderr,"IN max size if logEnt = %s\n",logentbuf);
+      bytesWritten = MAX_LOG_ENTRY_SZ - 2;
+    }
+    else
+    {
+      sprintf(logentbuf,"%s\n",msg); 
+      bytesWritten = msgSize;
+    }
+    fprintf(logFD,logentbuf);
+    fclose(logFD);
+  }
+  return bytesWritten;
 }
 
