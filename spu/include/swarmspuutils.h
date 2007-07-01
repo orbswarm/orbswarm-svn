@@ -4,6 +4,9 @@
 #include<stdio.h>
 #include<fcntl.h>
 #include<string.h>
+#include <sys/stat.h>			/* declare the 'stat' structure	*/
+#include <time.h>
+#include <errno.h>
 #include "swarmdefines.h"
 
 /* This is a collection of general utility methods for working with the spu */
@@ -15,5 +18,8 @@
 int toggleSpuLed(const unsigned int ledState);  
 //void set_led(int led);
 int resetOrbMCU(void);
+
+//pass NULL for log dir to use default path defined in swarmdefines.h
+int spulog(char* msg, int msgSize, char* logdir);
 
 #endif
