@@ -11,3 +11,12 @@
 #define SPU_LED_RED_OFF 44   
 #define SPU_LED_GREEN_OFF 45 
 
+#define MAX_LOG_ENTRY_SZ 1024 
+#define MAX_NUM_LOG_FILES 5      //the maximum number of log files allowed
+#define MAX_LOG_FILE_SZ 262144
+
+#define MAX_LOG_FILE_NAME_SZ 512 
+
+#define LOG_FILE_BASE_NAME "swarm_log_"
+#define DEFAULT_LOG_PATH "./logs"
+
