@@ -11,7 +11,7 @@ import sys
 import csv
 
 # User settings. OK to edit these if you know what you are doing 
-comport = "COM5"
+comport = "COM4"
 baudrate = 38400
 logFileName = 'dash-log.txt'
 
@@ -60,14 +60,32 @@ class Dashboard(wx.Frame):
         
         self.CreateStatusBar()
         self.InitSerial(comport,baudrate)
-        self.ser.write('$v16*')  # Kp -- PID prop. gain
-        self.ser.write('$f20*')  # Ki -- PID integral
-        self.ser.write('$e10*')  # Kd -- PID derivative
-        self.ser.write('$b60*')  # Min drive
+        #self.ser.write('$v16*')  # Kp -- PID prop. gain
+        #self.ser.write('$f20*')  # Ki -- PID integral
+        #self.ser.write('$e10*')  # Kd -- PID derivative
+        #self.ser.write('$b60*')  # Min drive
+        #self.ser.write('$c200*') # Max drive
+        #self.ser.write('$a255*') # Max accel
+        #self.ser.write('$d10*')  # dead band
+
+
+        #self.ser.write('$v5*')  # Kp -- PID prop. gain
+        #self.ser.write('$f0*')  # Ki -- PID integral
+        #self.ser.write('$e00*')  # Kd -- PID derivative
+        #self.ser.write('$b60*')  # Min drive
+        #self.ser.write('$c200*') # Max drive
+        #self.ser.write('$a255*') # Max accel
+        #self.ser.write('$d10*')  # dead band
+
+        # NEW PID CONSTANTS
+        self.ser.write('$v15*')  # Kp -- PID prop. gain
+        self.ser.write('$f1*')  # Ki -- PID integral
+        self.ser.write('$e0*')  # Kd -- PID derivative
+        self.ser.write('$b30*')  # Min drive
         self.ser.write('$c200*') # Max drive
         self.ser.write('$a255*') # Max accel
         self.ser.write('$d10*')  # dead band
-       
+
         self.InitJoystick()
         self.InitTimer(100)
         self.Bind(wx.EVT_TIMER, self.OnTimerEvt)
@@ -239,17 +257,23 @@ class Dashboard(wx.Frame):
             print "Steer: %d" % steer
             self.ser.write('$s%d*' % steer)
             #self.outputStatus(self.ReadSerial())
+            self.ser.write('$?*')
+            statline=self.ReadSerial()
+            print statline
             oldsteer[0] = steer
         # send any queued serial commands
         while (len(self.outQ) > 0) :
             self.ser.write(self.outQ.pop(0))
             self.resultbox.SetValue('')  # clear result box
-            self.resultbox.AppendText(self.ReadSerial())
+            #self.resultbox.AppendText(self.ReadSerial())
+            print self.ReadSerial()
         # send status query command:
         #self.ser.write('$?*')
+        #statline=self.ReadSerial()
+        #print statline
         #self.outputStatus(self.ReadSerial())
-        self.ser.write('$QI*')
-        self.parseStatus(self.ReadSerial())
+        #self.ser.write('$QI*')
+        #self.parseStatus(self.ReadSerial())
             
     def ReadSerial(self):
         incount = self.ser.inWaiting()
@@ -261,7 +285,7 @@ class Dashboard(wx.Frame):
         return readstring
 
     def outputStatus(self,statusText):
-        #self.statusbox.Clear()
+        self.statusbox.Clear()
         self.statusbox.AppendText(statusText)
         if (self.currentlyLogging):
             self.logfile.write(statusText)       
@@ -275,12 +299,12 @@ class Dashboard(wx.Frame):
         if (self.currentlyLogging):
             if self.fileLen == 0:
                 dataHeader = statusList[0:len(statusList):2]
-                print dataHeader
+                #print dataHeader
                 strList= [str(value) for value in dataHeader]
                 self.logger.writerow(strList)
             
         dataLine =  statusList[1:len(statusList):2]
-        print dataLine
+        #print dataLine
         if (self.currentlyLogging):
             intList= [int(value) for value in dataLine]
             self.logger.writerow(intList)
@@ -326,7 +350,8 @@ class Dashboard(wx.Frame):
         try:
             self.stick = wx.Joystick()
             if not self.stick:
-                wx.MessageBox("Joystick not found.")
+                #wx.MessageBox("Joystick not found.")
+                print "Joystick not found."
                 return
 
             self.stick.SetCapture(self)
@@ -345,7 +370,8 @@ class Dashboard(wx.Frame):
             self.Bind(wx.EVT_JOYSTICK_EVENTS, self.OnJoystick)
             #self.OnJoystick()
         except NotImplementedError, v:
-            wx.MessageBox(str(v), "Error: Joystick not implemented.")
+            #wx.MessageBox(str(v), "Error: Joystick not implemented.")
+            print "Error: Joystick not found."
 
 
 

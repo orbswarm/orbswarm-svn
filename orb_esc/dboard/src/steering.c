@@ -216,6 +216,81 @@ void Steering_do_Servo_Task(void)
 		putstr("\n\r");
 		}
 }
+void New_Steering_Servo_Task(void)
+{
+  short steeringError, D_Factor, I_Factor;
+  short motor_Drive;
+  int16_t error, p_term, d_term;
+  int16_t i_term, ret, temp;
+
+  Steering_Read_Position();			// read Steering Feedback Pot
+  
+
+  // derivative term calculation
+  steeringError = target_Pos - current_Pos;
+  if (abs(steeringError) < dead_band) {	// we are where we want to be - no motion required
+    Set_Motor2_PWM( 0, FORWARD );
+    crntPWM = 0;
+    return;
+  }
+  
+  // calculate p term
+  p_term = steeringError * Kp;
+
+  // calculate d term
+  d_term = Kd * (last_pos_error - steeringError);
+  last_pos_error = steeringError;
+  
+  // Integral term
+  // Calculate Iterm and limit integral runaway
+  temp = iSum + steeringError;
+  if(temp > 4000){
+    iSum = 4000;
+  }
+  else if(temp < -4000){
+    iSum=-4000;
+  }
+  else{
+    iSum = temp;
+  }
+  i_term = Ki * iSum;
+  
+  
+  //iSum += (steeringError / 10);
+
+  motor_Drive = (p_term + d_term + i_term) / 10;		// scale
+  
+  //limit( &motor_Drive, 0, crntPWM + maxAccel);
+  crntPWM = motor_Drive;
+
+
+  // If Debug Log is turned on, output PID data until position is stable
+  if (Debug_Output == 1) {
+    putstr("PID targ curr: ");
+    putS16(target_Pos);
+    putS16(current_Pos);
+    putstr(" Drive: ");
+    putS16(motor_Drive);
+    putstr("\n P, I, D: ");
+    putS16(p_term);
+    putS16(i_term);
+    putS16(d_term);
+    putstr("\n\r");
+  }
+  
+  if (motor_Drive > 0) { 
+    limit( &motor_Drive, minDrive, maxDrive);
+    Set_Motor2_PWM( motor_Drive, FORWARD );
+  }
+  else {
+    motor_Drive = abs(motor_Drive);
+    limit( &motor_Drive, minDrive, maxDrive);
+    Set_Motor2_PWM( motor_Drive, REVERSE );
+  }
+  
+  
+
+}
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------
 // A2D converer comes back with 10-Bit number between 0..1023
@@ -231,12 +306,14 @@ short Steering_Read_Position(void)
 
 void Steering_dump_data(void)
 {
-	putstr("Steer: ");
+	putstr("Steer: target current");
 	putS16(target_Pos);
 	putS16(current_Pos);
-	putstr(" Gain: ");
+	putstr(" Gain: Kp Kd Ki ");
 	putS16(Kp);
 	putS16(Kd);
+	putS16(Ki);
+	putstr("\n mindr maxdr maxa dead: ");
 	putS16(minDrive);
 	putS16(maxDrive);
 	putS16(maxAccel);

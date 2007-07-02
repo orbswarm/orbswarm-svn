@@ -200,7 +200,8 @@ int main (void)
 		if (doing_Speed_control)
 			Motor_do_motor_control(using_iTerm_PID);
 		
-		Steering_do_Servo_Task();
+		//Steering_do_Servo_Task();
+		New_Steering_Servo_Task();
 
 // IMU isn't installed yet...
 		//IMU_output_data_string();		// Send out 5DOF IMU data to Central Linux Brain

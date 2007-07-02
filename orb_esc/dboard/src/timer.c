@@ -10,17 +10,18 @@
 volatile unsigned short Timer0_ticks;
 volatile unsigned char Timer0_10hz_Flag;
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // Interrupt routine to handle Timer0 overflow
 
 SIGNAL(SIG_OVERFLOW0)
 {
-	Timer0_ticks++;						// increment slow counter
-	if ((Timer0_ticks % 51) == 0)		// flag on 510, not on zero
-		Timer0_10hz_Flag = 1;			// set flag for 10 Hz sample rates
+  Timer0_ticks++;		// increment slow counter
+  //if ((Timer0_ticks % 51) == 0)		// orig 10hz value
+  if ((Timer0_ticks % 100) == 0)		// flag on 510, not on zero
+    Timer0_10hz_Flag = 1;			// set flag for 10 Hz sample rates
 }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // Init Timer0 so we get 512 tics per second from timer0_ticks
 // 51 tics = 1/10 second.
 
@@ -34,7 +35,7 @@ void Timer0_Init(void)
 	TIMSK |= _BV(TOIE0);					/* enable Timer0 interrupts */
 }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 
 void Timer0_reset(void)
 {
