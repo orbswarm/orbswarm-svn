@@ -25,7 +25,7 @@ public class SwarmCon extends JFrame
 
          /** minimum frame delay in milliseconds */
 
-      public static final long MIN_FRAME_DELAY = 50;
+      public static final long MIN_FRAME_DELAY = 10;
 
          // some general parameters
 
@@ -42,7 +42,7 @@ public class SwarmCon extends JFrame
       public static final double ORB_DIAMETER      =   1.0; // meters
       public static final double SAFE_DISTANCE     =   3.0; // meters
       public static final double CRITICAL_DISTANCE =   2.0; // meters
-      public static final int    INITIAL_ORBS      =   1  ; // orbs
+      public static final int    INITIAL_ORBS      =   6  ; // orbs
       public static final int    ORB_SPAR_COUNT    =   4  ; // arcs
       
          /** time in seconds for a phantom to move to it's target postion */
@@ -51,7 +51,7 @@ public class SwarmCon extends JFrame
 
          /** scale for graphics */
 
-      public static final double PIXLES_PER_METER  = 40.0;
+      public static final double PIXLES_PER_METER  = 30.0;
 
          /** arena in which we play */
 
@@ -307,7 +307,7 @@ public class SwarmCon extends JFrame
          
             // add pid tuner
 
-         add(tuner = new PidTuner(controllers), BorderLayout.EAST);
+            //add(tuner = new PidTuner(controllers), BorderLayout.EAST);
 
             // add actions
 

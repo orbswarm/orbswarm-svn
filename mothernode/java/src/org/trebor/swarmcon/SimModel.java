@@ -1,7 +1,7 @@
 package org.trebor.swarmcon;
 
 import org.trebor.pid.Controller;
-import org.trebor.pid.PdController;
+import org.trebor.pid.PController;
 
 import static java.lang.Math.*;
 import static org.trebor.swarmcon.SwarmCon.*;
@@ -23,22 +23,22 @@ public class SimModel extends MotionModel
          /** yaw to yaw rate controller */
 
       private Controller yawToYawRateCtrl = 
-         new PdController("yaw", "yawRate", -10, 10, -0.16, 2E17);
+         new PController("yaw", "yawRate", -20, 20, -0.34);
 
          /** yaw rate to roll rate controller */
 
       private Controller yawRateToRollCtrl = 
-         new PdController("yawRate", "roll", -1, 1, 1.25E-1, 0);
+         new PController("yawRate", "roll", -.2, 2, 0.125);
 
          /** distance to veloctiy controller */
 
       private Controller distanceToVelocityCtrl = 
-         new PdController("distance", "velocity", 0, 1, .2, 0);
+         new PController("distance", "velocity", 0, 1, .2);
 
          /** velocity to pitch rate controller */
 
       private Controller velocityToPitchCtrl = 
-         new PdController("veloctiy", "pitchRate", -1, 1, 3.2E2, 1E36);
+         new PController("veloctiy", "pitchRate", -1, 1, 320.0);
 
          /** all the controllers in an array */
 

@@ -235,8 +235,8 @@ public class Angle
 
       public static double difference(double angle1, double angle2)
       {
-         double delta = (angle2 % 360) - (angle1 % 360);
-
+         double delta = (angle2 - angle1) % 360;
+         
          if (delta < -180)
             return 360 + delta;
 
@@ -259,19 +259,41 @@ public class Angle
 
       public static void unitTest()
       {
-         Angle a1 = new Angle(10);
-         Angle a2 = new Angle(350);
-         Angle a3 = new Angle(80);
-         System.out.println(": " + (a1.degrees() == 10));
-         System.out.println(": " + (a2.degrees() == 350));
-         System.out.println(": " + (a3.degrees() == 80));
-         System.out.println(": " + (a2.difference(a1).degrees() == 20));
-         System.out.println(": " + (a1.difference(a2).degrees() == -20));
-         System.out.println(": " + (a1.difference(a3).degrees() == 70));
-         System.out.println(": " + (a3.difference(a1).degrees() == -70));
-         System.out.println(": " + (a2.difference(a3).degrees() == 90));
-         System.out.println(": " + (a3.difference(a2).degrees() == -90));
-         System.out.println(": " + (a3.difference(a2).radians()));
+         Angle[] angles = 
+            {
+               new Angle(10),
+               new Angle(80),
+               new Angle(270),
+               new Angle(350),
+               new Angle(-10),
+               new Angle(-80),
+               new Angle(-270),
+               new Angle(-350),
+            };
+         double[] diffs =
+         {
+            0.0, 70.0, -100.0, -20.0, -20.0, -90.0, 80.0, -0.0, 
+            -70.0, 0.0, -170.0, -90.0, -90.0, -160.0, 10.0, -70.0, 
+            100.0, 170.0, 0.0, 80.0, 80.0, 10.0, -180.0, 100.0, 
+            20.0, 90.0, -80.0, 0.0, -0.0, -70.0, 100.0, 20.0, 
+            20.0, 90.0, -80.0, 0.0, 0.0, -70.0, 100.0, 20.0, 
+            90.0, 160.0, -10.0, 70.0, 70.0, 0.0, 170.0, 90.0, 
+            -80.0, -10.0, 180.0, -100.0, -100.0, -170.0, 0.0, -80.0, 
+            0.0, 70.0, -100.0, -20.0, -20.0, -90.0, 80.0, 0.0, 
+         };
+         
+         int i = 0;
+         for (Angle a1: angles)
+         {
+            for (Angle a2: angles)
+            {
+               double diff = diffs[i++];
+               if (a1.difference(a2).degrees() == diff)
+                  System.out.println(a1.degrees() + " - " + a2.degrees() + " = " + diff);
+               else
+                  System.out.println(a1.degrees() + " - " + a2.degrees() + " = " + a1.difference(a2).degrees() + " not " + diff);
+            }
+         }
          System.out.println(": " + new Angle(-45).cartesian(3, true, 0, 0));
          System.out.println(": " + new Angle(0)  .cartesian(3, true, 0, 0));
          System.out.println(": " + new Angle(45) .cartesian(3, true, 0, 0));
