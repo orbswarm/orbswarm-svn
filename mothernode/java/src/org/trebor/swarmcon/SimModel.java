@@ -1,5 +1,8 @@
 package org.trebor.swarmcon;
 
+import org.trebor.pid.Controller;
+import org.trebor.pid.PdController;
+
 import static java.lang.Math.*;
 import static org.trebor.swarmcon.SwarmCon.*;
 
@@ -20,22 +23,22 @@ public class SimModel extends MotionModel
          /** yaw to yaw rate controller */
 
       private Controller yawToYawRateCtrl = 
-         new PDController("yaw", "yawRate", -0.16, 2E17);
+         new PdController("yaw", "yawRate", -10, 10, -0.16, 2E17);
 
          /** yaw rate to roll rate controller */
 
       private Controller yawRateToRollCtrl = 
-         new PDController("yawRate", "roll", 1.25E-1, 0);
+         new PdController("yawRate", "roll", -1, 1, 1.25E-1, 0);
 
          /** distance to veloctiy controller */
 
       private Controller distanceToVelocityCtrl = 
-         new PDController("distance", "velocity", .2, 0);
+         new PdController("distance", "velocity", 0, 1, .2, 0);
 
          /** velocity to pitch rate controller */
 
       private Controller velocityToPitchCtrl = 
-         new PDController("veloctiy", "pitchRate", 3.2E2, 1E36);
+         new PdController("veloctiy", "pitchRate", -1, 1, 3.2E2, 1E36);
 
          /** all the controllers in an array */
 
@@ -72,9 +75,11 @@ public class SimModel extends MotionModel
          super.setTargetYawRateVelocity(targetYawRate, targetVelocity);
          yawRateToRollCtrl.setTarget(targetYawRate);
          velocityToPitchCtrl.setTarget(targetVelocity);
+         yawRateToRollCtrl.setMeasurment(getYawRate());
+         velocityToPitchCtrl.setMeasurment(getSpeed());
          setTargetRollPitchRates(
-            yawRateToRollCtrl.compute(getYawRate()),
-            velocityToPitchCtrl.compute(getSpeed()));
+            yawRateToRollCtrl.compute(),
+            velocityToPitchCtrl.compute());
       }
          /** Command yaw and distance.
           *
@@ -108,10 +113,12 @@ public class SimModel extends MotionModel
 
          yawToYawRateCtrl.setTarget(0);
          distanceToVelocityCtrl.setTarget(0);
-
+         yawToYawRateCtrl.setMeasurment(yawError);
+         distanceToVelocityCtrl.setMeasurment(distanceError);
+         
          setTargetYawRateVelocity(
-            yawToYawRateCtrl.compute(yawError),
-            distanceToVelocityCtrl.compute(distanceError));
+            yawToYawRateCtrl.compute(),
+            distanceToVelocityCtrl.compute());
       }
          /** Get controllers in the system. */
 

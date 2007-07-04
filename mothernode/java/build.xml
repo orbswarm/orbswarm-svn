@@ -28,6 +28,7 @@ The text of the MIT license apears in the mit-license.txt file.
 
   <fileset dir = "${lib-dir}" id = "libraries">
     <include name = "RXTXcomm.jar"/>
+    <include name = "pid.jar"/>
   </fileset>
 
   <!-- any extra resources which may be neaded by the application -->

@@ -9,6 +9,7 @@ import java.awt.event.*;
 import java.awt.image.*;
 import java.util.*;
 import java.text.*;
+import org.trebor.pid.*;
 
 import static java.lang.System.*;
 import static java.awt.Color.*;
@@ -317,6 +318,14 @@ public class SwarmCon extends JFrame
             inputMap.put(a.getAccelerator(), a.getName());
             actionMap.put(a.getName(), a);
          }
+            // add menu
+
+            //JMenuBar menuBar = new JMenuBar();
+            //add(menuBar, BorderLayout.NORTH);
+            //JMenu fileMenu = new JMenu("file");
+            //menuBar.add(fileMenu);
+            //for (SwarmAction a: actions)
+            //fileMenu.add(a);
       }
          /** Establish the pattern of phantoms on the screen. */
 
@@ -461,8 +470,8 @@ public class SwarmCon extends JFrame
                         }
                   };
                
-               arena.addMouseListener(mia);
-               arena.addMouseMotionListener(mia);
+                  arena.addMouseListener(mia);
+                  arena.addMouseMotionListener(mia);
             }
                /** Is the given point (think mouse click point) eligable to
                 * select this object?

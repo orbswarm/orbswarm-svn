@@ -26,15 +26,15 @@ abstract public class MotionModel
 
       private Angle roll = new Angle();
 
-         /** actual velocity of orb */
+         /** velocity of orb */
 
       private double velocity;
 
-         /** actual direction of travel */
+         /** direction of travel */
 
       private Angle direction = new Angle();
 
-         /** actual yaw rate */
+         /** yaw rate */
 
       private double yawRate;
 
