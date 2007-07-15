@@ -1,5 +1,7 @@
-#include <timer0.h> 
-#include <xbee.h>
+//#include <timer0.h> 
+//#include <xbee.h>
+#include <util/delay.h>
+#include <avr/io.h>
 
 int main(void)
 {
@@ -10,8 +12,12 @@ int main(void)
   //PORTB = PORTB | (1<<PB5);
   
   while(1){
-  	loopTimer0(1000u);
-  	PORTB = PORTB ^ (1<<PB5);
+    loopTimer0(1000u);
+    /*
+    for(int i=0; i < 5; i++)
+      _delay_ms(200);
+    */
+    PORTB = PORTB ^ (1<<PB7);
   }
 
 }

@@ -1,10 +1,17 @@
-//#if !defined(UART_HDR)
-//#define UART_HDR
+/**
+   UART assignment:
+   0 - SPU
+   1 - GPS
+   2 - debug
+   3 - XBee
+ */
 
 int uart_init(void (*handleXBeeRecv)(unsigned char c, int isError),
 	 void (*handleSpuRecv)(unsigned char c, int isErrror));
 
-void sendXBeeMsg(unsigned char *s);
 
-void sendSpuMsg(unsigned char *s);
-//#endif
+void sendXBeeMsg(const unsigned char *s);
+
+void sendSpuMsg(const unsigned char *s);
+
+void sendDebugMsg(const char *s);

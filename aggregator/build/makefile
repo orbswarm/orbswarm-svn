@@ -1,8 +1,10 @@
-
 #MCU = atmega8
 #F_CPU= 16000000   
+#MCU = atmega8515
 MCU = atmega640
 F_CPU = 14700000
+#F_CPU = 14745600
+#F_CPU =  3680000
 
 MYSRC = $(SVN_TRUNK)/aggregator/aggregator_src/c
 MYBIN = $(SVN_TRUNK)/aggregator/binaries
@@ -13,9 +15,11 @@ LIB_SRC= $(SVN_TRUNK)/aggregator/aggregator_src/c/shared
 #TARGET=blinky_test
 TARGET=main
 
+include makelib.mk
 
 # Default target.
 all: 	begin gccversion \
+	build_lib \
 	$(MYBIN)/$(TARGET).hex \
 	finished end
 
@@ -45,7 +49,7 @@ AVRDUDE_PROGRAMMER = stk500v2
 AVRDUDE_PORT = /dev/cu.KeySerial1 
 UPLOAD_RATE = 115200
 AVRDUDE_WRITE_FLASH = -U flash:w:$(MYBIN)/$(TARGET).hex
-AVRDUDE_FLAGS = -F -e -p $(MCU) -b $(UPLOAD_RATE) -P $(AVRDUDE_PORT) \
+AVRDUDE_FLAGS = -e -p $(MCU) -b $(UPLOAD_RATE) -P $(AVRDUDE_PORT) \
 	-c $(AVRDUDE_PROGRAMMER)
 FORMAT = ihex 		# create a .hex file
 
@@ -129,7 +133,6 @@ OBJ = $(SRC:.c=.o) $(ASRC:.S=.o)
 # Define all listing files.
 LST = $(ASRC:.S=.lst) $(SRC:.c=.lst)
 
-include makelib.mk
 
 # Combine all necessary flags and optional flags.
 # Add target processor to flags.
@@ -172,20 +175,20 @@ $(MYBIN)/%.hex : $(MYBIN)/%.elf
 $(MYBIN)/%.elf: $(MYBIN)/%.o  
 	@echo
 	@echo $(MSG_LINKING) $@
-		$(CC) $(ALL_CFLAGS)  $<  $(LIB_BIN)/timer0.o $(LIB_BIN)/uart.o  $(LIB_BIN)/xbee.o  $(LIB_BIN)/spu.o $(LIB_BIN_GLOBAL)/swarm_messaging.o $(LDFLAGS) -o $@ 
+		$(CC) $(ALL_CFLAGS)  $<  $(LIB_BIN)/timer0.o $(LIB_BIN)/uart.o $(LIB_BIN)/spu.o  $(LIB_BIN)/gps.o $(LIB_BIN_GLOBAL)/xbee.o $(LIB_BIN_GLOBAL)/swarm_messaging.o $(LDFLAGS) -o $@ 
 #	$(CC) $(ALL_CFLAGS)  $<  --output $@
 
 
 
 # Compile: create object files from C source files.
-$(MYBIN)/%.o : $(MYSRC)/%.c $(GLOBAL_SHARED_INCLUDE)/swarm_messaging.h $(GLOBAL_SHARED_INCLUDE)/packet_type.h $(LIB_SRC)/timer0.h  $(LIB_SRC)/uart.h  $(LIB_SRC)/xbee.h  $(LIB_SRC)/spu.h
+$(MYBIN)/%.o : $(MYSRC)/%.c $(LIB_BIN_GLOBAL)/xbee.o $(GLOBAL_SHARED_INCLUDE)/swarm_messaging.h $(GLOBAL_SHARED_INCLUDE)/packet_type.h $(LIB_SRC)/timer0.h  $(LIB_SRC)/uart.h  $(LIB_SRC)/spu.h $(LIB_SRC)/gps.h
 	@echo
 	@echo $(MSG_COMPILING) $<
 	$(CC) $(ALL_CFLAGS) -c $< -o $@
 
 
 # Target: clean project.
-clean: begin clean_list finished end
+clean: begin clean_lib clean_list finished end
 
 clean_list :
 	@echo

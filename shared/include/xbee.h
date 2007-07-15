@@ -34,30 +34,38 @@ struct XBEE_TX_PACKET {
 }  ;
 
 
-enum ETxStates {
-  eTxStateStart=0x00,
-  eTxStateLength,
-  eTxStateAPIId,
-  eTxStateDestAddr,
-  eTxStatePayload,
-  eTxStateChksum
+enum EXbeeApiTxStates {
+  eXbeeApiTxStateStart=0x00,
+  eXbeeApiTxStateLength,
+  eXbeeApiTxStateAPIId,
+  eXbeeApiTxStateDestAddr,
+  eXbeeApiTxStatePayload,
+  eXbeeApiTxStateChksum
 };
 
-//static int tx_state=-1;
-//static int tx_state_byte_num=-1;
+enum EXbeeApiRxStates {
+  eXbeeApiRxStateStart=0x00,
+  eXbeeApiRxStateLength,
+  eXbeeApiRxStateAPIId,
+  eXbeeApiRxStateSrcAddr,
+  eXbeeApiRxStateRssi,
+  eXbeeApiRxStateBroadcastOpt,
+  eXbeeApiRxStatePayload,
+  eXbeeApiRxStateChksum
+};
 
-enum ERxStates {
-  eRxStateStart=0x00,
-  eRxStateLength,
-  eRxStateAPIId,
-  eRxStateSrcAddr,
-  eRxStateRssi,
-  eRxStateBroadcastOpt,
-  eRxStatePayload,
-  eRxStateChksum
+enum EXbeeStraightSerialRxStates {
+  eXbeeStraightSerialRxInit,
+  eXbeeStraightSerialRxStartMsg,
+  eXbeeStraightSerialRxPayload
 };
 
 //void initRxBuffers(void); 
 
-void handleXBeeRx(char c, int isError);
+//void handleXBeeRx(char c, int isError);
+
+void  handleXbeeSerial(unsigned char c, int isError);
+
+void initXbeeModule(void (*debugCallback)(void),
+		    void (*debug)(const char*) );
 

@@ -44,7 +44,7 @@ static void handleSpuSwarmMsg(struct SWARM_MSG msg)
 
 void handleSpuSerialRx(unsigned char c, int isError)
 {
-  switch(c){
+  switch(spu_state){
   case eSpuStateStart :
     if(0 != _handleSpuSerialRxStartCallback)
       (*_handleSpuSerialRxStartCallback)();
@@ -70,13 +70,12 @@ void handleSpuSerialRx(unsigned char c, int isError)
     if(spu_state_byte_num < spu_exp_payload_len)
       {
 	spu_recv_msg.swarm_msg_payload[spu_state_byte_num++]=c;
+	if((spu_state_byte_num+1)== spu_exp_payload_len)
+	  //last byte. handle msg here and fall through to init
+	  handleSpuSwarmMsg(spu_recv_msg);
+	else
+	  break;
       }
-    if((spu_state_byte_num+1)== spu_exp_payload_len)
-      {
-	//handle msh here
-	handleSpuSwarmMsg(spu_recv_msg);
-      }
-      break;
   default :
     //init
     initSpuVars();
