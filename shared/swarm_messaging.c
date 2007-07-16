@@ -1,5 +1,9 @@
 #include "include/swarm_messaging.h"
 
+/**
+ * Circular queue implementation borrowed from  ../orb_esc/src/UART.c
+ */
+
 //Circular Q to hold all the messages
 volatile static struct SWARM_MSG s_queue[MAX_SWARM_MSG_QUEUE_SIZE];
 volatile static unsigned long s_nHeadIdx=0;

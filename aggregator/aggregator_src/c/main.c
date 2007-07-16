@@ -23,24 +23,29 @@ void lightLedPortB7(void)
 
 void dummy_spu_handler(unsigned char c, int n)
 {
-  //lightLedPortB6();
+  lightLedPortB6();
 }
 
 int main(void)
 {
   DDRB = 0xff;
   PORTB = 0xff;
-  //initXbeeModule(lightLedPortB7, sendDebugMsg);
-  initXbeeModule(lightLedPortB7, 0);
-  uart_init(handleXbeeSerial,
-	    dummy_spu_handler);
+  initXbeeModule(lightLedPortB7, sendDebugMsg);
+  //initXbeeModule(lightLedPortB7, 0);
+    uart_init(dummy_spu_handler,
+    	    dummy_spu_handler,
+    	    handleXbeeSerial);
+  //    uart_init(dummy_spu_handler,
+  //  	    dummy_spu_handler,
+  //  	    dummy_spu_handler);
   sei();
+  lightLedPortB6();
   while(1){
     struct SWARM_MSG msg = popQ();
     if(msg.swarm_msg_type == eLinkMotorControl){
       //send to spu
       sendSpuMsg(msg.swarm_msg_payload);
-      //lightLedPortB7();
+      lightLedPortB7();
     }
   } 
   return 0;

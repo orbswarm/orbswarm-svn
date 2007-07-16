@@ -42,7 +42,7 @@ static void initXbeeMsgStart(unsigned char c)
 
 void handleXbeeSerial(unsigned char c, int isError)
 {
-  ///debugCallback();
+  debugCallback();
   debug("in handle");
   //if it's an error flag and discard till the start of the next message
   if(isError){
@@ -93,7 +93,7 @@ void handleXbeeSerial(unsigned char c, int isError)
      //default:
     //debugCallback();
   }
-  debugCallback();
+  //debugCallback();
 }
 
 void handleXbeeSerialBuf(const char* buf, long nNumBytes)

@@ -19,6 +19,7 @@ void lightLedPortB7(void)
   PORTB = PORTB ^ (1<<PB7);
 }
 
+/*
 void dummy_spu_handler(unsigned char c, int n)
 {
   //sendDebugMsg("got char");
@@ -36,8 +37,15 @@ void dummy_spu_handler(unsigned char c, int n)
   pushQ(msg);
   //sendDebugMsg("pushed in Q");
 }
+*/
 
-//
+void dummy_spu_handler(unsigned char c, int n)
+{
+   if('B' == c)
+    lightLedPortB6();
+}
+
+/*
 int main(void)
 {
   DDRB = 0xff;
@@ -51,11 +59,6 @@ int main(void)
       //show that we are alive and looping
       //loopTimer0(5000);
       //lightLedPortB7();
-      /*
-      unsigned char msg[] = "Hello World";
-      sendSpuMsg(msg);
-      sendDebugMsg(msg);
-      */
       struct SWARM_MSG msg = popQ();
  
       char debugMsg[2];
@@ -67,29 +70,32 @@ int main(void)
     }
   return 0;
 }
+*/
+
+
 //
-
-
-/*
 int main(void)
 {
   DDRB = 0xff;
   PORTB =0xff;
   unsigned int baud =23;
-  UBRR0H = (unsigned char)(baud>>8);		
-  UBRR0L = (unsigned char)baud;			
-  UCSR0B = (1<<RXEN0) | (1<<TXEN0);
-  UCSR0C = (3<< UCSZ00);
-  //UCSR0C = (1<<UCSZ01) | (1<< UCSZ00);
+  //  UBRR0H = (unsigned char)(baud>>8);		
+  //  UBRR0L = (unsigned char)baud;			
+  //  UCSR0B = (1<<RXEN0) | (1<<TXEN0);
+  //  UCSR0C = (3<< UCSZ00);
+  //  UCSR0C = (1<<UCSZ01) | (1<< UCSZ00);
+  UCSR1B = (1<<RXCIE1) | (1<<RXEN1) | (1<<TXEN1);
+  UCSR1C = (1<<UCSZ11) | (1<< UCSZ10);
+  UBRR1 = 23;
   sei();
   while(1){
-    //loopTimer0(1000);
-    while(!(UCSR0A & (1<<UDRE0)))
+    loopTimer0(1000);
+    while(!(UCSR1A<<(8-UDRE1))>>7)
       ;
-    
-    UDR0 = 'A';
+    UCSR1A = UCSR1A & (~(1<<UDRE1));
+    UDR1 = 'A';
     //
   }
   return 0;
 }
-*/
+//
