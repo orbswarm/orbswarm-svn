@@ -1,10 +1,15 @@
-// motor.c - Motor controller functions for Swarm Orb-Bot
+// ---------------------------------------------------------------------
+// 
+//	File: motor.c
+//      SWARM Orb 
+//      Motor controller functions for SWARM Orb http://www.orbswarm.com
 //
-// Version: 14.0
-// Date: 30-April-2007
-// Switched to OSSC H-Bridge Hardware 
-// Now saving PID gain factors to EEPROM
-// v13.4 - use either Velocity or Torque feedback for Drive Motor PID
+//	Refactored by Jonathan (Head Rotor at rotorbrain.com)
+//      Original Version by Petey the Programmer  Date: 30-April-2007
+// -----------------------------------------------------------------------
+
+
+
 
 // Output 2 channels of PWM on PortB Pins 1&2
 // Ouput 2 sets of control lines (Dir/Disable) on Port D 4:5 & 6:7
@@ -12,6 +17,7 @@
 // Steering Motor is setup as a Servo with a position sensing feedback pot.
 
 #include <avr/io.h>
+#include <stdlib.h>
 #include "eprom.h"
 #include "UART.h"
 #include "a2d.h"
@@ -48,38 +54,109 @@
 #define MOTOR2_ENABLE()  PORTD &= ~_BV(PD7)
 #define MOTOR2_BRAKE()   TCCR1A &= ~_BV(COM1B1)
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------
 // Motor Control Block for keeping track of Motor PID function variables
 
 typedef struct {
-	char	Kp;
-	char	Ki;
-	char	Kd;
-	char	dir;
-	char	PID_state;
-	char	doing_Velocity_PID;
-	unsigned short	target_value;	
-	unsigned short	last_set_point;	
-	unsigned short	prev_value;
-	unsigned short	crnt_value;
-	short	power_setting;
-	short	PWM_Set;	
-	short	I_State;
-	short	D_State;
-	short	initialError;
+  char	Kp;
+  char	Ki;
+  char	Kd;
+  char	dir;
+  unsigned short targetSpeed;	
+  unsigned short currentSpeed;
+  short	currentPWM;
+  short	dead_band;
+  short lastSpeedError;
 } motor_control_block;
 
+
+static short iSum = 0;
+static short iLimit = 400;
+
+extern volatile uint8_t Drive_Debug_Output;	
+extern volatile unsigned char doing_Speed_control;
+
 /* Static Vars */
-static motor_control_block motor1;
+static motor_control_block drive;
 
 /* Prototype */
 void Motor_clear_mcb( motor_control_block *m );
-short Motor_read_feedback_data(void);
 
-void Motor_do_iTerm_PID(void);
-void Motor_do_Std_PID(void);
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
+// main feedback loop for speed control
+
+void Drive_Servo_Task(void)
+{
+  short speedError;
+  short drivePWM;
+  int16_t p_term, d_term, i_term;
+
+  // get current speed in RPM
+
+  
+  // derivative term calculation
+  drive.currentSpeed = EncoderReadSpeed();
+  speedError = drive.currentSpeed - drive.targetSpeed; 
+
+  //  if (abs(speedError) < drive.dead_band) {	// we are at desired speed
+    // don't change anything
+    //return;
+  //}
+  
+  // check overcurrent here?
+
+  // calculate p term
+  p_term = speedError * drive.Kp;
+
+  // calculate d term
+  d_term = drive.Kd * (drive.lastSpeedError - speedError);
+  drive.lastSpeedError = speedError;
+  
+  // sum to integrate steering error and limit runaway
+  iSum += speedError;
+
+  limit(&iSum,iLimit,-iLimit);
+
+  i_term = drive.Ki*iSum;
+  i_term = i_term >> 2; // shift right (divide by 4) to scale
+
+  drivePWM = (p_term + d_term + i_term);	
+  drivePWM = drivePWM >> 3; // shift right (divide by 8) to scale
+  
+  drive.currentPWM = drivePWM;
+
+  // If Debug Log is turned on, output PID data until position is stable
+  if (Drive_Debug_Output == 1) {
+    putstr("DRIVE PID targ curr: ");
+    putS16(drive.targetSpeed);
+    putS16(drive.currentSpeed);
+    putstr(" DrivePWM: ");
+    putS16(drivePWM);
+    putstr("\n\r DRIVE P, I, D: ");
+    putS16(p_term);
+    putS16(i_term);
+    putS16(d_term);
+    putstr(" integrator ");
+    putS16(iSum);
+    putstr("\n\r");
+  }
+  
+  // use computed PWM to drive the motor
+  // check current limit here -- reduce power if so? 
+
+  if (drivePWM > 0) { 
+    limit( &drivePWM, drive.dead_band, 100);
+    Set_Motor1_PWM(drivePWM, FORWARD );
+  }
+  else {
+    drivePWM = abs(drivePWM);
+    limit( &drivePWM, drive.dead_band, 100);
+    Set_Motor1_PWM( drivePWM, REVERSE );
+  }
+}
+
+
+// ----------------------------------------------------------------------
 // Init Pulse Width Modulation hardware for Speed Controlers.
 // Output 2 channels of PWM on PortB Pins 1&2
 // Ouput 2 sets of control lines (Fwd/Rev) on Port D 4:5 & 6:7
@@ -88,27 +165,27 @@ void Motor_do_Std_PID(void);
 
 void Motor_PWM_Init(void)
 {
-	Motor_clear_mcb( &motor1 );		// Only motor1 uses Motor Control Block
-	
-    // Set Port Direction bits (1=Output) and enable PWM pins and timers
-	
-    DDRB |= (_BV(PB1) | _BV(PB2));							// PWM Pins
-	DDRD |= (_BV(PD4) | _BV(PD5) | _BV(PD6) | _BV(PD7));	// Direction control pins
-	
-	MOTOR1_DISABLE();	// Disable before starting PWM
-	MOTOR2_DISABLE();	// Set Disable Pins High to turn OFF H-Bridge
-		
-	TCCR1A |= (_BV(COM1A0) | _BV(COM1A1));	// Set OC1A on compare match
-    TCCR1A |= (_BV(COM1B0) | _BV(COM1B1));	// Set OC1B on compare match
-	
-    TCCR1A |= _BV(WGM10);		// Fast PWM Mode 5 ==> 8 Bit
-	TCCR1B |= _BV(WGM12);		// both channels use same PWM mode
-	
-    TCCR1B |= _BV(CS10);		// 1 prescale = 31.25K Hz PWM @ 8 MHz
- 
-    // Make sure motors are stopped
-    Set_Motor1_PWM(0, FORWARD);
-    Set_Motor2_PWM(0, FORWARD);
+  Motor_clear_mcb( &drive );		// Only drive uses Motor Control Block
+  
+  // Set Port Direction bits (1=Output) and enable PWM pins and timers
+  
+  DDRB |= (_BV(PB1) | _BV(PB2));							// PWM Pins
+  DDRD |= (_BV(PD4) | _BV(PD5) | _BV(PD6) | _BV(PD7));	// Direction control pins
+  
+  MOTOR1_DISABLE();	// Disable before starting PWM
+  MOTOR2_DISABLE();	// Set Disable Pins High to turn OFF H-Bridge
+  
+  TCCR1A |= (_BV(COM1A0) | _BV(COM1A1));	// Set OC1A on compare match
+  TCCR1A |= (_BV(COM1B0) | _BV(COM1B1));	// Set OC1B on compare match
+  
+  TCCR1A |= _BV(WGM10);		// Fast PWM Mode 5 ==> 8 Bit
+  TCCR1B |= _BV(WGM12);		// both channels use same PWM mode
+  
+  TCCR1B |= _BV(CS10);		// 1 prescale = 31.25K Hz PWM @ 8 MHz
+  
+  // Make sure motors are stopped
+  Set_Motor1_PWM(0, FORWARD);
+  Set_Motor2_PWM(0, FORWARD);
 }
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -117,28 +194,20 @@ void Motor_PWM_Init(void)
 void Motor_clear_mcb( motor_control_block *m )
 {
 	m->dir = FORWARD;
-	m->target_value = 0;
-	m->prev_value = 0;
-
-	m->PWM_Set = 0;
-	m->I_State = 0;
-	m->D_State = 0;
+	m->targetSpeed = 0;
+	m->currentSpeed = 0;
+	m->currentPWM = 0;
+	m->lastSpeedError = 0;
 
 // iTerm PID
-	m->Kp = 8;
-	m->Ki = 10;
-	m->Kd = 4;
+	m->Kp = 5;
+	m->Ki = 0;
+	m->Kd = 0;
+	m->dead_band = 10;
 	
-/* normal PID	
-	m->Kp = 4;
-	m->Ki = 1;
-	m->Kd = 4;
-*/
-	m->PID_state = 0;
-	m->doing_Velocity_PID = 1;
 }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------
 // Special care must be taken writing to these 16 bit PWM registers.
 // High byte must be written first.
 
@@ -154,385 +223,182 @@ void write_OCR1B( unsigned char value )
 	OCR1BL = value;
 }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
 // Setup torque control - turn on PID
 // This is also used to setup velocity control
 
-void Set_Motor1_Torque(unsigned char t, signed char direction)
+void Set_Drive_Speed(unsigned char t, signed char direction)
 {
-	motor1.target_value = t;
-	motor1.dir = direction;
+	drive.targetSpeed = t;
+	drive.dir = direction;
 }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
-// Set power -100..0..100 as percent of PWM (from cmd line)
 
-void Set_Motor1_Power(unsigned char power, signed char direction)
-{
-	short tmpData;
-
-	tmpData = (power * 255) / 100;
-	if (tmpData > 255) tmpData = 255;
-
-	Set_Motor1_PWM( tmpData, direction);
-
-	motor1.power_setting = power;
-}
-
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------
 // Sets the Duty Cycle and direction of motor 1 - Main Drive Motor
 // This routine is tied to specific Speed Control Hardware - OSSC
 // Input pwm = 0..255
 
 void Set_Motor1_PWM(unsigned char pwm, signed char direction)
 {	
-	if (pwm == 0)		// STOP - Turn off PWM
-		{
-		MOTOR1_DISABLE();
-		write_OCR1A( 0 );
-		
-		/*
-		MOTOR1_FORWARD();		// order of cmds is very important for braking
-		MOTOR1_BRAKE();
-		*/
-		}
-	else
-		{		
-		if (direction == FORWARD)
-			{
-			MOTOR1_FORWARD();		// setup direction pin & non-inverted PWM
-			write_OCR1A( pwm );		// Set PWM as 16 bit value
-			}
-		else // direction == REVERSE
-			{
-			MOTOR1_REVERSE();		// setup direction pin & inverted PWM
-			write_OCR1A( pwm );		// Set PWM as 16 bit value
-			}
-		MOTOR1_ENABLE();
-		}
-		
-	motor1.dir = direction;
-	motor1.PWM_Set = pwm;
+
+  pwm = pwm & 0xFF; 		/* limit to 0 - 255  */
+  if (pwm == 0)			// STOP - Turn off PWM
+    {
+      MOTOR1_DISABLE();
+      write_OCR1A( 0 );
+ 
+    }
+  else
+    {		
+      if (direction == FORWARD)
+	{
+	  MOTOR1_FORWARD();  // setup direction pin & non-inverted PWM
+	  write_OCR1A( pwm );	// Set PWM as 16 bit value
+	}
+      else // direction == REVERSE
+	{
+	  MOTOR1_REVERSE();		// setup direction pin & inverted PWM
+	  write_OCR1A( pwm );		// Set PWM as 16 bit value
+	}
+      MOTOR1_ENABLE();
+    }
+  
+  drive.dir = direction;
+  drive.currentPWM = pwm;
+
 }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------
 // Sets the Duty Cycle and direction of motor 2 - Steering Motor
 // Input pwm = 0..255
 
 void Set_Motor2_PWM(unsigned char pwm, signed char direction)
 {
-	if (pwm == 0)		// STOP - Turn off PWM
-		{
-		MOTOR2_DISABLE();
-		write_OCR1B( 0 );
-		}
-	else
-		{		
-		if(direction == FORWARD)
-			{
-			MOTOR2_FORWARD();
-			write_OCR1B( pwm );	// Set PWM as 16 bit value
-			}
-		else // direction == REVERSE
-			{
-			MOTOR2_REVERSE();
-			write_OCR1B( pwm );	// Set PWM as 16 bit value
-			}
-		MOTOR2_ENABLE();
-		}
+  if (pwm == 0)		// STOP - Turn off PWM
+    {
+      MOTOR2_DISABLE();
+      write_OCR1B( 0 );
+    }
+  else
+    {		
+      if(direction == FORWARD)
+	{
+	  MOTOR2_FORWARD();
+	  write_OCR1B( pwm );	// Set PWM as 16 bit value
+	}
+      else // direction == REVERSE
+	{
+	  MOTOR2_REVERSE();
+	  write_OCR1B( pwm );	// Set PWM as 16 bit value
+	}
+      MOTOR2_ENABLE();
+    }
 }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-char Motor_Read_Drive_Direction(void)
-{
-	return motor1.dir;
-}
-
-char Motor_Read_Drive_PWM(void)
-{
-	return motor1.PWM_Set;
-}
-
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------
 // Setup the Gain factors via the Cmd line for testing & tuning.
+
+void Set_Drive_Deadband(short s)
+{
+	drive.dead_band = s;
+}
 
 void Motor_set_Kp(char c)
 {
-	motor1.Kp = c;
+	drive.Kp = c;
 }
 
 void Motor_set_Ki(char c)
 {
-	motor1.Ki = c;
+	drive.Ki = c;
 }
 
 void Motor_set_Kd(char c)
 {
-	motor1.Kd = c;
+	drive.Kd = c;
 }
 
-void Motor_set_PID_feedback(char c)
+
+
+// return motor status
+void Get_Drive_Status(void)
 {
-	motor1.doing_Velocity_PID = c;		// 1 = Velocity, 0 = Torque
+  short theData;
+  putstr("TargetSpeed: ");
+  putS16(drive.targetSpeed);
+  putstr("\n\r currentSpeed:");
+  putS16(drive.currentSpeed);
+  putstr("\n\r PWM ");
+  putS16(drive.currentPWM);
+  putstr("\n\r Direction ");
+  putS16(drive.dir);
+  putstr("\n\rCurrentSense:");
+  theData = A2D_read_channel(CURRENT_SENSE_CHANNEL);
+  putS16(theData);	
+  putstr("\n\r");
 }
-
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // Dump motor data to serial port for feedback / debug / testing / tuning
 
 void Motor_dump_data(void)
 {
   short theData;
-  putstr("Motor1: ");
-  putS16(motor1.target_value);
-  putS16(motor1.crnt_value);
-  putS16(motor1.PWM_Set);
+  putstr("Drive: target current PWM ");
+  putS16(drive.targetSpeed);
+  putS16(drive.currentSpeed);
+  putS16(drive.currentPWM);
+  putstr(" Dir ");
+  putS16(drive.dir);
   putstr("  PID:");
-  putS16(motor1.Kp);
-  putS16(motor1.Ki);
-  putS16(motor1.Kd);
-  putstr("  ISav:");
-  putS16(motor1.I_State);	
-
-  putstr("\n  encoderSpeed:");
-  theData = Encoder_read_speed(MOTOR1_SHAFT_ENCODER);
-  putS16(theData);	
-
-  putstr("\n  currentSense:");
+  putS16(drive.Kp);
+  putS16(drive.Ki);
+  putS16(drive.Kd);
+  putstr("  currentSense:");
   theData = A2D_read_channel(CURRENT_SENSE_CHANNEL) - 512;
   putS16(theData);	
 	
-	if (motor1.doing_Velocity_PID)
-		putstr("  Velocity");
-	else
-		putstr("  Torque");
-
-	putstr("\r\n");
+  putstr("\r\n");
 }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------
 
-void Motor_save_PID_settings(uint8_t iTermFlag)
+void Motor_save_PID_settings()
 {
-	uint8_t checksum;
-	checksum = 0 - (motor1.Kp + motor1.Ki + motor1.Kd + motor1.doing_Velocity_PID + iTermFlag);
-	
-	eeprom_Write( MOTOR_EEPROM, motor1.Kp );
-	eeprom_Write( MOTOR_EEPROM+1, motor1.Ki );
-	eeprom_Write( MOTOR_EEPROM+2, motor1.Kd );
-	eeprom_Write( MOTOR_EEPROM+3, motor1.doing_Velocity_PID );
-	eeprom_Write( MOTOR_EEPROM+4, iTermFlag );
-	eeprom_Write( MOTOR_EEPROM+5, checksum );
+  uint8_t checksum;
+  checksum = 0 - (drive.Kp + drive.Ki + drive.Kd);
+  eeprom_Write( MOTOR_EEPROM, drive.Kp );
+  eeprom_Write( MOTOR_EEPROM+1, drive.Ki );
+  eeprom_Write( MOTOR_EEPROM+2, drive.Kd );
+  eeprom_Write( MOTOR_EEPROM+3, checksum );
 }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------
 
-void Motor_read_PID_settings(uint8_t *iTermFlag)
+void Motor_read_PID_settings()
 {
-	uint8_t v1,v2,v3,v4,v5,checksum;
-
-	v1 = eeprom_Read( MOTOR_EEPROM );
-	v2 = eeprom_Read( MOTOR_EEPROM+1 );
-	v3 = eeprom_Read( MOTOR_EEPROM+2 );
-	v4 = eeprom_Read( MOTOR_EEPROM+3 );
-	v5 = eeprom_Read( MOTOR_EEPROM+4 );
-	checksum = eeprom_Read( MOTOR_EEPROM+5 );
-
-	if (!((v1 + v2 + v3 + v4 + v5 + checksum) & 0xFF))
-		{	// checksum is OK - load values into motor control block
-		motor1.Kp = v1;
-		motor1.Ki = v2;
-		motor1.Kd = v3;
-		motor1.doing_Velocity_PID = v4;
-		*iTermFlag = v5;
-		}
-	else
-		putstr("Init Motor PIDs\r\n");
+  uint8_t v1,v2,v3,v4,v5,checksum;
+  
+  v1 = eeprom_Read( MOTOR_EEPROM );
+  v2 = eeprom_Read( MOTOR_EEPROM+1 );
+  v3 = eeprom_Read( MOTOR_EEPROM+2 );
+  checksum = eeprom_Read( MOTOR_EEPROM+3 );
+  
+  if (!((v1 + v2 + v3 + checksum) & 0xFF))
+    {	// checksum is OK - load values into motor control block
+      drive.Kp = v1;
+      drive.Ki = v2;
+      drive.Kd = v3;
+      putstr("Init Motor PIDs\r\n");
+    }
+  else
+    putstr("Init Motor PIDs: no checksum, default values\r\n");
 }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
-// Basic PID routine without limiters.
-
-/*
-void Motor_do_motor_control_PID(motor_control_block *motor);
-void Motor_do_motor_control_PID(motor_control_block *motor)
+short limit( short *v, short minVal, short maxVal)
 {
-	short Error_Term, P_Term, D_Term, I_Term, motor_drive;
-	
-	motor->crnt_value = Encoder_read_speed(MOTOR1_SHAFT_ENCODER);	// or current sensor
-	Error_Term = motor->target_value - motor->crnt_value;
-	
-	P_Term = motor->Kp * Error_Term;
-	D_Term = motor->Kd * (Error_Term - motor->D_State);
-	motor->D_State = Error_Term;
-	
-	motor->I_State += Error_Term;	
-	I_Term = (motor->Ki * motor->I_State) / 100;	// Ki is in-effect 0.01
-	
-	motor_drive = motor->PWM_Set + P_Term + I_Term + D_Term;
-			
-	Set_Motor_PWM( motor, motor_drive, motor->dir );		// PWM input is 0..255
-}
-*/
-
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
-// Read either the velocity, or the Hall-effect current sensor.
-// Depends on whether we're doing velocity, or torque control.
-
-short Motor_read_feedback_data(void)
-	{
-	short theData;
-	
-	if (motor1.doing_Velocity_PID)
-		theData = Encoder_read_speed(MOTOR1_SHAFT_ENCODER);
-	else
-		theData = A2D_read_channel(CURRENT_SENSE_CHANNEL) - 512;
-		
-	return theData;
-	}
-
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
-
-void Motor_do_motor_control(char use_iTerm_PID)
-{
-	if (use_iTerm_PID)
-		Motor_do_iTerm_PID();
-	else
-		Motor_do_Std_PID();
+	if (*v < minVal) *v = minVal;
+	if (*v > maxVal) *v = maxVal;
+	return *v;
 }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
-// Run PID function for Main Drive Motor.
-// This can be used for speed, or current control.
-// Many different variations of PID functions can be run in here.
-// Called 10 times per second.  
-// Over oscillates small test rig w/ Kp = 4, Ki = 0.01, Kd = 4
-
-void Motor_do_Std_PID(void)
-{
-	short Error_Term, P_Term, D_Term, I_Term, motor_drive;
-	
-	motor1.crnt_value = Motor_read_feedback_data();		// either velocity or torque
-	Error_Term = motor1.target_value - motor1.crnt_value;
-	
-	P_Term = motor1.Kp * Error_Term;
-	D_Term = motor1.Kd * (Error_Term - motor1.D_State);
-	motor1.D_State = Error_Term;
-	
-	motor1.I_State += Error_Term;
-	if (motor1.I_State > 2500)		// prevent I_Term run-away
-		motor1.I_State = 2500;		
-	if (motor1.I_State < -2500) 
-		motor1.I_State = -2500;
-	
-	I_Term = (motor1.Ki * motor1.I_State) / 100;	// Ki is in-effect 0.01
-	
-	motor_drive = motor1.PWM_Set + P_Term + I_Term + D_Term;
-
-	if (motor_drive > 255)		// limit PWM value to 0..255
-		motor_drive = 255;		// don't allow reversing directions from here
-	if (motor_drive < 0)
-		motor_drive = 0;
-	
-	// limit to current_value + xx - be nice to motor during spin up.
-	
-	if (motor_drive > (motor1.PWM_Set + 10))
-		motor_drive = motor1.PWM_Set + 10;
-		
-	Set_Motor1_PWM( motor_drive, motor1.dir );		// PWM input is 0..255
-}
-
-
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
-// PID #3 - iTerm PID
-// Uses I_Term to adjust and store neutral 'bias' value.
-//
-// Works great with small test motor & speed sensor setup - 
-// deals with time lag very smoothly.  Kp = 8, Ki = 10, Kd = 4;
-
-void Motor_do_iTerm_PID(void)
-{
-	short Error_Term, P_Term=0, D_Term=0, I_Term, motor_drive;
-	
-	motor1.crnt_value = Motor_read_feedback_data();		// either velocity or torque
-	Error_Term = motor1.target_value - motor1.crnt_value;
-
-	motor1.I_State += Error_Term;
-	if (motor1.I_State > 2550) motor1.I_State = 2550;	// prevent run-away
-	if (motor1.I_State < -2550) motor1.I_State = -2550;
-	
-	I_Term = (motor1.Ki * motor1.I_State) / 10;	// Ki is in-effect 0.1
-
-	if (motor1.PID_state < 2) {	// wait for iTerm to spin up...
-
-		if (motor1.PID_state == 0) {
-			motor1.PID_state = 1;
-			motor1.initialError = Error_Term;
-			}
-			
-		// wait for error to over-correct via iTerm before entering normal operation
-		if (((motor1.initialError > 0) && (Error_Term < 0)) 
-		 || ((motor1.initialError < 0) && (Error_Term > 0)) ){
-			motor1.PID_state = 2;	// begin normal operation
-			motor1.prev_value = motor1.crnt_value;
-			}
-		
-		motor1.last_set_point = motor1.target_value;	// remember current set-point
-		}
-		
-	else	// normal operation
-		{
-		// calculate D_Term...
-		D_Term = motor1.Kd * (motor1.prev_value - motor1.crnt_value);
-		motor1.prev_value = motor1.crnt_value;
-		
-		if (motor1.target_value == motor1.last_set_point) 		// setpoint has not changed
-			{
-			// calculate P_Term...
-			P_Term = motor1.Kp * Error_Term;
-						
-			}
-		else	// setpoint has changed - new target_value
-			{
-			// reset P&D terms - let I_Term spin up / down
-			P_Term = 0;
-			D_Term = 0;
-			
-			if ((motor1.target_value > motor1.last_set_point) 
-			 && (motor1.crnt_value > motor1.target_value)) {
-				motor1.last_set_point = motor1.target_value;	// return to "normal operation"
-				motor1.prev_value = motor1.crnt_value;
-				}
-			
-			if ((motor1.target_value < motor1.last_set_point) 
-			 && (motor1.crnt_value < motor1.target_value)) {
-				motor1.last_set_point = motor1.target_value;	// return to "normal operation"
-				motor1.prev_value = motor1.crnt_value;
-				}
-			
-			} // end of "setpoint has changed"
-
-		} // end of "normal operation"
-
-// ---
-
-	motor_drive = (P_Term + I_Term + D_Term) / 10;
-
-	/*
-	putstr("Terms: ");	// output data for tuning / debug -- 
-	putS16( P_Term );	// requires Hi-speed debug port (38.4k baud UART)
-	putS16( I_Term );
-	putS16( D_Term );
-	putS16( motor_drive );
-	putstr("\r\n");
-	*/
-	
-	if (motor_drive > 255) motor_drive = 255;
-	if (motor_drive < 0) motor_drive = 0;
-	
-//	if (motor_drive > 160) motor_drive = 160;		// limit while testing
-	Set_Motor1_PWM( motor_drive, motor1.dir );		// PWM input is 0..255  50% = 128
-}
-
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
-// End of File

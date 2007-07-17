@@ -18,58 +18,57 @@ static unsigned short ADValue[8];
 
 #define AD_VREF	5
 
-// ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-// Initialize Analogue to Digital converters.
+// ------------------------------------------------------------------------
+// Initialize Analog to Digital converters.
 // Use single ended conversion - one channel at a time, 
 // Setup to sample channels only when triggered. (not free running)
 // For accurate 10 bit conversion, AD clock must be between 50kHz and 200kHz
 
 void A2D_Init(void)
 {
-	uint8_t n;
-	for (n=0;n<8;n++) ADValue[n] = 0;
-		
-    ADCSRA = (1<<ADPS1) | (1<<ADPS2);		// Prescale 64 .. @8Mhz ADC clock = 125kHz
+  uint8_t n;
+  for (n=0;n<8;n++) ADValue[n] = 0;
+  
+  ADCSRA = (1<<ADPS1) | (1<<ADPS2); // Prescale 64 .. @8Mhz ADC clock = 125kHz
 
 #if AD_VREF == 5
-    ADMUX = (1<<REFS0);						// AVCC voltage ref, ch 0.
+  ADMUX = (1<<REFS0);						// AVCC voltage ref, ch 0.
 #else
-	ADMUX = 0;								// AVREF voltage ref, ch 0.
+  ADMUX = 0;								// AVREF voltage ref, ch 0.
 #endif
 
-    ADCSRA |= (1<<ADEN);	// Enable the ADC
-	ADCSRA |= (1<<ADSC);	// Start conversions
+  ADCSRA |= (1<<ADEN);	// Enable the ADC
+  ADCSRA |= (1<<ADSC);	// Start conversions
 }
 
-// ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 // poll a2d conversion complete bit - read ADC, start next conversion.
 // This avoids waiting or having to turn off interupts to read/write values.
 // Sample 8 channels in sequence [0..7] then start over at 0.
 // Filter noise using low pass averaging.
 // This routine will be called 168,000 times per second. (at 8Mhz)
-// Conversions take a couple of cycles to complete.
+// Conversions take 13 cycles to complete.
 // It works out to over 9,000 samples per second.
 
 void A2D_poll_adc(void)
 {
-	uint8_t chanNum;
-	
-	if (bit_is_clear(ADCSRA, ADSC))	// if clear, conversion is done.
-		{
-		chanNum = (ADMUX & 0x07);	// Check which channel was just measured
-		
-	//	ADValue[chanNum++] = ADC;	// Save measured value - no filtering
-
-		ADValue[chanNum] = ((ADValue[chanNum] * 3) + ADC) / 4;	// Average measured value
-		chanNum++;
-		
+  uint8_t chanNum;
+  
+  if (bit_is_clear(ADCSRA, ADSC)){	// if clear, conversion is done.
+    chanNum = (ADMUX & 0x07);	// Check which channel was just measured
+    
+    //	ADValue[chanNum++] = ADC;	// Save measured value - no filtering
+    
+    ADValue[chanNum] =  ADC; 
+    chanNum++;
+    
 #if AD_VREF == 5
-		ADMUX = (1<<REFS0) | (chanNum & 0x01);	// Use AVCC voltage ref, channel num 0..1
+    ADMUX = (1<<REFS0) | (chanNum & 0x01);	// Use AVCC voltage ref, channel num 0..1
 #else
-		ADMUX = (chanNum & 0x07);				// Use AVREF voltage ref, channel num 0..7
+    ADMUX = (chanNum & 0x07); // Use AVREF voltage ref, channel num 0..7
 #endif
-		ADCSRA |= _BV(ADSC);					// Start next conversion
-		}
+    ADCSRA |= _BV(ADSC);	// Start next conversion
+  }
 }
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------

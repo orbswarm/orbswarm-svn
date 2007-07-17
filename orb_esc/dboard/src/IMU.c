@@ -17,7 +17,18 @@ void calc_check_sum( char *checkSum, char *str);
 void check_sum_to_HexStr( char checkSum, char *str);
 void num_to_Str( short v, char *str);
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// associate signal names with adc channels
+static char *sigName[] = {"ADC0",  /* ADC0, PC0, pin 23,  */
+			  "ADC1",  /* ADC1, PC1, pin 24,  */
+			  "RATEX", /* ADC2, PC2, pin 25, IMU header 13  gyro X*/
+			  "RATEY", /* ADC3, PC3, pin 26, IMU header 11  gyro Y*/
+			  "ACCZ",  /* ADC4, PC4, pin 27, IMU header 9   accel Z */
+			  "ACCX",  /* ADC5, PC5, pin 28, IMU header 7   accel X */
+			  "SPARE", /* ADC6, TQFP pin 19, IMU header 5   unused */
+			  "ACCY"}; /* ADC7, TQFP pin 22, IMU header 3,  accel Y*/
+
+
+// ------------------------------------------------------------------------
 // This routine is called 10 times per second from the main loop.
 // Send out the data from the 5DOF IMU, plus the steering and motor data.
 // Format the data just like that comming from the GPS units.
@@ -38,6 +49,23 @@ void num_to_Str( short v, char *str);
 // Ballast_Swing_Angle = atan2(xAccel-512, zAccel-512)
 //
 
+// New, easier-to-parse version by JTF. No checksum, etc. 
+void Get_IMU_Data(void)
+{
+  unsigned char n;
+  short v;
+  
+  //putstr("ADC\n");
+  
+  for (n = 0; n <= 7; n++){
+    v = A2D_read_channel(n);
+    putstr(sigName[n]);
+    putstr(": ");
+    putS16(v);
+    putstr("\n\r");
+  }
+}
+
 void IMU_output_data_string(void)
 {
 	char checkSum = 0;
@@ -48,10 +76,10 @@ void IMU_output_data_string(void)
 	calc_check_sum( &checkSum, theStr );
 	putstr(theStr);
 	
-	v = Encoder_read_speed(MOTOR1_SHAFT_ENCODER);
-	num_to_Str(v,theStr);
-	calc_check_sum( &checkSum, theStr );
-	putstr(theStr);
+	// v = Encoder_read_speed(MOTOR1_SHAFT_ENCODER);
+	// num_to_Str(v,theStr);
+	// calc_check_sum( &checkSum, theStr );
+	// putstr(theStr);
 	
 	for (n = IMU_FIRST_CHANNEL; n <= IMU_LAST_CHANNEL; n++)
 		{
@@ -67,7 +95,9 @@ void IMU_output_data_string(void)
 	putstr("\r\n");
 }
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+// --------------------------------------------------------------------------
 
 void calc_check_sum( char *checkSum, char *str)
 {
@@ -131,5 +161,3 @@ void num_to_Str( short v, char *str)
 	str[n] = 0;
 }
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// End of File

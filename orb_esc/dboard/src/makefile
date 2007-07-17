@@ -1,6 +1,11 @@
-# Makefile for dboard_MCU v14 - dboard Motor Control Unit
+# Makefile for dboard_MCU v16+ - dboard Motor Control Unit
 # Setup to run on ATMega8 chip
 # Compiled using avr-gcc 4.02-1
+
+
+# set avrdude COM port here
+COM = COM6
+
 
 # default target when "make" is run w/o arguments
 all: dboard_MCU.rom
@@ -55,9 +60,20 @@ dboard_MCU.rom: dboard_MCU.elf
 	avr-objcopy -O ihex dboard_MCU.elf dboard_MCU.rom
 
 
+
+
 # command to program chip 
 install:
-	avrdude -p m8 -U flash:w:dboard_MCU.rom
+	avrdude.exe -v -P ${COM} -c stk500v2  -p m8  -C  c:\WinAVR\bin\avrdude.conf  -U flash:w:dboard_MCU.rom
+
+# set the fuses (need only do this once....
+lfuse:
+	avrdude.exe -v -P ${COM}  -c stk500v2  -p m8  -C  c:\WinAVR\bin\avrdude.conf  -U lfuse:w:0xEF:m
+
+hfuse:
+	avrdude.exe -v -P ${COM}  -c stk500v2  -p m8  -C  c:\WinAVR\bin\avrdude.conf  -U hfuse:w:0xD9:m
+
+
 
 # command to clean up junk (not source files) (invoked by "make clean")
 clean:

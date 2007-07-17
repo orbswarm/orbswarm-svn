@@ -13,9 +13,14 @@ void Steering_set_Kp(short v);
 void Steering_set_Ki(short v);
 void Steering_set_Kd(short v);
 
+void Steering_set_integrator(short v);
+
 void Steering_set_min(short v);
 void Steering_set_max(short v);
 void Steering_set_accel(short v);
 
 void Steering_save_PID_settings(void);
 void Steering_read_PID_settings(void);
+
+void Get_Steering_Status(void);
+void Steering_Servo_Task(void);

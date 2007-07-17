@@ -1,8 +1,13 @@
-// steering.c - Steering motor control functions for Swarm Orb-Bot
+// ---------------------------------------------------------------------
+// 
+//	steering.c 
+//      SWARM Orb 
+//      Steering feedback PID loop  for SWARM Orb http://www.orbswarm.com
 //
-// Version 14.0
-// Last Update: 23-May-07
-// Petey the Programmer
+//	Refactored by Jonathan (Head Rotor at rotorbrain.com)
+//      Original Version by Petey the Programmer  Date: 30-April-2007
+// -----------------------------------------------------------------------
+
  
 #include <avr/io.h>
 #include <stdlib.h>
@@ -26,32 +31,32 @@ static short minDrive;
 static short maxDrive;
 static short maxAccel;
 static short crntPWM;
-static short iSum;
+static short iSum = 0;
+static short iLimit = 0;
 
-extern volatile uint8_t Debug_Output;	// flag for outputing PID tuning info
+extern volatile uint8_t Steer_Debug_Output;	// flag for outputing PID tuning info
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
-// New inital values provided by Jon & Michael 20-May-07
+// ------------------------------------------------------------------------
 
 void Steering_Init(void)
 {
 	target_Pos = 0;		// start with steering centered
-	Kp = 16;			// this will be divided by 10 for fractional gain values
-	Ki = 20;
-	Kd = 10;
-	dead_band = 10;		// Set high to stop chatter, decrease for precision
+	Kp = 8;	// this will be divided by 10 for fractional gain values
+	Ki = 0;
+	Kd = 0;
+	dead_band = 10;	// Set high to stop chatter, decrease for precision
 	minDrive = 60;
 	maxDrive = 200;
 	maxAccel = 255;
 	crntPWM = 0;
 	iSum = 0;
+	iLimit = 500;
 	last_pos_error = 0;
 }
 	
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 // Note: steering values are typed as shorts for PID calcs
 // We only save byte values to eeprom.
-
 void Steering_save_PID_settings(void)
 {
 	uint8_t checksum;
@@ -94,20 +99,24 @@ void Steering_read_PID_settings(void)
 		putstr("Init Steering PIDs\r\n");
 }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------
 
 void Steering_Set_Target_Pos(short targetPos)
 {
 	target_Pos = targetPos;
-	Steering_do_Servo_Task();
 }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // Set params for Steering Servo PID controller via Command Line
 
 void Steering_set_dead_band(short db)
 {
 	dead_band = db;
+}
+
+void Steering_set_iLimit(short db)
+{
+	iLimit = db;
 }
 
 void Steering_set_Kp(short v)
@@ -140,92 +149,22 @@ void Steering_set_accel(short v)
 	maxAccel = v;
 }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-short limit( short *v, short minVal, short maxVal);
-short limit( short *v, short minVal, short maxVal)
-{
-	if (*v < minVal) *v = minVal;
-	if (*v > maxVal) *v = maxVal;
-	return *v;
+void Steering_set_integrator(short v) {
+  iSum = v;
 }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
-// This is the Steering Servo PID function
-// Called 10 times per second from main loop
-// PID params can be set from the command line
+// -----------------------------------------------------------------------
 
-void Steering_do_Servo_Task(void)
+
+void Steering_Servo_Task(void)
 {
-	short steeringError, D_Factor, I_Factor;
-	short motor_Drive;
-	
-	Steering_Read_Position();			// read Steering Feedback Pot
-	
-	if (abs(current_Pos - target_Pos) < dead_band) {	// we are where we want to be - no motion required
-		Set_Motor2_PWM( 0, FORWARD );
-		crntPWM = 0;
-/*
-	putstr("StrStop: ");
-	putS16(target_Pos);
-	putS16(current_Pos);
-	putS16(dead_band);
-	putstr("ABS: ");
-	putS16(abs(current_Pos - target_Pos));
-	putstr("\n\r");
-*/	
-		return;
-		}
-	
-
-	// derivative term calculation
-	steeringError = abs(target_Pos - current_Pos);
-	D_Factor = steeringError - last_pos_error;
-//	limit(pos_derivative, -255, 255);
-	last_pos_error = steeringError;
-
-	// Integral term
-	iSum += (steeringError / 10);
-	I_Factor = limit( &iSum, -400, 400);
-	
-	motor_Drive = (I_Factor * Ki) + (D_Factor * Kd) + abs(steeringError * Kp);	
-	motor_Drive = motor_Drive / 10;		// scale
-	
-	limit( &motor_Drive, 0, crntPWM + maxAccel);
-	limit( &motor_Drive, minDrive, maxDrive);
-
-	if (current_Pos < target_Pos) {		// need to move steering arm to desired position
-		Set_Motor2_PWM( motor_Drive, FORWARD );
-		}
-	
-	if (current_Pos > target_Pos) {
-		Set_Motor2_PWM( motor_Drive, REVERSE );
-		}
-
-	crntPWM = motor_Drive;
-
-	// If Debug Log is turned on, output PID data until position is stable
-	if (Debug_Output == 1) {
-		putstr("StPID: ");
-		putS16(target_Pos);
-		putS16(current_Pos);
-		putstr(" Drive: ");
-		putS16(motor_Drive);
-		putS16(I_Factor);
-		putS16(D_Factor);
-		putstr("\n\r");
-		}
-}
-void New_Steering_Servo_Task(void)
-{
-  short steeringError, D_Factor, I_Factor;
+  short steeringError;
   short motor_Drive;
-  int16_t error, p_term, d_term;
-  int16_t i_term, ret, temp;
+  int16_t p_term, d_term, i_term;
 
   Steering_Read_Position();			// read Steering Feedback Pot
   
-
   // derivative term calculation
   steeringError = target_Pos - current_Pos;
   if (abs(steeringError) < dead_band) {	// we are where we want to be - no motion required
@@ -241,43 +180,39 @@ void New_Steering_Servo_Task(void)
   d_term = Kd * (last_pos_error - steeringError);
   last_pos_error = steeringError;
   
-  // Integral term
-  // Calculate Iterm and limit integral runaway
-  temp = iSum + steeringError;
-  if(temp > 4000){
-    iSum = 4000;
-  }
-  else if(temp < -4000){
-    iSum=-4000;
-  }
-  else{
-    iSum = temp;
-  }
-  i_term = Ki * iSum;
-  
-  
-  //iSum += (steeringError / 10);
 
-  motor_Drive = (p_term + d_term + i_term) / 10;		// scale
+  // sum to integrate steering error  and limit runaway
+  iSum += steeringError;
+
+  limit(&iSum,iLimit, -iLimit);
+
+  i_term = Ki*iSum;
+  i_term = i_term >> 2; // shift right (divide by 4) to scale
+
+  motor_Drive = (p_term + d_term + i_term);	
+  motor_Drive = motor_Drive >> 3; // shift right (divide by 8) to scale
   
   //limit( &motor_Drive, 0, crntPWM + maxAccel);
   crntPWM = motor_Drive;
 
 
   // If Debug Log is turned on, output PID data until position is stable
-  if (Debug_Output == 1) {
-    putstr("PID targ curr: ");
+  if (Steer_Debug_Output == 1) {
+    putstr("STEER PID targ curr: ");
     putS16(target_Pos);
     putS16(current_Pos);
     putstr(" Drive: ");
     putS16(motor_Drive);
-    putstr("\n P, I, D: ");
+    putstr("\n\r STEER P, I, D: ");
     putS16(p_term);
     putS16(i_term);
     putS16(d_term);
+    putstr(" integrator ");
+    putS16(iSum);
     putstr("\n\r");
   }
   
+
   if (motor_Drive > 0) { 
     limit( &motor_Drive, minDrive, maxDrive);
     Set_Motor2_PWM( motor_Drive, FORWARD );
@@ -288,11 +223,10 @@ void New_Steering_Servo_Task(void)
     Set_Motor2_PWM( motor_Drive, REVERSE );
   }
   
-  
-
 }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// --------------------------------------------------------------------
 // A2D converer comes back with 10-Bit number between 0..1023
 // Center of steering is 512, so it swings -512..0..512
 
@@ -302,7 +236,16 @@ short Steering_Read_Position(void)
 	return current_Pos;
 }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------
+
+void Get_Steering_Status(void){
+  putstr("SteerTarget: ");
+  putS16(target_Pos);
+  putstr("\n\rSteerActual: ");
+  putS16(current_Pos);
+  putstr("\n\r");
+}
+
 
 void Steering_dump_data(void)
 {
@@ -321,5 +264,3 @@ void Steering_dump_data(void)
 	putstr("\n\r");
 }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
-// End of File

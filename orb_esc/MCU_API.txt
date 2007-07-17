@@ -1,3 +1,8 @@
+
+THIS IS OBSOLETE; NEW VERSION NOT YET DOCUMENTED
+see main.c in daughterboard unttil I get this finished...
+Jon mid-July
+
 Swarm Orb Motor Control Unit API
 http://www.orbswarm.com
 v14.3
