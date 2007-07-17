@@ -1,0 +1,64 @@
+#!/bin/sh
+#
+# /et/rc.d/rcS.sysinit	
+#	Technologic Systems  	date:  8.03.04	
+# This file is used by inittab and init. Place here all the stuff you want
+# to be done before any other system startup scripts are executed
+# that will affect the system as a whole or are needed by the system
+
+# Ingore CTRL+C
+trap ":" INT QUIT TSTP
+
+# Set our Path
+PATH='/bin:/sbin:/usr/bin:/usr/sbin'
+export PATH
+
+echo 
+echo  "http://www.embeddedarm.com" 
+echo  "email:info@embeddedarm.com"
+echo 
+
+#start devfsd
+/sbin/devfsd /dev 
+
+echo "now mounting /proc"
+/bin/mount -n -t proc proc /proc
+
+echo "mounting local filesystems (in fstab)"
+(insmod fat; insmod vfat; mount -a -rw -t nonfs,smb,smbfs) >/dev/null 2>&1 &
+
+#attempt to load sdcard and TS-UART modules
+(
+insmod sdcard 
+insmod tsuart0
+insmod tsuart7260
+insmod tsuart-rf 
+) >/dev/null 2>&1 &
+
+#Load IDE drivers
+#insmod ide-core options=\"ide1=0x108,0x106,33\"
+#insmod ide-detect
+#insmod ide-disk
+
+#start system logger stuff 
+if  test -x /sbin/dmesg  ; then
+	if  test -f /etc/consolelog.level  ; then
+		. /etc/consolelog.level
+	else
+		LOGLEVEL=1
+	fi
+	/sbin/dmesg -n $LOGLEVEL
+fi
+
+##### syslog and klogd are started invoked by executing an rc directory
+	
+#set system clock here
+if [ -f /proc/driver/rtc ]; then
+	echo "setting system clock"
+	/sbin/hwclock -s
+	date
+fi
+
+if [ -f /www/apache/logs/httpd.pid ]; then
+	rm -f /www/apache/logs/httpd.pid
+fi

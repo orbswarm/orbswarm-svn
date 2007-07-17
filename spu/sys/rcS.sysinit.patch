@@ -1,0 +1,22 @@
+--- rcS.sysinit.orig	2007-06-23 11:54:57.000000000 -0700
++++ rcS.sysinit	2007-07-01 22:44:41.000000000 -0700
+@@ -26,10 +26,12 @@
+ 
+ echo "mounting local filesystems (in fstab)"
+ (insmod fat; insmod vfat; mount -a -rw -t nonfs,smb,smbfs) >/dev/null 2>&1 &
++#mount /tmp onto RAMdisk and use 16MB for it
++mount -t ramfs none /tmp -o maxsize=16777216
+ 
+ #attempt to load sdcard and TS-UART modules
+ (
+-insmod sdcard 
++#insmod sdcard 
+ insmod tsuart0
+ insmod tsuart7260
+ insmod tsuart-rf 
+@@ -62,3 +64,5 @@
+ if [ -f /www/apache/logs/httpd.pid ]; then
+ 	rm -f /www/apache/logs/httpd.pid
+ fi
++
++/root/spumond /root/core_svc &
