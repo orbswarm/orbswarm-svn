@@ -162,3 +162,104 @@ int spulog(char* msg, int msgSize, char* logdir)
   return bytesWritten;
 }
 
+int parseGPSSentance(swarmGpsData * gpsdata)
+{
+  int status = SWARM_SUCCESS; 
+
+  char* paramptr = NULL;
+  int paramcount = 0;
+  char gpssentcpy[MAX_GPS_SENTANCE_SZ];
+  if(gpssentcpy == NULL){
+    status = SWARM_OUT_OF_MEMORY_ERROR;
+    return status;
+  }
+  strcpy(gpssentcpy, gpsdata->gpsSentance);
+   
+  paramptr = strtok(gpssentcpy,SWARM_NMEA_GPS_DATA_DELIM);
+  if(paramptr != NULL){
+     strcpy(gpsdata->gpsSentanceType,&paramptr[1]); //skip the leading $ char 
+     paramcount++; 
+  }
+  //fprintf(stderr, "\nstrtok returned **%s** for gps sentance type\n",gpsdata->gpsSentanceType);
+  if(strcmp(gpsdata->gpsSentanceType,SWARM_NMEA_GPS_SENTANCE_TYPE_GPGGA) == 0)
+  { 
+    //fprintf(stderr, "\nparsing rest of gps data\n");
+    //Sentance type is correct so go ahead and get the rest of the data 
+    while(paramptr != NULL)
+    {
+      paramptr = strtok(NULL,SWARM_NMEA_GPS_DATA_DELIM);
+      if(paramptr != NULL)
+      {
+        switch(paramcount)
+        {
+          case 1:
+            //utctime
+            sscanf(paramptr,"%s",gpsdata->nmea_utctime);
+            //fprintf(stderr, "\n utctime : %s",paramptr);
+            break;
+          case 2:
+            //nmea format latddmm
+            sscanf(paramptr,"%Lf",&(gpsdata->nmea_latddmm));
+            //fprintf(stderr, "\n latddmm: %s",paramptr);
+            break;
+          case 3:
+            //nmea format latsector
+            sscanf(paramptr,"%c",&(gpsdata->nmea_latsector));
+            //fprintf(stderr, "\n latsector: %s",paramptr);
+            break;
+          case 4:
+            //nmea format londdmm
+            sscanf(paramptr,"%Lf",&(gpsdata->nmea_londdmm));
+            //fprintf(stderr, "\n londdmm: %s",paramptr);
+            break;
+          case 5:
+            //nmea format lonsector 
+            sscanf(paramptr,"%c",&(gpsdata->nmea_lonsector));
+            //fprintf(stderr, "\n lonsector : %s",paramptr);
+            break;
+          default:
+            break;
+        };
+      }
+      paramcount++; 
+    }
+  //fprintf(stderr,"\n RAW GPS DATA %s,%s,%Lf,%c,%Lf,%c \n",gpsdata->gpsSentanceType,gpsdata->nmea_utctime,gpsdata->nmea_latddmm,gpsdata->nmea_latsector,gpsdata->nmea_londdmm,gpsdata->nmea_lonsector);
+  }
+  else
+  {
+    status = SWARM_INVALID_GPS_SENTANCE; 
+  }
+  return status;
+}
+
+int convertNMEAGpsLatLonDataToDecLatLon(swarmGpsData * gpsdata)
+{
+   long double latdd = 0;
+   long double londd = 0;
+   long double latmm = 0;
+   long double lonmm = 0;
+
+   //get the degress part
+   latdd = (int)(gpsdata->nmea_latddmm / 100);
+   londd = (int)(gpsdata->nmea_londdmm / 100);
+
+   //get the minutes part
+   latmm = gpsdata->nmea_latddmm - 100 * latdd;
+   lonmm = gpsdata->nmea_londdmm - 100 * londd;
+
+   //Turn DDMM.MMMM into DDD.DDDDD format
+   latdd = latdd + (latmm / 60.0); 
+   londd = londd + (lonmm / 60.0); 
+
+   // Add sign for N/S and E/W sector:
+   if(gpsdata->nmea_latsector == 'S')
+     latdd = -1.0 * latdd;
+   if(gpsdata->nmea_lonsector == 'W')
+     londd = -1.0 * londd;
+
+   gpsdata->latdd = latdd;
+   gpsdata->londd = londd;
+
+   return SWARM_SUCCESS;  
+}
+
