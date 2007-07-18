@@ -14,6 +14,7 @@ NATIVECC = gcc
 # (I'm sure there's a more elegant way to do this...)
 
 CC = $(CYGWINCC)
+#CC = $(NATIVECC)
 CPP = $(CYGWINCPP)
 CFLAGS = -Wall -g -O3 -D_REENTRANT 
 
@@ -37,6 +38,12 @@ logtest: logtest.o swarmspuutils.o $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.
 
 logtest.o: $(SRC)/logtest.cc $(INC)/swarmdefines.h $(INC)/swarmspuutils.h
 	$(CC) $(CFLAGS)-c $(SRC)/logtest.cc
+
+gpsconvtest: gpsconvtest.o swarmspuutils.o $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h
+	$(CC) $(LIBS) $(CFLAGS) gpsconvtest.o swarmspuutils.o -o gpsconvtest 
+
+gpsconvtest.o: $(SRC)/gpsconvtest.cc $(INC)/swarmdefines.h $(INC)/swarmspuutils.h
+	$(CC) $(CFLAGS)-c $(SRC)/gpsconvtest.cc
 
 swarmspuutils.o: $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmdefines.h
 	$(CC) $(CFLAGS)-c $(SRC)/swarmspuutils.cc
