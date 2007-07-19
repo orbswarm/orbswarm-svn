@@ -14,6 +14,7 @@ LIB_SRC= $(SVN_TRUNK)/aggregator/aggregator_src/c/shared
 #TARGET=uart_test
 #TARGET=blinky_test
 TARGET=main
+#TARGET=xbee_test
 
 include makelib.mk
 
@@ -175,13 +176,13 @@ $(MYBIN)/%.hex : $(MYBIN)/%.elf
 $(MYBIN)/%.elf: $(MYBIN)/%.o  
 	@echo
 	@echo $(MSG_LINKING) $@
-		$(CC) $(ALL_CFLAGS)  $<  $(LIB_BIN)/timer0.o $(LIB_BIN)/uart.o $(LIB_BIN)/spu.o  $(LIB_BIN)/gps.o $(LIB_BIN_GLOBAL)/xbee.o $(LIB_BIN_GLOBAL)/swarm_messaging.o $(LDFLAGS) -o $@ 
+		$(CC) $(ALL_CFLAGS)  $<  $(LIB_BIN)/timer0.o $(LIB_BIN)/uart.o $(LIB_BIN)/spu.o  $(LIB_BIN_GLOBAL)/gps.o $(LIB_BIN_GLOBAL)/xbee.o $(LIB_BIN_GLOBAL)/swarm_messaging.o $(LDFLAGS) -o $@ 
 #	$(CC) $(ALL_CFLAGS)  $<  --output $@
 
 
 
 # Compile: create object files from C source files.
-$(MYBIN)/%.o : $(MYSRC)/%.c $(LIB_BIN_GLOBAL)/xbee.o $(GLOBAL_SHARED_INCLUDE)/swarm_messaging.h $(GLOBAL_SHARED_INCLUDE)/packet_type.h $(LIB_SRC)/timer0.h  $(LIB_SRC)/uart.h  $(LIB_SRC)/spu.h $(LIB_SRC)/gps.h
+$(MYBIN)/%.o : $(MYSRC)/%.c $(LIB_BIN_GLOBAL)/xbee.o  $(LIB_BIN_GLOBAL)/gps.o $(GLOBAL_SHARED_INCLUDE)/swarm_messaging.h $(GLOBAL_SHARED_INCLUDE)/packet_type.h $(LIB_SRC)/timer0.h  $(LIB_SRC)/uart.h  $(LIB_SRC)/spu.h
 	@echo
 	@echo $(MSG_COMPILING) $<
 	$(CC) $(ALL_CFLAGS) -c $< -o $@

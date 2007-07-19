@@ -101,7 +101,7 @@ void sendSpuMsg(const unsigned char *s)
 
 void sendDebugMsg(const char *s)
 {
-  sendXBeeMsg((unsigned char*)s);
+  sendSpuMsg((unsigned char*)s);
 }
 
 int uart_init(void (*handleXBeeRecv)(unsigned char c, int isError),
