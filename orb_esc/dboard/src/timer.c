@@ -25,6 +25,8 @@ volatile unsigned short Timer0_ticks;
 volatile unsigned short Timer2_ticks;
 volatile unsigned char Timer0_100hz_Flag;
 
+extern volatile unsigned short encoder1_count;
+
 // --------------------------------------------------------------------------
 // Interrupt routine to handle Timer0 overflow
 
@@ -45,10 +47,12 @@ SIGNAL(SIG_OVERFLOW0)
   }
   Timer2_ticks++;		// increment slow counter
   if (Timer2_ticks > 3000) { // saturate to show we haven't had a pulse in a while
-    Timer2_ticks = 3000;
+    Timer2_ticks = 9000;
+    // cheap hack. encoder1_count is only set on geartooth interrupt. 
+    // If this doesn't happen, we get value from last interrupt.
+    // set this to a large value to indicate stationary sprocket.
+    encoder1_count = 9000;
   }
-
-
 }
 
 // this is used to time the shaft encoder. Timer2_ticks are set to zero on shaft encoder

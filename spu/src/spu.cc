@@ -7,6 +7,9 @@
 #include "../include/swarmserial.h"
 #include "../include/swarmdefines.h"
 
+#define GPS_START_DELIM "\n{"
+#define GPS_STOP_DELIM "}\n"
+
 int main(int argc, char *argv[]) 
 {
   int com1=0; /* File descriptor for the port */
@@ -16,6 +19,9 @@ int main(int argc, char *argv[])
   char buff[MAX_BUFF_SZ + 1];
   int bytes;
   char buff2[MAX_BUFF_SZ + 1];
+
+  char *gps_start_str = GPS_START_DELIM; // string to indicate start of GPS data
+  char *gps_stop_str = GPS_STOP_DELIM; // string to indicate end of GPS data
   int bytes2 = 0;
   int             max_fd;
   fd_set          input;
@@ -84,7 +90,9 @@ int main(int argc, char *argv[])
 
         //write data to com2
         printf("\nWriting \"%s\" data back to com2 \n",buff2);
+        writeCharsToSerialPort(com2, gps_start_str, strlen(gps_start_str));
         writeCharsToSerialPort(com2, buff2, bytes2);
+        writeCharsToSerialPort(com2, gps_stop_str, strlen(gps_stop_str));
       }
 
       /* We have input */

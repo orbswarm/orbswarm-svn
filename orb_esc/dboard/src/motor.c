@@ -66,6 +66,7 @@ typedef struct {
   unsigned short currentSpeed;
   short	currentPWM;
   short	dead_band;
+  short	speed_dead_band;
   short lastSpeedError;
 } motor_control_block;
 
@@ -96,14 +97,15 @@ void Drive_Servo_Task(void)
   
   // derivative term calculation
   drive.currentSpeed = EncoderReadSpeed();
-  speedError = drive.currentSpeed - drive.targetSpeed; 
+  speedError = drive.targetSpeed - drive.currentSpeed; 
 
-  //  if (abs(speedError) < drive.dead_band) {	// we are at desired speed
+  if (abs(speedError) < drive.speed_dead_band) {   
+    // we are close enough to desired speed
     // don't change anything
-    //return;
-  //}
+    return;
+  }
   
-  // check overcurrent here?
+  //error is significant; change PWM to decrease it
 
   // calculate p term
   p_term = speedError * drive.Kp;
@@ -126,6 +128,16 @@ void Drive_Servo_Task(void)
   drive.currentPWM = drivePWM;
 
   // If Debug Log is turned on, output PID data until position is stable
+  //if (Drive_Debug_Output == 1) {
+  //  putstr(" pre-DrivePWM: ");
+  //  putS16(drivePWM);
+  //  putstr("\n\r"); 
+  //}
+
+  if(drivePWM < drive.dead_band)
+     return;
+
+  // If Debug Log is turned on, output PID data until position is stable
   if (Drive_Debug_Output == 1) {
     putstr("DRIVE PID targ curr: ");
     putS16(drive.targetSpeed);
@@ -139,20 +151,22 @@ void Drive_Servo_Task(void)
     putstr(" integrator ");
     putS16(iSum);
     putstr("\n\r");
-  }
-  
+  }  
   // use computed PWM to drive the motor
   // check current limit here -- reduce power if so? 
 
+  
   if (drivePWM > 0) { 
-    limit( &drivePWM, drive.dead_band, 100);
+    limit( &drivePWM, drive.dead_band, 201);
     Set_Motor1_PWM(drivePWM, FORWARD );
   }
   else {
     drivePWM = abs(drivePWM);
-    limit( &drivePWM, drive.dead_band, 100);
+    limit( &drivePWM, drive.dead_band, 201);
     Set_Motor1_PWM( drivePWM, REVERSE );
   }
+
+
 }
 
 
@@ -204,7 +218,7 @@ void Motor_clear_mcb( motor_control_block *m )
 	m->Ki = 0;
 	m->Kd = 0;
 	m->dead_band = 10;
-	
+	m->speed_dead_band = 5;
 }
 
 // ---------------------------------------------------------------------
@@ -328,8 +342,9 @@ void Get_Drive_Status(void)
   putstr("TargetSpeed: ");
   putS16(drive.targetSpeed);
   putstr("\n\r currentSpeed:");
-  putS16(drive.currentSpeed);
-  putstr("\n\r PWM ");
+  theData = EncoderReadSpeed();
+  putS16(theData);
+  putstr("\n\r curPWM ");
   putS16(drive.currentPWM);
   putstr("\n\r Direction ");
   putS16(drive.dir);

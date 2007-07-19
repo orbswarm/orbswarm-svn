@@ -119,11 +119,11 @@ void Encoder_sample_speed(unsigned char channelNum)
 
 unsigned short EncoderReadSpeed(){ 
 
-  unsigned short RPM = 0;
-  unsigned short count = 0;
+  uint32_t RPM = 0;
+  uint32_t count = 0;
 
   GICR &= ~(1<<INT0);   // Disable Enternal Interrupts on Pins IN0
-  count = encoder1_count;
+  count = (uint32_t)encoder1_count;
   GICR |= (1<<INT0);     // Enable Enternal Interrupts on Pins IN0
 
 
@@ -132,14 +132,16 @@ unsigned short EncoderReadSpeed(){
   // second, multiply by SPROCKET_TEETH (counts per revolution)
   // to get RPM, multiply by 60 seconds/minute
   // 60 * 23 * 100 = 138000 to save multiplications
-
+  // add another factor of 10 for more resolution, so rounds per 10 min
 
   if (count == 0) {
     return 600;		/* max speed to avoid divide-by-zero */
   }
+  if (count > 5000)  // essentially stopped
+    return 0;
   else {
-    RPM = ((unsigned short)138000)/encoder1_count;
-    return RPM;
+    RPM = ((uint32_t)138000)/count;
+    return (unsigned short)RPM;
   }
 
 }

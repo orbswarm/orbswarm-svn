@@ -18,8 +18,8 @@ logFileName = 'dash-log.txt'
 # User settings: max/min steering and power values. OK to edit!
 powerMax = 25
 powerMin = -25
-powerMax = 40
-powerMin = -40
+#powerMax = 40
+#powerMin = -40
 steerMax = 100
 steerMin = -100
 

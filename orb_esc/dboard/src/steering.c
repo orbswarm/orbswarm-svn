@@ -170,6 +170,7 @@ void Steering_Servo_Task(void)
   if (abs(steeringError) < dead_band) {	// we are where we want to be - no motion required
     Set_Motor2_PWM( 0, FORWARD );
     crntPWM = 0;
+    iSum = 0;
     return;
   }
   
@@ -241,9 +242,13 @@ short Steering_Read_Position(void)
 void Get_Steering_Status(void){
   putstr("SteerTarget: ");
   putS16(target_Pos);
-  putstr("\n\rSteerActual: ");
+  putstr("\n SteerActual: ");
   putS16(current_Pos);
-  putstr("\n\r");
+  putstr("\n PWM ");
+  putS16(crntPWM);
+  putstr("\n int ");
+  putS16(iSum);
+  putstr("\n ");
 }
 
 

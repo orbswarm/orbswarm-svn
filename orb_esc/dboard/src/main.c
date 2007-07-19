@@ -202,7 +202,7 @@ void Init_Chip(void)
   Drive_Debug_Output = OFF;	
   
   Fail_Safe_Counter = 0;
-  Fail_Safe = ON;
+  Fail_Safe = OFF;
 }
 
 // ------------------------------------------------------------------------
@@ -316,6 +316,7 @@ void process_command_string(void)
     putstr("Steer: ");
     putS16( theData );
     putstr("\r\n");
+    Steering_set_integrator(0);
     Steering_Set_Target_Pos(theData);
     break;
     
@@ -357,7 +358,6 @@ void process_command_string(void)
     
     
   case 'K':	// Set Motor control PID Gain values  $Kp 8*
-    putstr("Set Kx\r\n");
     dataPos = 3;
     if (Command_String[dataPos] == ' ') dataPos++;	// skip space
     theData = command_data(dataPos);
@@ -367,7 +367,7 @@ void process_command_string(void)
     case 'i': Motor_set_Ki(theData); break;
     case 'd': Motor_set_Kd(theData); break;
     }
-    
+    Motor_dump_data();
     break;
     
   case 'L':	// Turn On / Off Logging Debug data
@@ -386,10 +386,14 @@ void process_command_string(void)
 
   case 'W':	// Write Motor or Steering PID data to EEPROM : WM or WS
     putstr("Write to EEPROM");
-    if (Command_String[2] == 'M') 
+    if (Command_String[2] == 'M'){ 
       Motor_save_PID_settings();
-    if (Command_String[2] == 'S') 
-      Steering_save_PID_settings();
+      Motor_dump_data();
+    }      
+    if (Command_String[2] == 'S'){
+     Steering_save_PID_settings();
+     Steering_dump_data();
+    }
     break;
     
   case 'F':	// Fail Safe ON / OFF -- default is ON
@@ -407,30 +411,37 @@ void process_command_string(void)
     
   case 'a':	// Send steering max accel value
     Steering_set_accel(theData);
+    Steering_dump_data();
     break;
     
   case 'b':	// Send steering min PWM value
     Steering_set_min(theData);
+    Steering_dump_data();
     break;
     
   case 'c':	// Send steering max PWM value
     Steering_set_max(theData);
+    Steering_dump_data();
     break;
     
   case 'd':	// Send steering dead band value
     Steering_set_dead_band(theData);
+    Steering_dump_data();
     break;
     
   case 'e':	// Send steering Kd value
     Steering_set_Kd(theData);
+    Steering_dump_data();
     break;
     
   case 'f':	// Send steering Ki value
     Steering_set_Ki(theData);
+    Steering_dump_data();
     break;
     
   case 'v':	// Send steering Servo Gain factor Kp
     Steering_set_Kp(theData);
+    Steering_dump_data();
     break;
     
   }
