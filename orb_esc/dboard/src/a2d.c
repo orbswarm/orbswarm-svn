@@ -16,7 +16,7 @@ static unsigned short ADValue[8];
 // vRef is setup for 0->5 volt operation.
 // Define AD_VREF as either 5 or 3
 
-#define AD_VREF	5
+//#define AD_VREF	5
 
 // ------------------------------------------------------------------------
 // Initialize Analog to Digital converters.

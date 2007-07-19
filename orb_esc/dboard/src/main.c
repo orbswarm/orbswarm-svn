@@ -140,13 +140,14 @@ static unsigned char Fail_Safe = 0;  /* set to enable stop if no RC signal */
 
 static unsigned char LED_state = 0; /*  used to toggle LED */
 static unsigned char heart_ticks = 0;	/*  incrememented at 100hz rate */
-static unsigned char encoder_ticks = 0;	/*  incrememented at 100hz rate */
-static unsigned char servo_ticks = 0;	/*  incrememented at 100hz rate */
+static unsigned char steer_servo_ticks = 0; /*  incrememented at 100hz rate */
+static unsigned char drive_servo_ticks = 0; /*  incrememented at 100hz rate */
 
 
 
 extern volatile unsigned short Timer0_ticks;
 extern volatile unsigned char Timer0_100hz_Flag;
+
 
 volatile uint8_t Steer_Debug_Output; // output debug info for steering PID
 volatile uint8_t Drive_Debug_Output; // output debug info for drive PID
@@ -220,6 +221,9 @@ int main (void)
   Motor_read_PID_settings();	// read saved PID gain factors from EEPROM
   Steering_read_PID_settings();
 
+  
+  drive_servo_ticks = 0;
+  steer_servo_ticks = 0;
   for (;;) {	// loop forever
 
     A2D_poll_adc();	   // see if A/D conversion done & re-trigger 
@@ -238,14 +242,24 @@ int main (void)
       
       Fail_Safe_Counter++;
       
-      // update speed control servo for drive motor
-      if (doing_Speed_control)
-	Drive_Servo_Task();
-      
-      // always do steering servo
-      Steering_Servo_Task();
-      
-    }
+
+      ++drive_servo_ticks;
+      if(drive_servo_ticks >= 30){ // 100/30 = 3 hz
+	// update speed control servo for drive motor
+	if (doing_Speed_control)
+	  Drive_Servo_Task();
+	drive_servo_ticks = 0;
+      }
+
+      ++steer_servo_ticks;
+      if(steer_servo_ticks >= 5){ // 100/5 = 20 hz
+	// update speed control servo for drive motor
+	// always do steering servo
+	Steering_Servo_Task();
+	steer_servo_ticks=0;
+      }
+    }// end 100 hz loop
+
   } // forever loop
 
   return 0;	// make compiler happy
@@ -292,7 +306,8 @@ void process_command_string(void)
     putstr("Set_Torque: ");
     putS16( theData );
     putstr("\r\n");			
-    Set_Drive_Speed( theData, FORWARD );
+    Drive_set_integrator(0);
+    Set_Drive_Speed(theData );
     doing_Speed_control = ON;	// use PID for motor control
     break;
     

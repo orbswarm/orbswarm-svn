@@ -9,10 +9,12 @@ void Set_Motor1_PWM(unsigned char pwm, signed char direction);
 void Set_Motor2_PWM(unsigned char pwm, signed char direction);
 
 void Set_Motor1_Power(unsigned char power, signed char direction);
-void Set_Drive_Speed(unsigned char t, signed char direction);
+void Set_Drive_Speed(short t);
 
 //char Motor_Read_Drive_Direction(void);
 //char Motor_Read_Drive_PWM(void);
+
+void Drive_set_integrator(short s);
 
 void Set_Drive_Deadband(short s);
 void Motor_set_Kp(char c);
