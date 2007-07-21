@@ -76,28 +76,33 @@ void Steering_save_PID_settings(void)
 
 void Steering_read_PID_settings(void)
 {
-	uint8_t v[7];
-	uint8_t n, checksum, cs = 0;
+  uint8_t v[7];
+  uint8_t n, checksum, cs = 0;
+  
+  for (n=0; n<7; n++) {
+    v[n] = eeprom_Read( STEER_EEPROM + n );
+    cs += v[n];
+  }
+  checksum = eeprom_Read( STEER_EEPROM + 7 );
+  
+  putstr("Init Steering PID");
+  if (!((cs + checksum) & 0xFF))
+    {	// checksum is OK - load values into motor control block
+      Kp = v[0];
+      Ki = v[1];
+      Kd = v[2];
+      dead_band = v[3];
+      minDrive = v[4];
+      maxDrive = v[5];
+      maxAccel = v[6];
+      putstr(" no cksum, defaults");
+    }
+  
+  else
+    putstr("\r\n");
 
-	for (n=0; n<7; n++) {
-		v[n] = eeprom_Read( STEER_EEPROM + n );
-		cs += v[n];
-		}
-	checksum = eeprom_Read( STEER_EEPROM + 7 );
-
-	if (!((cs + checksum) & 0xFF))
-		{	// checksum is OK - load values into motor control block
-		Kp = v[0];
-		Ki = v[1];
-		Kd = v[2];
-		dead_band = v[3];
-		minDrive = v[4];
-		maxDrive = v[5];
-		maxAccel = v[6];
-		}
-	else
-		putstr("Init Steering PIDs\r\n");
 }
+
 
 // -----------------------------------------------------------------------
 

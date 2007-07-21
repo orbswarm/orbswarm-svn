@@ -32,7 +32,6 @@ extern volatile unsigned short encoder1_count;
 
 SIGNAL(SIG_OVERFLOW0)
 {
-  unsigned char temp;
   Timer0_ticks++;		// increment slow counter
 
   // use PB0 (LED) as debug output: toggle at timer rate
@@ -58,7 +57,6 @@ SIGNAL(SIG_OVERFLOW0)
 // this is used to time the shaft encoder. Timer2_ticks are set to zero on shaft encoder
 SIGNAL(SIG_OVERFLOW2)
 {
-  unsigned char temp;
   
 }
 
@@ -111,29 +109,23 @@ void Timer0_OFF(void)
 
 
 
-void Timer2_Init(void)
-{
-  Timer2_ticks = 0;
-  
-  //TCCR0 |= (_BV(CS01) | _BV(CS00)); /* Pre-scaler = 64 */
-  TCCR2 |= (_BV(CS01)); /* Pre-scaler = 8 */
-  TCNT2 = 0;			/* reset TCNT0 */
-  TIMSK |= _BV(TOIE2);		/* enable Timer0 overflow interrupts */
-}
+/* void Timer2_Init(void) */
+/* { */
+/*   Timer2_ticks = 0; */
 
-// --------------------------------------------------------------------------
+
+/*   TCCR2 |= (_BV(CS01)); /\* Pre-scaler = 8 *\/ */
+/*   TCNT2 = 0;			/\* reset TCNT0 *\/ */
+/*   TIMSK |= _BV(TOIE2);		/\* enable Timer0 overflow interrupts *\/ */
+/* } */
 
 void Timer2_reset(void)
 {
   TIMSK &= ~(_BV(TOIE0));	/* disable Timer0 interrupts */
-  Timer2_ticks = 0;
-  TIMSK |= _BV(TOIE0);		/* enable Timer0 interrupts */
-}
+  Timer2_ticks = 0;  
 
-//void Timer2_reset(void)
-//{
-//  TIMSK &= ~(_BV(TOIE2));	/* disable Timer2 interrupts */
-//  Timer2_ticks = 0;
-//  TIMSK |= _BV(TOIE2);		/* enable Timer2 interrupts */
-//}
+  TIMSK |= _BV(TOIE0);		/* enable Timer0 interrupts */
+} 
+
+
 

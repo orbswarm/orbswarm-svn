@@ -58,18 +58,21 @@
 // Motor Control Block for keeping track of Motor PID function variables
 
 typedef struct {
-  char	Kp;
-  char	Ki;
-  char	Kd;
-  short targetSpeed;
-  short currentSpeed;
-  char targetDirection;
-  char currentDirection;
-  unsigned char	currentPWM;
-  short	dead_band;
-  short	speed_dead_band;
-  short lastSpeedError;
-  unsigned char lastPWM;
+  char	Kp;			/* proportional PID term */
+  char	Ki;			/* integral PID term */
+  char	Kd;			/* derivative PID term */
+  short targetSpeed;		/* the speed we want to go */
+  short currentSpeed;		/* the speed we are going now */
+  char targetDirection;		/* the direction we want to go */
+  char currentDirection;	/* the direction we are going now */
+  unsigned char	currentPWM;	/* the pwer we are giving it now */
+  short	dead_band;	/* close enough to desired speed if within */
+  short lastSpeedError;		/* the error we had last iteration */
+  unsigned char lastPWM;	/* the power we gave it last iteration */
+  unsigned char deltaAccel;	/* biggest change in accel per inter */
+  char intLimit;  		/* integrator limit */
+  unsigned char minPWM;
+  unsigned char maxPWM;
 } motor_control_block;
 
 
@@ -94,103 +97,109 @@ void Drive_Servo_Task(void)
   short drivePWM;
   int16_t p_term, d_term, i_term;
   
-
-  // get current speed in RPM
-
   
-
+  // get current speed in RPM
+  
   // Here we have a little problem. Encoder only returns positive values.
-  // need to figure out direction -- use direction of last command
-  //drive.currentSpeed = drive.currentDirection*EncoderReadSpeed();
+  // Take absolute value. 
+
   drive.currentSpeed = EncoderReadSpeed();
-
+  
   // calculate error term
-  speedError = drive.targetSpeed - drive.currentSpeed; 
-  // if current is less than target, speed up:  positive PWM
-  // if current is more than target, slow down: negative PWM
+  speedError = abs(drive.targetSpeed) - drive.currentSpeed; 
+  // if currentSpeed is less than target, speed up:  positive PWM
+  // if currentSpeed is more than target, slow down: negative PWM
+  // we may not be going the right direction, but at least we are 
+  // going the right speed ;(
 
-  if (abs(speedError) < drive.speed_dead_band) {   
+  if (abs(speedError) < drive.dead_band) {   
     // we are close enough to desired speed
     // don't change anything
+    
+    if (Drive_Debug_Output == 1) 
+      putstr("DRIVE speed OK ");
     return;
   }
   
-  //error is significant; change PWM to decrease it
-
-  // calculate p term
+  //if here, error is significant; change PWM to decrease it
+  
+  // calculate proportional term
   p_term = speedError * drive.Kp;
-
-  // calculate d term
+  
+  // calculate derivative term
   d_term = drive.Kd * (drive.lastSpeedError - speedError);
   drive.lastSpeedError = speedError;
   
-  // sum to integrate steering error and limit runaway
+  // sum to integrate steering error
   iSum += speedError;
-
-  limit(&iSum,iLimit,-iLimit);
-
+  
+  //  and limit runaway
+  limit(&iSum,-iLimit,iLimit);
+  
   i_term = drive.Ki*iSum;
-  i_term = i_term /4; // shift right (divide by 4) to scale
-
+  i_term = i_term /8; //  (divide by 4) to scale
+  
   drivePWM = p_term + d_term + i_term;	
-  drivePWM = drivePWM /20; // shift right (divide to scale)
+  drivePWM = drivePWM / 64; //  (divide to scale)
   
   drive.currentPWM = drivePWM;
-
-  // If Debug Log is turned on, output PID data until position is stable
-  //if (Drive_Debug_Output == 1) {
-  //  putstr(" pre-DrivePWM: ");
-  //  putS16(drivePWM);
-  //  putstr("\n\r"); 
-  //}
-
-  if(abs(drivePWM) < drive.dead_band)
-     return;
-
-
+  
+  
+  
   // If Debug Log is turned on, output PID data until position is stable
   if (Drive_Debug_Output == 1) {
-    putstr("DRIVE speed targ curr dir: ");
+    putstr("DRIVE spd targ curr dir: ");
     putS16(drive.targetSpeed);
     putS16(drive.currentSpeed);
-    putstr("DIR target current ");
+    putstr(" DIR targ cur ");
     putS16(drive.targetDirection);
     putS16(drive.currentDirection);
     putstr(" DrivePWM: ");
     putS16(drivePWM);
-    putstr("\n\r DRIVE P, I, D: ");
+    putstr("\r\n   P, I, D: ");
     putS16(p_term);
     putS16(i_term);
     putS16(d_term);
-    putstr(" integrator ");
+    putstr(" int ");
     putS16(iSum);
-    putstr("\n\r");
+    putstr("\r\n");
   }  
-
+  
+  
   // use computed PWM to drive the motor
   // check current limit here -- reduce power if so? 
-
-
-
-  if (drivePWM >= 0) 
-    drive.currentDirection = FORWARD;
-  else
+  
+  drive.currentDirection = FORWARD;
+  if (drivePWM < 0) {
     drive.currentDirection = REVERSE;
-
-  drivePWM = abs(drivePWM);
-
+    drivePWM = abs(drivePWM);
+  }  
+  
+  if(drivePWM < drive.minPWM) {
+    if (Drive_Debug_Output == 1) 
+      putstr("DRIVE under min\n");
+    
+    return;
+  }
+  
   // take care of absolute min and max
-  limit( &drivePWM, drive.dead_band, 75);
+  // make sure arg2 < arg3  
+  limit( &drivePWM, drive.minPWM, drive.maxPWM);
+  
+  // limit change of drive: make sure arg2 < arg3  
+  limit( &drivePWM, drive.lastPWM - drive.deltaAccel,
+	 drive.lastPWM + drive.deltaAccel);
 
-  // limit change of drive
-  limit( &drivePWM, drive.lastPWM+15,drive.lastPWM-15);
-  Set_Motor1_PWM( drivePWM, drive.currentDirection );
+  if(drive.currentDirection == FORWARD)
+    Set_Motor1_PWM( drivePWM, drive.currentDirection );
+  else
+    Set_Motor1_PWM(0, FORWARD );
 
   drive.lastPWM = (unsigned char)drivePWM;
-
+  
 }
 
-
+  
 // ----------------------------------------------------------------------
 // Init Pulse Width Modulation hardware for Speed Controlers.
 // Output 2 channels of PWM on PortB Pins 1&2
@@ -239,8 +248,10 @@ void Motor_clear_mcb( motor_control_block *m )
 	m->Kp = 10;
 	m->Ki = 0;
 	m->Kd = 0;
-	m->dead_band = 10;
-	m->speed_dead_band = 5;
+	m->dead_band = 5;
+	m->deltaAccel = 15;
+	m->minPWM = 10;
+	m->maxPWM = 100;
 }
 
 // ---------------------------------------------------------------------
@@ -297,16 +308,16 @@ void Set_Motor1_PWM(unsigned char pwm, signed char direction)
 	  MOTOR1_FORWARD();  // setup direction pin & non-inverted PWM
 	  write_OCR1A( pwm );	// Set PWM as 16 bit value
 
-	  putstr("\n SforwardPWM: ");
-	  putS16((unsigned short)pwm); 
+	  //	  putstr("\n SforwardPWM: ");
+	  //	  putS16((unsigned short)pwm); 
 
 	}
       else // direction == REVERSE
 	{
 	  MOTOR1_REVERSE();		// setup direction pin & inverted PWM
 	  write_OCR1A( pwm );		// Set PWM as 16 bit value
-	  putstr("\n SreversePWM: ");
-	  putS16((unsigned short)pwm); 
+	  //putstr("\n SreversePWM: ");
+	  //putS16((unsigned short)pwm); 
 	}
       MOTOR1_ENABLE();
     }
@@ -345,29 +356,38 @@ void Set_Motor2_PWM(unsigned char pwm, signed char direction)
 // ----------------------------------------------------------------------
 // Setup the Gain factors via the Cmd line for testing & tuning.
 
-void Set_Drive_Deadband(short s)
+
+void Drive_set_min(unsigned char c)
 {
-	drive.dead_band = s;
+  drive.minPWM = c;
+}
+void Drive_set_max(unsigned char c)
+{
+  drive.maxPWM = c;
+}
+void Drive_set_dead_band(short s)
+{
+  drive.dead_band = s;
 }
 
 void Drive_set_integrator(short s)
 {
-	iSum = s;
+  iSum = s;
 }
 
-void Motor_set_Kp(char c)
+void Drive_set_Kp(char c)
 {
-	drive.Kp = c;
+  drive.Kp = c;
 }
 
-void Motor_set_Ki(char c)
+void Drive_set_Ki(char c)
 {
-	drive.Ki = c;
+  drive.Ki = c;
 }
 
-void Motor_set_Kd(char c)
+void Drive_set_Kd(char c)
 {
-	drive.Kd = c;
+  drive.Kd = c;
 }
 
 
@@ -376,19 +396,19 @@ void Motor_set_Kd(char c)
 void Get_Drive_Status(void)
 {
   short theData;
-  putstr("TargetSpeed: ");
+  putstr("DTarget: ");
   putS16(drive.targetSpeed);
-  putstr("\n\r currentSpeed:");
+  putstr("\r\n Dcurrent:");
   theData = EncoderReadSpeed();
   putS16(theData);
-  putstr("\n\r curPWM ");
+  putstr("\r\n curPWM ");
   putS16(drive.currentPWM);
-  putstr("\n\r Direction ");
+  putstr("\r\n Dir ");
   putS16(drive.currentDirection);
-  putstr("\n\rCurrentSense:");
+  putstr("\r\nIsense:");
   theData = A2D_read_channel(CURRENT_SENSE_CHANNEL);
   putS16(theData);	
-  putstr("\n\r");
+  putstr("\r\n");
 }
 // ------------------------------------------------------------------------
 // Dump motor data to serial port for feedback / debug / testing / tuning
@@ -396,7 +416,7 @@ void Get_Drive_Status(void)
 void Motor_dump_data(void)
 {
   short theData;
-  putstr("Drive: target current PWM ");
+  putstr("Drive: (targ cur PWM) ");
   putS16(drive.targetSpeed);
   putS16(drive.currentSpeed);
   putS16(drive.currentPWM);
@@ -406,10 +426,16 @@ void Motor_dump_data(void)
   putS16(drive.Kp);
   putS16(drive.Ki);
   putS16(drive.Kd);
-  putstr("  currentSense:");
+  putstr("  ISense: ");
   theData = A2D_read_channel(CURRENT_SENSE_CHANNEL) - 512;
   putS16(theData);	
 	
+  putstr("\r\n");
+  putstr("       dead minP maxP delA");
+  putS16(drive.dead_band);
+  putS16(drive.minPWM);
+  putS16(drive.maxPWM);
+  putS16(drive.deltaAccel);
   putstr("\r\n");
 }
 
@@ -436,15 +462,16 @@ void Motor_read_PID_settings()
   v3 = eeprom_Read( MOTOR_EEPROM+2 );
   checksum = eeprom_Read( MOTOR_EEPROM+3 );
   
+  putstr("Init Drive PID");
   if (!((v1 + v2 + v3 + checksum) & 0xFF))
     {	// checksum is OK - load values into motor control block
       drive.Kp = v1;
       drive.Ki = v2;
       drive.Kd = v3;
-      putstr("Init Motor PIDs\r\n");
+      putstr(" no cksum, defaults");
     }
   else
-    putstr("Init Motor PIDs: no checksum, default values\r\n");
+    putstr("\r\n");
 }
 
 short limit( short *v, short minVal, short maxVal)

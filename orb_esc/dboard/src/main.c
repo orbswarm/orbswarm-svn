@@ -161,6 +161,8 @@ volatile unsigned char doing_Speed_control = 0;
 
 void Init_Chip(void)
 {
+
+
 				/* Initialize port dir bits -- a '1' bit indicates an output pin*/
   DDRB = 0xFF;			/* PortB1:2 is PWM output */
   DDRC = 0x00;			/* PortC - A/D inputs on pins 0:7; */
@@ -174,6 +176,8 @@ void Init_Chip(void)
   
   UART_Init(UART_384000);	// defines from global.h and uart.h
 						
+
+
   Motor_PWM_Init();  /* Setup PWM using PortB1:2 on ATMega8 for output */
   
   A2D_Init();			/* Init A/D converters */
@@ -186,16 +190,18 @@ void Init_Chip(void)
   
   Encoder_Init();		/* Wheel / Shaft Encoders */
  
- 
+
   sei();			/* Enable interrupts */
 
 // ---
+
+
 
   putstr("\r\n--- Orb daughterboard MCU ");
   putstr(VERSIONSTR);
   putstr("\r\n");
   pause();
-
+ 
 	
   turn_LED(HB_LED,OFF);	// Have to explicitly turn them OFF.
 
@@ -244,7 +250,7 @@ int main (void)
       
 
       ++drive_servo_ticks;
-      if(drive_servo_ticks >= 30){ // 100/30 = 3 hz
+      if(drive_servo_ticks >= 20){ // 100/30 = 5 hz
 	// update speed control servo for drive motor
 	if (doing_Speed_control)
 	  Drive_Servo_Task();
@@ -335,11 +341,8 @@ void process_command_string(void)
     Steering_Set_Target_Pos(theData);
     break;
     
-  case 'R':	// reset steerng integrator in case of runaway
-    Steering_set_integrator(theData);
-    break;
 
-  case 'S':	// Stop -> All Stop
+  case '!':	// Stop -> All Stop
     Set_Motor1_PWM( 0, FORWARD );
     doing_Speed_control = OFF;
     putstr("STOP\r\n");
@@ -372,17 +375,36 @@ void process_command_string(void)
     break;
     
     
-  case 'K':	// Set Motor control PID Gain values  $Kp 8*
+  case 'K':	// Set Drive control PID Gain values  $Kp 8*
     dataPos = 3;
     if (Command_String[dataPos] == ' ') dataPos++;	// skip space
     theData = command_data(dataPos);
     
     switch (Command_String[2]) {
-    case 'p': Motor_set_Kp(theData); break;
-    case 'i': Motor_set_Ki(theData); break;
-    case 'd': Motor_set_Kd(theData); break;
-    }
+    case 'p': Drive_set_Kp(theData); break;
+    case 'i': Drive_set_Ki(theData); break;
+    case 'd': Drive_set_Kd(theData); break;
+    case 'm': Drive_set_min(theData); break; /* min PWM value */
+    case 'x': Drive_set_max(theData); break; /* max PWM value */
+    case 'b': Drive_set_dead_band(theData); break; /* close enuf to target*/    }
     Motor_dump_data();
+    break;
+    
+  case 'S':	// Set Steering control PID Gain values 
+    dataPos = 3;
+    if (Command_String[dataPos] == ' ') dataPos++;	// skip space
+    theData = command_data(dataPos);
+    
+    switch (Command_String[2]) {
+    case 'p': Steering_set_Kp(theData); break;
+    case 'i': Steering_set_Ki(theData); break;
+    case 'd': Steering_set_Kd(theData); break;
+    case 'a': Steering_set_accel(theData); break;
+    case 'm': Steering_set_min(theData); break; /* min PWM value */
+    case 'x': Steering_set_max(theData); break; /* max PWM value */
+    case 'b': Steering_set_dead_band(theData); break; /* close enuf to target*/
+    }
+    Steering_dump_data();
     break;
     
   case 'L':	// Turn On / Off Logging Debug data
@@ -398,7 +420,7 @@ void process_command_string(void)
     if (theData & 0x02) 
       Steer_Debug_Output = ON;
     break;    
-
+    
   case 'W':	// Write Motor or Steering PID data to EEPROM : WM or WS
     putstr("Write to EEPROM");
     if (Command_String[2] == 'M'){ 
@@ -406,8 +428,8 @@ void process_command_string(void)
       Motor_dump_data();
     }      
     if (Command_String[2] == 'S'){
-     Steering_save_PID_settings();
-     Steering_dump_data();
+      Steering_save_PID_settings();
+      Steering_dump_data();
     }
     break;
     
@@ -424,47 +446,10 @@ void process_command_string(void)
     
     // ---
     
-  case 'a':	// Send steering max accel value
-    Steering_set_accel(theData);
-    Steering_dump_data();
-    break;
-    
-  case 'b':	// Send steering min PWM value
-    Steering_set_min(theData);
-    Steering_dump_data();
-    break;
-    
-  case 'c':	// Send steering max PWM value
-    Steering_set_max(theData);
-    Steering_dump_data();
-    break;
-    
-  case 'd':	// Send steering dead band value
-    Steering_set_dead_band(theData);
-    Steering_dump_data();
-    break;
-    
-  case 'e':	// Send steering Kd value
-    Steering_set_Kd(theData);
-    Steering_dump_data();
-    break;
-    
-  case 'f':	// Send steering Ki value
-    Steering_set_Ki(theData);
-    Steering_dump_data();
-    break;
-    
-  case 'v':	// Send steering Servo Gain factor Kp
-    Steering_set_Kp(theData);
-    Steering_dump_data();
-    break;
-    
+    Fail_Safe_Counter = 0;	// com is alive - clear counter
+    CmdStrLen = 0;	     // clear len, start building next command
   }
-  
-  Fail_Safe_Counter = 0;	// com is alive - clear counter
-  CmdStrLen = 0;	     // clear len, start building next command
 }
-
 // ---------------------------------------------------------------------------
 // scan the command string just after the command byte, 
 // convert Ascii signed number to short word. (16-Bit)
