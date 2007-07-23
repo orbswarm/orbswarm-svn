@@ -18,6 +18,7 @@
 #include <avr/interrupt.h>
 #include "global.h"
 #include "timer.h"   
+#include "encoder.h"
 
 /* global variables */
 
@@ -26,6 +27,9 @@ volatile unsigned short Timer2_ticks;
 volatile unsigned char Timer0_100hz_Flag;
 
 extern volatile unsigned short encoder1_count;
+extern volatile short encoder1_speed;
+extern volatile unsigned short encoder1_dir;
+
 
 // --------------------------------------------------------------------------
 // Interrupt routine to handle Timer0 overflow
@@ -33,7 +37,7 @@ extern volatile unsigned short encoder1_count;
 SIGNAL(SIG_OVERFLOW0)
 {
   Timer0_ticks++;		// increment slow counter
-
+  
   // use PB0 (LED) as debug output: toggle at timer rate
   // should see 1800 hz square wave on PB0
   //if(Timer0_ticks & 0x01) // extract bit 1
@@ -44,13 +48,16 @@ SIGNAL(SIG_OVERFLOW0)
   if (Timer0_ticks >= 36){	// count 36 overflows of 7.37mHz/(8*256) = 3600hz
     Timer0_100hz_Flag = 1;	// set flag for 100 Hz sample rates
   }
+
   Timer2_ticks++;		// increment slow counter
-  if (Timer2_ticks > 3000) { // saturate to show we haven't had a pulse in a while
-    Timer2_ticks = 9000;
-    // cheap hack. encoder1_count is only set on geartooth interrupt. 
-    // If this doesn't happen, we get value from last interrupt.
-    // set this to a large value to indicate stationary sprocket.
-    encoder1_count = 9000;
+  if (Timer2_ticks > 360){ // 10 hz interrupt
+    
+    encoder1_speed = encoder1_count;
+    if(encoder1_dir)
+      encoder1_speed = -encoder1_speed;
+    encoder1_count = 0;
+    //Encoder_Sample();		// sample encoder counts since last time  }
+    Timer2_ticks = 0;
   }
 }
 

@@ -63,6 +63,7 @@ Change Log
 	
 	USART	PortD 0:1	Rx/Tx Rs-232            DIP 3:4
 	Shaft	PortD 2	        Geartooth sense INT0    DIP 4
+	Sft quad PortD 3
 debug is PORTD,3
 	ESC	PortD 4:5	Motor1 Dir/Disable Pins - outputs DIP 6:11 
 	ESC	PortD 6:7	Motor2 Dir/Disable Pins - outputs 
@@ -114,6 +115,10 @@ IMU assignments from IMU.h
 #define HB_LED 0 /* for daughterboard, port B*/
 
 #define VERSIONSTR "v17.0"
+
+extern volatile unsigned short encoder1_count;
+extern volatile short encoder1_speed;
+extern volatile unsigned short encoder1_dir;
 
 // -----------------------------------------------------------------------
 // Prototypes
@@ -171,7 +176,8 @@ void Init_Chip(void)
 				/* (for shaft encoder) */
 				/* D4:7 are Dir Pins for Motors -- 0b 1111 0010 */	 
   PORTD |= _BV(PD2); 		/* turn pullup on for INT0, INT1 inputs */
-  PORTD |= _BV(PD3);
+  PORTD |= _BV(PD3); 		/* turn pullup on for INT0, INT1 inputs */
+
 
   
   UART_Init(UART_384000);	// defines from global.h and uart.h
@@ -245,12 +251,16 @@ int main (void)
       Timer0_reset();
       check_heart_beat( &state ); // Heart-beat is fore-ground -- true indication prog is alive.
       Timer0_100hz_Flag = 0;
-      
+
+      //      putS16(encoder1_speed);
+      //putS16(encoder1_dir);
+      //putS16(PIND &0x08);
+      //putstr("\r\n");
       Fail_Safe_Counter++;
       
 
       ++drive_servo_ticks;
-      if(drive_servo_ticks >= 20){ // 100/30 = 5 hz
+      if(drive_servo_ticks >= 10){ // 100/20 = 10 hz
 	// update speed control servo for drive motor
 	if (doing_Speed_control)
 	  Drive_Servo_Task();
@@ -386,6 +396,7 @@ void process_command_string(void)
     case 'd': Drive_set_Kd(theData); break;
     case 'm': Drive_set_min(theData); break; /* min PWM value */
     case 'x': Drive_set_max(theData); break; /* max PWM value */
+    case 'l': Drive_set_intLimit(theData); break; /* max PWM value */
     case 'b': Drive_set_dead_band(theData); break; /* close enuf to target*/    }
     Motor_dump_data();
     break;

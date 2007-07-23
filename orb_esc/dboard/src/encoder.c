@@ -9,32 +9,27 @@
 // -----------------------------------------------------------------------
 
 
-// how this works: Timer0 interrupts at 100hz rate, incrementing var
-// Timer2_ticks. Geartooth sensor interrupts, triggering SIG_INTERRUPT0
-// routine. This saves the current value of Timer2_ticks in encoder1_count, 
-// and resets Timer2_ticks. Thus encoder1_count has the length of the last
-// geartooth pulse in 10 ms increments.
+// how this works: encoder interrupts 500 times per rev, triggering
+// int0. This increments encoder_count. At a fixed period, sample encoder_count // to see speed, which will be proportional.
 
 
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include "encoder.h"   
 #include "timer.h"   
-
+#include "UART.h"
+#include "putstr.h"
 /* Variables for encoder interrupt routines */
 
 volatile unsigned short encoder1_count;
-volatile unsigned short encoder2_count;
+volatile short encoder1_speed;
+volatile unsigned short encoder1_dir;
+volatile uint32_t odometer;
 
-static short encoder2_speed;
-
-#define MAX_SAMPLES	10
-static unsigned char prevSample[MAX_SAMPLES];
-
-extern volatile unsigned short Timer2_ticks;
+//#define MAX_SAMPLES	10
+//static unsigned char prevSample[MAX_SAMPLES];
 
 
-void Encoder_reset(unsigned char channelNum);
 
 // ----------------------------------------------------------------------
 // Interrupt routines to handle Shaft Encoder Inputs
@@ -42,9 +37,9 @@ void Encoder_reset(unsigned char channelNum);
 
 SIGNAL(SIG_INTERRUPT0)
 {
-//  encoder1_count++;
-  encoder1_count = Timer2_ticks;
-  Timer2_reset();
+  encoder1_dir =  PIND & _BV(PD3);
+  encoder1_count++;
+  odometer++;
 }
 
 //SIGNAL(SIG_INTERRUPT1)
@@ -60,91 +55,58 @@ void Encoder_Init(void)
 {
   unsigned char n;
   
-  for (n=0;n<MAX_SAMPLES;n++)
-    prevSample[n] = 0;
+  //  for (n=0;n<MAX_SAMPLES;n++)
+  //  prevSample[n] = 0;
   
   encoder1_count = 0;
-  encoder2_count = 0;
-  
+  encoder1_speed = 0;
+  encoder1_dir = 0;
+  odometer = 0;
+
   //MCUCR |= ((1<<ISC10) | (1<<ISC00)); // Any logical change interrupts
   // GICR |= ((1<<INT0) | (1<<INT1)); // Enable  Interrupts on Pins IN0 & IN1
 
   MCUCR |= ((1<<ISC00) | (1<<ISC01)); // Rising edge generates interrupt
+  GICR &= ~(1<<INT1); // disable interrupt on pin PD3(INT1)
+  GICR = 0;
   GICR |= (1<<INT0); // Enable interrupt on pin PD2(INT0)
 
 }
 
 // ------------------------------------------------------------------------
 
-void Encoder_reset(unsigned char channelNum)
-{
-	if (channelNum == MOTOR1_SHAFT_ENCODER)
-		{
-		GICR &= ~(1<<INT0);		// Disable Enternal Interrupts on Pins IN0
-		encoder1_count = 0;
-		GICR |= (1<<INT0);		// Enable Enternal Interrupts on Pins IN0
-		}
-	else
-		{
-		GICR &= ~(1<<INT1);
-		encoder2_count = 0;
-		GICR |= (1<<INT1);
-		}
-}
+// call this at a fixed timer frequency to get encoder speed
+//void Encoder_Sample(void)
+//{
+//  GICR &= ~(1<<INT0);		// Disable Enternal Interrupts on Pins IN0
+//  encoder1_speed = encoder1_count;
+//  if(encoder1_dir)
+//    encoder1_speed = -encoder1_speed;
+//  encoder1_count = 0;
+
+//  GICR |= (1<<INT0);		// Enable Enternal Interrupts on Pins IN0
+//  putstr("ES\n");
+//  //putS16(encoder1_speed);
+//  //putstr("\r\n");
+//}
 
 
-// -------------------------------------------------------------------------
-// obsolete procedure to average counts: may need to resurrect
-
-void Encoder_sample_speed(unsigned char channelNum)
-{
-	unsigned char n;
-	unsigned short theCount = 0;
-	
-	//theCount = Encoder_read_count(channelNum);
-	Encoder_reset(channelNum);
-
-	if (channelNum == MOTOR1_SHAFT_ENCODER) {
-		for (n=0;n<(MAX_SAMPLES-1);n++)
-			prevSample[n] = prevSample[n+1];
-		prevSample[MAX_SAMPLES-1] = theCount;
-		}
-	else
-		encoder2_speed = theCount;
-}
 
 #define SPROCKET_TEETH 23 // this number of teef on the sprocket
 // -------------------------------------------------------------------------
-// convert encoder pulse width (measured in 100hz ticks) to RPM
+// convert encoder count (measured every 100 hz) to 10x RPM
 
-unsigned short EncoderReadSpeed(){ 
+//unsigned short EncoderReadSpeed(){ 
 
-  uint32_t RPM = 0;
-  uint32_t count = 0;
+//  uint32_t RPM = 0;
+//  uint32_t count = 0;
 
-  GICR &= ~(1<<INT0);   // Disable Enternal Interrupts on Pins IN0
-  count = (uint32_t)encoder1_count;
-  GICR |= (1<<INT0);     // Enable Enternal Interrupts on Pins IN0
+//  GICR &= ~(1<<INT0);   // Disable Enternal Interrupts on Pins IN0
+//  count = (uint32_t)encoder1_count;
+//  GICR |= (1<<INT0);     // Enable Enternal Interrupts on Pins IN0
 
-
-  // if we get X 100hz counts in a pulse, that means
-  // we get 100/X counts per second. To get revolutions per
-  // second, multiply by SPROCKET_TEETH (counts per revolution)
-  // to get RPM, multiply by 60 seconds/minute
-  // 60 * 23 * 100 = 138000 to save multiplications
-  // add another factor of 10 for more resolution, so rounds per 10 min
-
-  if (count == 0) {
-    return 600;		/* max speed to avoid divide-by-zero */
-  }
-  if (count > 5000)  // essentially stopped
-    return 0;
-  else {
-    RPM = ((uint32_t)138000)/count;
-    return (unsigned short)RPM;
-  }
-
-}
+//  return(count);
+//}
 
 /* unsigned short Encoder_read_speed(unsigned char channelNum) */
 /* { */

@@ -15,6 +15,7 @@ void Drive_set_min(unsigned char c);
 void Drive_set_max(unsigned char c);
 void Drive_set_dead_band(short s);
 void Drive_set_integrator(short s);
+void Drive_set_intLimit(short s);
 void Drive_set_Kp(char c);
 void Drive_set_Ki(char c);
 void Drive_set_Kd(char c);
