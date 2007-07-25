@@ -28,22 +28,41 @@
 #define LOG_FILE_BASE_NAME "swarm_log_"
 #define DEFAULT_LOG_PATH "./logs"
 
+//Constants for converting from lat/lon to UTM
+#define WGS84_EQUATORIAL_RADIUS_METERS 6387137
+#define WGS84_ECCENTRICITY_SQUARED 0.00669438
+
+/************************Constants**************************************/
+/*
+extern const double PI;
+extern const double FOURTHPI;
+extern const double deg2rad;
+extern const double rad2deg;
+*/
+
+const double PI = 3.14159265;
+const double FOURTHPI = PI / 4;
+const double deg2rad = PI / 180;
+const double rad2deg = 180.0 / PI;
+
 /*************************STRUCTURES************************************/
 struct	swarmGpsData
 {
   char gpsSentanceType[32]; 
   char gpsSentance[MAX_GPS_SENTANCE_SZ];
   char nmea_utctime[64];
-  long double nmea_latddmm;
-  long double nmea_londdmm;
+  double nmea_latddmm;
+  double nmea_londdmm;
   char nmea_latsector;
   char nmea_lonsector;
-  long double latdd;
-  long double londd;
-  long double utcTime;
-  long double metFromMshipX;
-  long double metFromMshipY;
-  long double utcTimeMship;
+  double latdd;
+  double londd;
+  double utcTime;
+  double metFromMshipX;
+  double metFromMshipY;
+  double utcTimeMship;
+  double UTMNorthing;
+  double UTMEasting;
+  char UTMZone[32];
 };
-
 #endif

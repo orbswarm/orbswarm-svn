@@ -9,6 +9,7 @@
 #include <errno.h>
 #include "swarmdefines.h"
 #include <stdlib.h>
+#include <math.h>
 
 /* This is a collection of general utility methods for working with the spu */
 #ifndef SWARM_SPU_UTILS_H 
@@ -32,4 +33,9 @@ int parseGPSSentance(swarmGpsData * gpsdata);
 //converts the raw NMEA gps lat long data into decimal lat long data
 int convertNMEAGpsLatLonDataToDecLatLon(swarmGpsData * gpsdata);
 
+//converts decimal lat/lon to UTM 
+//East Longitudes are positive, West longitudes are negative. 
+//North latitudes are positive, South latitudes are negative
+//Lat and Long are in decimal degrees
+void decimalLatLongtoUTM(const double ref_equ_radius, const double ref_ecc_squared, swarmGpsData * gpsdata);
 #endif
