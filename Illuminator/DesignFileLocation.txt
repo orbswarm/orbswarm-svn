@@ -1,0 +1,1 @@
+All Illuminator design files are located in the PCB/Illuminator directory
