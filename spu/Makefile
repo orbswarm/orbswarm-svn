@@ -13,8 +13,8 @@ NATIVECC = gcc
 # select them here
 # (I'm sure there's a more elegant way to do this...)
 
-#CC = $(CYGWINCC)
-CC = $(NATIVECC)
+CC = $(CYGWINCC)
+#CC = $(NATIVECC)
 CPP = $(CYGWINCPP)
 CFLAGS = -Wall -g -O3 -D_REENTRANT 
 
