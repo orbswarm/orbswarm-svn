@@ -7,6 +7,8 @@
 #include <gps.h>
 #include <packet_type.h>
 
+volatile static struct SWARM_MSG s_lastNmeaPosition;
+
 void lightLedPortB6(void)
 {
   //PORTB = PORTB  | (1 << PB0);
@@ -21,24 +23,26 @@ void lightLedPortB7(void)
   PORTB = PORTB ^ (1<<PB7);
 }
 
-void dummy_spu_handler(unsigned char c, int n)
+void spuHandler(unsigned char c, int n)
 {
   lightLedPortB6();
+  //anything from the SPU goes out XBee
+  unsigned char msg[2];
+  msg[0] = c;
+  msg[1] = '\0';
+  sendXBeeMsg(msg);
 }
 
 int main(void)
 {
   DDRB = 0xff;
   PORTB = 0xff;
-  initXbeeModule(lightLedPortB6, sendDebugMsg);
-  initGpsModule(lightLedPortB6, sendDebugMsg);
-  //initXbeeModule(lightLedPortB7, 0);
-    uart_init(handleXbeeSerial,
-    	    dummy_spu_handler,
+  //initXbeeModule(lightLedPortB6, sendDebugMsg);
+  //initGpsModule(lightLedPortB6, sendDebugMsg);
+  
+  uart_init(handleXbeeSerial,
+    	    spuHandler,
     	    handleGpsSerial);
-  //    uart_init(dummy_spu_handler,
-  //  	    dummy_spu_handler,
-  //  	    dummy_spu_handler);
   sei();
   lightLedPortB6();
   while(1){
@@ -52,6 +56,11 @@ int main(void)
       //send to spu
       sendSpuMsg(msg.swarm_msg_payload);
       lightLedPortB7();
+      /*
+       * Inspect msg to see if this is a message that tells us
+       * about our position and store it if it is
+       */
+      
     }
   } 
   return 0;

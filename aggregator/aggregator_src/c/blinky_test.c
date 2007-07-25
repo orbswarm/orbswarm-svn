@@ -6,18 +6,13 @@
 int main(void)
 {
 
-  DDRB=0xff;
-  PORTB=0xff;
+  DDRJ=0xff;
+  //PORTJ=0xff;
   //Direction bit = PC1
   //PORTB = PORTB | (1<<PB5);
+  PORTJ  = PORTJ | (1<<PJ3);
   
   while(1){
-    loopTimer0(1000u);
-    /*
-    for(int i=0; i < 5; i++)
-      _delay_ms(200);
-    */
-    PORTB = PORTB ^ (1<<PB7);
   }
 
 }
