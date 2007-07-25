@@ -1,6 +1,6 @@
 SRC = src
 INC = include
-LIBS =  
+LIBS = -lm 
 
 # Crosstools are slightly different versions for cygwin and linux; 
 LINUXCC = /opt/crosstool/gcc-4.0.1-glibc-2.3.5/arm-unknown-linux-gnu/arm-unknown-linux-gnu/bin/gcc
@@ -13,8 +13,8 @@ NATIVECC = gcc
 # select them here
 # (I'm sure there's a more elegant way to do this...)
 
-CC = $(CYGWINCC)
-#CC = $(NATIVECC)
+#CC = $(CYGWINCC)
+CC = $(NATIVECC)
 CPP = $(CYGWINCPP)
 CFLAGS = -Wall -g -O3 -D_REENTRANT 
 
