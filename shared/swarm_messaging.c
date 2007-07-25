@@ -1,7 +1,7 @@
 #include "include/swarm_messaging.h"
 
 /**
- * Circular queue implementation borrowed from  ../orb_esc/src/UART.c
+ * Circular queue implementation borrowed from  ../orb_esc/src/UART.c by Pete
  */
 
 //Circular Q to hold all the messages
