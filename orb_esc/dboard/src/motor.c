@@ -54,25 +54,6 @@
 #define MOTOR2_ENABLE()  PORTD &= ~_BV(PD7)
 #define MOTOR2_BRAKE()   TCCR1A &= ~_BV(COM1B1)
 
-// ----------------------------------------------------------------------
-// Motor Control Block for keeping track of Motor PID function variables
-
-typedef struct {
-  char	Kp;			/* proportional PID term */
-  char	Ki;			/* integral PID term */
-  char	Kd;			/* derivative PID term */
-  short targetSpeed;		/* the speed we want to go */
-  short currentSpeed;		/* the speed we are going now */
-  char currentDirection;	/* the direction we are going now */
-  unsigned char	currentPWM;	/* the pwer we are giving it now */
-  short	dead_band;	/* close enough to desired speed if within */
-  short lastSpeedError;		/* the error we had last iteration */
-  unsigned char lastPWM;	/* the power we gave it last iteration */
-  unsigned char deltaAccel;	/* biggest change in accel per inter */
-  short intLimit;  		/* integrator limit */
-  unsigned char minPWM;
-  unsigned char maxPWM;
-} motor_control_block;
 
 
 static short iSum = 0;
@@ -87,8 +68,13 @@ extern volatile unsigned short encoder1_dir;
 /* Static Vars */
 static motor_control_block drive;
 
+
+#define CZERO 785
+
 /* Prototype */
 void Motor_clear_mcb( motor_control_block *m );
+
+
 
 
 // main feedback loop for speed control
@@ -169,6 +155,8 @@ void Drive_Servo_Task(void)
   
   // use computed PWM to drive the motor
   // check current limit here -- reduce power if so? 
+
+
   
   if (drivePWM < 0) {
     drive.currentDirection = REVERSE;
@@ -255,6 +243,7 @@ void Motor_clear_mcb( motor_control_block *m )
 	m->minPWM = 10;
 	m->maxPWM = 150;
 	m->intLimit = 4000; 
+	m->maxCurrent = 20;
 }
 
 // ---------------------------------------------------------------------
@@ -430,7 +419,7 @@ void Motor_dump_data(void)
   putS16(drive.Ki);
   putS16(drive.Kd);
   putstr("  ISense: ");
-  theData = A2D_read_channel(CURRENT_SENSE_CHANNEL) - 512;
+  theData = A2D_read_channel(CURRENT_SENSE_CHANNEL);
   putS16(theData);	
 	
   //  putstr("\r\n");
@@ -446,19 +435,20 @@ void Motor_dump_data(void)
 
 void Motor_save_PID_settings()
 {
-  uint8_t checksum;
-  checksum = 0 - (drive.Kp + drive.Ki + drive.Kd);
-  eeprom_Write( MOTOR_EEPROM, drive.Kp );
-  eeprom_Write( MOTOR_EEPROM+1, drive.Ki );
-  eeprom_Write( MOTOR_EEPROM+2, drive.Kd );
+  char checksum;
+  checksum = (char)drive.Kp + drive.Ki + drive.Kd;
+  eeprom_Write( MOTOR_EEPROM, (char)drive.Kp );
+  eeprom_Write( MOTOR_EEPROM+1, (char)drive.Ki );
+  eeprom_Write( MOTOR_EEPROM+2, (char)drive.Kd );
   eeprom_Write( MOTOR_EEPROM+3, checksum );
+  
 }
 
 // ----------------------------------------------------------------------
 
 void Motor_read_PID_settings()
 {
-  uint8_t v1,v2,v3,v4,v5,checksum;
+  char v1,v2,v3,checksum;
   
   v1 = eeprom_Read( MOTOR_EEPROM );
   v2 = eeprom_Read( MOTOR_EEPROM+1 );
@@ -466,17 +456,18 @@ void Motor_read_PID_settings()
   checksum = eeprom_Read( MOTOR_EEPROM+3 );
   
   putstr("Init Drive PID");
-  if (!((v1 + v2 + v3 + checksum) & 0xFF))
+  if ((v1 + v2 + v3) == checksum)
     {	// checksum is OK - load values into motor control block
       drive.Kp = v1;
       drive.Ki = v2;
       drive.Kd = v3;
-      putstr(" no cksum, defaults");
     }
   else
+    putstr(" no cksum, defaults");
     putstr("\r\n");
 }
 
+// make sure minVal < maxVal (!)
 short limit( short *v, short minVal, short maxVal)
 {
 	if (*v < minVal) *v = minVal;

@@ -18,8 +18,10 @@ logFileName = 'dash-log.txt'
 # User settings: max/min steering and power values. OK to edit!
 powerMax = 25
 powerMin = -25
-#powerMax = 40
-#powerMin = -40
+powerMax = 40
+powerMin = -40
+#powerMax = 60
+#powerMin = -60
 steerMax = 100
 steerMin = -100
 
@@ -78,13 +80,13 @@ class Dashboard(wx.Frame):
         #self.ser.write('$d10*')  # dead band
 
         # NEW PID CONSTANTS
-        self.ser.write('$v15*')  # Kp -- PID prop. gain
-        self.ser.write('$f1*')  # Ki -- PID integral
-        self.ser.write('$e0*')  # Kd -- PID derivative
-        self.ser.write('$b30*')  # Min drive
-        self.ser.write('$c200*') # Max drive
-        self.ser.write('$a255*') # Max accel
-        self.ser.write('$d10*')  # dead band
+#        self.ser.write('$v15*')  # Kp -- PID prop. gain
+#        self.ser.write('$f1*')  # Ki -- PID integral
+#        self.ser.write('$e0*')  # Kd -- PID derivative
+#        self.ser.write('$b30*')  # Min drive
+#        self.ser.write('$c200*') # Max drive
+#        self.ser.write('$a255*') # Max accel
+#        self.ser.write('$d10*')  # dead band
 
         self.InitJoystick()
         self.InitTimer(100)
@@ -189,7 +191,7 @@ class Dashboard(wx.Frame):
 
     def OnStopBtn(self, evt):
         """Event handler for the Stop button."""
-        self.ser.write("$STOP*")
+        self.ser.write("$!*")
         self.power.SetValue(0)
 
     def OnLogBtn(self, evt):
@@ -249,7 +251,8 @@ class Dashboard(wx.Frame):
         power = self.power.GetValue()
         if power != oldpower[0]:
             print "Power: %d" % power
-            self.ser.write('$p%d*' % power)
+            self.ser.write('$t%d*' % power)
+            #self.ser.write('$p%d*' % power)
             oldpower[0] = power
             #self.outputStatus(self.ReadSerial())
         steer = self.steer.GetValue()

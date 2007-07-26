@@ -59,16 +59,16 @@ void Steering_Init(void)
 // We only save byte values to eeprom.
 void Steering_save_PID_settings(void)
 {
-	uint8_t checksum;
-	checksum = 0 - (Kp + Ki + Kd + dead_band + minDrive + maxDrive + maxAccel);	// generate checksum
+	 char checksum;
+	checksum = (Kp + Ki + Kd + dead_band + minDrive + maxDrive + maxAccel);	// generate checksum
 	
-	eeprom_Write( STEER_EEPROM,   Kp );
-	eeprom_Write( STEER_EEPROM+1, Ki );
-	eeprom_Write( STEER_EEPROM+2, Kd );
-	eeprom_Write( STEER_EEPROM+3, dead_band );
-	eeprom_Write( STEER_EEPROM+4, minDrive );
-	eeprom_Write( STEER_EEPROM+5, maxDrive );
-	eeprom_Write( STEER_EEPROM+6, maxAccel );
+	eeprom_Write( STEER_EEPROM,   (char)Kp );
+	eeprom_Write( STEER_EEPROM+1, (char)Ki );
+	eeprom_Write( STEER_EEPROM+2, (char)Kd );
+	eeprom_Write( STEER_EEPROM+3, (char)dead_band );
+	eeprom_Write( STEER_EEPROM+4, (char)minDrive );
+	eeprom_Write( STEER_EEPROM+5, (char)maxDrive );
+	eeprom_Write( STEER_EEPROM+6, (char)maxAccel );
 	eeprom_Write( STEER_EEPROM+7, checksum );
 }
 
@@ -76,8 +76,9 @@ void Steering_save_PID_settings(void)
 
 void Steering_read_PID_settings(void)
 {
-  uint8_t v[7];
-  uint8_t n, checksum, cs = 0;
+  uint8_t v[8];
+  uint8_t n;
+  char checksum, cs = 0;
   
   for (n=0; n<7; n++) {
     v[n] = eeprom_Read( STEER_EEPROM + n );
@@ -86,7 +87,7 @@ void Steering_read_PID_settings(void)
   checksum = eeprom_Read( STEER_EEPROM + 7 );
   
   putstr("Init Steering PID");
-  if (!((cs + checksum) & 0xFF))
+  if (checksum == cs)
     {	// checksum is OK - load values into motor control block
       Kp = v[0];
       Ki = v[1];
@@ -95,11 +96,11 @@ void Steering_read_PID_settings(void)
       minDrive = v[4];
       maxDrive = v[5];
       maxAccel = v[6];
-      putstr(" no cksum, defaults");
     }
   
   else
-    putstr("\r\n");
+    putstr(" no cksum, defaults");
+  putstr("\r\n");
 
 }
 
@@ -190,13 +191,13 @@ void Steering_Servo_Task(void)
   // sum to integrate steering error  and limit runaway
   iSum += steeringError;
 
-  limit(&iSum,iLimit, -iLimit);
+  limit(&iSum,-iLimit, iLimit);
 
   i_term = Ki*iSum;
   i_term = i_term >> 2; // shift right (divide by 4) to scale
 
   motor_Drive = (p_term + d_term + i_term);	
-  motor_Drive = motor_Drive >> 3; // shift right (divide by 8) to scale
+  motor_Drive = motor_Drive /8; // shift right (divide by 8) to scale
   
   //limit( &motor_Drive, 0, crntPWM + maxAccel);
   crntPWM = motor_Drive;

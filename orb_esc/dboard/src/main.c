@@ -120,6 +120,8 @@ extern volatile unsigned short encoder1_count;
 extern volatile short encoder1_speed;
 extern volatile unsigned short encoder1_dir;
 
+// from motor.h, this contains motor drive variables
+//extern static motor_control_block drive;
 // -----------------------------------------------------------------------
 // Prototypes
 
@@ -397,7 +399,9 @@ void process_command_string(void)
     case 'm': Drive_set_min(theData); break; /* min PWM value */
     case 'x': Drive_set_max(theData); break; /* max PWM value */
     case 'l': Drive_set_intLimit(theData); break; /* max PWM value */
-    case 'b': Drive_set_dead_band(theData); break; /* close enuf to target*/    }
+    case 'b': Drive_set_dead_band(theData); break; /* close enuf to target*/
+      //    case 'c': drive.maxCurrent = theData; break; /* set current limit*/    
+    }
     Motor_dump_data();
     break;
     
@@ -433,12 +437,13 @@ void process_command_string(void)
     break;    
     
   case 'W':	// Write Motor or Steering PID data to EEPROM : WM or WS
-    putstr("Write to EEPROM");
-    if (Command_String[2] == 'M'){ 
+    if (Command_String[2] == 'D'){ 
+      putstr("Drive->EEPROM");
       Motor_save_PID_settings();
       Motor_dump_data();
     }      
     if (Command_String[2] == 'S'){
+      putstr("Steer->EEPROM");
       Steering_save_PID_settings();
       Steering_dump_data();
     }
