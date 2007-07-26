@@ -65,8 +65,18 @@ writecom.o: $(SRC)/writecom.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)
 spu: spu.o swarmserial.o 
 	$(CC) $(LIBS) $(CFLAGS) spu.o swarmserial.o -o spu 
 
-spu.o: $(SRC)/spu.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h 
+
+
+spu.o: $(SRC)/spu.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h
 	$(CC) $(CFLAGS)-c $(SRC)/spu.cc
+
+
+mainloop: mainloop.o swarmserial.o swarmspuutils.o
+	$(CC) $(LIBS) $(CFLAGS) mainloop.o swarmserial.o swarmspuutils.o -o mainloop 
+
+mainloop.o: $(SRC)/mainloop.cc $(SRC)/swarmserial.cc $(SRC)/swarmspuutils.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h 
+	$(CC) $(CFLAGS)-c $(SRC)/mainloop.cc
+
 
 swarmserial.o: $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h
 	$(CC) $(CFLAGS)-c $(SRC)/swarmserial.cc
