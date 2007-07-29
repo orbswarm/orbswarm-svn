@@ -6,10 +6,10 @@
 #define SWARM_SUCCESS 0
 #define SWARM_SERIAL_WRITE_ERR 10 //failed to write data to serial port 
 #define SWARM_OUT_OF_MEMORY_ERROR 11 //failed to malloc some memory 
-#define SWARM_INVALID_GPS_SENTANCE 100 
-#define SWARM_NMEA_GPS_SENTANCE_TYPE_GPGGA "GPGGA"
+#define SWARM_INVALID_GPS_SENTENCE 100 
+#define SWARM_NMEA_GPS_SENTENCE_TYPE_GPGGA "GPGGA"
 #define SWARM_NMEA_GPS_DATA_DELIM ","
-#define MAX_GPS_SENTANCE_SZ 1024 
+#define MAX_GPS_SENTENCE_SZ 1024 
 
 
 #define SPU_LED_RED_ON 40  
@@ -48,8 +48,8 @@ const double rad2deg = 180.0 / PI;
 /*************************STRUCTURES************************************/
 struct	swarmGpsData
 {
-  char gpsSentanceType[32]; 
-  char gpsSentance[MAX_GPS_SENTANCE_SZ];
+  char gpsSentenceType[32]; 
+  char gpsSentence[MAX_GPS_SENTENCE_SZ];
   char nmea_utctime[64];
   double nmea_latddmm;
   double nmea_londdmm;

@@ -16,12 +16,13 @@ baudrate = 38400
 logFileName = 'dash-log.txt'
 
 # User settings: max/min steering and power values. OK to edit!
-powerMax = 25
-powerMin = -25
-powerMax = 40
-powerMin = -40
-#powerMax = 60
-#powerMin = -60
+powerMax = 30
+powerMin = -30
+
+#use 40 for PID speed control 
+#powerMax = 40
+#powerMin = -40
+
 steerMax = 100
 steerMin = -100
 
@@ -251,8 +252,8 @@ class Dashboard(wx.Frame):
         power = self.power.GetValue()
         if power != oldpower[0]:
             print "Power: %d" % power
-            self.ser.write('$t%d*' % power)
-            #self.ser.write('$p%d*' % power)
+            #self.ser.write('$t%d*' % power)
+            self.ser.write('$p%d*' % power)
             oldpower[0] = power
             #self.outputStatus(self.ReadSerial())
         steer = self.steer.GetValue()
@@ -270,8 +271,9 @@ class Dashboard(wx.Frame):
             self.resultbox.SetValue('')  # clear result box
             #self.resultbox.AppendText(self.ReadSerial())
             print self.ReadSerial()
-        # send status query command:
-        #self.ser.write('$?*')
+        #send status query command to flush queue:
+        #send debug off query command to flush queue:
+        self.ser.write('$L0*')
         #statline=self.ReadSerial()
         #print statline
         #self.outputStatus(self.ReadSerial())

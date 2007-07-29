@@ -25,11 +25,11 @@ int main(int argc, char *argv[])
    {
      //fprintf(stderr,"\n Read line %s \n",lineBuff);
      gpsdata = (swarmGpsData*) malloc(sizeof(struct swarmGpsData)); 
-     strcpy(gpsdata->gpsSentance,lineBuff);
-     status = parseGPSSentance(gpsdata);
+     strcpy(gpsdata->gpsSentence,lineBuff);
+     status = parseGPSSentence(gpsdata);
      if(status == SWARM_SUCCESS)
      { 
-        //fprintf(stderr,"\n Parsed line %s \n",gpsdata->gpsSentance);
+        //fprintf(stderr,"\n Parsed line %s \n",gpsdata->gpsSentence);
         status = convertNMEAGpsLatLonDataToDecLatLon(gpsdata);
         if(status == SWARM_SUCCESS)
         {

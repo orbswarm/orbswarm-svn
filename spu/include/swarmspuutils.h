@@ -24,11 +24,11 @@ int resetOrbMCU(void);
 //pass NULL for log dir to use default path defined in swarmdefines.h
 int spulog(char* msg, int msgSize, char* logdir);
 
-//Parses an NMEA data sentance into the seperate components needed for conversion
-//Returns SWARM_SUCCESS on a successful parse and  SWARM_INVALID_GPS_SENTANCE if 
+//Parses an NMEA data sentence into the seperate components needed for conversion
+//Returns SWARM_SUCCESS on a successful parse and  SWARM_INVALID_GPS_SENTENCE if 
 //the input string was garbage or an invalid type.  The parser only accepts NMEA
-//sentances of type GPGGA 
-int parseGPSSentance(swarmGpsData * gpsdata);
+//sentences of type GPGGA 
+int parseGPSSentence(swarmGpsData * gpsdata);
 
 //converts the raw NMEA gps lat long data into decimal lat long data
 int convertNMEAGpsLatLonDataToDecLatLon(swarmGpsData * gpsdata);

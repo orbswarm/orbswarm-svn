@@ -1,4 +1,5 @@
 SRC = src
+TEST = test
 INC = include
 LIBS = -lm 
 
@@ -30,20 +31,20 @@ testspuutils.o: $(SRC)/testspuutils.cc $(SRC)/swarmspuutils.cc $(INC)/swarmspuut
 setled: setled.o swarmspuutils.o
 	$(CC) $(LIBS) $(CFLAGS) setled.o swarmspuutils.o -o setled
 
-setled.o: $(SRC)/setled.cc $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmdefines.h
-	$(CC) $(CFLAGS)-c $(SRC)/setled.cc
+setled.o: $(TEST)/setled.cc $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmdefines.h
+	$(CC) $(CFLAGS)-c $(TEST)/setled.cc
 
 logtest: logtest.o swarmspuutils.o $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h
 	$(CC) $(LIBS) $(CFLAGS) logtest.o swarmspuutils.o -o logtest 
 
-logtest.o: $(SRC)/logtest.cc $(INC)/swarmdefines.h $(INC)/swarmspuutils.h
-	$(CC) $(CFLAGS)-c $(SRC)/logtest.cc
+logtest.o: $(TEST)/logtest.cc $(INC)/swarmdefines.h $(INC)/swarmspuutils.h
+	$(CC) $(CFLAGS)-c $(TEST)/logtest.cc
 
 gpsconvtest: gpsconvtest.o swarmspuutils.o $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h
 	$(CC) $(LIBS) $(CFLAGS) gpsconvtest.o swarmspuutils.o -o gpsconvtest 
 
-gpsconvtest.o: $(SRC)/gpsconvtest.cc $(INC)/swarmdefines.h $(INC)/swarmspuutils.h
-	$(CC) $(CFLAGS)-c $(SRC)/gpsconvtest.cc
+gpsconvtest.o: $(TEST)/gpsconvtest.cc $(INC)/swarmdefines.h $(INC)/swarmspuutils.h
+	$(CC) $(CFLAGS)-c $(TEST)/gpsconvtest.cc
 
 swarmspuutils.o: $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmdefines.h
 	$(CC) $(CFLAGS)-c $(SRC)/swarmspuutils.cc
@@ -51,15 +52,15 @@ swarmspuutils.o: $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmdefi
 readcom: readcom.o swarmserial.o 
 	$(CC) $(LIBS) $(CFLAGS) readcom.o swarmserial.o -o readcom 
 
-readcom.o: $(SRC)/readcom.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h 
-	$(CC) $(CFLAGS)-c $(SRC)/readcom.cc
+readcom.o: $(TEST)/readcom.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h 
+	$(CC) $(CFLAGS)-c $(TEST)/readcom.cc
 
 
 writecom: writecom.o swarmserial.o 
 	$(CC) $(LIBS) $(CFLAGS) writecom.o swarmserial.o -o writecom 
 
-writecom.o: $(SRC)/writecom.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h 
-	$(CC) $(CFLAGS)-c $(SRC)/writecom.cc
+writecom.o: $(TEST)/writecom.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h 
+	$(CC) $(CFLAGS)-c $(TEST)/writecom.cc
 
 
 spu: spu.o swarmserial.o 
@@ -74,7 +75,7 @@ spumond: spumond.o
 	$(CC) $(LIBS) $(CFLAGS) spumond.o -o spumond
 
 spumond.o: $(SRC)/spumond.cc
-        $(CC) $(CFLAGS)-c $(SRC)/spumond.cc
+	$(CC) $(CFLAGS)-c $(SRC)/spumond.cc
 
 mainloop: mainloop.o swarmserial.o swarmspuutils.o
 	$(CC) $(LIBS) $(CFLAGS) mainloop.o swarmserial.o swarmspuutils.o -o mainloop 

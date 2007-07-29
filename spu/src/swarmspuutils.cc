@@ -162,29 +162,29 @@ int spulog(char* msg, int msgSize, char* logdir)
   return bytesWritten;
 }
 
-int parseGPSSentance(swarmGpsData * gpsdata)
+int parseGPSSentence(swarmGpsData * gpsdata)
 {
   int status = SWARM_SUCCESS; 
 
   char* paramptr = NULL;
   int paramcount = 0;
-  char gpssentcpy[MAX_GPS_SENTANCE_SZ];
+  char gpssentcpy[MAX_GPS_SENTENCE_SZ];
   if(gpssentcpy == NULL){
     status = SWARM_OUT_OF_MEMORY_ERROR;
     return status;
   }
-  strcpy(gpssentcpy, gpsdata->gpsSentance);
+  strcpy(gpssentcpy, gpsdata->gpsSentence);
    
   paramptr = strtok(gpssentcpy,SWARM_NMEA_GPS_DATA_DELIM);
   if(paramptr != NULL){
-     strcpy(gpsdata->gpsSentanceType,&paramptr[1]); //skip the leading $ char 
+     strcpy(gpsdata->gpsSentenceType,&paramptr[1]); //skip the leading $ char 
      paramcount++; 
   }
-  //fprintf(stderr, "\nstrtok returned **%s** for gps sentance type\n",gpsdata->gpsSentanceType);
-  if(strcmp(gpsdata->gpsSentanceType,SWARM_NMEA_GPS_SENTANCE_TYPE_GPGGA) == 0)
+  //fprintf(stderr, "\nstrtok returned **%s** for gps sentence type\n",gpsdata->gpsSentenceType);
+  if(strcmp(gpsdata->gpsSentenceType,SWARM_NMEA_GPS_SENTENCE_TYPE_GPGGA) == 0)
   { 
     //fprintf(stderr, "\nparsing rest of gps data\n");
-    //Sentance type is correct so go ahead and get the rest of the data 
+    //Sentence type is correct so go ahead and get the rest of the data 
     while(paramptr != NULL)
     {
       paramptr = strtok(NULL,SWARM_NMEA_GPS_DATA_DELIM);
@@ -223,11 +223,11 @@ int parseGPSSentance(swarmGpsData * gpsdata)
       }
       paramcount++; 
     }
-  //fprintf(stderr,"\n RAW GPS DATA %s,%s,%Lf,%c,%Lf,%c \n",gpsdata->gpsSentanceType,gpsdata->nmea_utctime,gpsdata->nmea_latddmm,gpsdata->nmea_latsector,gpsdata->nmea_londdmm,gpsdata->nmea_lonsector);
+  //fprintf(stderr,"\n RAW GPS DATA %s,%s,%Lf,%c,%Lf,%c \n",gpsdata->gpsSentenceType,gpsdata->nmea_utctime,gpsdata->nmea_latddmm,gpsdata->nmea_latsector,gpsdata->nmea_londdmm,gpsdata->nmea_lonsector);
   }
   else
   {
-    status = SWARM_INVALID_GPS_SENTANCE; 
+    status = SWARM_INVALID_GPS_SENTENCE; 
   }
   return status;
 }
