@@ -9,3 +9,5 @@ void sendSpuMsg(const unsigned char *s);
 void sendDebugMsg(const char *s);
 
 void sendGPSAMsg(const unsigned char *s);
+
+void sendGPSBMsg(const unsigned char *s);

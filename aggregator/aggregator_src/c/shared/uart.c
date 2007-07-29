@@ -99,6 +99,22 @@ void sendSpuMsg(const unsigned char *s)
     }
 }
 
+void sendGPSBMsg(const unsigned char *s)
+{
+  while(*s)
+    {
+      UCSR2A = UCSR2A & (~(1<<UDRE2));
+      UDR2 = *(s++);
+      while(1)
+	{
+	  //loopTimer0(100);
+	  if((UCSR2A<<(8-UDRE2))>>7)
+	    break;
+	}
+    }
+}
+
+
 void sendDebugMsg(const char *s)
 {
   sendSpuMsg((unsigned char*)s);
@@ -125,7 +141,12 @@ int uart_init(void (*handleXBeeRecv)(unsigned char c, int isError),
   UCSR1C = (1<<UCSZ11) | (1<< UCSZ10);
   UBRR1 = 23;
   _handleGpsARecv = handleGpsARecv;
-  //enable interrupts in main routine only
+  //set up GPSB
+  UCSR2B = (1<<RXCIE2) | (1<<RXEN2) | (1<<TXEN2);
+  UCSR2C = (1<<UCSZ21) | (1<< UCSZ20);
+  UBRR2 = 23;
+  //insert handler here later
+
   sei();
   return 0;
 }
