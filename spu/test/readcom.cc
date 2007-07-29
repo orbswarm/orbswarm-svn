@@ -1,3 +1,15 @@
+// ---------------------------------------------------------------------
+// 
+//	File: readcom.cc
+//      SWARM Orb SPU code http://www.orbswarm.com
+//	Simple test of SPU serial port by echoing data read from it to stdout
+//
+//
+//      usage: readcom <port> 
+//      where <port> is an integer, eg readcom 2 to read  COM2
+//
+//	Written by Jonathan Foote (Head Rotor at rotorbrain.com)
+// -----------------------------------------------------------------------
 #include  <stdio.h>    /* Standard input/output definitions */
 #include  <unistd.h>
 #include  <sys/ioctl.h>

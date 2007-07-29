@@ -1,3 +1,16 @@
+// ---------------------------------------------------------------------
+// 
+//	File: writecom.cc
+//      SWARM Orb SPU code http://www.orbswarm.com
+//	Simple test of SPU serial port by continuously writing data to them
+//
+//
+//      usage: writecom <port> 
+//      where <port> is an integer, eg writecom 2 to write to COM2
+//
+//	Written by Jonathan Foote (Head Rotor at rotorbrain.com)
+// -----------------------------------------------------------------------
+
 #include  <stdio.h>    /* Standard input/output definitions */
 #include  <unistd.h>
 #include  <sys/ioctl.h>

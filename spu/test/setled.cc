@@ -1,3 +1,16 @@
+// ---------------------------------------------------------------------
+// 
+//	File: setled.cc
+//      SWARM Orb SPU code http://www.orbswarm.com
+//	command-line utility to turn TS-7260 leds on and off
+//
+//
+//      usage: usage: setled <color> n
+//         where <color> is a string starting with r or g. 
+//         If n is nonzero the led is lit, otherwise it is turned off.
+//
+//	Written by Jonathan Foote (Head Rotor at rotorbrain.com)
+// -----------------------------------------------------------------------
 #include <stdlib.h>
 #include "../include/swarmspuutils.h"
 
