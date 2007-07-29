@@ -27,6 +27,7 @@ echo "now mounting /proc"
 echo "mounting local filesystems (in fstab)"
 (insmod fat; insmod vfat; mount -a -rw -t nonfs,smb,smbfs) >/dev/null 2>&1 &
 #mount /tmp onto RAMdisk and use 16MB for it
+#Useful for logging and such so we don't scribble all over the flash
 mount -t ramfs none /tmp -o maxsize=16777216
 
 #attempt to load sdcard and TS-UART modules
@@ -64,5 +65,6 @@ fi
 if [ -f /www/apache/logs/httpd.pid ]; then
 	rm -f /www/apache/logs/httpd.pid
 fi
-
-/root/spumond /root/core_svc &
+#Start the spumond task-watcher. 
+#Replace core_svc with whatever we decide to call the main loop
+/root/spumond /root/main_loop &

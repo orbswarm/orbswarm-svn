@@ -1,7 +1,16 @@
-/*SPU monitoring daemon */ 
-/*Launches tasks into the background and restarts them if they die           */
-/* Written by 'dillo <armadilo@gothpunk.com> 6/2007 for the OrbSwarm project */
-/*http://www.orbswarm.com - A large-scale kinetic art project                */
+// ---------------------------------------------------------------------
+// 
+//	File: spumond.cc
+//      SWARM Orb SPU code http://www.orbswarm.com
+//      Description:Launches tasks into the background and restarts them if they die     
+//
+//      usage: spumond <binary executable to watch>
+//      other descriptive data here, including dependencies
+//      
+//
+//	Written by Steve " 'dillo" Okay <armadilo@gothpunk.com>
+// -----------------------------------------------------------------------
+
 
 #include <unistd.h>
 #include <stdarg.h>
