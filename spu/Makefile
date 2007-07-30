@@ -22,6 +22,17 @@ CFLAGS = -Wall -g -O3 -D_REENTRANT
 # -----------------------------------------------------------------------
 # Makefile script for generating spu binary 
 
+#A few useful targets
+#all - should be obvious
+#test - Make just the test utilities(and everything they fold in)
+#app - Make the SPU-resident binaries:spu, mainloop, spumond, etc. 
+#util - Make the utilities readcom writecom and setled
+
+all: app test util
+app: spu spumond mainloop
+test: testspuutils logtest gpsconvtest 
+util: readcom writecom setled
+
 testspuutils: testspuutils.o swarmspuutils.o
 	$(CC) $(LIBS) $(CFLAGS) testspuutils.o swarmspuutils.o -o testspuutils
 
