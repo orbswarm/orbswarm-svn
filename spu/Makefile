@@ -14,9 +14,9 @@ NATIVECC = gcc
 # select them here
 # (I'm sure there's a more elegant way to do this...)
 
-CC = $(CYGWINCC)
+CC = $(LINUXCC)
 #CC = $(NATIVECC)
-CPP = $(CYGWINCPP)
+CPP = $(LINUXCPP)
 CFLAGS = -Wall -g -O3 -D_REENTRANT 
 
 # -----------------------------------------------------------------------
@@ -83,6 +83,8 @@ mainloop: mainloop.o swarmserial.o swarmspuutils.o
 mainloop.o: $(SRC)/mainloop.cc $(SRC)/swarmserial.cc $(SRC)/swarmspuutils.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h 
 	$(CC) $(CFLAGS)-c $(SRC)/mainloop.cc
 
+heading.o: $(SRC)/heading.cc $(SRC)/swarmserial.cc $(SRC)/swarmspuutils.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h $(INC)/heading.h 
+	$(CC) $(CFLAGS)-c $(SRC)/heading.cc
 
 swarmserial.o: $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h
 	$(CC) $(CFLAGS)-c $(SRC)/swarmserial.cc
