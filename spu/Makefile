@@ -28,6 +28,8 @@ CFLAGS = -Wall -g -O3 -D_REENTRANT
 #app - Make the SPU-resident binaries:spu, mainloop, spumond, etc. 
 #util - Make the utilities readcom writecom and setled
 
+#transfer: send all app files to all orb SPUs in reach
+
 all: app test util
 app: spu spumond mainloop
 test: testspuutils logtest gpsconvtest 
@@ -99,6 +101,10 @@ heading.o: $(SRC)/heading.cc $(SRC)/swarmserial.cc $(SRC)/swarmspuutils.cc $(INC
 
 swarmserial.o: $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h
 	$(CC) $(CFLAGS)-c $(SRC)/swarmserial.cc
+
+transfer: 
+	/bin/sh ./transfer.sh spu spumond mainloop
+
 
 clean:
 	rm *.o 

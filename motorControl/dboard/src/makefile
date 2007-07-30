@@ -4,7 +4,7 @@
 
 
 # set avrdude COM port here
-COM = COM6
+COM = COM4
 
 
 # default target when "make" is run w/o arguments

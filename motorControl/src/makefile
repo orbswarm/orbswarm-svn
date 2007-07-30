@@ -3,7 +3,7 @@
 # Compiled using avr-gcc 4.02-1
 
 # set avrdude COM port here
-COM = COM6
+COM = COM5
 
 
 # default target when "make" is run w/o arguments
