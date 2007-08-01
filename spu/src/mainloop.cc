@@ -15,6 +15,7 @@
 
 int main(int argc, char *argv[]) 
 {
+
   int com1=0; /* File descriptor for the port */
   int com2=0; /* File descriptor for the port */
   int com3=0, com4=0, com5=0; 	/* ditto */
@@ -25,13 +26,15 @@ int main(int argc, char *argv[])
   char *gps_start_str = GPS_START_DELIM; // string to indicate start of GPS data
   char *gps_stop_str = GPS_STOP_DELIM; // string to indicate end of GPS data
   int bytes2 = 0;
+  char *gpsQueryString = "$Ag*";
+  
   int             max_fd;
   fd_set          input;
   struct timeval tv;
   //  com1 = initSerialPort("/dev/ttyAM0", 38400);
   com2 = initSerialPort("/dev/ttyAM1", 38400);
-  //JTFB  com4 = initSerialPort(COM4, 38400);
-  //JTFB  com5 = initSerialPort(COM5, 38400);
+  com4 = initSerialPort(COM4, 38400);
+  com5 = initSerialPort(COM5, 38400);
 
   // need to find max fd for select()
   max_fd = (com2 > com1 ? com2 : com1) + 1;
@@ -76,10 +79,24 @@ int main(int argc, char *argv[])
 	 tenHzticks = 0;
 	 toggleSpuLed(SPU_LED_RED_OFF);  
        }
+
+
+       // Poll aggregator to get IMU data
+       writeCharsToSerialPort(com2, gpsQueryString, strlen(gpsQueryString));
+       readCharsFromSerialPort(com2, buffer, &bytes2,MAX_BUFF_SZ); 
+       buffer[bytes2+1] = '\0';
+       if(bytes2){
+	 if (VERBOSE) printf("\n GPS sentence is \"%s\"\n",buffer);
+       }
+
        if (VERBOSE){ 
 	 printf("main loop tick %d\n",tenHzticks);
 	 fflush(stdout);
        }
+
+
+
+
      }
      else { // we have I/O so deal with it 
        if (FD_ISSET(com2, &input)) // if serial input on COM2
@@ -90,10 +107,12 @@ int main(int argc, char *argv[])
 	   //Read data from com2
 	   readCharsFromSerialPort(com2, buffer, &bytes2,MAX_BUFF_SZ); 
 	   buffer[bytes2+1] = '\0';
-	   if (VERBOSE) printf("\n Read \"%s\" from  com2\n",buffer);
-	   
-	   //write data to com5
-	   if (VERBOSE) printf("\nWriting back to com5 \n");
+	   if(bytes2){
+	     if (VERBOSE) printf("\n Read \"%s\" from  com2\n",buffer);
+	     
+	     //write data to com5
+	     if (VERBOSE) printf("\nWriting back to com5 \n");
+	   }	
 	 }
        if(FD_ISSET(com4, &input)){ // if serial input on COM4
 	 

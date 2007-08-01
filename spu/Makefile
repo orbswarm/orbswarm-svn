@@ -14,9 +14,9 @@ NATIVECC = gcc
 # select them here
 # (I'm sure there's a more elegant way to do this...)
 
-CC = $(LINUXCC)
+CC = $(CYGWINCC)
 #CC = $(NATIVECC)
-CPP = $(LINUXCPP)
+#CPP = $(LINUXCPP)
 CFLAGS = -Wall -g -O3 -D_REENTRANT 
 
 # -----------------------------------------------------------------------
@@ -38,7 +38,7 @@ util: readcom writecom setled
 testspuutils: testspuutils.o swarmspuutils.o
 	$(CC) $(LIBS) $(CFLAGS) testspuutils.o swarmspuutils.o -o testspuutils
 
-testspuutils.o: $(SRC)/testspuutils.cc $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmdefines.h
+testspuutils.o: $(TEST)/testspuutils.cc $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmdefines.h
 	$(CC) $(CFLAGS)-c $(SRC)/testspuutils.cc
 
 setled: setled.o swarmspuutils.o

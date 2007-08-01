@@ -1,10 +1,14 @@
 #!/bin/sh
 
-# install.sh: FTP the argument file to a list of orbs
+# install.sh: FTP the argument file(s) to a list of orbs
 # written by JTF
 
+# this are the last IP numbers of all orbs
 orbList="60 61 62 63 64 65 66"
+orbList="63"
+# conncatenate the above with this prefix to get full IP addr
 iprefix="192.168.1."
+
 
 fname=${1}
 for orb in ${orbList}
@@ -20,13 +24,13 @@ for orb in ${orbList}
 # ping dest to see if connected, 1 ping, 1000 ms timeout
 # ping on different machines have different syntaxes: check this is OK for yers
 
-  ping   -n 1  -w 1000 ${iprefix}${orb}
+  ping   -n 1  -w 500 ${iprefix}${orb}
 # if ping was OK
   if [ $?  == 0 ]
       then
 # if reachable, transfer file
-      echo ftp -s:ftpcommands ${iprefix}${orb}
- #     ftp -s:ftpcommands ${iprefix}${orb}
+ #     echo ftp -s:ftpcommands ${iprefix}${orb}
+      ftp -s:ftpcommands ${iprefix}${orb}
   else
       echo "oops - "${orb}" not reachable"
   fi
