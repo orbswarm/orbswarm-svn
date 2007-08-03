@@ -17,6 +17,8 @@ enum ELinkPacketType {
   eLinkLoopback,
   eLinkSonar,
   eLinkAck,
+  eLinkNullMsg,
+  eLinkSpuMsg, //poll from the spu for GPS or XBee data
   eLinkLastPacketType
 };
 

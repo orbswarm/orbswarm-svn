@@ -1,7 +1,8 @@
-#include <stdlib.h>
+//#include <stdlib.h>
 #include <swarm_messaging.h>
 #include "include/gps.h"
 #include <packet_type.h>
+
 
 volatile static int gps_rx_state=eGpsStraightSerialRxInit;
 volatile static int gps_rx_is_error=0;
@@ -31,46 +32,109 @@ static void debug(const char* debugMsg)
 
 static void initGpsMsgStart(unsigned char c)
 {
-  gps_rx_state=eGpsStraightSerialRxStartMsg;
   gps_rx_state_byte_num=0;
   gps_rx_is_error=0;
   gps_rx_packet.swarm_msg_type=eLinkNMEA;
   gps_rx_packet.swarm_msg_payload[gps_rx_state_byte_num]=c;
 }
 
-void handleGpsSerial(unsigned char c, int isError)
+ //we are interested in only these messages
+  //$GPGGA,000243.000,3743.980645,N,12222.595411,W,1,8,1.18,28.298,M,-25.322,M,,*52
+void dummyHandleGpsSerial(unsigned char c, int isError)
 {
   debugCallback();
-  //debug("in handle");
+  debug("dummy");
+}
+
+void handleGpsSerial(unsigned char c, int isError)
+{
   //if it's an error flag and discard till the start of the next message
   if(isError){
-    //debugCallback();
     gps_rx_is_error=isError;
     return;
   }
   switch(gps_rx_state){
   case eGpsStraightSerialRxInit:
     if('$'==c){
-      //debugCallback();
       initGpsMsgStart(c);
-    }
-    break;
-  case eGpsStraightSerialRxStartMsg:
-    if('$' ==c){
-      //empty message
-      initGpsMsgStart(c);
-    }
-    else{
       gps_rx_state=eGpsStraightSerialRxPayload;
-      gps_rx_state_byte_num++;
-      gps_rx_packet.swarm_msg_payload[gps_rx_state_byte_num]=c;
     }
     break;
-  case eGpsStraightSerialRxPayload:
+  case eGpsStraightSerialRxPayload://$G
+    if('$'==c){
+      initGpsMsgStart(c);
+      gps_rx_state=eGpsStraightSerialRxPayload;
+    }
+    else if('G' ==c)
+      {
+	gps_rx_state_byte_num++;
+	gps_rx_packet.swarm_msg_payload[gps_rx_state_byte_num]=c;
+	gps_rx_state=eGpsStraightSerialRxPayloadG;
+      }
+    else
+      gps_rx_state=eGpsStraightSerialRxDiscard;
+    break;
+  case eGpsStraightSerialRxPayloadG://$GP
+    if('$'==c){
+      initGpsMsgStart(c);
+      gps_rx_state=eGpsStraightSerialRxPayload;
+    }
+    else if('P' ==c)
+      {
+	gps_rx_state_byte_num++;
+	gps_rx_packet.swarm_msg_payload[gps_rx_state_byte_num]=c;
+	gps_rx_state=eGpsStraightSerialRxPayloadGP;
+      }
+    else
+      gps_rx_state=eGpsStraightSerialRxDiscard;
+    break;
+  case eGpsStraightSerialRxPayloadGP://$GPG
+    if('$'==c){
+      initGpsMsgStart(c);
+      gps_rx_state=eGpsStraightSerialRxPayload;
+    }
+    else if('G' ==c)
+      {
+	gps_rx_state_byte_num++;
+	gps_rx_packet.swarm_msg_payload[gps_rx_state_byte_num]=c;
+	gps_rx_state=eGpsStraightSerialRxPayloadGPG;
+      }
+    else
+      gps_rx_state=eGpsStraightSerialRxDiscard;
+    break;
+  case eGpsStraightSerialRxPayloadGPG://$GPGG
+    if('$'==c){
+      initGpsMsgStart(c);
+      gps_rx_state=eGpsStraightSerialRxPayload;
+    }
+    else if('G' ==c)
+      {
+	gps_rx_state_byte_num++;
+	gps_rx_packet.swarm_msg_payload[gps_rx_state_byte_num]=c;
+	gps_rx_state=eGpsStraightSerialRxPayloadGPGG;
+      }
+    else
+      gps_rx_state=eGpsStraightSerialRxDiscard;
+    break;
+  case eGpsStraightSerialRxPayloadGPGG://$GPGGA
+    if('$'==c){
+      initGpsMsgStart(c);
+      gps_rx_state=eGpsStraightSerialRxPayload;
+    }
+    else if('A' ==c)
+      {
+	gps_rx_state_byte_num++;
+	gps_rx_packet.swarm_msg_payload[gps_rx_state_byte_num]=c;
+	gps_rx_state=eGpsStraightSerialRxPayloadGPGGA;
+      }
+    else
+      gps_rx_state=eGpsStraightSerialRxDiscard;
+    break;
+  case eGpsStraightSerialRxPayloadGPGGA:
      if('$'==c)
        {
 	 //if not error first dispatch old message
-	 if(!isError){
+	 if(!gps_rx_is_error){
 	   gps_rx_packet.swarm_msg_length[0] = 
 	     (unsigned char)(gps_rx_state_byte_num>>8);
 	   gps_rx_packet.swarm_msg_length[1] = (unsigned char)gps_rx_state_byte_num;
@@ -78,6 +142,8 @@ void handleGpsSerial(unsigned char c, int isError)
 	   pushQ(gps_rx_packet);
 	 }
 	 initGpsMsgStart(c);
+         gps_rx_state=eGpsStraightSerialRxPayload;
+  
        }
      else
        {
@@ -88,10 +154,14 @@ void handleGpsSerial(unsigned char c, int isError)
 	 //else ignore till the end
        }
      break;
-     //default:
-    //debugCallback();
+  case eGpsStraightSerialRxDiscard:
+    if('$' ==c){
+      initGpsMsgStart(c);
+      gps_rx_state=eGpsStraightSerialRxPayload;
+    }
+    break;
   }
-  //debugCallback();
+
 }
 
 void handleGpsSerialBuf(const char* buf, long nNumBytes)
@@ -101,3 +171,4 @@ void handleGpsSerialBuf(const char* buf, long nNumBytes)
       handleGpsSerial((unsigned char)buf[i], 0);
     }
 }
+

@@ -1,4 +1,4 @@
-#include <stdlib.h>
+//#include <stdlib.h>
 #include <swarm_messaging.h>
 #include "include/xbee.h"
 #include <packet_type.h>
@@ -72,7 +72,7 @@ void handleXbeeSerial(unsigned char c, int isError)
      if('$'==c)
        {
 	 //if not error first dispatch old message
-	 if(!isError){
+	 if(!xbee_rx_is_error){
 	   xbee_rx_packet.swarm_msg_length[0] = 
 	     (unsigned char)(xbee_rx_state_byte_num>>8);
 	   xbee_rx_packet.swarm_msg_length[1] = (unsigned char)xbee_rx_state_byte_num;
