@@ -22,10 +22,13 @@ int main(int argc, char *argv[])
   int n;
   int tenHzticks = 0;
   char buffer[MAX_BUFF_SZ + 1];
+  int gps_byte_index = 0;
+  bool end_gps_sentance = false;
 
   char *gps_start_str = GPS_START_DELIM; // string to indicate start of GPS data
   char *gps_stop_str = GPS_STOP_DELIM; // string to indicate end of GPS data
   int bytes2 = 0;
+  int total_gps_bytes = 0;
   char *gpsQueryString = "$Ag*$";
   
   int             max_fd;
@@ -58,14 +61,14 @@ int main(int argc, char *argv[])
      tv.tv_usec = 100000; // 100 ms or 10 hz
 
      /* Do the select */
-     n = select(max_fd, &input, NULL, NULL,&tv);
+     //n = select(max_fd, &input, NULL, NULL,&tv);
 
      /* test for errors */
      if (n <0){
        printf("Error during select\n");
        continue;
      }
-
+     n = 0;
      ///////////////////////////// MAIN LOOP //////////////////////////
      if(!n){ // no I/O activity, so handle main loop here
        
@@ -82,11 +85,42 @@ int main(int argc, char *argv[])
 
 
        // Poll aggregator to get IMU data
+       
+       printf("START GPS TRANSACTION**********\n"); 
        writeCharsToSerialPort(com2, gpsQueryString, strlen(gpsQueryString));
+       usleep(25000);
        readCharsFromSerialPort(com2, buffer, &bytes2,MAX_BUFF_SZ); 
-       //
+       /*
+       total_gps_bytes = 0;
+       while(1)  
+       {
+         printf("START GPS READ LOOP\n"); 
+         total_gps_bytes += bytes2;
+         printf("NUM BYTES READ: %d\n",total_gps_bytes); 
+         for(gps_byte_index = 0; gps_byte_index < total_gps_bytes ; gps_byte_index++)   
+         {
+         
+           //printf("READ GPS BYTE: %c\n",buffer[gps_byte_index]); 
+           if(buffer[gps_byte_index] == '\n')
+           {
+             printf("FOUND NEWLINE\n",buffer[gps_byte_index]); 
+             end_gps_sentance = true;   
+             break;
+           }
+         }
+         if(end_gps_sentance == true)
+         {
+           break;
+         }
+         printf("CALLING READ A SECOND TIME\n"); 
+         readCharsFromSerialPort(com2, &buffer[total_gps_bytes], &bytes2,MAX_BUFF_SZ - total_gps_bytes); 
+       }
+        bytes2 = total_gps_bytes; 
+       */
+
 	 buffer[bytes2+1] = '\0';
-	 if(bytes2){
+       //printf("END GPS TRANSACTION********** SENT%s\n",buffer); 
+	 if(!bytes2){
 	 if (VERBOSE) printf("\n GPS sentence is \"%s\"\n",buffer);
 	 }
        //
