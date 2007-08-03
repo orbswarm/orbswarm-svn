@@ -47,7 +47,7 @@ arduino_upload: $(MYBIN)/$(TARGET).hex
 ###set up is usb --> keyspan --> stk DB9 
 AVRDUDE=avrdude
 AVRDUDE_PROGRAMMER = stk500v2
-AVRDUDE_PORT = /dev/cu.KeySerial1 
+AVRDUDE_PORT = /dev/tty.USA19H1b1P1.1 
 UPLOAD_RATE = 115200
 AVRDUDE_WRITE_FLASH = -U flash:w:$(MYBIN)/$(TARGET).hex
 AVRDUDE_FLAGS = -e -p $(MCU) -b $(UPLOAD_RATE) -P $(AVRDUDE_PORT) \
@@ -176,16 +176,27 @@ $(MYBIN)/%.hex : $(MYBIN)/%.elf
 $(MYBIN)/%.elf: $(MYBIN)/%.o  
 	@echo
 	@echo $(MSG_LINKING) $@
-		$(CC) $(ALL_CFLAGS)  $<  $(LIB_BIN)/timer0.o $(LIB_BIN)/uart.o $(LIB_BIN)/spu.o  $(LIB_BIN_GLOBAL)/gps.o $(LIB_BIN_GLOBAL)/xbee.o $(LIB_BIN_GLOBAL)/swarm_messaging.o $(LDFLAGS) -o $@ 
-#	$(CC) $(ALL_CFLAGS)  $<  --output $@
+		$(CC) $(ALL_CFLAGS)  $<  $(LIB_BIN)/timer0.o $(LIB_BIN)/uart.o $(LIB_BIN_GLOBAL)/gps.o $(LIB_BIN_GLOBAL)/spu.o $(LIB_BIN_GLOBAL)/xbee.o $(LIB_BIN_GLOBAL)/swarm_messaging.o $(LDFLAGS) -o $@ 
+
+
+#$(MYBIN)/%.elf: $(MYBIN)/%.o  
+#	@echo
+#	@echo $(MSG_LINKING) $@
+#		$(CC) $(ALL_CFLAGS)  $<  $(LIB_BIN)/timer0.o $(LIB_BIN)/uart.o  $(LIB_BIN_GLOBAL)/swarm_messaging.o $(LDFLAGS) -o $@ 
+
 
 
 
 # Compile: create object files from C source files.
-$(MYBIN)/%.o : $(MYSRC)/%.c $(LIB_BIN_GLOBAL)/xbee.o  $(LIB_BIN_GLOBAL)/gps.o $(GLOBAL_SHARED_INCLUDE)/swarm_messaging.h $(GLOBAL_SHARED_INCLUDE)/packet_type.h $(LIB_SRC)/timer0.h  $(LIB_SRC)/uart.h  $(LIB_SRC)/spu.h
+$(MYBIN)/%.o : $(MYSRC)/%.c $(LIB_BIN_GLOBAL)/xbee.o  $(LIB_BIN_GLOBAL)/gps.o  $(LIB_BIN_GLOBAL)/spu.o $(GLOBAL_SHARED_INCLUDE)/swarm_messaging.h $(GLOBAL_SHARED_INCLUDE)/packet_type.h $(LIB_SRC)/timer0.h  $(LIB_SRC)/uart.h 
 	@echo
 	@echo $(MSG_COMPILING) $<
 	$(CC) $(ALL_CFLAGS) -c $< -o $@
+
+#$(MYBIN)/%.o : $(MYSRC)/%.c $(GLOBAL_SHARED_INCLUDE)/swarm_messaging.h $(GLOBAL_SHARED_INCLUDE)/packet_type.h $(LIB_SRC)/timer0.h  $(LIB_SRC)/uart.h 
+#	@echo
+#	@echo $(MSG_COMPILING) $<
+#	$(CC) $(ALL_CFLAGS) -c $< -o $@
 
 
 # Target: clean project.

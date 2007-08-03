@@ -2,7 +2,7 @@
 LIB_SRC= $(SVN_TRUNK)/aggregator/aggregator_src/c/shared
 LIB_BIN = $(SVN_TRUNK)/aggregator/binaries/shared
 LIB_BIN_GLOBAL = $(LIB_BIN)/global
-build_lib: $(LIB_BIN)/timer0.o $(LIB_BIN)/uart.o $(LIB_BIN)/spu.o $(LIB_BIN_GLOBAL)/swarm_messaging.o $(LIB_BIN_GLOBAL)/xbee.o  $(LIB_BIN_GLOBAL)/gps.o
+build_lib: $(LIB_BIN)/timer0.o $(LIB_BIN)/uart.o $(LIB_BIN_GLOBAL)/spu.o $(LIB_BIN_GLOBAL)/swarm_messaging.o $(LIB_BIN_GLOBAL)/xbee.o  $(LIB_BIN_GLOBAL)/gps.o
 #build_lib: $(LIB_BIN)/timer0.o
 		
 $(LIB_BIN)/%.o : $(LIB_SRC)/%.c	

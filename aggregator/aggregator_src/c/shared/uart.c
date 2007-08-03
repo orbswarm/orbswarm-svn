@@ -48,8 +48,10 @@ ISR(SIG_USART0_RECV)
 
 ISR(SIG_USART1_RECV)
 {
+ 
   int nErrors=0;
-  (* _handleGpsARecv)(UDR1, nErrors);
+  (*_handleGpsARecv)(UDR1, nErrors);
+  
 }
 
 void sendGPSAMsg(const unsigned char *s)
@@ -117,7 +119,7 @@ void sendGPSBMsg(const unsigned char *s)
 
 void sendDebugMsg(const char *s)
 {
-  sendSpuMsg((unsigned char*)s);
+  //sendSpuMsg((unsigned char*)s);
 }
 
 int uart_init(void (*handleXBeeRecv)(unsigned char c, int isError),
@@ -126,27 +128,36 @@ int uart_init(void (*handleXBeeRecv)(unsigned char c, int isError),
 {
   //Set up XBee on USART3
   //Asynchronous UART, no parity, 1 stop bit, 8 data bits, 38400 baud
+  //
   UCSR3B = (1<<RXCIE3) | (1<<RXEN3) | (1<<TXEN3);
   UCSR3C = (1<<UCSZ31) | (1<< UCSZ30);
   UBRR3 = 23;
   _handleXBeeRecv=handleXBeeRecv;
+  //
+  //
   //Set up SPU on USART0
   //Asynchronous UART, no parity, 1 stop bit, 8 data bits, 38400 baud
   UCSR0B = (1<<RXCIE0) | (1<<RXEN0) | (1<<TXEN0);
   UCSR0C = (1<<UCSZ01) | (1<< UCSZ00);
   UBRR0 = 23;
   _handleSpuRecv  = handleSpuRecv;
+  //
+  
   //Set up GPSA
+  //
   UCSR1B = (1<<RXCIE1) | (1<<RXEN1) | (1<<TXEN1);
   UCSR1C = (1<<UCSZ11) | (1<< UCSZ10);
   UBRR1 = 23;
   _handleGpsARecv = handleGpsARecv;
+  //
+
+
   //set up GPSB
-  UCSR2B = (1<<RXCIE2) | (1<<RXEN2) | (1<<TXEN2);
-  UCSR2C = (1<<UCSZ21) | (1<< UCSZ20);
-  UBRR2 = 23;
+  //UCSR2B = (1<<RXCIE2) | (1<<RXEN2) | (1<<TXEN2);
+  //UCSR2C = (1<<UCSZ21) | (1<< UCSZ20);
+  //UBRR2 = 23;
   //insert handler here later
 
-  sei();
+  //sei();
   return 0;
 }
