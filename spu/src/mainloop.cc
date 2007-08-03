@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
   char *gps_start_str = GPS_START_DELIM; // string to indicate start of GPS data
   char *gps_stop_str = GPS_STOP_DELIM; // string to indicate end of GPS data
   int bytes2 = 0;
-  char *gpsQueryString = "$Ag*";
+  char *gpsQueryString = "$Ag*$";
   
   int             max_fd;
   fd_set          input;
@@ -84,11 +84,41 @@ int main(int argc, char *argv[])
        // Poll aggregator to get IMU data
        writeCharsToSerialPort(com2, gpsQueryString, strlen(gpsQueryString));
        readCharsFromSerialPort(com2, buffer, &bytes2,MAX_BUFF_SZ); 
-       buffer[bytes2+1] = '\0';
-       if(bytes2){
+       //
+	 buffer[bytes2+1] = '\0';
+	 if(bytes2){
 	 if (VERBOSE) printf("\n GPS sentence is \"%s\"\n",buffer);
-       }
-
+	 }
+       //
+       //now parse GPS sentence
+       //
+       swarmGpsData * gpsdata = NULL;
+       int status = SWARM_SUCCESS;
+       gpsdata = (swarmGpsData*) malloc(sizeof(struct swarmGpsData)); 
+       strcpy(gpsdata->gpsSentence,buffer);
+       status = parseGPSSentence(gpsdata);
+       if(status == SWARM_SUCCESS)
+	 { 
+	   if(VERBOSE)
+	     printf("\n Parsed line %s \n",gpsdata->gpsSentence);
+	   status = convertNMEAGpsLatLonDataToDecLatLon(gpsdata);
+	   if(status == SWARM_SUCCESS)
+	     {
+	       if(VERBOSE)
+		 printf("\n Decimal lat:%Lf lon:%Lf utctime:%s \n",gpsdata->latdd,gpsdata->londd,gpsdata->nmea_utctime);
+          
+	       decimalLatLongtoUTM(WGS84_EQUATORIAL_RADIUS_METERS, WGS84_ECCENTRICITY_SQUARED, gpsdata);
+	        if(VERBOSE)
+		  printf("Northing:%f,Easting:%f,UTMZone:%s\n",gpsdata->UTMNorthing,gpsdata->UTMEasting,gpsdata->UTMZone);
+	     }
+        
+	 }
+       else
+	 printf("\n Failed GPS parse status=%i", status);
+       free(gpsdata);
+       //
+       //end GPS parse
+       
        if (VERBOSE){ 
 	 printf("main loop tick %d\n",tenHzticks);
 	 fflush(stdout);
