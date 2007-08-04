@@ -1,0 +1,50 @@
+The Iluuminator board listens to the serial port for commands of the form
+
+"<"-"L"-optionalAddress-commandChar-optIntData-">"
+
+All commands are prefixed with <L and suffixed with > to indicate end of data
+
+optionalAddress is a 1-char integer between 0 and 9. If this is
+specified, only boards with that address will respond. If not
+specified, all boards will respond.
+
+optIntData is unsigned short or unsigned char integer data in one or
+more ascii characters. Not every command has data.
+
+CommandChar is one of the following:
+
+ (These "immediate" commands don't take an integer argument, but they
+ do something)
+
+'F' -- execute fade program from current color to target color
+    Example <LF> -- execute fade on all boards
+
+'P' -- execute pulse program with current color and target color pulses
+    Example <L2P> -- execute pulse only on board 2
+
+'Z' -- execute sawtooth program. Vary between current color and target color.
+    Example <L0Z> -- execute sawtooth on board 0
+
+The remaining commands take an integer argument N (but nothing will
+happen until one of the immediate commands (F,P,Z) is called.)
+
+'H' -- set target hue to N. 
+    Example: <LH64> -- set target hue to 64 on all boards
+
+'V' -- set target value to N. 
+    Example: <LV0> -- set target val to 0 on all boards
+
+'S' -- set target saturation  to N. 
+    Example: <LS255> -- set target to 255 on all boards
+
+'T' -- set time to N milliseconds
+    Example: <LT1000> -- set program time to 1 second on all boards
+
+'A' -- set board address to N
+    Example: <L1A5> Changes any boards at address 1 to address 5. 
+    (Using this command without an address is a bad idea with multiple boards.)
+    
+
+Commands are cumulative: to turn all illuminators off immediately,
+send a value of zero to all, then execute a fade with a zero time
+value, in other words send the string "<LV0><LT0><LF>"
