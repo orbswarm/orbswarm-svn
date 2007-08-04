@@ -19,7 +19,6 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-#include "USI_UART_config.h"
 #include "UART.h"
 #include "putstr.h"		/* you can eliminate this entirely to save mem */
 #include "illuminator.h"	/* contains illuminatorStruct definition */
@@ -52,9 +51,6 @@ int main( void ){
   UART_Init(11); // 12 = 38.4k when system clock is 8Mhz (AT Tiny2313) 
   //11 = 38.4K for 7.37MHz xtal 
   // 51 = 9600 baud when system clock is 8Mhz
-  
-  //USI_UART_Flush_Buffers();
-  //USI_UART_Initialise_Receiver(); // Initialisation for USI Rx/Tx
   
   
   putstr("\r\n...Illuminator says hello...\r\n"); // DBG_REMOVE

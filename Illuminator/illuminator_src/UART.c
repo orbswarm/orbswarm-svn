@@ -1,13 +1,12 @@
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 // UART.c
 // Routines for interrupt controlled UART
 // Last modified: 30-July-2007
 // Modified by: MrPete from AVR sample code.
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 
 /* Includes */
 #include <avr/io.h>
-#include <avr/signal.h>
 #include <avr/interrupt.h>
 
 #include "UART.h"
@@ -38,7 +37,7 @@ static volatile unsigned char UART_TxTail;
 static unsigned char UART_RxBuf[UART_RX_BUFFER_SIZE];
 static unsigned char UART_TxBuf[UART_TX_BUFFER_SIZE];
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------
 // Init UART - Enable Rx Interrupts
 
 void UART_Init( unsigned int baud ) 
@@ -60,7 +59,7 @@ void UART_Init( unsigned int baud )
 	UCSRB |= (1<<RXCIE);						/* Enable Rx Complete interrupt */
 }
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------
 // Interrupt handlers - UART Rx vector
 
 SIGNAL(SIG_USART0_RX)
@@ -81,7 +80,7 @@ SIGNAL(SIG_USART0_RX)
 	UART_RxBuf[tmphead] = data; /* Store received data in buffer */
 }
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------
 // Interrupt handler - UART Tx vector for Data Register Empty - UDRE
 
 SIGNAL(SIG_USART0_UDRE)
@@ -103,7 +102,7 @@ SIGNAL(SIG_USART0_UDRE)
 	}
 }
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------
 // Check if there are any bytes waiting in the input ring buffer.
 
 unsigned char UART_data_in_ring_buf( void )
@@ -111,14 +110,14 @@ unsigned char UART_data_in_ring_buf( void )
 	return ( UART_RxHead != UART_RxTail ); /* Return 0 (FALSE) if the receive buffer is empty */
 }
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------
 // Pull 1 byte from Ring Buffer of bytes received from USART
 
 unsigned char UART_ring_buf_byte( void )
 {
 	unsigned char tmptail;
 	
-	while ( UART_RxHead == UART_RxTail )  /* Wait for incomming data */
+	while ( UART_RxHead == UART_RxTail )  /* Wait for incoming data */
 		;
 	tmptail = ( UART_RxTail + 1 ) & UART_RX_BUFFER_MASK;/* Calculate buffer index */
 	
@@ -127,7 +126,7 @@ unsigned char UART_ring_buf_byte( void )
 	return UART_RxBuf[tmptail];           /* Return data */
 }
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------
 // Put byte into ring buffer - use interupts to send strings
 
 void UART_send_byte( unsigned char data )
@@ -152,8 +151,7 @@ void UART_Transmit( unsigned char data )
 		; 
 	/* Put data into buffer, sends the data */ 
 	UDR = data; 
-}
 
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------
 // End of File

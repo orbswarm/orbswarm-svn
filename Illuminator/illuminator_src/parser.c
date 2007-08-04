@@ -46,19 +46,19 @@ void parseCommand(){
   case 'F':	
     putstr("Got fade command \r\n");
     /* dispatch fade command here */
-    //showFade(illum);
+    //doFade(illum);
     break;
 
   case 'P': 
     putstr("Got pulse command \r\n");
     /* dispatch pulse command here */
-    //showPulse(illum);
+    //doPulse(illum);
     break;
 
   case 'Z':
     putstr("Got sawtooth command \r\n");
     /* dispatch saw command here */
-    //showSawtooth(illum);
+    //doSawtooth(illum);
     break;
 
   // everything from here down is data parsing; nothing executable
@@ -66,21 +66,21 @@ void parseCommand(){
     putstr("Got hue: ");
     putS16( intData );
     putstr("\r\n");			
-    illum.Hue = (unsigned char) intData;
+    illum.tHue = (unsigned char) intData;
     break;
     
   case 'S':	// set the hue
     putstr("Got sat: ");
     putS16( intData );
     putstr("\r\n");			
-    illum.Sat = (unsigned char) intData;
+    illum.tSat = (unsigned char) intData;
     break;
     
   case 'V':	// set the hue
     putstr("Got val: ");
     putS16( intData );
     putstr("\r\n");			
-    illum.Val = (unsigned char) intData;
+    illum.tVal = (unsigned char) intData;
       break;
       
   case 'T':	// set the time
