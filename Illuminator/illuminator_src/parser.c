@@ -15,7 +15,7 @@ unsigned char commandLen = 0;
 
 void parseCommand(){
   unsigned short intData=0; // holds numerical value of input data
-  unsigned char charPos = 1;	// start with first char past the "<"
+  unsigned char charPos=1;	// start with first char past the "<"
   
   /* if command does not start with L then they ain't talking to us */
   if(commandStr[charPos++] != 'L') {
@@ -43,6 +43,7 @@ void parseCommand(){
   
   switch (commandStr[charPos]) {
     
+
   case 'F':	
     putstr("Got fade command \r\n");
     /* dispatch fade command here */

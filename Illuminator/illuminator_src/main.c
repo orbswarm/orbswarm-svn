@@ -56,11 +56,15 @@ int main( void ){
   putstr("\r\n...Illuminator says hello...\r\n"); // DBG_REMOVE
   
   /* init data structure */
-  illum.Addr = 0; 		/* may want to set this from DIP or serial */
-  illum.Hue=0;
-  illum.Sat=0;
-  illum.Val=0;
+  illum.Addr = 0; 		/* may want to set this from DIP? */
+  illum.H=0;
+  illum.S=0;
+  illum.V=0;
+  illum.tHue=0;
+  illum.tSat=0;
+  illum.tVal=0;
   illum.Time=0;
+  illum.Now=0;
   // =======================================================
   
   
