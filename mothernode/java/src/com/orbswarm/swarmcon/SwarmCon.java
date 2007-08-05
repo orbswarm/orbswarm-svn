@@ -63,18 +63,27 @@ public class SwarmCon extends JFrame
                }
          };
 
-         /** arena in which we play */
+         /** card layout for main view area */
+
+      CardLayout cardLayout;
+
+         /** center panel which is the main view area */
+
+      JPanel centerPanel;
+
+         /** pid tuner object */
 
       public PidTuner tuner;
 
          /** communcation with the outside world */
       
-         //OrbIo orbIo;
+      OrbIo orbIo;
 
          // color
 
       public static Color BACKGROUND    = WHITE;
       public static Color TEXT_CLR      = new Color(  0,   0,   0, 128);
+      public static Color MENU_CLR      = new Color(  0,   0,   0, 128);
       public static Color ORB_CLR       = new Color(196, 196, 196);
       public static Color ORB_FRAME_CLR = new Color( 64,  64,  64);
       public static Color SEL_ORB_CLR   = new Color(255, 196, 255);
@@ -83,6 +92,8 @@ public class SwarmCon extends JFrame
                                                    Font.PLAIN, 15);
       public static Font  ORB_FONT      =  new Font("Helvetica", 
                                                     Font.PLAIN, 10);
+      public static Font  MENU_FONT      =  new Font("Helvetica", 
+                                                    Font.PLAIN, 15);
 
       static
       {
@@ -106,7 +117,7 @@ public class SwarmCon extends JFrame
 
       public static Font BUTTON_FONT = (new Font("Lucida Grande",
                                                  Font.PLAIN, 1)).
-                                        deriveFont(2f);
+                                        deriveFont(4f);
 
          // fix font sizes
 
@@ -115,10 +126,6 @@ public class SwarmCon extends JFrame
 
       Swarm swarm;
 
-         /** gui related mobjects */
-
-      Mobjects guis = new Mobjects();
-      
          /** selected objects */
 
       Mobjects selected = new Mobjects();
@@ -157,10 +164,6 @@ public class SwarmCon extends JFrame
 
       public SwarmCon()
       {
-            // create OrbIo instance
-         
-            //orbIo = new OrbIo("/dev/cu.usbserial0");
-
             // construct the frame
          
          constructFrame(getContentPane());
@@ -172,7 +175,7 @@ public class SwarmCon extends JFrame
          
             // if full screen is supported setup frame accoringly 
          
-         if (gv.isFullScreenSupported())
+         if (false && gv.isFullScreenSupported())
          {
             setUndecorated(true);
             setVisible(true);
@@ -187,6 +190,7 @@ public class SwarmCon extends JFrame
             setExtendedState(MAXIMIZED_BOTH);
             setVisible(true);
          }
+         cardLayout.first(centerPanel);
 
             // start the animation thread
 
@@ -293,11 +297,40 @@ public class SwarmCon extends JFrame
          
          MouseInputAdapter mia = new SwarmMia();
          
+            // create center Panel
+         
+         centerPanel = new JPanel();
+         cardLayout = new CardLayout();
+         centerPanel.setLayout(cardLayout);
+
+            // splash panel
+
+         JPanel splash = new JPanel();
+         splash.setLayout(new BoxLayout(splash, BoxLayout.Y_AXIS));
+         splash.add(Box.createVerticalGlue());
+         JButton button = new JButton(simulation);
+         splash.add(button);
+         button.setAlignmentX(Component.CENTER_ALIGNMENT);
+         button.setAlignmentY(Component.CENTER_ALIGNMENT);
+         splash.add(Box.createVerticalGlue());
+         for (String portId :OrbIo.listSerialPorts())
+         {
+            button = new JButton(new SwarmComPortAction(portId));
+            splash.add(button);
+            button.setAlignmentX(Component.CENTER_ALIGNMENT);
+            button.setAlignmentY(Component.CENTER_ALIGNMENT);
+         }
+         splash.add(Box.createVerticalGlue());
+         centerPanel.add(splash, "splash");
+
             // setup paint area
          
          arena.addMouseMotionListener(mia);
          arena.addMouseListener(mia);
-         frame.add(arena, BorderLayout.CENTER);
+         centerPanel.add(arena, "arena");
+
+
+         frame.add(centerPanel, BorderLayout.CENTER);
 
             // init Swarm
 
@@ -323,18 +356,20 @@ public class SwarmCon extends JFrame
          }
             // add menu
 
-            //JMenuBar menuBar = new JMenuBar();
-            //add(menuBar, BorderLayout.NORTH);
-            //JMenu fileMenu = new JMenu("file");
-            //menuBar.add(fileMenu);
-            //for (SwarmAction a: actions)
-            //fileMenu.add(a);
-
-            // add test button
-
-         Button b = new Button(reset);
-         guis.add(b);
-         b.setPosition(100, 100);
+         JMenuBar menuBar = new JMenuBar();
+         menuBar.setBorder(null);
+         add(menuBar, BorderLayout.NORTH);
+         JMenu fileMenu = new JMenu("file");
+         fileMenu.setForeground(MENU_CLR);
+         fileMenu.setFont(MENU_FONT);
+         menuBar.add(fileMenu);
+         for (SwarmAction a: actions)
+         {
+            JMenuItem menu = new JMenuItem(a);
+            menu.setFont(MENU_FONT);
+            menu.setForeground(MENU_CLR);
+            fileMenu.add(menu);
+         }
       }
          /** Establish the pattern of phantoms on the screen. */
 
@@ -433,16 +468,6 @@ public class SwarmCon extends JFrame
                         " V: " + round(orb.getSpeed() * 100) / 100d,
                         5, 15 + id++ * 15);
                   }
-            }
-         }
-            // draw gui objects
-
-         if (guis != null)
-         {
-            synchronized (swarm)
-            {
-               for (Mobject mobject: guis)
-                  mobject.paint(g);
             }
          }
             // set 0,0 to lower left corner, and scale for meters
@@ -647,6 +672,47 @@ public class SwarmCon extends JFrame
                return (String)getValue(NAME);
             }
       }
+         /** Action class wich selects a given serial port with witch to
+          * commucate to the orbs. */
+
+      class SwarmComPortAction extends SwarmAction
+      {
+               /** communications port id */
+
+            private String portId;
+
+               /** Construct SwarmComPortAction with a given com port
+                * id.
+                *
+                * @param portId a string representation of com port
+                */
+
+            public SwarmComPortAction(String portId)
+            {
+               super("connect via " + portId, null,
+                     "connect to orbs via serial port " + portId);
+               this.portId = portId;
+            }
+            public void actionPerformed(ActionEvent e)
+            {
+               orbIo = new OrbIo(portId);
+               cardLayout.last(centerPanel);
+            }
+      }
+         /** Action to select simulated rather live operation. */
+      
+      SwarmAction simulation = new SwarmAction(
+         "simulate orbs", 
+         getKeyStroke(VK_ENTER, 0),
+         "simulate orb motion rather then connect to live orbs")
+         {
+               public void actionPerformed(ActionEvent e)
+               {
+                  orbIo = null;
+                  cardLayout.last(centerPanel);
+               }
+         };
+
          /** Action to reset simulation state */
       
       SwarmAction reset = new SwarmAction(

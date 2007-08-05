@@ -1,1 +1,1 @@
-Main-Class: org.trebor.swarmcon.SwarmCon
+Main-Class: com.orbswarm.swarmcon.SwarmCon

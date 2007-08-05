@@ -12,7 +12,7 @@ public class Mobject
 {
          /** position of mobject in space */
 
-      private Point2D.Double position = new Point2D.Double();
+      private Point position = new Point();
 
          /** has this mobject been selected */
 
@@ -117,9 +117,9 @@ public class Mobject
       }
          // positon getter 
 
-      Point2D.Double getPosition()
+      Point getPosition()
       {
-         return new Point2D.Double(getX(), getY());
+         return new Point(getX(), getY());
       }
          // get x position
 
@@ -191,7 +191,7 @@ public class Mobject
 
       public void paint(Phantom phantom, Graphics2D g)
       {
-         Point2D.Double tmp = position;
+         Point tmp = position;
          position = phantom.getPosition();
          paint(g);
          position = tmp;

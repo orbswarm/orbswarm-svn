@@ -5,7 +5,7 @@ import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
-
+import java.util.Vector;
 import java.util.HashMap;
 import java.util.Enumeration;
 import java.io.FileDescriptor;
@@ -83,8 +83,8 @@ public class OrbIo
       {
          try
          {
-               //portId = CommPortIdentifier.getPortIdentifier(portName);
-               //open();
+            portId = CommPortIdentifier.getPortIdentifier(portName);
+            open();
          }
          catch (Exception e)
          {
@@ -95,8 +95,6 @@ public class OrbIo
 
       public void open() throws Exception
       {
-         listPorts();
-
             // if port unavailable, say so
 
          if (portId.isCurrentlyOwned())
@@ -176,20 +174,19 @@ public class OrbIo
       }
          /** List available ports. */
 
-      static void listPorts()
+      static Vector<String> listSerialPorts()
       {
          Enumeration portEnum = CommPortIdentifier.getPortIdentifiers();
-         while ( portEnum.hasMoreElements() ) 
-         {
-            CommPortIdentifier portIdentifier = (CommPortIdentifier) portEnum.nextElement();
-            System.out.println(portIdentifier.getName() + " - " + getPortTypeName(portIdentifier.getPortType()) );
-         }
+         Vector<String> list = new Vector<String>();
+         while (portEnum.hasMoreElements())
+            list.add(((CommPortIdentifier) portEnum.nextElement()).getName());
+         return list;
       }
          /** Map port type numbers to a string. */
 
-      static String getPortTypeName ( int portType )
+      static String getPortTypeName(int portType)
       {
-         switch ( portType )
+         switch (portType)
          {
             case CommPortIdentifier.PORT_I2C:
                return "I2C";
