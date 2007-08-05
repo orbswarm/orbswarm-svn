@@ -39,7 +39,7 @@ testspuutils: testspuutils.o swarmspuutils.o
 	$(CC) $(LIBS) $(CFLAGS) testspuutils.o swarmspuutils.o -o testspuutils
 
 testspuutils.o: $(TEST)/testspuutils.cc $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmdefines.h
-	$(CC) $(CFLAGS)-c $(SRC)/testspuutils.cc
+	$(CC) $(CFLAGS)-c $(TEST)/testspuutils.cc
 
 setled: setled.o swarmspuutils.o
 	$(CC) $(LIBS) $(CFLAGS) setled.o swarmspuutils.o -o setled
