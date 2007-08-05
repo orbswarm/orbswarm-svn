@@ -1,6 +1,7 @@
 package com.orbswarm.choreography;
 
-import com.orbswarm.swarmcom.WayPoint;
+// might be able to get away with java.awt.geom.Point2D.Double
+import com.orbswarm.swarmcom.Point;
 
 public interface OrbControl {
     //
@@ -22,7 +23,7 @@ public interface OrbControl {
     //
     // Motion methods
     //
-    public void followPath(WayPoint[] wayPoints);
+    public void followPath(Point[] wayPoints);
     public void stopOrb(int orb);
     
     //
