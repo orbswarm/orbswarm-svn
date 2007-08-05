@@ -1,10 +1,11 @@
-package org.trebor.swarmcon;
+package com.orbswarm.swarmcon;
 
 import org.trebor.pid.Controller;
 import org.trebor.pid.PController;
+import org.trebor.util.Angle;
 
 import static java.lang.Math.*;
-import static org.trebor.swarmcon.SwarmCon.*;
+import static com.orbswarm.swarmcon.SwarmCon.*;
 
    /** A simple motion simulation model based on rates */
 
@@ -172,8 +173,9 @@ public class SimModel extends MotionModel
 
             // compute delta x and y
 
-         Point delta = Angle.cartesian(
-            getYaw(), false, dPitch.radians() * p, true, 0, 0);
+         Point delta = new Point(
+            Angle.cartesian(
+               getYaw(), false, dPitch.radians() * p, true, 0, 0));
 
             // correct for latteral displacement due to roll
 

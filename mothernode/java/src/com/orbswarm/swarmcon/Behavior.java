@@ -1,4 +1,4 @@
-package org.trebor.swarmcon;
+package com.orbswarm.swarmcon;
 
    // a behavior object controls the behavior of an orb by setting the
    // target heading and velocity for a given orb, the behavior also has

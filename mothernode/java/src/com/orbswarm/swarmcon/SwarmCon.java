@@ -1,4 +1,5 @@
-package org.trebor.swarmcon;
+
+package com.orbswarm.swarmcon;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -11,6 +12,7 @@ import java.util.*;
 import java.text.*;
 import org.trebor.pid.*;
 
+import static org.trebor.util.ShapeTools.*;
 import static java.lang.System.*;
 import static java.awt.Color.*;
 import static java.lang.Math.*;
@@ -30,13 +32,11 @@ public class SwarmCon extends JFrame
          // some general parameters
 
       public static final double ORB_RADIUS        =   0.5; // meters
-      public static final double MAX_VELOCITY      =   0.5; // meters/sec
-      public static final double DVELOCITY_DT      =   2.0; // meters/sec
       public static final double MAX_ROLL          =  35.0; // deg
       public static final double MAX_ROLL_RATE     =  30.0; // deg/sec
       public static final double DROLL_RATE_DT     =  10.0; // deg/sec
       public static final double MAX_PITCH_RATE    = 114.6; // deg/sec
-      public static final double DPITCH_RATE_DT    =  10.0; // deg/sec
+      public static final double DPITCH_RATE_DT    =  40.0; // deg/sec
       public static final double MAX_YAW_RATE      =  30.0; // deg/sec
       public static final double DYAW_RATE_DT      =  30.0; // deg/sec
       public static final double ORB_DIAMETER      =   1.0; // meters
@@ -114,6 +114,10 @@ public class SwarmCon extends JFrame
           * called the swarm?) */
 
       Swarm swarm;
+
+         /** gui related mobjects */
+
+      Mobjects guis = new Mobjects();
       
          /** selected objects */
 
@@ -148,7 +152,6 @@ public class SwarmCon extends JFrame
       public static void main(String[] args)
       {
          SwarmCon c = new SwarmCon();
-            //Angle.unitTest();
       }
          // construct a swarm
 
@@ -326,6 +329,12 @@ public class SwarmCon extends JFrame
             //menuBar.add(fileMenu);
             //for (SwarmAction a: actions)
             //fileMenu.add(a);
+
+            // add test button
+
+         Button b = new Button(reset);
+         guis.add(b);
+         b.setPosition(100, 100);
       }
          /** Establish the pattern of phantoms on the screen. */
 
@@ -426,6 +435,16 @@ public class SwarmCon extends JFrame
                   }
             }
          }
+            // draw gui objects
+
+         if (guis != null)
+         {
+            synchronized (swarm)
+            {
+               for (Mobject mobject: guis)
+                  mobject.paint(g);
+            }
+         }
             // set 0,0 to lower left corner, and scale for meters
 
          g.translate(0, getHeight());
@@ -495,93 +514,6 @@ public class SwarmCon extends JFrame
                g.fill(translate(shape, getX(), getY()));
             }
       }
-         // rotate a shape
-
-      public static Shape rotate(Shape shape, double degrees)
-      {
-         return AffineTransform.getRotateInstance(degrees / 180 * Math.PI)
-            .createTransformedShape(shape);
-      }
-         // rotate a shape
-
-      public static Shape rotateAboutCenter(Shape shape, double degrees)
-      {
-         Rectangle2D bounds = shape.getBounds2D();
-         return AffineTransform.getRotateInstance(degrees / 180 * Math.PI,
-                                                  bounds.getX() + bounds.getWidth() / 2,
-                                                  bounds.getY() + bounds.getHeight() / 2)
-            .createTransformedShape(shape);
-      }
-         // translate a shape
-
-      public static Shape translate(Shape shape, double x, double y)
-      {
-         return AffineTransform.getTranslateInstance(x, y)
-            .createTransformedShape(shape);
-      }
-         // scale a shape
-
-      public static Shape scale(Shape shape, double x, double y)
-      {
-         return AffineTransform.getScaleInstance(x, y)
-            .createTransformedShape(shape);
-      }
-         // rotate an area
-
-      public static Area rotate(Area area, double degrees)
-      {
-         area.transform(AffineTransform.getRotateInstance(degrees / 180 * Math.PI));
-         return new Area(area);
-      }
-         // rotate an area
-
-      public static Area rotateAboutCenter(Area area, double degrees)
-      {
-         Rectangle2D bounds = area.getBounds2D();
-         area.transform(AffineTransform.getRotateInstance(degrees / 180 * Math.PI,
-                                                          bounds.getX() + bounds.getWidth() / 2,
-                                                          bounds.getY() + bounds.getHeight() / 2));
-         return new Area(area);
-      }
-         // translate an area
-
-      public static Area translate(Area area, double x, double y)
-      {
-         area.transform(AffineTransform.getTranslateInstance(x, y));
-         return new Area(area);
-      }
-         // scale an area
-
-      public static Area scale(Area area, double x, double y)
-      {
-         area.transform(AffineTransform.getScaleInstance(x, y));
-         return new Area(area);
-      }
-         // normalize shape (centered at origin, length & with <= 1.0)
-
-      public static Shape normalize(Shape shape)
-      {
-            // center the shape on the origin
-
-         Rectangle2D bounds = shape.getBounds2D();
-         shape = translate(shape,
-            -(bounds.getX() + bounds.getWidth() / 2),
-            -(bounds.getY() + bounds.getHeight() / 2));
-
-            // normalize size
-         
-         bounds = shape.getBounds2D();
-         double scale = bounds.getWidth() > bounds.getHeight()
-            ? 1.0 / bounds.getWidth()
-            : 1.0 / bounds.getHeight();
-         return scale(shape, scale, scale);
-      }
-         // create cirlce shape
-
-      public static Shape createCirlcle()
-      {
-         return normalize(new Ellipse2D.Double(-.5, -.5, 1, 1));
-      }
          // create arrow shape
 
       public static Shape createArrow()
@@ -591,15 +523,6 @@ public class SwarmCon extends JFrame
          gp.append(square, false);
          gp.append(translate(createRightTriangle(), 0, - .5), false);
          return normalize(gp);
-      }
-         // create arrow shape
-
-      public static Shape createOrbShape()
-      {
-         Area area = new Area();
-         area.add(new Area(createCirlcle()));
-         area.subtract(new Area(new Rectangle2D.Double(-.05, -1, .10, 2)));
-         return area;
       }
          // create right triangle
 

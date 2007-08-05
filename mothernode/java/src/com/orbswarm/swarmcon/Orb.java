@@ -1,4 +1,4 @@
-package org.trebor.swarmcon;
+package com.orbswarm.swarmcon;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -11,7 +11,8 @@ import java.util.Vector;
 import static java.lang.System.*;
 import static java.awt.Color.*;
 import static java.lang.Math.*;
-import static org.trebor.swarmcon.SwarmCon.*;
+import static com.orbswarm.swarmcon.SwarmCon.*;
+import static org.trebor.util.ShapeTools.*;
 
    // abstract orb
       
@@ -330,22 +331,22 @@ public class Orb extends Mobject
 
       public Shape createOrbShape()
       {
-         return createCirlcle();
+         return CIRCLE;
       }
          // create orb shadow shape
 
       public Shape createOrbShadowShape()
       {
-         Area shadow = new Area(createCirlcle());
+         Area shadow = new Area(CIRCLE);
          shadow.subtract(
-            translate(new Area(createCirlcle()), -0.06, 0.06));
+            translate(new Area(CIRCLE), -0.06, 0.06));
          return new GeneralPath(shadow);
       }
          // create orb shadow shape
 
       public Shape createOrbFlairShape()
       {
-         return translate(scale(createCirlcle(), .10, .10), -0.25, 0.25);
+         return translate(scale(CIRCLE, .10, .10), -0.25, 0.25);
       }
          // create orb shape
 

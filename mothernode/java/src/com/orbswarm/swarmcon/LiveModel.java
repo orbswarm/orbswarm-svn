@@ -1,4 +1,4 @@
-package org.trebor.swarmcon;
+package com.orbswarm.swarmcon;
 
    /** This class is linkage to a live orb */
 

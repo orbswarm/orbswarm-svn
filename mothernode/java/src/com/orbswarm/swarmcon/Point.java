@@ -1,8 +1,10 @@
-package org.trebor.swarmcon;
+package com.orbswarm.swarmcon;
+
+import java.awt.geom.Point2D;
 
 /** A point abstraction */
 
-public class Point extends java.awt.geom.Point2D.Double
+public class Point extends Point2D.Double
 {
       public Point(double x, double y)
       {
@@ -12,7 +14,16 @@ public class Point extends java.awt.geom.Point2D.Double
       {
          super(p.getX(), p.getY());
       }
+      public Point(Point2D p)
+      {
+         super(p.getX(), p.getY());
+      }
 
+
+      public void translate(Point2D delta)
+      {
+         translate(delta.getX(), delta.getY());
+      }
 
       public void translate(Point delta)
       {

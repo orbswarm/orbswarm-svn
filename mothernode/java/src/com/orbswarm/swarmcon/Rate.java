@@ -1,4 +1,4 @@
-package org.trebor.swarmcon;
+package com.orbswarm.swarmcon;
 
 import static java.lang.Math.*;
 

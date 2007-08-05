@@ -1,4 +1,4 @@
-package org.trebor.swarmcon;
+package com.orbswarm.swarmcon;
 
 import java.awt.*;
 import java.awt.geom.*;

@@ -1,6 +1,6 @@
-package org.trebor.swarmcon;
+package com.orbswarm.swarmcon;
 
-import static org.trebor.swarmcon.SwarmCon.*;
+import static com.orbswarm.swarmcon.SwarmCon.*;
 
 public class ClusterBehavior extends Behavior
 {

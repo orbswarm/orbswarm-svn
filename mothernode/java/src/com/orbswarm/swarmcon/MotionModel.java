@@ -1,6 +1,8 @@
-package org.trebor.swarmcon;
+package com.orbswarm.swarmcon;
 
-import static org.trebor.swarmcon.SwarmCon.*;
+import org.trebor.util.Angle;
+
+import static com.orbswarm.swarmcon.SwarmCon.*;
 import static java.lang.Math.*;
 
    /** This class models the motion of an orb.  It may be a simulated

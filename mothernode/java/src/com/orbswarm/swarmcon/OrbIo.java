@@ -1,4 +1,4 @@
-package org.trebor.swarmcon;
+package com.orbswarm.swarmcon;
 
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;

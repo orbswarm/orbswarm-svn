@@ -1,4 +1,4 @@
-package org.trebor.swarmcon;
+package com.orbswarm.swarmcon;
 
 import java.util.*;
 import java.awt.*;
@@ -67,32 +67,6 @@ public class Swarm extends Mobjects
       for (Mobject mobject: this)
          if (mobject instanceof Orb)
             ((Orb)mobject).previousBehavior();
-   }
-      /** Find nearest mobject to point.
-       *
-       * @param point the selection point
-       * @return nearest matching object or null if none
-       */
-   
-   public Mobject findSelected(Point2D.Double point)
-   {
-      double distance;
-      double bestDistance = Double.MAX_VALUE;
-      Mobject bestMoblect = null;
-
-      for (Mobject mobject: this)
-      {
-         if (mobject.isSelectedBy(point))
-         {
-            distance = mobject.getPosition().distance(point);
-            if (distance < bestDistance)
-            {
-               bestDistance = distance;
-               bestMoblect = mobject;
-            }
-         }
-      }
-      return bestMoblect;
    }
       // update the swarm
 

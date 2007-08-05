@@ -1,9 +1,10 @@
-package org.trebor.swarmcon;
+package com.orbswarm.swarmcon;
 
 import java.awt.*;
 import java.awt.geom.*;
 
 import static java.lang.Math.*;
+import static org.trebor.util.ShapeTools.*;
 
    // mobile object
 
@@ -17,10 +18,6 @@ public class Mobject
 
       private boolean selected = false;
 
-         /** the nominal size of this mobject */
-
-      private double size = 0;
-
          /** children mobjects which are placed relative to this mobject */
 
       private Mobjects children = new Mobjects();
@@ -29,15 +26,35 @@ public class Mobject
 
       private double masterAlpha = 1;
 
+         /** shape of this mobject used for selection and perhaps display */
+
+      private Shape shape;
+
          /** Create a mobject.
           * 
-          * @param size the typical size of the object use to compute
-          * arangemt of object
+          * @param size the typical size of the object use for selection
+          * and to compute arangemt of object, here the shape of the
+          * object is assumed to be a circle
           */
 
       public Mobject(double size)
       {
-         setSize(size);
+         setShape(new Ellipse2D.Double(-(size / 2), -(size / 2), size, size));
+      }
+         /** Create a mobject.
+          * 
+          * @param shape the shape of the object use for selection and
+          * to compute arangemt of object
+          */
+
+      public Mobject(Shape shape)
+      {
+         if (shape != null)
+         {
+            double dx = -(shape.getBounds2D().getX() + shape.getBounds2D().getWidth()  / 2);
+            double dy = -(shape.getBounds2D().getY() + shape.getBounds2D().getHeight() / 2);
+            setShape(translate(shape, dx, dy));
+         }
       }
          /** Is this mobject selected?
           *
@@ -56,7 +73,8 @@ public class Mobject
 
       public boolean isSelectedBy(Point2D.Double clickPoint)
       {
-         return getPosition().distance(clickPoint) < getSize();
+         return shape.contains(clickPoint.x - getPosition().x, 
+                               clickPoint.y - getPosition().y);
       }
          /** Set the selection state of this mobject.
           *
@@ -67,15 +85,6 @@ public class Mobject
       {
          this.selected = selected;
       }
-         /** Set the size of this mobject.
-          *
-          * @param size the nominal of this mobject
-          */
-
-      public void setSize(double size)
-      {
-         this.size = size;
-      }
          /** Get the size of this mobject.
           *
           * @return the nominal of this mobject
@@ -83,7 +92,28 @@ public class Mobject
 
       public double getSize()
       {
-         return size;
+         Rectangle2D b = shape.getBounds2D();
+         return b.getWidth() > b.getHeight()
+            ? b.getWidth()
+            : b.getHeight();
+      }
+         /** Set the shape of this mobject.
+          *
+          * @param shape the nominal of this mobject
+          */
+
+      public void setShape(Shape shape)
+      {
+         this.shape = shape;
+      }
+         /** Get the shape of this mobject.
+          *
+          * @return the nominal of this mobject
+          */
+
+      public Shape getShape()
+      {
+         return shape;
       }
          // positon getter 
 
