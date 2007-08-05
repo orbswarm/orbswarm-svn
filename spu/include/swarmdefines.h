@@ -2,7 +2,7 @@
 #ifndef SWARM_DEFINES_H
 #define SWARM_DEFINES_H 1
 
-#define MAX_BUFF_SZ 512 //Serial port read/write buffer size
+#define MAX_BUFF_SZ 1024 //Serial port read/write buffer size
 #define SWARM_SUCCESS 0
 #define SWARM_SERIAL_WRITE_ERR 10 //failed to write data to serial port 
 #define SWARM_OUT_OF_MEMORY_ERROR 11 //failed to malloc some memory 
@@ -11,6 +11,13 @@
 #define SWARM_NMEA_GPS_DATA_DELIM ","
 #define MAX_GPS_SENTENCE_SZ 1024 
 
+
+#define AGGR_MSG_TYPE_UNKNOWN 200 
+#define AGGR_MSG_TYPE_MOTHER_SHIP_SPU_POLL 201 
+#define AGGR_MSG_TYPE_TRAJECTORY 202 
+#define AGGR_MSG_TYPE_MOTHER_SHIP_LOC 203 
+#define AGGR_MSG_TYPE_EFFECTS 204 
+#define AGGR_MSG_TYPE_MOTOR_CONTROL 205 
 
 #define SPU_LED_RED_ON 40  
 #define SPU_LED_GREEN_ON 41 
@@ -32,13 +39,26 @@
 #define WGS84_EQUATORIAL_RADIUS_METERS 6387137
 #define WGS84_ECCENTRICITY_SQUARED 0.00669438
 
+/**********************************MOTHER SHIP MESSAGE HEADERS**********************************/
+#define MSG_HEAD_MOTOR_CONTROLER '$'
+#define MSG_END_MOTOR_CONTROLER '*'
+#define MSG_HEAD_LIGHTING '<'          //used to identify lighting/sound messages
+#define MSG_END_LIGHTING '>'          //used to identify lighting/sound messages
+#define MSG_HEAD_MOTHER_SHIP '{'       //used to supply the orb with info about the mothership
+#define MSG_END_MOTHER_SHIP '}'       //used to supply the orb with info about the mothership
+                                       //E.G. the location of the mothership in UTM format
+
+#define AGGR_DATA_XFER_ACK '!'  //found at the end of a data stream from the Agg 
+                                       //Note: a data stream may contain >1 messages
+#define AGGR_MESSAGE_DELIM_END '\n' 
+
+#define AGGR_GPS_QUERY_CMD "$Ag*$"
+#define AGGR_ZIGBEE_QUERY_CMD "$Az*$"
+
+#define AGG_GPS_START_DELIM '$'
+#define AGG_GPS_STOP_DELIM '\n'
+
 /************************Constants**************************************/
-/*
-extern const double PI;
-extern const double FOURTHPI;
-extern const double deg2rad;
-extern const double rad2deg;
-*/
 
 const double PI = 3.14159265;
 const double FOURTHPI = PI / 4;
@@ -50,6 +70,7 @@ struct	swarmGpsData
 {
   char gpsSentenceType[32]; 
   char gpsSentence[MAX_GPS_SENTENCE_SZ];
+  char vtgSentence[MAX_GPS_SENTENCE_SZ];
   char nmea_utctime[64];
   double nmea_latddmm;
   double nmea_londdmm;
