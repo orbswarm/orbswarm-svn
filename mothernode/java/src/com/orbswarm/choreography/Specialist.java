@@ -14,5 +14,6 @@ public interface Specialist {
     public void    setProperty(String name, String val);
     public String  getProperty(String name);
 
-    public void  act(String action, int orb, String param);
+    public void command(String action, int orb, String param); // orb == -1 if N/A
+    public void addCommandListener(SpecialistListener ear);
 }
