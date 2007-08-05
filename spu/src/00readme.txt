@@ -9,3 +9,5 @@ spu.cc: This is a basic pipe used in early development. It takes input on COM2 (
 swarmserial.cc  Routines for opening and maintaining the serial ports (COM1-COM5)
 
 swarmspuutils,cc: Other routines for lighting status LEDs and parsing GPS. (We may move the latter to its own file)
+
+spumond.cc: monitor daemon that runs on startup. Its job is to ensure that the mainloop process is running and restart it if it isn't. 
