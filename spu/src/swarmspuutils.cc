@@ -195,7 +195,7 @@ int parseGPSSentence(swarmGpsData * gpsdata)
           case 1:
             //utctime
             sscanf(paramptr,"%s",gpsdata->nmea_utctime);
-            sscanf(paramptr,"%lf",gpsdata->utcTime);
+            sscanf(paramptr,"%lf",&(gpsdata->utcTime));
             //fprintf(stderr, "\n utctime : %s",paramptr);
             break;
           case 2:
