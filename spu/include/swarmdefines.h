@@ -8,6 +8,7 @@
 #define SWARM_OUT_OF_MEMORY_ERROR 11 //failed to malloc some memory 
 #define SWARM_INVALID_GPS_SENTENCE 100 
 #define SWARM_NMEA_GPS_SENTENCE_TYPE_GPGGA "GPGGA"
+#define SWARM_NMEA_GPS_SENTENCE_TYPE_GPVTG "GPVTG"
 #define SWARM_NMEA_GPS_DATA_DELIM ","
 #define MAX_GPS_SENTENCE_SZ 1024 
 
@@ -85,5 +86,8 @@ struct	swarmGpsData
   double UTMNorthing;
   double UTMEasting;
   char UTMZone[32];
+  float nmea_course;
+  float speed;
+  char mode;
 };
 #endif

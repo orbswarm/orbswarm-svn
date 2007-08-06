@@ -224,11 +224,107 @@ int parseGPSSentence(swarmGpsData * gpsdata)
       paramcount++; 
     }
   //fprintf(stderr,"\n RAW GPS DATA %s,%s,%Lf,%c,%Lf,%c \n",gpsdata->gpsSentenceType,gpsdata->nmea_utctime,gpsdata->nmea_latddmm,gpsdata->nmea_latsector,gpsdata->nmea_londdmm,gpsdata->nmea_lonsector);
+  } else  {
+    return SWARM_INVALID_GPS_SENTENCE;
   }
-  else
-  {
-    status = SWARM_INVALID_GPS_SENTENCE; 
+
+  // populate nmea_course, speed, and mode
+
+  strcpy(gpssentcpy, gpsdata->vtgSentence);
+  paramptr = strtok(gpssentcpy, SWARM_NMEA_GPS_DATA_DELIM);
+  if (paramptr == NULL) {
+    return SWARM_INVALID_GPS_SENTENCE;
   }
+
+  // skip leading $
+  if (paramptr[0] != '$') {
+    return SWARM_INVALID_GPS_SENTENCE;
+  }
+  if(strcmp(paramptr+1, SWARM_NMEA_GPS_SENTENCE_TYPE_GPVTG) != 0) {
+    return SWARM_INVALID_GPS_SENTENCE;
+  }
+
+  int e;
+  char discard_char;
+  float discard_float;
+  float degrees, kmph;
+  char mode;
+
+  // Course over ground (degrees, referenced to true north)
+  paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
+  e = sscanf(paramptr, "%f", &degrees);
+  if (e != 1) { return SWARM_INVALID_GPS_SENTENCE; }
+
+  // Indicator of course reference (T == true north)
+  paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
+  e = sscanf(paramptr, "%c", &discard_char);
+  if (e != 1 || discard_char != 'T') { return SWARM_INVALID_GPS_SENTENCE; }
+
+  // Course over ground (not supported)
+  paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
+  e = sscanf(paramptr, "%f", &discard_float);
+  if (e != 1) { return SWARM_INVALID_GPS_SENTENCE; }
+
+  // Indicator of course reference (M == magnetic north)
+  paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
+  e = sscanf(paramptr, "%c", &discard_char);
+  if (e != 1 || discard_char != 'M') { return SWARM_INVALID_GPS_SENTENCE; }
+
+  // Speed over ground (knots)
+  paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
+  e = sscanf(paramptr, "%f", &discard_float);
+  if (e != 1) { return SWARM_INVALID_GPS_SENTENCE; }
+
+  // Units (knots)
+  paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
+  e = sscanf(paramptr, "%c", &discard_char);
+  if (e != 1 || discard_char != 'N') { return SWARM_INVALID_GPS_SENTENCE; }
+  
+  // Speed over ground (km/h)
+  paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
+  e = sscanf(paramptr, "%f", &kmph);
+  if (e != 1) { return SWARM_INVALID_GPS_SENTENCE; }
+    
+  // Units (km/h)
+  paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
+  e = sscanf(paramptr, "%c", &discard_char);
+  if (e != 1 || discard_char != 'K') { return SWARM_INVALID_GPS_SENTENCE; }
+
+  // Mode
+  paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
+  mode = paramptr[0];
+  if (mode != 'A' && mode != 'D' && mode != 'E' && mode != 'N') {
+    return SWARM_INVALID_GPS_SENTENCE;
+  }
+
+  // Trailing knick-knacks
+  if (paramptr[1] != '*') {
+    return SWARM_INVALID_GPS_SENTENCE;
+  }
+  char checksum[2];
+  checksum[0] = paramptr[3];
+  checksum[0] = paramptr[4];
+  if (paramptr[5] != '\r'
+      || paramptr[6] != '\n') {
+    return SWARM_INVALID_GPS_SENTENCE;
+  }
+
+  // Done!
+  if (strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM) != NULL) {
+    return SWARM_INVALID_GPS_SENTENCE;
+  }
+
+  // populate structure
+
+  // convert from due north to due east
+  degrees -= 90;
+  if (degrees < 0) { degrees += 360; }
+  // convert from degrees to radians
+  gpsdata->nmea_course = deg2rad * degrees;
+  // convert from km/h to m/s
+  gpsdata->speed = kmph * (1000.0 / (60.0*60.0));
+  gpsdata->mode = mode;
+
   return status;
 }
 
