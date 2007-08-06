@@ -61,6 +61,11 @@
 #define AGGR_GPS_QUERY_CMD "$Ag*$"
 #define AGGR_ZIGBEE_QUERY_CMD "$Az*$"
 
+#define MAX_AGG_PACKET_SZ 100   // total packet sz including the header footer 
+#define MAX_AGG_PACKET_PAYLOAD_SZ 94   // This is 100 bytes - headersz + footersz + '\0' 
+#define AGGR_ZIGBEE_STREAM_WRITE_HEADER "$As"
+#define AGGR_ZIGBEE_STREAM_WRITE_END "*$"
+
 #define AGG_GPS_START_DELIM '$'
 #define AGG_GPS_STOP_DELIM '\n'
 
@@ -85,8 +90,8 @@ struct	swarmGpsData
   double latdd;
   double londd;
   double utcTime;
-  double metFromMshipX;
-  double metFromMshipY;
+  double metFromMshipNorth;
+  double metFromMshipEast;
   double utcTimeMship;
   double UTMNorthing;
   double UTMEasting;
