@@ -118,12 +118,6 @@ int main(void)
       //send to spu
       pushSpuDataQ(msg.swarm_msg_payload);
     }
-    /*
-    else if(msg.swarm_msg_type == eLinkNMEA){
-  
-      s_lastGPGGAMsg=msg;
-    }
-    */
     else if(msg.swarm_msg_type == eLinkSpuMsg){
       //poor man's strcmp
       if(msg.swarm_msg_payload[0] == '$' &&
@@ -144,13 +138,6 @@ int main(void)
 	 msg.swarm_msg_payload[3] == '*')
 	{
 	  //drain q
-	  /*
-	    struct SWARM_MSG spuMsg = popSpuDataQ();
-	    if(spuMsg.swarm_msg_type == eLinkNullMsg)
-	    break;
-	    else
-	    sendSpuMsg(spuMsg.swarm_msg_payload);
-	  */
 	  unsigned char buffer[64];
 	  long nLen=0;
 	  while(1){
