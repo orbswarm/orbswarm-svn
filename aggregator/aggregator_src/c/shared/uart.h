@@ -6,7 +6,7 @@ void sendXBeeMsg(const unsigned char *s);
 
 void sendSpuMsg(const unsigned char *s);
 
-void sendDebugMsg(const char *s);
+void sendDebugMsg(const unsigned char *s);
 
 void sendGPSAMsg(const unsigned char *s);
 

@@ -117,9 +117,10 @@ void sendGPSBMsg(const unsigned char *s)
 }
 
 
-void sendDebugMsg(const char *s)
+void sendDebugMsg(const unsigned char *s)
 {
-  //sendSpuMsg((unsigned char*)s);
+  //sendXBeeMsg (s);
+  sendSpuMsg(s);
 }
 
 int uart_init(void (*handleXBeeRecv)(unsigned char c, int isError),
