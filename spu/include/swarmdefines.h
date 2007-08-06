@@ -119,5 +119,6 @@ struct swarmFeedback
 {
   double vDes;
   double thetaDes;
-}
+};
+
 #endif
