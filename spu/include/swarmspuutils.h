@@ -8,6 +8,7 @@
 #include <time.h>
 #include <errno.h>
 #include "swarmdefines.h"
+#include "swarmserial.h"
 #include <stdlib.h>
 #include <math.h>
 
@@ -40,4 +41,9 @@ int convertNMEAGpsLatLonDataToDecLatLon(swarmGpsData * gpsdata);
 void decimalLatLongtoUTM(const double ref_equ_radius, const double ref_ecc_squared, swarmGpsData * gpsdata);
 
 int getMessageType(char* message);
+
+void genSpuDump(char* logBuffer, int maxBufSz, swarmGpsData * gpsData);
+
+int packetizeAndSendMotherShipData(int portFd, char* buffToWrite, int buffSz);
+
 #endif
