@@ -38,4 +38,6 @@ int convertNMEAGpsLatLonDataToDecLatLon(swarmGpsData * gpsdata);
 //North latitudes are positive, South latitudes are negative
 //Lat and Long are in decimal degrees
 void decimalLatLongtoUTM(const double ref_equ_radius, const double ref_ecc_squared, swarmGpsData * gpsdata);
+
+int getMessageType(char* message);
 #endif
