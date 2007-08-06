@@ -474,7 +474,7 @@ int getMessageType(char* message)
          strcpy(msgBufCpy, message);
          char msgdelim[1];   
          msgdelim[0] = MOTHER_SHIP_MSG_DELIM;
-         msgptr = strtok(msgBufCpy,msgdelim);
+         msgptr = strtok(&msgBufCpy[1],msgdelim);
          if(msgptr != NULL)
          {
            if(strcmp(msgptr,MOTHER_SHIP_MSG_HEAD_STATUS) == 0)
