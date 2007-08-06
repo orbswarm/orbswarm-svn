@@ -5,7 +5,7 @@
 #include "../include/swarmspuutils.h"
 
 
-// toggle the reset pin on the daighterboard MCU
+// toggle the reset pin on the daughterboard MCU
 int resetOrbMCU(void)
 {  
    volatile unsigned int *PBDR, *PBDDR;
