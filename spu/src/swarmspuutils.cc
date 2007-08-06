@@ -449,3 +449,49 @@ void decimalLatLongtoUTM(const double ref_equ_radius, const double ref_ecc_squar
 	  gpsdata->UTMNorthing += 10000000.0; //10000000 meter offset for southern hemisphere
 }
 
+int getMessageType(char* message)
+{
+  int messageSize = strlen(message); 
+  int messageType = AGGR_MSG_TYPE_UNKNOWN; //default to unknown 
+  switch(message[0])
+  {
+    case MSG_HEAD_MOTOR_CONTROLER : 
+      // The firs char of the message matched so lets check the last  
+      if(message[messageSize] == MSG_END_MOTOR_CONTROLER) 
+        messageType = AGGR_MSG_TYPE_MOTOR_CONTROL; 
+    break;
+    case MSG_HEAD_LIGHTING : 
+      // The firs char of the message matched so lets check the last  
+      if(message[messageSize] == MSG_END_LIGHTING) 
+        messageType = AGGR_MSG_TYPE_EFFECTS; 
+    break;
+    case MSG_HEAD_MOTHER_SHIP : 
+      // The firs char of the message matched so lets check the last  
+      if(message[messageSize] == MSG_END_MOTHER_SHIP) 
+      {
+         char* msgptr = NULL;
+         char msgBufCpy[MAX_BUFF_SZ + 1];
+         strcpy(msgBufCpy, message);
+         char msgdelim[1];   
+         msgdelim[0] = MOTHER_SHIP_MSG_DELIM;
+         msgptr = strtok(msgBufCpy,msgdelim);
+         if(msgptr != NULL)
+         {
+           if(strcmp(msgptr,MOTHER_SHIP_MSG_HEAD_STATUS) == 0)
+           {
+             messageType = AGGR_MSG_TYPE_MOTHER_SHIP_SPU_POLL; 
+           }          
+           else if(strcmp(msgptr,MOTHER_SHIP_MSG_HEAD_TRAJECTORY) == 0)
+           {
+             messageType = AGGR_MSG_TYPE_TRAJECTORY; 
+           }
+           else if(strcmp(msgptr,MOTHER_SHIP_MSG_HEAD_LOCATION) == 0)
+           {
+             messageType = AGGR_MSG_TYPE_MOTHER_SHIP_LOC; 
+           }
+         }
+      }
+    break;
+  } 
+  return messageType;
+}
