@@ -195,6 +195,7 @@ int parseGPSSentence(swarmGpsData * gpsdata)
           case 1:
             //utctime
             sscanf(paramptr,"%s",gpsdata->nmea_utctime);
+            sscanf(paramptr,"%lf",gpsdata->utcTime);
             //fprintf(stderr, "\n utctime : %s",paramptr);
             break;
           case 2:
@@ -494,4 +495,114 @@ int getMessageType(char* message)
     break;
   } 
   return messageType;
+}
+
+void genSpuDump(char* logBuffer, int maxBufSz, swarmGpsData * gpsData)
+{
+  char keyValueBuff[128]; 
+  int keyValueBuffSz = 0;
+  int total_buf_size = 0;
+  
+  //gps data northing
+  sprintf(keyValueBuff,"NORTH=%lf\n",gpsData->UTMNorthing);
+  keyValueBuffSz = strlen(keyValueBuff);
+  if((total_buf_size + keyValueBuffSz) < maxBufSz)
+  {
+    strcat(logBuffer,keyValueBuff); 
+    total_buf_size += keyValueBuffSz;
+  }
+   
+  //gps data easting 
+  sprintf(keyValueBuff,"EAST=%lf\n",gpsData->UTMEasting);
+  strcat(logBuffer,keyValueBuff); 
+  if((total_buf_size + keyValueBuffSz) < maxBufSz)
+  {
+    strcat(logBuffer,keyValueBuff); 
+    total_buf_size += keyValueBuffSz;
+  }
+
+  //gps utc time 
+  sprintf(keyValueBuff,"UTC_TIME=%s\n",gpsData->nmea_utctime);
+  strcat(logBuffer,keyValueBuff); 
+  if((total_buf_size + keyValueBuffSz) < maxBufSz)
+  {
+    strcat(logBuffer,keyValueBuff); 
+    total_buf_size += keyValueBuffSz;
+  }
+
+  //heading 
+  sprintf(keyValueBuff,"HEADING=%lf\n",gpsData->nmea_course);
+  strcat(logBuffer,keyValueBuff); 
+  if((total_buf_size + keyValueBuffSz) < maxBufSz)
+  {
+    strcat(logBuffer,keyValueBuff); 
+    total_buf_size += keyValueBuffSz;
+  }
+
+  //speed 
+  sprintf(keyValueBuff,"SPEED=%lf\n",gpsData->speed);
+  strcat(logBuffer,keyValueBuff); 
+  if((total_buf_size + keyValueBuffSz) < maxBufSz)
+  {
+    strcat(logBuffer,keyValueBuff); 
+    total_buf_size += keyValueBuffSz;
+  }
+
+  //meters from mothership north 
+  sprintf(keyValueBuff,"MSHIP_N=%lf\n",gpsData->metFromMshipNorth);
+  strcat(logBuffer,keyValueBuff); 
+  if((total_buf_size + keyValueBuffSz) < maxBufSz)
+  {
+    strcat(logBuffer,keyValueBuff); 
+    total_buf_size += keyValueBuffSz;
+  }
+
+  //meters from mothership east 
+  sprintf(keyValueBuff,"MSHIP_E=%lf\n",gpsData->metFromMshipEast);
+  strcat(logBuffer,keyValueBuff); 
+  if((total_buf_size + keyValueBuffSz) < maxBufSz)
+  {
+    strcat(logBuffer,keyValueBuff); 
+    total_buf_size += keyValueBuffSz;
+  }
+
+  //UTM Zone 
+  sprintf(keyValueBuff,"UTM_ZN=%s\n",gpsData->UTMZone);
+  strcat(logBuffer,keyValueBuff); 
+  if((total_buf_size + keyValueBuffSz) < maxBufSz)
+  {
+    strcat(logBuffer,keyValueBuff); 
+    total_buf_size += keyValueBuffSz;
+  }
+}
+
+int packetizeAndSendMotherShipData(int portFd, char* buffToWrite, int buffSz)
+{
+  int status = SWARM_SUCCESS;
+  char aggPacket[MAX_AGG_PACKET_SZ];
+  char aggPacketPayload[MAX_AGG_PACKET_PAYLOAD_SZ];
+  int msgByteIdx = 0;
+  int packetByteCount = 0;
+  int msgBytesLeft = buffSz;
+   
+  while(msgBytesLeft > 0)
+  { 
+    packetByteCount = 0;
+    if(msgBytesLeft > MAX_AGG_PACKET_PAYLOAD_SZ)
+    {
+       strncpy(aggPacketPayload,&buffToWrite[msgByteIdx],MAX_AGG_PACKET_PAYLOAD_SZ);
+       msgByteIdx += MAX_AGG_PACKET_PAYLOAD_SZ;
+       msgBytesLeft -= MAX_AGG_PACKET_PAYLOAD_SZ;
+    }
+    else //Last few bytes so send everything
+    {
+       strcpy(aggPacketPayload,&buffToWrite[msgByteIdx]);
+       msgBytesLeft -= strlen(aggPacketPayload);
+    }
+    //compose final packet with header and footer  
+    sprintf(aggPacket,"%s%s%s",AGGR_ZIGBEE_STREAM_WRITE_HEADER,aggPacketPayload,AGGR_ZIGBEE_STREAM_WRITE_END); 
+    
+    writeCharsToSerialPort(portFd, aggPacket, strlen(aggPacket));
+  }
+  return status;
 }

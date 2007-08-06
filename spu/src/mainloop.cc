@@ -33,6 +33,8 @@ int main(int argc, char *argv[])
 
   swarmGpsData motherShipLoc; 
   swarmGpsData currentOrbLoc; 
+  
+  swarmGpsData trajPoints[50];
 
   com2 = initSerialPort("/dev/ttyAM1", 38400); //Aggregator
   com3 = initSerialPort(COM3, 38400); //Lighting and Effects
@@ -205,6 +207,9 @@ int main(int argc, char *argv[])
            switch(messageType)
            {
              case AGGR_MSG_TYPE_MOTHER_SHIP_SPU_POLL: 
+               char spuPollData[MAX_BUFF_SZ + 1]; 
+               genSpuDump(spuPollData, MAX_BUFF_SZ, &currentOrbLoc);
+               packetizeAndSendMotherShipData(com2, spuPollData, strlen(spuPollData));
                
              break;
              
@@ -216,11 +221,11 @@ int main(int argc, char *argv[])
 
              case AGGR_MSG_TYPE_EFFECTS: 
                //Write the effects string to com3
-               writeCharsToSerialPort(com3,  msgptr, strlen(msgptr));
+               writeCharsToSerialPort(com3, msgptr, strlen(msgptr));
              break;
 
              case AGGR_MSG_TYPE_MOTOR_CONTROL: 
-               writeCharsToSerialPort(com5,  msgptr, strlen(msgptr));
+               writeCharsToSerialPort(com5, msgptr, strlen(msgptr));
              break;
            }
            msgcount++; 
