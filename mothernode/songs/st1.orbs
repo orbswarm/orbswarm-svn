@@ -1,0 +1,32 @@
+<song> st1
+    <layer> one
+        <set> single
+              strategy SingleTrack
+        </set>
+    </layer>
+    <layer> two
+        <set> single
+              strategy SingleTrack
+        </set>
+    </layer>
+    <layer> three
+        <set> single
+              strategy SingleTrack
+        </set>
+    </layer>
+    <layer> four
+        <set> single
+              strategy SingleTrack
+        </set>
+    </layer>
+    <layer> five
+        <set> single
+              strategy SingleTrack
+        </set>
+    </layer>
+    <layer> six
+        <set> single
+              strategy SingleTrack
+        </set>
+    </layer>
+</song>

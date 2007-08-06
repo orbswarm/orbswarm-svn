@@ -1,0 +1,55 @@
+<song> Dminor9Drones
+    // Based on the original Alea random composition DMinor9Drones
+    strategy random
+    <matrix>  
+       headers   139 157 13 5679 57 469 Dm7 end
+       139      100     20   80    end
+       157        -    100  100    end
+       5679       -      -   90    end
+       57
+       469
+       Dm7
+    </matrix>
+
+    // additional matricies add to the matrix, without having to specify
+    // the full sparse matrix.
+    //   sets that have no matrix element specified against each other
+    //    are assumed to have 100% compatibility. 
+
+    <layer> drones_low
+        <set> 13
+        </set>
+        <set> 567
+        </set>
+    </layer>
+    <layer> drones_high
+        <set> 13
+        </set>
+        <set> 567
+        </set>
+    </layer>
+    <layer> horns_low
+        <set> 13
+        </set>
+        <set> 5679
+        </set>
+    </layer>
+    <layer> horns_high
+        <set> 13
+        </set>
+        <set> 5679
+        </set>
+    </layer>
+    <layer> pianos
+        <set> 13
+        </set>
+        <set> 57
+        </set>
+    </layer>
+    <layer> shorts
+        <set> 13
+        </set>
+        <set> 57
+        </set>
+    </layer>
+</song>

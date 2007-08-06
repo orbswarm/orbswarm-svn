@@ -14,7 +14,7 @@ public interface Orb {
      * (obviously distance to self will be 0.), so that
      * the index of the distances array and the orbnum are the same.
      */
-    public double[] distances;
+    public double[] getDistances();
 
     /**
      * Do we need methods for orb position and such?

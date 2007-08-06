@@ -1,15 +1,18 @@
 package com.orbswarm.choreography;
 
-// might be able to get away with java.awt.geom.Point2D.Double
-import com.orbswarm.swarmcom.Point;
+import java.util.List;
 
 public interface OrbControl {
     //
     // Sound control methods
     //
-    public void playSoundFile(int orb, String soundFilePath);
-    public void stopSound();
-
+    /** play a sound file given the path name. returns the duration of the
+        sound file to be played.
+        Does not block to wait for sound to finish playing.
+    */
+    public int playSoundFile(int orb, String soundFilePath);
+    public void stopSound(int orb);
+    public void volume(int orb, int volume);
     
 
     //

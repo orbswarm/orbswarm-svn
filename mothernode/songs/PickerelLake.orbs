@@ -1,0 +1,23 @@
+<song> PickerelLake
+    strategy random
+    <layer> Harmon_IiiiV
+        <set> main
+        </set>
+    </layer>
+    <layer> Harmon_iiiVvi
+        <set> main
+        </set>
+    </layer>
+    <layer> Melody_Found
+        <set> main
+        </set>
+    </layer>
+    <layer> Perc_Found
+        <set> main
+        </set>
+    </layer>
+    <layer> SlapBass_IiiiV
+        <set> main
+        </set>
+    </layer>
+</song>

@@ -1,0 +1,25 @@
+title swarm test 1
+@author Simran Gleason
+@license Creative Commons Attribution Share-Alike
+@license http://creativecommons.org/licenses/by-sa/3.0/
+maxbeasties 50
+radius 50000.
+friction .99
+gridcircles 10
+gridradii 16
+reboundmethod circle
+background clear
+background grid
+
+beastie   polar     0.   0.  0000.   0.  4000 
+   trajectory
+      line 60 10000 200
+   end
+
+beastie  polar 35000.  60.    polar 16. 150.  4000 end
+beastie  polar 35000. 120.    polar 31. 210.  4000 end
+
+beastie  polar 35000. 180.   polar 14. 270.  4000 end
+beastie  polar 35000. 240.   polar 22. 330.  4000 end
+beastie  polar 35000. 300.   polar 18. 390.  4000 end
+
