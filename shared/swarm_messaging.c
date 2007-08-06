@@ -13,8 +13,12 @@ void pushQ(struct SWARM_MSG msg)
 {
   unsigned long nTmpHead;
   nTmpHead = ( s_nHeadIdx + 1) & SWARM_Q_MASK;
+  /*
   while(nTmpHead == s_nTailIdx)
     ;
+  */
+  if(nTmpHead == s_nTailIdx)
+    return;
   s_queue[nTmpHead]=msg;
   s_nHeadIdx=nTmpHead;
 }
