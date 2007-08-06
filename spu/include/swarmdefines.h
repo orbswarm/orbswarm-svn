@@ -95,4 +95,24 @@ struct	swarmGpsData
   float speed; //meters per second
   char mode;
 };
+
+struct	swarmImuData
+{
+	
+};
+
+struct  swarmStateEstimate
+{
+  double x;
+  double y;
+  double psi;
+  double v;
+  double phi;
+};
+
+struct swarmFeedback
+{
+  double vDes;
+  double thetaDes;
+}
 #endif
