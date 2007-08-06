@@ -24,11 +24,12 @@ The text of the MIT license apears in the mit-license.txt file.
   <property name = "lib-dir"            value = "lib"/>
   <property name = "resources"          value = "resources"/>
   <property name = "compile-includes"   value = ""/>
-  <property name = "compile-excludes"   value = "${domain-scope-dir}/choreography/*"/>
+  <property name = "compile-excludes"   value = ""/>
 
-  <!-- java library files that belong in the class path and the jar -->
-
+    <!-- java library files that belong in the class path and the jar -->
+    
   <fileset dir = "${lib-dir}" id = "libraries">
+    <include name = "NMEA0183.jar"/>
     <include name = "RXTXcomm.jar"/>
     <include name = "util.jar"/>
     <include name = "pid.jar"/>
@@ -140,7 +141,7 @@ The text of the MIT license apears in the mit-license.txt file.
            includes = "${compile-includes}"
            excludes = "${compile-excludes}"
            debug = "true">
-      <compilerarg value = "-Xlint:unchecked"/>
+      <compilerarg value = "-Xlint:-unchecked"/>
       <classpath>
           <fileset refid = "libraries"/>
           <pathelement location = "${build-dir}"/>
