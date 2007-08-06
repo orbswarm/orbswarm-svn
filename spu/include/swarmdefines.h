@@ -43,11 +43,16 @@
 /**********************************MOTHER SHIP MESSAGE HEADERS**********************************/
 #define MSG_HEAD_MOTOR_CONTROLER '$'
 #define MSG_END_MOTOR_CONTROLER '*'
-#define MSG_HEAD_LIGHTING '<'          //used to identify lighting/sound messages
-#define MSG_END_LIGHTING '>'          //used to identify lighting/sound messages
-#define MSG_HEAD_MOTHER_SHIP '{'       //used to supply the orb with info about the mothership
-#define MSG_END_MOTHER_SHIP '}'       //used to supply the orb with info about the mothership
-                                       //E.G. the location of the mothership in UTM format
+#define MSG_HEAD_LIGHTING '<'   //used to identify lighting/sound messages
+#define MSG_END_LIGHTING '>'    //used to identify lighting/sound messages
+#define MSG_HEAD_MOTHER_SHIP '{'//used to supply the orb with info about the mothership
+#define MSG_END_MOTHER_SHIP '}' //used to supply the orb with info about the mothership
+                                //E.G. the location of the mothership in UTM format
+
+#define MOTHER_SHIP_MSG_DELIM ' ' //blank space for newline
+#define MOTHER_SHIP_MSG_HEAD_STATUS "DUMP_STATUS"
+#define MOTHER_SHIP_MSG_HEAD_TRAJECTORY "TRAJ"
+#define MOTHER_SHIP_MSG_HEAD_LOCATION "MSLOC"
 
 #define AGGR_DATA_XFER_ACK '!'  //found at the end of a data stream from the Agg 
                                        //Note: a data stream may contain >1 messages
@@ -86,8 +91,8 @@ struct	swarmGpsData
   double UTMNorthing;
   double UTMEasting;
   char UTMZone[32];
-  float nmea_course;
-  float speed;
+  float nmea_course; //heading radians respect to due east
+  float speed; //meters per second
   char mode;
 };
 #endif
