@@ -17,6 +17,7 @@ int main(int argc, char *argv[])
   int com2=0; /* File descriptor for the port */
   int com3=0, com4=0, com5=0; 	/* ditto */
   int tenHzticks = 0;
+  pid_t mypid=0;
   char buffer[MAX_BUFF_SZ + 1];
   int bytes2 = 0;
   struct timeval tv;
@@ -24,6 +25,16 @@ int main(int argc, char *argv[])
   int             max_fd;
   fd_set          fdset;
   int n =0; 
+  char *logdir ="/tmp";
+  char curtime[30];
+  char logbuf[80];
+  time_t logtime;
+  
+  mypid=getpid();
+  time(&logtime);
+  strncpy(curtime,(ctime(&logtime)),26);
+  snprintf(logbuf,80,"mainloop[%d]:started at %s\n",mypid,curtime);
+  spulog(logbuf,80,logdir);
 
   // need to find max fd for select()
   max_fd = (com2 > com1 ? com2 : com1) + 1;
@@ -54,6 +65,9 @@ int main(int argc, char *argv[])
 
      if (n <0){
        printf("Error during select\n");
+       snprintf(logbuf,80,"mainloop[%d]:Error during select %s\n",mypid,curtime);
+       spulog(logbuf,80,logdir);
+
        continue;
      }
      if(!n)
