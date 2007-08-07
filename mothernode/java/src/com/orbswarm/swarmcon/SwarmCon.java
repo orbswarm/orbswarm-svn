@@ -81,17 +81,21 @@ public class SwarmCon extends JFrame implements OrbControl
 
       public PidTuner tuner;
 
-         /** communcation with the outside world */
+         /** communcation with orbs */
       
       OrbIo orbIo;
+
+         /** communcation with gps */
+      
+      GpsIo gpsIo;
 
          /**  Specialists listening to OrbState messages */
       ArrayList specialists = new ArrayList();
 
-
          // color
 
       public static Color BACKGROUND    = WHITE;
+      public static Color BUTTON_CLR    = new Color(  0,   0,   0, 164);
       public static Color TEXT_CLR      = new Color(  0,   0,   0, 128);
       public static Color MENU_CLR      = new Color(  0,   0,   0, 128);
       public static Color ORB_CLR       = new Color(196, 196, 196);
@@ -104,6 +108,9 @@ public class SwarmCon extends JFrame implements OrbControl
                                                     Font.PLAIN, 10);
       public static Font  MENU_FONT      =  new Font("Helvetica", 
                                                     Font.PLAIN, 15);
+         /** Standard button font */
+
+      public static Font BUTTON_FONT = new Font("Lucida Grande", Font.PLAIN, 40);
 
       static
       {
@@ -122,12 +129,6 @@ public class SwarmCon extends JFrame implements OrbControl
             (float)(original.getSize() 
                     / PIXLES_PER_METER));
       }
-
-         /** Standard button font */
-
-      public static Font BUTTON_FONT = (new Font("Lucida Grande",
-                                                 Font.PLAIN, 1)).
-                                        deriveFont(4f);
 
          // fix font sizes
 
@@ -340,14 +341,14 @@ public class SwarmCon extends JFrame implements OrbControl
          JPanel splash = new JPanel();
          splash.setLayout(new BoxLayout(splash, BoxLayout.Y_AXIS));
          splash.add(Box.createVerticalGlue());
-         JButton button = new JButton(simulation);
+         JButton button = new BigButton(simulation);
          splash.add(button);
          button.setAlignmentX(Component.CENTER_ALIGNMENT);
          button.setAlignmentY(Component.CENTER_ALIGNMENT);
          splash.add(Box.createVerticalGlue());
-         for (String portId :OrbIo.listSerialPorts())
+         for (String portId :SerialIo.listSerialPorts())
          {
-            button = new JButton(new SwarmComPortAction(portId));
+            button = new BigButton(new SwarmComPortAction(portId));
             splash.add(button);
             button.setAlignmentX(Component.CENTER_ALIGNMENT);
             button.setAlignmentY(Component.CENTER_ALIGNMENT);
@@ -727,20 +728,26 @@ public class SwarmCon extends JFrame implements OrbControl
             }
             public void actionPerformed(ActionEvent e)
             {
-               orbIo = new OrbIo(portId);
-               cardLayout.last(centerPanel);
+               try
+               {
+                  gpsIo = new GpsIo(portId);
+                  cardLayout.last(centerPanel);
+               }
+               catch (Exception ex)
+               {
+                  ex.printStackTrace();
+               }
             }
       }
          /** Action to select simulated rather live operation. */
       
       SwarmAction simulation = new SwarmAction(
          "simulate orbs", 
-         getKeyStroke(VK_ENTER, 0),
+         getKeyStroke(VK_S, 0),
          "simulate orb motion rather then connect to live orbs")
          {
                public void actionPerformed(ActionEvent e)
                {
-                  orbIo = null;
                   cardLayout.last(centerPanel);
                }
          };
@@ -805,6 +812,19 @@ public class SwarmCon extends JFrame implements OrbControl
          previousBehavior,
          exit,
       };
+         /** a convience class for a really big button */
+
+      public class BigButton extends JButton
+      {
+            public BigButton(AbstractAction action)
+            {
+               super(action);
+               setFont(BUTTON_FONT);
+               setForeground(BUTTON_CLR);
+            }
+      }
+
+         /** Register stock color schemes */
 
     public static void registerColorSchemes() {
         ColorScheme.registerColorScheme("Analogous", ColorSchemeAnalogous.class);
@@ -913,5 +933,4 @@ public class SwarmCon extends JFrame implements OrbControl
     public void   addSoundFileMapping(String soundFilePath, String soundFileHash) {}
     public String getSoundFileHash(String soundFilePath) {return null;}
     public java.util.List   getSoundFileMappingKeys() {return null;}
-
 }

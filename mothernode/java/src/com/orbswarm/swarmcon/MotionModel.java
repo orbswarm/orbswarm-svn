@@ -6,7 +6,7 @@ import static com.orbswarm.swarmcon.SwarmCon.*;
 import static java.lang.Math.*;
 
    /** This class models the motion of an orb.  It may be a simulated
-    * motion model or a linkage to a live orb */
+    * motion model or a linkage to a live orb. */
 
 abstract public class MotionModel
 {
