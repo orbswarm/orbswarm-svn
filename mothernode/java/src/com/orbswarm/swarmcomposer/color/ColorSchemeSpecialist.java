@@ -46,7 +46,8 @@ public  class ColorSchemeSpecialist extends AbstractSpecialist implements ColorS
 
     public void orbState(Swarm orbSwarm) {
         System.out.println("COlorSchemeSpecialist.orbState()");
-        int n = orbSwarm.getNumOrbs();
+        //int n = orbSwarm.getNumOrbs();
+        int n = 6;
         int[][] intdistances = new int[n][n];
         for(int i=0; i < n; i++) {
             Orb orb = orbSwarm.getOrb(i);
@@ -79,6 +80,7 @@ public  class ColorSchemeSpecialist extends AbstractSpecialist implements ColorS
     }
 
     public void newColorScheme(ColorScheme ncs) {
+        System.out.println("ColorSchemeSpecialist.newColorScheme(" + ncs + ")");
         botctl_color.newColorScheme(ncs);
     }
 

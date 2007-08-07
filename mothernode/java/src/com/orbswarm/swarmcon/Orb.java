@@ -16,7 +16,7 @@ import static org.trebor.util.ShapeTools.*;
 
    // abstract orb
       
-public class Orb extends Mobject
+public class Orb extends Mobject implements com.orbswarm.choreography.Orb
 {
          /** identifier counter */
 
@@ -29,6 +29,9 @@ public class Orb extends Mobject
          /** shape of the orb */
 
       private Shape shape = createOrbShape();
+
+         /** settable color of this orb. */
+      private Color orbColor = ORB_CLR;
 
          /** shadow of the orb */
 
@@ -59,6 +62,10 @@ public class Orb extends Mobject
       private Mobject   nearest         = null;
       private double    nearestDistance = Double.MAX_VALUE;
 
+         /** distances to all the other orbs. Calculated once per cycle. */
+
+      private double [] distances;
+        
          // misc globals
 
       protected Swarm              swarm = null;
@@ -70,6 +77,7 @@ public class Orb extends Mobject
          super(ORB_DIAMETER);
          this.model = model;
          this.swarm = swarm;
+         this.distances = new double[6]; // how to get swarm size here?
          id = nextId++;
          randomizePos();
       }
@@ -89,7 +97,20 @@ public class Orb extends Mobject
          super.setPosition(x, y);
          model.setPosition(getX(), getY());
       }
-         /** Return the current orbs motion model */
+
+      void setOrbColor(Color val) {
+          this.orbColor = val;
+      }
+
+      Color getOrbColor() {
+          if (this.orbColor == null) {
+              return ORB_CLR;
+          } else {
+              return this.orbColor;
+          }
+      }
+    
+          /** Return the current orbs motion model */
       
       public MotionModel getModel()
       {
@@ -258,6 +279,38 @@ public class Orb extends Mobject
                }
             }
       }
+
+        // calculate distances to all the other orbs
+
+    public double[] calculateDistances()
+    {
+        int i=0;
+        for (Mobject other: swarm)
+        {
+            if (other instanceof Orb) {
+                if (other != this)
+                {
+                    double distance = distanceTo(other);
+                    distances[i] = distance;
+                }
+
+                else
+                {
+                    distances[i] = 0.d;
+                }
+                i++;
+            }
+        }
+        return distances;
+    }
+    
+        // return the distances array
+
+    public double[] getDistances()
+    {
+        return distances;
+    }
+    
          // paint this object onto a graphics area
 
       public void paint(Graphics2D g)
@@ -273,7 +326,7 @@ public class Orb extends Mobject
 
             // draw orb shape
 
-         setColor(g, isSelected() ? SEL_ORB_CLR : ORB_CLR);
+         setColor(g, isSelected() ? SEL_ORB_CLR : getOrbColor()); // was: ORB_CLR
          g.fill(shape);
          
             // draw orb shadow

@@ -4,7 +4,7 @@ import java.util.*;
 import java.awt.*;
 import java.awt.geom.*;
 
-public class Swarm extends Mobjects
+public class Swarm extends Mobjects implements com.orbswarm.choreography.Swarm
 {
       // arena in which to swarm
    
@@ -89,5 +89,37 @@ public class Swarm extends Mobjects
       for (Mobject mobject: this)
          mobject.update(time);
    }
+
+    //
+    // methods implementing com.orbswarm.choreography.Swarm interface
+    //
+    public com.orbswarm.choreography.Orb getOrb(int orbNum) {
+        // assuming orbs are in the Vector in order of their Ids...
+        for (Mobject mobject: this) {
+            if (mobject instanceof Orb) {
+                Orb orb = (Orb)mobject;
+                if (orb.getId() == orbNum) {
+                    return orb;
+                }
+            }
+        }
+        return null; //? (com.orbswarm.choreography.Orb)
+    }
+
+    public int getNumOrbs() {
+        return size();
+    }
+
+    public void updateOrbDistances() 
+    {
+        for (Mobject mobject: this)
+        {
+            if (mobject instanceof Orb) {
+                ((Orb)mobject).calculateDistances();
+            }
+        }
+    }
+        
 }
+
 

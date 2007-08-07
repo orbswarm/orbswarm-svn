@@ -55,6 +55,7 @@ public class BotControllerColor extends BotController implements SwarmListener, 
     ColorScheme currentColorScheme;
 
     public void setColorScheme(ColorScheme cs) {
+        System.out.println("\n\nBC:: setColorScheme(" + cs + ")");
         this.currentColorScheme = cs;
     }
     
@@ -139,55 +140,57 @@ public class BotControllerColor extends BotController implements SwarmListener, 
             }
             System.out.println();
         }
-        for(int i=0; i < nbeasties; i++) {
-            int baseColorBot = swatchToBotMapping[0];
-            if (baseColorBot == i) {
-                HSV schemeColor = colorScheme.getColor(0);
-                HSV botColor = botColors[i];
-                botColor.setHue(schemeColor.getHue());
-                botColor.setSat(schemeColor.getSat());
-                botColor.setVal(schemeColor.getVal());
-                
-                //Color actualColor = botColor.toColor();
-                broadcastBotColorChanged(i, 0, botColor);
-                
-            } else {
-                int[] botDistances = distances[i];
-                int distanceToBase = botDistances[baseColorBot];
-
-                float rangeMultiplier = distanceToBase / 100.f;
-
-                int swatch = botToSwatchMapping[i];
-                HSV currentSchemeColor = colorScheme.getColor(swatch);
-                HSV botColor = botColors[i];
-                //
-                // The colors move in increments (+/- 1/10 of range?)
-                // giving kind of a random walk.
-                // However, they are constrained to be within the range of the scheme hue.
-                //
-                float hueRange = rangeMultiplier * botColorRanges[i].getHue();
-                float increment = hueRange * .1f * randomSign();
-                float schemeHue = currentSchemeColor.getHue();
-                float newHue = botColor.getHue() + increment;
-                if (debugswap) 
-                System.out.println("   Bot(" + i + " sw<" + swatch + ">) dist: " + distanceToBase + " hueRange: " + hueRange + " old Hue: " + botColor.getHue() + " newHue: " + newHue + " <swatchHue: " + schemeHue + ">");
-                newHue = constrainDelta(newHue, schemeHue, hueRange / 2.f);
-                if (debugswap) 
-                System.out.println("         newHue(after constrain)Delta: " + newHue);
-                newHue = constrainHue(newHue);
-
-                float satRange = rangeMultiplier * botColorRanges[i].getSat();
-                float schemeSat = currentSchemeColor.getSat();
-                float newSat = botColor.getSat() + increment;
-                newSat = constrainDelta(newSat, schemeSat, satRange / 2.f);
-                newSat = constrainN1(newSat, .4f);
-
-                // later: move halfway from current hue/sat to the randomized one?
-                botColor.setHue(newHue);
-                botColor.setSat(newSat);
-                //System.out.println("    BC::BotColor[" + i + "] h: " + newHue + " s: " + newSat);
-                //Color actualColor = botColor.toColor();
-                broadcastBotColorChanged(i, swatch, botColor);
+        if (colorScheme != null) {
+            for(int i=0; i < nbeasties; i++) {
+                int baseColorBot = swatchToBotMapping[0];
+                if (baseColorBot == i) {
+                    HSV schemeColor = colorScheme.getColor(0);
+                    HSV botColor = botColors[i];
+                    botColor.setHue(schemeColor.getHue());
+                    botColor.setSat(schemeColor.getSat());
+                    botColor.setVal(schemeColor.getVal());
+                    
+                    //Color actualColor = botColor.toColor();
+                    broadcastBotColorChanged(i, 0, botColor);
+                    
+                } else {
+                    int[] botDistances = distances[i];
+                    int distanceToBase = botDistances[baseColorBot];
+                    
+                    float rangeMultiplier = distanceToBase / 100.f;
+                    
+                    int swatch = botToSwatchMapping[i];
+                    HSV currentSchemeColor = colorScheme.getColor(swatch);
+                    HSV botColor = botColors[i];
+                    //
+                    // The colors move in increments (+/- 1/10 of range?)
+                    // giving kind of a random walk.
+                    // However, they are constrained to be within the range of the scheme hue.
+                    //
+                    float hueRange = rangeMultiplier * botColorRanges[i].getHue();
+                    float increment = hueRange * .1f * randomSign();
+                    float schemeHue = currentSchemeColor.getHue();
+                    float newHue = botColor.getHue() + increment;
+                    if (debugswap) 
+                        System.out.println("   Bot(" + i + " sw<" + swatch + ">) dist: " + distanceToBase + " hueRange: " + hueRange + " old Hue: " + botColor.getHue() + " newHue: " + newHue + " <swatchHue: " + schemeHue + ">");
+                    newHue = constrainDelta(newHue, schemeHue, hueRange / 2.f);
+                    if (debugswap) 
+                        System.out.println("         newHue(after constrain)Delta: " + newHue);
+                    newHue = constrainHue(newHue);
+                    
+                    float satRange = rangeMultiplier * botColorRanges[i].getSat();
+                    float schemeSat = currentSchemeColor.getSat();
+                    float newSat = botColor.getSat() + increment;
+                    newSat = constrainDelta(newSat, schemeSat, satRange / 2.f);
+                    newSat = constrainN1(newSat, .4f);
+                    
+                    // later: move halfway from current hue/sat to the randomized one?
+                    botColor.setHue(newHue);
+                    botColor.setSat(newSat);
+                    //System.out.println("    BC::BotColor[" + i + "] h: " + newHue + " s: " + newSat);
+                    //Color actualColor = botColor.toColor();
+                    broadcastBotColorChanged(i, swatch, botColor);
+                }
             }
         }
     }

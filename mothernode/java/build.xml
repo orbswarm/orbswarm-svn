@@ -173,7 +173,7 @@ The text of the MIT license apears in the mit-license.txt file.
     <jar destfile = "${jar-name}"
          update   = "false"
          basedir  = "${build-dir}"
-         includes = "${domain-scope-dir}/${app-name}/*"
+         includes = "${domain-scope-dir}/**"
          manifest = "${resources}/MANIFEST.MF">
       <zipgroupfileset refid = "libraries"/>
       <fileset refid = "resources"/>
@@ -181,7 +181,7 @@ The text of the MIT license apears in the mit-license.txt file.
     <jar destfile = "${jar-name}"
          update   = "true"
          basedir  = "${source-dir}"
-         includes = "${domain-scope-dir}/${app-name}/*"/>
+         includes = "${domain-scope-dir}/**"/>
   </target>
 
   <!-- construct mac .app -->

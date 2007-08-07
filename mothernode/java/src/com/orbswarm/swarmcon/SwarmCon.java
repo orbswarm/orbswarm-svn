@@ -12,6 +12,12 @@ import java.util.*;
 import java.text.*;
 import org.trebor.pid.*;
 
+import com.orbswarm.choreography.Specialist;
+import com.orbswarm.choreography.OrbControl;
+
+import com.orbswarm.swarmcomposer.color.*;
+import com.orbswarm.swarmcomposer.composer.BotVisualizer;
+
 import static org.trebor.util.ShapeTools.*;
 import static java.lang.System.*;
 import static java.awt.Color.*;
@@ -19,7 +25,7 @@ import static java.lang.Math.*;
 import static javax.swing.KeyStroke.*;
 import static java.awt.event.KeyEvent.*;
 
-public class SwarmCon extends JFrame
+public class SwarmCon extends JFrame implements OrbControl
 {
          // global source of randomness
 
@@ -44,7 +50,7 @@ public class SwarmCon extends JFrame
       public static final double CRITICAL_DISTANCE =   2.0; // meters
       public static final int    INITIAL_ORBS      =   6  ; // orbs
       public static final int    ORB_SPAR_COUNT    =   4  ; // arcs
-      
+
          /** time in seconds for a phantom to move to it's target postion */
 
       public static final double PHANTOM_PERIOD    =  2  ;
@@ -78,6 +84,10 @@ public class SwarmCon extends JFrame
          /** communcation with the outside world */
       
       OrbIo orbIo;
+
+         /**  Specialists listening to OrbState messages */
+      ArrayList specialists = new ArrayList();
+
 
          // color
 
@@ -159,7 +169,10 @@ public class SwarmCon extends JFrame
       public static void main(String[] args)
       {
          SwarmCon c = new SwarmCon();
+         setupColorSchemeSpecialist(c);
       }
+
+    
          // construct a swarm
 
       public SwarmCon()
@@ -275,12 +288,31 @@ public class SwarmCon extends JFrame
                // update all the objects
 
             swarm.update(time);
+
+            swarm.updateOrbDistances();
+            broadcastOrbState();
             
                // repaint the screen
 
             arena.repaint();
          }
       }
+
+          // add a Specialist to list of OrbState receivers
+      public void addSpecialist(Specialist sp) 
+      {
+          specialists.add(sp);
+      }
+    
+         // broadcast OrbState messages to all the Specialists\
+      public void broadcastOrbState() 
+      {
+          for(Iterator it=specialists.iterator(); it.hasNext(); ) {
+              Specialist specialist = (Specialist)it.next();
+              specialist.orbState(swarm);
+          }
+      }
+ 
          // place gui object into frame
       
       public void constructFrame(Container frame)
@@ -773,4 +805,113 @@ public class SwarmCon extends JFrame
          previousBehavior,
          exit,
       };
+
+    public static void registerColorSchemes() {
+        ColorScheme.registerColorScheme("Analogous", ColorSchemeAnalogous.class);
+        ColorScheme.registerColorScheme("Split Complement", ColorSchemeSplitComplement.class);
+        ColorScheme.registerColorScheme("Split Complement 3", ColorSchemeSplitComplement3.class);
+        ColorScheme.registerColorScheme("Triad", ColorSchemeTriad.class);
+        ColorScheme.registerColorScheme("Tetrad", ColorSchemeTetrad.class);
+        ColorScheme.registerColorScheme("Crown", ColorSchemeCrown.class);
+    }
+    
+    /** Setup the ColorSchemeSpecialist and it's controller interface */
+    public static void setupColorSchemeSpecialist(SwarmCon swarmCon) {
+        registerColorSchemes();
+        ColorSchemeSpecialist colorSchemeSpecialist = new ColorSchemeSpecialist();
+        colorSchemeSpecialist.setup((OrbControl)swarmCon, null);
+                
+        swarmCon.addSpecialist(colorSchemeSpecialist);
+
+        ColorSchemer schemer = new ColorSchemer("Crown");
+        schemer.addColorSchemeListener(colorSchemeSpecialist);
+        schemer.broadcastNewColorScheme();
+        schemer.broadcastColorSchemeChanged();
+
+        colorSchemeSpecialist.addBotColorListener(schemer);
+
+        JPanel colorUIPanel = createColorUIPanel(schemer, null);
+        JFrame colorUIFrame = createFrame(colorUIPanel, true);
+    }
+    
+    private static JPanel createColorUIPanel(ColorSchemer colorSchemer, BotVisualizer bv) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
+        panel.setBackground(Color.BLACK);
+        GridBagConstraints gbc = new GridBagConstraints();
+        
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        panel.add(colorSchemer.getPanel(), gbc);
+        
+        gbc.gridy = 1;
+        if (bv != null) {
+            panel.add(bv.getPanel(), gbc);
+        }
+            
+        // put sliders in here for the spread and value
+        return panel;
+    }
+
+    private static JFrame createFrame(JPanel panel, boolean decorated) {
+        JFrame frame = new JFrame();
+        // the frame for drawing to the screen
+        frame.setVisible(false);
+        frame.setContentPane(panel);
+        frame.setResizable(decorated);
+        frame.setUndecorated(!decorated);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);            // closes all windows
+        frame.setTitle("Swarm Color Tests");
+        frame.pack();
+        frame.setVisible(true);
+        return frame;
+    }
+
+    //
+    // Implementation of methods from orb.swarmcon.choreography.OrbControl
+    //
+    public OrbControl getOrbControl() {
+        return (OrbControl)this;
+    }
+
+    // sound control methods not implemented.
+    public int  playSoundFile(int orb, String soundFilePath) {return -1;}
+    public void stopSound(int orb) {}
+    public void volume(int orb, int volume) {}
+
+    // only one Light control method implemented
+    public void orbColor(int orbNum, int hue, int sat, int val, int time) {
+        System.out.println("SwarmCon:OrbControl orbColor(orb: " + orbNum + "HSV: [" + hue + ", " + sat + ", " + val + "])");
+        float fhue = hue / 255.f;
+        float fsat = sat / 255.f;
+        float fval = val / 255.f;
+        HSV hsv = new HSV(fhue, fsat, fval);
+        // time ignored here.
+        Color color = hsv.toColor();
+        Orb orb = (Orb)swarm.getOrb(orbNum);
+        orb.setOrbColor(color);
+        // TODO: send color command out on OrbIO, or give it to model, or something. 
+    }
+    
+    public void orbColorFade(int orb,
+                             int hue1, int sat1, int val1,
+                             int hue2, int sat2, int val2,
+                             int time) {}
+
+    //
+    // Motion methods
+    //
+    public void followPath(com.orbswarm.choreography.Point[] wayPoints) {}
+    public void stopOrb(int orb) {}
+    
+    //
+    // SoundFile -> sound hash mapping.
+    //
+    public void   addSoundFileMapping(String soundFilePath, String soundFileHash) {}
+    public String getSoundFileHash(String soundFilePath) {return null;}
+    public java.util.List   getSoundFileMappingKeys() {return null;}
+
 }

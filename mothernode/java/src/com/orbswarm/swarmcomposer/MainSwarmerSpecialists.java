@@ -64,9 +64,9 @@ public class MainSwarmerSpecialists {
             }
         }
 
-        String[] swarmulatorArgs  = toStringArray(swarmulatorArgList);
-        String[] swarmComposerArgs     = toStringArray(swarmComposerArgList);
-        String[] colorSchemerArgs = toStringArray(colorSchemerArgList);
+        String[] swarmulatorArgs   = toStringArray(swarmulatorArgList);
+        String[] swarmComposerArgs = toStringArray(swarmComposerArgList);
+        String[] colorSchemerArgs  = toStringArray(colorSchemerArgList);
 
         int canvasSize = 800;
         SwarmField swarmField = new SwarmField(canvasSize);
