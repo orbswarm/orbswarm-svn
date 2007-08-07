@@ -6,46 +6,46 @@ import java.awt.geom.*;
 import static java.lang.Math.*;
 import static org.trebor.util.ShapeTools.*;
 
-   // mobile object
+// mobile object
 
 public class Mobject
 {
-         /** position of mobject in space */
+      /** position of mobject in space */
 
       private Point position = new Point();
 
-         /** has this mobject been selected */
+      /** has this mobject been selected */
 
       private boolean selected = false;
 
-         /** children mobjects which are placed relative to this mobject */
+      /** children mobjects which are placed relative to this mobject */
 
       private Mobjects children = new Mobjects();
 
-         /** master alpha value to use for painting this mobject */
+      /** master alpha value to use for painting this mobject */
 
       private double masterAlpha = 1;
 
-         /** shape of this mobject used for selection and perhaps display */
+      /** shape of this mobject used for selection and perhaps display */
 
       private Shape shape;
 
-         /** Create a mobject.
-          * 
-          * @param size the typical size of the object use for selection
-          * and to compute arangemt of object, here the shape of the
-          * object is assumed to be a circle
-          */
+      /** Create a mobject.
+       * 
+       * @param size the typical size of the object use for selection
+       * and to compute arangemt of object, here the shape of the
+       * object is assumed to be a circle
+       */
 
       public Mobject(double size)
       {
          setShape(new Ellipse2D.Double(-(size / 2), -(size / 2), size, size));
       }
-         /** Create a mobject.
-          * 
-          * @param shape the shape of the object use for selection and
-          * to compute arangemt of object
-          */
+      /** Create a mobject.
+       * 
+       * @param shape the shape of the object use for selection and
+       * to compute arangemt of object
+       */
 
       public Mobject(Shape shape)
       {
@@ -56,39 +56,39 @@ public class Mobject
             setShape(translate(shape, dx, dy));
          }
       }
-         /** Is this mobject selected?
-          *
-          * @return true if object selected
-          */
+      /** Is this mobject selected?
+       *
+       * @return true if object selected
+       */
 
       public boolean isSelected()
       {
          return selected;
       }
-         /** Is the given point (think mouse click point) eligable to
-          * select this object?
-          *
-          * @param clickPoint the point where the mouse was clicked
-          */
+      /** Is the given point (think mouse click point) eligable to
+       * select this object?
+       *
+       * @param clickPoint the point where the mouse was clicked
+       */
 
       public boolean isSelectedBy(Point2D.Double clickPoint)
       {
          return shape.contains(clickPoint.x - getPosition().x, 
                                clickPoint.y - getPosition().y);
       }
-         /** Set the selection state of this mobject.
-          *
-          * @param selected selection state of mobject
-          */
+      /** Set the selection state of this mobject.
+       *
+       * @param selected selection state of mobject
+       */
 
       public void setSelected(boolean selected)
       {
          this.selected = selected;
       }
-         /** Get the size of this mobject.
-          *
-          * @return the nominal of this mobject
-          */
+      /** Get the size of this mobject.
+       *
+       * @return the nominal of this mobject
+       */
 
       public double getSize()
       {
@@ -97,85 +97,85 @@ public class Mobject
             ? b.getWidth()
             : b.getHeight();
       }
-         /** Set the shape of this mobject.
-          *
-          * @param shape the nominal of this mobject
-          */
+      /** Set the shape of this mobject.
+       *
+       * @param shape the nominal of this mobject
+       */
 
       public void setShape(Shape shape)
       {
          this.shape = shape;
       }
-         /** Get the shape of this mobject.
-          *
-          * @return the nominal of this mobject
-          */
+      /** Get the shape of this mobject.
+       *
+       * @return the nominal of this mobject
+       */
 
       public Shape getShape()
       {
          return shape;
       }
-         // positon getter 
+      // positon getter 
 
       Point getPosition()
       {
          return new Point(getX(), getY());
       }
-         // get x position
+      // get x position
 
       double getX()
       {
          return position.getX();
       }
-         // get y position
+      // get y position
 
       double getY()
       {
          return position.getY();
       }
-         // position setter
+      // position setter
 
       void setPosition(Point2D.Double position)
       {
          setPosition(position.getX(), position.getY());
       }
-         // position setter
+      // position setter
 
       void setPosition(double x, double y)
       {
          this.position.setLocation(x, y);
       }
-         // set delta position
+      // set delta position
 
       void deltaPosition(double dX, double dY)
       {
          setPosition(getX() + dX, getY() + dY);
       }
-         // update state of this object
+      // update state of this object
 
       public void update(double time)
       {
          for (Mobject child: children)
             child.update(time);
       }
-         /** Add a child mobject to this mobject.
-          *
-          * @param child child mobject
-          */
+      /** Add a child mobject to this mobject.
+       *
+       * @param child child mobject
+       */
 
       public void addChild(Mobject child)
       {
          children.add(child);
       }
-         /** Add a child mobject to this mobject.
-          *
-          * @param child child mobject
-          */
+      /** Add a child mobject to this mobject.
+       *
+       * @param child child mobject
+       */
       public void removeChild(Mobject child)
       {
          children.add(child);
       }
-         // paint this object onto a graphics area
+      // paint this object onto a graphics area
 
       public void paint(Graphics2D g)
       {
@@ -187,7 +187,7 @@ public class Mobject
             g.setTransform(oldTransform);
          }
       }
-         // paint phantom version of this mobject onto the graphics area
+      // paint phantom version of this mobject onto the graphics area
 
       public void paint(Phantom phantom, Graphics2D g)
       {
@@ -196,13 +196,13 @@ public class Mobject
          paint(g);
          position = tmp;
       }
-         // compute heading to some point
+      // compute heading to some point
 
       public double headingTo(Mobject other)
       {
          return headingTo(other.getPosition());
       }
-         // compute heading to some point
+      // compute heading to some point
 
       public double headingTo(Point2D.Double point)
       {
@@ -211,43 +211,43 @@ public class Mobject
          double angle = atan2(dx, dy);
          return toDegrees(angle) + (dx < 0 ? 360 : 0);
       }
-         // compute distance to some point
+      // compute distance to some point
 
       public double distanceTo(Mobject other)
       {
          return distanceTo(other.getPosition());
       }
-         // compute distance to some point
+      // compute distance to some point
 
       public double distanceTo(Point2D.Double point)
       {
          return getPosition().distance(point);
       }
-         /** Get current master alpha value.
-          *
-          * @return normalized value (0..1) of master alpha
-          */
+      /** Get current master alpha value.
+       *
+       * @return normalized value (0..1) of master alpha
+       */
       
       public double getMasterAlpha()
       {
          return masterAlpha;
       }
-         /** Set current master alpha value.
-          *
-          * @param masterAlpha normalized master alpha value from 0 to 1
-          */
+      /** Set current master alpha value.
+       *
+       * @param masterAlpha normalized master alpha value from 0 to 1
+       */
       
       public void setMasterAlpha(double masterAlpha)
       {
          assert(masterAlpha >= 0 && masterAlpha <= 1);
          this.masterAlpha = masterAlpha;
       }
-         /** Sets the color of a grapics object taking into account the
-          * master alpha.
-          * 
-          * @param g graphics to set color for
-          * @param color color to apply alpha to 
-          */
+      /** Sets the color of a grapics object taking into account the
+       * master alpha.
+       * 
+       * @param g graphics to set color for
+       * @param color color to apply alpha to 
+       */
       
       public void setColor(Graphics2D g, Color color)
       {
@@ -258,4 +258,4 @@ public class Mobject
                        (int)((color.getAlpha() / 255d) * 
                              masterAlpha * 255)));
       }
- }
+}

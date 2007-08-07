@@ -8,117 +8,117 @@ public class Swarm extends Mobjects implements com.orbswarm.choreography.Swarm
 {
       // arena in which to swarm
    
-   private Rectangle2D.Double arena;
+      private Rectangle2D.Double arena;
 
       // globals
 
-   private Point2D.Double centroid = new Point2D.Double();
+      private Point2D.Double centroid = new Point2D.Double();
 
       // construct a swarm
 
-   public Swarm(Rectangle2D.Double arena)
-   {
-      this.arena = arena;
-   }
+      public Swarm(Rectangle2D.Double arena)
+      {
+         this.arena = arena;
+      }
       // randomize position of items in swarm
 
-   public void randomize()
-   {
-      for (Mobject mobject: this)
-         if (mobject instanceof Orb)
-            ((Orb)mobject).randomizePos();
-   }
+      public void randomize()
+      {
+         for (Mobject mobject: this)
+            if (mobject instanceof Orb)
+               ((Orb)mobject).randomizePos();
+      }
 
       // get arena
 
-   public Rectangle2D.Double getArena()
-   {
-      return arena;
-   }
+      public Rectangle2D.Double getArena()
+      {
+         return arena;
+      }
       /** Compute center of arena. 
        *
        * @return center of the arena
        */
 
-   public Point2D.Double getCenter()
-   {
-      return new Point2D.Double(
-         arena.getX() + arena.getWidth() / 2,
-         arena.getY() + arena.getHeight() / 2);
-   }
+      public Point2D.Double getCenter()
+      {
+         return new Point2D.Double(
+            arena.getX() + arena.getWidth() / 2,
+            arena.getY() + arena.getHeight() / 2);
+      }
       // get centroid
    
-   public Point2D.Double getCentroid()
-   {
-      return centroid;
-   }
+      public Point2D.Double getCentroid()
+      {
+         return centroid;
+      }
       // select next behavoir for all orbs in swarm
 
-   public void nextBehavior()
-   {
-      for (Mobject mobject: this)
-         if (mobject instanceof Orb)
-            ((Orb)mobject).nextBehavior();
-   }
+      public void nextBehavior()
+      {
+         for (Mobject mobject: this)
+            if (mobject instanceof Orb)
+               ((Orb)mobject).nextBehavior();
+      }
       // select previous behavoir for all orbs in swarm
 
-   public void previousBehavior()
-   {
-      for (Mobject mobject: this)
-         if (mobject instanceof Orb)
-            ((Orb)mobject).previousBehavior();
-   }
+      public void previousBehavior()
+      {
+         for (Mobject mobject: this)
+            if (mobject instanceof Orb)
+               ((Orb)mobject).previousBehavior();
+      }
       // update the swarm
 
-   public void update(double time)
-   {
+      public void update(double time)
+      {
          // establish centroid of swarm
       
-      centroid.x = 0;
-      centroid.y = 0;
-      for (Mobject mobject: this)
-      {
-         centroid.x += mobject.getPosition().x;
-         centroid.y += mobject.getPosition().y;
-      }
-      centroid.x /= size();
-      centroid.y /= size();
+         centroid.x = 0;
+         centroid.y = 0;
+         for (Mobject mobject: this)
+         {
+            centroid.x += mobject.getPosition().x;
+            centroid.y += mobject.getPosition().y;
+         }
+         centroid.x /= size();
+         centroid.y /= size();
 
          // update individual mobjects
 
-      for (Mobject mobject: this)
-         mobject.update(time);
-   }
+         for (Mobject mobject: this)
+            mobject.update(time);
+      }
 
-    //
-    // methods implementing com.orbswarm.choreography.Swarm interface
-    //
-    public com.orbswarm.choreography.Orb getOrb(int orbNum) {
-        // assuming orbs are in the Vector in order of their Ids...
-        for (Mobject mobject: this) {
+      //
+      // methods implementing com.orbswarm.choreography.Swarm interface
+      //
+      public com.orbswarm.choreography.Orb getOrb(int orbNum) {
+         // assuming orbs are in the Vector in order of their Ids...
+         for (Mobject mobject: this) {
             if (mobject instanceof Orb) {
-                Orb orb = (Orb)mobject;
-                if (orb.getId() == orbNum) {
-                    return orb;
-                }
+               Orb orb = (Orb)mobject;
+               if (orb.getId() == orbNum) {
+                  return orb;
+               }
             }
-        }
-        return null; //? (com.orbswarm.choreography.Orb)
-    }
+         }
+         return null; //? (com.orbswarm.choreography.Orb)
+      }
 
-    public int getNumOrbs() {
-        return size();
-    }
+      public int getNumOrbs() {
+         return size();
+      }
 
-    public void updateOrbDistances() 
-    {
-        for (Mobject mobject: this)
-        {
+      public void updateOrbDistances() 
+      {
+         for (Mobject mobject: this)
+         {
             if (mobject instanceof Orb) {
-                ((Orb)mobject).calculateDistances();
+               ((Orb)mobject).calculateDistances();
             }
-        }
-    }
+         }
+      }
         
 }
 

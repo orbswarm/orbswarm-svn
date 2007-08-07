@@ -8,26 +8,26 @@ import javax.swing.AbstractAction;
 import static java.lang.Math.*;
 import static javax.swing.AbstractAction.*;
 
-   /** You know a button. */
+/** You know a button. */
 
 public class Button extends Mobject
 {
-         /** button text, may contain carrage returns */
+      /** button text, may contain carrage returns */
 
       private String text;
 
-         /** font to print button text in */
+      /** font to print button text in */
 
       private Font font;
 
-         /** action this button should perform */
+      /** action this button should perform */
 
       private AbstractAction action;
 
-         /** Construct a new button.
-          *
-          * @param text text to display in button
-          */
+      /** Construct a new button.
+       *
+       * @param text text to display in button
+       */
 
       public Button(AbstractAction action)
       {
@@ -41,27 +41,27 @@ public class Button extends Mobject
          this.font = font;
          setPosition(x, y);
       }
-         /** Paint this button.
-          *
-          * @param g graphics context usued to identify button's size
-          */
+      /** Paint this button.
+       *
+       * @param g graphics context usued to identify button's size
+       */
       
       public void paint(Graphics2D g)
       {
          AffineTransform at = g.getTransform();
          g.translate(getX(), getY());
 
-            // if we've got font use that
+         // if we've got font use that
 
          if (font != null)
             g.setFont(font);
 
-            // if the shape is not defined, create it
+         // if the shape is not defined, create it
 
          if (getShape() == null)
             setShape(createButtonShape(g));
 
-            // draw background shape
+         // draw background shape
 
          g.setColor(isSelected()
                     ? new Color(128, 0, 0, 128)
@@ -71,11 +71,11 @@ public class Button extends Mobject
          g.drawString(text, 0, 0);
          g.setTransform(at);
       }
-         /** Create shape for this button.
-          *
-          * @param g graphics context usued to identify button's size
-          * @return created button shape
-          */
+      /** Create shape for this button.
+       *
+       * @param g graphics context usued to identify button's size
+       * @return created button shape
+       */
 
       Shape createButtonShape(Graphics2D g)
       {
@@ -92,7 +92,7 @@ public class Button extends Mobject
             BasicStroke.JOIN_ROUND);
          return stroke.createStrokedShape(line);
       }
-         /** Indicate that the action is to be performed */
+      /** Indicate that the action is to be performed */
 
       public void performAction(ActionEvent event)
       {

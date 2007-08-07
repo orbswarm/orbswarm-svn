@@ -41,16 +41,16 @@ public class JarLibrary
     	    System.load (temp.getPath());
          }
          
-	catch (Exception ex) 
-        {
+         catch (Exception ex) 
+         {
 	    String cause = ex.getMessage();
 	    if (cause == null) cause = ex.toString();
 	    throw new Exception (cause);
-        }
+         }
          
-	catch (UnsatisfiedLinkError er) 
-        {
-           throw new Exception (er.getMessage());
-        }
+         catch (UnsatisfiedLinkError er) 
+         {
+            throw new Exception (er.getMessage());
+         }
       }
 }

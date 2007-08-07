@@ -16,43 +16,43 @@ import java.io.OutputStream;
 
 public class SerialIo
 {
-         /** baud */
+      /** baud */
 
       int baud     = 38400;
 
-         /** data bits */
+      /** data bits */
 
       int databits = SerialPort.DATABITS_8;
 
-         /** stop bits */
+      /** stop bits */
 
       int stopbits = SerialPort.STOPBITS_1;
 
-         /** parity */
+      /** parity */
 
       int parity   = SerialPort.PARITY_NONE;
 
-         /** id of serial port */
+      /** id of serial port */
 
       CommPortIdentifier portId;
       
-         /** serial port */
+      /** serial port */
 
       SerialPort serialPort;
       
-         /** input stream from serial port */
+      /** input stream from serial port */
 
       InputStream in;
 
-         /** output stream to serial port */
+      /** output stream to serial port */
 
       OutputStream out;
 
-         /** listener to events serial */
+      /** listener to events serial */
 
       SerialPortEventListener eventListener;
 
-         /** load correct library */
+      /** load correct library */
 
       static
       {
@@ -67,7 +67,7 @@ public class SerialIo
          }
          System.out.println("loaded");
       }
-         /** Construct a SerialIo object. */
+      /** Construct a SerialIo object. */
 
       public SerialIo(String portName)
       {
@@ -81,44 +81,44 @@ public class SerialIo
             e.printStackTrace();
          }
       }
-         /** open a serial port */
+      /** open a serial port */
 
       public void open() throws Exception
       {
-            // if port unavailable, say so
+         // if port unavailable, say so
 
          if (portId.isCurrentlyOwned())
             throw(new Exception("Port " + portId.getName() + " is currently in use"));
          
-            // open com port
+         // open com port
 
          CommPort commPort = portId.open("SwarmCon", 2000);
 
-            // if not a serial port, say so
+         // if not a serial port, say so
 
          if (!(commPort instanceof SerialPort))
             throw(new Exception("Port " + portId.getName() + " is not a serial port"));
 
-            // shazam your a serial port
+         // shazam your a serial port
 
          serialPort = (SerialPort)commPort;
          serialPort.setSerialPortParams(baud, databits, stopbits, parity);
             
-            // get port streams
+         // get port streams
 
          in = serialPort.getInputStream();
          out = serialPort.getOutputStream();
       }
       
-         /** Add an event listener to the serial port.  I can't seem to
-          * get the event listner to work, so this is likely dead code.
-          */
+      /** Add an event listener to the serial port.  I can't seem to
+       * get the event listner to work, so this is likely dead code.
+       */
 
       public void addEventListener()
       {
          try
          {
-               // and add event listener
+            // and add event listener
             
             eventListener = new SerialPortEventListener()
                {
@@ -151,7 +151,7 @@ public class SerialIo
             e.printStackTrace();
          }
       }
-         /** List available ports. */
+      /** List available ports. */
 
       static Vector<String> listSerialPorts()
       {
@@ -161,7 +161,7 @@ public class SerialIo
             list.add(((CommPortIdentifier) portEnum.nextElement()).getName());
          return list;
       }
-         /** Map port type numbers to a string. */
+      /** Map port type numbers to a string. */
 
       static String getPortTypeName(int portType)
       {
@@ -181,10 +181,10 @@ public class SerialIo
                return "unknown type";
          }
       }
-         /** Send string to serial port
-          *
-          * @param string string to sent out to the serial port
-          */
+      /** Send string to serial port
+       *
+       * @param string string to sent out to the serial port
+       */
 
       public void send(String string)
       {
@@ -198,4 +198,4 @@ public class SerialIo
             e.printStackTrace();
          }
       }
-  }
+}

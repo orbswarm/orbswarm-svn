@@ -15,25 +15,25 @@ import java.io.InputStreamReader;
 
 public class OrbIo extends SerialIo
 {
-         /** hash of orbs to dispatch messages to */
+      /** hash of orbs to dispatch messages to */
 
       HashMap<Integer, Orb> orbs = new HashMap<Integer, Orb>();
 
-         /** Construct a OrbIo object. */
+      /** Construct a OrbIo object. */
 
       public OrbIo(String portName)
       {
          super(portName);
       }
-         /** open a serial port */
+      /** open a serial port */
 
       public void open() throws Exception
       {
-            // open serial port
+         // open serial port
 
          super.open();
 
-            // create a thread to read in orb data
+         // create a thread to read in orb data
 
          new Thread()
          {
@@ -44,7 +44,7 @@ public class OrbIo extends SerialIo
                      LineNumberReader lnr = new LineNumberReader(
                         new InputStreamReader(in));
 
-                        // now start working
+                     // now start working
 
                      while (true)
                      {
@@ -59,24 +59,24 @@ public class OrbIo extends SerialIo
                }
          }.start();
       }
-         /** Register an orb as activly recieiving messages from this
-          * object.
-          * 
-          * @param orb the orb which is to be registered
-          */
+      /** Register an orb as activly recieiving messages from this
+       * object.
+       * 
+       * @param orb the orb which is to be registered
+       */
 
       public void register(Orb orb)
       {
          orbs.put(orb.getId(), orb);
       }
-         /** Signal a message to an orb.
-          * 
-          * @param message message to be sent to the orb
-          * @param id      identifies which orb the message goes to
-          */
+      /** Signal a message to an orb.
+       * 
+       * @param message message to be sent to the orb
+       * @param id      identifies which orb the message goes to
+       */
 
       public void signal(String message, int id)
       {
          orbs.get(id).handleMessage(message);
       }
-  }
+}

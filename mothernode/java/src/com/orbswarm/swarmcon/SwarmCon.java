@@ -27,15 +27,15 @@ import static java.awt.event.KeyEvent.*;
 
 public class SwarmCon extends JFrame implements OrbControl
 {
-         // global source of randomness
+      // global source of randomness
 
       public static final Random RND = new Random();
 
-         /** minimum frame delay in milliseconds */
+      /** minimum frame delay in milliseconds */
 
       public static final long MIN_FRAME_DELAY = 10;
 
-         // some general parameters
+      // some general parameters
 
       public static final double ORB_RADIUS        =   0.5; // meters
       public static final double MAX_ROLL          =  35.0; // deg
@@ -51,15 +51,15 @@ public class SwarmCon extends JFrame implements OrbControl
       public static final int    INITIAL_ORBS      =   6  ; // orbs
       public static final int    ORB_SPAR_COUNT    =   4  ; // arcs
 
-         /** time in seconds for a phantom to move to it's target postion */
+      /** time in seconds for a phantom to move to it's target postion */
 
       public static final double PHANTOM_PERIOD    =  2  ;
 
-         /** scale for graphics */
+      /** scale for graphics */
 
       public static final double PIXLES_PER_METER  = 30.0;
 
-         /** arena in which we play */
+      /** arena in which we play */
 
       final JPanel arena = new JPanel()
          {
@@ -69,30 +69,30 @@ public class SwarmCon extends JFrame implements OrbControl
                }
          };
 
-         /** card layout for main view area */
+      /** card layout for main view area */
 
       CardLayout cardLayout;
 
-         /** center panel which is the main view area */
+      /** center panel which is the main view area */
 
       JPanel centerPanel;
 
-         /** pid tuner object */
+      /** pid tuner object */
 
       public PidTuner tuner;
 
-         /** communcation with orbs */
+      /** communcation with orbs */
       
       OrbIo orbIo;
 
-         /** communcation with gps */
+      /** communcation with gps */
       
       GpsIo gpsIo;
 
-         /**  Specialists listening to OrbState messages */
+      /**  Specialists listening to OrbState messages */
       ArrayList specialists = new ArrayList();
 
-         // color
+      // color
 
       public static Color BACKGROUND    = WHITE;
       public static Color BUTTON_CLR    = new Color(  0,   0,   0, 164);
@@ -107,8 +107,8 @@ public class SwarmCon extends JFrame implements OrbControl
       public static Font  ORB_FONT      =  new Font("Helvetica", 
                                                     Font.PLAIN, 10);
       public static Font  MENU_FONT      =  new Font("Helvetica", 
-                                                    Font.PLAIN, 15);
-         /** Standard button font */
+                                                     Font.PLAIN, 15);
+      /** Standard button font */
 
       public static Font BUTTON_FONT = new Font("Lucida Grande", Font.PLAIN, 40);
 
@@ -117,11 +117,11 @@ public class SwarmCon extends JFrame implements OrbControl
          ORB_FONT = scaleFont(ORB_FONT);
       }
 
-         /** Scale a font which are to be used in arena units 
-          *
-          * @param original font to be scale
-          * @return a scaled copy of the font
-          */
+      /** Scale a font which are to be used in arena units 
+       *
+       * @param original font to be scale
+       * @return a scaled copy of the font
+       */
 
       public static Font scaleFont(Font original)
       {
@@ -130,31 +130,31 @@ public class SwarmCon extends JFrame implements OrbControl
                     / PIXLES_PER_METER));
       }
 
-         // fix font sizes
+      // fix font sizes
 
-         /** swarm of mobjects (not just orbs) (maybe this should not be
-          * called the swarm?) */
+      /** swarm of mobjects (not just orbs) (maybe this should not be
+       * called the swarm?) */
 
       Swarm swarm;
 
-         /** selected objects */
+      /** selected objects */
 
       Mobjects selected = new Mobjects();
       
-         /** phantom objects */
+      /** phantom objects */
 
       Vector<Phantom> phantoms = new Vector<Phantom>();
       
-         /** last time mobects were updated */
+      /** last time mobects were updated */
       
       Calendar lastUpdate = Calendar.getInstance();
       
-         /** format for printing heading values */
+      /** format for printing heading values */
       
       public static NumberFormat HeadingFormat = NumberFormat.getNumberInstance();
       public static NumberFormat StdFormat = NumberFormat.getNumberInstance();
       
-         /** static initializations */
+      /** static initializations */
 
       static
       {
@@ -165,7 +165,7 @@ public class SwarmCon extends JFrame implements OrbControl
          StdFormat.setMaximumFractionDigits(2);
          StdFormat.setMinimumFractionDigits(2);
       }
-         // entry point
+      // entry point
 
       public static void main(String[] args)
       {
@@ -174,20 +174,20 @@ public class SwarmCon extends JFrame implements OrbControl
       }
 
     
-         // construct a swarm
+      // construct a swarm
 
       public SwarmCon()
       {
-            // construct the frame
+         // construct the frame
          
          constructFrame(getContentPane());
          
-            // get the graphics device from the local graphic environment
+         // get the graphics device from the local graphic environment
          
          GraphicsDevice gv = GraphicsEnvironment.
             getLocalGraphicsEnvironment().getScreenDevices()[0];
          
-            // if full screen is supported setup frame accoringly 
+         // if full screen is supported setup frame accoringly 
          
          if (false && gv.isFullScreenSupported())
          {
@@ -196,7 +196,7 @@ public class SwarmCon extends JFrame implements OrbControl
             pack();
             gv.setFullScreenWindow(this);
          }
-            // otherwise just make a big frame
+         // otherwise just make a big frame
 
          else
          {
@@ -206,7 +206,7 @@ public class SwarmCon extends JFrame implements OrbControl
          }
          cardLayout.first(centerPanel);
 
-            // start the animation thread
+         // start the animation thread
 
          new Thread()
          {
@@ -228,15 +228,15 @@ public class SwarmCon extends JFrame implements OrbControl
          swarm.add(preveouse);
          Controller[] controllers = null;
 
-            // construct the swarm
+         // construct the swarm
 
          for (int i = 0; i < INITIAL_ORBS; ++i)
          {
-               // create an orb
+            // create an orb
 
             Orb orb = new Orb(swarm, new SimModel());
             controllers = ((SimModel)orb.getModel()).getControllers();
-               // add behvaiors
+            // add behvaiors
 
             swarm.add(orb);
             Behavior wb = new WanderBehavior();
@@ -245,7 +245,7 @@ public class SwarmCon extends JFrame implements OrbControl
             Behavior cb = new ClusterBehavior();
             Behavior fab = new AvoidBehavior(fb);
             Behavior cab = new AvoidBehavior(cb);
-               //orb.add(wb);
+            //orb.add(wb);
             orb.add(fb);
             orb.add(rb);
             orb.add(cb);
@@ -258,13 +258,13 @@ public class SwarmCon extends JFrame implements OrbControl
 
          return controllers;
       }
-         // update the world
+      // update the world
 
       public void update()
       {
          synchronized (swarm)
          {
-               // sleep until it's been a minimum frame delay
+            // sleep until it's been a minimum frame delay
             
             try
             {
@@ -276,67 +276,67 @@ public class SwarmCon extends JFrame implements OrbControl
             {
                System.out.println(ex);
             }
-               // get now
+            // get now
 
             Calendar now = Calendar.getInstance();
             double time = (now.getTimeInMillis() 
                            - lastUpdate.getTimeInMillis()) / 1000d;
 
-               // establish the time since last update
+            // establish the time since last update
 
             lastUpdate = now;
 
-               // update all the objects
+            // update all the objects
 
             swarm.update(time);
 
             swarm.updateOrbDistances();
             broadcastOrbState();
             
-               // repaint the screen
+            // repaint the screen
 
             arena.repaint();
          }
       }
 
-          // add a Specialist to list of OrbState receivers
+      // add a Specialist to list of OrbState receivers
       public void addSpecialist(Specialist sp) 
       {
-          specialists.add(sp);
+         specialists.add(sp);
       }
     
-         // broadcast OrbState messages to all the Specialists\
+      // broadcast OrbState messages to all the Specialists\
       public void broadcastOrbState() 
       {
-          for(Iterator it=specialists.iterator(); it.hasNext(); ) {
-              Specialist specialist = (Specialist)it.next();
-              specialist.orbState(swarm);
-          }
+         for(Iterator it=specialists.iterator(); it.hasNext(); ) {
+            Specialist specialist = (Specialist)it.next();
+            specialist.orbState(swarm);
+         }
       }
  
-         // place gui object into frame
+      // place gui object into frame
       
       public void constructFrame(Container frame)
       {
-            // frame closes on exit
+         // frame closes on exit
 
          setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-            // set frame to box layout
+         // set frame to box layout
          
          frame.setLayout(new BorderLayout());
          
-            // paint area mouse listener
+         // paint area mouse listener
          
          MouseInputAdapter mia = new SwarmMia();
          
-            // create center Panel
+         // create center Panel
          
          centerPanel = new JPanel();
          cardLayout = new CardLayout();
          centerPanel.setLayout(cardLayout);
 
-            // splash panel
+         // splash panel
 
          JPanel splash = new JPanel();
          splash.setLayout(new BoxLayout(splash, BoxLayout.Y_AXIS));
@@ -356,7 +356,7 @@ public class SwarmCon extends JFrame implements OrbControl
          splash.add(Box.createVerticalGlue());
          centerPanel.add(splash, "splash");
 
-            // setup paint area
+         // setup paint area
          
          arena.addMouseMotionListener(mia);
          arena.addMouseListener(mia);
@@ -365,7 +365,7 @@ public class SwarmCon extends JFrame implements OrbControl
 
          frame.add(centerPanel, BorderLayout.CENTER);
 
-            // init Swarm
+         // init Swarm
 
          Controller[] controllers = addOrbs(new Rectangle2D
                                             .Double(0, 0, 20, 20));
@@ -374,11 +374,11 @@ public class SwarmCon extends JFrame implements OrbControl
 //                     arena.getBounds().getWidth()  / PIXLES_PER_METER,
 //                     arena.getBounds().getHeight() / PIXLES_PER_METER));
          
-            // add pid tuner
+         // add pid tuner
 
-            //add(tuner = new PidTuner(controllers), BorderLayout.EAST);
+         //add(tuner = new PidTuner(controllers), BorderLayout.EAST);
 
-            // add actions
+         // add actions
 
          InputMap inputMap = getRootPane().getInputMap();
          ActionMap actionMap = getRootPane().getActionMap();
@@ -387,7 +387,7 @@ public class SwarmCon extends JFrame implements OrbControl
             inputMap.put(a.getAccelerator(), a.getName());
             actionMap.put(a.getName(), a);
          }
-            // add menu
+         // add menu
 
          JMenuBar menuBar = new JMenuBar();
          menuBar.setBorder(null);
@@ -404,24 +404,24 @@ public class SwarmCon extends JFrame implements OrbControl
             fileMenu.add(menu);
          }
       }
-         /** Establish the pattern of phantoms on the screen. */
+      /** Establish the pattern of phantoms on the screen. */
 
       public void configurePhantoms()
       {
          int count = phantoms.size();
 
-            // compute 90 % of minimum dimention which is the maximum
-            // size to take up
+         // compute 90 % of minimum dimention which is the maximum
+         // size to take up
 
          double maxSize = min(
             swarm.getArena().getWidth(),
             swarm.getArena().getHeight()) * 0.9d;
 
-            // find the center of the arena
+         // find the center of the arena
 
          Point2D.Double center = swarm.getCenter();
 
-            // if we've got 1 orb, size it real big
+         // if we've got 1 orb, size it real big
 
          if (count == 1)
          {
@@ -446,16 +446,16 @@ public class SwarmCon extends JFrame implements OrbControl
             }
          }
       }
-         /** Paint all objcts in arena.
-          *
-          * @param graphics graphics object to paint onto
-          */
+      /** Paint all objcts in arena.
+       *
+       * @param graphics graphics object to paint onto
+       */
 
       Calendar lastPaint = Calendar.getInstance();
 
       public void paintArena(Graphics graphics)
       {
-            // config graphics
+         // config graphics
                      
          Graphics2D g = (Graphics2D)graphics;
          g.setColor(BACKGROUND);
@@ -470,7 +470,7 @@ public class SwarmCon extends JFrame implements OrbControl
                       + "ms", 5, 15);
          lastPaint = Calendar.getInstance();
 
-            // draw current behavior
+         // draw current behavior
                      
          if (swarm != null)
          {
@@ -503,12 +503,12 @@ public class SwarmCon extends JFrame implements OrbControl
                   }
             }
          }
-            // set 0,0 to lower left corner, and scale for meters
+         // set 0,0 to lower left corner, and scale for meters
 
          g.translate(0, getHeight());
          g.scale(PIXLES_PER_METER, -PIXLES_PER_METER);
                      
-            // draw mobjects
+         // draw mobjects
                      
          if (swarm != null)
          {
@@ -520,19 +520,19 @@ public class SwarmCon extends JFrame implements OrbControl
          }
       }
                   
-         // object which is always set to the position of the mouse
+      // object which is always set to the position of the mouse
 
       public class MouseMobject extends Mobject
       {
             JPanel arenax = arena;
 
-               // shape to be drawn
+            // shape to be drawn
 
             Shape shape = new Ellipse2D.Double(
                -ORB_DIAMETER / 4, -ORB_DIAMETER / 4,
                ORB_DIAMETER / 2, ORB_DIAMETER / 2);
 
-               // construct a MouseMobject
+            // construct a MouseMobject
 
             public MouseMobject(Component arena)
             {
@@ -547,24 +547,24 @@ public class SwarmCon extends JFrame implements OrbControl
                         }
                   };
                
-                  arena.addMouseListener(mia);
-                  arena.addMouseMotionListener(mia);
+               arena.addMouseListener(mia);
+               arena.addMouseMotionListener(mia);
             }
-               /** Is the given point (think mouse click point) eligable to
-                * select this object?
-                *
-                * @param clickPoint the point where the mouse was clicked
-                */
+            /** Is the given point (think mouse click point) eligable to
+             * select this object?
+             *
+             * @param clickPoint the point where the mouse was clicked
+             */
             
             public boolean isSelectedBy(Point2D.Double clickPoint)
             {
                return false;
             }
-               // update positon of this object
+            // update positon of this object
 
             public void update(double time) {}
 
-               // paint this object onto a graphics area
+            // paint this object onto a graphics area
 
             public void paint(Graphics2D g)
             {
@@ -572,7 +572,7 @@ public class SwarmCon extends JFrame implements OrbControl
                g.fill(translate(shape, getX(), getY()));
             }
       }
-         // create arrow shape
+      // create arrow shape
 
       public static Shape createArrow()
       {
@@ -582,7 +582,7 @@ public class SwarmCon extends JFrame implements OrbControl
          gp.append(translate(createRightTriangle(), 0, - .5), false);
          return normalize(gp);
       }
-         // create right triangle
+      // create right triangle
 
       public static Shape createRightTriangle()
       {
@@ -591,15 +591,15 @@ public class SwarmCon extends JFrame implements OrbControl
          rTriangle.subtract(new Area(new Rectangle2D.Double(-2, 0, 4, 2)));
          return rTriangle;
       }
-         /** joystick position */
+      /** joystick position */
 
       static public Point joystick = new Point(0, 0);
 
-         /** set the "joystick" position based on mouse location.  The
-          * joystick values are normalized to be between -1 and 1.
-          *
-          * @param event the mouse event from which to work
-          */
+      /** set the "joystick" position based on mouse location.  The
+       * joystick values are normalized to be between -1 and 1.
+       *
+       * @param event the mouse event from which to work
+       */
 
       public void setMouseJoy(MouseEvent e)
       {
@@ -607,36 +607,36 @@ public class SwarmCon extends JFrame implements OrbControl
             ((double)e.getX() / arena.getWidth() ) * 2 - 1,
             ((double)e.getY() / arena.getHeight()) * 2 - 1);
       }
-         /** swarm mouse input adapter */
+      /** swarm mouse input adapter */
 
       class SwarmMia extends MouseInputAdapter
       {
-               // mouse dragged event
+            // mouse dragged event
             
             public void mouseDragged(MouseEvent e)
             {
             }
-               // mouse moved event
+            // mouse moved event
             
             public void mouseMoved(MouseEvent e)
             {
                setMouseJoy(e);
             }
-               // mouse clicked event
+            // mouse clicked event
             
             public void mouseClicked(MouseEvent e)
             {
-                  // convert point to meters
+               // convert point to meters
 
                Point2D.Double point = new Point2D.Double(
                   e.getX() / PIXLES_PER_METER, 
                   (arena.getHeight() - e.getY()) / PIXLES_PER_METER);
 
-                  // find nearest selectable mobject
+               // find nearest selectable mobject
 
                final Mobject nearest = swarm.findSelected(point);
 
-                  // if shift is not down, clear selected
+               // if shift is not down, clear selected
 
                if (!e.isShiftDown())
                {
@@ -648,36 +648,36 @@ public class SwarmCon extends JFrame implements OrbControl
                   selected.clear();
                   phantoms.clear();
                }
-                  // if nearest found, ad to selected set
+               // if nearest found, ad to selected set
                
                if (nearest != null)
                {
-                     // set selected
+                  // set selected
                   
                   nearest.setSelected(true);
 
-                     // add to selected mobjects
+                  // add to selected mobjects
 
                   selected.add(nearest);
 
-                     // add phatom for this mobject
+                  // add phatom for this mobject
 
                   Phantom p = new Phantom(
                      nearest, PHANTOM_PERIOD);
                   phantoms.add(p);
                   swarm.add(p);
                   
-                     // tell the phatoms to reconfigure themselfs
+                  // tell the phatoms to reconfigure themselfs
 
                   configurePhantoms();
                }
             }
       }
-         /** SwarmCon action class */
+      /** SwarmCon action class */
 
       abstract class SwarmAction extends AbstractAction
       {
-               // construct the action
+            // construct the action
 
             public SwarmAction(String name, KeyStroke key, String description)
             {
@@ -686,39 +686,39 @@ public class SwarmCon extends JFrame implements OrbControl
                putValue(SHORT_DESCRIPTION, description);
                putValue(ACCELERATOR_KEY, key);
             }
-               /** Return accelerator key for this action.
-                *
-                * @return accelerator key for this action
-                */
+            /** Return accelerator key for this action.
+             *
+             * @return accelerator key for this action
+             */
 
             public KeyStroke getAccelerator()
             {
                return (KeyStroke)getValue(ACCELERATOR_KEY);
             }
-               /** Return name of this action.
-                *
-                * @return name of this action
-                */
+            /** Return name of this action.
+             *
+             * @return name of this action
+             */
 
             public String getName()
             {
                return (String)getValue(NAME);
             }
       }
-         /** Action class wich selects a given serial port with witch to
-          * commucate to the orbs. */
+      /** Action class wich selects a given serial port with witch to
+       * commucate to the orbs. */
 
       class SwarmComPortAction extends SwarmAction
       {
-               /** communications port id */
+            /** communications port id */
 
             private String portId;
 
-               /** Construct SwarmComPortAction with a given com port
-                * id.
-                *
-                * @param portId a string representation of com port
-                */
+            /** Construct SwarmComPortAction with a given com port
+             * id.
+             *
+             * @param portId a string representation of com port
+             */
 
             public SwarmComPortAction(String portId)
             {
@@ -739,7 +739,7 @@ public class SwarmCon extends JFrame implements OrbControl
                }
             }
       }
-         /** Action to select simulated rather live operation. */
+      /** Action to select simulated rather live operation. */
       
       SwarmAction simulation = new SwarmAction(
          "simulate orbs", 
@@ -752,7 +752,7 @@ public class SwarmCon extends JFrame implements OrbControl
                }
          };
 
-         /** Action to reset simulation state */
+      /** Action to reset simulation state */
       
       SwarmAction reset = new SwarmAction(
          "reset sim", 
@@ -765,7 +765,7 @@ public class SwarmCon extends JFrame implements OrbControl
                }
          };
 
-         /** action to select next orb behavior */
+      /** action to select next orb behavior */
       
       SwarmAction nextBehavior = new SwarmAction(
          "next behavior", 
@@ -778,19 +778,19 @@ public class SwarmCon extends JFrame implements OrbControl
                }
          };
       
-         /** action to select previous orb behavior */
+      /** action to select previous orb behavior */
       
       SwarmAction previousBehavior = new SwarmAction(
          "previous behavior", 
          getKeyStroke(VK_DOWN, 0),
          "select previous orb behavior")
          {
-            public void actionPerformed(ActionEvent e)
-            {
-               swarm.previousBehavior();
-            }
-      };
-         /** action to exist the system */
+               public void actionPerformed(ActionEvent e)
+               {
+                  swarm.previousBehavior();
+               }
+         };
+      /** action to exist the system */
       
       SwarmAction exit = new SwarmAction(
          "exit", 
@@ -803,7 +803,7 @@ public class SwarmCon extends JFrame implements OrbControl
                }
          };
       
-         /** all the actions in one handy place */
+      /** all the actions in one handy place */
 
       SwarmAction[] actions = 
       {
@@ -812,7 +812,7 @@ public class SwarmCon extends JFrame implements OrbControl
          previousBehavior,
          exit,
       };
-         /** a convience class for a really big button */
+      /** a convience class for a really big button */
 
       public class BigButton extends JButton
       {
@@ -824,113 +824,113 @@ public class SwarmCon extends JFrame implements OrbControl
             }
       }
 
-         /** Register stock color schemes */
+      /** Register stock color schemes */
 
-    public static void registerColorSchemes() {
-        ColorScheme.registerColorScheme("Analogous", ColorSchemeAnalogous.class);
-        ColorScheme.registerColorScheme("Split Complement", ColorSchemeSplitComplement.class);
-        ColorScheme.registerColorScheme("Split Complement 3", ColorSchemeSplitComplement3.class);
-        ColorScheme.registerColorScheme("Triad", ColorSchemeTriad.class);
-        ColorScheme.registerColorScheme("Tetrad", ColorSchemeTetrad.class);
-        ColorScheme.registerColorScheme("Crown", ColorSchemeCrown.class);
-    }
+      public static void registerColorSchemes() {
+         ColorScheme.registerColorScheme("Analogous", ColorSchemeAnalogous.class);
+         ColorScheme.registerColorScheme("Split Complement", ColorSchemeSplitComplement.class);
+         ColorScheme.registerColorScheme("Split Complement 3", ColorSchemeSplitComplement3.class);
+         ColorScheme.registerColorScheme("Triad", ColorSchemeTriad.class);
+         ColorScheme.registerColorScheme("Tetrad", ColorSchemeTetrad.class);
+         ColorScheme.registerColorScheme("Crown", ColorSchemeCrown.class);
+      }
     
-    /** Setup the ColorSchemeSpecialist and it's controller interface */
-    public static void setupColorSchemeSpecialist(SwarmCon swarmCon) {
-        registerColorSchemes();
-        ColorSchemeSpecialist colorSchemeSpecialist = new ColorSchemeSpecialist();
-        colorSchemeSpecialist.setup((OrbControl)swarmCon, null);
+      /** Setup the ColorSchemeSpecialist and it's controller interface */
+      public static void setupColorSchemeSpecialist(SwarmCon swarmCon) {
+         registerColorSchemes();
+         ColorSchemeSpecialist colorSchemeSpecialist = new ColorSchemeSpecialist();
+         colorSchemeSpecialist.setup((OrbControl)swarmCon, null);
                 
-        swarmCon.addSpecialist(colorSchemeSpecialist);
+         swarmCon.addSpecialist(colorSchemeSpecialist);
 
-        ColorSchemer schemer = new ColorSchemer("Crown");
-        schemer.addColorSchemeListener(colorSchemeSpecialist);
-        schemer.broadcastNewColorScheme();
-        schemer.broadcastColorSchemeChanged();
+         ColorSchemer schemer = new ColorSchemer("Crown");
+         schemer.addColorSchemeListener(colorSchemeSpecialist);
+         schemer.broadcastNewColorScheme();
+         schemer.broadcastColorSchemeChanged();
 
-        colorSchemeSpecialist.addBotColorListener(schemer);
+         colorSchemeSpecialist.addBotColorListener(schemer);
 
-        JPanel colorUIPanel = createColorUIPanel(schemer, null);
-        JFrame colorUIFrame = createFrame(colorUIPanel, true);
-    }
+         JPanel colorUIPanel = createColorUIPanel(schemer, null);
+         JFrame colorUIFrame = createFrame(colorUIPanel, true);
+      }
     
-    private static JPanel createColorUIPanel(ColorSchemer colorSchemer, BotVisualizer bv) {
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridBagLayout());
-        panel.setBackground(Color.BLACK);
-        GridBagConstraints gbc = new GridBagConstraints();
+      private static JPanel createColorUIPanel(ColorSchemer colorSchemer, BotVisualizer bv) {
+         JPanel panel = new JPanel();
+         panel.setLayout(new GridBagLayout());
+         panel.setBackground(Color.BLACK);
+         GridBagConstraints gbc = new GridBagConstraints();
         
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        panel.add(colorSchemer.getPanel(), gbc);
+         gbc.gridx = 0;
+         gbc.gridy = 0;
+         gbc.weightx = 1.0;
+         gbc.weighty = 1.0;
+         gbc.fill = GridBagConstraints.HORIZONTAL;
+         panel.add(colorSchemer.getPanel(), gbc);
         
-        gbc.gridy = 1;
-        if (bv != null) {
+         gbc.gridy = 1;
+         if (bv != null) {
             panel.add(bv.getPanel(), gbc);
-        }
+         }
             
-        // put sliders in here for the spread and value
-        return panel;
-    }
+         // put sliders in here for the spread and value
+         return panel;
+      }
 
-    private static JFrame createFrame(JPanel panel, boolean decorated) {
-        JFrame frame = new JFrame();
-        // the frame for drawing to the screen
-        frame.setVisible(false);
-        frame.setContentPane(panel);
-        frame.setResizable(decorated);
-        frame.setUndecorated(!decorated);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);            // closes all windows
-        frame.setTitle("Swarm Color Tests");
-        frame.pack();
-        frame.setVisible(true);
-        return frame;
-    }
+      private static JFrame createFrame(JPanel panel, boolean decorated) {
+         JFrame frame = new JFrame();
+         // the frame for drawing to the screen
+         frame.setVisible(false);
+         frame.setContentPane(panel);
+         frame.setResizable(decorated);
+         frame.setUndecorated(!decorated);
+         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);            // closes all windows
+         frame.setTitle("Swarm Color Tests");
+         frame.pack();
+         frame.setVisible(true);
+         return frame;
+      }
 
-    //
-    // Implementation of methods from orb.swarmcon.choreography.OrbControl
-    //
-    public OrbControl getOrbControl() {
-        return (OrbControl)this;
-    }
+      //
+      // Implementation of methods from orb.swarmcon.choreography.OrbControl
+      //
+      public OrbControl getOrbControl() {
+         return (OrbControl)this;
+      }
 
-    // sound control methods not implemented.
-    public int  playSoundFile(int orb, String soundFilePath) {return -1;}
-    public void stopSound(int orb) {}
-    public void volume(int orb, int volume) {}
+      // sound control methods not implemented.
+      public int  playSoundFile(int orb, String soundFilePath) {return -1;}
+      public void stopSound(int orb) {}
+      public void volume(int orb, int volume) {}
 
-    // only one Light control method implemented
-    public void orbColor(int orbNum, int hue, int sat, int val, int time) {
-        System.out.println("SwarmCon:OrbControl orbColor(orb: " + orbNum + "HSV: [" + hue + ", " + sat + ", " + val + "])");
-        float fhue = hue / 255.f;
-        float fsat = sat / 255.f;
-        float fval = val / 255.f;
-        HSV hsv = new HSV(fhue, fsat, fval);
-        // time ignored here.
-        Color color = hsv.toColor();
-        Orb orb = (Orb)swarm.getOrb(orbNum);
-        orb.setOrbColor(color);
-        // TODO: send color command out on OrbIO, or give it to model, or something. 
-    }
+      // only one Light control method implemented
+      public void orbColor(int orbNum, int hue, int sat, int val, int time) {
+         System.out.println("SwarmCon:OrbControl orbColor(orb: " + orbNum + "HSV: [" + hue + ", " + sat + ", " + val + "])");
+         float fhue = hue / 255.f;
+         float fsat = sat / 255.f;
+         float fval = val / 255.f;
+         HSV hsv = new HSV(fhue, fsat, fval);
+         // time ignored here.
+         Color color = hsv.toColor();
+         Orb orb = (Orb)swarm.getOrb(orbNum);
+         orb.setOrbColor(color);
+         // TODO: send color command out on OrbIO, or give it to model, or something. 
+      }
     
-    public void orbColorFade(int orb,
-                             int hue1, int sat1, int val1,
-                             int hue2, int sat2, int val2,
-                             int time) {}
+      public void orbColorFade(int orb,
+                               int hue1, int sat1, int val1,
+                               int hue2, int sat2, int val2,
+                               int time) {}
 
-    //
-    // Motion methods
-    //
-    public void followPath(com.orbswarm.choreography.Point[] wayPoints) {}
-    public void stopOrb(int orb) {}
+      //
+      // Motion methods
+      //
+      public void followPath(com.orbswarm.choreography.Point[] wayPoints) {}
+      public void stopOrb(int orb) {}
     
-    //
-    // SoundFile -> sound hash mapping.
-    //
-    public void   addSoundFileMapping(String soundFilePath, String soundFileHash) {}
-    public String getSoundFileHash(String soundFilePath) {return null;}
-    public java.util.List   getSoundFileMappingKeys() {return null;}
+      //
+      // SoundFile -> sound hash mapping.
+      //
+      public void   addSoundFileMapping(String soundFilePath, String soundFileHash) {}
+      public String getSoundFileHash(String soundFilePath) {return null;}
+      public java.util.List   getSoundFileMappingKeys() {return null;}
 }

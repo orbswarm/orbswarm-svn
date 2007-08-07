@@ -5,11 +5,11 @@ import java.awt.geom.*;
 
 import static java.lang.Math.*;
 
-   /** A place to which the orb should go */
+/** A place to which the orb should go */
 
 public class Waypoint extends Mobject
 {
-         /** Construct a Waypoint */
+      /** Construct a Waypoint */
 
       public Waypoint()
       {

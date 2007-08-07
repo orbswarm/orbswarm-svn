@@ -8,11 +8,11 @@ import java.awt.geom.Point2D;
 
 public class Mobjects extends Vector<Mobject>
 {
-      /** Find nearest mobject to point.
-       *
-       * @param point the selection point
-       * @return nearest matching object or null if none
-       */
+   /** Find nearest mobject to point.
+    *
+    * @param point the selection point
+    * @return nearest matching object or null if none
+    */
    
    public Mobject findSelected(Point2D.Double point)
    {

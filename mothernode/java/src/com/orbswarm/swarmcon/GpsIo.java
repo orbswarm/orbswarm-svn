@@ -14,22 +14,22 @@ import org.iu.gps.XY;
 
 public class GpsIo extends SerialIo
 {
-         /** Construct a GpsIo object. */
-
+      /** Construct a GpsIo object. */
+      
       public GpsIo(String portName)
       {
          super(portName);
       }
-         /** open a serial port */
-
+      /** open a serial port */
+      
       public void open() throws Exception
       {
-            // open serial port
-
+         // open serial port
+         
          super.open();
-
-            // construct a thread to read GPS data from
-
+         
+         // construct a thread to read GPS data from
+         
          new Thread()
          {
                public void run()
@@ -44,12 +44,12 @@ public class GpsIo extends SerialIo
                      byte[] buffer = new byte[256];
 
 
-                        // clean out any  partial lines
+                     // clean out any  partial lines
 
                      for (int i = 0; i < 5; ++i)
                         lnr.readLine();
 
-                        // now start working
+                     // now start working
 
                      while (true)
                      {

@@ -14,30 +14,30 @@ import static java.lang.Math.*;
 import static com.orbswarm.swarmcon.SwarmCon.*;
 import static org.trebor.util.ShapeTools.*;
 
-   // abstract orb
+// abstract orb
       
 public class Orb extends Mobject implements com.orbswarm.choreography.Orb
 {
-         /** identifier counter */
+      /** identifier counter */
 
       static int nextId = 0;
       
-         /** orb identifer */
+      /** orb identifer */
 
       private int id;
 
-         /** shape of the orb */
+      /** shape of the orb */
 
       private Shape shape = createOrbShape();
 
-         /** settable color of this orb. */
+      /** settable color of this orb. */
       private Color orbColor = ORB_CLR;
 
-         /** shadow of the orb */
+      /** shadow of the orb */
 
       Shape shadow = createOrbShadowShape();
 
-         /** vector line for this orb */
+      /** vector line for this orb */
 
       Shape vectorLine = new Line2D.Double(0, 0, 0, 1);
 
@@ -48,29 +48,29 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
                          BasicStroke.CAP_ROUND,
                          BasicStroke.JOIN_ROUND);
 
-         /** library of behaviors available to the orb */
+      /** library of behaviors available to the orb */
 
       private Vector<Behavior> behaviors = new Vector<Behavior>();
       private Behavior         behavior  = null;
 
-         /** physical model of the orb, either live or sim */
+      /** physical model of the orb, either live or sim */
 
       private MotionModel model;
 
-         // nearest mobject
+      // nearest mobject
 
       private Mobject   nearest         = null;
       private double    nearestDistance = Double.MAX_VALUE;
 
-         /** distances to all the other orbs. Calculated once per cycle. */
+      /** distances to all the other orbs. Calculated once per cycle. */
 
       private double [] distances;
         
-         // misc globals
+      // misc globals
 
       protected Swarm              swarm = null;
 
-         // construct an orb
+      // construct an orb
 
       public Orb(Swarm swarm, MotionModel model)
       {
@@ -81,16 +81,16 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
          id = nextId++;
          randomizePos();
       }
-         // randomize position of orb
+      // randomize position of orb
 
       public void randomizePos()
       {
          Rectangle2D.Double arena = swarm.getArena();
          setPosition(arena.getX() + RND.nextDouble() * arena.getWidth(),
                      arena.getY() + RND.nextDouble() * arena.getHeight());
-            //setPosition(swarm.getCenter());
+         //setPosition(swarm.getCenter());
       }
-         // position setter
+      // position setter
 
       void setPosition(double x, double y)
       {
@@ -99,42 +99,42 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
       }
 
       void setOrbColor(Color val) {
-          this.orbColor = val;
+         this.orbColor = val;
       }
 
       Color getOrbColor() {
-          if (this.orbColor == null) {
-              return ORB_CLR;
-          } else {
-              return this.orbColor;
-          }
+         if (this.orbColor == null) {
+            return ORB_CLR;
+         } else {
+            return this.orbColor;
+         }
       }
     
-          /** Return the current orbs motion model */
+      /** Return the current orbs motion model */
       
       public MotionModel getModel()
       {
          return model;
       }
-         // get swarm
+      // get swarm
 
       public Swarm getSwarm()
       {
          return swarm;
       }
-         // get orb id
+      // get orb id
 
       public int getId()
       {
          return id;
       }
-         // handle message
+      // handle message
 
       public void handleMessage(String message)
       {
          System.out.println("Message: " + message);
       }
-         // add a behavior
+      // add a behavior
 
       public void add(Behavior behavior)
       {
@@ -142,7 +142,7 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
          behaviors.add(behavior);
          this.behavior = behavior;
       }
-         // select next behavior
+      // select next behavior
 
       public void nextBehavior()
       {
@@ -153,13 +153,13 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
                behaviors.size());
          }
       }
-         // return current behaviors
+      // return current behaviors
 
       public Behavior getBehavior()
       {
          return behavior;
       }
-         // select previous behavior
+      // select previous behavior
 
       public void previousBehavior()
       {
@@ -171,69 +171,69 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
                behaviors.size());
          }
       }
-         // get orb roll
+      // get orb roll
 
       public double getRoll()
       {
          return model.getRoll();
       }
-         // get orb pitch
+      // get orb pitch
 
       public double getPitch()
       {
          return model.getPitch();
       }
-         // get orb yaw
+      // get orb yaw
 
       public double getYaw()
       {
          return model.getYaw();
       }
-         // get orb yaw rate
+      // get orb yaw rate
 
       public double getYawRate()
       {
          return model.getYawRate();
       }
-         // get actual current velocity
+      // get actual current velocity
 
       public double getVelocity()
       {
          return model.getVelocity();
       }
-         // get actual current speed
+      // get actual current speed
 
       public double getSpeed()
       {
          return model.getSpeed();
       }
-         // update positon
+      // update positon
 
       public void update(double time)
       {
-            // update the vehicle behavior
+         // update the vehicle behavior
 
          if (behavior != null)
             behavior.update(time, model);
 
-            // update the model
+         // update the model
 
          model.update(time);
 
-            // set location to the model location
+         // set location to the model location
 
          setPosition(model.getPosition());
 
-            // update children
+         // update children
 
          super.update(time);
 
-            // we no longer know what's nearest
+         // we no longer know what's nearest
 
          resetNearest();
 
       }
-         // get nearest mobject
+      // get nearest mobject
 
       public Mobject getNearest()
       {
@@ -241,7 +241,7 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
             findNearest();
          return nearest;
       }
-         // get distance to nearest mobject
+      // get distance to nearest mobject
 
       public double getNearestDistance()
       {
@@ -249,24 +249,24 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
             findNearest();
          return nearestDistance;
       }
-         // reset nearest
+      // reset nearest
 
       public void resetNearest()
       {
          nearest = null;
          nearestDistance = Double.MAX_VALUE;
       }
-         // get centroid of swarm
+      // get centroid of swarm
       
       public Point2D.Double getCentroid()
       {
          return swarm.getCentroid();
       }
-         // check candiate for nearness
+      // check candiate for nearness
 
       public void findNearest()
       {
-            // find nearest other orb in the swarm
+         // find nearest other orb in the swarm
       
          for (Mobject other: swarm)
             if (other != this)
@@ -280,66 +280,66 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
             }
       }
 
-        // calculate distances to all the other orbs
+      // calculate distances to all the other orbs
 
-    public double[] calculateDistances()
-    {
-        int i=0;
-        for (Mobject other: swarm)
-        {
+      public double[] calculateDistances()
+      {
+         int i=0;
+         for (Mobject other: swarm)
+         {
             if (other instanceof Orb) {
-                if (other != this)
-                {
-                    double distance = distanceTo(other);
-                    distances[i] = distance;
-                }
+               if (other != this)
+               {
+                  double distance = distanceTo(other);
+                  distances[i] = distance;
+               }
 
-                else
-                {
-                    distances[i] = 0.d;
-                }
-                i++;
+               else
+               {
+                  distances[i] = 0.d;
+               }
+               i++;
             }
-        }
-        return distances;
-    }
+         }
+         return distances;
+      }
     
-        // return the distances array
+      // return the distances array
 
-    public double[] getDistances()
-    {
-        return distances;
-    }
+      public double[] getDistances()
+      {
+         return distances;
+      }
     
-         // paint this object onto a graphics area
+      // paint this object onto a graphics area
 
       public void paint(Graphics2D g)
       {
          super.paint(g);
 
-            // record old transform and make the orb the center of the
-            // world
+         // record old transform and make the orb the center of the
+         // world
          
          AffineTransform old = g.getTransform();
          g.translate(getX(), getY());
          g.scale(ORB_DIAMETER, ORB_DIAMETER);
 
-            // draw orb shape
+         // draw orb shape
 
          setColor(g, isSelected() ? SEL_ORB_CLR : getOrbColor()); // was: ORB_CLR
          g.fill(shape);
          
-            // draw orb shadow
+         // draw orb shadow
 
          setColor(g, g.getColor().darker());
          g.fill(shadow);
 
-            // draw orb frame
+         // draw orb frame
 
          setColor(g, ORB_FRAME_CLR);
          g.fill(rotateAboutCenter(createOrbFrameShape(), -getYaw()));
 
-            // draw vector line
+         // draw vector line
 
          g.setStroke(vectorStroke);
          setColor(g, VECTOR_CRL);
@@ -348,24 +348,24 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
                              model.getVelocity()), 
                        -model.getDirection()));
 
-            // draw orb id
+         // draw orb id
 
          g.setFont(ORB_FONT);
          g.setColor(TEXT_CLR);
          drawText(g, -ORB_DIAMETER / 2, 
                   ORB_DIAMETER / 2, "" + getId());
 
-            // restore old transform
+         // restore old transform
          
          g.setTransform(old);
       }
-         // draw text at a given location
+      // draw text at a given location
 
       public void drawText(Graphics2D g, double x, double y, String text)
       {
          drawText(g, new Point(x, y), text);
       }
-         // draw text at a given location
+      // draw text at a given location
 
       public void drawText(Graphics2D g, Point2D point, String text)
       {
@@ -375,18 +375,18 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
                       old.getScaleInstance(old.getScaleX(),
                                            -old.getScaleY())));
 
-                         //(float)(g.getFont().getSize() * old.getScaleX())));
+         //(float)(g.getFont().getSize() * old.getScaleX())));
          Point2D n = old.transform(point, new Point2D.Double());
          g.drawString(text, (int)n.getX(), (int)n.getY());
          g.setTransform(old);
       }
-         // create orb shape
+      // create orb shape
 
       public Shape createOrbShape()
       {
          return CIRCLE;
       }
-         // create orb shadow shape
+      // create orb shadow shape
 
       public Shape createOrbShadowShape()
       {
@@ -395,19 +395,19 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
             translate(new Area(CIRCLE), -0.06, 0.06));
          return new GeneralPath(shadow);
       }
-         // create orb shadow shape
+      // create orb shadow shape
 
       public Shape createOrbFlairShape()
       {
          return translate(scale(CIRCLE, .10, .10), -0.25, 0.25);
       }
-         // create orb shape
+      // create orb shape
 
       public Shape createOrbFrameShape()
       {
          GeneralPath arcs = new GeneralPath();
 
-            // add a ring around the cirlce
+         // add a ring around the cirlce
 
          double strokeWidth = ORB_DIAMETER / 32;
          Stroke s = new BasicStroke((float)strokeWidth,
@@ -417,7 +417,7 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
                                       Arc2D.Double.OPEN);
          arcs.append(s.createStrokedShape(arc), true);
 
-            // add the equator
+         // add the equator
 
          double width = sin(toRadians(model.getRoll()));
          arc = new Arc2D.Double(-abs(width / 2),
@@ -428,7 +428,7 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
                                 Arc2D.Double.OPEN);
          arcs.append(s.createStrokedShape(arc), true);
 
-            // add longitude lines
+         // add longitude lines
 
          strokeWidth = ORB_DIAMETER / 128;
          s = new BasicStroke((float)strokeWidth,
@@ -449,7 +449,7 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
             arcs.append(s.createStrokedShape(arc), true);
             pitch = (pitch + 180 / ORB_SPAR_COUNT) % 360;
          }
-            // return frame a composition of arcs
+         // return frame a composition of arcs
 
          return arcs;
       }
