@@ -8,6 +8,12 @@
 
 package com.orbswarm.swarmcomposer.swarmulator;
 
+import com.orbswarm.choreography.Orb;
+import com.orbswarm.choreography.OrbControl;
+import com.orbswarm.choreography.Point;
+import com.orbswarm.choreography.Specialist;
+import com.orbswarm.choreography.Swarm;
+
 import com.orbswarm.swarmcomposer.color.BotColorListener;
 import com.orbswarm.swarmcomposer.color.ColorScheme;
 import com.orbswarm.swarmcomposer.color.ColorSchemeListener;
@@ -32,7 +38,7 @@ import javax.swing.*;
 /**
  * @author Simran Gleason
  */
-public class Swarmulator implements MouseListener, MouseMotionListener, ColorSchemeListener, BotColorListener {
+public class Swarmulator implements MouseListener, MouseMotionListener, ColorSchemeListener, BotColorListener, OrbControl {
     public  double radius;            // radius of universe
     public  int maxBeasties = 25;      // max number of beasties
     private String title = null;
@@ -1072,6 +1078,24 @@ public class Swarmulator implements MouseListener, MouseMotionListener, ColorSch
             SwarmListener sl = (SwarmListener)it.next();
             sl.updateSwarmDistances(radius, nbeasties, distances);
         }
+        System.out.println("\nSwarmulator: broadcast distances. specialists: " + specialists.size());
+        printDistances(distances);
+        if (specialists != null && specialists.size() > 0) {
+            Swarm swarm = createSwarm(radius, nbeasties, distances);
+            for(Iterator it=specialists.iterator(); it.hasNext(); ) {
+                Specialist sp = (Specialist)it.next();
+                sp.orbState(swarm);
+            }
+        }
+    }
+
+    public Swarm createSwarm(double radius, int nbeasties, int[][] distances) {
+        Swarm swarmImpl = new SwarmulatorSwarmImpl(nbeasties);
+        for(int i=0; i < nbeasties; i++) {
+            SwarmulatorOrbImpl orb = (SwarmulatorOrbImpl)swarmImpl.getOrb(i);
+            orb.setDistances(distances[i]);
+        }
+        return swarmImpl;
     }
     
     public static void printDistances(int [][] distances) {
@@ -1106,6 +1130,11 @@ public class Swarmulator implements MouseListener, MouseMotionListener, ColorSch
         swarmListeners.add(ear);
     }
 
+    private List specialists = new ArrayList();
+    public void addSpecialist(Specialist sp) {
+        specialists.add(sp);
+    }
+
 
       //////////////////////////////////////
      /// ColorSchemeListener            ///
@@ -1127,7 +1156,48 @@ public class Swarmulator implements MouseListener, MouseMotionListener, ColorSch
         beasties[bot].setColor(hsv.toColor());
         beasties[bot].setAuxText("<" + swatch + ">");
     }
+ 
+    ////////////////////////////////
+    /// Swarmulator Orb Control  /// 
+    ////////////////////////////////
+    public OrbControl getOrbControl() {
+        return this;
+    }
+
+    // sound control methods not implemented.
+    public int  playSoundFile(int orb, String soundFilePath) {return -1;}
+    public void stopSound(int orb) {}
+    public void volume(int orb, int volume) {}
+
+    // only one Light control method implemented
+    public void orbColor(int orb, int hue, int sat, int val, int time) {
+        System.out.println("Swarmulator: orbColor(orb: " + orb + "HSV: [" + hue + ", " + sat + ", " + val + "])");
+        float fhue = hue / 255.f;
+        float fsat = sat / 255.f;
+        float fval = val / 255.f;
+        HSV hsv = new HSV(fhue, fsat, fval);
+        // time ignored here. 
+        beasties[orb].setColor(hsv.toColor());
+    }
     
+    public void orbColorFade(int orb,
+                             int hue1, int sat1, int val1,
+                             int hue2, int sat2, int val2,
+                             int time) {}
+
+    //
+    // Motion methods
+    //
+    public void followPath(Point[] wayPoints) {}
+    public void stopOrb(int orb) {}
+    
+    //
+    // SoundFile -> sound hash mapping.
+    //
+    public void   addSoundFileMapping(String soundFilePath, String soundFileHash) {}
+    public String getSoundFileHash(String soundFilePath) {return null;}
+    public List   getSoundFileMappingKeys() {return null;}
+
     
 }
 

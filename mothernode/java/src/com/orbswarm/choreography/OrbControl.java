@@ -32,8 +32,8 @@ public interface OrbControl {
     //
     // SoundFile -> sound hash mapping.
     //
-    public void addSoundFileMapping(String soundFilePath, String soundFileHash);
-    public void getSoundFileHash(String soundFilePath);
-    public List getSoundFileMappingKeys();
+    public void   addSoundFileMapping(String soundFilePath, String soundFileHash);
+    public String getSoundFileHash(String soundFilePath);
+    public List   getSoundFileMappingKeys();
 }
 

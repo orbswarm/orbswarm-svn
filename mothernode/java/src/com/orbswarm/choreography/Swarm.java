@@ -7,5 +7,5 @@ package com.orbswarm.choreography;
 
 public interface Swarm {
     public Orb getOrb(int orbNum);
-    public int numOrbs();
+    public int getNumOrbs();
 }

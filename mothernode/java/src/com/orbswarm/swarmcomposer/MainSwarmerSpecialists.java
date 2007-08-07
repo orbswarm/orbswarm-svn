@@ -1,7 +1,14 @@
 package com.orbswarm.swarmcomposer;
 
-import com.orbswarm.swarmcomposer.composer.BotControllerColor;
-import com.orbswarm.swarmcomposer.composer.BotControllerSongs;
+import com.orbswarm.choreography.Specialist;
+import com.orbswarm.choreography.OrbControl;
+
+import com.orbswarm.swarmcomposer.composer.RandomSongSpecialist;
+import com.orbswarm.swarmcomposer.color.ColorSchemeSpecialist;
+
+//import com.orbswarm.swarmcomposer.composer.BotControllerColor;
+//import com.orbswarm.swarmcomposer.composer.BotControllerSongs;
+
 import com.orbswarm.swarmcomposer.composer.BotVisualizer;
 import com.orbswarm.swarmcomposer.color.ColorSchemer;
 import com.orbswarm.swarmcomposer.color.ColorScheme;
@@ -16,9 +23,12 @@ import java.util.ArrayList;
  * Wrapper class for the swarm composer and color schemer,
  * using the swarmulator simulation to provide the distance data.
  *
+ * This version uses the com.orbswarm.choreography.Specialist interfaces
+ * to communicate the data to the bot controllers. 
+ *
  * @author Simran Gleason
  */
-public class MainSwarmer {
+public class MainSwarmerSpecialists {
     public static final int NONE          = 0;
     public static final int SWARMULATOR   = 1;
     public static final int COMPOSER      = 2;
@@ -65,13 +75,14 @@ public class MainSwarmer {
  
         int numbots = 6;
 
-
         ////////////////////////////////////////
         /// Set up the color bot controller  ///
         ////////////////////////////////////////
 
-        BotControllerColor botctl_color = new BotControllerColor(numbots, "/orbsongs");
-        swarmField.swarmulator.addSwarmListener(botctl_color);
+        OrbControl swarmulatorOrbControl = swarmField.swarmulator.getOrbControl();
+        ColorSchemeSpecialist colorSchemeSpecialist = new ColorSchemeSpecialist();
+        colorSchemeSpecialist.setup(swarmulatorOrbControl, null);
+        swarmField.swarmulator.addSpecialist(colorSchemeSpecialist);
 
         ColorScheme.registerColorScheme("Analogous", ColorSchemeAnalogous.class);
         ColorScheme.registerColorScheme("Split Complement", ColorSchemeSplitComplement.class);
@@ -81,14 +92,20 @@ public class MainSwarmer {
         ColorScheme.registerColorScheme("Crown", ColorSchemeCrown.class);
 
         ColorSchemer schemer = new ColorSchemer("Crown");
-        schemer.addColorSchemeListener(botctl_color);
+        schemer.addColorSchemeListener(colorSchemeSpecialist);
         schemer.broadcastNewColorScheme();
         schemer.broadcastColorSchemeChanged();
+
+        // TODO: prolly not necessary
+        //botctl_color.setColorScheme(schemer.getColorScheme()); // TODO: make this loosely coupled with a listener
+
+        colorSchemeSpecialist.addBotColorListener(schemer);
+
+        JPanel mainPanel = createPanel(schemer, null);
+        JFrame frame = createFrame(mainPanel, true);
         
-        botctl_color.setColorScheme(schemer.getColorScheme()); // TODO: make this loosely coupled with a listener
-        botctl_color.addBotColorListener(schemer);
-        botctl_color.addBotColorListener(swarmField.swarmulator);
-        
+        //old...
+        /*
 
         ////////////////////////////////////////
         /// Set up the songs bot controller  ///
@@ -112,6 +129,7 @@ public class MainSwarmer {
         /// Start the song player            ///
         ////////////////////////////////////////
         botctl_songs.playSongs();
+        */
     }
 
     // pull the BotVisualizer out the of botctl here...
@@ -129,7 +147,9 @@ public class MainSwarmer {
         panel.add(colorSchemer.getPanel(), gbc);
         
         gbc.gridy = 1;
-        panel.add(bv.getPanel(), gbc);
+        if (bv != null) {
+            panel.add(bv.getPanel(), gbc);
+        }
             
         // put sliders in here for the spread and value
         return panel;

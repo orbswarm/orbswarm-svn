@@ -17,3 +17,8 @@ RUNNING with swarmulator:
 
 The Song compiler:
   java com.orbswarm.swarmcomposer.composer.SongCompiler ../../songs/terminal.orbs /orbsongs /compiledorbsongs
+
+
+New version using the Specialist interfaces:
+
+ java com.orbswarm.swarmcomposer.MainSwarmerSpecialists --swarmulator ../resources/swarmulatorworlds/test1 --dt 25 --composer  ../../songs/terminal.orbs ../../songs/PickerelLake.orbs ../../songs/meat.orbs --songtime 145

@@ -80,6 +80,8 @@ public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMo
         System.out.println("##################################");
         System.out.println("###  Color Schemer   init()    ###");
         System.out.println("##################################");
+        System.out.println(" initialColorScheme: " + colorScheme);
+
         init();
     }
     
@@ -452,8 +454,12 @@ public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMo
         }
     }
 
+    public void broadcastNewColorScheme() {
+        broadcastNewColorScheme(colorScheme);
+    }
+    
     public void broadcastNewColorScheme(ColorScheme colorScheme) {
-        //System.out.println("SCHEMER: broadcasting NEWcolorScheme. cs=" + colorScheme + " [" + colorSchemeListeners.size() + "] listeners");
+        System.out.println("SCHEMER: broadcasting NEWcolorScheme. cs=" + colorScheme + " [" + colorSchemeListeners.size() + "] listeners");
         for(Iterator it = colorSchemeListeners.iterator(); it.hasNext(); ) {
             ColorSchemeListener ear = (ColorSchemeListener)it.next();
             ear.newColorScheme(colorScheme);
