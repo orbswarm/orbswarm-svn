@@ -1,0 +1,13 @@
+# panelize dboard: 1 x 3
+Row {
+  Col {
+    dboard
+ }
+  Col {
+    dboard
+ }
+  Col {
+    dboard
+ }
+}
+
