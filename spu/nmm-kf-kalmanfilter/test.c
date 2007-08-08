@@ -24,6 +24,7 @@
 #include <math.h>
 #include "kalman.h"
 #include "test.h"
+#include "kalmanswarm.h"
 
 #define HELLO "Camera Motion Estimator\n"
 
@@ -152,9 +153,6 @@ int main( int argc, char **argv )
       init_estimate( num_states, feature_size, x, P, features );
       improve_estimate( num_states, feature_size, num_frames, x, P, features );
 
-      if( iterate )
-	iter_ext_kalman_init( Q, R, P, x, num_states, feature_size );
-      else
 	extended_kalman_init( Q, R, P, x, num_states, feature_size );
     
       /*  For each frame in the test run, perform one estimation and
@@ -171,7 +169,7 @@ int main( int argc, char **argv )
 	  if( debug )
 	    {
 	      sprintf( dbgstr, "State @ t = %d", time );
-	      print_vector( dbgstr, track, SFM_STATE_SIZE + 6 );
+	      print_vector( dbgstr, track, STATE_SIZE + 6 );
 	      print_quaternion( "global rot.", global_rotation );
 	    }
 	  traj_fptr = trajectory_set[ trial ][ time ];
@@ -297,22 +295,7 @@ void init_system_parms( int num_states, int num_features, m_elem **Q )
 
   /*  Initialize the system noise covariance matrix   */
 
-  for( y = 1; y <= num_states; y++ )
-    for( x = 1; x <= num_states; x++ )
-      Q[ y ][ x ] = 0;
 
-  Q[ STATE_Tx ][ STATE_Tx ] = COV_SYSTEM_Tx_Tx;
-  Q[ STATE_Ty ][ STATE_Ty ] = COV_SYSTEM_Ty_Ty;
-  Q[ STATE_Tz ][ STATE_Tz ] = COV_SYSTEM_Tz_Tz;
-
-  Q[ STATE_Wx ][ STATE_Wx ] = COV_SYSTEM_Wx_Wx;
-  Q[ STATE_Wy ][ STATE_Wy ] = COV_SYSTEM_Wy_Wy;
-  Q[ STATE_Wz ][ STATE_Wz ] = COV_SYSTEM_Wz_Wz;
-
-  Q[ STATE_B ][ STATE_B ]   = COV_SYSTEM_BETA;
-
-  for( x = STATE_FEATURE_START; x <= num_states; x++ )
-    Q[ x ][ x ] = COV_SYSTEM_Fn_Fn;
 
 /*  Q[ STATE_FEATURE_START ][ STATE_FEATURE_START ] = 0.0;  */
 /*  Q[ STATE_FEATURE_START + 2 ][ STATE_FEATURE_START + 2 ] = 0.0;  */
@@ -325,156 +308,7 @@ void init_system_parms( int num_states, int num_features, m_elem **Q )
     point location (structure).
 */
 
-void improve_estimate( int state_size, int feature_size, int num_frames,
-		      m_elem *state, m_elem **P, m_elem **features )
-{
-  int         right_index = 1;
-  int         i, f;
-  m_elem      *left;
-  m_elem      *right;
-  m_elem      threshold;
-  m_elem      diff = 0.0;
-  m_elem      max_diff = 0.0;
-  int         max_diff_right = num_frames;
 
-  m_elem      lambda;
-  m_elem      chisq, old_chisq, delta_chisq;
-  m_elem      **alpha;
-  m_elem      **cov;
-  m_elem      *x_dumb, *y, *sig;
-  int         *state_mask;
-  int         watchdog;
-
-  y = vector( 1, feature_size * 2 );
-  x_dumb = vector( 1, feature_size * 2 );
-  sig = vector( 1, feature_size * 2 );
-  alpha = matrix( 1, state_size, 1, state_size );
-  cov = matrix( 1, state_size, 1, state_size );
-  state_mask = ivector( 1, state_size );
-
-  for( i = 1; i <= feature_size*2; i++ )
-    sig[ i ] = DEFAULT_SAMPLE_STD_DEV;
-
-  /*  The first task is to select which frames to use for the feature
-      detection.  We don't want to automatically use the first two,
-      since there may not be enough difference between the camera views
-      to provide a good estimate of the feature point location in three
-      space.    */
-
-  left = features[ 1 ];
-  threshold = feature_size * FEATURE_MOTION_THRESHOLD;
-
-  while( (diff < threshold) && (++right_index <= num_frames) )
-    {
-      /*  calculate the difference between the two sets of measurements. */
-
-      right = features[ right_index ];
-      diff = 0.0;
-      for( f = 1; f <= feature_size; f++ )
-	{
-	  lambda = left[ f ] - right[ f ];
-	  diff += lambda * lambda;
-	}
-
-      if( diff > max_diff )
-	{
-	  max_diff = diff;
-	  max_diff_right = right_index;
-	}
-    }
-
-  if( right_index > num_frames )
-    {
-      printf( "improve_est: This sequence is really boring (%lg %lg max)\n",
-	      diff, max_diff );  /*  but we will give it a try anyway !  */
-      right = features[ max_diff_right ];
-      right_index = max_diff_right;
-    }
-
-  if( debug )
-    printf( "improve_est: using frames 1 and %d\n", right_index );
-
-  /*  Build the arrays representing the data being fitted.  This consists
-      of measurements from two different frames (left and right).  The
-      left frame data is not affected by the motion estimation, and is
-      only used for optimizing the structure estimate.   */
-
-  f = 1;
-  for( i = 1; i <= feature_size; i++ )
-    y[ f++ ] = right[ i ];
-
-  for( i = 1; i <= feature_size; i++ )
-    y[ f++ ] = left[ i ];
-
-  mat_copy( P, cov, state_size, state_size );
-
-  /*  Generate a mask, which will indicate the state components to
-      be minimized over for the motion estimation and the structure est. */
-
-  for( i = STATE_Tx; i <= state_size; i++ )
-    state_mask[ i ] = 1;
-
-  state_mask[ STATE_B ] = 0;
-  state_mask[ FIXED_FEATURE ] = 0;
-
-  /*  The Levenberg-Marquardt minimization routine provided by NR
-      is designed for scalar functions, but easily extends by
-      providing an index as the x input, and allowing the function
-      application (in this case eval_camera() ) global access to the
-      inputs.  Since our inputs are also components of the state vector,
-      we have it really easy.    */
-
-  for( i = 1; i <= (feature_size*2); i ++ )
-    x_dumb[ i ] = (m_elem)i;
-
-  lambda = -1.0;         /*  this signals to mrqmin to init everything. */
-  chisq = old_chisq = (m_elem)( 1000.0 );
-  delta_chisq = -FINAL_CHI_THRESHOLD * 2.0;
-  watchdog = 0;
-
-  while( ((delta_chisq > 0.0) || (delta_chisq < -FINAL_CHI_THRESHOLD))
-	&& (watchdog++ < MAX_LEVENBERG_ITER) )
-    {
-      mrqmin( x_dumb, y, sig, feature_size*2, state, state_mask,
-	     state_size, cov, alpha, &chisq, eval_camera, &lambda );
-	  
-      delta_chisq = chisq - old_chisq;
-      old_chisq = chisq;
-	  
-      if( debug )
-	{
-	  sprintf( dbgstr, "Optimizing state estimate:  (pass %d chisq %lg)",
-		  watchdog, chisq );
-	  print_vector( dbgstr, state, state_size );
-	}
-    }
-      
-  lambda = 0;
-  mrqmin( x_dumb, y, sig, feature_size*2, state, state_mask,
-	 state_size, cov, alpha, &chisq, eval_camera, &lambda );
-
-  if( watchdog >= MAX_LEVENBERG_ITER )
-    printf( "improve_est: Maximum number of iterations reached\n" );
-
-  if( estimate_fname[0] != '\0' )
-    save_estimate( estimate_fname, state_size, state );
-
-  /*  We really only care about the estimate of structure, since the
-      motion estimate was probably (hopefully) for a frame far into the
-      sequence.  Here we zero out the motion estimate.    */
-
-  for( i = STATE_Tx; i <= STATE_Wz; i++ )
-    state[ i ] = 0.0;
-
-  if( debug )
-    print_vector( "Final (Initial ?) state estimate:", state, state_size );
-
-  free_ivector( state_mask, 1, state_size );
-  free_vector( y, 1, feature_size * 2 );
-  free_vector( x_dumb, 1, feature_size * 2 );
-  free_matrix( alpha, 1, state_size, 1, state_size );
-  free_matrix( cov, 1, state_size, 1, state_size );
-}
 
 
 /*  init_estimate
@@ -686,7 +520,7 @@ void parse_arguments( int argc, char **argv )
   /*  Each feature provides two measurements, and three values in the
       state vector.    */
 
-  num_states = feature_size * 3 + SFM_STATE_SIZE;
+  num_states = feature_size * 3 + STATE_SIZE;
   feature_size = feature_size * 2;
 
   if( iterate == 1 )

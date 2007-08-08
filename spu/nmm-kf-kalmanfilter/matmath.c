@@ -60,6 +60,18 @@ void vec_sub( m_elem *a, m_elem *b, m_elem *c, int n )
     *c_ptr++ = *a_ptr++ - *b_ptr++;
 }
 
+/*  vector C = vector A * scalar B , for A of size n   */
+extern void vecScalarMult( m_elem *a, double b, m_elem *c, int n )
+{
+  int i;
+  m_elem  *a_ptr, *b_ptr, *c_ptr;
+
+  a_ptr = a + 1;
+  c_ptr = c + 1;
+
+  for( i = 1; i <= n; i++)
+    *c_ptr++ = *a_ptr++ * b;
+}
 
 /**********************************************************
 
@@ -150,6 +162,26 @@ void mat_mult_vector( m_elem **a, m_elem *b, m_elem *c,
     }
 }
 
+/*  mat_mult_scalar
+    This function performs a matrix multiplication.
+*/
+void mat_mult_scalar( m_elem **a, double b, m_elem **c,
+	      int a_rows, int a_cols )
+{
+  int i, j, k;
+  m_elem  *a_ptr;
+  m_elem  temp;
+
+  for( i = 1; i <= a_rows; i++)
+    {
+      for( j = 1; j <= a_cols; j++ )
+	{
+	  c[i][j] = a[i][j] * b;
+	}
+    }
+}
+
+
 
 /*  mat_mult_transpose
     This function performs a matrix multiplication of A x transpose B.
@@ -202,6 +234,10 @@ void mat_transpose_mult( m_elem **A, m_elem **B, m_elem **C,
 	}
     }
 }
+
+
+
+
 
 void mat_copy( m_elem **src, m_elem **dst, int num_rows, int num_cols )
 {

@@ -21,18 +21,18 @@
 #include <stdlib.h>
 #include <math.h>
 #include "kalman.h"
+#include "kalmanswarm.h"
 
 #define ITERATION_THRESHOLD      2.0
 #define ITERATION_DIVERGENCE     20
+
+#define PERIOD  0.10
 
 /*  The following are the global variables of the Kalman filters,
     used to point to data structures used throughout.     */
 
 static m_elem  *state_pre;         /* ptr to apriori state vectors, x(-)     */
 static m_elem  *state_post;        /* ptr to aposteriori state vectors, x(+) */
-
-static m_elem  *iter_state0;
-static m_elem  *iter_state1;
 
 static m_elem  **cov_pre;          /* ptr to apriori covariance matrix, P(-) */
 static m_elem  **cov_post;         /* ptr to apriori covariance matrix, P(-) */
@@ -57,7 +57,19 @@ static m_elem  **temp_meas_state;  /* a measurement_size x state_size matrix */
 static m_elem  **temp_meas_meas;   /* a measurement_size squared matrix */
 static m_elem  **temp_meas_2;      /* another one ! */
 
+/* variables for Runge-Kutta */
+static m_elem  *k1;        /* a state_size x 1 vector */
+static m_elem  *k2;        /* a state_size x 1 vector */
+static m_elem  *k3;        /* a state_size x 1 vector */
+static m_elem  *k4;        /* a state_size x 1 vector */
+
+static m_elem  *tempState;        /* a state_size x 1 vector */
+
 /*  Prototypes of internal functions  */
+
+static void rungeKutta( m_elem *old_state, m_elem *new_state );
+ 
+static void generate_system_transfer( m_elem *state, m_elem **phi );
 
 static void alloc_globals( int num_state,
 			  int num_measurement );
@@ -68,64 +80,9 @@ static void estimate_prob( m_elem **P_post, m_elem **Phi, m_elem **GQGt,
 static void update_prob( m_elem **P_pre, m_elem **R, m_elem **H,
 			m_elem **P_post, m_elem **K );
 static void take_inverse( m_elem **in, m_elem **out, int n );
-static m_elem calc_state_change( m_elem *a, m_elem *b );
 
 
-/******************************************************************
 
-  Linear Kalman Filtering
-
-  kalman_init()
-  This function initializes the kalman filter.  Note that for a
-  straight-forward (linear) Kalman filter, this is the only place that
-  K and P are computed...      */
-
-void kalman_init( m_elem **GQGt, m_elem **Phi, m_elem **H, m_elem **R,
-		m_elem **P, m_elem *x, int num_state, int num_measurement )
-{
-  alloc_globals( num_state, num_measurement );
-
-  /*  Init the global variables using the arguments.  */
-
-  vec_copy( x, state_post, state_size );
-  mat_copy( P, cov_post, state_size, state_size );
-
-  sys_noise_cov = GQGt;
-  mea_noise_cov = R;
-
-  sys_transfer = Phi;
-  mea_transfer = H;
-
-  /*****************  Gain Loop  *****************/
-
-  estimate_prob( cov_post, sys_transfer, sys_noise_cov, cov_pre );
-  update_prob( cov_pre, mea_noise_cov, mea_transfer, cov_post, kalman_gain );
-}
-
-
-/*  kalman_step()
-    This function takes a set of measurements, and performs a single
-    recursion of the straight-forward kalman filter.
-*/
-
-void kalman_step( m_elem *z_in )
-{
-  /**************  Estimation Loop  ***************/
-
-  apply_system( state_post, state_pre );
-  update_system( z_in, state_pre, kalman_gain, state_post );
-
-  global_step++;
-}
-
-/*  kalman_get_state
-    This function returns a pointer to the current estimate (a posteriori)
-    of the system state.         */
-
-m_elem *kalman_get_state( void )
-{
-  return( state_post );
-}
 
 /******************************************************************
 
@@ -135,27 +92,26 @@ m_elem *kalman_get_state( void )
   This function initializes the extended kalman filter.
 */
 
-void extended_kalman_init( m_elem **GQGt, m_elem **R, m_elem **P, m_elem *x,
-			  int num_state, int num_measurement )
+void extended_kalman_init( m_elem **P, m_elem *x )
 {
 #ifdef PRINT_DEBUG
   printf( "ekf: Initializing filter\n" );
 #endif
 
-  alloc_globals( num_state, num_measurement );
+  alloc_globals( STATE_SIZE, MEAS_SIZE );
 
-  sys_transfer = matrix( 1, num_state, 1, num_state );
-  mea_transfer = matrix( 1, num_measurement, 1, num_state );
+  sys_transfer = matrix( 1, STATE_SIZE, 1, STATE_SIZE );
+  mea_transfer = matrix( 1, MEAS_SIZE, 1, MEAS_SIZE );
 
   /*  Init the global variables using the arguments.  */
 
-  vec_copy( x, state_post, state_size );
-  vec_copy( x, state_pre, state_size );
-  mat_copy( P, cov_post, state_size, state_size );
-  mat_copy( P, cov_pre, state_size, state_size );
+  vec_copy( x, state_post, STATE_SIZE );
+  vec_copy( x, state_pre, STATE_SIZE );
+  mat_copy( P, cov_post, STATE_SIZE, STATE_SIZE );
+  mat_copy( P, cov_pre, STATE_SIZE, STATE_SIZE );
 
-  sys_noise_cov = GQGt;
-  mea_noise_cov = R;
+  covarianceSet( sys_noise_cov, mea_noise_cov );	
+
 }
 
 
@@ -180,97 +136,86 @@ void extended_kalman_step( m_elem *z_in )
 
   /**************  Estimation Loop  ***************/
 
-  apply_system( state_post, state_pre );
+  rungeKutta( state_post, state_pre );
   update_system( z_in, state_pre, kalman_gain, state_post );
 
   global_step++;
 }
 
 
-/* iter_ext_kalman_init()
-   This function initializes the iterated extended kalman filter
-*/
-
-void iter_ext_kalman_init( m_elem **GQGt, m_elem **R, m_elem **P, m_elem *x,
-			  int num_state, int num_measurement )
+m_elem *kalman_get_state( void )
 {
-#ifdef PRINT_DEBUG
-  printf( "iekf: Initializing filter\n" );
-#endif
-
-  alloc_globals( num_state, num_measurement );
-
-  iter_state0  = vector( 1, num_state );
-  iter_state1  = vector( 1, num_state );
-  sys_transfer = matrix( 1, num_state, 1, num_state );
-  mea_transfer = matrix( 1, num_measurement, 1, num_state );
-
-  /*  Init the global variables using the arguments.  */
-
-  vec_copy( x, state_post, state_size );
-  vec_copy( x, state_pre, state_size );
-  mat_copy( P, cov_post, state_size, state_size );
-  mat_copy( P, cov_pre, state_size, state_size );
-
-  sys_noise_cov = GQGt;
-  mea_noise_cov = R;
+  return( state_post );
 }
 
-/*  iter_ext_kalman_step()
-    This function takes a set of measurements, and iterates over a single
-    recursion of the extended kalman filter.
-*/
-
-void iter_ext_kalman_step( m_elem *z_in )
+static void rungeKutta( m_elem *old_state, m_elem *new_state )
 {
-  int     iteration = 1;
-  m_elem  est_change;
-  m_elem  *prev_state;
-  m_elem  *new_state;
-  m_elem  *temp;
-
-  generate_system_transfer( state_pre, sys_transfer );
-  estimate_prob( cov_post, sys_transfer, sys_noise_cov, cov_pre );
-  apply_system( state_post, state_pre );
-
-  /*  Now iterate, updating the probability and the system model
-      until no change is noticed between iteration steps      */
-
-  prev_state = iter_state0;
-  new_state  = iter_state1;
-
-  generate_measurement_transfer( state_pre, mea_transfer );
-  update_prob( cov_pre, mea_noise_cov, mea_transfer,
-	      cov_post, kalman_gain );
-  update_system( z_in, state_pre, kalman_gain, prev_state );
-  est_change = calc_state_change( state_pre, prev_state );
-
-  while( (est_change < ITERATION_THRESHOLD) &&
-	(iteration++ < ITERATION_DIVERGENCE) )
-    {
-#ifdef DEBUG_ITER      
-      print_vector( "\titer state", prev_state, 10 );
-#endif
-      /*  Update the estimate  */
-
-      generate_measurement_transfer( prev_state, mea_transfer );
-      update_prob( cov_pre, mea_noise_cov, mea_transfer,
-		  cov_post, kalman_gain );
-      update_system( z_in, prev_state, kalman_gain, new_state );
-      est_change = calc_state_change( prev_state, new_state );
-
-      temp = prev_state;
-      prev_state = new_state;
-      new_state = temp;
-    }
-
-  vec_copy( prev_state, state_post, state_size );
 
 #ifdef PRINT_DEBUG
-  printf( "iekf: step %3d, %2d iters\n", global_step, iteration );
+  printf( "ekf: rungeKutta\n" );
 #endif
-  global_step++;
+
+  systemF( tempState, old_state );
+
+  vecScalarMult( tempState, PERIOD, k1, STATE_SIZE );
+
+  /* k2 = period * F( old_state + k1 * 0.5) */
+  vecScalarMult( k1, (double)0.5, tempState, STATE_SIZE ); /* tempState = k1 * 0.5 */
+  vec_add( old_state, tempState, tempState, STATE_SIZE );  /* tempState = old_state + k1 * 0.5 */
+  systemF( tempState, old_state );
+  vecScalarMult( tempState, PERIOD, k2, STATE_SIZE );
+
+  /* k3 = period * F( old_state + k2 * 0.5) */
+  vecScalarMult( k2, (double)0.5, tempState, STATE_SIZE ); /* tempState = k2 * 0.5 */
+  vec_add( old_state, tempState, tempState, STATE_SIZE );  /* tempState = old_state + k2 * 0.5 */
+  systemF( tempState, old_state );
+  vecScalarMult( tempState, PERIOD, k3, STATE_SIZE );
+  
+  /* k4 = period * F( old_state + k3) */
+  vec_add( old_state, tempState, tempState, STATE_SIZE );  /* tempState = old_state + k3 */
+  systemF( tempState, old_state );
+  vecScalarMult( tempState, PERIOD, k4, STATE_SIZE );
+
+  vec_copy( k1, new_state, STATE_SIZE );
+  vecScalarMult( k2, (double)2.0, tempState, STATE_SIZE );
+  vec_add( new_state, tempState, new_state, STATE_SIZE);
+  vecScalarMult( k3, (double)2.0, tempState, STATE_SIZE );
+  vec_add( new_state, tempState, new_state, STATE_SIZE);
+  vec_add( new_state, k4, new_state, STATE_SIZE);
+  vecScalarMult( new_state, (double)0.16667, new_state, STATE_SIZE );
+  vec_add( new_state, old_state, new_state, STATE_SIZE);
+
 }
+
+/*  generate_system_transfer
+    This function generates the pseudo-transfer
+    function, representing the first terms of a taylor expansion
+    of the actual non-linear system transfer function.     */
+
+void generate_system_transfer( m_elem *state, m_elem **phi )
+{
+  int  row, col;
+  
+#ifdef PRINT_DEBUG
+  printf( "ekf: linearizing system transfer\n" );
+#endif
+
+  for( row = 1; row <= STATE_SIZE; row++ )
+    for( col = 1; col <= STATE_SIZE; col++ )
+      phi[ row ][ col ] = 0.0;
+
+  for( col = 1; col <= STATE_SIZE; col++ )
+    phi[ col ][ col ] = 1.0;
+
+  systemJacobian( state, temp_state_state );
+
+  mat_mult_scalar( temp_state_state, PERIOD, temp_state_state,
+	      STATE_SIZE, STATE_SIZE );	
+
+  mat_add( phi, temp_state_state, phi, STATE_SIZE, STATE_SIZE );  	
+
+}
+
 
 /************************************************************
 
@@ -303,6 +248,15 @@ static void alloc_globals( int num_state, int num_measurement )
   temp_meas_state = matrix( 1, measurement_size, 1, state_size );
   temp_meas_meas = matrix( 1, measurement_size, 1, measurement_size );
   temp_meas_2 = matrix( 1, measurement_size, 1, measurement_size );
+  
+  /* variables for Runge-Kutta */
+  k1 = vector( 1, state_size );
+  k2 = vector( 1, state_size );
+  k3 = vector( 1, state_size );
+  k4 = vector( 1, state_size );
+
+  tempState = vector( 1, state_size );
+
 }
    
 /* update_system()
@@ -401,15 +355,4 @@ static void take_inverse( m_elem **in, m_elem **out, int n )
   mat_copy( in, out, n, n );
 }
 
-static m_elem calc_state_change( m_elem *a, m_elem *b )
-{
-  int     m;
-  m_elem  acc = 0.0;
 
-  for( m = 1; m <= state_size; m++ )
-    {
-      acc += fabs( a[m] - b[m] );
-    }
-
-  return( acc );
-}

@@ -20,6 +20,9 @@ extern void vec_add( m_elem *A, m_elem *B, m_elem *C, int n );
 /*  vector C = vector A - vector B , both of size n   */
 extern void vec_sub( m_elem *A, m_elem *B, m_elem *C, int n );
 
+/*  vector C = vector A * scalar B , for A of size n   */
+extern void vecScalarMult( m_elem *A, double B, m_elem *C, int n );
+
 extern void print_vector( char *str, m_elem *x, int n );
 
 /*************   Some matrix math routines  **************/
@@ -45,6 +48,11 @@ extern void mat_mult_vector( m_elem **A, m_elem *B, m_elem *C,
 /*  C = matrix A x trans( matrix B ), A(a_rows x a_cols), B(b_cols x a_cols) */
 extern void mat_mult_transpose( m_elem **A, m_elem **B, m_elem **C,
 			   int a_rows, int a_cols, int b_cols );
+
+/*  matrix C = matrix A x scalar B , A(a_rows x a_cols) */
+void mat_mult_scalar( m_elem **a, double b, m_elem **c,
+	      int a_rows, int a_cols );
+
 
 /*  C = trans( matrix A ) x matrix B, A(a_cols x a_rows), B(a_cols x b_cols) */
 extern void mat_transpose_mult( m_elem **A, m_elem **B, m_elem **C,
