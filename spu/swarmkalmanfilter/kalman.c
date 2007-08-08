@@ -28,6 +28,8 @@
 
 #define PERIOD  0.10
 
+#define PRINT_DEBUG 
+
 /*  The following are the global variables of the Kalman filters,
     used to point to data structures used throughout.     */
 
@@ -45,8 +47,7 @@ static m_elem  **mea_transfer;     /* measurement transfer function (H) */
 static m_elem  **kalman_gain;      /* The Kalman Gain matrix (K) */
 
 int            global_step = 0;    /* the current step number (k) */
-int            measurement_size;   /* number of elems in measurement */
-int            state_size;         /* number of elements in state    */
+
 
 /*  Temporary variables, declared statically to avoid lots of run-time
     memory allocation.      */
@@ -112,6 +113,10 @@ void extended_kalman_init( m_elem **P, m_elem *x )
 
   covarianceSet( sys_noise_cov, mea_noise_cov );	
 
+#ifdef PRINT_DEBUG
+  printf( "ekf: Completed Initialization\n" );
+#endif
+
 }
 
 
@@ -124,6 +129,10 @@ void extended_kalman_step( m_elem *z_in )
 {
 #ifdef PRINT_DEBUG
   printf( "ekf: step %d\n", global_step );
+#endif
+
+#ifdef PRINT_DEBUG
+	print_vector( "measurements ", z_in, MEAS_SIZE );
 #endif
   /*****************  Gain Loop  *****************
     First, linearize locally, then do normal gain loop    */
@@ -231,32 +240,33 @@ static void alloc_globals( int num_state, int num_measurement )
 #ifdef PRINT_DEBUG
   printf( "ekf: allocating memory\n" );
 #endif
-  state_size = num_state;
-  measurement_size = num_measurement;
 
   /*  Allocate some global variables.  */
 
-  state_pre = vector( 1, state_size );
-  state_post = vector( 1, state_size );
-  cov_pre = matrix( 1, state_size, 1, state_size );
-  cov_post = matrix( 1, state_size, 1, state_size );
-  kalman_gain = matrix( 1, state_size, 1, measurement_size );
+  state_pre = vector( 1, STATE_SIZE );
+  state_post = vector( 1, STATE_SIZE );
+  cov_pre = matrix( 1, STATE_SIZE, 1, STATE_SIZE );
+  cov_post = matrix( 1, STATE_SIZE, 1, STATE_SIZE );
+  kalman_gain = matrix( 1, STATE_SIZE, 1, MEAS_SIZE );
+
+  sys_noise_cov = matrix( 1, STATE_SIZE, 1, STATE_SIZE );
+  mea_noise_cov = matrix( 1, MEAS_SIZE, 1, MEAS_SIZE );
 
   /*  Alloc some temporary variables   */
 
-  z_estimate = vector( 1, measurement_size );
-  temp_state_state = matrix( 1, state_size, 1, state_size );
-  temp_meas_state = matrix( 1, measurement_size, 1, state_size );
-  temp_meas_meas = matrix( 1, measurement_size, 1, measurement_size );
-  temp_meas_2 = matrix( 1, measurement_size, 1, measurement_size );
+  z_estimate = vector( 1, MEAS_SIZE );
+  temp_state_state = matrix( 1, STATE_SIZE, 1, STATE_SIZE );
+  temp_meas_state = matrix( 1, MEAS_SIZE, 1, STATE_SIZE );
+  temp_meas_meas = matrix( 1, MEAS_SIZE, 1, MEAS_SIZE );
+  temp_meas_2 = matrix( 1, MEAS_SIZE, 1, MEAS_SIZE );
   
   /* variables for Runge-Kutta */
-  k1 = vector( 1, state_size );
-  k2 = vector( 1, state_size );
-  k3 = vector( 1, state_size );
-  k4 = vector( 1, state_size );
+  k1 = vector( 1, STATE_SIZE );
+  k2 = vector( 1, STATE_SIZE );
+  k3 = vector( 1, STATE_SIZE );
+  k4 = vector( 1, STATE_SIZE );
 
-  tempState = vector( 1, state_size );
+  tempState = vector( 1, STATE_SIZE );
 
 }
    
@@ -272,9 +282,9 @@ static void update_system( m_elem *z, m_elem *x_pre,
 #endif
 
   apply_measurement( x_pre, z_estimate );
-  vec_sub( z, z_estimate, z_estimate, measurement_size );
-  mat_mult_vector( K, z_estimate, x_post, state_size, measurement_size );
-  vec_add( x_post, x_pre, x_post, state_size );
+  vec_sub( z, z_estimate, z_estimate, MEAS_SIZE );
+  mat_mult_vector( K, z_estimate, x_post, STATE_SIZE, MEAS_SIZE );
+  vec_add( x_post, x_pre, x_post, STATE_SIZE );
 }
 
 /* estimate_prob()
@@ -289,10 +299,10 @@ static void estimate_prob( m_elem **P_post, m_elem **Phi, m_elem **GQGt,
 #endif
 
   mat_mult_transpose( P_post, Phi, temp_state_state,
-		     state_size, state_size, state_size );
+		     STATE_SIZE, STATE_SIZE, STATE_SIZE );
   mat_mult( Phi, temp_state_state, P_pre,
-		     state_size, state_size, state_size );
-  mat_add( P_pre, GQGt, P_pre, state_size, state_size );
+		     STATE_SIZE, STATE_SIZE, STATE_SIZE );
+  mat_add( P_pre, GQGt, P_pre, STATE_SIZE, STATE_SIZE );
 }
 
 
@@ -314,33 +324,33 @@ static void update_prob( m_elem **P_pre, m_elem **R, m_elem **H,
   printf( "ekf: updating prob\n" );
 #endif
 #ifdef DIV_DEBUG
-  print_matrix( "P", P_pre, state_size, state_size );
+  print_matrix( "P", P_pre, STATE_SIZE, STATE_SIZE );
 #endif
   mat_mult( H, P_pre, temp_meas_state,
-	   measurement_size, state_size, state_size );
+	   MEAS_SIZE, STATE_SIZE, STATE_SIZE );
   mat_mult_transpose( H, temp_meas_state, temp_meas_meas,
-		     measurement_size, state_size, measurement_size );
+		     MEAS_SIZE, STATE_SIZE, MEAS_SIZE );
   mat_add( temp_meas_meas, R, temp_meas_meas,
-	  measurement_size, measurement_size );
+	  MEAS_SIZE, MEAS_SIZE );
 
-  take_inverse( temp_meas_meas, temp_meas_2, measurement_size );
+  take_inverse( temp_meas_meas, temp_meas_2, MEAS_SIZE );
 
 #ifdef DIV_DEBUG
   print_matrix( "1 / (HPH + R)", temp_meas_2,
-	       measurement_size, measurement_size );
+	       MEAS_SIZE, MEAS_SIZE );
 #endif
   mat_transpose_mult( temp_meas_state, temp_meas_2, K,
-		     state_size, measurement_size, measurement_size );
+		     STATE_SIZE, MEAS_SIZE, MEAS_SIZE );
 
 /*
-  print_matrix( "Kalman Gain", K, state_size, measurement_size );
+  print_matrix( "Kalman Gain", K, STATE_SIZE, MEAS_SIZE );
 */
   mat_mult( K, temp_meas_state, temp_state_state,
-	   state_size, measurement_size, state_size );
+	   STATE_SIZE, MEAS_SIZE, STATE_SIZE );
 #ifdef PRINT_DEBUG
   printf( "ekf: updating prob 3\n" );
 #endif
-  mat_add( temp_state_state, P_pre, P_post, state_size, state_size );
+  mat_add( temp_state_state, P_pre, P_post, STATE_SIZE, STATE_SIZE );
 }
 
 

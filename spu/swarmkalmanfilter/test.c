@@ -21,6 +21,7 @@
 #include <math.h>
 #include "kalman.h"
 #include "kalmanswarm.h"
+#include "matmath.h"
 
 #define HELLO "Camera Motion Estimator\n"
 
@@ -49,8 +50,10 @@ long  rseed = -1;
 char  dbgstr[ 64 ];
 
 /*  Prototypes of local functions  */
+void load_meas( char *name, int num_meas, int num_steps, m_elem **meas );
 void save_track( char *name, int num_steps, m_elem **trajectory );
 void parse_arguments( int argc, char **argv );
+void usage( char *str );
 
 
 int main( int argc, char **argv )
@@ -60,7 +63,6 @@ int main( int argc, char **argv )
 
   m_elem   **meas;    /* features being tracked        */
 
-  m_elem   ***trajectory_set; /* set of extracted motion parameters   */
   m_elem   **trajectory;  /* mean of extracted motion parameters   */
 
   m_elem   *traj_fptr;    /* ptr to single row of ext. motion parameters   */
@@ -68,6 +70,8 @@ int main( int argc, char **argv )
                     /*  n = meas_size   m = STATE_SIZE  */
   m_elem   **P;     /*  Estimate Covariance        (mxm)   */
   m_elem   *x;      /*  Starting state             (1xm)   */
+
+  debug = 1;	
 
   parse_arguments( argc, argv );   /*  Parse the command line arguments  */
 
@@ -77,6 +81,10 @@ int main( int argc, char **argv )
   P = matrix( 1, STATE_SIZE, 1, STATE_SIZE );
   x = vector( 1, STATE_SIZE );
   meas = matrix( 1, num_samples, 1, STATE_SIZE );
+  trajectory = matrix( 1, num_samples, 1, STATE_SIZE );
+
+  load_meas( meas_fname, MEAS_SIZE, num_samples, meas );
+
 
   for( row = 1; row <= STATE_SIZE; row++ )
     for( col = 1; col <= STATE_SIZE; col++ )
@@ -99,26 +107,14 @@ int main( int argc, char **argv )
 	  if( debug )
 	    {
 	      sprintf( dbgstr, "State @ t = %d", time );
-	      print_vector( dbgstr, track, STATE_SIZE + 6 );
+	      print_vector( dbgstr, track, STATE_SIZE );
 	    }
-	  traj_fptr = trajectory_set[ trial ][ time ];
+	  traj_fptr = trajectory[ time ];
+
 	  for( i = 1; i <= STATE_SIZE; i++ )
 	    traj_fptr[ i ] = track[ i ];
 	}
     
-
-  /*  Calculate the Mean and Variance over the entire set of trials, and
-      report that !     */
-
-  for( time = 1; time <= num_samples; time++ )
-    for( i = 1; i < STATE_SIZE; i++ )
-      trajectory[ time ][ i ] = 0.0;
-
-
-    for( time = 1; time <= num_samples; time++ )
-      for( i = 1; i < STATE_SIZE; i++ )
-	trajectory[ time ][ i ] += trajectory_set[ trial ][ time ][ i ];
-
   /*  Save the set of estimated parameters into a file  */
   
   save_track( output_fname, num_samples, trajectory );
@@ -128,9 +124,6 @@ int main( int argc, char **argv )
   free_matrix( meas, 1, num_samples, 1, meas_size );
   free_matrix( trajectory, 1, num_samples, 1, STATE_SIZE );
 
-
-    free_matrix( trajectory_set[ 1 ], 1, num_samples, 1, STATE_SIZE );
-  free( trajectory_set );
 }
 
 void load_meas( char *name, int num_meas, int num_steps,
@@ -139,7 +132,7 @@ void load_meas( char *name, int num_meas, int num_steps,
   FILE    *fptr;
   int     i;
   int     sample;
-  double  data[ STATE_SIZE ];
+  m_elem  data[ MEAS_SIZE + 1 ];
 
   if( debug )
     printf( "Loading meas from %s\n", name );
@@ -152,40 +145,22 @@ void load_meas( char *name, int num_meas, int num_steps,
     }
 
 
-    for( sample = 1; sample <= num_meas; sample += 2 )
+    for( sample = 1; sample <= num_steps; sample ++ )
       {
-	if( fscanf( fptr, " %lf %lf", &data[1], &data[2], &data[3], &data[4], &data[5], &data[6], 
-		&data[7], &data[8], &data[9], &data[10], &data[11], &data[12], &data[13] ) != 2 )
+	if( fscanf( fptr, " %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", 
+		&data[1], &data[2], &data[3], &data[4], &data[5], &data[6], 
+		&data[7], &data[8], &data[9], &data[10] ) != 10 )
 	  {
 	    printf("load_meas: Error reading %s ! (%d samples %d points read )\n",
 		   name, sample );
 	    fclose( fptr );
 	    exit( -1 );
 	  }
-
-	for ( i = 1; i <= STATE_SIZE; i++)
+	
+	for ( i = 1; i <= MEAS_SIZE; i++)
 	meas[ sample ][ i ] = (m_elem)data[ i ];
       }
 
-  fclose( fptr );
-}
-
-
-void save_estimate( char *name, m_elem *state )
-{
-  FILE     *fptr;
-  int      sample, state_var;
-
-  if( (fptr = fopen( name, "w" )) == NULL )
-    {
-      printf( "save_track: Unable to open %s for writing !\n", name );
-      exit( -1 );
-    }
-
-  for( state_var = 1; state_var <= STATE_SIZE; state_var++ )
-    fprintf( fptr, "%lf ", (double)state[ state_var ] );
-
-  fprintf( fptr, "\n" );
   fclose( fptr );
 }
 
@@ -217,7 +192,7 @@ void parse_arguments( int argc, char **argv )
 
   printf( HELLO );
 
-  if( argc < 4 )
+  if( argc < 2 )
     usage( "Not enough arguments" );
   else
     {
@@ -240,7 +215,7 @@ void parse_arguments( int argc, char **argv )
 	      switch( argv[i][1] ) {
 	      case 'o':      /* -o <output_fname>  */
 		if( ++i >= argc )
-		  usage( "-out <fname> missing argument" );
+		  usage( "-o <fname> missing argument" );
 		sscanf( argv[i], "%s", output_fname );
 		break;
 	      default:
@@ -262,7 +237,7 @@ void parse_arguments( int argc, char **argv )
 void usage( char *str )
 {
   printf( "test: %s\n", str );
-  printf( "usage: test <meas_fname> <num_meas> <num_samples>\n" );
+  printf( "usage: test <meas_fname><num_samples>\n" );
   printf( "\t[ -o <output_fname> ][ -debug ]\n" );
   exit( -1 );
 }

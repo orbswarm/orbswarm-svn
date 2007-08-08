@@ -20,6 +20,9 @@
 #include <math.h>
 #include "kalman.h"
 #include "kalmanswarm.h"
+#include "matmath.h"
+
+#define PRINT_DEBUG
 
 extern int     debug;
 
@@ -248,6 +251,10 @@ void systemJacobian( m_elem *state, m_elem **jacobian )
 	jacobian[ STATE_zrb ][ STATE_xrb ] 	= 0.0;
 	jacobian[ STATE_zrb ][ STATE_zrb ] 	= 0.0;
 
+#ifdef PRINT_DEBUG
+	/* print_matrix( "jacobian", jacobian, STATE_SIZE, STATE_SIZE ); */
+#endif
+
 }
 
 
@@ -445,6 +452,8 @@ void generate_measurement_transfer( m_elem *state, m_elem **H )
   H[ MEAS_omega ][ STATE_zab ]    = 0.0;
   H[ MEAS_omega ][ STATE_xrb ]    = 0.0; 
   H[ MEAS_omega ][ STATE_zrb ]    = 0.0;
+
+
 
 }
 
