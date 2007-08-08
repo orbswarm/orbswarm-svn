@@ -476,15 +476,15 @@ void covarianceSet( m_elem **GQGt, m_elem **R )
     for( col = 1; col <= MEAS_SIZE; col++ )
       R[ row ][ col ] = 0.0;
 
-  R[ MEAS_xa ][ MEAS_xa ] = 0.5;
-  R[ MEAS_ya ][ MEAS_ya ] = 0.5;
-  R[ MEAS_za ][ MEAS_za ] = 0.5;
-  R[ MEAS_xr ][ MEAS_xr ] = 0.5;
-  R[ MEAS_zr ][ MEAS_zr ] = 0.5;
-  R[ MEAS_xg ][ MEAS_xg ] = 2.0;
-  R[ MEAS_yg ][ MEAS_yg ] = 2.0;
-  R[ MEAS_psig ][ MEAS_psig ] = 0.5;
-  R[ MEAS_vg ][ MEAS_vg ] = 0.5;
+  R[ MEAS_xa ][ MEAS_xa ] 	= 0.5;
+  R[ MEAS_ya ][ MEAS_ya ] 	= 0.5;
+  R[ MEAS_za ][ MEAS_za ] 	= 0.5;
+  R[ MEAS_xr ][ MEAS_xr ] 	= 0.5;
+  R[ MEAS_zr ][ MEAS_zr ] 	= 0.5;
+  R[ MEAS_xg ][ MEAS_xg ] 	= 2.0;
+  R[ MEAS_yg ][ MEAS_yg ] 	= 2.0;
+  R[ MEAS_psig ][ MEAS_psig ] 	= 0.5;
+  R[ MEAS_vg ][ MEAS_vg ] 	= 0.5;
   R[ MEAS_omega ][ MEAS_omega ] = 0.5;
 
 }

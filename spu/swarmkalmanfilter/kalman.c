@@ -176,6 +176,7 @@ static void rungeKutta( m_elem *old_state, m_elem *new_state )
   systemF( tempState, old_state );
   vecScalarMult( tempState, PERIOD, k4, STATE_SIZE );
 
+  /*  new_state = old_state + 0.16667 * ( k1 + 2*k2 + 2*k3 + k4 ) */
   vec_copy( k1, new_state, STATE_SIZE );
   vecScalarMult( k2, (double)2.0, tempState, STATE_SIZE );
   vec_add( new_state, tempState, new_state, STATE_SIZE);

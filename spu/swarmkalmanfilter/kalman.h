@@ -32,6 +32,3 @@ extern void covarianceSet( m_elem **GQGt, m_elem **R );
 
 /*  and a select set of global variables to communicate with them.  */
 
-extern int     state_size;
-extern int     measurement_size;
-extern int     global_step;  /* the current step number (k) */

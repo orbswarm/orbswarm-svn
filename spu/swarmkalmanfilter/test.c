@@ -3,11 +3,8 @@
     This file contains the code wrapper for processing data using the
     Kalman filter routines provided in kalman.c and kalman_camera.c.
 
-    Usage:  test <features_fname> <num_points> <num_frames>
-                  [-o <output_fname>][-c <covariance_fname>]
-		  [-l <improved_est_output_fname> ]
-		  [-monte_carlo <num_trials>]
-		  [-iekf|-ekf][-debug]
+    Usage:  test <meass_fname> <num_samples>
+                  [-o <output_fname>][-debug]
 
     J. Watlington, 11/27/95
 
@@ -16,28 +13,18 @@
              to converge !  The measurement linearization was the culprit.
     12/9/95  Added initial state estimation, using an iterative Levenberg-
              Marquardt minimization technique applied alternatively to the
-	     camera parameters and the feature point location.
+	     camera parameters and the meas point location.
 */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include "kalman.h"
-#include "test.h"
 #include "kalmanswarm.h"
 
 #define HELLO "Camera Motion Estimator\n"
 
 #define IMPROVE_DEBUG
-
-/*  Constants for the Levenberg-Marquardt minimization to improve the
-    initial estimate.    */
-
-#define FEATURE_MOTION_THRESHOLD    1.0e-4
-#define FINAL_CHI_THRESHOLD         1.0e-7
-#define MAX_LEVENBERG_ITER          40
-#define FIXED_FEATURE               ( STATE_FEATURE_START + 2 )
-#define DEFAULT_SAMPLE_STD_DEV      1.0
 
 /*  Default filename suffixes.  A . isn't used so MatLab can load results */
 
@@ -46,21 +33,13 @@
 
 /*  Global variables reflecting command line options  */
 
-int   debug = 0;
-char  feature_fname[ FILENAME_MAX ];
-char  covariance_fname[ FILENAME_MAX ];
+int   debug;
+char  meas_fname[ FILENAME_MAX ];
 char  output_fname[ FILENAME_MAX ];
-char  estimate_fname[ FILENAME_MAX ] = "";
-int   feature_size;
-int   num_states;
-int   num_frames;
-int   iterate = 0;
-int   num_trials = 1;
+int   meas_size;
+int   num_samples;
 
-/*   Some components of the state are maintained globally, outside of
-     the framework of a particular algorithm.    */
 
-m_elem   global_rotation[ QUATERNION_SIZE ];
 
 /*   Random Number Generator state variable   */
 
@@ -70,44 +49,23 @@ long  rseed = -1;
 char  dbgstr[ 64 ];
 
 /*  Prototypes of local functions  */
-
+void save_track( char *name, int num_steps, m_elem **trajectory );
 void parse_arguments( int argc, char **argv );
-void usage( char *str );
-void alloc_buffers( int num_features, int num_states );
-void free_buffers( void );
-
-void load_features( char *name, int num_features, int num_frames, 
-		   m_elem **features );
-void load_noise_cov( char *name, int num_features, m_elem **R );
-void add_noise( int num_steps, int num_features, m_elem **R,
-	       m_elem **features, m_elem **noisy_features );
-void save_track( char *name, int num_steps, int num_states,
-		m_elem **trajectory );
-void init_system_parms( int num_states, int num_features, m_elem **Q );
-void init_estimate( int num_states, int feature_size,
-		   m_elem *x, m_elem **P, m_elem **features );
-void improve_estimate( int state_size, int feature_size, int num_frames,
-		      m_elem *state, m_elem **P, m_elem **features );
-
-extern void eval_camera( m_elem x, m_elem a[], m_elem *yfit, m_elem dyda[],
-		 int state_size );
-
-void save_estimate( char *name, int num_states,	m_elem *state );
 
 
 int main( int argc, char **argv )
 {
-  int      trial, time, i; /* various iteration variables   */
+  int      trial, time, i, row, col; /* various iteration variables   */
   m_elem   *track;        /* ptr to state vector of kalman filter */
-  m_elem   **features;    /* features being tracked        */
-  m_elem   **clean_features;    /* features being tracked        */
+
+  m_elem   **meas;    /* features being tracked        */
+
   m_elem   ***trajectory_set; /* set of extracted motion parameters   */
   m_elem   **trajectory;  /* mean of extracted motion parameters   */
+
   m_elem   *traj_fptr;    /* ptr to single row of ext. motion parameters   */
 
-                    /*  n = feature_size   m = num_states  */
-  m_elem   **Q;     /*  System noise covariance (mxm)      */
-  m_elem   **R;     /*  Measurement noise covariance (nxn) */
+                    /*  n = meas_size   m = STATE_SIZE  */
   m_elem   **P;     /*  Estimate Covariance        (mxm)   */
   m_elem   *x;      /*  Starting state             (1xm)   */
 
@@ -116,300 +74,107 @@ int main( int argc, char **argv )
   /*  Allocate memory for system, measurement, and state variables.
       Then either init them algorithmically or from data stored in a file.  */
 
-  Q = matrix( 1, num_states, 1, num_states );
-  R = matrix( 1, feature_size, 1, feature_size );
-  P = matrix( 1, num_states, 1, num_states );
-  x = vector( 1, num_states );
-  features = matrix( 1, num_frames, 1, feature_size );
-  clean_features = matrix( 1, num_frames, 1, feature_size );
-  trajectory = matrix( 1, num_frames, 1, num_states );
+  P = matrix( 1, STATE_SIZE, 1, STATE_SIZE );
+  x = vector( 1, STATE_SIZE );
+  meas = matrix( 1, num_samples, 1, STATE_SIZE );
 
-  if( (trajectory_set = (m_elem ***)malloc((num_trials+1)*sizeof(m_elem**)))
-     == NULL )
-    {
-      fprintf( stderr, "Unable to allocate tiny amount of memory !\n" );
-      exit( -1 );
-    }
+  for( row = 1; row <= STATE_SIZE; row++ )
+    for( col = 1; col <= STATE_SIZE; col++ )
+      P[ row ][ col ] = 0.0;
 
-  for( trial = 1; trial <= num_trials; trial++ )
-    trajectory_set[ trial ] = matrix( 1, num_frames, 1, num_states );
+  for( row = 1; row <= STATE_SIZE; row++ )
+      x[ row ] = 0.0;
 
-  load_features( feature_fname, feature_size, num_frames, clean_features );
-  load_noise_cov( covariance_fname, feature_size, R );
-
-  init_system_parms( num_states, feature_size, Q );
-
-  for( trial = 1; trial <= num_trials; trial++ )
-    {
-      if( num_trials > 1 )
-	printf( "Trial #%d\n", trial );
-
-      /*  For each test run, add shaped noise to the feature input,
-	  and initialize the kalman filter package.   */
-
-      add_noise( num_frames, feature_size, R, clean_features,
-		features );
-
-      init_estimate( num_states, feature_size, x, P, features );
-      improve_estimate( num_states, feature_size, num_frames, x, P, features );
-
-	extended_kalman_init( Q, R, P, x, num_states, feature_size );
+  extended_kalman_init( P, x );
     
-      /*  For each frame in the test run, perform one estimation and
+      /*  For each sample in the test run, perform one estimation and
 	  copy the results into the trajectory history   */
 
-      for( time = 1; time <= num_frames; time++ )
+      for( time = 1; time <= num_samples; time++ )
 	{
-	  if( iterate )
-	    iter_ext_kalman_step( &features[ time ][0] );
-	  else
-	    extended_kalman_step( &features[ time ][0] );
+
+	    extended_kalman_step( &meas[ time ][0] );
 
 	  track = kalman_get_state();
 	  if( debug )
 	    {
 	      sprintf( dbgstr, "State @ t = %d", time );
 	      print_vector( dbgstr, track, STATE_SIZE + 6 );
-	      print_quaternion( "global rot.", global_rotation );
 	    }
 	  traj_fptr = trajectory_set[ trial ][ time ];
-	  for( i = 1; i <= num_states; i++ )
+	  for( i = 1; i <= STATE_SIZE; i++ )
 	    traj_fptr[ i ] = track[ i ];
 	}
-    }
+    
 
   /*  Calculate the Mean and Variance over the entire set of trials, and
       report that !     */
 
-  for( time = 1; time <= num_frames; time++ )
-    for( i = 1; i < num_states; i++ )
+  for( time = 1; time <= num_samples; time++ )
+    for( i = 1; i < STATE_SIZE; i++ )
       trajectory[ time ][ i ] = 0.0;
 
-  for( trial = 1; trial <= num_trials; trial++ )
-    for( time = 1; time <= num_frames; time++ )
-      for( i = 1; i < num_states; i++ )
-	trajectory[ time ][ i ] += trajectory_set[ trial ][ time ][ i ];
 
-  if( num_trials > 1 )
-    for( time = 1; time <= num_frames; time++ )
-      for( i = 1; i < num_states; i++ )
-	trajectory[ time ][ i ] = trajectory[ time ][ i ] / (m_elem)num_trials;
+    for( time = 1; time <= num_samples; time++ )
+      for( i = 1; i < STATE_SIZE; i++ )
+	trajectory[ time ][ i ] += trajectory_set[ trial ][ time ][ i ];
 
   /*  Save the set of estimated parameters into a file  */
   
-  save_track( output_fname, num_frames, num_states, trajectory );
+  save_track( output_fname, num_samples, trajectory );
 
-  free_matrix( Q, 1, num_states, 1, num_states );
-  free_matrix( R, 1, feature_size, 1, feature_size );
-  free_matrix( P, 1, num_states, 1, num_states );
-  free_vector( x, 1, num_states );
-  free_matrix( features, 1, num_frames, 1, feature_size );
-  free_matrix( trajectory, 1, num_frames, 1, num_states );
-  for( trial = 1; trial <= num_trials; trial++ )
-    free_matrix( trajectory_set[ trial ], 1, num_frames, 1, num_states );
+  free_matrix( P, 1, STATE_SIZE, 1, STATE_SIZE );
+  free_vector( x, 1, STATE_SIZE );
+  free_matrix( meas, 1, num_samples, 1, meas_size );
+  free_matrix( trajectory, 1, num_samples, 1, STATE_SIZE );
+
+
+    free_matrix( trajectory_set[ 1 ], 1, num_samples, 1, STATE_SIZE );
   free( trajectory_set );
 }
 
-void load_features( char *name, int num_features, int num_steps,
-		   m_elem **features )
+void load_meas( char *name, int num_meas, int num_steps,
+		   m_elem **meas )
 {
   FILE    *fptr;
-  int     frame;
+  int     i;
   int     sample;
-  double  datax;
-  double  datay;
+  double  data[ STATE_SIZE ];
 
   if( debug )
-    printf( "Loading features from %s\n", name );
+    printf( "Loading meas from %s\n", name );
 
   if( (fptr = fopen( name, "r" )) == NULL )
     {
-      printf( "load_features: Unable to open %s for reading !\n",
+      printf( "load_meas: Unable to open %s for reading !\n",
 	     name );
       exit( -1 );
     }
 
-  for( frame = 1; frame <= num_steps; frame++ )
-    for( sample = 1; sample <= num_features; sample += 2 )
+
+    for( sample = 1; sample <= num_meas; sample += 2 )
       {
-	if( fscanf( fptr, " %lf %lf", &datax, &datay) != 2 )
+	if( fscanf( fptr, " %lf %lf", &data[1], &data[2], &data[3], &data[4], &data[5], &data[6], 
+		&data[7], &data[8], &data[9], &data[10], &data[11], &data[12], &data[13] ) != 2 )
 	  {
-	    printf("load_features: Error reading %s ! (%d frames %d points read )\n",
-		   name, frame, sample/2 );
+	    printf("load_meas: Error reading %s ! (%d samples %d points read )\n",
+		   name, sample );
 	    fclose( fptr );
 	    exit( -1 );
 	  }
-	features[ frame ][ sample ] = (m_elem)datax;
-	features[ frame ][ sample+1 ] = (m_elem)datay;
+
+	for ( i = 1; i <= STATE_SIZE; i++)
+	meas[ sample ][ i ] = (m_elem)data[ i ];
       }
 
   fclose( fptr );
 }
 
 
-/*  load_noise_cov
-    The name sez it all.      */
-
-void load_noise_cov( char *name, int num_features, m_elem **R )
-{
-  FILE    *fptr;
-  int     row;
-  int     sample;
-  double  data;
-
-  if( debug )
-    printf( "Loading measurement covariances from %s\n", name );
-
-  if( (fptr = fopen( name, "r" )) == NULL )
-    {
-      printf( "load_noise_cov: Unable to open %s for reading !\n",
-	     name );
-      exit( -1 );
-    }
-
-  for( row = 1; row <= num_features; row++ )
-    for( sample = 1; sample <= num_features; sample += 1 )
-      {
-	if( fscanf( fptr, " %lf", &data ) != 1 )
-	  {
-	    printf("load_noise_cov: Error reading %s ! (%d:%d points read )\n",
-		   name, row, sample );
-	    fclose( fptr );
-	    exit( -1 );
-	  }
-	R[ row ][ sample ] = (m_elem)data;
-      }
-
-  fclose( fptr );
-}
-
-
-/*  init_system_parms
-    This function initializes some system functions, such as
-    the transfer and noise functions, and the measurement
-    transfer function.              */
-
-void init_system_parms( int num_states, int num_features, m_elem **Q )
-{
-  int    x, y;
-
-  /*  Initialize the system noise covariance matrix   */
-
-
-
-/*  Q[ STATE_FEATURE_START ][ STATE_FEATURE_START ] = 0.0;  */
-/*  Q[ STATE_FEATURE_START + 2 ][ STATE_FEATURE_START + 2 ] = 0.0;  */
-}
-
-/*  improve_estimate
-    This function uses the initial estimate as the starting point for
-    a Levenberg-Marquardt gradient descent algorithm, which is
-    alternatively iterated over the camera parameters and the feature
-    point location (structure).
-*/
-
-
-
-
-/*  init_estimate
-    This function initializes the estimate of the state, which includes
-    both a mean (x) and a covariance (P).    */
-
-void init_estimate( int num_states, int feature_size,
-		   m_elem *x, m_elem **P, m_elem **features )
-{
-  int  i, j;
-
-  if( debug )
-    printf( "Initializing the estimate\n" );
-
-  /*  Init the covariance matrix to zeroes   */
-
-  for( i = 1; i <= num_states; i++ )
-    for( j = 1; j <= num_states; j++ )
-      {
-	P[ i ][ j ] = 0;
-      }
-
-  /*  Some of the initial estimates are arbitrarily set to zero,
-      such as the initial camera translation and rotation    */
-
-  for( i = STATE_Tx; i <= STATE_Tz; i++ )
-    {
-      x[ i ] = 0;
-      P[ i ][ i ] = COV_ESTIMATE_Td_Td;
-    }
-
-  for( i = STATE_Wx; i <= STATE_Wz; i++ )
-    {
-      x[ i ] = 0;
-      P[ i ][ i ] = COV_ESTIMATE_Wd_Wd;
-    }
-
-  /*  Init the global rotation quaternion  */
-
-  global_rotation[0] = 1.0;    /*  q0  */
-  global_rotation[1] = 0.0;    /*  q1  */
-  global_rotation[2] = 0.0;    /*  q2  */
-  global_rotation[3] = 0.0;    /*  q3  */
-
-  /*  The focal length is estimated to be a common value   */
-
-  x[ STATE_B ] = ESTIMATE_BETA;
-  P[ STATE_B ][ STATE_B ] = COV_ESTIMATE_BETA;
-
-  /*  Assume a single depth for all points, and calculate starting
-      value of X and Y for them.   */
-
-#define Z_FACTOR  ((ESTIMATE_WORLD_Z * ESTIMATE_BETA + 1)/ARBITRARY_SCALE)
-
-  for( j = 1, i = STATE_FEATURE_START; j <= feature_size; j += 2, i += 3 )
-    {
-      x[ i ] = features[ 1 ][ j ] * Z_FACTOR;           /*  X estimate  */
-      x[ i + 1 ] = features[ 1 ][ j + 1 ] * Z_FACTOR;   /*  Y estimate  */
-      x[ i + 2 ] = ESTIMATE_WORLD_Z;
-
-      P[ i ][ i  ] = COV_ESTIMATE_Fn_Fn;
-      P[ i + 1 ][ i + 1 ] = COV_ESTIMATE_Fn_Fn;
-      P[ i + 2 ][ i + 2 ] = COV_ESTIMATE_Fz_Fz;
-    } 
-
-  P[ FIXED_FEATURE ][ FIXED_FEATURE ] = 0.0;
-
-  if( debug )
-    print_vector( "Initial state estimate", x, num_states );
-}
-
-/*  add_noise
-    This function adds gaussian noise with zero mean and specified
-    variance to the feature inputs.         */
-
-void add_noise( int num_steps, int num_features, m_elem **R,
-	       m_elem **features, m_elem **noisy_features )
-{
-  int      i, t;
-  m_elem   temp;
-
-  if( debug )
-    printf( "Adding noise to input data\n" );
-
-   /*  For now, assume that we will only be specifying a diagonal
-       covariance (ie. a variance vector).     */
-
-  for( t = 1; t <= num_steps; t++ )
-    for( i = 1; i <= num_features; i++ )
-      {
-	temp = (m_elem)gasdev( &rseed );
-	noisy_features[t][i] = features[t][i]
-	  + (temp * R[ i ][ i ]);
-      }
-}
-
-
-void save_estimate( char *name, int num_states,	m_elem *state )
+void save_estimate( char *name, m_elem *state )
 {
   FILE     *fptr;
-  int      frame, state_var;
+  int      sample, state_var;
 
   if( (fptr = fopen( name, "w" )) == NULL )
     {
@@ -417,18 +182,17 @@ void save_estimate( char *name, int num_states,	m_elem *state )
       exit( -1 );
     }
 
-  for( state_var = 1; state_var <= num_states; state_var++ )
+  for( state_var = 1; state_var <= STATE_SIZE; state_var++ )
     fprintf( fptr, "%lf ", (double)state[ state_var ] );
 
   fprintf( fptr, "\n" );
   fclose( fptr );
 }
 
-void save_track( char *name, int num_steps, int num_states,
-		m_elem **trajectory )
+void save_track( char *name, int num_steps, m_elem **trajectory )
 {
   FILE     *fptr;
-  int      frame, state_var;
+  int      sample, state_var;
 
   if( (fptr = fopen( name, "w" )) == NULL )
     {
@@ -436,10 +200,10 @@ void save_track( char *name, int num_steps, int num_states,
       exit( -1 );
     }
 
-  for( frame = 1; frame <= num_steps; frame++ )
+  for( sample = 1; sample <= num_steps; sample++ )
     {
-      for( state_var = 1; state_var <= num_states; state_var++ )
-	fprintf( fptr, "%lf ", (double)trajectory[ frame ][ state_var ] );
+      for( state_var = 1; state_var <= STATE_SIZE; state_var++ )
+	fprintf( fptr, "%lf ", (double)trajectory[ sample ][ state_var ] );
       fprintf( fptr, "\n" );
     }
 
@@ -461,11 +225,9 @@ void parse_arguments( int argc, char **argv )
 	 default values for file names, in case the user decides not
 	 to provide them.  */
 
-      sscanf( argv[1], "%s", feature_fname );
-      sscanf( argv[2], "%d", &feature_size );
-      sscanf( argv[3], "%d", &num_frames );
-      sprintf( output_fname, "%s%s", feature_fname, OUTPUT_SUFFIX );
-      sprintf( covariance_fname, "%s%s", feature_fname, COVARIANCE_SUFFIX );
+      sscanf( argv[1], "%s", meas_fname );
+      sscanf( argv[2], "%d", &num_samples );
+      sprintf( output_fname, "%s%s", meas_fname, OUTPUT_SUFFIX );
 
       /*  If more than the required number of arguments was provided,
 	  take a look and see if any of them make sense.   */
@@ -481,30 +243,6 @@ void parse_arguments( int argc, char **argv )
 		  usage( "-out <fname> missing argument" );
 		sscanf( argv[i], "%s", output_fname );
 		break;
-	      case 'c':      /* -c <covariance_fname>  */
-		if( ++i >= argc )
-		  usage( "-cov <fname> missing argument" );
-		sscanf( argv[i], "%s", covariance_fname );
-		break;
-	      case 'l':      /* -l <improved_est_fname> */
-		if( ++i >= argc )
-		  usage( "-l <improved_est_fname> missing argument" );
-		sscanf( argv[i], "%s", estimate_fname );
-		break;
-	      case 'm':      /* -monte_carlo <num_trials>  */
-		if( ++i >= argc )
-		  usage( "-monte_carlo <num_trials> missing argument" );
-		sscanf( argv[i], "%d", &num_trials );
-		break;
-	      case 'd':      /* -debug   */
-		debug = 1 - debug;
-		break;
-	      case 'i':        /*  -iekf  */
-		iterate = 1;
-		break;
-	      case 'e':        /*  -ekf   */
-		iterate = 0;
-		break;
 	      default:
 		usage( "unknown argument" );
 	      }
@@ -517,28 +255,14 @@ void parse_arguments( int argc, char **argv )
 	}
     }
 
-  /*  Each feature provides two measurements, and three values in the
-      state vector.    */
-
-  num_states = feature_size * 3 + STATE_SIZE;
-  feature_size = feature_size * 2;
-
-  if( iterate == 1 )
-    {
-      printf( "Implementing an Iterated Extended Kalman Filter\n" );
-    }
-  else
-    {
       printf( "Implementing an Extended Kalman Filter\n" );
-    }
+
 }
 
 void usage( char *str )
 {
   printf( "test: %s\n", str );
-  printf( "usage: test <feature_fname> <num_features> <num_frames>\n" );
-  printf( "\t[ -o <output_fname> ][ -c <covariance_fname> ]\n" );
-  printf( "\t[ -l <improved_est_output_fname> ]\n" );
-  printf( "\t[ -monte_carlo <num_trials> ][ -iekf | -ekf ][ -debug ]\n" );
+  printf( "usage: test <meas_fname> <num_meas> <num_samples>\n" );
+  printf( "\t[ -o <output_fname> ][ -debug ]\n" );
   exit( -1 );
 }
