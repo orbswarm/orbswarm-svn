@@ -17,13 +17,23 @@ public class BotVisualizer implements NeighborListener, SwarmListener {
     protected JPanel mainPanel = null;
     protected Color backgroundColor = Color.DARK_GRAY;
     protected Color foregroundColor = Color.WHITE;
+    protected Font distancesFont;
+    protected Font botPanelFont;
+    protected Font soundNameFont;
     
     public BotVisualizer(int nbots) {
         this.nbots = nbots;
         neighborViews = new HashMap();
+        setupFonts();
         createUI(nbots, neighborViews);
     }
 
+    public void setupFonts() {
+        distancesFont = new Font("Monospaced", Font.PLAIN, 12);
+        botPanelFont  = new Font("SansSerif", Font.PLAIN, 12);
+        soundNameFont = new Font("SansSerif", Font.PLAIN, 10);
+    }
+    
     public void setNeighbor(GossipEvent gev) {
         neighborChanged(gev);
     }
@@ -32,9 +42,9 @@ public class BotVisualizer implements NeighborListener, SwarmListener {
         Neighbor neighbor = gev.getNeighbor();
         NeighborView nv = getNeighborView(neighbor);
         if (nv != null) {
-            nv.songField.setText("Song: " + neighbor.getSong());
+            nv.songField.setText ("Song:  " + neighbor.getSong());
             nv.layerField.setText("Layer: " + neighbor.getLayer());
-            nv.setField.setText("Set: " + neighbor.getSet());
+            nv.setField.setText  ("Set:   " + neighbor.getSet());
             nv.soundField.setText(neighbor.getSound());
         }
     }
@@ -42,19 +52,19 @@ public class BotVisualizer implements NeighborListener, SwarmListener {
     public void neighborsChanged(List gevs) {
     }
     
-    public void updateSwarmDistances(double radius, int nb, int[][] distances) {
+    public void updateSwarmDistances(double radius, int nb, double[][] distances) {
         StringBuffer buf = new StringBuffer();
         printDistances(buf, distances);
         distanceMatrixView.setText(buf.toString());
     }
             
-    public static void printDistances(int [][] distances) {
+    public static void printDistances(double [][] distances) {
         StringBuffer buf = new StringBuffer();
         printDistances(buf, distances);
         System.out.println(buf.toString());
     }
 
-    public static void printDistances(StringBuffer buf, int [][] distances) {
+    public static void printDistances(StringBuffer buf, double [][] distances) {
         int n = distances[0].length;
         buf.append(" + |   ");
         for(int i=0; i < n; i++) {
@@ -64,7 +74,7 @@ public class BotVisualizer implements NeighborListener, SwarmListener {
             for(int i=0; i < n; i++) {
             buf.append(" " + i + " | ");
             for(int j=0; j <=i; j++) { 
-                String num = distances[i][j] + "";
+                String num = (int)distances[i][j] + "";
                 while (num.length() < 3) {
                     num = " " + num;
                 }
@@ -127,21 +137,23 @@ public class BotVisualizer implements NeighborListener, SwarmListener {
         mainPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
-        JPanel botsPanel = createBotsPanel(nbots, neighborViews);
+        distanceMatrixView = new JTextArea(nbots + 3, 20);
+        distanceMatrixView.setFont(distancesFont);
+        distanceMatrixView.setBackground(backgroundColor);
+        distanceMatrixView.setForeground(foregroundColor);
         
-        // floater thing to keep the universe centered
         gbc.gridx=0;
         gbc.gridy = 0;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
+        mainPanel.add(distanceMatrixView, gbc);
+
+        JPanel botsPanel = createBotsPanel(nbots, neighborViews);
+        
+        gbc.gridx = 0;
+        gbc.gridy = 1;
         mainPanel.add(botsPanel, gbc);
 
-        distanceMatrixView = new JTextArea(nbots + 3, 20);
-        distanceMatrixView.setBackground(backgroundColor);
-        distanceMatrixView.setForeground(foregroundColor);
-        
-        gbc.gridx = 1;
-        mainPanel.add(distanceMatrixView, gbc);
         return mainPanel;
     }
 
@@ -177,11 +189,21 @@ public class BotVisualizer implements NeighborListener, SwarmListener {
         GridBagConstraints gbc = new GridBagConstraints();
 
         String botName = "Bot_" + bot;
+        JLabel bnLabel    = new JLabel(botName);
+        JLabel songField  = new JLabel();
+        JLabel layerField = new JLabel();
+        JLabel setField   = new JLabel();
+        JLabel soundField = new JLabel();
+        bnLabel.setFont(botPanelFont);
+        songField.setFont(botPanelFont);
+        layerField.setFont(botPanelFont);
+        setField.setFont(botPanelFont);
+        soundField.setFont(botPanelFont);
         NeighborView nb = new NeighborView(botName,
-                                           new JLabel(),
-                                           new JLabel(),
-                                           new JLabel(),
-                                           new JLabel());
+                                           songField,
+                                           layerField,
+                                           setField,
+                                           soundField);
         neighborViews.put(botName, nb);
 
         // floater thing to keep the universe centered
@@ -190,11 +212,10 @@ public class BotVisualizer implements NeighborListener, SwarmListener {
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
 
-        JLabel bn = new JLabel(botName);
-        bn.setForeground(foregroundColor);
-        panel.add(bn, gbc);
+        panel.add(bnLabel, gbc);
         
         gbc.gridy++;
+        gbc.anchor = GridBagConstraints.WEST;
         panel.add(nb.songField, gbc);
 
         gbc.gridy++;
@@ -205,7 +226,7 @@ public class BotVisualizer implements NeighborListener, SwarmListener {
         panel.add(nb.soundField, gbc);
 
         Dimension d = panel.getSize();
-        d.setSize(d.getHeight(), 200);
+        d.setSize(200, d.getHeight());
         return panel;
     }
 }

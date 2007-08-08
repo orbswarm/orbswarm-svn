@@ -18,8 +18,8 @@ import javax.swing.event.*;
  */
 public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMotionListener, BotColorListener {
     private StdDraw drawer;
-    public Color bgColor, circleColor, circleBorderColor, vectColor, vectColor_act, baseVectColor, dragVectColor;
-    private int canvasSize = 500;
+    public Color bgColor, controlFGColor, circleColor, circleBorderColor, vectColor, vectColor_act, baseVectColor, dragVectColor;
+    private int canvasSize = 400;
     private ColorScheme colorScheme;
     private ColorScheme defaultColorScheme;
     private String colorSchemeType;
@@ -100,7 +100,7 @@ public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMo
         if (mainPanel == null) {
             mainPanel = new JPanel();
 
-            mainPanel.setBackground(Color.BLACK);
+            mainPanel.setBackground(bgColor);
             mainPanel.setLayout(new GridBagLayout());
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.gridx = 0;
@@ -115,6 +115,7 @@ public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMo
             gbc.weighty = 0.0;
             gbc.gridx = 0;
             gbc.gridy = 1;
+            gbc.anchor = GridBagConstraints.NORTH;
             JPanel controlPanel = createControlPanel();
             mainPanel.add(controlPanel, gbc);
         }
@@ -123,7 +124,7 @@ public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMo
     
     public JPanel createControlPanel() {
         JPanel panel = new JPanel();
-        panel.setBackground(Color.LIGHT_GRAY);
+        panel.setBackground(Color.DARK_GRAY);
         panel.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
         panel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -132,21 +133,26 @@ public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMo
         gbc.gridy = 0;
         gbc.weightx = 0.0;
         gbc.weighty = 1.0;
-        gbc.anchor = GridBagConstraints.EAST;
+        gbc.anchor = GridBagConstraints.WEST;
         // put sliders in here for the spread and value
-        panel.add(new JLabel("Color Scheme"), gbc);
-        gbc.gridx = 1;
-        gbc.gridwidth = 2;
+        JLabel csLabel = new JLabel("Color Scheme");
+        csLabel.setForeground(controlFGColor);
+        panel.add(csLabel, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
         panel.add(makeColorSchemeDropDown(), gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridy = 3;
         gbc.gridwidth = 1;
         gbc.weightx = 1.0;
-        panel.add(new JLabel("Spread"), gbc);
-        gbc.gridy = 2;
+        JLabel spLabel = new JLabel("Spread");
+        spLabel.setForeground(controlFGColor);
+        panel.add(spLabel, gbc);
+        gbc.gridy = 4;
         spreadSlider = make01Slider(null, colorScheme.getSpread());
         spreadSlider.addChangeListener(new ChangeListener() {
                 public void stateChanged(ChangeEvent e) {
@@ -158,16 +164,23 @@ public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMo
             });
         panel.add(spreadSlider, gbc);
 
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.gridwidth = 2;
-        panel.add(new JLabel("Base Color"), gbc);
+        gbc.gridx = 2;
+        gbc.gridy = 0;
+        gbc.gridwidth = 1;
+        JLabel bcLabel = new JLabel("Base Color");
+        bcLabel.setForeground(controlFGColor);
+
+        panel.add(bcLabel, gbc);
 
         gbc.gridy = 2;
         gbc.gridx = 1;
         gbc.gridwidth = 1;
-        panel.add(new JLabel("Hue"), gbc);
+        gbc.anchor = GridBagConstraints.EAST;
+        JLabel hLabel = new JLabel("Hue");
+        hLabel.setForeground(controlFGColor);
+        panel.add(hLabel, gbc);
         gbc.gridx = 2;
+        gbc.anchor = GridBagConstraints.WEST;
         baseHueSlider = make01Slider("Hue", colorScheme.getBaseColor().getHue());
         baseHueSlider.addChangeListener(new ChangeListener() {
                 public void stateChanged(ChangeEvent e) {
@@ -183,8 +196,12 @@ public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMo
 
         gbc.gridy = 3;
         gbc.gridx = 1;
-        panel.add(new JLabel("Sat"), gbc);
+        gbc.anchor = GridBagConstraints.EAST;
+        JLabel sLabel = new JLabel("Sat");
+        sLabel.setForeground(controlFGColor);
+        panel.add(sLabel, gbc);
         gbc.gridx = 2;
+        gbc.anchor = GridBagConstraints.WEST;
         baseSatSlider = make01Slider("Sat",colorScheme.getBaseColor().getSat());
         baseSatSlider.addChangeListener(new ChangeListener() {
                 public void stateChanged(ChangeEvent e) {
@@ -198,8 +215,12 @@ public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMo
 
         gbc.gridy = 4;
         gbc.gridx = 1;
-        panel.add(new JLabel("Val"), gbc);
+        gbc.anchor = GridBagConstraints.EAST;
+        JLabel vLabel = new JLabel("Val");
+        vLabel.setForeground(controlFGColor);
+        panel.add(vLabel, gbc);
         gbc.gridx = 2;
+        gbc.anchor = GridBagConstraints.WEST;
         baseValSlider = make01Slider("Val", colorScheme.getBaseColor().getVal());
         baseValSlider.addChangeListener(new ChangeListener() {
                 public void stateChanged(ChangeEvent e) {
@@ -217,6 +238,12 @@ public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMo
     // just make a slider for now. 
     public JSlider make01Slider(String label, float val) {
         JSlider slider = new JSlider(JSlider.HORIZONTAL, 0, 100, (int)(100. * val));
+        // size matters.
+        Dimension size = slider.getSize();
+        int sliderWidth = 150;
+        int sliderHeight = 20;
+        slider.setMinimumSize(new Dimension(sliderWidth, sliderHeight));
+        slider.setPreferredSize(new Dimension(sliderWidth, sliderHeight));
         return slider;
     }
 
@@ -251,7 +278,7 @@ public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMo
 
     public JComboBox makeColorSchemeDropDown() {
         JComboBox drop = new JComboBox();
-        drop.setBackground(Color.LIGHT_GRAY);
+        drop.setBackground(bgColor);
         for(Iterator it = ColorScheme.getRegisteredColorSchemes(); it.hasNext(); ) {
             String scheme = (String)it.next();
             drop.addItem(scheme);
@@ -311,7 +338,8 @@ public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMo
     }
 
     public void initBGColors() {
-        bgColor = Color.getHSBColor(.8f, .2f, .1f);
+        bgColor = Color.DARK_GRAY; // Color.getHSBColor(.8f, .2f, .6f);
+        controlFGColor = Color.WHITE;
         circleBorderColor = Color.getHSBColor(.7f, .35f, .2f);
         circleColor = Color.getHSBColor(.01234f, .25f, .10f);
         vectColor = Color.getHSBColor(.74f, 0.8f, .2f);
@@ -320,10 +348,12 @@ public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMo
     }
 
     public void drawColorWheel(StdDraw drawer) {
+        drawer.setPenColor_bg(bgColor);
+        drawer.filledSquare_bg(0., 0., radius);
+        
         double x = colorWheel_x;
         double y = colorWheel_y;
         drawer.setPenColor_bg(circleBorderColor);
-        //drawer.setPenRadius(colorWheelRadius / 20.);
         drawer.circle_bg(x, y, colorWheelRadius * 1.05);
         int colorPoints = 25;
         double pointSize = colorWheelRadius / (double)colorPoints;

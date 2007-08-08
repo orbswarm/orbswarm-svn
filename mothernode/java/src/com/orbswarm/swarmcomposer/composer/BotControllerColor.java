@@ -24,7 +24,7 @@ public class BotControllerColor extends BotController implements SwarmListener, 
         setupBotColors(numBots, numBots);
     }
 
-    public void updateSwarmDistances(double radius, int nbeasties, int [][] distances) {
+    public void updateSwarmDistances(double radius, int nbeasties, double [][] distances) {
         super.updateSwarmDistances(radius, nbeasties, distances);
         updateBotColors(nbeasties, distances, currentColorScheme);
     }
@@ -80,9 +80,9 @@ public class BotControllerColor extends BotController implements SwarmListener, 
 
     boolean debugswap = false;
     // distances are measured in percentage of diameter. 
-    public void updateBotColors(int nbeasties, int [][]distances, ColorScheme colorScheme) {
-        System.out.println("BC:: update bot colors..");
-        System.out.println("BC::    colroScheme: " + colorScheme);
+    public void updateBotColors(int nbeasties, double [][]distances, ColorScheme colorScheme) {
+        //System.out.println("BC:: update bot colors..");
+        //System.out.println("BC::    colroScheme: " + colorScheme);
         // for now, assuming nbeasties == numSwatches. (== 6 for orbswarm)
 
         //
@@ -90,11 +90,11 @@ public class BotControllerColor extends BotController implements SwarmListener, 
         // to the other bots and choosing the one with the lowest overall sum.
         //  (Note: this shouldn't be done too often)
         //  (Also: it may work just setting the base color, but not worrying about ranking the others)
-        int lowestSum = 50000;
+        double lowestSum = 50000.;
         int newBaseBot = 0;
         for(int b=0; b < nbeasties; b++) {
-            int sum = 0;
-            int[] bd = distances[b];
+            double sum = 0;
+            double[] bd = distances[b];
             for(int o=0; o < nbeasties; o++) {
                 sum += bd[o];
             }
@@ -154,10 +154,10 @@ public class BotControllerColor extends BotController implements SwarmListener, 
                     broadcastBotColorChanged(i, 0, botColor);
                     
                 } else {
-                    int[] botDistances = distances[i];
-                    int distanceToBase = botDistances[baseColorBot];
+                    double[] botDistances = distances[i];
+                    double distanceToBase = botDistances[baseColorBot];
                     
-                    float rangeMultiplier = distanceToBase / 100.f;
+                    float rangeMultiplier = (float)distanceToBase / 100.f;
                     
                     int swatch = botToSwatchMapping[i];
                     HSV currentSchemeColor = colorScheme.getColor(swatch);

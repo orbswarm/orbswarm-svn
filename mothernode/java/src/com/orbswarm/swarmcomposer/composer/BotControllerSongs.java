@@ -164,18 +164,24 @@ public class BotControllerSongs extends BotController implements NeighborListene
     public void playSongs(List orbsongs) {
         for(Iterator it=orbsongs.iterator(); it.hasNext(); ) {
             String songFile = (String)it.next();
-            System.out.println("BotController: reading song file: " + songFile);
-            try {
-                this.readSongFile(songFile);
-            } catch (Exception ex) {
-                System.out.println("BotController.main() caught exception. " + ex);
-                ex.printStackTrace();
-            }
+            playSong(songFile, songTime);
+        }
+    }
+
+    public void playSong(String songFile, int songTime) {
+        System.out.println("BotController: reading song file: " + songFile);
+        setSongTime(songTime);
+        try {
+            this.readSongFile(songFile);
+        } catch (Exception ex) {
+            System.out.println("BotController.main() caught exception. " + ex);
+            ex.printStackTrace();
         }
         Bot bot0 = (Bot) this.bots.get(0);
         System.out.println(bot0.toString());
         System.out.println("----------------");
 
+        
         this.startControlling();
     }
 

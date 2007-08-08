@@ -1050,19 +1050,19 @@ public class Swarmulator implements MouseListener, MouseMotionListener, ColorSch
     //
 
     // distances are calculated as percent of double the radius. 
-    public int[][] calculateDistances() {
+    public double[][] calculateDistances() {
         double diameter = radius * 2.;
-        int[][] distances = new int[nbeasties][nbeasties];
+        double[][] distances = new double[nbeasties][nbeasties];
         for(int i=0; i < nbeasties; i++) {
             Beastie beastieI = beasties[i];
             for(int j=0; j <= i; j++) {
                 if (i == j) {
-                    distances[i][j] = 0;
+                    distances[i][j] = 0.;
                 } else {
                     Beastie beastieJ = beasties[j];
                     Vect dist = beastieI.pos.minus(beastieJ.pos);
                     double distance = dist.magnitude();
-                    int distPercent = (int)(100 * distance / diameter);
+                    double distPercent = 100. * distance / diameter;
                     distances[i][j] = distPercent;
                     distances[j][i] = distPercent;
                 }
@@ -1072,7 +1072,7 @@ public class Swarmulator implements MouseListener, MouseMotionListener, ColorSch
     }
 
     public void broadcastDistances() {
-        int [][] distances = calculateDistances();  // optimize: reuse the array.
+        double [][] distances = calculateDistances();  // optimize: reuse the array.
         //printDistances(distances);
         for(Iterator it = swarmListeners.iterator(); it.hasNext(); ) {
             SwarmListener sl = (SwarmListener)it.next();
@@ -1089,7 +1089,7 @@ public class Swarmulator implements MouseListener, MouseMotionListener, ColorSch
         }
     }
 
-    public Swarm createSwarm(double radius, int nbeasties, int[][] distances) {
+    public Swarm createSwarm(double radius, int nbeasties, double[][] distances) {
         Swarm swarmImpl = new SwarmulatorSwarmImpl(nbeasties);
         for(int i=0; i < nbeasties; i++) {
             SwarmulatorOrbImpl orb = (SwarmulatorOrbImpl)swarmImpl.getOrb(i);
@@ -1098,13 +1098,13 @@ public class Swarmulator implements MouseListener, MouseMotionListener, ColorSch
         return swarmImpl;
     }
     
-    public static void printDistances(int [][] distances) {
+    public static void printDistances(double [][] distances) {
         StringBuffer buf = new StringBuffer();
         printDistances(buf, distances);
         System.out.println(buf.toString());
     }
 
-    public static void printDistances(StringBuffer buf, int [][] distances) {
+    public static void printDistances(StringBuffer buf, double [][] distances) {
         int n = distances[0].length;
         buf.append(" + |   ");
         for(int i=0; i < n; i++) {
@@ -1114,7 +1114,7 @@ public class Swarmulator implements MouseListener, MouseMotionListener, ColorSch
             for(int i=0; i < n; i++) {
             buf.append(" " + i + " | ");
             for(int j=0; j <=i; j++) { 
-                String num = distances[i][j] + "";
+                String num = (int)distances[i][j] + "";
                 while (num.length() < 3) {
                     num = " " + num;
                 }

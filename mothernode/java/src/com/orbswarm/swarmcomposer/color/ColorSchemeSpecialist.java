@@ -45,20 +45,53 @@ public  class ColorSchemeSpecialist extends AbstractSpecialist implements ColorS
     }
 
     public void orbState(Swarm orbSwarm) {
-        System.out.println("COlorSchemeSpecialist.orbState()");
+        //System.out.println("COlorSchemeSpecialist.orbState()");
         //int n = orbSwarm.getNumOrbs();
         int n = 6;
-        int[][] intdistances = new int[n][n];
+        double[][] distances = new double[n][n];
+        // TODO: get the arena diameter stuff correct...
+        //       (comes from 
+        double diameter = 10.;
         for(int i=0; i < n; i++) {
             Orb orb = orbSwarm.getOrb(i);
-            double distances[] = orb.getDistances();
+            // note:: orb distances are in meters.
+            //        color scheme expects distances as percentage of the diameter of the arena
+            double orbDistances[] = orb.getDistances();
             for(int j=0; j < n; j++) {
-                intdistances[i][j] = (int)distances[j];  // note:: orb distances are in meters.
-                // TODO: get the radius stuff correct...
+                distances[i][j] = orbDistances[j] * 100. / diameter;  
             }
         }
+        //printDistances(distances); // debug. 
         double radius = 100.;
-        botctl_color.updateSwarmDistances(radius, n, intdistances);
+        botctl_color.updateSwarmDistances(radius, n, distances);
+    }
+
+    public static void printDistances(double [][] distances) {
+        StringBuffer buf = new StringBuffer();
+        printDistances(buf, distances);
+        System.out.println(buf.toString());
+    }
+
+
+    public static void printDistances(StringBuffer buf, double [][] distances) {
+        int n = distances[0].length;
+        buf.append(" + |   ");
+        for(int i=0; i < n; i++) {
+            buf.append(i + "   ");
+        }
+        buf.append("\n________________\n");
+            for(int i=0; i < n; i++) {
+            buf.append(" " + i + " | ");
+            for(int j=0; j <=i; j++) { 
+                String num = (int)distances[i][j] + "";
+                while (num.length() < 3) {
+                    num = " " + num;
+                }
+                buf.append(num + " ");
+            }
+            buf.append("\n");
+        }
+        buf.append("------------------\n");
     }
 
     public void setProperty(String name, String value) {

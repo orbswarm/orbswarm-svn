@@ -66,7 +66,6 @@ public class BotController implements NeighborListener, SwarmListener {
     }
 
 
-    // might not even need this for the color controller -- it actually doesn't need bots at all!
     public void startBots() {
         System.out.println("BC: startBots(((((((()))))))).");
         for(Iterator it = bots.iterator(); it.hasNext(); ) {
@@ -149,7 +148,7 @@ public class BotController implements NeighborListener, SwarmListener {
     }
 
     // this is how the bot controller gets the distance measurements
-    public void updateSwarmDistances(double radius, int nbeasties, int [][] distances) {
+    public void updateSwarmDistances(double radius, int nbeasties, double [][] distances) {
         //System.out.println("BotController:: updateSwarmDistances...");
         int i=0;
         for(Iterator it = bots.iterator(); it.hasNext();) {
@@ -161,8 +160,7 @@ public class BotController implements NeighborListener, SwarmListener {
             SwarmListener sl = (SwarmListener)it.next();
             sl.updateSwarmDistances(radius, nbeasties, distances);
         }
-
-    }
+    } 
 
     //////////////////////////
     /// Random utils...    ///

@@ -44,7 +44,7 @@ public class Bot implements NeighborListener {
 
     protected Neighbor  selfAsNeighbor;
     protected HashMap   neighbors;
-    protected int[]     neighborDistances;
+    protected double[]  neighborDistances;
     protected ArrayList neighborListeners;
     protected ArrayList songs;
 
@@ -82,7 +82,7 @@ public class Bot implements NeighborListener {
         this.songs = new ArrayList();
         this.neighbors = new HashMap();
         this.neighborListeners = new ArrayList();
-        this.neighborDistances = new int[6]; // TODO: need way to do this so it works with varying
+        this.neighborDistances = new double[6]; // TODO: need way to do this so it works with varying
         //                                   // numbers of bots...
     }
 
@@ -649,7 +649,7 @@ public class Bot implements NeighborListener {
                 if (nset != null && !nset.equals("none")) {
                     int interference =
                         (100 - currentSong.compatibility(candidateSet, nset)) *
-                        (100 - neighborDistances[nn]);
+                        (100 - (int)neighborDistances[nn]);
                     sumInterferences += interference;
                     //System.out.print(" {" + nn + ":" + nset + ":");
                     //System.out.print(" C: " + currentSong.compatibility(candidateSet, nset));
@@ -758,7 +758,7 @@ public class Bot implements NeighborListener {
      *                                   (100 - distancePercent(BotX, BotA)
      *
      */
-    public void updateNeighborDistances(int[] distances) {
+    public void updateNeighborDistances(double[] distances) {
         boolean chooseNewSet = false;
         int binsize = 20;
         //System.out.print("Bot[" + botnum + "]: neighbor dist: ");

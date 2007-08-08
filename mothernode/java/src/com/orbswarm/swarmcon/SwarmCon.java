@@ -17,6 +17,7 @@ import com.orbswarm.choreography.OrbControl;
 
 import com.orbswarm.swarmcomposer.color.*;
 import com.orbswarm.swarmcomposer.composer.BotVisualizer;
+import com.orbswarm.swarmcomposer.composer.RandomSongSpecialist;
 
 import static org.trebor.util.ShapeTools.*;
 import static java.lang.System.*;
@@ -25,7 +26,7 @@ import static java.lang.Math.*;
 import static javax.swing.KeyStroke.*;
 import static java.awt.event.KeyEvent.*;
 
-public class SwarmCon extends JFrame implements OrbControl
+public class SwarmCon extends JFrame 
 {
       // global source of randomness
 
@@ -77,6 +78,9 @@ public class SwarmCon extends JFrame implements OrbControl
 
       JPanel centerPanel;
 
+      /** action panel which contains the arena and the controlUI */
+      JPanel actionPanel;
+
       /** pid tuner object */
 
       public PidTuner tuner;
@@ -89,6 +93,10 @@ public class SwarmCon extends JFrame implements OrbControl
       
       GpsIo gpsIo;
 
+      /** Implementation of com.orbswarm.choreography.OrbControl.OrbControl to control the Orbs from the Specialists. */
+
+      OrbControlImpl orbControlImpl;
+    
       /**  Specialists listening to OrbState messages */
       ArrayList specialists = new ArrayList();
 
@@ -169,8 +177,11 @@ public class SwarmCon extends JFrame implements OrbControl
 
       public static void main(String[] args)
       {
-         SwarmCon c = new SwarmCon();
-         setupColorSchemeSpecialist(c);
+         SwarmCon sc = new SwarmCon();
+         ColorSchemer schemer = setupColorSchemeSpecialist(sc);
+         BotVisualizer bv = setupRandomSongSpecialist(sc);
+         setupControlPanel(sc, schemer, bv);
+         sc.startControlling();
       }
 
     
@@ -178,6 +189,9 @@ public class SwarmCon extends JFrame implements OrbControl
 
       public SwarmCon()
       {
+         // OrbControl for Specialists
+         orbControlImpl = new OrbControlImpl(this);
+
          // construct the frame
          
          constructFrame(getContentPane());
@@ -207,7 +221,12 @@ public class SwarmCon extends JFrame implements OrbControl
          cardLayout.first(centerPanel);
 
          // start the animation thread
+      }
 
+      boolean running;
+      public void startControlling()
+      {
+         running = true;
          new Thread()
          {
                public void run()
@@ -215,9 +234,14 @@ public class SwarmCon extends JFrame implements OrbControl
                   try {sleep(1000); repaint();} 
                   catch (Exception e) {e.printStackTrace();}
                   lastUpdate = Calendar.getInstance();
-                  while (true) {update();}
+                  while (running) {update();}
                }
          }.start();
+      }
+
+      public void stopControlling()
+      {
+          running = false;
       }
 
       public Controller[] addOrbs(Rectangle2D.Double bounds)
@@ -302,15 +326,18 @@ public class SwarmCon extends JFrame implements OrbControl
       // add a Specialist to list of OrbState receivers
       public void addSpecialist(Specialist sp) 
       {
+          System.out.println("SWARMCON: adding specialist... " + sp);
          specialists.add(sp);
       }
     
       // broadcast OrbState messages to all the Specialists\
       public void broadcastOrbState() 
       {
-         for(Iterator it=specialists.iterator(); it.hasNext(); ) {
-            Specialist specialist = (Specialist)it.next();
-            specialist.orbState(swarm);
+          synchronized (specialists) {
+              for(Iterator it=specialists.iterator(); it.hasNext(); ) {
+                  Specialist specialist = (Specialist)it.next();
+                  specialist.orbState(swarm);
+              }
          }
       }
  
@@ -335,6 +362,7 @@ public class SwarmCon extends JFrame implements OrbControl
          centerPanel = new JPanel();
          cardLayout = new CardLayout();
          centerPanel.setLayout(cardLayout);
+         centerPanel.setBorder(BorderFactory.createLineBorder(Color.gray));
 
          // splash panel
 
@@ -356,12 +384,23 @@ public class SwarmCon extends JFrame implements OrbControl
          splash.add(Box.createVerticalGlue());
          centerPanel.add(splash, "splash");
 
+         // intermediary panel to put the arena and control UIs side-by-side
+         actionPanel = new JPanel();
+         actionPanel.setLayout(new GridBagLayout());
+         centerPanel.add(actionPanel, "arena");
+         
          // setup paint area
          
          arena.addMouseMotionListener(mia);
          arena.addMouseListener(mia);
-         centerPanel.add(arena, "arena");
-
+         GridBagConstraints gbc = new GridBagConstraints();
+         gbc.gridx   = 0;
+         gbc.gridy   = 0;
+         gbc.weightx = 1.;
+         gbc.weighty = 1.;
+         gbc.fill    = GridBagConstraints.BOTH;
+         gbc.anchor  = GridBagConstraints.NORTHWEST;
+         actionPanel.add(arena, gbc);
 
          frame.add(centerPanel, BorderLayout.CENTER);
 
@@ -824,40 +863,70 @@ public class SwarmCon extends JFrame implements OrbControl
             }
       }
 
-      /** Register stock color schemes */
+    /** Register stock color schemes */
 
-      public static void registerColorSchemes() {
-         ColorScheme.registerColorScheme("Analogous", ColorSchemeAnalogous.class);
-         ColorScheme.registerColorScheme("Split Complement", ColorSchemeSplitComplement.class);
-         ColorScheme.registerColorScheme("Split Complement 3", ColorSchemeSplitComplement3.class);
-         ColorScheme.registerColorScheme("Triad", ColorSchemeTriad.class);
-         ColorScheme.registerColorScheme("Tetrad", ColorSchemeTetrad.class);
-         ColorScheme.registerColorScheme("Crown", ColorSchemeCrown.class);
-      }
+    public static void registerColorSchemes() {
+        ColorScheme.registerColorScheme("Analogous", ColorSchemeAnalogous.class);
+        ColorScheme.registerColorScheme("Split Complement", ColorSchemeSplitComplement.class);
+        ColorScheme.registerColorScheme("Split Complement 3", ColorSchemeSplitComplement3.class);
+        ColorScheme.registerColorScheme("Triad", ColorSchemeTriad.class);
+        ColorScheme.registerColorScheme("Tetrad", ColorSchemeTetrad.class);
+        ColorScheme.registerColorScheme("Crown", ColorSchemeCrown.class);
+    }
     
-      /** Setup the ColorSchemeSpecialist and it's controller interface */
-      public static void setupColorSchemeSpecialist(SwarmCon swarmCon) {
-         registerColorSchemes();
-         ColorSchemeSpecialist colorSchemeSpecialist = new ColorSchemeSpecialist();
-         colorSchemeSpecialist.setup((OrbControl)swarmCon, null);
+    /** Setup the ColorSchemeSpecialist and it's controller interface */
+    public static ColorSchemer setupColorSchemeSpecialist(SwarmCon swarmCon) {
+        registerColorSchemes();
+        ColorSchemeSpecialist colorSchemeSpecialist = new ColorSchemeSpecialist();
+        colorSchemeSpecialist.setup(swarmCon.orbControlImpl, null);
                 
-         swarmCon.addSpecialist(colorSchemeSpecialist);
+        swarmCon.addSpecialist(colorSchemeSpecialist);
 
-         ColorSchemer schemer = new ColorSchemer("Crown");
-         schemer.addColorSchemeListener(colorSchemeSpecialist);
-         schemer.broadcastNewColorScheme();
-         schemer.broadcastColorSchemeChanged();
+        ColorSchemer schemer = new ColorSchemer("Crown");
+        schemer.addColorSchemeListener(colorSchemeSpecialist);
+        schemer.broadcastNewColorScheme();
+        schemer.broadcastColorSchemeChanged();
 
-         colorSchemeSpecialist.addBotColorListener(schemer);
+        colorSchemeSpecialist.addBotColorListener(schemer);
 
-         JPanel colorUIPanel = createColorUIPanel(schemer, null);
-         JFrame colorUIFrame = createFrame(colorUIPanel, true);
+        return schemer;
+    }
+
+
+      /** Setup the ColorSchemeSpecialist and it's controller interface */
+      public static BotVisualizer setupRandomSongSpecialist(SwarmCon swarmCon) {
+
+          RandomSongSpecialist randomSongSpecialist = new RandomSongSpecialist();
+          swarmCon.addSpecialist(randomSongSpecialist);
+          randomSongSpecialist.setup(swarmCon.orbControlImpl, null);
+                
+          int numbots = 6; // TODO: Whither Data?
+          BotVisualizer bv = new BotVisualizer(numbots); 
+          randomSongSpecialist.addNeighborListener(bv);
+          randomSongSpecialist.addSwarmListener(bv);
+          randomSongSpecialist.start();
+          return bv;
       }
     
-      private static JPanel createColorUIPanel(ColorSchemer colorSchemer, BotVisualizer bv) {
+    public static void setupControlPanel(SwarmCon swarmCon,
+                                         ColorSchemer schemer, BotVisualizer bv) {
+         JPanel controlUIPanel = createControlUIPanel(schemer, bv);
+         GridBagConstraints gbc = new GridBagConstraints();
+         gbc.gridx   = 1;
+         gbc.gridy   = 0;
+         gbc.weightx = 0;
+         gbc.weighty = 1.;
+         gbc.fill    = GridBagConstraints.VERTICAL;
+         gbc.anchor  = GridBagConstraints.NORTHEAST;
+
+         swarmCon.actionPanel.add(controlUIPanel, gbc);
+         //JFrame colorUIFrame = createFrame(colorUIPanel, true);
+      }
+    
+      private static JPanel createControlUIPanel(ColorSchemer colorSchemer, BotVisualizer bv) {
          JPanel panel = new JPanel();
          panel.setLayout(new GridBagLayout());
-         panel.setBackground(Color.BLACK);
+         panel.setBackground(colorSchemer.bgColor);
          GridBagConstraints gbc = new GridBagConstraints();
         
          gbc.gridx = 0;
@@ -890,47 +959,4 @@ public class SwarmCon extends JFrame implements OrbControl
          return frame;
       }
 
-      //
-      // Implementation of methods from orb.swarmcon.choreography.OrbControl
-      //
-      public OrbControl getOrbControl() {
-         return (OrbControl)this;
-      }
-
-      // sound control methods not implemented.
-      public int  playSoundFile(int orb, String soundFilePath) {return -1;}
-      public void stopSound(int orb) {}
-      public void volume(int orb, int volume) {}
-
-      // only one Light control method implemented
-      public void orbColor(int orbNum, int hue, int sat, int val, int time) {
-         System.out.println("SwarmCon:OrbControl orbColor(orb: " + orbNum + "HSV: [" + hue + ", " + sat + ", " + val + "])");
-         float fhue = hue / 255.f;
-         float fsat = sat / 255.f;
-         float fval = val / 255.f;
-         HSV hsv = new HSV(fhue, fsat, fval);
-         // time ignored here.
-         Color color = hsv.toColor();
-         Orb orb = (Orb)swarm.getOrb(orbNum);
-         orb.setOrbColor(color);
-         // TODO: send color command out on OrbIO, or give it to model, or something. 
-      }
-    
-      public void orbColorFade(int orb,
-                               int hue1, int sat1, int val1,
-                               int hue2, int sat2, int val2,
-                               int time) {}
-
-      //
-      // Motion methods
-      //
-      public void followPath(com.orbswarm.choreography.Point[] wayPoints) {}
-      public void stopOrb(int orb) {}
-    
-      //
-      // SoundFile -> sound hash mapping.
-      //
-      public void   addSoundFileMapping(String soundFilePath, String soundFileHash) {}
-      public String getSoundFileHash(String soundFilePath) {return null;}
-      public java.util.List   getSoundFileMappingKeys() {return null;}
 }

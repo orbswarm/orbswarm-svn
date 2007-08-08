@@ -103,6 +103,10 @@ public class MainSwarmerSpecialists {
 
         JPanel mainPanel = createPanel(schemer, null);
         JFrame frame = createFrame(mainPanel, true);
+
+        ////////////////////////////////////////
+        /// Set up the songs Specialist      ///
+        ////////////////////////////////////////
         
         //old...
         /*
