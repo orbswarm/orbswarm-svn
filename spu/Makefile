@@ -32,7 +32,7 @@ CFLAGS = -Wall -g -O3 -D_REENTRANT
 
 all: app test util
 app: spu spumond mainloop
-test: testspuutils logtest gpsconvtest 
+test: testspuutils logtest gpsconvtest testpacketizer 
 util: readcom writecom setled
 
 testspuutils: testspuutils.o swarmspuutils.o
@@ -40,6 +40,12 @@ testspuutils: testspuutils.o swarmspuutils.o
 
 testspuutils.o: $(TEST)/testspuutils.cc $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmdefines.h
 	$(CC) $(CFLAGS)-c $(TEST)/testspuutils.cc
+
+testpacketizer: testpacketizer.o 
+	$(CC) $(LIBS) $(CFLAGS) testpacketizer.o -o testpacketizer
+
+testpacketizer.o: $(TEST)/testpacketizer.cc 
+	$(CC) $(CFLAGS)-c $(TEST)/testpacketizer.cc
 
 setled: setled.o swarmspuutils.o
 	$(CC) $(LIBS) $(CFLAGS) setled.o swarmspuutils.o -o setled
@@ -59,7 +65,7 @@ gpsconvtest: gpsconvtest.o swarmspuutils.o $(SRC)/swarmspuutils.cc $(INC)/swarms
 gpsconvtest.o: $(TEST)/gpsconvtest.cc $(INC)/swarmdefines.h $(INC)/swarmspuutils.h
 	$(CC) $(CFLAGS)-c $(TEST)/gpsconvtest.cc
 
-swarmspuutils.o: $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmdefines.h
+swarmspuutils.o: $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmdefines.h $(INC)/swarmserial.h
 	$(CC) $(CFLAGS)-c $(SRC)/swarmspuutils.cc
 
 readcom: readcom.o swarmserial.o 
@@ -67,7 +73,6 @@ readcom: readcom.o swarmserial.o
 
 readcom.o: $(TEST)/readcom.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h 
 	$(CC) $(CFLAGS)-c $(TEST)/readcom.cc
-
 
 writecom: writecom.o swarmserial.o 
 	$(CC) $(LIBS) $(CFLAGS) writecom.o swarmserial.o -o writecom 
