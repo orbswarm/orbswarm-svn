@@ -21,7 +21,7 @@ extern void vec_add( m_elem *A, m_elem *B, m_elem *C, int n );
 extern void vec_sub( m_elem *A, m_elem *B, m_elem *C, int n );
 
 /*  vector C = vector A * scalar B , for A of size n   */
-extern void vecScalarMult( m_elem *A, double B, m_elem *C, int n );
+extern void vecScalarMult( m_elem *A, m_elem B, m_elem *C, int n );
 
 extern void print_vector( char *str, m_elem *x, int n );
 
@@ -50,7 +50,7 @@ extern void mat_mult_transpose( m_elem **A, m_elem **B, m_elem **C,
 			   int a_rows, int a_cols, int b_cols );
 
 /*  matrix C = matrix A x scalar B , A(a_rows x a_cols) */
-void mat_mult_scalar( m_elem **a, double b, m_elem **c,
+void mat_mult_scalar( m_elem **a, m_elem b, m_elem **c,
 	      int a_rows, int a_cols );
 
 
@@ -70,17 +70,6 @@ extern void mrqmin( m_elem x[], m_elem y[], m_elem sig[], int ndata,
 		   void (*funcs)(m_elem, m_elem [], m_elem *, m_elem [], int),
 		   m_elem *alamda);
 
-/*  quaternion routines  */
-
-#define QUATERNION_SIZE    4
-#define MIN_QUATERNION_MAGNITUDE   0.000001
-
-
-extern m_elem *quaternion( void );
-extern void quaternion_update( m_elem *quat, m_elem wx,
-		       m_elem wy, m_elem wz );
-extern void quaternion_to_rotation( m_elem *quat, m_elem **rot );
-extern void print_quaternion( char *str, m_elem *quat );
 
 /*   Vector allocation routines   */
 

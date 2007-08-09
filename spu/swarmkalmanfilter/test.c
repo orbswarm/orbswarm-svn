@@ -22,6 +22,7 @@
 #include "kalman.h"
 #include "kalmanswarm.h"
 #include "matmath.h"
+#include "kftime.h"
 
 
 #define HELLO "Camera Motion Estimator\n"
@@ -59,7 +60,7 @@ void usage( char *str );
 
 int main( int argc, char **argv )
 {
-  int      trial, time, i, row, col; /* various iteration variables   */
+  int      time, i, row, col; /* various iteration variables   */
   m_elem   *track;        /* ptr to state vector of kalman filter */
 
   m_elem   **meas;    /* features being tracked        */
@@ -109,8 +110,8 @@ int main( int argc, char **argv )
 	  track = kalman_get_state();
 	  if( debug )
 	    {
-	      sprintf( dbgstr, "State @ t = %d", time );
-	      print_vector( dbgstr, track, STATE_SIZE );
+	      /*sprintf( dbgstr, "State @ t = %d", time );
+	      print_vector( dbgstr, track, STATE_SIZE );*/
 	    }
   traj_fptr = trajectory[ time ];
 
@@ -128,6 +129,8 @@ int main( int argc, char **argv )
   free_vector( x, 1, STATE_SIZE );
   free_matrix( meas, 1, num_samples, 1, meas_size );
   free_matrix( trajectory, 1, num_samples, 1, STATE_SIZE );
+
+  return(0);
 
 }
 
@@ -156,7 +159,7 @@ void load_meas( char *name, int num_meas, int num_steps,
 		&data[1], &data[2], &data[3], &data[4], &data[5], &data[6], 
 		&data[7], &data[8], &data[9], &data[10] ) != 10 )
 	  {
-	    printf("load_meas: Error reading %s ! (%d samples %d points read )\n",
+	    printf("load_meas: Error reading %s ! (%d samples read )\n",
 		   name, sample );
 	    fclose( fptr );
 	    exit( -1 );
@@ -215,7 +218,7 @@ void parse_arguments( int argc, char **argv )
       i = 4;
       while( i < argc )
 	{
-	  if( argv[i][0] = '-' )
+	  if( argv[i][0] == '-' )
 	    {
 	      switch( argv[i][1] ) {
 	      case 'o':      /* -o <output_fname>  */

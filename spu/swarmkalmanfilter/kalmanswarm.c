@@ -22,8 +22,6 @@
 #include "kalmanswarm.h"
 #include "matmath.h"
 
-#define PRINT_DEBUG
-
 extern int     debug;
 
 /* local functions */

@@ -61,10 +61,10 @@ void vec_sub( m_elem *a, m_elem *b, m_elem *c, int n )
 }
 
 /*  vector C = vector A * scalar B , for A of size n   */
-extern void vecScalarMult( m_elem *a, double b, m_elem *c, int n )
+extern void vecScalarMult( m_elem *a, m_elem b, m_elem *c, int n )
 {
   int i;
-  m_elem  *a_ptr, *b_ptr, *c_ptr;
+  m_elem  *a_ptr, *c_ptr;
 
   a_ptr = a + 1;
   c_ptr = c + 1;
@@ -132,7 +132,10 @@ void mat_mult( m_elem **a, m_elem **b, m_elem **c,
 	{
 	  temp = 0.0;
 	  for( k = 1; k <= a_cols; k++ )
-	    temp = temp + (a_ptr[k] * b[k][j]); 
+	  {
+	    if ((a_ptr[k] != 0.0) && (b[k][j] != 0.0))
+	    	temp = temp + (a_ptr[k] * b[k][j]);
+	  } 
 	  c[i][j] = temp;
 	}
     }
@@ -145,7 +148,7 @@ void mat_mult( m_elem **a, m_elem **b, m_elem **c,
 void mat_mult_vector( m_elem **a, m_elem *b, m_elem *c,
 	      int a_rows, int a_cols )
 {
-  int i, j, k;
+  int i, k;
   m_elem  *a_ptr, *b_ptr;
   m_elem  temp;
 
@@ -156,8 +159,12 @@ void mat_mult_vector( m_elem **a, m_elem *b, m_elem *c,
       temp = 0.0;
 
       for( k = 1; k <= a_cols; k++ )
-	temp += a_ptr[ k ] * *b_ptr++;
-
+      {
+        if ((a_ptr[ k ] != 0.0) && (*b_ptr != 0.0))	
+	   temp += a_ptr[ k ] * *b_ptr++;
+	else
+           b_ptr++;
+      }
       c[i] = temp;
     }
 }
@@ -165,12 +172,12 @@ void mat_mult_vector( m_elem **a, m_elem *b, m_elem *c,
 /*  mat_mult_scalar
     This function performs a matrix multiplication.
 */
-void mat_mult_scalar( m_elem **a, double b, m_elem **c,
+void mat_mult_scalar( m_elem **a, m_elem b, m_elem **c,
 	      int a_rows, int a_cols )
 {
-  int i, j, k;
-  m_elem  *a_ptr;
-  m_elem  temp;
+  int i, j;
+
+
 
   for( i = 1; i <= a_rows; i++)
     {
@@ -185,6 +192,8 @@ void mat_mult_scalar( m_elem **a, double b, m_elem **c,
 
 /*  mat_mult_transpose
     This function performs a matrix multiplication of A x transpose B.
+
+Is this right?  it's implemented differently than mat_mult... - MAP
 */
 void mat_mult_transpose( m_elem **a, m_elem **b, m_elem **c,
 	      int a_rows, int a_cols, int b_cols )
@@ -203,8 +212,11 @@ void mat_mult_transpose( m_elem **a, m_elem **b, m_elem **c,
 	  temp = (m_elem)0;
 
 	  for( k = 1; k <= a_cols; k++ )
-	    temp += a_ptr[ k ] * *b_ptr++;
-
+	  {
+	    if ((a_ptr[k] != 0.0) && (*b_ptr != 0.0))
+	    	temp += a_ptr[ k ] * *b_ptr++;
+	    else b_ptr++;	
+	  }	
 	  c[i][j] = temp;
 	}
     }
@@ -292,8 +304,12 @@ void gaussj(m_elem **a, int n, m_elem **b, int m)
     if (a[icol][icol] == 0.0) nrerror("gaussj: Singular Matrix-2");
     pivinv=1.0/a[icol][icol];
     a[icol][icol]=1.0;
-    for (l=1;l<=n;l++) a[icol][l] *= pivinv;
-    for (l=1;l<=m;l++) b[icol][l] *= pivinv;
+    for (l=1;l<=n;l++) 
+	if (a[icol][l] != 0)
+		a[icol][l] *= pivinv;
+    for (l=1;l<=m;l++) 
+	if (b[icol][l] != 0)
+		b[icol][l] *= pivinv;
     for (ll=1;ll<=n;ll++)
       if (ll != icol) {
 	dum=a[ll][icol];
@@ -315,101 +331,6 @@ void gaussj(m_elem **a, int n, m_elem **b, int m)
 #undef SWAP
 
 
-/**********************************************************
-
-  Quaternion math
-
-  A quaternion is a four vector used to represent rotation in
-  three-space.  The representation being used here is from
-  Ali Azarbayejani.
-
-  It is stored in components 0 through 3 of the vector.
-*/
-
-m_elem *quaternion( void )
-{
-  m_elem  *v;
-
-  v = vector( 0, 3 );
-  v[0] = (m_elem)1.0;  v[1] = (m_elem)0.0;
-  v[2] = (m_elem)0.0;  v[3] = (m_elem)0.0;
-}
-
-void quaternion_update( m_elem *quat, m_elem wx,
-		       m_elem wy, m_elem wz )
-{
-  int           i;
-  m_elem  temp;
-  m_elem  delta[QUATERNION_SIZE], new[QUATERNION_SIZE];
-
-  /*  First, define a quaternion from the angular velocities  */
-
-  temp = wx*wx + wy*wy + wz*wz;
-  delta[0] = sqrt( 1 - (temp * 0.25) );
-  temp = 1.0 / 2.0;
-  delta[1] = wx * temp;
-  delta[2] = wy * temp;
-  delta[3] = wz * temp;
-
-  /*  Now multiply it with the input quaternion, to update it. */
-
-  new[0] = quat[0]*delta[0] - quat[1]*delta[1] - quat[2]*delta[2]
-    - quat[3]*delta[3];
-  new[1] = quat[1]*delta[0] + quat[0]*delta[1] - quat[3]*delta[2]
-    + quat[2]*delta[3];
-  new[2] = quat[2]*delta[0] + quat[3]*delta[1] + quat[0]*delta[2]
-    - quat[1]*delta[3];
-  new[3] = quat[3]*delta[0] - quat[2]*delta[1] + quat[1]*delta[2]
-    + quat[0]*delta[3];
-
-  /*  Finally, normalize the quaternion and copy it back  */
-
-  temp = new[0]*new[0] + new[1]*new[1] + new[2]*new[2] + new[3]*new[3];
-  if( temp < MIN_QUATERNION_MAGNITUDE )
-    {
-      quat[0] = 1.0;
-      quat[1] = 0.0; quat[2] = 0.0; quat[3] = 0.0;
-      return;
-    }
-
-  temp = 1.0 / (m_elem)sqrt( (double)temp );
-  if( temp != 1.0 )
-    {
-      for( i = 0; i < QUATERNION_SIZE; i++ )
-	quat[i] = new[i] * temp;
-    }
-  else
-    for( i = 0; i < QUATERNION_SIZE; i++ )
-      quat[i] = new[i];
-}
-
-/*  quaternion_to_rotation
-    This function takes pointers to a quaternion input, and a rotation
-    matrix for the results.  It calculates the 3D rotation matrix that
-    is equivalent to the quaternion.
-*/
-void quaternion_to_rotation( m_elem *quat, m_elem **rot )
-{
-  m_elem  q01 = quat[0] * quat[1];
-  m_elem  q02 = quat[0] * quat[2];
-  m_elem  q03 = quat[0] * quat[3];
-  m_elem  q11 = quat[1] * quat[1];
-  m_elem  q12 = quat[1] * quat[2];
-  m_elem  q13 = quat[1] * quat[3];
-  m_elem  q22 = quat[2] * quat[2];
-  m_elem  q23 = quat[2] * quat[3];
-  m_elem  q33 = quat[3] * quat[3];
-
-  rot[1][1] = 1.0 - 2.0 * (q22 + q33);
-  rot[1][2] =     - 2.0 * (q03 - q12);
-  rot[1][3] =       2.0 * (q02 + q13);
-  rot[2][1] =       2.0 * (q03 + q12);
-  rot[2][2] = 1.0 - 2.0 * (q22 + q33);
-  rot[2][3] =     - 2.0 * (q01 - q23);
-  rot[3][1] =     - 2.0 * (q02 - q13);
-  rot[3][2] =       2.0 * (q01 + q23);
-  rot[3][3] = 1.0 - 2.0 * (q11 + q22);
-}
 
 /**********************************************************
 
@@ -732,20 +653,6 @@ void print_vector( char *str, m_elem *x, int n )
   printf( "\n" );
 }
 
-void print_quaternion( char *str, m_elem *x )
-{
-  int     i;
-
-  printf( "%s:\n", str );
-  for( i = 0; i < QUATERNION_SIZE; i++ )
-    {
-      if( (x[ i ] > 1) && (x[i] < 999) )
-	printf( " %3.1lf", x[ i ] );
-      else
-	printf( " %2.2lg", x[ i ] );
-    }
-  printf( "\n" );
-}
 
 void print_matrix( char *str, m_elem **A, int m, int n )
 {

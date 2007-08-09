@@ -26,8 +26,6 @@
 #define ITERATION_THRESHOLD      2.0
 #define ITERATION_DIVERGENCE     20
 
-#define PRINT_DEBUG 
-
 /*  The following are the global variables of the Kalman filters,
     used to point to data structures used throughout.     */
 
@@ -167,13 +165,13 @@ static void rungeKutta( m_elem *old_state, m_elem *new_state )
   vecScalarMult( tempState, PERIOD, k1, STATE_SIZE );
 
   /* k2 = period * F( old_state + k1 * 0.5) */
-  vecScalarMult( k1, (double)0.5, tempState, STATE_SIZE ); /* tempState = k1 * 0.5 */
+  vecScalarMult( k1, 0.5, tempState, STATE_SIZE ); /* tempState = k1 * 0.5 */
   vec_add( old_state, tempState, tempState, STATE_SIZE );  /* tempState = old_state + k1 * 0.5 */
   systemF( tempState, old_state );
   vecScalarMult( tempState, PERIOD, k2, STATE_SIZE );
 
   /* k3 = period * F( old_state + k2 * 0.5) */
-  vecScalarMult( k2, (double)0.5, tempState, STATE_SIZE ); /* tempState = k2 * 0.5 */
+  vecScalarMult( k2, 0.5, tempState, STATE_SIZE ); /* tempState = k2 * 0.5 */
   vec_add( old_state, tempState, tempState, STATE_SIZE );  /* tempState = old_state + k2 * 0.5 */
   systemF( tempState, old_state );
   vecScalarMult( tempState, PERIOD, k3, STATE_SIZE );
@@ -185,12 +183,12 @@ static void rungeKutta( m_elem *old_state, m_elem *new_state )
 
   /*  new_state = old_state + 0.16667 * ( k1 + 2*k2 + 2*k3 + k4 ) */
   vec_copy( k1, new_state, STATE_SIZE );
-  vecScalarMult( k2, (double)2.0, tempState, STATE_SIZE );
+  vecScalarMult( k2, 2.0, tempState, STATE_SIZE );
   vec_add( new_state, tempState, new_state, STATE_SIZE);
-  vecScalarMult( k3, (double)2.0, tempState, STATE_SIZE );
+  vecScalarMult( k3, 2.0, tempState, STATE_SIZE );
   vec_add( new_state, tempState, new_state, STATE_SIZE);
   vec_add( new_state, k4, new_state, STATE_SIZE);
-  vecScalarMult( new_state, (double)0.16667, new_state, STATE_SIZE );
+  vecScalarMult( new_state, 0.16667, new_state, STATE_SIZE );
   vec_add( new_state, old_state, new_state, STATE_SIZE);
 
 }

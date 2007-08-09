@@ -17,7 +17,7 @@ NATIVECC = gcc
 CC = $(LINUXCC)
 #CC = $(NATIVECC)
 #CPP = $(LINUXCPP)
-CFLAGS = -Wall -g -O3 -D_REENTRANT 
+CFLAGS = -Wall -g -O3 -D_REENTRANT -mcpu=ep9312  
 
 # -----------------------------------------------------------------------
 # Makefile script for generating spu binary 
