@@ -49,7 +49,7 @@
 #define MSG_END_MOTHER_SHIP '}' //used to supply the orb with info about the mothership
                                 //E.G. the location of the mothership in UTM format
 
-#define MOTHER_SHIP_MSG_DELIM ' ' //blank space for newline
+#define MOTHER_SHIP_MSG_DELIM " " //blank space for newline
 #define MOTHER_SHIP_MSG_HEAD_STATUS "DUMP_STATUS"
 #define MOTHER_SHIP_MSG_HEAD_TRAJECTORY "TRAJ"
 #define MOTHER_SHIP_MSG_HEAD_LOCATION "MSLOC"
@@ -62,7 +62,7 @@
 #define AGGR_ZIGBEE_QUERY_CMD "$Az*$"
 
 #define MAX_AGG_PACKET_SZ 100   // total packet sz including the header footer 
-#define MAX_AGG_PACKET_PAYLOAD_SZ 94   // This is 100 bytes - headersz + footersz + '\0' 
+#define MAX_AGG_PACKET_PAYLOAD_SZ 91   // This is 100 bytes - headersz + footersz + '\0' 
 #define AGGR_ZIGBEE_STREAM_WRITE_HEADER "$As"
 #define AGGR_ZIGBEE_STREAM_WRITE_END "*$"
 
