@@ -23,6 +23,7 @@
 #include "kalmanswarm.h"
 #include "matmath.h"
 
+
 #define HELLO "Camera Motion Estimator\n"
 
 #define IMPROVE_DEBUG
@@ -97,11 +98,13 @@ int main( int argc, char **argv )
     
       /*  For each sample in the test run, perform one estimation and
 	  copy the results into the trajectory history   */
+      
+  start_clock();	
 
       for( time = 1; time <= num_samples; time++ )
 	{
 
-	    extended_kalman_step( &meas[ time ][0] );
+	  extended_kalman_step( &meas[ time ][0] );
 
 	  track = kalman_get_state();
 	  if( debug )
@@ -109,11 +112,13 @@ int main( int argc, char **argv )
 	      sprintf( dbgstr, "State @ t = %d", time );
 	      print_vector( dbgstr, track, STATE_SIZE );
 	    }
-	  traj_fptr = trajectory[ time ];
+  traj_fptr = trajectory[ time ];
 
 	  for( i = 1; i <= STATE_SIZE; i++ )
 	    traj_fptr[ i ] = track[ i ];
 	}
+
+  end_clock("All samples processed in this many ticks -");
     
   /*  Save the set of estimated parameters into a file  */
   
