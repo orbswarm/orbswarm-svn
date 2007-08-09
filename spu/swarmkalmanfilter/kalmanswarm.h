@@ -1,9 +1,11 @@
 /*  Function Prototypes for kalmanSwarm */
 
-#define STATE_SIZE         	13
-
 #define RADIUS 0.762
 #define GRAVITY 9.81
+
+#define PERIOD  0.10
+
+#define STATE_SIZE         	13
 
 /*  These are the components of the state vector   */
 

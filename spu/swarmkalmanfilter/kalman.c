@@ -26,8 +26,6 @@
 #define ITERATION_THRESHOLD      2.0
 #define ITERATION_DIVERGENCE     20
 
-#define PERIOD  0.10
-
 #define PRINT_DEBUG 
 
 /*  The following are the global variables of the Kalman filters,
