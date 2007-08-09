@@ -606,3 +606,41 @@ int packetizeAndSendMotherShipData(int portFd, char* buffToWrite, int buffSz)
   }
   return status;
 }
+
+//These convert voltage values from the IMU into m/sec^2
+//These are actually condensed from the full formulae which are:
+// For millivolts to acceleration in m/sec^2:
+// (N-512)/1024 * 3.3V * (9.8 m/s^2)/(0.300 V/g)
+// For millivolts to yaw in m/sec^2:
+// (N-512)/1024 * 3.3V * (1 deg/s)/.002V * (Pi radians)/(180 deg)
+//
+//These are useful to know because various components might need to be
+//tweaked in the future to accomodate for real-world detected noise,
+// bias, etc.
+
+void imuMvToSI(struct swarmImuData *imuProcData)
+{
+
+ imuProcData->si_ratex = imuYawToSI(imuProcData->mv_ratex);
+ imuProcData->si_ratey = imuYawToSI(imuProcData->mv_ratey);
+ imuProcData->si_accz = imuAccelToSI(imuProcData->mv_accz);
+ imuProcData->si_accx = imuAccelToSI(imuProcData->mv_accx);
+ imuProcData->si_accy = imuAccelToSI(imuProcData->mv_accy);
+}
+
+double imuAccelToSI(int imuAccelInMv)
+{
+    double accel;
+
+        accel = (imuAccelInMv-512)/1024*(double)10.78;
+
+        return accel;
+}
+
+double imuYawToSI(int imuYawInMv) {
+    double yaw;
+
+    yaw = (imuYawInMv-512)/1024 * (double) 28.783;
+
+    return yaw;
+}
