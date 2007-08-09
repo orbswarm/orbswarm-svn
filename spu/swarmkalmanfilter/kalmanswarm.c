@@ -459,27 +459,32 @@ void generate_measurement_transfer( m_elem *state, m_elem **H )
 
 /* set the covariance */
 
-void covarianceSet( m_elem **GQGt, m_elem **R )
+void covarianceSet( m_elem **Qk, m_elem **R )
 {
   int  row, col;
   
   for( row = 1; row <= STATE_SIZE; row++ )
     for( col = 1; col <= STATE_SIZE; col++ )
-      GQGt[ row ][ col ] = 0.0;
+      Qk[ row ][ col ] = 0.0;
 
-  GQGt[ STATE_vdot ][ STATE_vdot ] 	= 0.5;
-  GQGt[ STATE_v ][ STATE_v ] 		= 0.0;
-  GQGt[ STATE_phidot ][ STATE_phidot ]	= 0.25;
-  GQGt[ STATE_phi ][ STATE_phi ] 	= 0.0;
-  GQGt[ STATE_theta ][ STATE_theta ] 	= 0.25;
-  GQGt[ STATE_psi ][ STATE_psi ] 	= 0.5;
-  GQGt[ STATE_x ][ STATE_x ] 		= 1.0;
-  GQGt[ STATE_y ][ STATE_y ] 		= 1.0;
-  GQGt[ STATE_xab ][ STATE_xab ] 	= 0.5;
-  GQGt[ STATE_yab ][ STATE_yab ] 	= 0.5;
-  GQGt[ STATE_zab ][ STATE_zab ] 	= 0.5;
-  GQGt[ STATE_xrb ][ STATE_xrb ] 	= 0.5; 
-  GQGt[ STATE_zrb ][ STATE_zrb ]  	= 0.5;
+  /* These values actually define Qc, then we multiply by PERIOD to get Qk */
+
+  Qk[ STATE_vdot ][ STATE_vdot ] 	= 0.5;
+  Qk[ STATE_v ][ STATE_v ] 		= 0.0;
+  Qk[ STATE_phidot ][ STATE_phidot ]	= 0.25;
+  Qk[ STATE_phi ][ STATE_phi ] 		= 0.0;
+  Qk[ STATE_theta ][ STATE_theta ] 	= 0.25;
+  Qk[ STATE_psi ][ STATE_psi ] 		= 0.5;
+  Qk[ STATE_x ][ STATE_x ] 		= 1.0;
+  Qk[ STATE_y ][ STATE_y ] 		= 1.0;
+  Qk[ STATE_xab ][ STATE_xab ] 		= 0.5;
+  Qk[ STATE_yab ][ STATE_yab ] 		= 0.5;
+  Qk[ STATE_zab ][ STATE_zab ] 		= 0.5;
+  Qk[ STATE_xrb ][ STATE_xrb ] 		= 0.5; 
+  Qk[ STATE_zrb ][ STATE_zrb ]  	= 0.5;
+
+  mat_mult_scalar( Qk, PERIOD, Qk, STATE_SIZE, STATE_SIZE );
+  
 
   for( row = 1; row <= MEAS_SIZE; row++ )
     for( col = 1; col <= MEAS_SIZE; col++ )

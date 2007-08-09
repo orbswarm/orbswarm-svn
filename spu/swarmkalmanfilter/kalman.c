@@ -100,7 +100,7 @@ void extended_kalman_init( m_elem **P, m_elem *x )
   alloc_globals( STATE_SIZE, MEAS_SIZE );
 
   sys_transfer = matrix( 1, STATE_SIZE, 1, STATE_SIZE );
-  mea_transfer = matrix( 1, MEAS_SIZE, 1, MEAS_SIZE );
+  mea_transfer = matrix( 1, STATE_SIZE, 1, MEAS_SIZE );
 
   /*  Init the global variables using the arguments.  */
 
@@ -279,17 +279,17 @@ static void update_system( m_elem *z, m_elem *x_pre,
   printf( "ekf: updating system\n" );
 #endif
 
-  apply_measurement( x_pre, z_estimate );
-  vec_sub( z, z_estimate, z_estimate, MEAS_SIZE );
-  mat_mult_vector( K, z_estimate, x_post, STATE_SIZE, MEAS_SIZE );
-  vec_add( x_post, x_pre, x_post, STATE_SIZE );
+  apply_measurement( x_pre, z_estimate ); /* z_estimate = h ( x_pre ) */
+  vec_sub( z, z_estimate, z_estimate, MEAS_SIZE ); /* z_estimate = z - z_estimate */
+  mat_mult_vector( K, z_estimate, x_post, STATE_SIZE, MEAS_SIZE ); /* x_post = K * (z- z_estimate) */
+  vec_add( x_post, x_pre, x_post, STATE_SIZE ); /* x_post + x_pre + K * (z-z_estimate) */
 }
 
 /* estimate_prob()
    This function estimates the change in the variance of the state
    variables, given the system transfer function.   */
 
-static void estimate_prob( m_elem **P_post, m_elem **Phi, m_elem **GQGt,
+static void estimate_prob( m_elem **P_post, m_elem **Phi, m_elem **Qk,
 			  m_elem **P_pre )
 {
 #ifdef PRINT_DEBUG
@@ -297,10 +297,10 @@ static void estimate_prob( m_elem **P_post, m_elem **Phi, m_elem **GQGt,
 #endif
 
   mat_mult_transpose( P_post, Phi, temp_state_state,
-		     STATE_SIZE, STATE_SIZE, STATE_SIZE );
+		     STATE_SIZE, STATE_SIZE, STATE_SIZE ); /* temp_state_state = P_post * Phi' */
   mat_mult( Phi, temp_state_state, P_pre,
-		     STATE_SIZE, STATE_SIZE, STATE_SIZE );
-  mat_add( P_pre, GQGt, P_pre, STATE_SIZE, STATE_SIZE );
+		     STATE_SIZE, STATE_SIZE, STATE_SIZE ); /* P_pre = Phi * P_post * Phi' */
+  mat_add( P_pre, Qk, P_pre, STATE_SIZE, STATE_SIZE );   /* P_pre = GQGt + Phi * P_post * Phi' */
 }
 
 
@@ -324,12 +324,24 @@ static void update_prob( m_elem **P_pre, m_elem **R, m_elem **H,
 #ifdef DIV_DEBUG
   print_matrix( "P", P_pre, STATE_SIZE, STATE_SIZE );
 #endif
+
+  
+
+/* I think this is wrong- M.A.P 2007
   mat_mult( H, P_pre, temp_meas_state,
-	   MEAS_SIZE, STATE_SIZE, STATE_SIZE );
+	   MEAS_SIZE, STATE_SIZE, STATE_SIZE );  temp_meas_state = H * P_pre 
   mat_mult_transpose( H, temp_meas_state, temp_meas_meas,
-		     MEAS_SIZE, STATE_SIZE, MEAS_SIZE );
+		     MEAS_SIZE, STATE_SIZE, MEAS_SIZE ); temp_meas_meas = H * (H*P_pre)' 
+*/
+
+  /* these two lines are my correction - M.A.P. 2007 */
+  mat_mult( H, P_pre, temp_meas_state,
+	   MEAS_SIZE, STATE_SIZE, STATE_SIZE );  /* temp_meas_state = H * P_pre */
+  mat_mult_transpose( temp_meas_state, H, temp_meas_meas,
+		     MEAS_SIZE, STATE_SIZE, MEAS_SIZE ); /* temp_meas_meas = (H*P_pre)*H' */
+
   mat_add( temp_meas_meas, R, temp_meas_meas,
-	  MEAS_SIZE, MEAS_SIZE );
+	  MEAS_SIZE, MEAS_SIZE );  
 
   take_inverse( temp_meas_meas, temp_meas_2, MEAS_SIZE );
 
