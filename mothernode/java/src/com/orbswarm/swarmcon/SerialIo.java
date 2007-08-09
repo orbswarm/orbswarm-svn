@@ -9,10 +9,10 @@ import java.util.Vector;
 import java.util.Enumeration;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.Thread;
 
-/** OrbIo provids serial I/O between this software and devices on serial
- * ports.
- */
+/** SerialIo provids serial I/O between this software and devices on
+ * serial ports. */
 
 public class SerialIo
 {
@@ -56,16 +56,16 @@ public class SerialIo
 
       static
       {
-         System.out.println("loading...");
          try
          {
+            System.out.println("loading...");
             JarLibrary.load("rxtxSerial");
+            System.out.println("loaded");
          }
          catch (Exception e)
          {
             e.printStackTrace();
          }
-         System.out.println("loaded");
       }
       /** Construct a SerialIo object. */
 
@@ -192,6 +192,23 @@ public class SerialIo
          {
             out.write(string.getBytes());
             out.flush();
+         }
+         catch (Exception e)
+         {
+            e.printStackTrace();
+         }
+      }
+
+      /** Convenance sleep function with exections already trapped.
+       *
+       * @param millis milliseconds to sleep
+       */
+      
+      public void sleep(long millis)
+      {
+         try
+         {
+            Thread.sleep(millis);
          }
          catch (Exception e)
          {

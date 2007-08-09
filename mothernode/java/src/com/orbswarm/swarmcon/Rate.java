@@ -20,6 +20,28 @@ public class Rate
          this.max = max;
          this.acceleration = acceleration;
       }
+      // clone this rate
+
+      public Rate clone()
+      {
+         Rate other = new Rate(name, min, max, acceleration);
+         other.setRate(getRate());
+         other.setTarget(getTarget());
+         return other;
+      }
+      
+      // get min rate
+
+      public double getMax()
+      {
+         return max;
+      }
+      // get min rate
+
+      public double getMin()
+      {
+         return min;
+      }
       // stipulate the rate
 
       public void setRate(double rate)

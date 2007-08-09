@@ -20,6 +20,12 @@ public class GpsIo extends SerialIo
       {
          super(portName);
       }
+
+      public static void main(String[] args)
+      {
+         new GpsIo("/dev/cu.usbserial0");
+      }
+
       /** open a serial port */
       
       public void open() throws Exception
@@ -28,6 +34,15 @@ public class GpsIo extends SerialIo
          
          super.open();
          
+         // activate thred
+
+         activate();
+      }
+
+      /** Activate line listening thread */
+
+      public void activate()
+      {
          // construct a thread to read GPS data from
          
          new Thread()
@@ -54,16 +69,16 @@ public class GpsIo extends SerialIo
                      while (true)
                      {
                         String line = lnr.readLine();
-                        System.out.println("line: " + line);
+                        //System.out.println("line: " + line);
                         try 
                         {
                            NMEA.parse(line, record);
                            record.latitude /= 100;
                            record.longitude /= 100;
-                           System.out.println("east hemi: " + record.eastHemi);
+                           //System.out.println("east hemi: " + record.eastHemi);
                            XY utm = coord.convertToGaussKrueger(record.latitude, record.longitude);
                            System.out.println("  lat: " + record.latitude + " long: " + record.longitude);
-                           System.out.println("north: " + utm.x + " east: " + utm.y);
+                           //System.out.println("north: " + utm.x + " east: " + utm.y);
                         }
                         catch (Exception e)
                         {
@@ -77,7 +92,23 @@ public class GpsIo extends SerialIo
                   }
                }
          }.start();
-         
-         System.out.println("sucess!");
+      }
+      /** Configure the gps for WAAS and WGS84 (i think) */
+      void configure()
+      {
+         sleep(2000);
+         System.out.println("line 10");
+         send("$PMTK313,1*2E\r\n");
+         System.out.println("line 11");
+         sleep(2000);
+         //send("$PMTK301,2*2D\r\n");
+         System.out.println("line 20");
+         send("$PMTK501,2*2B\r\n");
+         System.out.println("line 21");
+         sleep(2000);
+         System.out.println("line 30");
+         send("$PMTK401*37\r\n");
+         System.out.println("line 31");
+         sleep(2000);
       }
 }

@@ -892,7 +892,6 @@ public class SwarmCon extends JFrame
         return schemer;
     }
 
-
       /** Setup the ColorSchemeSpecialist and it's controller interface */
       public static BotVisualizer setupRandomSongSpecialist(SwarmCon swarmCon) {
 
