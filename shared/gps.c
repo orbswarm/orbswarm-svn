@@ -7,28 +7,30 @@
 volatile static int gps_rx_state=eGpsStraightSerialRxInit;
 volatile static int gps_rx_is_error=0;
 volatile static unsigned long gps_rx_state_byte_num=0;
-volatile static unsigned char gps_rx_packet[MAX_GPS_PACKET_LENGTH];
+volatile static char gps_rx_packet[MAX_GPS_PACKET_LENGTH];
 
-volatile static unsigned char  gps_gpggaMsg[ MAX_GPS_PACKET_LENGTH];
-volatile static unsigned char  gps_gpvtgMsg[ MAX_GPS_PACKET_LENGTH];
-volatile static unsigned char gps_pmtkMsg[MAX_GPS_PACKET_LENGTH ];
+volatile static char  gps_gpggaMsg[ MAX_GPS_PACKET_LENGTH];
+volatile static int gps_gpggaRecordSeq=0;
+volatile static char  gps_gpvtgMsg[ MAX_GPS_PACKET_LENGTH];
+volatile static int gps_gpvtgRecordSeq=0;
+volatile static char gps_pmtkMsg[MAX_GPS_PACKET_LENGTH ];
 
-static void (*_debugCallback)(void)=0;
-static void (*_debug)(const char* debugMsg)=0;
+static void (* volatile _debugCallback)(void)=0;
+static void (* volatile _debug)(const char* debugMsg)=0;
 
-unsigned char *strcpy(volatile unsigned char *restrict s1, 
-		      volatile const unsigned char *restrict s2)
+char *strcpy(volatile char *restrict s1, 
+		      volatile const char *restrict s2)
 {
-    volatile unsigned char *dst = s1;
-    volatile const unsigned char *src = s2;
+    volatile char *dst = s1;
+    volatile const char *src = s2;
     /* Do the copying in a loop.  */
     while ((*dst++ = *src++) != '\0')
         ;
     /* Return the destination string.  */
-    return s1;
+    return (char *)s1;
 }
 
-void clearAck(unsigned char* s)
+void clearAck(volatile char* s)
 {
   while(*s){
     *s='\0';
@@ -36,20 +38,30 @@ void clearAck(unsigned char* s)
   }
 }
 
-void getPmtkMsg(volatile unsigned char* returnBuffer)
+void getPmtkMsg(volatile char* returnBuffer)
 {
   strcpy(returnBuffer, gps_pmtkMsg);
-  clearAck( gps_pmtkMsg);
+  clearAck(gps_pmtkMsg);
 }
 
-void  getGpsGpggaMsg(volatile unsigned char* returnBuffer)
+void  getGpsGpggaMsg(volatile char* returnBuffer)
 {
-  strcpy(returnBuffer, gps_gpggaMsg);
+  while(1){
+    int nRecSeq  = gps_gpggaRecordSeq;
+    strcpy(returnBuffer, gps_gpggaMsg);
+    if(gps_gpggaRecordSeq == nRecSeq)
+      break;//message has not been overwritten
+  }
 }
 
-void getGpsGpvtgMsg(volatile unsigned char* returnBuffer)
+void getGpsGpvtgMsg(volatile char* returnBuffer)
 {
-  strcpy(returnBuffer, gps_gpvtgMsg);
+  while(1){
+    int nRecSeq= gps_gpvtgRecordSeq;
+    strcpy(returnBuffer, gps_gpvtgMsg);
+    if(gps_gpvtgRecordSeq == nRecSeq)
+      break;//message has not been overwritten
+  }
 }
 
 void initGpsModule(void (*debugCallback)(void),
@@ -71,22 +83,15 @@ static void debug(const char* debugMsg)
     (*_debug)(debugMsg);
 }
 
-static void initGpsMsgStart(unsigned char c)
+static void initGpsMsgStart(char c)
 {
   gps_rx_state_byte_num=0;
   gps_rx_is_error=0;
   gps_rx_packet[gps_rx_state_byte_num]=c;
 }
 
- //we are interested in only these messages
-  //$GPGGA,000243.000,3743.980645,N,12222.595411,W,1,8,1.18,28.298,M,-25.322,M,,*52
-void dummyHandleGpsSerial(unsigned char c, int isError)
-{
-  debugCallback();
-  debug("dummy");
-}
 
-void handleGpsSerial(unsigned char c, int isError)
+void handleGpsSerial(char c, int isError)
 {
   char dmesgc[2];
   dmesgc[0]=c;
@@ -228,10 +233,14 @@ void handleGpsSerial(unsigned char c, int isError)
 	 //if not error first dispatch old message
 	 if(!gps_rx_is_error){
 	   gps_rx_packet[gps_rx_state_byte_num+1]='\0';
-	   if(eGpsStraightSerialRxPayloadGPVTGMsg == gps_rx_state)
+	   if(eGpsStraightSerialRxPayloadGPVTGMsg == gps_rx_state){
 	     strcpy(gps_gpvtgMsg, gps_rx_packet);
-	   else if(eGpsStraightSerialRxPayloadGPGGAMsg == gps_rx_state)
+	     gps_gpvtgRecordSeq++;
+	   }
+	   else if(eGpsStraightSerialRxPayloadGPGGAMsg == gps_rx_state){
 	     strcpy(gps_gpggaMsg, gps_rx_packet);
+	     gps_gpggaRecordSeq++;
+	   }
 	 }
 	 initGpsMsgStart(c);
          gps_rx_state=eGpsStraightSerialRxPayload;
@@ -252,7 +261,7 @@ void handleGpsSerialBuf(const char* buf, long nNumBytes)
 {
   for(int i=0; i < nNumBytes; i++)
     {
-      handleGpsSerial((unsigned char)buf[i], 0);
+      handleGpsSerial(buf[i], 0);
     }
 }
 

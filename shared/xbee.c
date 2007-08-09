@@ -31,7 +31,7 @@ static void debug(const char* debugMsg)
     (*_debug)(debugMsg);
 }
 
-static void initXbeeMsgStart(unsigned char c)
+static void initXbeeMsgStart(char c)
 {
   xbee_rx_state=eXbeeStraightSerialRxStartMsg;
   xbee_rx_state_byte_num=0;
@@ -40,7 +40,7 @@ static void initXbeeMsgStart(unsigned char c)
   xbee_rx_packet.swarm_msg_payload[xbee_rx_state_byte_num]=c;
 }
 
-void handleXbeeSerial(unsigned char c, int isError)
+void handleXbeeSerial(char c, int isError)
 {
   debugCallback();
   //debug("in handle");
@@ -74,8 +74,8 @@ void handleXbeeSerial(unsigned char c, int isError)
 	 //if not error first dispatch old message
 	 if(!xbee_rx_is_error){
 	   xbee_rx_packet.swarm_msg_length[0] = 
-	     (unsigned char)(xbee_rx_state_byte_num>>8);
-	   xbee_rx_packet.swarm_msg_length[1] = (unsigned char)xbee_rx_state_byte_num;
+	     (char)(xbee_rx_state_byte_num>>8);
+	   xbee_rx_packet.swarm_msg_length[1] = (char)xbee_rx_state_byte_num;
 	   xbee_rx_packet.swarm_msg_payload[xbee_rx_state_byte_num+1]='\n';
 	   xbee_rx_packet.swarm_msg_payload[xbee_rx_state_byte_num+2]='\0';
 	   pushQ(xbee_rx_packet);
@@ -102,7 +102,7 @@ void handleXbeeSerialBuf(const char* buf, long nNumBytes)
 {
   for(int i=0; i < nNumBytes; i++)
     {
-      handleXbeeSerial((unsigned char)buf[i], 0);
+      handleXbeeSerial(buf[i], 0);
     }
 }
 /*

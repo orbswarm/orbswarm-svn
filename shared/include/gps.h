@@ -1,4 +1,4 @@
-#define MAX_GPS_PACKET_LENGTH 256
+#include "swarm_common_defines.h"
 
 enum EGpsStraightSerialRxStates {
   eGpsStraightSerialRxInit,
@@ -15,13 +15,13 @@ enum EGpsStraightSerialRxStates {
   eGpsStraightSerialRxPMTKMsgPayload
 };
 
-void  handleGpsSerial(unsigned char c, int isError);
+void  handleGpsSerial(char c, int isError);
 
 void initGpsModule(void (*debugCallback)(void),
 		    void (*debug)(const char*) );
 
-void getPmtkMsg(volatile unsigned char* returnBuffer);
-void getGpsGpggaMsg(volatile unsigned char* returnBuffer);
-void getGpsGpvtgMsg(volatile unsigned char* returnBuffer);
+void getPmtkMsg(volatile char* returnBuffer);
+void getGpsGpggaMsg(volatile char* returnBuffer);
+void getGpsGpvtgMsg(volatile char* returnBuffer);
 
 
