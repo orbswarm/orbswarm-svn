@@ -226,6 +226,7 @@ int parseGPSSentence(swarmGpsData * gpsdata)
     }
   //fprintf(stderr,"\n RAW GPS DATA %s,%s,%Lf,%c,%Lf,%c \n",gpsdata->gpsSentenceType,gpsdata->nmea_utctime,gpsdata->nmea_latddmm,gpsdata->nmea_latsector,gpsdata->nmea_londdmm,gpsdata->nmea_lonsector);
   } else  {
+    fprintf(stderr,"\nRETURNING INVALID GPS SENTANCE\n");
     return SWARM_INVALID_GPS_SENTENCE;
   }
 
@@ -233,64 +234,84 @@ int parseGPSSentence(swarmGpsData * gpsdata)
 
   strcpy(gpssentcpy, gpsdata->vtgSentence);
   paramptr = strtok(gpssentcpy, SWARM_NMEA_GPS_DATA_DELIM);
+
+  fprintf(stderr, "\nstrtok returned **%s** for gps sentence type\n",paramptr);
+
   if (paramptr == NULL) {
+    fprintf(stderr,"\nRETURNING INVALID GPS SENTANCE PARAM PTR NULL\n");
     return SWARM_INVALID_GPS_SENTENCE;
   }
 
   // skip leading $
+  /*
   if (paramptr[0] != '$') {
+    fprintf(stderr,"\nRETURNING INVALID GPS SENTANCE MISSING $\n");
     return SWARM_INVALID_GPS_SENTENCE;
   }
   if(strcmp(paramptr+1, SWARM_NMEA_GPS_SENTENCE_TYPE_GPVTG) != 0) {
+    fprintf(stderr,"\nRETURNING INVALID TYPE NOT GPVTG $\n");
     return SWARM_INVALID_GPS_SENTENCE;
   }
+  */
 
   int e;
   char discard_char;
   float discard_float;
   float degrees, kmph;
   char mode;
-
+    fprintf(stderr,"\nMADE IT 1\n");
   // Course over ground (degrees, referenced to true north)
   paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
-  e = sscanf(paramptr, "%f", &degrees);
-  if (e != 1) { return SWARM_INVALID_GPS_SENTENCE; }
+  fprintf(stderr,"\nSTRTOK GOT %s\n",paramptr);
+  //e = sscanf(paramptr, "%f", &degrees);
+  //if (e != 1) { return SWARM_INVALID_GPS_SENTENCE; }
 
+  fprintf(stderr,"\nMADE IT 2\n");
   // Indicator of course reference (T == true north)
   paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
+  fprintf(stderr,"\nSTRTOK GOT %s\n",paramptr);
+/*
+  fprintf(stderr,"\nSTRTOK GOT %s\n",paramptr);
   e = sscanf(paramptr, "%c", &discard_char);
   if (e != 1 || discard_char != 'T') { return SWARM_INVALID_GPS_SENTENCE; }
 
+  fprintf(stderr,"\nMADE IT 3\n");
   // Course over ground (not supported)
   paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
   e = sscanf(paramptr, "%f", &discard_float);
   if (e != 1) { return SWARM_INVALID_GPS_SENTENCE; }
 
+  fprintf(stderr,"\nMADE IT 4\n");
   // Indicator of course reference (M == magnetic north)
   paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
   e = sscanf(paramptr, "%c", &discard_char);
   if (e != 1 || discard_char != 'M') { return SWARM_INVALID_GPS_SENTENCE; }
 
+  fprintf(stderr,"\nMADE IT 5\n");
   // Speed over ground (knots)
   paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
   e = sscanf(paramptr, "%f", &discard_float);
   if (e != 1) { return SWARM_INVALID_GPS_SENTENCE; }
 
+  fprintf(stderr,"\nMADE IT 6\n");
   // Units (knots)
   paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
   e = sscanf(paramptr, "%c", &discard_char);
   if (e != 1 || discard_char != 'N') { return SWARM_INVALID_GPS_SENTENCE; }
   
+  fprintf(stderr,"\nMADE IT 7\n");
   // Speed over ground (km/h)
   paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
   e = sscanf(paramptr, "%f", &kmph);
   if (e != 1) { return SWARM_INVALID_GPS_SENTENCE; }
     
+  fprintf(stderr,"\nMADE IT 8\n");
   // Units (km/h)
   paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
   e = sscanf(paramptr, "%c", &discard_char);
   if (e != 1 || discard_char != 'K') { return SWARM_INVALID_GPS_SENTENCE; }
 
+  fprintf(stderr,"\nMADE IT 9\n");
   // Mode
   paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
   mode = paramptr[0];
@@ -298,6 +319,7 @@ int parseGPSSentence(swarmGpsData * gpsdata)
     return SWARM_INVALID_GPS_SENTENCE;
   }
 
+  fprintf(stderr,"\nMADE IT 10\n");
   // Trailing knick-knacks
   if (paramptr[1] != '*') {
     return SWARM_INVALID_GPS_SENTENCE;
@@ -310,6 +332,7 @@ int parseGPSSentence(swarmGpsData * gpsdata)
     return SWARM_INVALID_GPS_SENTENCE;
   }
 
+  fprintf(stderr,"\nMADE IT 11\n");
   // Done!
   if (strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM) != NULL) {
     return SWARM_INVALID_GPS_SENTENCE;
@@ -317,6 +340,7 @@ int parseGPSSentence(swarmGpsData * gpsdata)
 
   // populate structure
 
+  fprintf(stderr,"\nMADE IT 11\n");
   // convert from due north to due east
   degrees -= 90;
   if (degrees < 0) { degrees += 360; }
@@ -325,7 +349,8 @@ int parseGPSSentence(swarmGpsData * gpsdata)
   // convert from km/h to m/s
   gpsdata->speed = kmph * (1000.0 / (60.0*60.0));
   gpsdata->mode = mode;
-
+*/
+  fprintf(stderr,"\nMADE IT 12\n");
   return status;
 }
 
@@ -468,18 +493,22 @@ int getMessageType(char* message)
     break;
     case MSG_HEAD_MOTHER_SHIP : 
       // The firs char of the message matched so lets check the last  
-      if(message[messageSize] == MSG_END_MOTHER_SHIP) 
+      
+         fprintf(stderr, "\nLAST CHAR **%c** of message \n",message[messageSize-1]);
+      if(rindex(message, MSG_END_MOTHER_SHIP) != NULL) 
       {
          char* msgptr = NULL;
          char msgBufCpy[MAX_BUFF_SZ + 1];
          strcpy(msgBufCpy, message);
          char msgdelim[1];   
-         msgdelim[0] = MOTHER_SHIP_MSG_DELIM;
-         msgptr = strtok(&msgBufCpy[1],msgdelim);
+         //msgdelim[0] = MOTHER_SHIP_MSG_DELIM;
+         msgptr = strtok(&msgBufCpy[1],MOTHER_SHIP_MSG_DELIM);
+         fprintf(stderr, "\nstrtok returned **%s** for message type\n",msgptr);
          if(msgptr != NULL)
          {
            if(strcmp(msgptr,MOTHER_SHIP_MSG_HEAD_STATUS) == 0)
            {
+             fprintf(stderr, "\nIDENTIFIED MESSAGE POLL MESSAGE\n");
              messageType = AGGR_MSG_TYPE_MOTHER_SHIP_SPU_POLL; 
            }          
            else if(strcmp(msgptr,MOTHER_SHIP_MSG_HEAD_TRAJECTORY) == 0)
@@ -499,111 +528,52 @@ int getMessageType(char* message)
 
 void genSpuDump(char* logBuffer, int maxBufSz, swarmGpsData * gpsData)
 {
-  char keyValueBuff[128]; 
-  int keyValueBuffSz = 0;
-  int total_buf_size = 0;
-  
-  //gps data northing
-  sprintf(keyValueBuff,"NORTH=%lf\n",gpsData->UTMNorthing);
-  keyValueBuffSz = strlen(keyValueBuff);
-  if((total_buf_size + keyValueBuffSz) < maxBufSz)
-  {
-    strcat(logBuffer,keyValueBuff); 
-    total_buf_size += keyValueBuffSz;
-  }
-   
-  //gps data easting 
-  sprintf(keyValueBuff,"EAST=%lf\n",gpsData->UTMEasting);
-  strcat(logBuffer,keyValueBuff); 
-  if((total_buf_size + keyValueBuffSz) < maxBufSz)
-  {
-    strcat(logBuffer,keyValueBuff); 
-    total_buf_size += keyValueBuffSz;
-  }
-
-  //gps utc time 
-  sprintf(keyValueBuff,"UTC_TIME=%s\n",gpsData->nmea_utctime);
-  strcat(logBuffer,keyValueBuff); 
-  if((total_buf_size + keyValueBuffSz) < maxBufSz)
-  {
-    strcat(logBuffer,keyValueBuff); 
-    total_buf_size += keyValueBuffSz;
-  }
-
-  //heading 
-  sprintf(keyValueBuff,"HEADING=%lf\n",gpsData->nmea_course);
-  strcat(logBuffer,keyValueBuff); 
-  if((total_buf_size + keyValueBuffSz) < maxBufSz)
-  {
-    strcat(logBuffer,keyValueBuff); 
-    total_buf_size += keyValueBuffSz;
-  }
-
-  //speed 
-  sprintf(keyValueBuff,"SPEED=%lf\n",gpsData->speed);
-  strcat(logBuffer,keyValueBuff); 
-  if((total_buf_size + keyValueBuffSz) < maxBufSz)
-  {
-    strcat(logBuffer,keyValueBuff); 
-    total_buf_size += keyValueBuffSz;
-  }
-
-  //meters from mothership north 
-  sprintf(keyValueBuff,"MSHIP_N=%lf\n",gpsData->metFromMshipNorth);
-  strcat(logBuffer,keyValueBuff); 
-  if((total_buf_size + keyValueBuffSz) < maxBufSz)
-  {
-    strcat(logBuffer,keyValueBuff); 
-    total_buf_size += keyValueBuffSz;
-  }
-
-  //meters from mothership east 
-  sprintf(keyValueBuff,"MSHIP_E=%lf\n",gpsData->metFromMshipEast);
-  strcat(logBuffer,keyValueBuff); 
-  if((total_buf_size + keyValueBuffSz) < maxBufSz)
-  {
-    strcat(logBuffer,keyValueBuff); 
-    total_buf_size += keyValueBuffSz;
-  }
-
-  //UTM Zone 
-  sprintf(keyValueBuff,"UTM_ZN=%s\n",gpsData->UTMZone);
-  strcat(logBuffer,keyValueBuff); 
-  if((total_buf_size + keyValueBuffSz) < maxBufSz)
-  {
-    strcat(logBuffer,keyValueBuff); 
-    total_buf_size += keyValueBuffSz;
-  }
+  char * scratchBuff = (char *)malloc(maxBufSz * 2);
+  sprintf(scratchBuff,"NORTH=%lf\nEAST=%lf\nUTC_TIME=%s\nHEADING=%f\nSPEED=%f\nMSHIP_N=%lf\nMSHIP_E=%lf\n",
+   gpsData->UTMNorthing,
+   gpsData->UTMEasting,
+   gpsData->nmea_utctime,
+   gpsData->nmea_course,
+   gpsData->speed, 
+   gpsData->metFromMshipNorth, 
+   gpsData->metFromMshipEast);
+  strncpy(logBuffer,scratchBuff, maxBufSz -1);
+  free(scratchBuff);
 }
 
+// treats porFd as a serial port fd. set portFd to -1 to avoid writing to 
+// serial port useful for debugging.
 int packetizeAndSendMotherShipData(int portFd, char* buffToWrite, int buffSz)
 {
   int status = SWARM_SUCCESS;
   char aggPacket[MAX_AGG_PACKET_SZ];
   char aggPacketPayload[MAX_AGG_PACKET_PAYLOAD_SZ];
   int msgByteIdx = 0;
-  int packetByteCount = 0;
   int msgBytesLeft = buffSz;
    
+  fprintf(stderr, "\n START packetizeAndSendMotherShipData BUFF SZ:%d",buffSz); 
   while(msgBytesLeft > 0)
   { 
-    packetByteCount = 0;
-    if(msgBytesLeft > MAX_AGG_PACKET_PAYLOAD_SZ)
-    {
-       strncpy(aggPacketPayload,&buffToWrite[msgByteIdx],MAX_AGG_PACKET_PAYLOAD_SZ);
-       msgByteIdx += MAX_AGG_PACKET_PAYLOAD_SZ;
-       msgBytesLeft -= MAX_AGG_PACKET_PAYLOAD_SZ;
-    }
-    else //Last few bytes so send everything
-    {
-       strcpy(aggPacketPayload,&buffToWrite[msgByteIdx]);
-       msgBytesLeft -= strlen(aggPacketPayload);
-    }
+    fprintf(stderr, "\n BUILD FULL PACKET INDEX : %d",msgByteIdx); 
+    strncpy(aggPacketPayload,&buffToWrite[msgByteIdx],MAX_AGG_PACKET_PAYLOAD_SZ);
+    msgByteIdx += strlen(aggPacketPayload);
+    msgBytesLeft -= MAX_AGG_PACKET_PAYLOAD_SZ;
+    fprintf(stderr, "\n BUILD FULL PACKET BYTES LEFT : %d",msgBytesLeft); 
+ 
     //compose final packet with header and footer  
     sprintf(aggPacket,"%s%s%s",AGGR_ZIGBEE_STREAM_WRITE_HEADER,aggPacketPayload,AGGR_ZIGBEE_STREAM_WRITE_END); 
-    
-    writeCharsToSerialPort(portFd, aggPacket, strlen(aggPacket));
+    if(portFd < 0)
+    {
+      fprintf(stderr,"\nFULL PACKET---%s--- SIZE:%d\n",aggPacket,strlen(aggPacket));
+    }
+    else
+    {
+      writeCharsToSerialPort(portFd, aggPacket, strlen(aggPacket));
+    }
+    aggPacketPayload[0] = '\0';
+    aggPacket[0] = '\0';
   }
+  fprintf(stderr, "\n END packetizeAndSendMotherShipData"); 
   return status;
 }
 
