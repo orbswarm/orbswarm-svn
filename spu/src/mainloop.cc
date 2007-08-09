@@ -82,7 +82,6 @@ int main(int argc, char *argv[])
 	 toggleSpuLed(SPU_LED_RED_OFF);  
        }
        // Poll aggregator to get IMU data
-       
        printf("START GPS TRANSACTION**********\n"); 
 
        //Tell the agg that we want whatever gps data it has to give 
@@ -91,13 +90,19 @@ int main(int argc, char *argv[])
 
        if(bytes2 > 1) //only handle the gps data if we have it
        {  
-         if(buffer[bytes2] != AGGR_DATA_XFER_ACK)
+         if(rindex(buffer, AGGR_DATA_XFER_ACK) == NULL)
          { 
            //We didn't get all of the data so we keep reading until we do
            int total_gps_bytes = 0;
+           int numGpsTrys = 0;
            total_gps_bytes = bytes2;
            while(1)  
            {
+             printf("\n NUM GPS TRYS:%d\n",numGpsTrys);
+             if(numGpsTrys > 10){
+                printf("Breaking out of GPS read loop on try #%d\n",numGpsTrys); 
+                break; 
+             }
              printf("CALLING GPS READ A SECOND TIME\n"); 
              readCharsFromSerialPort(com2, &buffer[total_gps_bytes], &bytes2,MAX_BUFF_SZ - total_gps_bytes); 
              total_gps_bytes += bytes2;
@@ -105,8 +110,9 @@ int main(int argc, char *argv[])
 
              if(buffer[total_gps_bytes] == AGGR_DATA_XFER_ACK)
                break; //we got it all so get out of the read loop 
-           }
+             }
             bytes2 = total_gps_bytes; 
+            numGpsTrys++;
          } 
          buffer[bytes2+1] = '\0';
 	 if (VERBOSE) printf("\n GPS sentence is \"%s\"\n",buffer);
@@ -120,59 +126,49 @@ int main(int argc, char *argv[])
          char gpsBufCpy[MAX_BUFF_SZ + 1];
          strcpy(gpsBufCpy, buffer);
          char gpsdelim[1];   
-          gpsdelim[0] = AGGR_MESSAGE_DELIM_END;
+         gpsdelim[0] = AGGR_MESSAGE_DELIM_END;
          sentptr = strtok(gpsBufCpy,gpsdelim);
          while(sentptr != NULL)
          {
            switch(gpscnt)
            {
              case 0: 
-               status = SWARM_SUCCESS;
+               printf("\nSTR TOKED SENTANCE PTR****%s****\n",sentptr);
                strcpy(currentOrbLoc.gpsSentence,sentptr);
-               status = parseGPSSentence(&currentOrbLoc);
-               if(status == SWARM_SUCCESS)
-               { 
-        	   if(VERBOSE)
-        	     printf("\n Parsed line %s \n",currentOrbLoc.gpsSentence);
-        	   status = convertNMEAGpsLatLonDataToDecLatLon(&currentOrbLoc);
-        	   if(status == SWARM_SUCCESS)
-        	     {
-        	       if(VERBOSE)
-        		 printf("\n Decimal lat:%lf lon:%lf utctime:%s \n",currentOrbLoc.latdd,currentOrbLoc.londd,currentOrbLoc.nmea_utctime);
-                  
-        	       decimalLatLongtoUTM(WGS84_EQUATORIAL_RADIUS_METERS, WGS84_ECCENTRICITY_SQUARED, &currentOrbLoc);
-                     if(VERBOSE)
-                       printf("Northing:%f,Easting:%f,UTMZone:%s\n",currentOrbLoc.UTMNorthing,currentOrbLoc.UTMEasting,currentOrbLoc.UTMZone);
-        	     }
-               }
-               else
-               {
-        	 if(VERBOSE)
-        	   printf("\n Failed GPS parse status=%i", status);
-               }
              break;//end GPS Lat/Lon parse
 
              case 1:   // Parse the gps velocity data 
-               status = SWARM_SUCCESS;
-               strcpy(currentOrbLoc.vtgSentence,sentptr);
-               status = parseGPSSentence(&currentOrbLoc);
-               if(status == SWARM_SUCCESS)
-               { 
-        	 if(VERBOSE)
-        	   printf("\n Parsed line %s \n",currentOrbLoc.vtgSentence);
-               }
-               else
-               {
-	         if (VERBOSE)
-        	   printf("\n Failed VTG gps parse status=%i", status);
-               }
+               printf("\nSTR TOKED SENTANCE PTR****%s****\n",sentptr);
+               strcpy(currentOrbLoc.vtgSentence,&sentptr[1]);
              break;//end GPS VTG data parse 
            }
            gpscnt++; 
            sentptr = strtok(NULL,SWARM_NMEA_GPS_DATA_DELIM);
          }
+         status = SWARM_SUCCESS;
+         status = parseGPSSentence(&currentOrbLoc);
+         if(status == SWARM_SUCCESS)
+         { 
+           if(VERBOSE)
+           printf("\n Parsed line %s \n",currentOrbLoc.gpsSentence);
+           status = convertNMEAGpsLatLonDataToDecLatLon(&currentOrbLoc);
+           if(status == SWARM_SUCCESS)
+           {
+             if(VERBOSE)
+             printf("\n Decimal lat:%lf lon:%lf utctime:%s \n",currentOrbLoc.latdd,currentOrbLoc.londd,currentOrbLoc.nmea_utctime);
+                  
+             decimalLatLongtoUTM(WGS84_EQUATORIAL_RADIUS_METERS, WGS84_ECCENTRICITY_SQUARED, &currentOrbLoc);
+             if(VERBOSE)
+               printf("Northing:%f,Easting:%f,UTMZone:%s\n",currentOrbLoc.UTMNorthing,currentOrbLoc.UTMEasting,currentOrbLoc.UTMZone);
+             }
+           }
+           else
+           {
+             if(VERBOSE)
+               printf("\n Failed GPS parse status=%i", status);
+           }
        }
-       
+
        //Tell the agg that we want whatever zigbee data it has to give 
        writeCharsToSerialPort(com2, AGGR_ZIGBEE_QUERY_CMD, strlen(AGGR_ZIGBEE_QUERY_CMD));
        readCharsFromSerialPort(com2, buffer, &bytes2,MAX_BUFF_SZ); 
@@ -184,13 +180,18 @@ int main(int argc, char *argv[])
 
          //Now we examine the last character of the read data to see if we have gotten all of the 
          //data in the first read
-         if(buffer[bytes2] != AGGR_DATA_XFER_ACK)
+         if(rindex(buffer, AGGR_DATA_XFER_ACK) == NULL)
          { 
            //We didn't get all of the data so we keep reading until we do
            int total_zigbee_bytes = 0;
            total_zigbee_bytes = bytes2;
+           int numTrys = 0;
            while(1)  
            {
+             if(numTrys > 10){
+                printf("Breaking out of read loop on try #%d\n",numTrys); 
+                break; 
+             }
              printf("CALLING ZIGBEE READ A SECOND TIME\n"); 
              readCharsFromSerialPort(com2, &buffer[total_zigbee_bytes], &bytes2,MAX_BUFF_SZ - total_zigbee_bytes); 
              total_zigbee_bytes += bytes2;
@@ -198,6 +199,7 @@ int main(int argc, char *argv[])
 
              if(buffer[total_zigbee_bytes] == AGGR_DATA_XFER_ACK)
                break; //we got it all so get out of the read loop 
+             numTrys++;
            }
             bytes2 = total_zigbee_bytes; 
          } 
@@ -210,17 +212,25 @@ int main(int argc, char *argv[])
          char zigbeeBufCpy[MAX_BUFF_SZ + 1];
          int messageType = 0;
          strcpy(zigbeeBufCpy, buffer);
+         
+         fprintf(stderr, "\nBuffer to strtok **%s** for message type\n",zigbeeBufCpy);
          char msgdelim[1];   
          msgdelim[0] = AGGR_MESSAGE_DELIM_END;
          msgptr = strtok(zigbeeBufCpy,msgdelim);
-         //fprintf(stderr, "\nstrtok returned **%s** for gps sentence type\n",gpsdata->gpsSentenceType);
+         fprintf(stderr, "\nstrtok returned **%s** for message type\n",msgptr);
          while(msgptr != NULL)
          {
            //do the work 
+            
+           fprintf(stderr, "\nCALLING getMessageType\n",msgptr);
            messageType = getMessageType(msgptr);
+           fprintf(stderr, "\ngot message type **%d** \n",messageType);
+             
            switch(messageType)
            {
              case AGGR_MSG_TYPE_MOTHER_SHIP_SPU_POLL: 
+              
+               fprintf(stderr, "\nHANDELING SPU POLL\n");
                char spuPollData[MAX_BUFF_SZ + 1]; 
                genSpuDump(spuPollData, MAX_BUFF_SZ, &currentOrbLoc);
                packetizeAndSendMotherShipData(com2, spuPollData, strlen(spuPollData));
