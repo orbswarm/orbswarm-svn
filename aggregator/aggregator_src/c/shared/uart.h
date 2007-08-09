@@ -1,13 +1,23 @@
-int uart_init(void (*handleXBeeRecv)(unsigned char c, int isError),
-	      void (*handleSpuRecv)(unsigned char c, int isErrror),
-	      void (*handleGpsARecv)(unsigned char c, int isErrror));
+int uart_init(void (*handleXBeeRecv)(char c, int isError),
+	      void (*handleSpuRecv)(char c, int isErrror),
+	      void (*handleGpsARecv)(char c, int isErrror),
+	      char (*getXBeeOutChar)(void),
+	      char (*getSpuOutChar)(void));
 
-void sendXBeeMsg(const unsigned char *s);
+//void sendXBeeMsg(const unsigned char *s);
 
-void sendSpuMsg(const unsigned char *s);
+void sendSpuMsg(const char *s);
 
-void sendDebugMsg(const unsigned char *s);
+void sendDebugMsg(const char *s);
 
-void sendGPSAMsg(const unsigned char *s);
+void sendGPSAMsg(const char *s);
 
-void sendGPSBMsg(const unsigned char *s);
+void sendGPSBMsg(const char *s);
+
+void startXBeeTransmit(void);
+
+void startSpuTransmit(void);
+
+int isSpuSendInProgress(void);
+
+int isXBeeSendInProgress(void);

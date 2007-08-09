@@ -47,10 +47,11 @@ arduino_upload: $(MYBIN)/$(TARGET).hex
 ###set up is usb --> keyspan --> stk DB9 
 AVRDUDE=avrdude
 AVRDUDE_PROGRAMMER = stk500v2
-AVRDUDE_PORT = /dev/tty.USA19H3b1P1.1
+#AVRDUDE_PORT = /dev/tty.USA19H3b1P1.1
+AVRDUDE_PORT = /dev/tty.USA19H1b1P1.1
 UPLOAD_RATE = 115200
 AVRDUDE_WRITE_FLASH = -U flash:w:$(MYBIN)/$(TARGET).hex
-AVRDUDE_FLAGS = -e -p $(MCU) -b $(UPLOAD_RATE) -P $(AVRDUDE_PORT) \
+AVRDUDE_FLAGS = -v -e -p $(MCU) -b $(UPLOAD_RATE) -P $(AVRDUDE_PORT) \
 	-c $(AVRDUDE_PROGRAMMER)
 FORMAT = ihex 		# create a .hex file
 
