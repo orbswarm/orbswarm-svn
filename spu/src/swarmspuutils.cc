@@ -601,16 +601,24 @@ void imuMvToSI(struct swarmImuData *imuProcData)
 double imuAccelToSI(int imuAccelInMv)
 {
     double accel;
+    double mv_accel_f;
+    double msec=10.780000;
 
-        accel = (imuAccelInMv-512)/1024*(double)10.78;
-
+        mv_accel_f = imuAccelInMv;
+        accel = ((mv_accel_f-512)/1024)*msec;
         return accel;
 }
 
 double imuYawToSI(int imuYawInMv) {
     double yaw;
 
-    yaw = (imuYawInMv-512)/1024 * (double) 28.783;
+    double mv_yaw_f;
+    double msec=28.783000;
 
+    mv_yaw_f = imuYawInMv;
+
+    yaw = ((mv_yaw_f-512)/1024)*msec;
     return yaw;
 }
+
+
