@@ -10,7 +10,10 @@
 //
 //	Written by yourname, optional email
 // -----------------------------------------------------------------------
-
+#include <math.h>
+#include "../include/swarmdefines.h"
+#include "../include/swarmserial.h"
+#include "../include/swarmGPSutils.h"
 
 int parseGPSSentence(swarmGpsData * gpsdata)
 {
@@ -32,75 +35,75 @@ int parseGPSSentence(swarmGpsData * gpsdata)
   }
   //fprintf(stderr, "\nstrtok returned **%s** for gps sentence type\n",gpsdata->gpsSentenceType);
   if(strcmp(gpsdata->gpsSentenceType,SWARM_NMEA_GPS_SENTENCE_TYPE_GPGGA) == 0)
-  { 
-    //fprintf(stderr, "\nparsing rest of gps data\n");
-    //Sentence type is correct so go ahead and get the rest of the data 
-    while(paramptr != NULL)
-    {
-      paramptr = strtok(NULL,SWARM_NMEA_GPS_DATA_DELIM);
-      if(paramptr != NULL)
-      {
-        switch(paramcount)
-        {
-          case 1:
-            //utctime
-            sscanf(paramptr,"%s",gpsdata->nmea_utctime);
-            sscanf(paramptr,"%lf",&(gpsdata->utcTime));
-            //fprintf(stderr, "\n utctime : %s",paramptr);
-            break;
-          case 2:
-            //nmea format latddmm
-            sscanf(paramptr,"%lf",&(gpsdata->nmea_latddmm));
-            //fprintf(stderr, "\n latddmm: %s",paramptr);
-            break;
-          case 3:
-            //nmea format latsector
-            sscanf(paramptr,"%c",&(gpsdata->nmea_latsector));
-            //fprintf(stderr, "\n latsector: %s",paramptr);
-            break;
-          case 4:
-            //nmea format londdmm
-            sscanf(paramptr,"%lf",&(gpsdata->nmea_londdmm));
-            //fprintf(stderr, "\n londdmm: %s",paramptr);
-            break;
-          case 5:
-            //nmea format lonsector 
-            sscanf(paramptr,"%c",&(gpsdata->nmea_lonsector));
-            //fprintf(stderr, "\n lonsector : %s",paramptr);
-            break;
-          default:
-            break;
-        };
-      }
-      paramcount++; 
-    }
-  //fprintf(stderr,"\n RAW GPS DATA %s,%s,%Lf,%c,%Lf,%c \n",gpsdata->gpsSentenceType,gpsdata->nmea_utctime,gpsdata->nmea_latddmm,gpsdata->nmea_latsector,gpsdata->nmea_londdmm,gpsdata->nmea_lonsector);
-  } else  {
-    fprintf(stderr,"\nRETURNING INVALID GPS SENTANCE\n");
+    { 
+      //fprintf(stderr, "\nparsing rest of gps data\n");
+      //Sentence type is correct so go ahead and get the rest of the data 
+      while(paramptr != NULL)
+	{
+	  paramptr = strtok(NULL,SWARM_NMEA_GPS_DATA_DELIM);
+	  if(paramptr != NULL)
+	    {
+	      switch(paramcount)
+		{
+		case 1:
+		  //utctime
+		  sscanf(paramptr,"%s",gpsdata->nmea_utctime);
+		  sscanf(paramptr,"%lf",&(gpsdata->utcTime));
+		  //fprintf(stderr, "\n utctime : %s",paramptr);
+		  break;
+		case 2:
+		  //nmea format latddmm
+		  sscanf(paramptr,"%lf",&(gpsdata->nmea_latddmm));
+		  //fprintf(stderr, "\n latddmm: %s",paramptr);
+		  break;
+		case 3:
+		  //nmea format latsector
+		  sscanf(paramptr,"%c",&(gpsdata->nmea_latsector));
+		  //fprintf(stderr, "\n latsector: %s",paramptr);
+		  break;
+		case 4:
+		  //nmea format londdmm
+		  sscanf(paramptr,"%lf",&(gpsdata->nmea_londdmm));
+		  //fprintf(stderr, "\n londdmm: %s",paramptr);
+		  break;
+		case 5:
+		  //nmea format lonsector 
+		  sscanf(paramptr,"%c",&(gpsdata->nmea_lonsector));
+		  //fprintf(stderr, "\n lonsector : %s",paramptr);
+		  break;
+		default:
+		  break;
+		};
+	    }
+	  paramcount++; 
+	}
+      //fprintf(stderr,"\n RAW GPS DATA %s,%s,%Lf,%c,%Lf,%c \n",gpsdata->gpsSentenceType,gpsdata->nmea_utctime,gpsdata->nmea_latddmm,gpsdata->nmea_latsector,gpsdata->nmea_londdmm,gpsdata->nmea_lonsector);
+    } else  {
+      fprintf(stderr,"\nRETURNING INVALID GPS SENTANCE\n");
     return SWARM_INVALID_GPS_SENTENCE;
-  }
-
+    }
+  
   // populate nmea_course, speed, and mode
-
+  
   strcpy(gpssentcpy, gpsdata->vtgSentence);
   paramptr = strtok(gpssentcpy, SWARM_NMEA_GPS_DATA_DELIM);
-
+  
   fprintf(stderr, "\nstrtok returned **%s** for gps sentence type\n",paramptr);
-
+  
   if (paramptr == NULL) {
     fprintf(stderr,"\nRETURNING INVALID GPS SENTANCE PARAM PTR NULL\n");
     return SWARM_INVALID_GPS_SENTENCE;
   }
-
+  
   // skip leading $
   /*
   if (paramptr[0] != '$') {
-    fprintf(stderr,"\nRETURNING INVALID GPS SENTANCE MISSING $\n");
-    return SWARM_INVALID_GPS_SENTENCE;
+  fprintf(stderr,"\nRETURNING INVALID GPS SENTANCE MISSING $\n");
+  return SWARM_INVALID_GPS_SENTENCE;
   }
   if(strcmp(paramptr+1, SWARM_NMEA_GPS_SENTENCE_TYPE_GPVTG) != 0) {
-    fprintf(stderr,"\nRETURNING INVALID TYPE NOT GPVTG $\n");
-    return SWARM_INVALID_GPS_SENTENCE;
+  fprintf(stderr,"\nRETURNING INVALID TYPE NOT GPVTG $\n");
+  return SWARM_INVALID_GPS_SENTENCE;
   }
   */
 
@@ -109,7 +112,7 @@ int parseGPSSentence(swarmGpsData * gpsdata)
   float discard_float;
   float degrees, kmph;
   char mode;
-    fprintf(stderr,"\nMADE IT 1\n");
+  fprintf(stderr,"\nMADE IT 1\n");
   // Course over ground (degrees, referenced to true north)
   paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
   fprintf(stderr,"\nSTRTOK GOT %s\n",paramptr);
@@ -124,13 +127,13 @@ int parseGPSSentence(swarmGpsData * gpsdata)
   fprintf(stderr,"\nSTRTOK GOT %s\n",paramptr);
   e = sscanf(paramptr, "%c", &discard_char);
   if (e != 1 || discard_char != 'T') { return SWARM_INVALID_GPS_SENTENCE; }
-
+  
   fprintf(stderr,"\nMADE IT 3\n");
   // Course over ground (not supported)
   paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
   e = sscanf(paramptr, "%f", &discard_float);
   if (e != 1) { return SWARM_INVALID_GPS_SENTENCE; }
-
+  
   fprintf(stderr,"\nMADE IT 4\n");
   // Indicator of course reference (M == magnetic north)
   paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
@@ -206,18 +209,18 @@ int parseGPSSentence(swarmGpsData * gpsdata)
 
 int convertNMEAGpsLatLonDataToDecLatLon(swarmGpsData * gpsdata)
 {
-   double latdd = 0;
-   double londd = 0;
-   double latmm = 0;
-   double lonmm = 0;
-
-   //get the degress part
-   latdd = (int)(gpsdata->nmea_latddmm / 100);
-   londd = (int)(gpsdata->nmea_londdmm / 100);
-
-   //get the minutes part
-   latmm = gpsdata->nmea_latddmm - 100 * latdd;
-   lonmm = gpsdata->nmea_londdmm - 100 * londd;
+  double latdd = 0;
+  double londd = 0;
+  double latmm = 0;
+  double lonmm = 0;
+  
+  //get the degress part
+  latdd = (int)(gpsdata->nmea_latddmm / 100);
+  londd = (int)(gpsdata->nmea_londdmm / 100);
+  
+  //get the minutes part
+  latmm = gpsdata->nmea_latddmm - 100 * latdd;
+  lonmm = gpsdata->nmea_londdmm - 100 * londd;
 
    //Turn DDMM.MMMM into DDD.DDDDD format
    latdd = latdd + (latmm / 60.0); 

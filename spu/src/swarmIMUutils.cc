@@ -32,14 +32,13 @@ void calculateIMUBias(struct swarmImuData *imuProcData) {
 void imuIntToSI(struct swarmImuData *imuData)
 {
 
-  imuData->si_ratex = imuYawToSI(imuData->mv_ratex);
-  imuData->si_ratey = imuYawToSI(imuData->mv_ratey);
-  imuData->si_accz = imuAccelToSI(imuData->mv_accz);
-  imuData->si_accx = imuAccelToSI(imuData->mv_accx);
-  imuData->si_accy = imuAccelToSI(imuData->mv_accy);
+  imuData->si_ratex = imuYawToSI(imuData->int_ratex);
+  imuData->si_ratey = imuYawToSI(imuData->int_ratey);
+  imuData->si_accz = imuAccelToSI(imuData->int_accz);
+  imuData->si_accx = imuAccelToSI(imuData->int_accx);
+  imuData->si_accy = imuAccelToSI(imuData->int_accy);
 }
 
-void dumpImuData
 
 double imuAccelToSI(int imuAccelInt)
 {

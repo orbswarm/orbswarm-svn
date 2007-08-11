@@ -35,6 +35,10 @@ app: spu spumond mainloop
 test: testspuutils logtest gpsconvtest testpacketizer 
 util: readcom writecom setled
 
+
+#HEY IF SOMEONE KNOWS WHAT THEY ARE DOING WE NEED SOME RULES INSTEAD OF ALL THIS ALACARTE CRAP...
+
+
 testspuutils: testspuutils.o swarmspuutils.o
 	$(CC) $(LIBS) $(CFLAGS) testspuutils.o swarmspuutils.o -o testspuutils
 
@@ -70,8 +74,13 @@ swarmGPSutils.o: $(SRC)/swarmGPSutils.cc $(INC)/swarmGPSutils.h $(INC)/swarmdefi
 	$(CC) $(CFLAGS)-c $(SRC)/swarmGPSutils.cc
 
 
+swarmIMUutils.o: $(SRC)/swarmIMUutils.cc $(INC)/swarmIMUutils.h $(INC)/swarmdefines.h $(INC)/swarmserial.h
+	$(CC) $(CFLAGS)-c $(SRC)/swarmIMUutils.cc
+
+
 swarmspuutils.o: $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmdefines.h $(INC)/swarmserial.h
 	$(CC) $(CFLAGS)-c $(SRC)/swarmspuutils.cc
+
 
 readcom: readcom.o swarmserial.o 
 	$(CC) $(LIBS) $(CFLAGS) readcom.o swarmserial.o -o readcom 
@@ -100,8 +109,8 @@ spumond: spumond.o
 spumond.o: $(SRC)/spumond.cc
 	$(CC) $(CFLAGS)-c $(SRC)/spumond.cc
 
-mainloop: mainloop.o swarmserial.o swarmspuutils.o  swarmGPSutils.o 
-	$(CC) $(LIBS) $(CFLAGS) mainloop.o swarmserial.o swarmspuutils.o swarmGPSutils.o -o mainloop 
+mainloop: mainloop.o swarmserial.o swarmspuutils.o  swarmGPSutils.o  swarmIMUutils.o 
+	$(CC) $(LIBS) $(CFLAGS) mainloop.o swarmserial.o swarmspuutils.o swarmGPSutils.o swarmIMUutils.o -o mainloop 
 
 mainloop.o: $(SRC)/mainloop.cc $(SRC)/swarmserial.cc $(SRC)/swarmspuutils.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h 
 	$(CC) $(CFLAGS)-c $(SRC)/mainloop.cc

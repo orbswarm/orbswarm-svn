@@ -103,7 +103,29 @@ struct	swarmGpsData
 
 struct	swarmImuData
 {
-	
+
+  /* IMU data converted to SI units */
+  double si_ratex;
+  double si_ratey;
+  double si_accx;
+  double si_accy;
+  double si_accz;
+
+  /* raw data from IMU */
+  int int_ratex;
+  int int_ratey;
+  int int_accx;
+  int int_accy;
+  int int_accz;
+
+  /* integer bias (what we get when we measure a zero reading */
+  /* subtract these values from the raw int vals to get a zero-mean value*/
+  int ratex_bias;
+  int ratey_bias;
+  int accx_bias;
+  int accy_bias;
+  int accz_bias;
+
 };
 
 struct  swarmStateEstimate
