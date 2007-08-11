@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
          strcpy(gpsBufCpy, buffer);
          char gpsdelim[1];   
          gpsdelim[0] = AGGR_MESSAGE_DELIM_END;
-         sentptr = strtok(gpsBufCpy,gpsdelim);
+         sentptr = strtok(gpsBufCpy,"\n");
          while(sentptr != NULL)
          {
            switch(gpscnt)
@@ -139,11 +139,11 @@ int main(int argc, char *argv[])
 
              case 1:   // Parse the gps velocity data 
                printf("\nSTR TOKED SENTANCE PTR****%s****\n",sentptr);
-               strcpy(currentOrbLoc.vtgSentence,&sentptr[1]);
+               strcpy(currentOrbLoc.vtgSentence,sentptr);
              break;//end GPS VTG data parse 
            }
            gpscnt++; 
-           sentptr = strtok(NULL,SWARM_NMEA_GPS_DATA_DELIM);
+           sentptr = strtok(NULL,"\n");
          }
          status = SWARM_SUCCESS;
          status = parseGPSSentence(&currentOrbLoc);
