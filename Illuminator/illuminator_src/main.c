@@ -40,8 +40,10 @@
 /* this is the main data struct defined in illuminator.h */
 illuminatorStruct illum;
 
+/* preserve this during interrups if necessary */
+volatile int pwm=0;
+
 int main( void ){
-  
   unsigned char cData; 		/* byte to read from UART */
 
   
@@ -51,15 +53,20 @@ int main( void ){
   UART_Init(11); // 12 = 38.4k when system clock is 8Mhz (AT Tiny2313) 
   //11 = 38.4K for 7.37MHz xtal 
   // 51 = 9600 baud when system clock is 8Mhz
-  
-  
+  sei();
+
+  DDRB = 0x07; 			/* use PB0 for R, PB1 for G, PB2 for B */
+
   putstr("\r\n...Illuminator says hello...\r\n"); // DBG_REMOVE
-  
+ 
   /* init data structure */
   illum.Addr = 0; 		/* may want to set this from DIP? */
   illum.H=0;
   illum.S=0;
   illum.V=0;
+  illum.R=0; 			/* raw RGB output vales */
+  illum.G=0;
+  illum.B=0;
   illum.tHue=0;
   illum.tSat=0;
   illum.tVal=0;
@@ -78,8 +85,19 @@ int main( void ){
 	parseCommand(); // parse and execute commands
       }
       // Echo byte to next illuminator downstream
-      UART_Transmit(cData);   // wait for empty buffer. send byte now.
-      // UART_send_byte(cData);   // put byte in buffer - send using interupts
+      //UART_Transmit(cData);   // wait for empty buffer. send byte now.
+       UART_send_byte(cData);   // put byte in buffer - send using interupts
+    }
+
+    /* Crude PWM loop runs as fast as we can...*/
+    PORTB = 0x07;		/* turn R, G, B on */
+    for(pwm=0;pwm<255;pwm++){
+      if(pwm >= illum.R)     /* if we've reached red value turn off R bit */
+	PORTB &=~_BV(0);	
+      if(pwm >= illum.G)       
+	PORTB &=~_BV(1);     /* if we've reached grn value turn off B bit */
+      if(pwm >= illum.B)
+	PORTB &=~_BV(2);     /* if we've reached blu value turn off G bit */
     }
     
   }

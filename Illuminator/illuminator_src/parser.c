@@ -16,7 +16,7 @@ unsigned char commandLen = 0;
 void parseCommand(){
   unsigned short intData=0; // holds numerical value of input data
   unsigned char charPos=1;	// start with first char past the "<"
-  
+  unsigned char c;
   /* if command does not start with L then they ain't talking to us */
   if(commandStr[charPos++] != 'L') {
     putstr("No L in cmd\r\n ");
@@ -24,12 +24,15 @@ void parseCommand(){
   }  
 
   /* is the next char an address digit? */
-  if(isdigit(commandStr[charPos++])) { 
+  c = commandStr[charPos++];
+  if(isdigit(c)) { 
     /* if not our address then they ain't talking to us */
     /* should use parseInt to get multi-byte addr, but assume 0-9 for now */
-    if ((commandStr[charPos++] - '0') != illum.Addr) 
-      putstr("wrong address\r\n ");
+    if ((c - '0') != illum.Addr) {
+      putstr("\r\nwrong address\r\n ");
+      UART_send_byte(c);
       return;
+    }
   }
   
   /* OK, they are talking to us: get the rest of the command */
@@ -63,6 +66,28 @@ void parseCommand(){
     break;
 
   // everything from here down is data parsing; nothing executable
+
+  case 'R':	// set red value
+    putstr("Got red: ");
+    putS16( intData );
+    putstr("\r\n");			
+    illum.R = (unsigned char) intData;
+    break;
+
+  case 'G':	// set raw green value
+    putstr("Got grn: ");
+    putS16( intData );
+    putstr("\r\n");			
+    illum.G = (unsigned char) intData;
+    break;
+
+  case 'B':	// set raw blue value
+    putstr("Got blue: ");
+    putS16( intData );
+    putstr("\r\n");			
+    illum.B = (unsigned char) intData;
+    break;
+
   case 'H':	// set the hue
     putstr("Got hue: ");
     putS16( intData );

@@ -1,9 +1,9 @@
-// -------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------------------------------------------------
 // UART.c
 // Routines for interrupt controlled UART
-// Last modified: 30-July-2007
+// Last modified: 6-Apr-07
 // Modified by: MrPete from AVR sample code.
-// -------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 /* Includes */
 #include <avr/io.h>
@@ -13,8 +13,8 @@
 
 
 /* UART Buffer Defines */
-#define UART_RX_BUFFER_SIZE 16     /* 2,4,8,16,32,64,128 or 256 bytes */
-#define UART_TX_BUFFER_SIZE 16
+#define UART_RX_BUFFER_SIZE 32     /* 2,4,8,16,32,64,128 or 256 bytes */
+#define UART_TX_BUFFER_SIZE 32
 
 
 #define UART_RX_BUFFER_MASK ( UART_RX_BUFFER_SIZE - 1 )
@@ -29,15 +29,15 @@
 
 
 /* Static Variables -- Tx & Rx Ring Buffers */
+static unsigned char UART_RxBuf[UART_RX_BUFFER_SIZE];
 static volatile unsigned char UART_RxHead;
 static volatile unsigned char UART_RxTail;
+static unsigned char UART_TxBuf[UART_TX_BUFFER_SIZE];
 static volatile unsigned char UART_TxHead;
 static volatile unsigned char UART_TxTail;
 
-static unsigned char UART_RxBuf[UART_RX_BUFFER_SIZE];
-static unsigned char UART_TxBuf[UART_TX_BUFFER_SIZE];
 
-// ----------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Init UART - Enable Rx Interrupts
 
 void UART_Init( unsigned int baud ) 
@@ -48,7 +48,7 @@ void UART_Init( unsigned int baud )
 	UBRRL = (unsigned char)baud;				/* Value depends on MPU clock speed */
 	
 	UCSRB = (1<<RXEN)|(1<<TXEN);				/* Enable receiver and transmitter */ 
-	UCSRC = (3<<UCSZ0);							/* Set frame format: 8data, 1-stop bit */ 
+	UCSRC = (1<<URSEL)|(1<<USBS)|(3<<UCSZ0);	/* Set frame format: 8data, 2stop bit */ 
 
 	x = 0;										/* Init ring buf indexes */
 	UART_RxTail = x;
@@ -56,13 +56,13 @@ void UART_Init( unsigned int baud )
 	UART_TxTail = x;
 	UART_TxHead = x;
 	
-	UCSRB |= (1<<RXCIE);						/* Enable Rx Complete interrupt */
+	UCSRB |= (1<<RXCIE);						/* Enable Rx interrupt */
 }
 
-// ----------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Interrupt handlers - UART Rx vector
 
-SIGNAL(SIG_USART0_RX)
+SIGNAL(SIG_UART_RECV)
 {
 	unsigned char data;
 	unsigned char tmphead;
@@ -80,10 +80,10 @@ SIGNAL(SIG_USART0_RX)
 	UART_RxBuf[tmphead] = data; /* Store received data in buffer */
 }
 
-// ----------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Interrupt handler - UART Tx vector for Data Register Empty - UDRE
 
-SIGNAL(SIG_USART0_UDRE)
+SIGNAL(SIG_UART_DATA)
 {
 	unsigned char tmptail;
 
@@ -102,7 +102,7 @@ SIGNAL(SIG_USART0_UDRE)
 	}
 }
 
-// ----------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Check if there are any bytes waiting in the input ring buffer.
 
 unsigned char UART_data_in_ring_buf( void )
@@ -110,14 +110,14 @@ unsigned char UART_data_in_ring_buf( void )
 	return ( UART_RxHead != UART_RxTail ); /* Return 0 (FALSE) if the receive buffer is empty */
 }
 
-// ----------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Pull 1 byte from Ring Buffer of bytes received from USART
 
 unsigned char UART_ring_buf_byte( void )
 {
 	unsigned char tmptail;
 	
-	while ( UART_RxHead == UART_RxTail )  /* Wait for incoming data */
+	while ( UART_RxHead == UART_RxTail )  /* Wait for incomming data */
 		;
 	tmptail = ( UART_RxTail + 1 ) & UART_RX_BUFFER_MASK;/* Calculate buffer index */
 	
@@ -126,8 +126,7 @@ unsigned char UART_ring_buf_byte( void )
 	return UART_RxBuf[tmptail];           /* Return data */
 }
 
-// ---------------------------------------------------------------------
-// Put byte into ring buffer - use interupts to send strings
+// --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 void UART_send_byte( unsigned char data )
 {
@@ -142,16 +141,5 @@ void UART_send_byte( unsigned char data )
 	UCSRB |= (1<<UDRIE);				/* Enable UDRE interrupt */
 }
 
-// wait for empty buffer, then send byte now.
-
-void UART_Transmit( unsigned char data ) 
-{ 
-	/* Wait for empty transmit buffer */ 
-	while ( !( UCSRA & (1<<UDRE)) ) 
-		; 
-	/* Put data into buffer, sends the data */ 
-	UDR = data; 
-
-
-// ---------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------------------------------------------------
 // End of File

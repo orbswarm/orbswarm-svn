@@ -3,7 +3,10 @@
 typedef struct {
   unsigned char	H;		/* current hue */
   unsigned char	S;		/* current saturation */
-  unsigned char	V;		/* current value */
+  unsigned char	R;		/* current value */
+  unsigned char	G;		/* current red */
+  unsigned char	B;		/* current green */
+  unsigned char	V;		/* current blue */
   unsigned char	tHue;		/* target hue */
   unsigned char	tVal;		/* target value */
   unsigned char	tSat;		/* target saturation */
