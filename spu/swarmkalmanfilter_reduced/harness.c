@@ -82,7 +82,7 @@ int main( int argc, char **argv )
 
   P = matrix( 1, STATE_SIZE, 1, STATE_SIZE );
   x = vector( 1, STATE_SIZE );
-  meas = matrix( 1, num_samples, 1, MEAS_SIZE );
+  meas = matrix( 1, num_samples, 1, STATE_SIZE );
   trajectory = matrix( 1, num_samples, 1, STATE_SIZE );
 
   load_meas( meas_fname, MEAS_SIZE, num_samples, meas );
@@ -97,9 +97,9 @@ int main( int argc, char **argv )
 
   extended_kalman_init( P, x );
     
-      /*  For each sample in the test run, perform one estimation and
+  /*  For each sample in the test run, perform one estimation and
 	  copy the results into the trajectory history   */
-      
+    
   start_clock();	
 
       for( time = 1; time <= num_samples; time++ )
@@ -127,7 +127,7 @@ int main( int argc, char **argv )
 
   free_matrix( P, 1, STATE_SIZE, 1, STATE_SIZE );
   free_vector( x, 1, STATE_SIZE );
-  free_matrix( meas, 1, num_samples, 1, MEAS_SIZE );
+  free_matrix( meas, 1, num_samples, 1, meas_size );
   free_matrix( trajectory, 1, num_samples, 1, STATE_SIZE );
 
   return(0);

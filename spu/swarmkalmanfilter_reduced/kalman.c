@@ -23,8 +23,6 @@
 #include "kalman.h"
 #include "kalmanswarm.h"
 
-#define ITERATION_THRESHOLD      2.0
-#define ITERATION_DIVERGENCE     20
 
 
 /*  The following are the global variables of the Kalman filters,
@@ -221,6 +219,8 @@ void generate_system_transfer( m_elem *state, m_elem **phi )
 	      STATE_SIZE, STATE_SIZE );	
 
   mat_add( phi, temp_state_state, phi, STATE_SIZE, STATE_SIZE );  	
+
+
 
 }
 

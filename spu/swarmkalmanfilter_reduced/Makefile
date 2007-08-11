@@ -4,7 +4,7 @@
 #  Original:	J. Watlington, 11/7/1995
 #
 
-OBJS   = matmath.o random.o kalman.o kalmanswarm.o mrqmin.o kftime.o
+OBJS   = matmath.o kalman.o kalmanswarm.o mrqmin.o kftime.o
 TEST_OBJS   = test.o  $(OBJS)
 HARNESS_OBJS   = harness.o  $(OBJS)
 LIBS   = -lm

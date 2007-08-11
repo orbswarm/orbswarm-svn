@@ -4,17 +4,13 @@
 #  Original:	J. Watlington, 11/7/1995
 #
 
-OBJS   = matmath.o random.o kalman.o kalmanswarm.o mrqmin.o kftime.o
-TEST_OBJS   = test.o  $(OBJS)
-HARNESS_OBJS   = harness.o  $(OBJS)
+OBJS   = matmath.o random.o
+TEST_OBJS   = test.o kalman.o kalmanswarm.o mrqmin.o kftime.o $(OBJS)
 LIBS   = -lm
 CCOPTS =
 
 test:    $(TEST_OBJS) $(OBJS)
 	cc ${CCOPTS} $(TEST_OBJS) -o test $(LIBS)
-
-harness:    $(HARNESS_OBJS) $(OBJS)
-	cc ${CCOPTS} $(HARNESS_OBJS) -o harness $(LIBS)
 
 all: test
 

@@ -39,7 +39,6 @@
 int   debug;
 char  meas_fname[ FILENAME_MAX ];
 char  output_fname[ FILENAME_MAX ];
-int   meas_size;
 int   num_samples;
 
 
