@@ -23,44 +23,73 @@
 // Average IMU data over several readings and return an estimate of bias 
 //(zero reading). NOTE: ORB MUST BE STATIONARY and PERFECTLY UPRIGHT WHEN 
 // THIS IS CALLED
-void calculateIMUBias(struct swarmImuData *imuProcData) {
+void calculateIMUBias(struct swarmImuData *imuData) {
+  int i=0;
 
+  imuData->ratex_bias = 0.0;
+  imuData->ratey_bias = 0.0;
+  imuData->accx_bias = 0.0;
+  imuData->accy_bias = 0.0;
+  imuData->accz_bias = 0.0;
 
+  for(i=0;i<10;i++){
+    // get 10 new IMU readings
+  }
+  //and divide each by 10 to get the bias value
 
 }
 
 void imuIntToSI(struct swarmImuData *imuData)
 {
 
-  imuData->si_ratex = imuYawToSI(imuData->int_ratex);
-  imuData->si_ratey = imuYawToSI(imuData->int_ratey);
-  imuData->si_accz = imuAccelToSI(imuData->int_accz);
-  imuData->si_accx = imuAccelToSI(imuData->int_accx);
-  imuData->si_accy = imuAccelToSI(imuData->int_accy);
+  imuData->si_ratex = imuYawToSI(imuData->int_ratex,imuData->ratex_bias);
+  imuData->si_ratey = imuYawToSI(imuData->int_ratey,imuData->ratey_bias);
+  imuData->si_accx = imuAccelToSI(imuData->int_accx,imuData->accx_bias);
+  imuData->si_accy = imuAccelToSI(imuData->int_accy,imuData->accy_bias);
+  imuData->si_accz = imuAccelToSI(imuData->int_accz,imuData->accz_bias);
 }
 
 
-double imuAccelToSI(int imuAccelInt)
+double imuAccelToSI(int imuAccelInt, double bias)
 {
-    double accel;
-    double mv_accel_f;
-    double msec=10.780000;
-
-        mv_accel_f = imuAccelInt;
-        accel = ((mv_accel_f-512)/1024)*msec;
-        return accel;
+  double accel_f;
+  double msec=10.780000;
+  
+  accel_f = (double)(imuAccelInt) - bias;
+  return (accel_f/1024)*msec;
 }
 
-double imuYawToSI(int imuYawInt) {
-    double yaw;
-
-    double mv_yaw_f;
+double imuYawToSI(int imuYawInt, double bias) {
+    double yaw_f;
     double msec=28.783000;
 
-    mv_yaw_f = imuYawInt;
-
-    yaw = ((mv_yaw_f-512)/1024)*msec;
-    return yaw;
+    yaw_f = (double)(imuYawInt) - bias;
+    return (yaw_f/1024)*msec;
 }
 
+
+// print out IMU struct for debug
+void dumpIMUData(struct swarmImuData *imuData) {
+
+  printf("RateX raw: %d SI: %f bias: %f\n",
+	 imuData->int_ratex,
+	 imuData->si_ratex,
+	 imuData->ratex_bias);
+  printf("Ratey raw: %d SI: %f bias: %f\n",
+	 imuData->int_ratey,
+	 imuData->si_ratey,
+	 imuData->ratey_bias);
+  printf("Accx raw: %d SI: %f bias: %f\n",
+	 imuData->int_accx,
+	 imuData->si_accx,
+	 imuData->accx_bias);
+  printf("AccY raw: %d SI: %f bias: %f\n",
+	 imuData->int_accy,
+	 imuData->si_accy,
+	 imuData->accy_bias);
+  printf("AccZ raw: %d SI: %f bias: %f\n",
+	 imuData->int_accz,
+	 imuData->si_accz,
+	 imuData->accz_bias);
+}
 

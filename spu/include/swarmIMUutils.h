@@ -7,11 +7,14 @@
 //	Written by Dillo & Jon F
 //
 // -----------------------------------------------------------------------
-
+#include<stdio.h>
+#include <math.h>
 #include <math.h>
 #include "swarmdefines.h"
 
+void dumpIMUData(struct swarmImuData *imuData);
+void calculateIMUBias(struct swarmImuData *imuProcData);
 void imuIntToSI(struct swarmImuData *imuProcData);
-double imuAccelToSI(int imuAccelInt);
-double imuYawToSI(int imuYawInt);
+double imuAccelToSI(int imuAccelInt, double bias);
+double imuYawToSI(int imuYawInt, double bias);
 
