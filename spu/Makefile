@@ -38,7 +38,7 @@ util: readcom writecom setled
 testspuutils: testspuutils.o swarmspuutils.o
 	$(CC) $(LIBS) $(CFLAGS) testspuutils.o swarmspuutils.o -o testspuutils
 
-testspuutils.o: $(TEST)/testspuutils.cc $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmdefines.h
+testspuutils.o: $(TEST)/testspuutils.cc $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(SRC)/swarmGPSutils.cc $(INC)/swarmGPSutils.h $(INC)/swarmdefines.h
 	$(CC) $(CFLAGS)-c $(TEST)/testspuutils.cc
 
 testpacketizer: testpacketizer.o 
@@ -64,6 +64,11 @@ gpsconvtest: gpsconvtest.o swarmspuutils.o $(SRC)/swarmspuutils.cc $(INC)/swarms
 
 gpsconvtest.o: $(TEST)/gpsconvtest.cc $(INC)/swarmdefines.h $(INC)/swarmspuutils.h
 	$(CC) $(CFLAGS)-c $(TEST)/gpsconvtest.cc
+
+
+swarmGPSutils.o: $(SRC)/swarmGPSutils.cc $(INC)/swarmGPSutils.h $(INC)/swarmdefines.h $(INC)/swarmserial.h
+	$(CC) $(CFLAGS)-c $(SRC)/swarmGPSutils.cc
+
 
 swarmspuutils.o: $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmdefines.h $(INC)/swarmserial.h
 	$(CC) $(CFLAGS)-c $(SRC)/swarmspuutils.cc
@@ -95,8 +100,8 @@ spumond: spumond.o
 spumond.o: $(SRC)/spumond.cc
 	$(CC) $(CFLAGS)-c $(SRC)/spumond.cc
 
-mainloop: mainloop.o swarmserial.o swarmspuutils.o
-	$(CC) $(LIBS) $(CFLAGS) mainloop.o swarmserial.o swarmspuutils.o -o mainloop 
+mainloop: mainloop.o swarmserial.o swarmspuutils.o  swarmGPSutils.o 
+	$(CC) $(LIBS) $(CFLAGS) mainloop.o swarmserial.o swarmspuutils.o swarmGPSutils.o -o mainloop 
 
 mainloop.o: $(SRC)/mainloop.cc $(SRC)/swarmserial.cc $(SRC)/swarmspuutils.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h 
 	$(CC) $(CFLAGS)-c $(SRC)/mainloop.cc

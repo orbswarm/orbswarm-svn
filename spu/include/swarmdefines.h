@@ -40,7 +40,7 @@
 #define WGS84_EQUATORIAL_RADIUS_METERS 6387137
 #define WGS84_ECCENTRICITY_SQUARED 0.00669438
 
-/**********************************MOTHER SHIP MESSAGE HEADERS**********************************/
+/*********MOTHER SHIP MESSAGE HEADERS**********************************/
 #define MSG_HEAD_MOTOR_CONTROLER '$'
 #define MSG_END_MOTOR_CONTROLER '*'
 #define MSG_HEAD_LIGHTING '<'   //used to identify lighting/sound messages

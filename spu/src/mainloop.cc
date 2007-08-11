@@ -7,6 +7,7 @@
 #include "../include/swarmserial.h"
 #include "../include/swarmdefines.h"
 #include "../include/swarmspuutils.h"
+#include "../include/swarmGPSutils.h"
 
 #define VERBOSE 1
 

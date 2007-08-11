@@ -210,13 +210,13 @@ void Steering_Servo_Task(void)
     putS16(current_Pos);
     putstr(" Drive: ");
     putS16(motor_Drive);
-    putstr("\n\r STEER P, I, D: ");
+    putstr("\r\n STEER P, I, D: ");
     putS16(p_term);
     putS16(i_term);
     putS16(d_term);
     putstr(" integrator ");
     putS16(iSum);
-    putstr("\n\r");
+    putstr("\r\n");
   }
   
 
@@ -258,20 +258,19 @@ void Get_Steering_Status(void){
 }
 
 
-void Steering_dump_data(void)
-{
-	putstr("Steer: target current");
-	putS16(target_Pos);
-	putS16(current_Pos);
-	putstr(" Gain: Kp Kd Ki ");
-	putS16(Kp);
-	putS16(Kd);
-	putS16(Ki);
-	putstr("\n mindr maxdr maxa dead: ");
-	putS16(minDrive);
-	putS16(maxDrive);
-	putS16(maxAccel);
-	putS16(dead_band);
-	putstr("\n\r");
+void Steering_dump_data(void){
+  putstr("Steer: target current");
+  putS16(target_Pos);
+  putS16(current_Pos);
+  putstr(" Gain: Kp Kd Ki ");
+  putS16(Kp);
+  putS16(Kd);
+  putS16(Ki);
+  putstr("\r\n mindr maxdr maxa dead: ");
+  putS16(minDrive);
+  putS16(maxDrive);
+  putS16(maxAccel);
+  putS16(dead_band);
+  putstr("\r\n");
 }
 

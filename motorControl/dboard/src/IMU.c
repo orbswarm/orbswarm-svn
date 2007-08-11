@@ -60,9 +60,9 @@ void Get_IMU_Data(void)
   for (n = 0; n <= 7; n++){
     v = A2D_read_channel(n);
     putstr(sigName[n]);
-    putstr(": ");
+    putstr("=");
     putS16(v);
-    putstr("\n\r");
+    putstr("\r\n");
   }
 }
 
