@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <math.h>
 
+
 /* This is a collection of general utility methods for working with the spu */
 #ifndef SWARM_SPU_UTILS_H 
 #define SWARM_SPU_UTILS_H 

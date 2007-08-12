@@ -32,14 +32,14 @@ CFLAGS = -Wall -g -O3 -D_REENTRANT
 
 all: app test util
 app: spu spumond mainloop
-test: testspuutils logtest gpsconvtest testpacketizer 
+test: testspuutils logtest gpsconvtest testpacketizer adconverter_input_test
 util: readcom writecom setled
 
 
 #HEY IF SOMEONE KNOWS WHAT THEY ARE DOING WE NEED SOME RULES INSTEAD OF ALL THIS ALACARTE CRAP...
 
 
-testspuutils: testspuutils.o swarmspuutils.o swarmserial.o
+testspuutils: testspuutils.o swarmspuutils.o swarmserial.o 
 	$(CC) $(LIBS) $(CFLAGS) testspuutils.o swarmspuutils.o swarmserial.o -o testspuutils
 
 testspuutils.o: $(TEST)/testspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmGPSutils.h $(INC)/swarmdefines.h $(INC)/swarmserial.h
@@ -124,6 +124,17 @@ swarmserial.o: $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h
 transfer: 
 	/bin/sh ./transfer.sh spu spumond mainloop
 
+adconverter_input_test: adconverter_input_test.o  adconverter.o swarmserial.o
+	$(CC) $(LIBS) $(CFLAGS) adconverter_input_test.o swarmserial.o -o adconverter_input_test 
 
+adconverter_input_test.o: $(TEST)/adconverter_input_test.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h  $(INC)/swarmdefines.h 
+	$(CC) $(CFLAGS)-c $(TEST)/adconverter_input_test.cc
+
+adconverter: adconverter.o
+	$(CC) $(LIBS) $(CFLAGS) -o adconverter
+
+adconverter.o: $(INC)/adconverter.h $(SRC)/adconverter.cc 
+	$(CC) $(CFLAGS)-c  $(SRC)/adconverter.cc 
+	
 clean:
 	rm *.o 
