@@ -26,9 +26,79 @@ extern int     debug;
 /* local functions */
 
 
+
+
 /*  Temporary variables, declared statically to avoid lots of run-time
     memory allocation.      */
 
+static m_elem  *measurementVec;        /* a measurement_size x 1 vector */
+static m_elem  *stateVec;              /* a state_size x 1 vector */
+
+
+int KalmanInit( swarmStateEstimate * stateEstimate )
+{
+   m_elem   **P;     /*  Estimate Covariance        (mxm)   */
+   m_elem   *x;      /*  Starting state             (1xm)   */
+
+   P = matrix( 1, STATE_SIZE, 1, STATE_SIZE );
+   x = vector( 1, STATE_SIZE );
+
+   measurementVec = vector( 1, MEAS_SIZE );
+   stateVec = vector( 1, STATE_SIZE );
+
+   for( row = 1; row <= STATE_SIZE; row++ )
+     for( col = 1; col <= STATE_SIZE; col++ )
+       P[ row ][ col ] = 0.0;
+
+   x[ STATE_vdot ] 	= stateEstimate.vdot;
+   x[ STATE_v ]    	= stateEstimate.v;
+   x[ STATE_phidot ] 	= stateEstimate.phidot;
+   x[ STATE_phi ] 	= stateEstimate.phi;
+   x[ STATE_psi ] 	= stateEstimate.psi;
+   x[ STATE_theta ] 	= stateEstimate.theta;
+   x[ STATE_x ] 	= stateEstimate.x;
+   x[ STATE_y ] 	= stateEstimate.y;
+
+   extended_kalman_init( P, x );
+
+   free_matrix( P, 1, STATE_SIZE, 1, STATE_SIZE );
+   free_vector( x, 1, STATE_SIZE );   	
+
+   return SWARM_SUCCESS;
+}
+
+
+int kalmanProcess(swarmGpsData * gpsData, swarmImuData * imuData, swarmStateEstimate * stateEstimate)
+{
+/* need Imu struct...
+   measurementVec[ MEAS_xa ] = swarmImuData.xa;
+   measurementVec[ MEAS_ya ] = swarmImuData.ya;
+   measurementVec[ MEAS_za ] = swarmImuData.za;
+   measurementVec[ MEAS_xr ] = swarmImuData.xr;
+   measurementVec[ MEAS_zr ] = swarmImuData.zr;
+   measurementVec[ MEAS_omega ] = swarmImuData.omega;
+*/
+
+   measurementVec[ MEAS_xg ] = gpsData.metFromMshipEast;
+   measurementVec[ MEAS_yg ] = gpsData.metFromMshipNorth;
+   measurementVec[ MEAS_psig ] = (m_elem)gpsData.nmea_course;   
+   measurementVec[ MEAS_vg ] = (m_elem)gpsData.speed;
+
+   extended_kalman_step( &measurementVec );
+
+   stateVec = kalman_get_state();
+
+   stateEstimate.vdot 	= stateVec[ STATE_vdot ];
+   stateEstimate.v 	= stateVec[ STATE_v ];
+   stateEstimate.phidot = stateVec[ STATE_phidot ];
+   stateEstimate.phi 	= stateVec[ STATE_phi ];
+   stateEstimate.psi    = stateVec[ STATE_psi ];
+   stateEstimate.theta  = stateVec[ STATE_theta ];
+   stateEstimate.x      = stateVec[ STATE_x ];
+   stateEstimate.y      = stateVec[ STATE_y ]; 
+
+   return SWARM_SUCCESS;
+}
 
 /****************  System Model Manifestations   **************
 */

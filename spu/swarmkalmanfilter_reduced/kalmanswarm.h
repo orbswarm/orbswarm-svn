@@ -1,5 +1,7 @@
 /*  Function Prototypes for kalmanSwarm */
 
+#include "../include/swarmdefines.h"
+
 #define RADIUS 0.762
 #define GRAVITY 9.81
 
@@ -33,5 +35,11 @@
 #define MEAS_psig    		8
 #define MEAS_vg    		9
 #define MEAS_omega   		10
+
+
+int KalmanInit( swarmStateEstimate * stateEstimate );
+
+int kalmanProcess(swarmGpsData * gpsData, swarmImuData * imuData, swarmStateEstimate * stateEstimate);
+
 
 

@@ -72,7 +72,7 @@ int main( int argc, char **argv )
   m_elem   **P;     /*  Estimate Covariance        (mxm)   */
   m_elem   *x;      /*  Starting state             (1xm)   */
 
-  debug = 1;	
+  debug = 0;	
 
   parse_arguments( argc, argv );   /*  Parse the command line arguments  */
 

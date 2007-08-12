@@ -334,22 +334,7 @@ static void update_prob( m_elem **P_pre, m_elem **R, m_elem **H,
   print_matrix( "R", R, MEAS_SIZE, MEAS_SIZE );
 #endif
 
-  
 
-/* I think this is wrong- M.A.P 2007
-  mat_mult( H, P_pre, temp_meas_state,
-	   MEAS_SIZE, STATE_SIZE, STATE_SIZE );  temp_meas_state = H * P_pre 
-  mat_mult_transpose( H, temp_meas_state, temp_meas_meas,
-		     MEAS_SIZE, STATE_SIZE, MEAS_SIZE ); temp_meas_meas = H * (H*P_pre)' 
-*/
-
-  /* these two lines are my first correction - M.A.P. 2007
-  mat_mult( H, P_pre, temp_meas_state,
-	   MEAS_SIZE, STATE_SIZE, STATE_SIZE );  /* temp_meas_state = H * P_pre 
-  mat_mult_transpose( temp_meas_state, H, temp_meas_meas,
-		     MEAS_SIZE, STATE_SIZE, MEAS_SIZE ); /* temp_meas_meas = (H*P_pre)*H' */
-
-  /* And these two lines are my second attempt, which can cicumvent a later multiply -MAP 2007 */
   mat_mult_transpose( P_pre, H, temp_state_meas,
 		     STATE_SIZE, STATE_SIZE, MEAS_SIZE ); /* temp_state_meas = P_pre*H' */
   mat_mult( H, temp_state_meas, temp_meas_meas,
