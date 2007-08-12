@@ -10,6 +10,6 @@ static void read_7xxx_adc(int *adc_result, int channel, int numOfSamples);
 double get_ADC_channel(int channel, double maxVoltage, int numOfSamples);
 void calibrate_ADC(int **stored_cal);
 void startupADC();
-void shutdownADC();
+void shutdownADC(); 
 
 #endif
