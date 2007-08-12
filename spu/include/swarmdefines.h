@@ -61,7 +61,7 @@
 #define AGGR_MESSAGE_DELIM_END '\n' 
 
 #define AGGR_GPS_QUERY_CMD "$Ag*$"
-#define AGGR_ZIGBEE_QUERY_CMD "$Az*$"
+#define AGGR_ZIGBEE_QUERY_CMD "$Ax*$"
 
 #define MAX_AGG_PACKET_SZ 100   // total packet sz including the header footer 
 #define MAX_AGG_PACKET_PAYLOAD_SZ 91   // This is 100 bytes - headersz + footersz + '\0' 
