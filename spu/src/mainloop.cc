@@ -9,6 +9,7 @@
 #include "../include/swarmspuutils.h"
 #include "../include/swarmGPSutils.h"
 #include "../include/swarmIMUutils.h"
+#include "../include/adconverters.h"
 
 
 int main(int argc, char *argv[]) 
