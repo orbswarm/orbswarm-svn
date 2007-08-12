@@ -15,7 +15,7 @@
 
 int main(void)
 {
-	int devmem = startupADC();
+	startupADC();
 	int i;
 	
 	while(1) {
@@ -25,7 +25,8 @@ int main(void)
 		
 		puts("");
 	}
-	close(devmem);
+
+	shutdownADC();
 
 	return 0;
 }

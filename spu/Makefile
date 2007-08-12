@@ -109,8 +109,8 @@ spumond: spumond.o swarmspuutils.o swarmserial.o
 spumond.o: $(SRC)/spumond.cc
 	$(CC) $(CFLAGS)-c $(SRC)/spumond.cc
 
-mainloop: mainloop.o swarmserial.o swarmspuutils.o  swarmGPSutils.o  swarmIMUutils.o 
-	$(CC) $(LIBS) $(CFLAGS) mainloop.o swarmserial.o swarmspuutils.o swarmGPSutils.o swarmIMUutils.o -o mainloop 
+mainloop: mainloop.o swarmserial.o swarmspuutils.o  swarmGPSutils.o  swarmIMUutils.o adconverter.o
+	$(CC) $(LIBS) $(CFLAGS) mainloop.o swarmserial.o swarmspuutils.o swarmGPSutils.o swarmIMUutils.o adconverter.o -o mainloop 
 
 mainloop.o: $(SRC)/mainloop.cc $(SRC)/swarmserial.cc $(SRC)/swarmspuutils.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h 
 	$(CC) $(CFLAGS)-c $(SRC)/mainloop.cc
@@ -129,9 +129,6 @@ adconverter_input_test: adconverter_input_test.o  adconverter.o swarmserial.o
 
 adconverter_input_test.o: $(TEST)/adconverter_input_test.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h  $(INC)/swarmdefines.h 
 	$(CC) $(CFLAGS)-c $(TEST)/adconverter_input_test.cc
-
-adconverter: adconverter.o
-	$(CC) $(LIBS) $(CFLAGS) -o adconverter
 
 adconverter.o: $(INC)/adconverter.h $(SRC)/adconverter.cc 
 	$(CC) $(CFLAGS)-c  $(SRC)/adconverter.cc 
