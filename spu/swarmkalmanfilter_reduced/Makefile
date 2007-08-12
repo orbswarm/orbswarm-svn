@@ -4,7 +4,7 @@
 #  Original:	J. Watlington, 11/7/1995
 #
 
-OBJS   = matmath.o kalman.o kalmanswarm.o mrqmin.o kftime.o
+OBJS   = matmath.o kalman.o kalmanswarm.o kftime.o
 TEST_OBJS   = test.o  $(OBJS)
 HARNESS_OBJS   = harness.o  $(OBJS)
 LIBS   = -lm
@@ -21,7 +21,7 @@ all: test
 clean:
 	/bin/rm -f *.o *~ test core
 
-${TEST_OBJS}: Makefile test.h kalman.h matmath.h kalmanswarm.h kftime.h
+${TEST_OBJS}: Makefile kalman.h matmath.h kalmanswarm.h kftime.h ../include/swarmdefines.h
 
 .c.o:
 	cc -c $(CCOPTS) $(INCLUDES) -o $@ $<

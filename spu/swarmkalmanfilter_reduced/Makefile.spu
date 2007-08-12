@@ -32,8 +32,8 @@ CFLAGS = -Wall -g -O3 -D_REENTRANT -mcpu=ep9312
 
 all: test 
 
-test: test.o matmath.o kalman.o kalmanswarm.o mrqmin.o kftime.o
-	$(CC) $(LIBS) $(CFLAGS) test.o matmath.o kalman.o kalmanswarm.o mrqmin.o kftime.o -o test
+test: test.o matmath.o kalman.o kalmanswarm.o kftime.o
+	$(CC) $(LIBS) $(CFLAGS) test.o matmath.o kalman.o kalmanswarm.o kftime.o -o test
 
 test.o: test.c kalman.h matmath.h kalmanswarm.h kftime.h
 	$(CC) $(CFLAGS)-c test.c

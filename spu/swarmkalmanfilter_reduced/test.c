@@ -22,10 +22,10 @@
 #include "kalman.h"
 #include "kalmanswarm.h"
 #include "matmath.h"
-#include "kftime.h"
 
 
-#define HELLO "Camera Motion Estimator\n"
+
+#define HELLO "SWARM EKF\n"
 
 #define IMPROVE_DEBUG
 
@@ -72,17 +72,21 @@ int main( int argc, char **argv )
   m_elem   **P;     /*  Estimate Covariance        (mxm)   */
   m_elem   *x;      /*  Starting state             (1xm)   */
 
-  debug = 0;	
+  debug = 1;	
 
   parse_arguments( argc, argv );   /*  Parse the command line arguments  */
 
   /*  Allocate memory for system, measurement, and state variables.
       Then either init them algorithmically or from data stored in a file.  */
 
+
+
   P = matrix( 1, STATE_SIZE, 1, STATE_SIZE );
   x = vector( 1, STATE_SIZE );
   meas = matrix( 1, num_samples, 1, MEAS_SIZE );
   trajectory = matrix( 1, num_samples, 1, STATE_SIZE );
+
+  printf(" allocated trajectory ");
 
   load_meas( meas_fname, MEAS_SIZE, num_samples, meas );
 
@@ -99,7 +103,7 @@ int main( int argc, char **argv )
       /*  For each sample in the test run, perform one estimation and
 	  copy the results into the trajectory history   */
       
-  start_clock();	
+  /*start_clock();	*/
 
       for( time = 1; time <= num_samples; time++ )
 	{
@@ -118,7 +122,7 @@ int main( int argc, char **argv )
 	    traj_fptr[ i ] = track[ i ];
 	}
 
-  end_clock("All samples processed in this many ticks -");
+  /*end_clock("All samples processed in this many ticks -");*/
     
   /*  Save the set of estimated parameters into a file  */
   
@@ -206,6 +210,7 @@ void parse_arguments( int argc, char **argv )
       /* Parse the three required arguments, then calculate some
 	 default values for file names, in case the user decides not
 	 to provide them.  */
+
 
       sscanf( argv[1], "%s", meas_fname );
       sscanf( argv[2], "%d", &num_samples );

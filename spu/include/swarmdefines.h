@@ -72,12 +72,12 @@
 #define AGG_GPS_STOP_DELIM '\n'
 
 /************************Constants**************************************/
-
+/*
 const double PI = 3.14159265;
 const double FOURTHPI = PI / 4;
 const double deg2rad = PI / 180;
 const double rad2deg = 180.0 / PI;
-
+*/
 /*************************STRUCTURES************************************/
 struct	swarmGpsData
 {
@@ -149,17 +149,20 @@ struct	swarmImuData
 
 struct  swarmStateEstimate
 {
+  double vdot;
+  double v;
+  double phidot;
+  double phi;
+  double psi;
+  double theta;
   double x;
   double y;
-  double psi;
-  double v;
-  double phi;
 };
 
 struct swarmFeedback
 {
   double vDes;
-  double thetaDes;
+  double deltaDes;
 };
 
 #endif

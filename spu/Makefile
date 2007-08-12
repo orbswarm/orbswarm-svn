@@ -14,7 +14,7 @@ NATIVECC = gcc
 # select them here
 # (I'm sure there's a more elegant way to do this...)
 
-CC = $(CYGWINCC)
+CC = $(LINUXCC)
 #CC = $(NATIVECC)
 #CPP = $(LINUXCPP)
 CFLAGS = -Wall -g -O3 -D_REENTRANT 
@@ -120,6 +120,21 @@ heading.o: $(SRC)/heading.cc $(SRC)/swarmserial.cc $(SRC)/swarmspuutils.cc $(INC
 
 swarmserial.o: $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h
 	$(CC) $(CFLAGS)-c $(SRC)/swarmserial.cc
+
+kalman.o: $(SRC)/kalman.c $(INC)/kalman.h $(INC)/swarmdefines.h $(INC)/swarmkalman.h $(INC)/matmath.h
+	$(CC) $(CFLAGS)-c $(SRC)/kalman.c
+
+swarmkalman.o: $(SRC)/swarmkalman.c $(INC)/kalman.h $(INC)/swarmdefines.h $(INC)/swarmkalman.h $(INC)/matmath.h
+	$(CC) $(CFLAGS)-c $(SRC)/swarmkalman.c
+
+matmath.o: $(SRC)/matmath.c $(INC)/kalman.h $(INC)/swarmdefines.h $(INC)/swarmkalman.h $(INC)/matmath.h
+	$(CC) $(CFLAGS)-c $(SRC)/matmath.c
+
+kalmantest.o: $(test)/kalmantest.c $(INC)/kalman.h $(INC)/swarmdefines.h $(INC)/swarmkalman.h $(INC)/matmath.h
+	$(CC) $(CFLAGS)-c $(SRC)/kalmantest.c
+
+kalmantest: kalmantest.o matmath.o swarmkalman.o kalman.o
+	$(CC) $(LIBS) $(CFLAGS) kalmantest.o matmath.o swarmkalman.o kalman.o -o kalmantest
 
 transfer: 
 	/bin/sh ./transfer.sh spu spumond mainloop

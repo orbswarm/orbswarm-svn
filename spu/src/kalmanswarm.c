@@ -16,9 +16,9 @@
 
 #include <stdio.h>
 #include <math.h>
-#include "kalman.h"
-#include "kalmanswarm.h"
-#include "matmath.h"
+#include "../include/kalman.h"
+#include "../include/kalmanswarm.h"
+#include "../include/matmath.h"
 
 extern int     debug;
 
