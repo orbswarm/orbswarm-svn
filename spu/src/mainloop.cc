@@ -8,6 +8,7 @@
 #include "../include/swarmdefines.h"
 #include "../include/swarmspuutils.h"
 #include "../include/swarmGPSutils.h"
+#include "../include/swarmIMUutils.h"
 
 
 int main(int argc, char *argv[]) 
@@ -29,6 +30,7 @@ int main(int argc, char *argv[])
   char curtime[30];
   char logbuf[80];
   time_t logtime;
+  swarmImuData imuData;
   
   mypid=getpid();
   time(&logtime);
@@ -81,8 +83,29 @@ int main(int argc, char *argv[])
 	 tenHzticks = 0;
 	 toggleSpuLed(SPU_LED_RED_OFF);  
        }
+
+
+
+      // Poll aggregator to get IMU data
+       printf("START GPS TRANSACTION**********\n"); 
+       writeCharsToSerialPort(com5, "$QI*", strlen("$QI*"));
+       readCharsFromSerialPort(com5, buffer, &bytes2,MAX_BUFF_SZ); 
+
+       
+       if(bytes2 > 1) { //only handle the IMU data if we have it
+	 printf("IMU data str: \"%s\"\n",buffer);
+	 status = parseImuMsg(buffer,&imuData);
+	 if(VERBOSE) printf("Parse status %d\n",status);
+	 imuIntToSI(&imuData);
+	 if(VERBOSE) dumpImuData(&imuData);
+       }
+
+
        // Poll aggregator to get IMU data
        printf("START GPS TRANSACTION**********\n"); 
+
+
+
 
        //Tell the agg that we want whatever gps data it has to give 
        writeCharsToSerialPort(com2, AGGR_GPS_QUERY_CMD, strlen(AGGR_GPS_QUERY_CMD));

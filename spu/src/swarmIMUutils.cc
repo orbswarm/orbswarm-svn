@@ -112,14 +112,10 @@ void dumpImuData(struct swarmImuData *imuData) {
 /* IF YOU CHANGE THE ORDER YOU WILL BREAK THIS ROUTINE */
 int parseImuMsg(char *imuBuf, struct swarmImuData *imuData)
 {
-  char msg_type[10];
-  char *bufpos;
-  int buf_offset=0;
-  int msg_data=0;
-  int success=0;
-  int fail = 0;
-  int advance=0;
-  bufpos=imuBuf;
+  char msg_type[10];		// temp storage for scanned string
+  int msg_data=0;		// temp storage for scanned int data
+  int success=0;		// how many fields have we read from sscanf
+  int advance=0; 		// advance this many chars after each sscanf
 
 
 
