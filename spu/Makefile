@@ -88,11 +88,11 @@ readcom: readcom.o swarmserial.o
 readcom.o: $(TEST)/readcom.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h 
 	$(CC) $(CFLAGS)-c $(TEST)/readcom.cc
 
-writecom: writecom.o swarmserial.o 
-	$(CC) $(LIBS) $(CFLAGS) writecom.o swarmserial.o -o writecom 
+testcom: testcom.o swarmserial.o 
+	$(CC) $(LIBS) $(CFLAGS) testcom.o swarmserial.o -o testcom 
 
-writecom.o: $(TEST)/writecom.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h 
-	$(CC) $(CFLAGS)-c $(TEST)/writecom.cc
+testcom.o: $(TEST)/testcom.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h 
+	$(CC) $(CFLAGS)-c $(TEST)/testcom.cc
 
 
 spu: spu.o swarmserial.o 
