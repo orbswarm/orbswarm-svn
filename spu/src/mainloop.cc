@@ -9,7 +9,6 @@
 #include "../include/swarmspuutils.h"
 #include "../include/swarmGPSutils.h"
 
-#define VERBOSE 1
 
 int main(int argc, char *argv[]) 
 {
@@ -87,107 +86,20 @@ int main(int argc, char *argv[])
 
        //Tell the agg that we want whatever gps data it has to give 
        writeCharsToSerialPort(com2, AGGR_GPS_QUERY_CMD, strlen(AGGR_GPS_QUERY_CMD));
-       readCharsFromSerialPort(com2, buffer, &bytes2,MAX_BUFF_SZ); 
+       readCharsFromSerialPortUntilAck(com2, buffer, &bytes2, MAX_BUFF_SZ, 10, AGGR_DATA_XFER_ACK);
 
-       if(bytes2 > 1) //only handle the gps data if we have it
-       {  
-         if(rindex(buffer, AGGR_DATA_XFER_ACK) == NULL)
-         { 
-           //We didn't get all of the data so we keep reading until we do
-           int total_gps_bytes = 0;
-           int numGpsTrys = 0;
-           total_gps_bytes = bytes2;
-           while(1)  
-           {
-             printf("\n NUM GPS TRYS:%d\n",numGpsTrys);
-             if(numGpsTrys > 10){
-                printf("Breaking out of GPS read loop on try #%d\n",numGpsTrys); 
-                break; 
-             }
-             printf("CALLING GPS READ A SECOND TIME\n"); 
-             readCharsFromSerialPort(com2, &buffer[total_gps_bytes], &bytes2,MAX_BUFF_SZ - total_gps_bytes); 
-             total_gps_bytes += bytes2;
-             printf("NUM GPS BYTES READ: %d\n",total_gps_bytes); 
-
-             if(buffer[total_gps_bytes] == AGGR_DATA_XFER_ACK)
-               break; //we got it all so get out of the read loop 
-             }
-            bytes2 = total_gps_bytes; 
-            numGpsTrys++;
-         } 
-         buffer[bytes2+1] = '\0';
-	 if (VERBOSE) printf("\n GPS sentence is \"%s\"\n",buffer);
+       if (VERBOSE) printf("\n GPS sentence is \"%s\"\n",buffer);
       
          //
          //we recieved data now parse GPS sentence
          //
-         parseRawAggregatorGPSData(buffer,&currentOrbLoc); 
-
-         status = SWARM_SUCCESS;
-         status = parseGPSSentence(&currentOrbLoc);
-         if(status == SWARM_SUCCESS)
-         { 
-           if(VERBOSE)
-           printf("\n Parsed line %s \n",currentOrbLoc.gpsSentence);
-           status = convertNMEAGpsLatLonDataToDecLatLon(&currentOrbLoc);
-           if(status == SWARM_SUCCESS)
-           {
-             if(VERBOSE)
-             printf("\n Decimal lat:%lf lon:%lf utctime:%s \n",currentOrbLoc.latdd,currentOrbLoc.londd,currentOrbLoc.nmea_utctime);
-                  
-             decimalLatLongtoUTM(WGS84_EQUATORIAL_RADIUS_METERS, WGS84_ECCENTRICITY_SQUARED, &currentOrbLoc);
-             if(VERBOSE)
-               printf("Northing:%f,Easting:%f,UTMZone:%s\n",currentOrbLoc.UTMNorthing,currentOrbLoc.UTMEasting,currentOrbLoc.UTMZone);
-             }
-           }
-           else
-           {
-             if(VERBOSE)
-               printf("\n Failed GPS parse status=%i", status);
-           }
-           status = SWARM_SUCCESS;
-           status = parseGPSVtgSentance(&currentOrbLoc);
-           if(status != SWARM_SUCCESS)
-               printf("\n Failed GPS VTG parse status=%i", status);
-       }
+       parseAndConvertGPSData(buffer, &currentOrbLoc); 
 
        //Tell the agg that we want whatever zigbee data it has to give 
        writeCharsToSerialPort(com2, AGGR_ZIGBEE_QUERY_CMD, strlen(AGGR_ZIGBEE_QUERY_CMD));
-       readCharsFromSerialPort(com2, buffer, &bytes2,MAX_BUFF_SZ); 
+
+       readCharsFromSerialPortUntilAck(com2, buffer, &bytes2, MAX_BUFF_SZ, 10, AGGR_DATA_XFER_ACK);
        if(bytes2 > 1){  //only handle the zigbee data if we have it one byte means only ! 
-         buffer[bytes2+1] = '\0';
-
-	 if (VERBOSE)
-           printf("\n Raw Zigbee data from Aggregator \"%s\"\n",buffer);
-
-         //Now we examine the last character of the read data to see if we have gotten all of the 
-         //data in the first read
-         if(rindex(buffer, AGGR_DATA_XFER_ACK) == NULL)
-         { 
-           //We didn't get all of the data so we keep reading until we do
-           int total_zigbee_bytes = 0;
-           total_zigbee_bytes = bytes2;
-           int numTrys = 0;
-           while(1)  
-           {
-             if(numTrys > 10){
-                printf("Breaking out of read loop on try #%d\n",numTrys); 
-                break; 
-             }
-             printf("CALLING ZIGBEE READ A SECOND TIME\n"); 
-             readCharsFromSerialPort(com2, &buffer[total_zigbee_bytes], &bytes2,MAX_BUFF_SZ - total_zigbee_bytes); 
-             total_zigbee_bytes += bytes2;
-             printf("NUM ZIGBEE BYTES READ: %d\n",total_zigbee_bytes); 
-
-             if(buffer[total_zigbee_bytes] == AGGR_DATA_XFER_ACK)
-               break; //we got it all so get out of the read loop 
-             numTrys++;
-           }
-            bytes2 = total_zigbee_bytes; 
-         } 
-         
-         //Now we have all of the data so lets do some work
-
          //First we have to tokenize the recieved buffer into individual messages
          char* msgptr = NULL;
          int msgcount = 0;
