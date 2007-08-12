@@ -1,4 +1,4 @@
-#include "aggregator_utils.h"
+#include <aggregator_utils.h>
 #include <avr/io.h>
 #include <uart.h>
 #include <spu.h>
@@ -64,7 +64,7 @@ int main(void)
   PORTB = 0xff;
   char gps_msg_buffer[MAX_GPS_PACKET_LENGTH];
   
-  initXbeeModule(lightLedPortB7, sendDebugMsg);
+  //initXbeeModule(lightLedPortB7, sendDebugMsg);
   //initGpsModule(lightLedPortB7, sendDebugMsg);
   //initSpuModule(lightLedPortB7, sendDebugMsg);
   //sendDebugMsg("init ");
@@ -81,7 +81,8 @@ int main(void)
   
   while(1){
     struct SWARM_MSG msg = popQ();
-    if(msg.swarm_msg_type == eLinkMotorControl){
+    if(msg.swarm_msg_type == eLinkMotorControl ||
+	    msg.swarm_msg_type == eLinkArt){
       //queue up for sending to spu when asked for
       //But if send is in progress wait for it to be over
       while(isSpuSendInProgress())
@@ -95,18 +96,17 @@ int main(void)
 	 msg.swarm_msg_payload[2] == 'g' &&
 	 msg.swarm_msg_payload[3] == '*')
 	{
+	  while(isSpuSendInProgress())
+	    ;
 	  getGpsGpggaMsg(gps_msg_buffer);
-	  pushSpuDataQ(gps_msg_buffer);
-	  startSpuTransmit();
+	  sendSpuMsg(gps_msg_buffer);
 
 	  getGpsGpvtgMsg(gps_msg_buffer);
-	  pushSpuDataQ(gps_msg_buffer);
-	  startSpuTransmit();
+	  sendSpuMsg(gps_msg_buffer);
 
 	  //sleep for a while so that we have space for the '!' in the q
 	  loopTimer0(50);
-	  pushSpuDataQ("!");
-	  startSpuTransmit();
+	  sendSpuMsg("!");
 	}
       else if(msg.swarm_msg_payload[0] == '$' &&
 	msg.swarm_msg_payload[1] == 'A' &&
