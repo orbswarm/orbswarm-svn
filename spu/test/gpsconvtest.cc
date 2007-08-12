@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "../include/swarmdefines.h"
 #include "../include/swarmspuutils.h"
+#include "../include/swarmGPSutils.h"
 
 int main(int argc, char *argv[]) 
 {

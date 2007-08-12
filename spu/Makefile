@@ -132,6 +132,6 @@ adconverter_input_test.o: $(TEST)/adconverter_input_test.cc $(SRC)/swarmserial.c
 
 adconverter.o: $(INC)/adconverter.h $(SRC)/adconverter.cc 
 	$(CC) $(CFLAGS)-c  $(SRC)/adconverter.cc 
-	
+
 clean:
 	rm *.o 
