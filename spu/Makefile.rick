@@ -32,24 +32,14 @@ CFLAGS = -Wall -g -O3 -D_REENTRANT
 
 all: app test util
 app: spu spumond mainloop
-test: testspuutils logtest gpsconvtest testpacketizer adconverter_input_test
+test: testspuutils logtest gpsconvtest adconverter_input_test
 util: readcom writecom setled
 
+testspuutils: testspuutils.o swarmspuutils.o
+	$(CC) $(LIBS) $(CFLAGS) testspuutils.o swarmspuutils.o -o testspuutils
 
-#HEY IF SOMEONE KNOWS WHAT THEY ARE DOING WE NEED SOME RULES INSTEAD OF ALL THIS ALACARTE CRAP...
-
-
-testspuutils: testspuutils.o swarmspuutils.o swarmserial.o 
-	$(CC) $(LIBS) $(CFLAGS) testspuutils.o swarmspuutils.o swarmserial.o -o testspuutils
-
-testspuutils.o: $(TEST)/testspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmGPSutils.h $(INC)/swarmdefines.h $(INC)/swarmserial.h
-	$(CC) $(CFLAGS)-c $(TEST)/testspuutils.cc
-
-testpacketizer: testpacketizer.o 
-	$(CC) $(LIBS) $(CFLAGS) testpacketizer.o -o testpacketizer
-
-testpacketizer.o: $(TEST)/testpacketizer.cc 
-	$(CC) $(CFLAGS)-c $(TEST)/testpacketizer.cc
+testspuutils.o: $(TEST)/testspuutils.cc $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmdefines.h
+	$(CC) $(CFLAGS)-c $(SRC)/testspuutils.cc
 
 setled: setled.o swarmspuutils.o
 	$(CC) $(LIBS) $(CFLAGS) setled.o swarmspuutils.o -o setled
@@ -57,30 +47,20 @@ setled: setled.o swarmspuutils.o
 setled.o: $(TEST)/setled.cc $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmdefines.h
 	$(CC) $(CFLAGS)-c $(TEST)/setled.cc
 
-logtest: logtest.o swarmspuutils.o swarmserial.o 
-	$(CC) $(LIBS) $(CFLAGS) logtest.o swarmspuutils.o swarmserial.o -o logtest 
+logtest: logtest.o swarmspuutils.o $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h
+	$(CC) $(LIBS) $(CFLAGS) logtest.o swarmspuutils.o -o logtest 
 
-logtest.o: $(TEST)/logtest.cc $(INC)/swarmdefines.h $(INC)/swarmspuutils.h  $(INC)/swarmserial.h  
+logtest.o: $(TEST)/logtest.cc $(INC)/swarmdefines.h $(INC)/swarmspuutils.h
 	$(CC) $(CFLAGS)-c $(TEST)/logtest.cc
 
-gpsconvtest: gpsconvtest.o swarmGPSutils.o  
-	$(CC) $(LIBS) $(CFLAGS) gpsconvtest.o swarmGPSutils.o -o gpsconvtest 
+gpsconvtest: gpsconvtest.o swarmspuutils.o $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h
+	$(CC) $(LIBS) $(CFLAGS) gpsconvtest.o swarmspuutils.o -o gpsconvtest 
 
-gpsconvtest.o: $(TEST)/gpsconvtest.cc $(INC)/swarmdefines.h $(INC)/swarmGPSutils.h
+gpsconvtest.o: $(TEST)/gpsconvtest.cc $(INC)/swarmdefines.h $(INC)/swarmspuutils.h
 	$(CC) $(CFLAGS)-c $(TEST)/gpsconvtest.cc
 
-
-swarmGPSutils.o: $(SRC)/swarmGPSutils.cc $(INC)/swarmGPSutils.h $(INC)/swarmdefines.h $(INC)/swarmserial.h
-	$(CC) $(CFLAGS)-c $(SRC)/swarmGPSutils.cc
-
-
-swarmIMUutils.o: $(SRC)/swarmIMUutils.cc $(INC)/swarmIMUutils.h $(INC)/swarmdefines.h $(INC)/swarmserial.h
-	$(CC) $(CFLAGS)-c $(SRC)/swarmIMUutils.cc
-
-
-swarmspuutils.o: $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmdefines.h $(INC)/swarmserial.h
+swarmspuutils.o: $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmdefines.h
 	$(CC) $(CFLAGS)-c $(SRC)/swarmspuutils.cc
-
 
 readcom: readcom.o swarmserial.o 
 	$(CC) $(LIBS) $(CFLAGS) readcom.o swarmserial.o -o readcom 
@@ -88,6 +68,16 @@ readcom: readcom.o swarmserial.o
 readcom.o: $(TEST)/readcom.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h 
 	$(CC) $(CFLAGS)-c $(TEST)/readcom.cc
 
+
+	
+adconverter_input_test: adconverter_input_test.o  swarmserial.o
+	$(CC) $(LIBS) $(CFLAGS) adconverter_input_test.o swarmserial.o -o adconverter_input_test 
+
+adconverter_input_test.o: $(TEST)/adconverter_input_test.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/adconverter_input_test.h $(INC)/swarmdefines.h 
+	$(CC) $(CFLAGS)-c $(TEST)/adconverter_input_test.cc
+
+
+	
 writecom: writecom.o swarmserial.o 
 	$(CC) $(LIBS) $(CFLAGS) writecom.o swarmserial.o -o writecom 
 
@@ -103,14 +93,14 @@ spu: spu.o swarmserial.o
 spu.o: $(SRC)/spu.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h
 	$(CC) $(CFLAGS)-c $(SRC)/spu.cc
 
-spumond: spumond.o swarmspuutils.o swarmserial.o
-	$(CC) $(LIBS) $(CFLAGS) spumond.o swarmspuutils.o swarmserial.o -o spumond
+spumond: spumond.o
+	$(CC) $(LIBS) $(CFLAGS) spumond.o -o spumond
 
 spumond.o: $(SRC)/spumond.cc
 	$(CC) $(CFLAGS)-c $(SRC)/spumond.cc
 
-mainloop: mainloop.o swarmserial.o swarmspuutils.o  swarmGPSutils.o  swarmIMUutils.o adconverter.o
-	$(CC) $(LIBS) $(CFLAGS) mainloop.o swarmserial.o swarmspuutils.o swarmGPSutils.o swarmIMUutils.o adconverter.o -o mainloop 
+mainloop: mainloop.o swarmserial.o swarmspuutils.o
+	$(CC) $(LIBS) $(CFLAGS) mainloop.o swarmserial.o swarmspuutils.o -o mainloop 
 
 mainloop.o: $(SRC)/mainloop.cc $(SRC)/swarmserial.cc $(SRC)/swarmspuutils.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h 
 	$(CC) $(CFLAGS)-c $(SRC)/mainloop.cc
@@ -124,14 +114,6 @@ swarmserial.o: $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h
 transfer: 
 	/bin/sh ./transfer.sh spu spumond mainloop
 
-adconverter_input_test: adconverter_input_test.o  adconverter.o swarmserial.o
-	$(CC) $(LIBS) $(CFLAGS) adconverter_input_test.o  adconverter.o swarmserial.o -o adconverter_input_test 
-
-adconverter_input_test.o: $(TEST)/adconverter_input_test.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h  $(INC)/adconverter.h  $(INC)/swarmdefines.h 
-	$(CC) $(CFLAGS)-c $(TEST)/adconverter_input_test.cc
-
-adconverter.o: $(INC)/adconverter.h $(SRC)/adconverter.cc 
-	$(CC) $(CFLAGS)-c  $(SRC)/adconverter.cc 
 
 clean:
 	rm *.o 
