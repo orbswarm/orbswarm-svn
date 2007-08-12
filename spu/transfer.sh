@@ -2,10 +2,12 @@
 
 # install.sh: FTP the argument file(s) to a list of orbs
 # written by JTF
+# SORRY, THIS ONLY SEEM TO WORK IN CYGWIN
+# OTHER DISTROS HAVE BRAINDEAD FTP W/O -s option
 
 # this are the last IP numbers of all orbs
 orbList="60 61 62 63 64 65 66"
-orbList="63"
+orbList="62"
 # conncatenate the above with this prefix to get full IP addr
 iprefix="192.168.1."
 

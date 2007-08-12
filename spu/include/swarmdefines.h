@@ -118,6 +118,10 @@ struct	swarmImuData
   int int_accx;
   int int_accy;
   int int_accz;
+  int int_vref; 	     /* this is vref on the IMU. Should not change */
+  int int_adc0;		     /* this is the steering pot raw value */
+  int int_adc1;		     /* this is the current sensor raw value */
+
 
   /* integer bias (what we get when we measure a zero reading */
   /* subtract these values from the raw int vals to get a zero-mean value*/
@@ -127,6 +131,20 @@ struct	swarmImuData
   double accx_bias;
   double accy_bias;
   double accz_bias;
+  double vref_bias;
+  double adc0_bias;
+  double adc1_bias;
+
+  /* these hold the descriptive strings scanned by the parser */
+  /* useful for debug */
+  char adc0_str[10];
+  char adc1_str[10];
+  char ratex_str[10];
+  char ratey_str[10];
+  char accx_str[10];
+  char accy_str[10];
+  char accz_str[10];
+  char vref_str[10];
 };
 
 struct  swarmStateEstimate
