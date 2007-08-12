@@ -29,5 +29,9 @@ void readCharsFromSerialPort(int port_fd, char* buff,
 int writeCharsToSerialPort(int port_fd, char* buff,
                                         int numBytesToWrite);
 
+//Reads data from serial port, port_fd, until either the ack character is 
+//reached or the number of read attempts on the port exceeds maxTrys.
+int readCharsFromSerialPortUntilAck(int port_fd, char* buff, int* numBytesRead,
+                                    int maxBufSz, int maxTrys, char ackChar);
 #endif
 

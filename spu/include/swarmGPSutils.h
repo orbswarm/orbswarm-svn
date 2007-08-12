@@ -27,6 +27,7 @@
 
 //Parse an NMEA data sentence into the seperate components needed for conversion
 //Returns SWARM_SUCCESS on a successful parse and  SWARM_INVALID_GPS_SENTENCE if 
+int parseAndConvertGPSData(char* rawGPS, swarmGpsData * gpsdata); 
 //the input string was garbage or an invalid type.  The parser only accepts NMEA
 //sentences of type GPGGA 
 int parseGPSSentence(swarmGpsData * gpsdata);

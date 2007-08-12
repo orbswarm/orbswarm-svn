@@ -2,6 +2,8 @@
 #ifndef SWARM_DEFINES_H
 #define SWARM_DEFINES_H 1
 
+#define VERBOSE 1 //set to 1 for increased debugging messages
+
 #define MAX_BUFF_SZ 1024 //Serial port read/write buffer size
 #define SWARM_SUCCESS 0
 #define SWARM_SERIAL_WRITE_ERR 10 //failed to write data to serial port 
