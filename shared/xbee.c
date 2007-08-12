@@ -36,7 +36,10 @@ static void initXbeeMsgStart(char c)
   xbee_rx_state=eXbeeStraightSerialRxStartMsg;
   xbee_rx_state_byte_num=0;
   xbee_rx_is_error=0;
-  xbee_rx_packet.swarm_msg_type=eLinkMotorControl;
+  if('<' ==c || '{' ==c)
+    xbee_rx_packet.swarm_msg_type=eLinkArt;
+  else 
+    xbee_rx_packet.swarm_msg_type=eLinkMotorControl;
   xbee_rx_packet.swarm_msg_payload[xbee_rx_state_byte_num]=c;
 }
 
@@ -53,13 +56,13 @@ void handleXbeeSerial(char c, int isError)
   }
   switch(xbee_rx_state){
   case eXbeeStraightSerialRxInit:
-    if('$'==c){
+    if('$'==c || '<'== c || '{' ==c){
       //debugCallback();
       initXbeeMsgStart(c);
     }
     break;
   case eXbeeStraightSerialRxStartMsg:
-    if('$' ==c){
+    if('$' ==c || '<'==c || '{'==c){
       //empty message
       initXbeeMsgStart(c);
     }
@@ -70,8 +73,15 @@ void handleXbeeSerial(char c, int isError)
     }
     break;
   case eXbeeStraightSerialRxPayload:
-     if('$'==c)
+    if('<'==c || '{'==c){
+      //empty message
+      initXbeeMsgStart(c);
+    }
+    else if('$'==c|| '>'==c || '}'==c)
        {
+	 if('>'==c || '}'==c)
+	   xbee_rx_packet.swarm_msg_payload[++xbee_rx_state_byte_num]=c;
+
 	 //if not error first dispatch old message
 	 if(!xbee_rx_is_error){
 	   xbee_rx_packet.swarm_msg_length[0] = 
