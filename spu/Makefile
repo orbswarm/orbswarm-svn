@@ -39,10 +39,10 @@ util: readcom writecom setled
 #HEY IF SOMEONE KNOWS WHAT THEY ARE DOING WE NEED SOME RULES INSTEAD OF ALL THIS ALACARTE CRAP...
 
 
-testspuutils: testspuutils.o swarmspuutils.o
-	$(CC) $(LIBS) $(CFLAGS) testspuutils.o swarmspuutils.o -o testspuutils
+testspuutils: testspuutils.o swarmspuutils.o swarmserial.o
+	$(CC) $(LIBS) $(CFLAGS) testspuutils.o swarmspuutils.o swarmserial.o -o testspuutils
 
-testspuutils.o: $(TEST)/testspuutils.cc $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(SRC)/swarmGPSutils.cc $(INC)/swarmGPSutils.h $(INC)/swarmdefines.h
+testspuutils.o: $(TEST)/testspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmGPSutils.h $(INC)/swarmdefines.h $(INC)/swarmserial.h
 	$(CC) $(CFLAGS)-c $(TEST)/testspuutils.cc
 
 testpacketizer: testpacketizer.o 
@@ -57,16 +57,16 @@ setled: setled.o swarmspuutils.o
 setled.o: $(TEST)/setled.cc $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmdefines.h
 	$(CC) $(CFLAGS)-c $(TEST)/setled.cc
 
-logtest: logtest.o swarmspuutils.o $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h
-	$(CC) $(LIBS) $(CFLAGS) logtest.o swarmspuutils.o -o logtest 
+logtest: logtest.o swarmspuutils.o swarmserial.o 
+	$(CC) $(LIBS) $(CFLAGS) logtest.o swarmspuutils.o swarmserial.o -o logtest 
 
-logtest.o: $(TEST)/logtest.cc $(INC)/swarmdefines.h $(INC)/swarmspuutils.h
+logtest.o: $(TEST)/logtest.cc $(INC)/swarmdefines.h $(INC)/swarmspuutils.h  $(INC)/swarmserial.h  
 	$(CC) $(CFLAGS)-c $(TEST)/logtest.cc
 
-gpsconvtest: gpsconvtest.o swarmspuutils.o $(SRC)/swarmspuutils.cc $(INC)/swarmspuutils.h
-	$(CC) $(LIBS) $(CFLAGS) gpsconvtest.o swarmspuutils.o -o gpsconvtest 
+gpsconvtest: gpsconvtest.o swarmGPSutils.o  
+	$(CC) $(LIBS) $(CFLAGS) gpsconvtest.o swarmGPSutils.o -o gpsconvtest 
 
-gpsconvtest.o: $(TEST)/gpsconvtest.cc $(INC)/swarmdefines.h $(INC)/swarmspuutils.h
+gpsconvtest.o: $(TEST)/gpsconvtest.cc $(INC)/swarmdefines.h $(INC)/swarmGPSutils.h
 	$(CC) $(CFLAGS)-c $(TEST)/gpsconvtest.cc
 
 
