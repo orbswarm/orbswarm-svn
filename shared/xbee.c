@@ -47,6 +47,7 @@ void handleXbeeSerial(char c, int isError)
   //if it's an error flag and discard till the start of the next message
   if(isError){
     //debugCallback();
+    debug("\nerror flag set");
     xbee_rx_is_error=isError;
     return;
   }

@@ -96,7 +96,13 @@ void handleGpsSerial(char c, int isError)
   char dmesgc[2];
   dmesgc[0]=c;
   dmesgc[1]='\0';
-  //debug(dmesgc);
+
+/*   debug("\n got char:"); */
+/*   debug(dmesgc); */
+
+  if(isError)
+    debug("errror flag set");
+
   //if it's an error flag and discard till the start of the next message
   if(isError){
     gps_rx_is_error=isError;
@@ -156,12 +162,16 @@ void handleGpsSerial(char c, int isError)
 	 //if not error first dispatch old message
 	 if(!gps_rx_is_error){
 	   gps_rx_packet[gps_rx_state_byte_num+1]='\0';
+
+/* 	   debug("\n assembled PMTK msg:"); */
+/* 	   debug(gps_rx_packet); */
+
 	   strcpy(gps_pmtkMsg, gps_rx_packet);
 	 }
 	 initGpsMsgStart(c);
          gps_rx_state=eGpsStraightSerialRxPayload;
        }
-     else
+    else
        {
 	 //check for max size
 	 if(gps_rx_state_byte_num <= MAX_GPS_PACKET_LENGTH)
@@ -233,6 +243,10 @@ void handleGpsSerial(char c, int isError)
 	 //if not error first dispatch old message
 	 if(!gps_rx_is_error){
 	   gps_rx_packet[gps_rx_state_byte_num+1]='\0';
+
+/* 	   debug("\n assembled GP* msg:"); */
+/* 	   debug(gps_rx_packet); */
+
 	   if(eGpsStraightSerialRxPayloadGPVTGMsg == gps_rx_state){
 	     strcpy(gps_gpvtgMsg, gps_rx_packet);
 	     gps_gpvtgRecordSeq++;

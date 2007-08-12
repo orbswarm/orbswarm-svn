@@ -49,7 +49,9 @@ void handleSpuSerial(char c, int isError)
   debug(demsg);
   //if it's an error flag and discard till the start of the next message
   if(isError){
-    //debugCallback();
+
+    debug("error flag set");
+
     spu_rx_is_error=isError;
     return;
   }
