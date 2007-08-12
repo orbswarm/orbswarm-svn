@@ -355,4 +355,36 @@ int parseRawAggregatorGPSData(char* rawGPS, swarmGpsData * gpsdata)
    return status;
 }
 
+int parseAndConvertGPSData(char* rawGPS, swarmGpsData * gpsdata) 
+{
+  int status = SWARM_SUCCESS;
+  parseRawAggregatorGPSData(rawGPS ,gpsdata); 
+
+  status = parseGPSSentence(gpsdata);
+  if(status == SWARM_SUCCESS)
+  { 
+    if(VERBOSE)
+    printf("\n Parsed line %s \n",gpsdata->gpsSentence);
+    status = convertNMEAGpsLatLonDataToDecLatLon(gpsdata);
+    if(status == SWARM_SUCCESS)
+    {
+      if(VERBOSE)
+      printf("\n Decimal lat:%lf lon:%lf utctime:%s \n",gpsdata->latdd,gpsdata->londd,gpsdata->nmea_utctime);
+           
+      decimalLatLongtoUTM(WGS84_EQUATORIAL_RADIUS_METERS, WGS84_ECCENTRICITY_SQUARED, gpsdata);
+      if(VERBOSE)
+        printf("Northing:%f,Easting:%f,UTMZone:%s\n",gpsdata->UTMNorthing,gpsdata->UTMEasting,gpsdata->UTMZone);
+      }
+  }
+  else
+  {
+    if(VERBOSE)
+      printf("\n Failed GPS parse status=%i", status);
+  }
+  status = SWARM_SUCCESS;
+  status = parseGPSVtgSentance(gpsdata);
+  if(status != SWARM_SUCCESS)
+      printf("\n Failed GPS VTG parse status=%i", status);
+  return status;
+}
 
