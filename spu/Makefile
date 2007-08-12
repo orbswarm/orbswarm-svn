@@ -103,8 +103,8 @@ spu: spu.o swarmserial.o
 spu.o: $(SRC)/spu.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h
 	$(CC) $(CFLAGS)-c $(SRC)/spu.cc
 
-spumond: spumond.o
-	$(CC) $(LIBS) $(CFLAGS) spumond.o -o spumond
+spumond: spumond.o swarmspuutils.o swarmserial.o
+	$(CC) $(LIBS) $(CFLAGS) spumond.o swarmspuutils.o swarmserial.o -o spumond
 
 spumond.o: $(SRC)/spumond.cc
 	$(CC) $(CFLAGS)-c $(SRC)/spumond.cc
