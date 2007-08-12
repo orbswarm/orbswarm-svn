@@ -13,18 +13,18 @@ volatile static int s_isXbeeSendInProgress=0;
 ISR(SIG_USART3_RECV)
 {
   int nErrors=0;
-  if((UCSR3A<<(8-FE3))>>7)
-    {
-      nErrors=1;
-      //flip error bit back
-      UCSR3A=UCSR3A ^ (1<<FE3);
-    }
-  if((UCSR3A<<(8-DOR3))>>7)
-    {
-      nErrors=1;
-      //flip error bit back
-      UCSR3A=UCSR3A ^ (1<<DOR3);
-    }
+/*   if((UCSR3A<<(8-FE3))>>7) */
+/*     { */
+/*       nErrors=1; */
+/*       //flip error bit back */
+/*       UCSR3A=UCSR3A ^ (1<<FE3); */
+/*     } */
+/*   if((UCSR3A<<(8-DOR3))>>7) */
+/*     { */
+/*       nErrors=1; */
+/*       //flip error bit back */
+/*       UCSR3A=UCSR3A ^ (1<<DOR3); */
+/*     } */
   (*_handleXBeeRecv)(UDR3, nErrors);
 }
 
@@ -32,18 +32,19 @@ ISR(SIG_USART3_RECV)
 ISR(SIG_USART0_RECV)
 {
   int nErrors=0;
-  if((UCSR0A<<(8-FE0))>>7)
-    {
-      nErrors=1;
-      //flip error bit back
-      UCSR0A=UCSR0A ^ (1<<FE0);
-    }
-  if((UCSR0A<<(8-DOR0))>>7)
-    {
-      nErrors=1;
-      //flip error bit back
-      UCSR0A=UCSR0A ^ (1<<DOR0);
-    }
+
+/*   if((UCSR0A<<(8-FE0))>>7) */
+/*     { */
+/*       nErrors=1; */
+/*       //flip error bit back */
+/*       UCSR0A=UCSR0A ^ (1<<FE0); */
+/*     } */
+/*   if((UCSR0A<<(8-DOR0))>>7) */
+/*     { */
+/*       nErrors=1; */
+/*       //flip error bit back */
+/*       UCSR0A=UCSR0A ^ (1<<DOR0); */
+/*     } */
 
   (*_handleSpuRecv)(UDR0, nErrors);
 }
@@ -52,18 +53,19 @@ ISR(SIG_USART1_RECV)
 {
  
   int nErrors=0;
-  if((UCSR1A<<(8-FE1))>>7)
-    {
-      nErrors=1;
-      //flip error bit back
-      UCSR1A=UCSR1A ^ (1<<FE1);
-    }
-  if((UCSR1A<<(8-DOR1))>>7)
-    {
-      nErrors=1;
-      //flip error bit back
-      UCSR1A=UCSR1A ^ (1<<DOR1);
-    }
+
+/*   if((UCSR1A<<(8-FE1))>>7) */
+/*     { */
+/*       nErrors=1; */
+/*       //flip error bit back */
+/*       UCSR1A=UCSR1A ^ (1<<FE1); */
+/*     } */
+/*   if((UCSR1A<<(8-DOR1))>>7) */
+/*     { */
+/*       nErrors=1; */
+/*       //flip error bit back */
+/*       UCSR1A=UCSR1A ^ (1<<DOR1); */
+/*     } */
 
   (*_handleGpsARecv)(UDR1, nErrors);
   
@@ -128,20 +130,20 @@ void sendGPSAMsg(const char *s)
 /*     } */
 /* } */
 
-/* void sendSpuMsg(const char *s) */
-/* { */
-/*   while(*s) */
-/*     { */
-/*       UCSR0A = UCSR0A & (~(1<<UDRE0)); */
-/*       UDR0 = *(s++); */
-/*       while(1) */
-/* 	{ */
-/* 	  //loopTimer0(100); */
-/* 	  if((UCSR0A<<(8-UDRE0))>>7) */
-/* 	    break; */
-/* 	} */
-/*     } */
-/* } */
+void sendSpuMsg(const char *s)
+{
+  while(*s)
+    {
+      UCSR0A = UCSR0A & (~(1<<UDRE0));
+      UDR0 = *(s++);
+      while(1)
+	{
+	  //loopTimer0(100);
+	  if((UCSR0A<<(8-UDRE0))>>7)
+	    break;
+	}
+    }
+}
 
 void sendGPSBMsg(const char *s)
 {
@@ -161,7 +163,7 @@ void sendGPSBMsg(const char *s)
 void sendDebugMsg(const char *s)
 {
   //sendXBeeMsg (s);
-  //sendSpuMsg(s);
+  sendSpuMsg(s);
 }
 
 void startXBeeTransmit(void)

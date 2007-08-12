@@ -23,7 +23,7 @@ void lightLedPortB7(void)
 
 void setGpsMode(void)
 {
-  char ack[MAX_GPS_PACKET_LENGTH];
+  volatile char ack[MAX_GPS_PACKET_LENGTH];
   char * msg=0;
   debug("\r\nReading init params if any");
   loopTimer0(3000);
@@ -64,7 +64,7 @@ int main(void)
   PORTB = 0xff;
   char gps_msg_buffer[MAX_GPS_PACKET_LENGTH];
   
-  //initXbeeModule(lightLedPortB6, sendDebugMsg);
+  initXbeeModule(lightLedPortB7, sendDebugMsg);
   //initGpsModule(lightLedPortB7, sendDebugMsg);
   //initSpuModule(lightLedPortB7, sendDebugMsg);
   //sendDebugMsg("init ");
