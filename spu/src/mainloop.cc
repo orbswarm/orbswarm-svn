@@ -22,6 +22,8 @@ int main(int argc, char *argv[])
   pid_t mypid=0;
   char buffer[MAX_BUFF_SZ + 1];
   int bytes2 = 0;
+  char gpsBuff[MAX_BUFF_SZ + 1];
+  int gpsBytes = 0;
   struct timeval tv;
   int status = SWARM_SUCCESS;
   int             max_fd;
@@ -65,7 +67,6 @@ int main(int argc, char *argv[])
      FD_ZERO(&fdset);
 
      n = select(max_fd, &fdset, NULL, NULL,&tv);
-
      if (n <0){
        printf("Error during select\n");
        snprintf(logbuf,80,"mainloop[%d]:Error during select %s\n",mypid,curtime);
@@ -88,7 +89,6 @@ int main(int argc, char *argv[])
 
 
       // Poll aggregator to get IMU data
-       printf("START GPS TRANSACTION**********\n"); 
        writeCharsToSerialPort(com5, "$QI*", strlen("$QI*"));
        readCharsFromSerialPort(com5, buffer, &bytes2,MAX_BUFF_SZ); 
 
@@ -102,27 +102,29 @@ int main(int argc, char *argv[])
        }
 
 
-       // Poll aggregator to get IMU data
        printf("START GPS TRANSACTION**********\n"); 
 
-
-
-
+       gpsBuff[0] = 0;
+       gpsBytes = 0;
        //Tell the agg that we want whatever gps data it has to give 
        writeCharsToSerialPort(com2, AGGR_GPS_QUERY_CMD, strlen(AGGR_GPS_QUERY_CMD));
-       readCharsFromSerialPortUntilAck(com2, buffer, &bytes2, MAX_BUFF_SZ, 10, AGGR_DATA_XFER_ACK);
+       readCharsFromSerialPortUntilAck(com2, gpsBuff, &gpsBytes, MAX_BUFF_SZ, 10, AGGR_DATA_XFER_ACK);
 
-       if (VERBOSE) printf("\n GPS sentence is \"%s\"\n",buffer);
-      
+       if (VERBOSE) printf("\n GPS sentence is \"%s\" SIZE:%d\n",gpsBuff,gpsBytes);
          //
          //we recieved data now parse GPS sentence
          //
-       parseAndConvertGPSData(buffer, &currentOrbLoc); 
+       parseAndConvertGPSData(gpsBuff, &currentOrbLoc); 
+       printf("END GPS TRANSACTION**********\n"); 
 
        //Tell the agg that we want whatever zigbee data it has to give 
+       buffer[0] = 0;
+       bytes2 = 0;
        writeCharsToSerialPort(com2, AGGR_ZIGBEE_QUERY_CMD, strlen(AGGR_ZIGBEE_QUERY_CMD));
 
        readCharsFromSerialPortUntilAck(com2, buffer, &bytes2, MAX_BUFF_SZ, 10, AGGR_DATA_XFER_ACK);
+       
+       fprintf(stderr,"\nZIGBEE RAW DATA :%s NUMBYTES: %d\n",buffer, bytes2);
        if(bytes2 > 1){  //only handle the zigbee data if we have it one byte means only ! 
          //First we have to tokenize the recieved buffer into individual messages
          char* msgptr = NULL;
@@ -134,13 +136,13 @@ int main(int argc, char *argv[])
          fprintf(stderr, "\nBuffer to strtok **%s** for message type\n",zigbeeBufCpy);
          char msgdelim[1];   
          msgdelim[0] = AGGR_MESSAGE_DELIM_END;
-         msgptr = strtok(zigbeeBufCpy,msgdelim);
+         msgptr = strtok(zigbeeBufCpy,"\n");
          fprintf(stderr, "\nstrtok returned **%s** for message type\n",msgptr);
          while(msgptr != NULL)
          {
            //do the work 
             
-           fprintf(stderr, "\nCALLING getMessageType\n",msgptr);
+           fprintf(stderr, "\nCALLING getMessageType: %s\n",msgptr);
            messageType = getMessageType(msgptr);
            fprintf(stderr, "\ngot message type **%d** \n",messageType);
              
@@ -177,7 +179,7 @@ int main(int argc, char *argv[])
        } //End recieved zigbee data if statement
 
        if (VERBOSE){ 
-	 printf("main loop tick %d\n",tenHzticks);
+	 //printf("main loop tick %d\n",tenHzticks);
 	 fflush(stdout);
        }
      }
