@@ -11,6 +11,9 @@
 //	Written by Matt C, Dillo, Niladri, Jesse Z, refactored by Jon F
 // -----------------------------------------------------------------------
 #include "../include/swarmspuutils.h"
+#include "../include/adconverter.h"
+
+const int AD_POLL_PRECISION = 2;
 
 // toggle the reset pin on the daughterboard MCU
 int resetOrbMCU(void)
@@ -221,19 +224,30 @@ int getMessageType(char* message)
   return messageType;
 }
 
-void genSpuDump(char* logBuffer, int maxBufSz, swarmGpsData * gpsData)
+void genSpuDump(char* logBuffer, int maxBufSz, swarmGpsData * gpsData, double adMaxVoltage)
 {
   char * scratchBuff = (char *)malloc(maxBufSz * 2);
-  sprintf(scratchBuff,"NORTH=%lf\nEAST=%lf\nUTC_TIME=%s\nHEADING=%f\nSPEED=%f\nMSHIP_N=%lf\nMSHIP_E=%lf\n",
-   gpsData->UTMNorthing,
-   gpsData->UTMEasting,
-   gpsData->nmea_utctime,
-   gpsData->nmea_course,
-   gpsData->speed, 
-   gpsData->metFromMshipNorth, 
-   gpsData->metFromMshipEast);
+  char *adBuffer = (char *)malloc(50);
+  int bytesUsed = sprintf(scratchBuff,"NORTH=%lf\nEAST=%lf\nUTC_TIME=%s\nHEADING=%f\nSPEED=%f\nMSHIP_N=%lf\nMSHIP_E=%lf\n",
+						   gpsData->UTMNorthing,
+						   gpsData->UTMEasting,
+						   gpsData->nmea_utctime,
+						   gpsData->nmea_course,
+						   gpsData->speed, 
+						   gpsData->metFromMshipNorth, 
+						   gpsData->metFromMshipEast);
+				
+	
+	for(int i = 0; i < 5; i++) {
+		//sprintf(scratchBuff+strlen(scratchbuf), "AD_CHANNEL_%d=%3.3fV\r\n", i, get_ADC_channel(i, 3.3, AD_POLL_PRECISION)); 
+		sprintf(adBuffer, "AD_CHANNEL_%d=%3.3fV\r\n", i, get_ADC_channel(i, adMaxVoltage, AD_POLL_PRECISION)); 
+		strncat(scratchBuff, adBuffer, strlen(adBuffer));
+	}
+
   strncpy(logBuffer,scratchBuff, maxBufSz -1);
+  
   free(scratchBuff);
+  free(adBuffer);
 }
 
 // treats porFd as a serial port fd. set portFd to -1 to avoid writing to 

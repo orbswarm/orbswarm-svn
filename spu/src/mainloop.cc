@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
               
                fprintf(stderr, "\nHANDELING SPU POLL\n");
                char spuPollData[MAX_BUFF_SZ + 1]; 
-               genSpuDump(spuPollData, MAX_BUFF_SZ, &currentOrbLoc);
+               genSpuDump(spuPollData, MAX_BUFF_SZ, &currentOrbLoc, 12.0);
                packetizeAndSendMotherShipData(com2, spuPollData, strlen(spuPollData));
                
              break;

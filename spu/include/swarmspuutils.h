@@ -28,7 +28,7 @@ int spulog(char* msg, int msgSize, char* logdir);
 
 int getMessageType(char* message);
 
-void genSpuDump(char* logBuffer, int maxBufSz, swarmGpsData * gpsData);
+void genSpuDump(char* logBuffer, int maxBufSz, swarmGpsData * gpsData, double adMaxVoltage);
 
 int packetizeAndSendMotherShipData(int portFd, char* buffToWrite, int buffSz);
 
