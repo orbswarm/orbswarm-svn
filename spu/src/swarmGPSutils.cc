@@ -3,16 +3,13 @@
 // 
 //	File: swarmGPSutils.cc
 //      SWARM Orb SPU code http://www.orbswarm.com
-//	GPS parsing utilities written by ??
+//	GPS parsing utilities written by Matt and Jessie 
 //
 //
 //      
 //
 //	Written by yourname, optional email
 // -----------------------------------------------------------------------
-#include <math.h>
-#include "../include/swarmdefines.h"
-#include "../include/swarmserial.h"
 #include "../include/swarmGPSutils.h"
 
 int parseGPSSentence(swarmGpsData * gpsdata)
@@ -22,10 +19,7 @@ int parseGPSSentence(swarmGpsData * gpsdata)
   char* paramptr = NULL;
   int paramcount = 0;
   char gpssentcpy[MAX_GPS_SENTENCE_SZ];
-  if(gpssentcpy == NULL){
-    status = SWARM_OUT_OF_MEMORY_ERROR;
-    return status;
-  }
+
   strcpy(gpssentcpy, gpsdata->gpsSentence);
    
   paramptr = strtok(gpssentcpy,SWARM_NMEA_GPS_DATA_DELIM);
@@ -83,6 +77,17 @@ int parseGPSSentence(swarmGpsData * gpsdata)
     return SWARM_INVALID_GPS_SENTENCE;
     }
   
+  return status;
+}
+
+int parseGPSVtgSentance(swarmGpsData * gpsdata)
+{
+  int status = SWARM_SUCCESS; 
+
+  char* paramptr = NULL;
+  int paramcount = 0;
+  char gpssentcpy[MAX_GPS_SENTENCE_SZ];
+
   // populate nmea_course, speed, and mode
   
   strcpy(gpssentcpy, gpsdata->vtgSentence);
@@ -204,6 +209,7 @@ int parseGPSSentence(swarmGpsData * gpsdata)
   gpsdata->mode = mode;
 */
   fprintf(stderr,"\nMADE IT 12\n");
+
   return status;
 }
 
@@ -328,5 +334,30 @@ void decimalLatLongtoUTM(const double ref_equ_radius, const double ref_ecc_squar
 	  gpsdata->UTMNorthing += 10000000.0; //10000000 meter offset for southern hemisphere
 }
 
+int parseRawAggregatorGPSData(char* rawGPS, swarmGpsData * gpsdata) 
+{
+   char* sentptr = NULL;
+   int gpscnt = 0;
+   char gpsBufCpy[MAX_BUFF_SZ + 1];
+   strcpy(gpsBufCpy, rawGPS);
+   sentptr = strtok(gpsBufCpy,"\n");
+   while(sentptr != NULL)
+   {
+     switch(gpscnt)
+     {
+       case 0: 
+         printf("\nSTR TOKED SENTANCE PTR****%s****\n",sentptr);
+         strcpy(gpsdata->gpsSentence,sentptr);
+       break;//end GPS Lat/Lon parse
+
+       case 1:   // Parse the gps velocity data 
+         //printf("\nSTR TOKED SENTANCE PTR****%s****\n",sentptr);
+         strcpy(gpsdata->vtgSentence,sentptr);
+       break;//end GPS VTG data parse 
+     }
+     gpscnt++; 
+     sentptr = strtok(NULL,"\n");
+   }
+}
 
 
