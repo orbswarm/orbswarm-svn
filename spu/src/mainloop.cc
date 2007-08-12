@@ -121,31 +121,8 @@ int main(int argc, char *argv[])
          //
          //we recieved data now parse GPS sentence
          //
+         parseRawAggregatorGPSData(buffer,&currentOrbLoc); 
 
-         char* sentptr = NULL;
-         int gpscnt = 0;
-         char gpsBufCpy[MAX_BUFF_SZ + 1];
-         strcpy(gpsBufCpy, buffer);
-         char gpsdelim[1];   
-         gpsdelim[0] = AGGR_MESSAGE_DELIM_END;
-         sentptr = strtok(gpsBufCpy,"\n");
-         while(sentptr != NULL)
-         {
-           switch(gpscnt)
-           {
-             case 0: 
-               printf("\nSTR TOKED SENTANCE PTR****%s****\n",sentptr);
-               strcpy(currentOrbLoc.gpsSentence,sentptr);
-             break;//end GPS Lat/Lon parse
-
-             case 1:   // Parse the gps velocity data 
-               printf("\nSTR TOKED SENTANCE PTR****%s****\n",sentptr);
-               strcpy(currentOrbLoc.vtgSentence,sentptr);
-             break;//end GPS VTG data parse 
-           }
-           gpscnt++; 
-           sentptr = strtok(NULL,"\n");
-         }
          status = SWARM_SUCCESS;
          status = parseGPSSentence(&currentOrbLoc);
          if(status == SWARM_SUCCESS)
@@ -168,6 +145,10 @@ int main(int argc, char *argv[])
              if(VERBOSE)
                printf("\n Failed GPS parse status=%i", status);
            }
+           status = SWARM_SUCCESS;
+           status = parseGPSVtgSentance(&currentOrbLoc);
+           if(status != SWARM_SUCCESS)
+               printf("\n Failed GPS VTG parse status=%i", status);
        }
 
        //Tell the agg that we want whatever zigbee data it has to give 
