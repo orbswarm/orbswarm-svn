@@ -230,7 +230,9 @@ void getAdConverterStatus(spuADConverterStatus *adConverterStatus, double maxVol
 	}
 		
 	adConverterStatus->sonar = get_sonar();
-}
+	adConverterStatus->battery_voltage = get_ADC_channel(BATTERY_CHANNEL, BATTERY_MAX_VOLTAGE, precision); 
+
+} // getAdConverterStatus
 
 
 double _get_sonar(int channel, double maxVoltage, int numOfSamples) {

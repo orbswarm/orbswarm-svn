@@ -80,6 +80,10 @@
                                    // (for instance, on the line monitoring the batteries)
 #define AD_DEFAULT_PRECISION 2     // when reading multiple values from the AD converter, not pausing between reads produces errors. a value of 1 will not pause, anything greater than 1 will pause
 
+#define BATTERY_CHANNEL 3
+#define BATTERY_MAX_VOLTAGE 26
+
+
 /************************Constants**************************************/
 
 const double PI = 3.14159265;
@@ -217,6 +221,7 @@ struct swarmFeedback
 struct spuADConverterStatus {
 	double ad_vals[5];
 	double sonar; // this is in inches
+	double battery_voltage;
 };
 
 #endif
