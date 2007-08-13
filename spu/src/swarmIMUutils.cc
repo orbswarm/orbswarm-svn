@@ -10,6 +10,7 @@
 
 #include "../include/swarmIMUutils.h"
 
+double countsToRPS(int counts);
 
 // Average IMU data over several readings and return an estimate of bias 
 //(zero reading). NOTE: ORB MUST BE STATIONARY and PERFECTLY UPRIGHT WHEN 
@@ -248,7 +249,7 @@ int parseDriveMsg(char *driveBuf, struct swarmMotorData *motData)
   int success=0;		// how many fields have we read from sscanf
   int advance=0; 		// advance this many chars after each sscanf
 
-  // first value is drive target
+  // first value is drive target speed
   success=sscanf(driveBuf,"%s%d%n",msg_type,&msg_data,&advance);
   if (success ==2) {
     motData->driveTarget=msg_data;
@@ -257,11 +258,13 @@ int parseDriveMsg(char *driveBuf, struct swarmMotorData *motData)
   }
   else return(-1);
 
-  // second value is drive actual
+  // second value is drive actual speed
   success=sscanf(driveBuf,"%s%d%n",msg_type,&msg_data,&advance);
   if (success ==2) {
     motData->driveActual=msg_data;
+    motData->speedRPS = countsToRPS(motData->driveActual);
     strncpy(motData->driveActual_str,msg_type,10);
+
     driveBuf += advance + 1;
   }
   else return(-2);
@@ -295,6 +298,19 @@ int parseDriveMsg(char *driveBuf, struct swarmMotorData *motData)
 
 }
 
+// calculate speed in radians per second given encoder counts
+//  we have a 500 count per revolution on the motor
+// we measure the counts every 1/10 of a second
+// there is a 9/23 gear ratio between motor and shell 
+//(shell does nine revolutions for every 23 motor revs
+// there are 2 pi radians per revolution
+// so the conversion factor given N counts in the last interval is:
+// 2*pi*(rads/rev)*(1 rev/500 cnts) * N cnts/.1 sec * 9/23 = 0.0491* N rads/s
+
+double countsToRPS(int counts) {
+
+  return((double)counts * 0.0491);
+}
 
 // print out motor struct for debug & logging
 void dumpMotorData(struct swarmMotorData *motData) {
@@ -305,6 +321,9 @@ void dumpMotorData(struct swarmMotorData *motData) {
   printf("driveActual: %s%d\n",
 	 motData->driveActual_str,
 	 motData->driveActual);
+  printf("speed in Rad/S: %f\n",
+	 motData->speedRPS);
+
   printf("drivePWM: %s%d\n",
 	 motData->drivePWM_str,
 	 motData->drivePWM);

@@ -166,16 +166,17 @@ struct	swarmMotorData
 {
 
   /* steering motor data */
-  int steerTarget;
-  int steerActual;
-  int steerPWM;
+  int steerTarget;		/* target steering angle for PID */
+  int steerActual; 		/* measured steering angle (arbitrary units) */
+  int steerPWM;			/* what we're sending to the steering motor */
 
   /* drive motor data */
-  int driveTarget;
-  int driveActual;
-  int drivePWM;
-  int odometer;
-  int rawCurrent;
+  int driveTarget;		/* target speed for PID loop */
+  int driveActual;		/* actual measured speed */
+  int drivePWM;			/* what we are sending to the motor control */
+  int odometer;			/* odometer count (will roll over) */
+  int rawCurrent;		/* raw current measure */
+  double speedRPS;		/* speed in radians per seconds */
 
   /* strings for debug */
   char steerTarget_str[10];
