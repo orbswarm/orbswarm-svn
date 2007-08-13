@@ -107,9 +107,11 @@ void dumpImuData(struct swarmImuData *imuData) {
 	 imuData->int_vref);
 }
 
+
 /* Parse IMU data returned from daughterboard motor controller. */
 /* WARNING THIS IS NOT ROBUST: DEPENDS ON SPECIFIC ORDER OF IMU DATA VALS */
 /* IF YOU CHANGE THE ORDER YOU WILL BREAK THIS ROUTINE */
+/* parse return to $QI* query IMU message */
 int parseImuMsg(char *imuBuf, struct swarmImuData *imuData)
 {
   char msg_type[10];		// temp storage for scanned string
@@ -193,4 +195,120 @@ int parseImuMsg(char *imuBuf, struct swarmImuData *imuData)
 
   return(0);
 
+}
+
+/* Parse steering motor data returned from daughterboard motor controller. */
+/* WARNING THIS IS NOT ROBUST: DEPENDS ON SPECIFIC ORDER OF DATA VALS */
+/* IF YOU CHANGE THE ORDER YOU WILL BREAK THIS ROUTINE */
+/* parse return to $QS* query steering message */
+int parseSteerMsg(char *steerBuf, struct swarmMotorData *motData)
+{
+  char msg_type[10];		// temp storage for scanned string
+  int msg_data=0;		// temp storage for scanned int data
+  int success=0;		// how many fields have we read from sscanf
+  int advance=0; 		// advance this many chars after each sscanf
+
+
+  // first value is steer target
+  success=sscanf(steerBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    motData->steerTarget=msg_data;
+    strncpy(motData->steerTarget_str,msg_type,10);
+    steerBuf += advance + 1;
+  }
+  else return(-1);
+
+  // second value is steer actual
+  success=sscanf(steerBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    motData->steerActual=msg_data;
+    strncpy(motData->steerActual_str,msg_type,10);
+    steerBuf += advance + 1;
+  }
+  else return(-2);
+  // third val is raw pwm out
+  success=sscanf(steerBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    motData->steerPWM=msg_data;
+    strncpy(motData->steerPWM_str,msg_type,10);
+    steerBuf += advance + 1;
+  }
+  else return(-3);
+
+}
+
+/* Parse steering motor data returned from daughterboard motor controller. */
+/* WARNING THIS IS NOT ROBUST: DEPENDS ON SPECIFIC ORDER OF DATA VALS */
+/* IF YOU CHANGE THE ORDER YOU WILL BREAK THIS ROUTINE */
+/* parse return to $QD* query drive message */
+int parseDriveMsg(char *driveBuf, struct swarmMotorData *motData)
+{
+  char msg_type[10];		// temp storage for scanned string
+  int msg_data=0;		// temp storage for scanned int data
+  int success=0;		// how many fields have we read from sscanf
+  int advance=0; 		// advance this many chars after each sscanf
+
+  // first value is drive target
+  success=sscanf(driveBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    motData->driveTarget=msg_data;
+    strncpy(motData->driveTarget_str,msg_type,10);
+    driveBuf += advance + 1;
+  }
+  else return(-1);
+
+  // second value is drive actual
+  success=sscanf(driveBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    motData->driveActual=msg_data;
+    strncpy(motData->driveActual_str,msg_type,10);
+    driveBuf += advance + 1;
+  }
+  else return(-2);
+
+  // third val is raw pwm out
+  success=sscanf(driveBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    motData->drivePWM=msg_data;
+    strncpy(motData->drivePWM_str,msg_type,10);
+    driveBuf += advance + 1;
+  }
+  else return(-3);
+
+  // fourth val is odometer
+  success=sscanf(driveBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    motData->odometer=msg_data;
+    strncpy(motData->odometer_str,msg_type,10);
+    driveBuf += advance + 1;
+  }
+  else return(-4);
+
+  // fifth val is raw current sense ADC value
+  success=sscanf(driveBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    motData->rawCurrent=msg_data;
+    strncpy(motData->rawCurrent_str,msg_type,10);
+    driveBuf += advance + 1;
+  }
+  else return(-5);
+
+}
+
+
+// print out motor struct for debug & logging
+void dumpMotorData(struct swarmMotorData *motData) {
+  
+  printf("driveTarget: %s%d\n",
+	 motData->driveTarget_str,
+	 motData->driveTarget);
+  printf("driveActual: %s%d\n",
+	 motData->driveActual_str,
+	 motData->driveActual);
+  printf("drivePWM: %s%d\n",
+	 motData->drivePWM_str,
+	 motData->drivePWM);
+  printf("odometer: %s%d\n",
+	 motData->odometer_str,
+	 motData->odometer);
 }

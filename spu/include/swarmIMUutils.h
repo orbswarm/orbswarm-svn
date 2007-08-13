@@ -21,3 +21,6 @@ void imuIntToSI(struct swarmImuData *imuProcData);
 double imuAccelToSI(int imuAccelInt, double bias);
 double imuYawToSI(int imuYawInt, double bias);
 int parseImuMsg(char *imuBuf, struct swarmImuData *imuData);
+int parseSteerMsg(char *steerBuf, struct swarmMotorData *motData);
+int parseDriveMsg(char *driveBuf, struct swarmMotorData *motData);
+void dumpMotorData(struct swarmMotorData *motData);

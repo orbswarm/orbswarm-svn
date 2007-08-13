@@ -147,6 +147,46 @@ struct	swarmImuData
   char vref_str[10];
 };
 
+// store motor data; I think we only care about current & odometer
+// but get them anyway
+struct	swarmMotorData
+{
+
+  /* steering motor data */
+  int steerTarget;
+  int steerActual;
+  int steerPWM;
+
+  /* drive motor data */
+  int driveTarget;
+  int driveActual;
+  int drivePWM;
+  int odometer;
+  int rawCurrent;
+
+  /* strings for debug */
+  char steerTarget_str[10];
+  char steerActual_str[10];
+  char steerPWM_str[10];
+
+  char driveTarget_str[10];
+  char driveActual_str[10];
+  char drivePWM_str[10];
+  char odometer_str[10];
+  char rawCurrent_str[10];
+
+};
+
+struct	swarmAdcData
+{
+  /* IMU data converted to SI units */
+  double adcCH0;
+  double adcCH1;
+  double adcCH2;
+  double adcCH3;
+  double adcCH4;
+};
+
 struct  swarmStateEstimate
 {
   double vdot;

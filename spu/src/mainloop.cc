@@ -33,7 +33,8 @@ int main(int argc, char *argv[])
   char curtime[30];
   char logbuf[80];
   time_t logtime;
-  swarmImuData imuData;
+  swarmImuData imuData; 	// holds data from Inertial Measurement Unit
+  swarmMotorData motData;	// holds data from motor controller
   
   mypid=getpid();
   time(&logtime);
@@ -87,103 +88,126 @@ int main(int argc, char *argv[])
        }
 
 
+       if (0){ 			// always poll IMU
 
-      // Poll aggregator to get IMU data
-       writeCharsToSerialPort(com5, "$QI*", strlen("$QI*"));
-       readCharsFromSerialPort(com5, buffer, &bytes2,MAX_BUFF_SZ); 
-
+	 // Poll aggregator to get IMU data
+	 writeCharsToSerialPort(com5, "$QI*", strlen("$QI*"));
+	 readCharsFromSerialPort(com5, buffer, &bytes2,MAX_BUFF_SZ); 
+	 
        
-       if(bytes2 > 1) { //only handle the IMU data if we have it
-	 printf("IMU data str: \"%s\"\n",buffer);
-	 status = parseImuMsg(buffer,&imuData);
-	 if(VERBOSE) printf("Parse status %d\n",status);
-	 imuIntToSI(&imuData);
-	 if(VERBOSE) dumpImuData(&imuData);
+	 if(bytes2 > 1) { //only handle the IMU data if we have it
+	   printf("IMU data str: \"%s\"\n",buffer);
+	   status = parseImuMsg(buffer,&imuData);
+	   if(VERBOSE) printf("Parse status %d\n",status);
+	   imuIntToSI(&imuData);
+	   if(VERBOSE) dumpImuData(&imuData);
+	 }
+       }
+
+       if (1){ 			// always poll drive motor
+
+	 // Poll  to get drive motor data incldata
+	 writeCharsToSerialPort(com5, "$QD*", strlen("$QD*"));
+	 readCharsFromSerialPort(com5, buffer, &bytes2,MAX_BUFF_SZ); 
+	 
+       
+	 if(bytes2 > 1) { //only parse the motor data if we have it
+	   printf("IMU data str: \"%s\"\n",buffer);
+	   status = parseDriveMsg(buffer,&motData);
+	   if(VERBOSE) printf("Parse drive %d\n",status);
+	   if(VERBOSE) dumpMotorData(&motData);
+	 }
        }
 
 
-       printf("START GPS TRANSACTION**********\n"); 
 
-       gpsBuff[0] = 0;
-       gpsBytes = 0;
-       //Tell the agg that we want whatever gps data it has to give 
-       writeCharsToSerialPort(com2, AGGR_GPS_QUERY_CMD, strlen(AGGR_GPS_QUERY_CMD));
-       readCharsFromSerialPortUntilAck(com2, gpsBuff, &gpsBytes, MAX_BUFF_SZ, 10, AGGR_DATA_XFER_ACK);
 
-       if (VERBOSE) printf("\n GPS sentence is \"%s\" SIZE:%d\n",gpsBuff,gpsBytes);
+
+       if(0) { // always poll GPS
+	 printf("START GPS TRANSACTION**********\n"); 
+	 gpsBuff[0] = 0;
+	 gpsBytes = 0;
+	 //Tell the agg that we want whatever gps data it has to give 
+	 writeCharsToSerialPort(com2, AGGR_GPS_QUERY_CMD, strlen(AGGR_GPS_QUERY_CMD));
+	 readCharsFromSerialPortUntilAck(com2, gpsBuff, &gpsBytes, MAX_BUFF_SZ, 10, AGGR_DATA_XFER_ACK);
+	 
+	 if (VERBOSE) printf("\n GPS sentence is \"%s\" SIZE:%d\n",gpsBuff,gpsBytes);
          //
          //we recieved data now parse GPS sentence
          //
-       parseAndConvertGPSData(gpsBuff, &currentOrbLoc); 
-       printf("END GPS TRANSACTION**********\n"); 
+	 parseAndConvertGPSData(gpsBuff, &currentOrbLoc); 
+	 if(VERBOSE)printf("END GPS TRANSACTION**********\n"); 
+       }
 
        //Tell the agg that we want whatever zigbee data it has to give 
-       buffer[0] = 0;
-       bytes2 = 0;
-       writeCharsToSerialPort(com2, AGGR_ZIGBEE_QUERY_CMD, strlen(AGGR_ZIGBEE_QUERY_CMD));
-
-       readCharsFromSerialPortUntilAck(com2, buffer, &bytes2, MAX_BUFF_SZ, 10, AGGR_DATA_XFER_ACK);
+       if(0){ // poll the aggregator
+	 buffer[0] = 0;
+	 bytes2 = 0;
+	 writeCharsToSerialPort(com2, AGGR_ZIGBEE_QUERY_CMD, strlen(AGGR_ZIGBEE_QUERY_CMD));
+	 
+	 readCharsFromSerialPortUntilAck(com2, buffer, &bytes2, MAX_BUFF_SZ, 10, AGGR_DATA_XFER_ACK);
+	 
+	 fprintf(stderr,"\nZIGBEE RAW DATA :%s NUMBYTES: %d\n",buffer, bytes2);
+	 if(bytes2 > 1){  //only handle the zigbee data if we have it one byte means only ! 
+	   //First we have to tokenize the recieved buffer into individual messages
+	   char* msgptr = NULL;
+	   int msgcount = 0;
+	   char zigbeeBufCpy[MAX_BUFF_SZ + 1];
+	   int messageType = 0;
+	   strcpy(zigbeeBufCpy, buffer);
+	   
+	   fprintf(stderr, "\nBuffer to strtok **%s** for message type\n",zigbeeBufCpy);
+	   char msgdelim[1];   
+	   msgdelim[0] = AGGR_MESSAGE_DELIM_END;
+	   msgptr = strtok(zigbeeBufCpy,"\n");
+	   fprintf(stderr, "\nstrtok returned **%s** for message type\n",msgptr);
+	   while(msgptr != NULL)
+	     {
+	       //do the work 
+	       
+	       fprintf(stderr, "\nCALLING getMessageType: %s\n",msgptr);
+	       messageType = getMessageType(msgptr);
+	       fprintf(stderr, "\ngot message type **%d** \n",messageType);
+	       
+	       switch(messageType)
+		 {
+		 case AGGR_MSG_TYPE_MOTHER_SHIP_SPU_POLL: 
+		   
+		   fprintf(stderr, "\nHANDELING SPU POLL\n");
+		   char spuPollData[MAX_BUFF_SZ + 1]; 
+		   genSpuDump(spuPollData, MAX_BUFF_SZ, &currentOrbLoc, 12.0);
+		   packetizeAndSendMotherShipData(com2, spuPollData, strlen(spuPollData));
+		   
+		   break;
+		   
+		 case AGGR_MSG_TYPE_TRAJECTORY: 
+		   break;
+		   
+		 case AGGR_MSG_TYPE_MOTHER_SHIP_LOC: 
+		   break;
+		   
+		 case AGGR_MSG_TYPE_EFFECTS: 
+		   //Write the effects string to com3
+		   writeCharsToSerialPort(com3, msgptr, strlen(msgptr));
+		   break;
+		   
+		 case AGGR_MSG_TYPE_MOTOR_CONTROL: 
+		   writeCharsToSerialPort(com5, msgptr, strlen(msgptr));
+		   break;
+		 }
+	       msgcount++; 
+	       msgptr = strtok(NULL,SWARM_NMEA_GPS_DATA_DELIM);
+	     }
        
-       fprintf(stderr,"\nZIGBEE RAW DATA :%s NUMBYTES: %d\n",buffer, bytes2);
-       if(bytes2 > 1){  //only handle the zigbee data if we have it one byte means only ! 
-         //First we have to tokenize the recieved buffer into individual messages
-         char* msgptr = NULL;
-         int msgcount = 0;
-         char zigbeeBufCpy[MAX_BUFF_SZ + 1];
-         int messageType = 0;
-         strcpy(zigbeeBufCpy, buffer);
-         
-         fprintf(stderr, "\nBuffer to strtok **%s** for message type\n",zigbeeBufCpy);
-         char msgdelim[1];   
-         msgdelim[0] = AGGR_MESSAGE_DELIM_END;
-         msgptr = strtok(zigbeeBufCpy,"\n");
-         fprintf(stderr, "\nstrtok returned **%s** for message type\n",msgptr);
-         while(msgptr != NULL)
-         {
-           //do the work 
-            
-           fprintf(stderr, "\nCALLING getMessageType: %s\n",msgptr);
-           messageType = getMessageType(msgptr);
-           fprintf(stderr, "\ngot message type **%d** \n",messageType);
-             
-           switch(messageType)
-           {
-             case AGGR_MSG_TYPE_MOTHER_SHIP_SPU_POLL: 
-              
-               fprintf(stderr, "\nHANDELING SPU POLL\n");
-               char spuPollData[MAX_BUFF_SZ + 1]; 
-               genSpuDump(spuPollData, MAX_BUFF_SZ, &currentOrbLoc, 12.0);
-               packetizeAndSendMotherShipData(com2, spuPollData, strlen(spuPollData));
-               
-             break;
-             
-             case AGGR_MSG_TYPE_TRAJECTORY: 
-             break;
-
-             case AGGR_MSG_TYPE_MOTHER_SHIP_LOC: 
-             break;
-
-             case AGGR_MSG_TYPE_EFFECTS: 
-               //Write the effects string to com3
-               writeCharsToSerialPort(com3, msgptr, strlen(msgptr));
-             break;
-
-             case AGGR_MSG_TYPE_MOTOR_CONTROL: 
-               writeCharsToSerialPort(com5, msgptr, strlen(msgptr));
-             break;
-           }
-           msgcount++; 
-           msgptr = strtok(NULL,SWARM_NMEA_GPS_DATA_DELIM);
-         }
-       
-       } //End recieved zigbee data if statement
+	 } //End recieved zigbee data if statement
+       } // end poll zigbee
 
        if (VERBOSE){ 
 	 //printf("main loop tick %d\n",tenHzticks);
 	 fflush(stdout);
        }
      }
-   }
+  }
 } //END main() 
 
     
