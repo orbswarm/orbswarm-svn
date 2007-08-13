@@ -205,7 +205,7 @@ double get_ADC_channel(int channel, double maxVoltage, int numOfSamples)
  *two samples then save the next numOfSamples.
  *note - there is no wait if just one sample is specified
  ***********************************************************************/
-static void read_7xxx_adc(int *adc_result, int channel, int numOfSamples)
+void read_7xxx_adc(int *adc_result, int channel, int numOfSamples)
 {
 	register int j;
 	int	cur_ch;

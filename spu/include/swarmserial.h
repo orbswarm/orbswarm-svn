@@ -1,3 +1,13 @@
+// ---------------------------------------------------------------------
+// 
+//	File: swarmserial.h
+//      SWARM Orb SPU code http://www.orbswarm.com
+//      prototypes and #defs for swarm serial com routines
+//
+
+// -----------------------------------------------------------------------
+
+
 #include <stdio.h>    /* Standard input/output definitions */
 #include <stdlib.h> 
 #include <stdint.h>   /* Standard types */
@@ -33,5 +43,8 @@ int writeCharsToSerialPort(int port_fd, char* buff,
 //reached or the number of read attempts on the port exceeds maxTrys.
 int readCharsFromSerialPortUntilAck(int port_fd, char* buff, int* numBytesRead,
                                     int maxBufSz, int maxTrys, char ackChar);
+
+int packetizeAndSendMotherShipData(int portFd, char* buffToWrite, int buffSz);
+
 #endif
 

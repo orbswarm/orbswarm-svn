@@ -14,10 +14,10 @@ NATIVECC = gcc
 # select them here
 # (I'm sure there's a more elegant way to do this...)
 
-CC = $(LINUXCC)
+CC = $(CYGWINCC)
 #CC = $(NATIVECC)
 #CPP = $(LINUXCPP)
-CFLAGS = -Wall -g -O3 -D_REENTRANT 
+CFLAGS = -Wall -g -fno-exceptions -O3 -D_REENTRANT 
 
 # -----------------------------------------------------------------------
 # Makefile script for generating spu binary 
@@ -33,7 +33,7 @@ CFLAGS = -Wall -g -O3 -D_REENTRANT
 all: app test util
 app: spu spumond mainloop
 test: testspuutils logtest gpsconvtest testpacketizer adconverter_input_test
-util: readcom writecom setled
+util: readcom testcom setled
 
 
 #HEY IF SOMEONE KNOWS WHAT THEY ARE DOING WE NEED SOME RULES INSTEAD OF ALL THIS ALACARTE CRAP...

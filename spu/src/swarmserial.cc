@@ -1,8 +1,15 @@
+// ---------------------------------------------------------------------
+// 
+//	File: swarmserial.c
+//      SWARM Orb SPU code http://www.orbswarm.com
+//	serial com routines for TS-7260
+//
+//
+// -----------------------------------------------------------------------
+
 #include "../include/swarmserial.h"
 
-/********************************************
- * This is the old version
- */
+
 int initSerialPort(const char* port, int baud)
 {
   int fd; /* File descriptor for the port */
@@ -217,5 +224,42 @@ int readCharsFromSerialPortUntilAck(int port_fd, char* buff, int* numBytesRead, 
     strcpy(buff,localBuff);
     *numBytesRead = numReadBytes;
   }
+  return status;
+}
+
+// treats porFd as a serial port fd. set portFd to -1 to avoid writing to 
+// serial port useful for debugging.
+
+int packetizeAndSendMotherShipData(int portFd, char* buffToWrite, int buffSz)
+{
+  int status = SWARM_SUCCESS;
+  char aggPacket[MAX_AGG_PACKET_SZ];
+  char aggPacketPayload[MAX_AGG_PACKET_PAYLOAD_SZ];
+  int msgByteIdx = 0;
+  int msgBytesLeft = buffSz;
+   
+  fprintf(stderr, "\n START packetizeAndSendMotherShipData BUFF SZ:%d",buffSz); 
+  while(msgBytesLeft > 0)
+  { 
+    fprintf(stderr, "\n BUILD FULL PACKET INDEX : %d",msgByteIdx); 
+    strncpy(aggPacketPayload,&buffToWrite[msgByteIdx],MAX_AGG_PACKET_PAYLOAD_SZ);
+    msgByteIdx += strlen(aggPacketPayload);
+    msgBytesLeft -= MAX_AGG_PACKET_PAYLOAD_SZ;
+    fprintf(stderr, "\n BUILD FULL PACKET BYTES LEFT : %d",msgBytesLeft); 
+ 
+    //compose final packet with header and footer  
+    sprintf(aggPacket,"%s%s%s",AGGR_ZIGBEE_STREAM_WRITE_HEADER,aggPacketPayload,AGGR_ZIGBEE_STREAM_WRITE_END); 
+    if(portFd < 0)
+    {
+      fprintf(stderr,"\nFULL PACKET---%s--- SIZE:%d\n",aggPacket,strlen(aggPacket));
+    }
+    else
+    {
+      writeCharsToSerialPort(portFd, aggPacket, strlen(aggPacket));
+    }
+    aggPacketPayload[0] = '\0';
+    aggPacket[0] = '\0';
+  }
+  fprintf(stderr, "\n END packetizeAndSendMotherShipData"); 
   return status;
 }

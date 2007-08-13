@@ -11,7 +11,7 @@
 //	Written by Matt C, Dillo, Niladri, Jesse Z, refactored by Jon F
 // -----------------------------------------------------------------------
 #include "../include/swarmspuutils.h"
-#include "../include/adconverter.h"
+#include "../include/swarmserial.h"
 
 const int AD_POLL_PRECISION = 2;
 
@@ -238,50 +238,22 @@ void genSpuDump(char* logBuffer, int maxBufSz, swarmGpsData * gpsData, double ad
 						   gpsData->metFromMshipEast);
 				
 	
+
+  // This section removed by Jon because it means you need to link with adconverter.o anyplace you link to swarmspuutils.o
+  // the way to do this is to populate a data structure (spustatus, say) then call genSPuDump. genSpuDump should not call get_ADC_channel directly
+
+#ifdef foo
 	for(int i = 0; i < 5; i++) {
 		//sprintf(scratchBuff+strlen(scratchbuf), "AD_CHANNEL_%d=%3.3fV\r\n", i, get_ADC_channel(i, 3.3, AD_POLL_PRECISION)); 
 		sprintf(adBuffer, "AD_CHANNEL_%d=%3.3fV\r\n", i, get_ADC_channel(i, adMaxVoltage, AD_POLL_PRECISION)); 
 		strncat(scratchBuff, adBuffer, strlen(adBuffer));
+
 	}
 
   strncpy(logBuffer,scratchBuff, maxBufSz -1);
+#endif
   
   free(scratchBuff);
   free(adBuffer);
 }
 
-// treats porFd as a serial port fd. set portFd to -1 to avoid writing to 
-// serial port useful for debugging.
-int packetizeAndSendMotherShipData(int portFd, char* buffToWrite, int buffSz)
-{
-  int status = SWARM_SUCCESS;
-  char aggPacket[MAX_AGG_PACKET_SZ];
-  char aggPacketPayload[MAX_AGG_PACKET_PAYLOAD_SZ];
-  int msgByteIdx = 0;
-  int msgBytesLeft = buffSz;
-   
-  fprintf(stderr, "\n START packetizeAndSendMotherShipData BUFF SZ:%d",buffSz); 
-  while(msgBytesLeft > 0)
-  { 
-    fprintf(stderr, "\n BUILD FULL PACKET INDEX : %d",msgByteIdx); 
-    strncpy(aggPacketPayload,&buffToWrite[msgByteIdx],MAX_AGG_PACKET_PAYLOAD_SZ);
-    msgByteIdx += strlen(aggPacketPayload);
-    msgBytesLeft -= MAX_AGG_PACKET_PAYLOAD_SZ;
-    fprintf(stderr, "\n BUILD FULL PACKET BYTES LEFT : %d",msgBytesLeft); 
- 
-    //compose final packet with header and footer  
-    sprintf(aggPacket,"%s%s%s",AGGR_ZIGBEE_STREAM_WRITE_HEADER,aggPacketPayload,AGGR_ZIGBEE_STREAM_WRITE_END); 
-    if(portFd < 0)
-    {
-      fprintf(stderr,"\nFULL PACKET---%s--- SIZE:%d\n",aggPacket,strlen(aggPacket));
-    }
-    else
-    {
-      writeCharsToSerialPort(portFd, aggPacket, strlen(aggPacket));
-    }
-    aggPacketPayload[0] = '\0';
-    aggPacket[0] = '\0';
-  }
-  fprintf(stderr, "\n END packetizeAndSendMotherShipData"); 
-  return status;
-}
