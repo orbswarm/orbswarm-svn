@@ -151,24 +151,6 @@ public class Song extends BeatLockable {
         write(buf, "");
     }
 
-    public void calculateHashes() {
-        String songHash = getName().hashCode() + "";
-        System.out.println("Song(" + getName() + ") HASH:["+ songHash + "]");
-
-        for(Iterator it = layers.iterator(); it.hasNext(); ) {
-            Layer layer = (Layer)it.next();
-            layer.calculateHashes(songHash);
-        }
-        
-    }
-
-    public void findSoundDurations() {
-        for(Iterator it = layers.iterator(); it.hasNext(); ) {
-            Layer layer = (Layer)it.next();
-            layer.findSoundDurations();
-        }
-    }
-            
     public void write(StringBuffer buf, String indent) {
         String indent0 = indent;
         buf.append(indent0);
@@ -206,5 +188,25 @@ public class Song extends BeatLockable {
         buf.append(Bot.END_SONG);
         buf.append('\n');
     }
+
+    public void calculateHashes() {
+        String songHash = getName().hashCode() + "";
+        System.out.println("Song(" + getName() + ") HASH:["+ songHash + "]");
+
+        for(Iterator it = layers.iterator(); it.hasNext(); ) {
+            Layer layer = (Layer)it.next();
+            layer.calculateHashes(songHash);
+        }
+        
+    }
+
+    public void findSoundDurations() {
+        for(Iterator it = layers.iterator(); it.hasNext(); ) {
+            Layer layer = (Layer)it.next();
+            layer.findSoundDurations();
+        }
+    }
+            
+
 }
 

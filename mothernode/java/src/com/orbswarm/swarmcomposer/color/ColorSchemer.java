@@ -19,7 +19,7 @@ import javax.swing.event.*;
 public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMotionListener, BotColorListener {
     private StdDraw drawer;
     public Color bgColor, controlFGColor, circleColor, circleBorderColor, vectColor, vectColor_act, baseVectColor, dragVectColor;
-    private int canvasSize = 400;
+    private int canvasSize = 300;
     private ColorScheme colorScheme;
     private ColorScheme defaultColorScheme;
     private String colorSchemeType;
@@ -87,8 +87,8 @@ public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMo
     
     private void init() {
         initBGColors();
-        drawColorWheel(drawer);
         drawer.initbg(bgColor);
+        drawColorWheel(drawer);
         redraw();
     }
 

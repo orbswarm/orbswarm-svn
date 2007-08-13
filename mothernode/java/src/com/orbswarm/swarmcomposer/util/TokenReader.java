@@ -28,6 +28,7 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 public final class TokenReader {
 
@@ -40,10 +41,10 @@ public final class TokenReader {
     private boolean ignoreCommentLines = false;
 
     public TokenReader() {
-	lastTokenRead = null;
+        lastTokenRead = null;
     }
     public TokenReader(String filename) {
-	lastTokenRead = null;
+        lastTokenRead = null;
         if (filename.startsWith("http://") || filename.startsWith("file://")) {
             openHttp(filename);
         } else {
@@ -56,7 +57,7 @@ public final class TokenReader {
     }
 
     public void setIgnoreCommentLines(boolean val) {
-	ignoreCommentLines = val;
+        ignoreCommentLines = val;
     }
     
     public void setInputStream(InputStream in) {
@@ -66,14 +67,14 @@ public final class TokenReader {
     public void open(String filename) {
         if (filename.startsWith("http://")) {
             openHttp(filename);
-	    lastTokenRead = null;
-	    clearTokenStack();
+            lastTokenRead = null;
+            clearTokenStack();
             return;
         } 
         try {
             reader = new BufferedReader(new FileReader(filename));
-	    lastTokenRead = null;
-	    clearTokenStack();
+            lastTokenRead = null;
+            clearTokenStack();
             canClose = true;
         } catch (Exception ex) {
             System.out.println("TokenReader Caught exception opening file[" + filename + "]. " + ex);
@@ -110,10 +111,10 @@ public final class TokenReader {
     
     // whitespace-separated string. 
     public String  readToken()   throws IOException  {
-	if (!tokenStackEmpty()) {
-	    lastTokenRead = tokenStackPop();
+        if (!tokenStackEmpty()) {
+            lastTokenRead = tokenStackPop();
             return lastTokenRead;
-	}
+        }
         StringBuffer buf = new StringBuffer();
         int ch = reader.read();
         boolean tokenfound = false;
@@ -136,15 +137,15 @@ public final class TokenReader {
         }
 
         if (tokenfound) {
-	    String token = buf.toString();
-	    if (ignoreCommentLines) {
-		if (token.startsWith("//")) {
-		    String comment = readLine();
-		    System.out.println(" Ignoring comment: [//" + comment + "]");
-		    return readToken();
-		}
-	    }
-	    lastTokenRead = token;
+            String token = buf.toString();
+            if (ignoreCommentLines) {
+                if (token.startsWith("//")) {
+                    String comment = readLine();
+                    System.out.println(" Ignoring comment: [//" + comment + "]");
+                    return readToken();
+                }
+            }
+            lastTokenRead = token;
             return lastTokenRead;
         } else {
             return null;
@@ -153,35 +154,83 @@ public final class TokenReader {
 
     /**
      * Read until the target token is found (ignoring case),
-     * then return the actuall token read, or null if none is found.
+     * then return the actual token read, or null if none is found.
      */
     public String readUntilToken(String targetToken) throws IOException {
-	String token = readToken();
-	while (token != null && !token.equalsIgnoreCase(targetToken)) {
-	    token = readToken();
-	}
-	return token;
+        String token = readToken();
+        while (token != null && !token.equalsIgnoreCase(targetToken)) {
+            token = readToken();
+        }
+        return token;
+    }
+
+    /**
+     * Read until the target token is found (ignoring case),
+     * gathering the tokens along the way
+     * then return the concatenation of the gathered tokens (turning all whitespace into
+     * single spaces).
+     * If (inclusive), concatenate the actual token on to the result. 
+     */
+    public String gatherUntilToken(String targetToken, boolean inclusive) throws IOException {
+        StringBuffer buf = new StringBuffer();
+        String token = readToken();
+        boolean first = true;
+        while (token != null && !token.equalsIgnoreCase(targetToken)) {
+            if (!first) {
+                buf.append(' '); // TODO: use tha actual whitespace found.
+            }
+            first = false;
+            buf.append(token);
+            token = readToken();
+        }
+        if (inclusive && token != null) {
+            if (!first) {
+                buf.append(' '); // TODO: use the actual whitespace found.
+            }
+            buf.append(token);
+        }
+        return buf.toString();
+    }
+
+    /**
+     * Read until the target token is found (ignoring case),
+     * gathering the tokens along the way
+     * then return a list of the gathered tokens 
+     * If (inclusive), add the actual token to the result. 
+     */
+    public List gatherTokensUntilToken(String targetToken, boolean inclusive) throws IOException {
+        List list = new ArrayList();
+        String token = readToken();
+        boolean first = true;
+        while (token != null && !token.equalsIgnoreCase(targetToken)) {
+            list.add(token);
+            token = readToken();
+        }
+        if (inclusive && token != null) {
+            list.add(token);
+        }
+        return list;
     }
 
     public void pushToken() {
-	if (lastTokenRead != null) {
-	    pushToken(lastTokenRead);
-	    lastTokenRead = null;
-	}
+        if (lastTokenRead != null) {
+            pushToken(lastTokenRead);
+            lastTokenRead = null;
+        }
     }
     
     public void pushToken(String token) {
-	if (tokenStack == null) {
-	    makeTokenStack();
-	}
-	tokenStackPush(token);
+        if (tokenStack == null) {
+            makeTokenStack();
+        }
+        tokenStackPush(token);
     }
 
     public String getLastTokenRead() {
-	return lastTokenRead;
+        return lastTokenRead;
     }
-	
-	
+    
+    
     public String  readTokenBeforeEol()   throws IOException  {
         if (atEol()) {
             return null;
@@ -210,10 +259,10 @@ public final class TokenReader {
         return t.equalsIgnoreCase("true");
     }
     /*
-    public float   readFloat()    throws IOException  { return reader.readFloat();     }
-    public long    readLong()     throws IOException  { return reader.readLong();      }
-    public byte    readByte()     throws IOException  { return reader.readByte();      }
-    public boolean readBoolean()  throws IOException  { return reader.readBoolean();   }
+      public float   readFloat()    throws IOException  { return reader.readFloat();     }
+      public long    readLong()     throws IOException  { return reader.readLong();      }
+      public byte    readByte()     throws IOException  { return reader.readByte();      }
+      public boolean readBoolean()  throws IOException  { return reader.readBoolean();   }
     */
     // read until end of line
     public String readLine()      throws IOException  {
@@ -224,53 +273,53 @@ public final class TokenReader {
 
     // return rest of input as string
     /*
-    public String readAll() {
-        if (!scanner.hasNextLine()) return null;
+      public String readAll() {
+      if (!scanner.hasNextLine()) return null;
 
-        // reference: http://weblogs.java.net/blog/pat/archive/2004/10/stupid_scanner_1.html
-        return scanner.useDelimiter("\\A").next();
-    }
+      // reference: http://weblogs.java.net/blog/pat/archive/2004/10/stupid_scanner_1.html
+      return scanner.useDelimiter("\\A").next();
+      }
     */
 
     private void clearTokenStack() {
-	tokenStack = null;
+        tokenStack = null;
     }
     private void makeTokenStack() {
-	tokenStack = new ArrayList(10);
+        tokenStack = new ArrayList(10);
     }
 
     private String tokenStackTop() {
-	if (tokenStack == null) {
-	    return null;
-	}
-	int sz = tokenStack.size();
-	if (sz > 0) {
-	    return (String)tokenStack.get(sz - 1);
-	}
-	return null;
+        if (tokenStack == null) {
+            return null;
+        }
+        int sz = tokenStack.size();
+        if (sz > 0) {
+            return (String)tokenStack.get(sz - 1);
+        }
+        return null;
     }
 
     private String tokenStackPop() {
-	int sz = tokenStack.size();
-	if (sz > 0) {
-	    String top = (String)tokenStack.remove(sz - 1);
-	    return top;
-	}
-	return null;
+        int sz = tokenStack.size();
+        if (sz > 0) {
+            String top = (String)tokenStack.remove(sz - 1);
+            return top;
+        }
+        return null;
     }
 
     private void tokenStackPush(String plate) {
-	if (tokenStack == null) {
-	    makeTokenStack();
-	}
-	tokenStack.add(plate);
+        if (tokenStack == null) {
+            makeTokenStack();
+        }
+        tokenStack.add(plate);
     }
     
     private boolean tokenStackEmpty() {
-	return tokenStack == null || tokenStack.size() > 0;
+        return tokenStack == null || tokenStack.size() > 0;
     }
     
-	
+    
 
 
     // This method is just here to test the class

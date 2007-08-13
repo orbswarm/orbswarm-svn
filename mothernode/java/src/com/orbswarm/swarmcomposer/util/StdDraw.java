@@ -61,13 +61,14 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 
 
     // current pen radius
-    private static double penRadius;
+    private double penRadius;
 
     // show we draw immediately or wait until next show?
     private static boolean defer = false;
 
     // boundary of drawing canvas, 5% border
-    private static final double BORDER = 0.05;
+    //private static final double BORDER = 0.05;
+    private static final double BORDER = 0.0;
     private static final double DEFAULT_XMIN = 0.0;
     private static final double DEFAULT_XMAX = 1.0;
     private static final double DEFAULT_YMIN = 0.0;
@@ -102,6 +103,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
     // keyboard state
     private  char lastKeyTyped = (char)-1;
 
+
     public StdDraw(int canvasSize) {
         if (canvasSize != 0) {
             initCanvasSize(canvasSize);
@@ -109,9 +111,21 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
         init();
     }
 
+    public StdDraw(int canvasWidth, int canvasHeight) {
+        if (canvasWidth != 0 && canvasHeight != 0) {
+            initCanvasSize(canvasWidth, canvasHeight);
+        }
+        init();
+    }
+
     public void initCanvasSize(int cs) {
         width = cs;
         height = cs;
+    }
+
+    public void initCanvasSize(int cw, int ch) {
+        width = cw;
+        height = ch;
     }
     
     // set the window size to w-by-h pixels
@@ -263,9 +277,9 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
     }
     public void initbg(Color color) {
         if (color != null) {
-            offscreen.setColor(color);
-            offscreen.fillRect(0, 0, width, height);
-            offscreen.setColor(penColor);
+            background.setColor(color);
+            background.fillRect(0, 0, width, height);
+            background.setColor(penColor);
         }
         offscreen.drawImage(backgroundImage, 0, 0, null);
     }
@@ -313,6 +327,9 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
     public  void setPenColor(Color color) {
         penColor = color;
         offscreen.setColor(penColor);
+    }
+    public Color getPenColor() {
+        return this.penColor;
     }
 
     public  void setPenColor_bg(Color color) {
@@ -447,7 +464,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
         show();
     }
 
-    // draw squared of side length 2r, centered on (x, y); degenerate to pixel if small
+    // draw square of side length 2r, centered on (x, y); degenerate to pixel if small
     public  void square(double x, double y, double r) {
         if (r < 0) throw new RuntimeException("square side length can't be negative");
         double xs = scaleX(x);
@@ -459,7 +476,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
         show();
     }
 
-    // draw squared of side length 2r, centered on (x, y); degenerate to pixel if small
+    // draw square of side length 2r, centered on (x, y); degenerate to pixel if small
     public  void square_bg(double x, double y, double r) {
         if (r < 0) throw new RuntimeException("square side length can't be negative");
         double xs = scaleX(x);
@@ -470,7 +487,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
         else background.draw(new Rectangle2D.Double(xs - ws/2, ys - hs/2, ws, hs));
     }
 
-    // draw squared of side length 2r, centered on (x, y); degenerate to pixel if small
+    // draw square of side length 2r, centered on (x, y); degenerate to pixel if small
     public  void filledSquare(double x, double y, double r) {
         if (r < 0) throw new RuntimeException("square side length can't be negative");
         double xs = scaleX(x);
@@ -482,7 +499,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
         show();
     }
 
-    // draw squared of side length 2r, centered on (x, y); degenerate to pixel if small
+    // draw square of side length 2r, centered on (x, y); degenerate to pixel if small
     public  void filledSquare_bg(double x, double y, double r) {
         if (r < 0) throw new RuntimeException("square side length can't be negative");
         double xs = scaleX(x);
@@ -492,6 +509,55 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
         if (ws <= 1 && hs <= 1) pixel(x, y);
         else background.fill(new Rectangle2D.Double(xs - ws/2, ys - hs/2, ws, hs));
     }
+
+    // draw rectangle at (x, y) of side lengths (w, h)
+    public  void rectangle(double x, double y, double w, double h) {
+        if (w < 0 || h < 0) throw new RuntimeException("rectangle side length can't be negative");
+        double ws = factorX(w);
+        double hs = factorY(h);
+        double xs = scaleX(x);
+        double ys = scaleY(y) - hs;
+        if (ws <= 1 && hs <= 1) pixel(x, y);
+        else offscreen.draw(new Rectangle2D.Double(xs, ys, ws, hs));
+        show();
+    }
+
+    // draw rectangle at (x, y) of side lengths (w, h)
+    public  void rectangle_bg(double x, double y, double w, double h) {
+        if (w < 0 || h < 0) throw new RuntimeException("rectangle side length can't be negative");
+        double ws = factorX(w);
+        double hs = factorY(h);
+        double xs = scaleX(x);
+        double ys = scaleY(y) - hs;
+        if (ws <= 1 && hs <= 1) pixel(x, y);
+        else background.draw(new Rectangle2D.Double(xs, ys, ws, hs));
+        show();
+    }
+
+    // draw filled rectangle at (x, y) of side lengths (w, h)
+    public  void filledRectangle(double x, double y, double w, double h) {
+        if (w < 0 || h < 0) throw new RuntimeException("rectangle side length can't be negative");
+        double ws = factorX(w);
+        double hs = factorY(h);
+        double xs = scaleX(x);
+        double ys = scaleY(y) - hs;
+        if (ws <= 1 && hs <= 1) pixel(x, y);
+        else offscreen.fill(new Rectangle2D.Double(xs, ys, ws, hs));
+        show();
+    }
+
+    // draw rectangle at (x, y) of side lengths (w, h)
+    public  void filledRectangle_bg(double x, double y, double w, double h) {
+        if (w < 0 || h < 0) throw new RuntimeException("rectangle side length can't be negative");
+        double ws = factorX(w);
+        double hs = factorY(h);
+        double xs = scaleX(x);
+        double ys = scaleY(y) - hs;
+        if (ws <= 1 && hs <= 1) pixel(x, y);
+        else background.fill(new Rectangle2D.Double(xs, ys, ws, hs));
+        show();
+    }
+
 
     // draw a polygon with the given (x[i], y[i]) coordinates
     public  void polygon(double[] x, double[] y) {

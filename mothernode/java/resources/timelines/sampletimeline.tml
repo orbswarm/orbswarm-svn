@@ -1,0 +1,90 @@
+<timeline>
+  name: sampletimeline1
+  arena: 100.
+  duration: 40.
+  <event>
+     name:  ongoing
+     specialist: ColorSchemer
+     <notes> This is the first sample event </notes>
+     startTime: 0
+     endTime: end
+     <orbs> 1 2 3 4 </orbs>
+     <color> RGB 255 125 125 </color>
+  </event>
+
+  <event>
+     name:  4Pinks
+     specialist: SimpleColor
+     <notes> This is the first sample event </notes>
+     startTime: 12
+     <orbs> 1 2 3 4 </orbs>
+     <color> RGB 255 125 125 </color>
+  </event>
+
+  <event>
+     name:  durability
+     specialist: SimpleColor
+     <notes> This is the first sample event </notes>
+     startTime: 16
+     endTime: 26
+     <orbs> 1 2 3 4 </orbs>
+     <color> RGB 255 125 125 </color>
+  </event>
+
+  <event>
+     name:  overlap1
+     specialist: SimpleColor
+     <notes> This is the first sample event </notes>
+     startTime: 10
+     endTime: 20
+     <orbs> 1 2 3 4 </orbs>
+     <color> RGB 255 125 125 </color>
+  </event>
+
+  <event>
+     name:  overlap2
+     specialist: SimpleColor
+     <notes> This is the first sample event </notes>
+     startTime: 22
+     <orbs> 1 2 3 4 </orbs>
+     <color> RGB 255 125 125 </color>
+  </event>
+
+  <event>
+     name:  sound5
+     specialist: SimpleSound
+     <notes> This is the first sample event </notes>
+     startTime: 30
+     endTime: end
+     <orbs> 1 2 3 4 </orbs>
+     <color> RGB 255 125 125 </color>
+  </event>
+
+  <event>
+    name: composite1
+    <notes> A simple composite event </notes>
+    startTime: 35
+    <subevent>
+      specialist: SimpleColor
+      <orbs> 1 2 </orbs>
+      <color> HSV .7 .2 .8 </color>
+    </subevent>
+
+    <subevent>
+      specialist: SimpleColor
+      <orbs> 3 4 </orbs>
+      <color> HSV .7 .6 .8 </color>
+    </subevent>
+
+    <subevent>
+      specialist: SimpleColor
+      <orbs> 5 6 </orbs>
+      <color> HSV .7 .95 .8 </color>
+    </subevent>
+  </event>
+
+</timeline>
+
+      
+      
+        

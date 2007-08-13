@@ -15,6 +15,9 @@ import org.trebor.pid.*;
 import com.orbswarm.choreography.Specialist;
 import com.orbswarm.choreography.OrbControl;
 
+import com.orbswarm.choreography.timeline.Timeline;
+import com.orbswarm.choreography.timeline.TimelineDisplay;
+
 import com.orbswarm.swarmcomposer.color.*;
 import com.orbswarm.swarmcomposer.composer.BotVisualizer;
 import com.orbswarm.swarmcomposer.composer.RandomSongSpecialist;
@@ -69,6 +72,12 @@ public class SwarmCon extends JFrame
                   paintArena(graphics);
                }
          };
+
+      /** timeline display */
+      TimelineDisplay timelineDisplay;
+      Timeline timeline = null;
+      long timelineStarted = -1;
+    
 
       /** card layout for main view area */
 
@@ -161,7 +170,8 @@ public class SwarmCon extends JFrame
       
       public static NumberFormat HeadingFormat = NumberFormat.getNumberInstance();
       public static NumberFormat StdFormat = NumberFormat.getNumberInstance();
-      
+
+    
       /** static initializations */
 
       static
@@ -178,10 +188,17 @@ public class SwarmCon extends JFrame
       public static void main(String[] args)
       {
          SwarmCon sc = new SwarmCon();
+      }
+
+      public void constructControlUI(SwarmCon sc) 
+      {
          ColorSchemer schemer = setupColorSchemeSpecialist(sc);
          BotVisualizer bv = setupRandomSongSpecialist(sc);
-         setupControlPanel(sc, schemer, bv);
-         sc.startControlling();
+         TimelineDisplay timelineDisplay = new TimelineDisplay(1100, 150);
+         sc.setTimelineDisplay(timelineDisplay);
+         timelineDisplay.setSwarmCon(sc);
+         sc.setupControlPanel(schemer, bv, timelineDisplay);
+         //sc.startControlling();
       }
 
     
@@ -217,6 +234,7 @@ public class SwarmCon extends JFrame
             pack();
             setExtendedState(MAXIMIZED_BOTH);
             setVisible(true);
+            resizeTimeline();
          }
          cardLayout.first(centerPanel);
 
@@ -226,6 +244,7 @@ public class SwarmCon extends JFrame
       boolean running;
       public void startControlling()
       {
+          System.out.println("SWARM CON: start controlling");
          running = true;
          new Thread()
          {
@@ -303,6 +322,9 @@ public class SwarmCon extends JFrame
             // get now
 
             Calendar now = Calendar.getInstance();
+            long nowMillis = now.getTimeInMillis();
+            float timeSinceTimelineStarted = (nowMillis - timelineStarted) / 1000.f;
+            
             double time = (now.getTimeInMillis() 
                            - lastUpdate.getTimeInMillis()) / 1000d;
 
@@ -310,6 +332,9 @@ public class SwarmCon extends JFrame
 
             lastUpdate = now;
 
+            // give the timeline a cycle
+            timelineDisplay.cycle(timeSinceTimelineStarted);
+            
             // update all the objects
 
             swarm.update(time);
@@ -387,7 +412,7 @@ public class SwarmCon extends JFrame
          // intermediary panel to put the arena and control UIs side-by-side
          actionPanel = new JPanel();
          actionPanel.setLayout(new GridBagLayout());
-         centerPanel.add(actionPanel, "arena");
+         actionPanel.setBorder(BorderFactory.createLineBorder(Color.BLUE));
          
          // setup paint area
          
@@ -400,8 +425,13 @@ public class SwarmCon extends JFrame
          gbc.weighty = 1.;
          gbc.fill    = GridBagConstraints.BOTH;
          gbc.anchor  = GridBagConstraints.NORTHWEST;
+         arena.setBorder(BorderFactory.createLineBorder(Color.GREEN));
+
          actionPanel.add(arena, gbc);
 
+         constructControlUI(this);
+
+         centerPanel.add(actionPanel, "arena");
          frame.add(centerPanel, BorderLayout.CENTER);
 
          // init Swarm
@@ -443,6 +473,7 @@ public class SwarmCon extends JFrame
             fileMenu.add(menu);
          }
       }
+    
       /** Establish the pattern of phantoms on the screen. */
 
       public void configurePhantoms()
@@ -903,24 +934,42 @@ public class SwarmCon extends JFrame
           BotVisualizer bv = new BotVisualizer(numbots); 
           randomSongSpecialist.addNeighborListener(bv);
           randomSongSpecialist.addSwarmListener(bv);
-          randomSongSpecialist.start();
+          // don't want to start this just yet...
+          //randomSongSpecialist.start();
           return bv;
       }
     
-    public static void setupControlPanel(SwarmCon swarmCon,
-                                         ColorSchemer schemer, BotVisualizer bv) {
+    public  void setupControlPanel(ColorSchemer schemer,
+                                   BotVisualizer bv,
+                                   TimelineDisplay timelineDisplay) {
          JPanel controlUIPanel = createControlUIPanel(schemer, bv);
          GridBagConstraints gbc = new GridBagConstraints();
          gbc.gridx   = 1;
          gbc.gridy   = 0;
-         gbc.weightx = 0;
-         gbc.weighty = 1.;
+         gbc.gridheight = 1;
+         gbc.weightx = 0.;
+         gbc.weighty = 0.;
          gbc.fill    = GridBagConstraints.VERTICAL;
-         gbc.anchor  = GridBagConstraints.NORTHEAST;
+         gbc.anchor  = GridBagConstraints.EAST;
 
-         swarmCon.actionPanel.add(controlUIPanel, gbc);
-         //JFrame colorUIFrame = createFrame(colorUIPanel, true);
+         actionPanel.add(controlUIPanel, gbc);
+         //arena.add(controlUIPanel, gbc);
+         
+         gbc = new GridBagConstraints();
+         gbc.gridx      = 0;
+         gbc.gridy      = 1;
+         gbc.gridwidth  = 2;
+         //gbc.gridheight = 1;
+         gbc.weightx    = 0.;
+         gbc.weighty    = 0.;
+         gbc.fill       = GridBagConstraints.NONE;
+         gbc.anchor     = GridBagConstraints.SOUTHEAST;
+         actionPanel.add(timelineDisplay.getPanel(), gbc);
       }
+
+    public void resizeTimeline() {
+        JPanel p = timelineDisplay.getPanel();
+    }
     
       private static JPanel createControlUIPanel(ColorSchemer colorSchemer, BotVisualizer bv) {
          JPanel panel = new JPanel();
@@ -930,8 +979,8 @@ public class SwarmCon extends JFrame
         
          gbc.gridx = 0;
          gbc.gridy = 0;
-         gbc.weightx = 1.0;
-         gbc.weighty = 1.0;
+         //gbc.weightx = 1.0;
+         //gbc.weighty = 1.0;
          gbc.fill = GridBagConstraints.HORIZONTAL;
          panel.add(colorSchemer.getPanel(), gbc);
         
@@ -958,4 +1007,42 @@ public class SwarmCon extends JFrame
          return frame;
       }
 
+      ///////////////////////////////////
+      /// Timeline handling           ///
+      ///////////////////////////////////
+
+      public void setTimelineDisplay(TimelineDisplay val)
+      {
+          this.timelineDisplay = val;
+      }
+
+      public void setTimeline(String timelinePath)
+      {
+          
+          if (!timelinePath.startsWith("/")) {
+              String timelineDirectory = "resources/timelines";
+              timelinePath = timelineDirectory + "/" + timelinePath;
+          }
+          try {
+              Timeline timeline = Timeline.readTimeline(timelinePath);
+              this.timeline = timeline;
+              timelineDisplay.setTimeline(timeline);
+          } catch (Exception ex) {
+              ex.printStackTrace();
+          }
+      }
+
+    public void startTimeline()
+    {
+        this.timelineStarted = System.currentTimeMillis();
+        System.out.println("Swarmcon: startTimeline!!!!!!111!1eleven!!");
+        startControlling();
+    }
+
+    public void stopTimeline() 
+    {
+        System.out.println("Swarmcon: STOP Timeline!!!!!!111!1eleven!!");
+        stopControlling();
+    }
+        
 }

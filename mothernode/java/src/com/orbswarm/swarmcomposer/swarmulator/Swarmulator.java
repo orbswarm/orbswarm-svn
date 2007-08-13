@@ -688,6 +688,7 @@ public class Swarmulator implements MouseListener, MouseMotionListener, ColorSch
     public void clearBG() {
         drawBG_blank();
     }
+
     public void drawBG(String background) {
         if (background.equals("radar")) {
             drawBG_radar();
