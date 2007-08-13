@@ -144,6 +144,14 @@ adconverter_input_test: adconverter_input_test.o  adconverter.o swarmserial.o
 
 adconverter_input_test.o: $(TEST)/adconverter_input_test.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h  $(INC)/adconverter.h  $(INC)/swarmdefines.h 
 	$(CC) $(CFLAGS)-c $(TEST)/adconverter_input_test.cc
+	
+	
+sonar_test: sonar_test.o  adconverter.o swarmserial.o
+	$(CC) $(LIBS) $(CFLAGS) sonar_test.o  adconverter.o swarmserial.o -o adconverter_input_test 
+
+sonar_test.o: $(TEST)/sonar_test.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h  $(INC)/adconverter.h  $(INC)/swarmdefines.h 
+	$(CC) $(CFLAGS)-c $(TEST)/sonar_test.cc
+
 
 adconverter.o: $(INC)/adconverter.h $(SRC)/adconverter.cc 
 	$(CC) $(CFLAGS)-c  $(SRC)/adconverter.cc 

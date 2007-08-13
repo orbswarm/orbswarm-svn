@@ -222,3 +222,16 @@ void read_7xxx_adc(int *adc_result, int channel, int numOfSamples)
 	}
 } // read_7xxx_adc
 
+
+double _get_sonar(int channel, double maxVoltage, int numOfSamples) {
+	double result = get_ADC_channel(channel, maxVoltage, numOfSamples);
+	
+	double inchVoltage = maxVoltage / 512;
+	result /= inchVoltage;
+	
+	return result;
+}
+
+double get_sonar() {
+	return _get_sonar(SONAR_CHANNEL, SONAR_MAX_VOLTAGE, SONAR_SAMPLE_PRECISION);
+}
