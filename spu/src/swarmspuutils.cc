@@ -251,6 +251,7 @@ void genSpuDump(char* logBuffer, int maxBufSz, swarmGpsData *gpsData, spuADConve
 	}
 	
 	sprintf(adBuffer, "SONAR=%3.3f inches\r\n", adConverterStatus->sonar); 
+	sprintf(adBuffer, "BATTERY=%3.3f inches\r\n", adConverterStatus->battery_voltage); 
 	strncat(scratchBuff, adBuffer, strlen(adBuffer));
 
 	strncpy(logBuffer,scratchBuff, maxBufSz -1);
