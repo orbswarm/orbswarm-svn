@@ -224,7 +224,7 @@ int getMessageType(char* message)
   return messageType;
 }
 
-void genSpuDump(char* logBuffer, int maxBufSz, swarmGpsData * gpsData, double adMaxVoltage)
+void genSpuDump(char* logBuffer, int maxBufSz, swarmGpsData *gpsData, spuADConverterStatus *adConverterStatus)
 {
   char * scratchBuff = (char *)malloc(maxBufSz * 2);
   char *adBuffer = (char *)malloc(50);
@@ -242,15 +242,18 @@ void genSpuDump(char* logBuffer, int maxBufSz, swarmGpsData * gpsData, double ad
   // This section removed by Jon because it means you need to link with adconverter.o anyplace you link to swarmspuutils.o
   // the way to do this is to populate a data structure (spustatus, say) then call genSPuDump. genSpuDump should not call get_ADC_channel directly
 
-#ifdef foo
+#ifndef foo
 	for(int i = 0; i < 5; i++) {
 		//sprintf(scratchBuff+strlen(scratchbuf), "AD_CHANNEL_%d=%3.3fV\r\n", i, get_ADC_channel(i, 3.3, AD_POLL_PRECISION)); 
-		sprintf(adBuffer, "AD_CHANNEL_%d=%3.3fV\r\n", i, get_ADC_channel(i, adMaxVoltage, AD_POLL_PRECISION)); 
+		sprintf(adBuffer, "AD_CHANNEL_%d=%3.3fV\r\n", i, adConverterStatus->ad_vals[i]); 
+		//get_ADC_channel(i, adMaxVoltage, AD_POLL_PRECISION)
 		strncat(scratchBuff, adBuffer, strlen(adBuffer));
-
 	}
+	
+	sprintf(adBuffer, "SONAR=%3.3f inches\r\n", adConverterStatus->sonar); 
+	strncat(scratchBuff, adBuffer, strlen(adBuffer));
 
-  strncpy(logBuffer,scratchBuff, maxBufSz -1);
+	strncpy(logBuffer,scratchBuff, maxBufSz -1);
 #endif
   
   free(scratchBuff);

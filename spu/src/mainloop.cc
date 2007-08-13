@@ -48,9 +48,10 @@ int main(int argc, char *argv[])
   max_fd = (com4 > max_fd ? com4 : max_fd) + 1;
   max_fd = (com5 > max_fd ? com5 : max_fd) + 1;
 
-  swarmGpsData motherShipLoc; 
-  swarmGpsData currentOrbLoc; 
-  
+  swarmGpsData         motherShipLoc; 
+  swarmGpsData         currentOrbLoc; 
+  spuADConverterStatus adConverterStatus;
+   
   swarmGpsData trajPoints[50];
 
   com2 = initSerialPort("/dev/ttyAM1", 38400); //Aggregator
@@ -173,10 +174,12 @@ int main(int argc, char *argv[])
 		 {
 		 case AGGR_MSG_TYPE_MOTHER_SHIP_SPU_POLL: 
 		   
-		   fprintf(stderr, "\nHANDELING SPU POLL\n");
-		   char spuPollData[MAX_BUFF_SZ + 1]; 
-		   genSpuDump(spuPollData, MAX_BUFF_SZ, &currentOrbLoc, 12.0);
-		   packetizeAndSendMotherShipData(com2, spuPollData, strlen(spuPollData));
+			fprintf(stderr, "\nHANDELING SPU POLL\n");
+			char spuPollData[MAX_BUFF_SZ + 1]; 
+
+			getAdConverterStatus(&adConverterStatus, AD_DEFAULT_MAX_VOLTAGE, AD_DEFAULT_PRECISION);
+			genSpuDump(spuPollData, MAX_BUFF_SZ, &currentOrbLoc, &adConverterStatus);
+			packetizeAndSendMotherShipData(com2, spuPollData, strlen(spuPollData));
 		   
 		   break;
 		   

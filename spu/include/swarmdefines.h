@@ -71,6 +71,15 @@
 #define AGG_GPS_START_DELIM '$'
 #define AGG_GPS_STOP_DELIM '\n'
 
+// defines for use with the AD Converters
+#define SONAR_CHANNEL 2
+#define SONAR_MAX_VOLTAGE 5.0
+#define SONAR_SAMPLE_PRECISION 2
+
+#define AD_DEFAULT_MAX_VOLTAGE 5.0 // the default max voltage that will be expected on the AD converter input pins. For differing voltages, we should put specialized code in getAdConverterStatus() in adconverter.cc
+                                   // (for instance, on the line monitoring the batteries)
+#define AD_DEFAULT_PRECISION 2     // when reading multiple values from the AD converter, not pausing between reads produces errors. a value of 1 will not pause, anything greater than 1 will pause
+
 /************************Constants**************************************/
 
 const double PI = 3.14159265;
@@ -203,6 +212,11 @@ struct swarmFeedback
 {
   double vDes;
   double deltaDes;
+};
+
+struct spuADConverterStatus {
+	double ad_vals[5];
+	double sonar; // this is in inches
 };
 
 #endif

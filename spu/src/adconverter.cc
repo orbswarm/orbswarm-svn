@@ -222,12 +222,22 @@ void read_7xxx_adc(int *adc_result, int channel, int numOfSamples)
 	}
 } // read_7xxx_adc
 
+// fill the given spuADConverterStatus struct with the current AD values + sonar
+void getAdConverterStatus(spuADConverterStatus *adConverterStatus, double maxVoltage, int precision) {
+
+	for(int i = 0; i < 5; i++) {
+		adConverterStatus->ad_vals[i] = get_ADC_channel(i, maxVoltage, precision); 
+	}
+		
+	adConverterStatus->sonar = get_sonar();
+}
+
 
 double _get_sonar(int channel, double maxVoltage, int numOfSamples) {
 	double result = get_ADC_channel(channel, maxVoltage, numOfSamples);
 	
-	double inchVoltage = maxVoltage / 512;
-	result /= inchVoltage;
+	double voltsPerInch = maxVoltage / 512;
+	result /= voltsPerInch;
 	
 	return result;
 }
