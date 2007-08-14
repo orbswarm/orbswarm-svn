@@ -1,5 +1,7 @@
 package com.orbswarm.choreography.timeline;
 
+import com.orbswarm.choreography.OrbControl;
+import com.orbswarm.choreography.Specialist;
 import com.orbswarm.swarmcomposer.util.StdDraw;
 import com.orbswarm.swarmcomposer.color.HSV;
 
@@ -9,8 +11,10 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import javax.swing.*;
 
 
@@ -24,6 +28,7 @@ public class TimelineDisplay  {
 
     // TODO: we really want looser coupling than this. but for now...
     SwarmCon swarmCon = null;
+    OrbControl orbControl = null;
     
     private int canvasWidth;
     private int canvasHeight;
@@ -41,6 +46,10 @@ public class TimelineDisplay  {
     private double eventTrackHeight = timelineHeight / 10;
     private double eventTrackPadding = eventTrackHeight / 10;
 
+    private ArrayList pendingEvents;
+    private ArrayList runningEvents;
+    private HashMap   runningEventMap;
+    private ArrayList completedEvents;
     
 
     private float timelineDuration = 1.0f;
@@ -57,6 +66,7 @@ public class TimelineDisplay  {
     public TimelineDisplay(int canvasWidth, int canvasHeight) {
         this.canvasWidth  = canvasWidth;
         this.canvasHeight = canvasHeight;
+        this.orbControl = orbControl;
         initColors();
         setupDrawer();
         calculateDimensions(true);
@@ -65,6 +75,7 @@ public class TimelineDisplay  {
 
     public void setSwarmCon(SwarmCon val) {
         this.swarmCon = val;
+        this.orbControl = swarmCon.getOrbControl();
     }
     
     public void setTimeline(String timelinePath) throws IOException {
@@ -76,7 +87,8 @@ public class TimelineDisplay  {
         this.timeline = val;
         timelineDuration = this.timeline.getDuration();
         calculateDimensions(true);
-        extractEventTracks();
+        setupTimelineRunner(this.timeline);
+        extractEventTracks(this.timeline);
         display(0.f);
         drawer.show(false);
         repaint();
@@ -267,10 +279,98 @@ public class TimelineDisplay  {
         }
     }
      
+    ////////////////////////////////////////////////////////////////////////////
+    /// Setup the timeline runner:        
+    ///  Keep 3 lists of events (later optimization: sort them by time)
+    ///    - pending events haven't been started yet.
+    ///    - running events have been kicked off, and are waiting to be
+    ///      stopped. 
+    ///    - completed event have done their stuff.
+    ///    * an event will only be on one list at a time.
+    ///    * it's unknown whether an event's Specialist gets created at setup
+    ///      time or at start time. (ends up depending on how line it takes
+    ///      to create specialists. )
+    ///
+    ////////////////////////////////////////////////////////////////////////////
+
+    public void setupTimelineRunner(Timeline timeline) {
+        pendingEvents = new ArrayList();
+        runningEvents = new ArrayList();
+        runningEventMap = new HashMap();
+        completedEvents = new ArrayList();
+        
+        for(Iterator it = timeline.getEvents().iterator(); it.hasNext() ; ) {
+            Event event = (Event)it.next();
+            event.setState(Event.STATE_PENDING);
+            pendingEvents.add(event);
+        }
+    }
+
+    public void stopStoppableEvents(float time) {
+        for(Iterator it = runningEvents.iterator(); it.hasNext(); ) {
+            Event event = (Event)it.next();
+            float et = event.getEndTime();
+            if (et < time) {
+                stopEvent(event);
+                it.remove();
+                completedEvents.add(event);
+            }
+        }
+    }
+
+    public void startPendingEvents(float time) {
+        for(Iterator it = pendingEvents.iterator(); it.hasNext(); ) {
+            Event event = (Event)it.next();
+            float st = event.getStartTime();
+            if (st < time) {
+                startEvent(event);
+                float et = event.getEndTime();
+                it.remove();
+                if (et != Event.NO_TIME && et != st) {
+                    completedEvents.add(event);
+                } else {
+                    runningEvents.add(event);
+                }
+            }
+        }
+    }
+
+    public void stopEvent(Event event) {
+        event.setState(Event.STATE_COMPLETED);
+        String name = event.getName();
+        if (name != null) {
+            runningEventMap.put(name, null);
+        }
+        
+        Specialist sp = event.getSpecialist();
+        if (sp != null) {
+            sp.stop();
+            event.setSpecialist(null);
+        }
+    }
+
+    public void startEvent(Event event) {
+        int type = event.getType();
+        if (type == Event.TYPE_PARAMETER || type == Event.TYPE_ACTION) {
+            Event targetEvent = findRunningEvent(event.getTarget());
+            if (targetEvent != null) {
+                targetEvent.performAction(event);
+            }
+        } else {
+            event.startSpecialist(orbControl);
+            runningEventMap.put(event.getName(), event);
+        }
+    }
+
+    public Event findRunningEvent(String name) {
+        return (Event)runningEventMap.get(name);
+    }
+
     /////////////////////////////////////////
     /// Arrange events into tracks       ////
     /////////////////////////////////////////
-    public void extractEventTracks() {
+
+    public void extractEventTracks(Timeline timeline) {
         eventTracks = new ArrayList();
         eventTracks.add(new ArrayList()); // first track!
         for(Iterator it = timeline.getEvents().iterator(); it.hasNext() ; ) {
@@ -333,9 +433,12 @@ public class TimelineDisplay  {
 
     }
 
+    // TODO: give orbState messages to running specialists
     public boolean cycle(float time) {
         System.out.println("TIMELINE cycle[" + time + "]");
         if (time < timeline.getDuration()) {
+            stopStoppableEvents(time);
+            startPendingEvents(time);
             display(time);
             return true;
         } else {
@@ -440,7 +543,7 @@ public class TimelineDisplay  {
 
     public void displayEventText(double evStartX, double evY, String text) {
         drawer.setPenColor(eventColor_text);
-        drawer.text(evStartX, evY, text);
+        drawer.text(evStartX, evY, (text == null ? "<>" : text));
     }
 
     public void displayTimeCursor(float time) {

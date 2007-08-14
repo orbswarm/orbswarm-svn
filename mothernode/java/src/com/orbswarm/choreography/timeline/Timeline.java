@@ -5,8 +5,10 @@ import com.orbswarm.swarmcomposer.color.HSV;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 
 /**
@@ -16,6 +18,7 @@ import java.util.List;
 public class Timeline extends Temporal {
 
     protected float arena = NO_SIZE;
+    protected static HashMap specialistRegistry;
 
     public void setArena(float val) {
         this.arena = val;
@@ -76,9 +79,12 @@ public class Timeline extends Temporal {
             if (token.equalsIgnoreCase(NAME)) {
                 String name = reader.readToken();
                 event.setName(name);
+            } else if (token.equalsIgnoreCase(TARGET)) {
+                String target = reader.readToken();
+                event.setTarget(target); 
             } else if (token.equalsIgnoreCase(SPECIALIST)) {
                 String specialistName = reader.readToken();
-                event.setSpecialist(specialistName); 
+                event.setSpecialistName(specialistName); 
             } else if (token.equalsIgnoreCase(DURATION)) {
                 float duration = reader.readFloat();
                 event.setDuration(duration); 
@@ -99,6 +105,7 @@ public class Timeline extends Temporal {
             } else if (token.equalsIgnoreCase(SUBEVENT)) {
                 Event subEvent = readEvent(reader, timeline, event, END_SUBEVENT);
                 event.addEvent(subEvent);
+
             } else if (token.equalsIgnoreCase(ORBS)) {
                 List orbs = reader.gatherTokensUntilToken(END_ORBS, false);
                 event.setOrbsFromStrings(orbs);
@@ -107,6 +114,11 @@ public class Timeline extends Temporal {
                 List colorSpec = reader.gatherTokensUntilToken(END_COLOR, false);
                 HSV color = colorFromSpec(colorSpec);
                 event.setColor(color);
+
+            } else if (token.equalsIgnoreCase(PROPERTIES)) {
+                Properties properties = readProperties(reader);
+                event.setProperties(properties);
+
             } 
             token = reader.readToken();
         }
@@ -115,6 +127,17 @@ public class Timeline extends Temporal {
         return event;
     }
 
+    public static Properties readProperties(TokenReader reader) throws IOException {
+        Properties properties = new Properties();
+        String token = reader.readToken();
+        while(token != null && !token.equalsIgnoreCase(END_PROPERTIES)) {
+            String value = reader.readLine();
+            properties.setProperty(token, value);
+            token = reader.readToken();
+        }
+        return properties;
+    }
+    
     public String write(String indent) {
         StringBuffer buf = new StringBuffer();
         write(buf, indent);
@@ -160,5 +183,22 @@ public class Timeline extends Temporal {
         }
     }
 
+    static {
+        specialistRegistry = new HashMap();
+    }
+
+    public static void registerSpecialist(String specialistName, String specialistClassName) {
+        try {
+            Class specialistClass = Class.forName(specialistClassName);
+            specialistRegistry.put(specialistName, specialistClass);
+        } catch (Exception ex) {
+            System.err.println("Timeline caught exception registering specialist " + specialistName  + " as " + specialistClassName);
+        }
+    }
+
+    public static Class getSpecialistClass(String specialistName) {
+        return (Class)specialistRegistry.get(specialistName);
+    }
+        
 }
 

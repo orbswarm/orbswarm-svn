@@ -5,6 +5,7 @@ import com.orbswarm.swarmcomposer.color.HSV;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 public class Temporal {
 
@@ -15,12 +16,15 @@ public class Temporal {
     public static final String SUBEVENT     = "<subevent>";
     public static final String END_SUBEVENT = "</subevent>";
     public static final String SEQUENCE     = "<sequence>";
-    public static final String END_SEQUENCE = "<sequence>";
+    public static final String END_SEQUENCE = "</sequence>";
+    public static final String PROPERTIES   = "<properties>";
+    public static final String END_PROPERTIES = "</properties>";
 
     public static final String END          = "end";
     public static final String DURATION     = "duration:";
     public static final String ARENA        = "arena:";
     public static final String NAME         = "name:";
+    public static final String TARGET       = "target:";
     public static final String SPECIALIST   = "specialist:";
     public static final String NOTES        = "<notes>";
     public static final String END_NOTES    = "</notes>";
@@ -41,12 +45,20 @@ public class Temporal {
     protected float     duration  = NO_TIME;
     protected float     startTime = NO_TIME;
     protected float     endTime   = NO_TIME;
+    protected Properties properties = null;
 
     public void setName(String val) {
         this.name = val;
     }
     public String getName() {
         return this.name;
+    }
+
+    public void setProperties(Properties val) {
+        this.properties = val;
+    }
+    public Properties getProperties() {
+        return this.properties;
     }
     
     public void setNotes(String val) {
@@ -100,7 +112,16 @@ public class Temporal {
         return events;
     }
 
-      
+
+    public static void writeTag(StringBuffer buf, String indent, String tagName, boolean nl) {
+        buf.append(indent);
+        buf.append(tagName);
+        if (nl) {
+            buf.append("\n");
+        }
+    }
+        
+        
     public static void writeAttribute(StringBuffer buf, String indent, String attName, String value) {
         if (value == null) {
             return;

@@ -18,11 +18,11 @@ public interface OrbControl {
     //
     // Light control methods
     //
-    public void orbColor(int orb, int hue, int sat, int val, int time);
+    public void orbColor(int orb, int hue, int sat, int val, int fadeTimeMS);
     public void orbColorFade(int orb,
                              int hue1, int sat1, int val1,
                              int hue2, int sat2, int val2,
-                             int time);
+                             int fadeTimeMS);
     //
     // Motion methods
     //

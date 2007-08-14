@@ -4,12 +4,12 @@
   duration: 40.
   <event>
      name:  ongoing
-     specialist: ColorSchemer
+     specialist: SimpleColor
      <notes> This is the first sample event </notes>
      startTime: 0
      endTime: end
      <orbs> 1 2 3 4 </orbs>
-     <color> RGB 255 125 125 </color>
+     <color> RGB 255 255 155 </color>
   </event>
 
   <event>
@@ -17,7 +17,7 @@
      specialist: SimpleColor
      <notes> This is the first sample event </notes>
      startTime: 12
-     <orbs> 1 2 3 4 </orbs>
+     <orbs> 3 4 5 0 </orbs>
      <color> RGB 255 125 125 </color>
   </event>
 
@@ -27,8 +27,8 @@
      <notes> This is the first sample event </notes>
      startTime: 16
      endTime: 26
-     <orbs> 1 2 3 4 </orbs>
-     <color> RGB 255 125 125 </color>
+     <orbs> 0 1 5 3 </orbs>
+     <color> RGB 35 35 255 </color>
   </event>
 
   <event>
@@ -37,8 +37,8 @@
      <notes> This is the first sample event </notes>
      startTime: 10
      endTime: 20
-     <orbs> 1 2 3 4 </orbs>
-     <color> RGB 255 125 125 </color>
+     <orbs> 2 3 4 </orbs>
+     <color> RGB 125 125 255 </color>
   </event>
 
   <event>
@@ -47,7 +47,7 @@
      <notes> This is the first sample event </notes>
      startTime: 22
      <orbs> 1 2 3 4 </orbs>
-     <color> RGB 255 125 125 </color>
+     <color> RGB 125 255 125 </color>
   </event>
 
   <event>
@@ -57,7 +57,9 @@
      startTime: 30
      endTime: end
      <orbs> 1 2 3 4 </orbs>
-     <color> RGB 255 125 125 </color>
+     <properties>
+          soundfile /orbsounds/general/sound5
+     </poroperties>
   </event>
 
   <event>

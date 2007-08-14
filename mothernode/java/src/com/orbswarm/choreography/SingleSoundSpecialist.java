@@ -5,18 +5,21 @@ import java.util.Properties;
 public class SingleSoundSpecialist extends AbstractSpecialist {
     private boolean enabled = true;
     
-    public void setup(OrbControl orbControl, Properties initialProperties) {
-        super.setup(orbControl, initialProperties);
+    public void setup(OrbControl orbControl, Properties initialProperties, int[] orbs) {
+        super.setup(orbControl, initialProperties, orbs);
     }
     
     public void start() {
         if (enabled) {
             String soundFilePath = getProperty("soundFile", null);
-            int orbNum = getIntProperty("orb", -1);
             if (soundFilePath != null) {
-                float durationSec = orbControl.playSoundFile(orbNum, soundFilePath);
-                int durationMS = (int)(1000 * durationSec);
-                delayedBroadcastCommandCompleted(durationMS, "start", orbNum, soundFilePath);
+                int durationMS = 0;
+                for(int i=0; i < orbs.length; i++) {
+                    int orbNum = orbs[i];
+                    float durationSec = orbControl.playSoundFile(orbNum, soundFilePath);
+                    durationMS = (int)(1000 * durationSec);
+                }
+                delayedBroadcastCommandCompleted(durationMS, "start", orbs, soundFilePath);
             }
         }
     }

@@ -7,8 +7,14 @@ public interface Specialist {
         Implemented in AbstractSpecialist superclass.
         Most implementations will call super.setup(...)
     */
-    public void setup(OrbControl orbControl, Properties initialProperties);
+    public void setup(OrbControl orbControl, Properties initialProperties, int[] orbs);
 
+    /**
+     * If orbs is specified as null, then it usually means all orbs.
+     * To simplify this, we declare a constant array.
+     */
+    public static final int[] ALL_ORBS = new int[]{0, 1, 2, 3, 4, 5};
+     
     /** Called when specialist is started. */
     public void start();
 
@@ -32,6 +38,7 @@ public interface Specialist {
     /// Typically implemented in AbstractSpecialist ///
     ///////////////////////////////////////////////////
 
+    public void    setProperties(Properties properties);
     public void    setProperty(String name, String val);
     public String  getProperty(String name);
 

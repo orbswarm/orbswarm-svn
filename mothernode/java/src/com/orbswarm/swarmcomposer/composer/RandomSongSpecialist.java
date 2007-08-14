@@ -17,10 +17,10 @@ public  class RandomSongSpecialist extends AbstractSpecialist {
     private boolean enabled = true;
     private BotControllerSongs botctl_songs;
     
-    public void setup(OrbControl orbControl, Properties initialProperties) {
-        super.setup(orbControl, initialProperties);
+    public void setup(OrbControl orbControl, Properties initialProperties, int[] orbs) {
+        super.setup(orbControl, initialProperties, orbs);
 
-        int numbots = 6;
+        int numbots = orbs.length;
         botctl_songs = new BotControllerSongs(numbots, "/orbsongs");
 
     }

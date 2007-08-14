@@ -1,0 +1,138 @@
+<timeline>
+  name: timeline1
+  arena: 200.
+  duration: 60.
+  <event>
+     name: reds
+     specialist: SimpleColor
+     startTime: 2
+     <orbs> 0 1 2 3 4 5  </orbs>
+     <color> RGB 255 0 0 </color>
+  </event>
+
+  <event>
+     name: ZeroBlue
+     specialist: SimpleColor
+     startTime: 5
+     <orbs> 0 </orbs>
+     <color> RGB 150 150 255 </color>
+  </event>
+
+  <event>
+     name: greens
+     specialist: SimpleColor
+     startTime: 20
+     <orbs> 0 1 2 3 4 5 </orbs>
+     <color> RGB 0 255 0 </color>
+  </event>
+  <event>
+     name: blues
+     specialist: SimpleColor
+     startTime: 40
+     <orbs> 0 1 2 3 4 5 </orbs>
+     <color> RGB 0 0 255 </color>
+  </event>
+  <event>
+     specialist: SimpleColor
+     startTime: 10
+     <orbs> 1 </orbs>
+     <color> HSV .2 .7 .8 </color>
+  </event>
+  <event>
+     specialist: SimpleColor
+     startTime: 11
+     <orbs> 2 </orbs>
+     <color> HSV .3 .7 .8 </color>
+  </event>
+  <event>
+     specialist: SimpleColor
+     startTime: 12
+     <orbs> 3 </orbs>
+     <color> HSV .4 .7 .8 </color>
+  </event>
+  <event>
+     specialist: SimpleColor
+     startTime: 13
+     <orbs> 4 </orbs>
+     <color> HSV .5 .7 .8 </color>
+  </event>
+  <event>
+     specialist: SimpleColor
+     startTime: 14
+     <orbs> 5 </orbs>
+     <color> HSV .6 .7 .8 </color>
+  </event>
+  <event>
+     specialist: SimpleColor
+     startTime: 15
+     <orbs> 0 </orbs>
+     <color> HSV .7 .7 .8 </color>
+  </event>
+
+  <event>
+     specialist: SimpleColor
+     startTime: 22
+     <orbs> 2 4 6 </orbs>
+     <color> HSV .8 .7 .8 </color>
+  </event>
+  <event>
+     specialist: SimpleColor
+     startTime: 24
+     <orbs> 2 4 0 </orbs>
+     <color> HSV .9 .6 .7 </color>
+  </event>
+  <event>
+     specialist: SimpleColor
+     startTime: 26
+     <orbs> 2 4 3 </orbs>
+     <color> HSV 0. .5 .6 </color>
+  </event>
+  <event>
+     specialist: SimpleColor
+     startTime: 28
+     <orbs> 2 4 5 </orbs>
+     <color> HSV 1. .4 .5 </color>
+  </event>
+  <event>
+     specialist: SimpleColor
+     startTime: 26
+     <orbs> 2 4 0 </orbs>
+     <color> HSV 0. .5 .6 </color>
+  </event>
+  <event>
+     specialist: SimpleColor
+     startTime: 28
+     <orbs> 2 4 3 </orbs>
+     <color> HSV 1. .4 .5 </color>
+  </event>
+  <event>
+     specialist: SimpleColor
+     startTime: 28
+     <orbs> 2 4 5 </orbs>
+     <color> HSV 1.5 .3 .4 </color>
+  </event>
+  <event>
+     specialist: SimpleColor
+     startTime: 30
+     <orbs> 2 4 1 </orbs>
+     <color> HSV 2. .2 .3 </color>
+  </event>
+  <event>
+     specialist: SimpleColor
+     startTime: 32
+     <orbs> 2 4 0 </orbs>
+     <color> HSV 2.5 .1 .2 </color>
+     <properties>
+         test1 value1
+         test2 longer string value
+     </properties>
+  </event>
+</timeline>
+
+
+
+
+
+
+
+

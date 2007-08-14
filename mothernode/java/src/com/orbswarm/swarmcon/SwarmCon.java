@@ -105,6 +105,12 @@ public class SwarmCon extends JFrame
       /** Implementation of com.orbswarm.choreography.OrbControl.OrbControl to control the Orbs from the Specialists. */
 
       OrbControlImpl orbControlImpl;
+      // TODO: generalize the orbControl facility to use real/fake at appropriate times. 
+      public OrbControl getOrbControl() 
+      {
+          return orbControlImpl;
+      }
+    
     
       /**  Specialists listening to OrbState messages */
       ArrayList specialists = new ArrayList();
@@ -187,6 +193,7 @@ public class SwarmCon extends JFrame
 
       public static void main(String[] args)
       {
+         registerSpecialists(); 
          SwarmCon sc = new SwarmCon();
       }
 
@@ -908,17 +915,20 @@ public class SwarmCon extends JFrame
     /** Setup the ColorSchemeSpecialist and it's controller interface */
     public static ColorSchemer setupColorSchemeSpecialist(SwarmCon swarmCon) {
         registerColorSchemes();
+        /* not doing the specialists this way anymore!
         ColorSchemeSpecialist colorSchemeSpecialist = new ColorSchemeSpecialist();
-        colorSchemeSpecialist.setup(swarmCon.orbControlImpl, null);
+        colorSchemeSpecialist.setup(swarmCon.orbControlImpl, null, null);
                 
         swarmCon.addSpecialist(colorSchemeSpecialist);
+        */
 
         ColorSchemer schemer = new ColorSchemer("Crown");
-        schemer.addColorSchemeListener(colorSchemeSpecialist);
+        //schemer.addColorSchemeListener(colorSchemeSpecialist);
         schemer.broadcastNewColorScheme();
         schemer.broadcastColorSchemeChanged();
 
-        colorSchemeSpecialist.addBotColorListener(schemer);
+        // todo: need to set this stuff up inthe ColorSchemeSpecialist.
+        //colorSchemeSpecialist.addBotColorListener(schemer);
 
         return schemer;
     }
@@ -926,14 +936,16 @@ public class SwarmCon extends JFrame
       /** Setup the ColorSchemeSpecialist and it's controller interface */
       public static BotVisualizer setupRandomSongSpecialist(SwarmCon swarmCon) {
 
+          /* later...
           RandomSongSpecialist randomSongSpecialist = new RandomSongSpecialist();
           swarmCon.addSpecialist(randomSongSpecialist);
-          randomSongSpecialist.setup(swarmCon.orbControlImpl, null);
+          randomSongSpecialist.setup(swarmCon.orbControlImpl, null, null);
+          */
                 
           int numbots = 6; // TODO: Whither Data?
           BotVisualizer bv = new BotVisualizer(numbots); 
-          randomSongSpecialist.addNeighborListener(bv);
-          randomSongSpecialist.addSwarmListener(bv);
+          //randomSongSpecialist.addNeighborListener(bv);
+          //randomSongSpecialist.addSwarmListener(bv);
           // don't want to start this just yet...
           //randomSongSpecialist.start();
           return bv;
@@ -1044,5 +1056,9 @@ public class SwarmCon extends JFrame
         System.out.println("Swarmcon: STOP Timeline!!!!!!111!1eleven!!");
         stopControlling();
     }
-        
+
+    public static void registerSpecialists() {
+        String chpkg = "com.orbswarm.choreography";
+        Timeline.registerSpecialist("SimpleColor", chpkg + "." + "SingleColorSpecialist");
+    }
 }

@@ -9,10 +9,16 @@ public abstract class AbstractSpecialist implements Specialist {
     protected OrbControl orbControl;
     protected Properties properties;
     protected ArrayList commandListeners = null;
+    protected int []orbs;
 
-    public void setup(OrbControl orbControl, Properties initialProperties) {
+    public void setup(OrbControl orbControl, Properties initialProperties, int[] orbs) {
         this.orbControl = orbControl;
         this.properties = new Properties();
+        this.orbs = orbs;
+        if (this.orbs == null) {
+            this.orbs = Specialist.ALL_ORBS;
+        }
+        
         if (initialProperties != null) {
             for(Enumeration en = initialProperties.propertyNames(); en.hasMoreElements(); ) {
                 String name = (String)en.nextElement();
@@ -37,6 +43,16 @@ public abstract class AbstractSpecialist implements Specialist {
         return result;
     }
 
+
+    public void setProperties(Properties addProps) {
+        if (addProps == null) {
+            return;
+        }
+        for(Enumeration en = addProps.propertyNames(); en.hasMoreElements(); ) {
+            String pname = (String)en.nextElement();
+            properties.setProperty(pname, addProps.getProperty(pname));
+        }
+    }
 
     public void setProperty(String name, String val) {
         properties.setProperty(name, val);
@@ -82,30 +98,31 @@ public abstract class AbstractSpecialist implements Specialist {
         commandListeners.add(ear);
     }
 
-    public void broadcastCommandCompleted(String action, int orb, String param) {
+    // Note: only need to do this when an event is in a sequence. 
+    public void broadcastCommandCompleted(String action, int []orbs, String param) {
         if (commandListeners != null) {
             for(Iterator it = commandListeners.iterator(); it.hasNext(); ) {
                 SpecialistListener ear = (SpecialistListener)it.next();
-                ear.commandCompleted(this, action, orb, param);
+                ear.commandCompleted(this, action, orbs, param);
             }
         }
     }
 
-    public void delayedBroadcastCommandCompleted(int durationMS, String action, int orb, String param) {
-        DelayedBCCThread dbccThread = new DelayedBCCThread(durationMS, action, orb, param);
+    public void delayedBroadcastCommandCompleted(int durationMS, String action, int[] orbs, String param) {
+        DelayedBCCThread dbccThread = new DelayedBCCThread(durationMS, action, orbs, param);
         dbccThread.start();
     }
 
     class DelayedBCCThread extends Thread {
         int durationMS;
         String action;
-        int orb;
+        int[] orbs;
         String param;
 
-        public DelayedBCCThread(int durationMS, String action, int orb, String param) {
+        public DelayedBCCThread(int durationMS, String action, int[] orbs, String param) {
             this.durationMS = durationMS;
             this.action = action;
-            this.orb = orb;
+            this.orbs = orbs;
             this.param = param;
         }
 
@@ -114,7 +131,7 @@ public abstract class AbstractSpecialist implements Specialist {
                 Thread.sleep(durationMS);
             } catch (InterruptedException ex) {
             }
-            broadcastCommandCompleted(action, orb, param);
+            broadcastCommandCompleted(action, orbs, param);
         }
     }
 

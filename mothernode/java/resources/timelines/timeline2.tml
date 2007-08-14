@@ -1,0 +1,36 @@
+<timeline>
+  name: Simple color test. 
+  arena: 200.
+  duration: 40.
+  <event>
+     name: reds
+     specialist: SimpleColor
+     startTime: 2
+     <orbs> 0 1 2 3 4 5  </orbs>
+     <color> RGB 255 0 0 </color>
+  </event>
+
+  <event>
+     name: ZeroBlue
+     specialist: SimpleColor
+     startTime: 5
+     <orbs> 0 </orbs>
+     <color> RGB 150 150 255 </color>
+  </event>
+
+  <event>
+     name: OneGreen
+     specialist: SimpleColor
+     startTime: 15
+     <orbs> 1 </orbs>
+     <color> RGB 150 255 150 </color>
+  </event>
+</timeline>
+
+
+
+
+
+
+
+
