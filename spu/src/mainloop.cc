@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
   char curtime[30];
   char logbuf[80];
   time_t logtime;
-  swarmImuData imuData; 	// holds data from Inertial Measurement Unit
+  swarmImuData imuData;
   swarmMotorData motData;	// holds data from motor controller
   
   mypid=getpid();
@@ -48,13 +48,12 @@ int main(int argc, char *argv[])
   max_fd = (com4 > max_fd ? com4 : max_fd) + 1;
   max_fd = (com5 > max_fd ? com5 : max_fd) + 1;
 
-  swarmGpsData         motherShipLoc; 
-  swarmGpsData         currentOrbLoc; 
+  swarmGpsData motherShipLoc; 
+  swarmGpsData currentOrbLoc; 
   spuADConverterStatus adConverterStatus;
-   
   swarmGpsData trajPoints[50];
 
-  com2 = initSerialPort("/dev/ttyAM1", 38400); //Aggregator
+  com2 = initSerialPort(COM2, 38400); //Aggregator
   com3 = initSerialPort(COM3, 38400); //Lighting and Effects
   com5 = initSerialPort(COM5, 38400); //Motor Controller
 
@@ -64,11 +63,12 @@ int main(int argc, char *argv[])
      ///////////////////////////// MAIN LOOP //////////////////////////
      // set a 10 hz timeout for the main loop
      tv.tv_sec = 0; 
-     tv.tv_usec = 100000; // 100 ms or 10 hz
+     tv.tv_usec = 200000; // 100 ms or 10 hz
 
      FD_ZERO(&fdset);
 
-     n = select(max_fd, &fdset, NULL, NULL,&tv);
+     //n = select(max_fd, &fdset, NULL, NULL,&tv);
+     n = 0;
      if (n <0){
        printf("Error during select\n");
        snprintf(logbuf,80,"mainloop[%d]:Error during select %s\n",mypid,curtime);
@@ -124,93 +124,113 @@ int main(int argc, char *argv[])
 
 
 
-       if(0) { // always poll GPS
-	 printf("START GPS TRANSACTION**********\n"); 
-	 gpsBuff[0] = 0;
-	 gpsBytes = 0;
-	 //Tell the agg that we want whatever gps data it has to give 
-	 writeCharsToSerialPort(com2, AGGR_GPS_QUERY_CMD, strlen(AGGR_GPS_QUERY_CMD));
-	 readCharsFromSerialPortUntilAck(com2, gpsBuff, &gpsBytes, MAX_BUFF_SZ, 10, AGGR_DATA_XFER_ACK);
-	 
-	 if (VERBOSE) printf("\n GPS sentence is \"%s\" SIZE:%d\n",gpsBuff,gpsBytes);
-         //
-         //we recieved data now parse GPS sentence
-         //
-	 parseAndConvertGPSData(gpsBuff, &currentOrbLoc); 
-	 if(VERBOSE)printf("END GPS TRANSACTION**********\n"); 
-       }
+
+
+       if(0) { // always poll AGGRIGATOR 
+       printf("START AGGREGATOR TRANSACTION**********\n"); 
+
+       //memset(gpsBuff,0,MAX_BUFF_SZ);
+       //gpsBuff[0] = 0;
+       //gpsBytes = 0;
+      
+       memset(buffer,0,MAX_BUFF_SZ);
+       bytes2 = 0;
+       //Tell the agg that we want whatever gps data it has to give 
+       writeCharsToSerialPort(com2, AGGR_GPS_QUERY_CMD, strlen(AGGR_GPS_QUERY_CMD));
+       usleep(20000);
+       //readCharsFromSerialPortUntilAck(com2, gpsBuff, &gpsBytes, MAX_BUFF_SZ,100 , AGGR_DATA_XFER_ACK);
+       readCharsFromSerialPortUntilAck(com2, buffer, &bytes2, MAX_BUFF_SZ, 100 , AGGR_DATA_XFER_ACK);
+  
+       //HEY NILADRI PUT CODE HEAR
+
+       if (VERBOSE) printf("\n RAW AGGREGATOR DATA STREAM is \"%s\" SIZE:%d\n",buffer,bytes2);
+     
+       char* msgptr = NULL;
+       int msgcount = 0;
+       char msgBufCpy[MAX_BUFF_SZ + 1];
+       int messageType = 0;
+       strcpy(msgBufCpy, buffer);
+       
+       //fprintf(stderr, "\nBuffer to strtok **%s** for message\n",zigbeeBufCpy);
+       fprintf(stderr, "\nBuffer to strtok **%s** for message\n",msgBufCpy);
+       msgptr = strtok(msgBufCpy,AGGR_MESSAGE_DELIM_END);
+
+       fprintf(stderr, "\nstrtok returned **%s** for first part of gps message \n",msgptr);
+       //We ARE being very trusing hear that we will get the first gps sentance  
+         strcpy(currentOrbLoc.gpsSentence,msgptr);
+       
+       msgptr = strtok(NULL,AGGR_MESSAGE_DELIM_END);
+       fprintf(stderr, "\nstrtok returned **%s** for the second part of gps message \n",msgptr);
+       //Here we are expecting the GPS velocity data
+         strcpy(currentOrbLoc.vtgSentence,msgptr);
+
+       //
+       //we recieved data now parse GPS sentence
+       //
+       parseAndConvertGPSData(gpsBuff, &currentOrbLoc); 
+
 
        //Tell the agg that we want whatever zigbee data it has to give 
-       if(0){ // poll the aggregator
-	 buffer[0] = 0;
-	 bytes2 = 0;
-	 writeCharsToSerialPort(com2, AGGR_ZIGBEE_QUERY_CMD, strlen(AGGR_ZIGBEE_QUERY_CMD));
-	 
-	 readCharsFromSerialPortUntilAck(com2, buffer, &bytes2, MAX_BUFF_SZ, 10, AGGR_DATA_XFER_ACK);
-	 
-	 fprintf(stderr,"\nZIGBEE RAW DATA :%s NUMBYTES: %d\n",buffer, bytes2);
-	 if(bytes2 > 1){  //only handle the zigbee data if we have it one byte means only ! 
-	   //First we have to tokenize the recieved buffer into individual messages
-	   char* msgptr = NULL;
-	   int msgcount = 0;
-	   char zigbeeBufCpy[MAX_BUFF_SZ + 1];
-	   int messageType = 0;
-	   strcpy(zigbeeBufCpy, buffer);
-	   
-	   fprintf(stderr, "\nBuffer to strtok **%s** for message type\n",zigbeeBufCpy);
-	   char msgdelim[1];   
-	   msgdelim[0] = AGGR_MESSAGE_DELIM_END;
-	   msgptr = strtok(zigbeeBufCpy,"\n");
-	   fprintf(stderr, "\nstrtok returned **%s** for message type\n",msgptr);
-	   while(msgptr != NULL)
-	     {
-	       //do the work 
-	       
-	       fprintf(stderr, "\nCALLING getMessageType: %s\n",msgptr);
-	       messageType = getMessageType(msgptr);
-	       fprintf(stderr, "\ngot message type **%d** \n",messageType);
-	       
-	       switch(messageType)
-		 {
-		 case AGGR_MSG_TYPE_MOTHER_SHIP_SPU_POLL: 
-		   
-			fprintf(stderr, "\nHANDELING SPU POLL\n");
-			char spuPollData[MAX_BUFF_SZ + 1]; 
+      
+       //memset(buffer,0,MAX_BUFF_SZ);
+       //bytes2 = 0;
+       //writeCharsToSerialPort(com2, AGGR_ZIGBEE_QUERY_CMD, strlen(AGGR_ZIGBEE_QUERY_CMD));
+       //usleep(20000);
+       //readCharsFromSerialPortUntilAck(com2, buffer, &bytes2, MAX_BUFF_SZ, 100, AGGR_DATA_XFER_ACK);
+       //fprintf(stderr,"\nZIGBEE RAW DATA :%s NUMBYTES: %d\n",buffer, bytes2);
+        
+
+         //We should be done with gps data so now we loop through the zigbee messages 
+
+         msgptr = strtok(NULL,AGGR_MESSAGE_DELIM_END);
+         while(msgptr != NULL)
+         {
+           //do the work 
+            
+           fprintf(stderr, "\nCALLING getMessageType: %s\n",msgptr);
+           messageType = getMessageType(msgptr);
+           fprintf(stderr, "\ngot message type **%d** \n",messageType);
+             
+           switch(messageType)
+           {
+             case AGGR_MSG_TYPE_MOTHER_SHIP_SPU_POLL: 
+              
+               		fprintf(stderr, "\nHANDELING SPU POLL\n");
+               		char spuPollData[MAX_BUFF_SZ + 1]; 
 
 			getAdConverterStatus(&adConverterStatus, AD_DEFAULT_MAX_VOLTAGE, AD_DEFAULT_PRECISION);
 			genSpuDump(spuPollData, MAX_BUFF_SZ, &currentOrbLoc, &adConverterStatus);
-			packetizeAndSendMotherShipData(com2, spuPollData, strlen(spuPollData));
-		   
-		   break;
-		   
-		 case AGGR_MSG_TYPE_TRAJECTORY: 
-		   break;
-		   
-		 case AGGR_MSG_TYPE_MOTHER_SHIP_LOC: 
-		   break;
-		   
-		 case AGGR_MSG_TYPE_EFFECTS: 
-		   //Write the effects string to com3
-		   writeCharsToSerialPort(com3, msgptr, strlen(msgptr));
-		   break;
-		   
-		 case AGGR_MSG_TYPE_MOTOR_CONTROL: 
-		   writeCharsToSerialPort(com5, msgptr, strlen(msgptr));
-		   break;
-		 }
-	       msgcount++; 
-	       msgptr = strtok(NULL,SWARM_NMEA_GPS_DATA_DELIM);
-	     }
+               
+             break;
+             
+             case AGGR_MSG_TYPE_TRAJECTORY: 
+             break;
+
+             case AGGR_MSG_TYPE_MOTHER_SHIP_LOC: 
+             break;
+
+             case AGGR_MSG_TYPE_EFFECTS: 
+               //Write the effects string to com3
+               writeCharsToSerialPort(com3, msgptr, strlen(msgptr));
+               break;
+
+             case AGGR_MSG_TYPE_MOTOR_CONTROL: 
+               writeCharsToSerialPort(com5, msgptr, strlen(msgptr));
+               break;
+           }
+           msgcount++; 
+           msgptr = strtok(NULL,AGGR_MESSAGE_DELIM_END);
+         }
+         printf("END AGGREGATOR TRANSACTION**********\n"); 
+       }//End poll Agregator
        
-	 } //End recieved zigbee data if statement
-       } // end poll zigbee
 
        if (VERBOSE){ 
 	 //printf("main loop tick %d\n",tenHzticks);
 	 fflush(stdout);
        }
      }
-  }
+   }
 } //END main() 
 
     

@@ -160,13 +160,15 @@ int OLDinitSerialPort(const char* port, int baud)
 void readCharsFromSerialPort(int port_fd, char* buff, 
                             int* numBytesRead, int maxBufSz)
 {
-   ioctl(port_fd, FIONREAD, numBytesRead);
+   //ioctl(port_fd, FIONREAD, numBytesRead);
+   ioctl(port_fd, TIOCINQ , numBytesRead);
    if(*numBytesRead > maxBufSz)
    {
      *numBytesRead = maxBufSz;
    } 
    read(port_fd,buff,*numBytesRead);
 }
+
 int writeCharsToSerialPort(int port_fd, char* buff,
                                         int numBytesToWrite)
 {
@@ -189,18 +191,18 @@ int writeCharsToSerialPort(int port_fd, char* buff,
 int readCharsFromSerialPortUntilAck(int port_fd, char* buff, int* numBytesRead, int maxBufSz, int maxTrys, char ackChar)
 {
   int status = SWARM_SUCCESS;
-  int numReadBytes = 0;
-  char localBuff[maxBufSz];
-  readCharsFromSerialPort(port_fd, localBuff, &numReadBytes,maxBufSz); 
 
-  if(numReadBytes > 1) //only handle the gps data if we have it
-  {  
-     if(rindex(localBuff, ackChar) == NULL)
+  readCharsFromSerialPort(port_fd, buff, numBytesRead, maxBufSz); 
+  if(numBytesRead > 0)
+    fprintf(stderr,"\n LAST CHAR READ: %c AT POS %d\n",buff[*numBytesRead -1],*numBytesRead-1);
+
+     //if(rindex(buff, ackChar) == NULL)
+     if(buff[*numBytesRead -1] != ackChar)
      { 
       //We didn't get all of the data so we keep reading until we do
        int total_bytes = 0;
        int numTrys = 0;
-       total_bytes = numReadBytes;
+       total_bytes = *numBytesRead;
        while(1)  
        {
          printf("\n NUM TRYS:%d\n",numTrys);
@@ -209,21 +211,23 @@ int readCharsFromSerialPortUntilAck(int port_fd, char* buff, int* numBytesRead, 
             break; 
          }
          printf("CALLING READ A SECOND TIME\n"); 
-         readCharsFromSerialPort(port_fd, &localBuff[total_bytes], &numReadBytes,maxBufSz - total_bytes); 
-         total_bytes += numReadBytes;
-         printf("NUM BYTES READ: %d\n",total_bytes); 
+         readCharsFromSerialPort(port_fd, &buff[total_bytes], numBytesRead,maxBufSz - total_bytes); 
+         total_bytes += *numBytesRead;
+         //printf("NUM BYTES READ: %d\n",total_bytes); 
 
-         if(localBuff[total_bytes] == ackChar)
+         //if(rindex(buff, ackChar) != NULL)
+         if(total_bytes > 0)
+         {
+         fprintf(stderr,"\n LAST CHAR READ 2: %c AT POS %d\n",buff[*numBytesRead -1],*numBytesRead-1);
+         }
+         if(buff[total_bytes -1] == ackChar)
            break; //we got it all so get out of the read loop 
 
          numTrys++;
        }
-       numReadBytes = total_bytes; 
+       *numBytesRead = total_bytes; 
      } 
-    localBuff[numReadBytes+1] = '\0';
-    strcpy(buff,localBuff);
-    *numBytesRead = numReadBytes;
-  }
+    buff[*numBytesRead+1] = '\0';
   return status;
 }
 

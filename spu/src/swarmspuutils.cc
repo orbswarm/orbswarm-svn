@@ -177,6 +177,7 @@ int getMessageType(char* message)
 {
   int messageSize = strlen(message); 
   int messageType = AGGR_MSG_TYPE_UNKNOWN; //default to unknown 
+  fprintf(stderr,"\n First Char of Message :%c\n", message[0]); 
   switch(message[0])
   {
     case MSG_HEAD_MOTOR_CONTROLER : 
@@ -198,8 +199,6 @@ int getMessageType(char* message)
          char* msgptr = NULL;
          char msgBufCpy[MAX_BUFF_SZ + 1];
          strcpy(msgBufCpy, message);
-         char msgdelim[1];   
-         //msgdelim[0] = MOTHER_SHIP_MSG_DELIM;
          msgptr = strtok(&msgBufCpy[1],MOTHER_SHIP_MSG_DELIM);
          fprintf(stderr, "\nstrtok returned **%s** for message type\n",msgptr);
          if(msgptr != NULL)
@@ -254,8 +253,8 @@ void genSpuDump(char* logBuffer, int maxBufSz, swarmGpsData *gpsData, spuADConve
 	sprintf(adBuffer, "BATTERY=%3.3f inches\r\n", adConverterStatus->battery_voltage); 
 	strncat(scratchBuff, adBuffer, strlen(adBuffer));
 
-	strncpy(logBuffer,scratchBuff, maxBufSz -1);
 #endif
+	strncpy(logBuffer,scratchBuff, maxBufSz -1);
   
   free(scratchBuff);
   free(adBuffer);

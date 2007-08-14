@@ -358,7 +358,6 @@ int parseRawAggregatorGPSData(char* rawGPS, swarmGpsData * gpsdata)
 int parseAndConvertGPSData(char* rawGPS, swarmGpsData * gpsdata) 
 {
   int status = SWARM_SUCCESS;
-  parseRawAggregatorGPSData(rawGPS ,gpsdata); 
 
   status = parseGPSSentence(gpsdata);
   if(status == SWARM_SUCCESS)
