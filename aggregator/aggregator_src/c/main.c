@@ -73,7 +73,8 @@ int main(void)
     	    handleSpuSerial,
     	    handleGpsSerial,
 	    popXbeeDataQ,
-	    popSpuDataQ);
+	    popSpuDataQ,
+	    popSpuGpsDataQ);
   debug("\ninit ");
   setGpsMode();
   lightLedPortB6();
@@ -96,29 +97,49 @@ int main(void)
 	 msg.swarm_msg_payload[2] == 'g' &&
 	 msg.swarm_msg_payload[3] == '*')
 	{
+	  lightLedPortB7();
 	  while(isSpuSendInProgress())
 	    ;
+	  
+	  sendSpuMsg("!");
 	  getGpsGpggaMsg(gps_msg_buffer);
 	  sendSpuMsg(gps_msg_buffer);
+	  sendSpuMsg(";");
 
 	  getGpsGpvtgMsg(gps_msg_buffer);
 	  sendSpuMsg(gps_msg_buffer);
+	  sendSpuMsg(";");
 
-	  //sleep for a while so that we have space for the '!' in the q
-	  loopTimer0(50);
-	  sendSpuMsg("!");
-	}
-      else if(msg.swarm_msg_payload[0] == '$' &&
-	msg.swarm_msg_payload[1] == 'A' &&
-	 msg.swarm_msg_payload[2] == 'x' &&
-	 msg.swarm_msg_payload[3] == '*')
-	{
+	  while(isSpuSendInProgress())
+	    ;
 	  startSpuTransmit();
 	  ///Now sleep for at least one character to be sent
-	  loopTimer0(50);
+	  loopTimer0(1);
 	  pushSpuDataQ("!");
 	  startSpuTransmit();
+
+/* 	  getGpsGpggaMsg(gps_msg_buffer); */
+/* 	  pushSpuGpsDataQ(gps_msg_buffer); */
+
+/* 	  getGpsGpvtgMsg(gps_msg_buffer); */
+/* 	  pushSpuGpsDataQ(gps_msg_buffer); */
+
+/* 	  pushSpuGpsDataQ("!"); */
+/* 	  startSpuGpsDataTransmit(); */
 	}
+/*       else if(msg.swarm_msg_payload[0] == '$' && */
+/* 	msg.swarm_msg_payload[1] == 'A' && */
+/* 	 msg.swarm_msg_payload[2] == 'x' && */
+/* 	 msg.swarm_msg_payload[3] == '*') */
+/* 	{ */
+/* 	  while(isSpuSendInProgress()) */
+/* 	    ; */
+/* 	  startSpuTransmit(); */
+/* 	  ///Now sleep for at least one character to be sent */
+/* 	  loopTimer0(1); */
+/* 	  pushSpuDataQ("!"); */
+/* 	  startSpuTransmit(); */
+/* 	} */
       else if(msg.swarm_msg_payload[0] == '$' &&
 	msg.swarm_msg_payload[1] == 'A' &&
 	 msg.swarm_msg_payload[2] == 's')

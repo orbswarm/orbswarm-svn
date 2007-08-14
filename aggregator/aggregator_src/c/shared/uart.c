@@ -1,12 +1,15 @@
 #include <avr/io.h>		// include I/O definitions (port names, pin names, etc)
 #include <avr/interrupt.h>	// include interrupt support
 #include "uart.h"
+//#include <aggregator_utils.h>
 
 static void (*  _handleXBeeRecv)(char, int) ;
 static void (*  _handleSpuRecv)(char, int) ;
 static void (* _handleGpsARecv)(char, int) ;
 static char (* _getXBeeOutChar)(void);
 static char (* _getSpuOutChar)(void);
+static char (* _getSpuGpsOutChar)(void);
+static char (* _currentSpuGetter)(void);
 volatile static int s_isSpuSendInProgress=0;
 volatile static int s_isXbeeSendInProgress=0;
 
@@ -73,7 +76,7 @@ ISR(SIG_USART1_RECV)
 
 ISR(SIG_USART3_DATA)
 {
-  PORTB = PORTB ^ (1<<PB7);
+  //PORTB = PORTB ^ (1<<PB7);
   char c = (*_getXBeeOutChar)();
   if(c !=0 ){
     UDR3 = c;
@@ -87,8 +90,8 @@ ISR(SIG_USART3_DATA)
 
 ISR(SIG_USART0_DATA)
 {
-  PORTB = PORTB ^ (1<<PB7);
-  char c = (*_getSpuOutChar)();
+  //PORTB = PORTB ^ (1<<PB7);
+  char c = (*_currentSpuGetter)();
   if(c !=0 ){
     UDR0 = c;
   }
@@ -163,7 +166,7 @@ void sendGPSBMsg(const char *s)
 void sendDebugMsg(const char *s)
 {
   //sendXBeeMsg (s);
-  sendSpuMsg(s);
+  //sendSpuMsg(s);
 }
 
 void startXBeeTransmit(void)
@@ -179,9 +182,21 @@ void startSpuTransmit(void)
 {
   if(!s_isSpuSendInProgress){
     s_isSpuSendInProgress=1;
+    //_getSpuOutChar=popSpuDataQ;
+    _currentSpuGetter=_getSpuOutChar;
     UCSR0B |=  (1 <<UDRIE0);//enable interrupt
     UCSR0A |= (1 <<UDRE0);//set 'data register empty' bit to 1(buffer empty)
   }
+}
+
+void startSpuGpsDataTransmit(void)
+{
+  s_isSpuSendInProgress=1;
+  //_getSpuOutChar=popSpuGpsDataQ;
+  _currentSpuGetter=_getSpuGpsOutChar;
+  UCSR0B |=  (1 <<UDRIE0);//enable interrupt
+  UCSR0A |= (1 <<UDRE0);//set 'data register empty' bit to 1(buffer empty)
+  
 }
 
 int isSpuSendInProgress(void)
@@ -195,11 +210,13 @@ int isXBeeSendInProgress(void)
   return s_isXbeeSendInProgress;
 }
 
+
 int uart_init( void (*handleXBeeRecv)(char c, int isError),
 	       void (*handleSpuRecv)(char c, int isErrror),
 	       void (*handleGpsARecv)(char c, int isErrror),
 	       char (*getXBeeOutChar)(void),
-	       char (*getSpuOutChar)(void))
+	       char (*getSpuOutChar)(void),
+	       char (*getSpuGpsOutChar)(void))
 {
   //Set up XBee on USART3
   //Asynchronous UART, no parity, 1 stop bit, 8 data bits, 38400 baud
@@ -209,6 +226,7 @@ int uart_init( void (*handleXBeeRecv)(char c, int isError),
   UBRR3 = 23;
   _handleXBeeRecv=handleXBeeRecv;
   _getXBeeOutChar=getXBeeOutChar;
+
   //
   //
   //Set up SPU on USART0
@@ -217,7 +235,7 @@ int uart_init( void (*handleXBeeRecv)(char c, int isError),
   UCSR0C = (1<<UCSZ01) | (1<< UCSZ00);
   UBRR0 = 23;
   _handleSpuRecv  = handleSpuRecv;
-  _getSpuOutChar= getSpuOutChar;
+  _getSpuOutChar=getSpuOutChar;
   //
   
   //Set up GPSA
@@ -226,6 +244,7 @@ int uart_init( void (*handleXBeeRecv)(char c, int isError),
   UCSR1C = (1<<UCSZ11) | (1<< UCSZ10);
   UBRR1 = 23;
   _handleGpsARecv = handleGpsARecv;
+  _getSpuGpsOutChar = getSpuGpsOutChar;
   //
 
 
