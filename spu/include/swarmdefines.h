@@ -13,6 +13,7 @@
 #define SWARM_NMEA_GPS_SENTENCE_TYPE_GPVTG "GPVTG"
 #define SWARM_NMEA_GPS_DATA_DELIM ","
 #define MAX_GPS_SENTENCE_SZ 1024 
+#define SWARM_INVALID_AGG_DATA 14
 
 
 #define AGGR_MSG_TYPE_UNKNOWN 200 
@@ -58,7 +59,7 @@
 
 #define AGGR_DATA_XFER_ACK '!'  //found at the end of a data stream from the Agg 
                                        //Note: a data stream may contain >1 messages
-#define AGGR_MESSAGE_DELIM_END '\n' 
+#define AGGR_MESSAGE_DELIM_END ";" 
 
 #define AGGR_GPS_QUERY_CMD "$Ag*$"
 #define AGGR_ZIGBEE_QUERY_CMD "$Ax*$"
@@ -85,7 +86,6 @@
 
 
 /************************Constants**************************************/
-
 const double PI = 3.14159265;
 const double FOURTHPI = PI / 4;
 const double deg2rad = PI / 180;
