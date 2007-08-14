@@ -8,7 +8,7 @@
 struct SWARM_MSG{
    char swarm_msg_type;
    char swarm_msg_length[2];
-  char swarm_msg_payload[MAX_SWARM_MSG_LENGTH + 1];//leave one byte for /0 termination
+  char swarm_msg_payload[MAX_SWARM_MSG_LENGTH + 2];//leave one byte for /n and another for /0 termination
 };
 
 enum ESwarmRespCodes{

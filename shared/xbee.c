@@ -87,7 +87,7 @@ void handleXbeeSerial(char c, int isError)
 	   xbee_rx_packet.swarm_msg_length[0] = 
 	     (char)(xbee_rx_state_byte_num>>8);
 	   xbee_rx_packet.swarm_msg_length[1] = (char)xbee_rx_state_byte_num;
-	   xbee_rx_packet.swarm_msg_payload[xbee_rx_state_byte_num+1]='\n';
+	   xbee_rx_packet.swarm_msg_payload[xbee_rx_state_byte_num+1]=';';
 	   xbee_rx_packet.swarm_msg_payload[xbee_rx_state_byte_num+2]='\0';
 	   pushQ(xbee_rx_packet);
 	 }

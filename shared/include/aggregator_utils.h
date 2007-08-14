@@ -79,3 +79,41 @@ void pushXbeeDataQ(const char* msg)
 }
 
 
+volatile static char s_spuGpsDataQueue[MAX_SPUGPS_MSG_QUEUE_SIZE];
+volatile static unsigned long s_spuGpsDataQueueHeadIdx=0;
+volatile static unsigned long s_spuGpsDataQueueTailIdx=0;
+
+/*
+ * This call will return null is Q is empty
+ */
+char popSpuGpsDataQ(void)
+{
+  unsigned long nTmpTail;
+  if(s_spuGpsDataQueueHeadIdx == s_spuGpsDataQueueTailIdx)
+    {
+       return 0;
+    }
+  nTmpTail= (s_spuGpsDataQueueTailIdx + 1) & SPUGPS_Q_MASK;
+  s_spuGpsDataQueueTailIdx=nTmpTail;
+  return s_spuGpsDataQueue[nTmpTail];
+}
+
+/*
+ * This call will block if Q is full
+ */
+void pushSpuGpsDataQ(const char* msg)
+{
+  while(*msg && '*' != *msg )
+    {
+ 
+      unsigned long nTmpHead;
+      nTmpHead = ( s_spuGpsDataQueueHeadIdx + 1) & SPUGPS_Q_MASK;
+      if(nTmpHead == s_spuGpsDataQueueTailIdx)
+	return;
+      s_spuGpsDataQueue[nTmpHead]=*msg++;
+      s_spuGpsDataQueueHeadIdx=nTmpHead;
+    }
+
+}
+
+
