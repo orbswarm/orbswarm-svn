@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 
        if (0){ 			// always poll IMU
 
-	 // Poll aggregator to get IMU data
+	 // Poll motor controller to get IMU data
 	 writeCharsToSerialPort(com5, "$QI*", strlen("$QI*"));
 	 readCharsFromSerialPort(com5, buffer, &bytes2,MAX_BUFF_SZ); 
 	 

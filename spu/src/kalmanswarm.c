@@ -65,7 +65,8 @@ int KalmanInit( struct swarmStateEstimate * stateEstimate )
 }
 
 
-int kalmanProcess( struct swarmGpsData * gpsData, struct swarmImuData * imuData, struct swarmStateEstimate * stateEstimate)
+int kalmanProcess( struct swarmGpsData * gpsData, struct swarmImuData * imuData, struct swarmMotorData motorData, 
+	struct swarmStateEstimate * stateEstimate)
 {
 
    measurementVec[ MEAS_xa ] = imuData->si_accy;
@@ -74,9 +75,7 @@ int kalmanProcess( struct swarmGpsData * gpsData, struct swarmImuData * imuData,
    measurementVec[ MEAS_xr ] = -(imuData->si_ratey);
    measurementVec[ MEAS_zr ] = imuData->si_ratex;
 
-/*
-   measurementVec[ MEAS_omega ] = swarmImuData.omega;
-*/
+   measurementVec[ MEAS_omega ] = swarmMotorData->speedRPS;
 
    measurementVec[ MEAS_xg ] = gpsData->metFromMshipEast;
    measurementVec[ MEAS_yg ] = gpsData->metFromMshipNorth;

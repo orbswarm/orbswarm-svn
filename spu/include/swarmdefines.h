@@ -174,7 +174,7 @@ struct	swarmMotorData
   int driveTarget;		/* target speed for PID loop */
   int driveActual;		/* actual measured speed */
   int drivePWM;			/* what we are sending to the motor control */
-  int odometer;			/* odometer count (will roll over) */
+  int odometer;		/* odometer count (will roll over) */
   int rawCurrent;		/* raw current measure */
   double speedRPS;		/* speed in radians per seconds */
 
@@ -217,6 +217,21 @@ struct swarmFeedback
 {
   double vDes;
   double deltaDes;
+};
+
+struct swarmPID
+{
+  double error;
+  double lastError;
+  double deadBand;
+  double Kp;
+  double Ki;
+  double Kd;
+  double minDrive;
+  double maxDrive;
+  double iSum;
+  double iLimit;
+  double debugOutput; // flag for outputing PID tuning info
 };
 
 struct spuADConverterStatus {

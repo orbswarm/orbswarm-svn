@@ -4,7 +4,7 @@
     extended kalman filter, and an iterated extended kalman filter.
 
     For ready extensibility, the apply_measurement() and apply_system()
-    functions are located in a separate file: kalman_cam.c is an example.
+    functions are located in a separate file.
 
     It uses the matmath functions provided in an accompanying file
     to perform matrix and quaternion manipulation.
