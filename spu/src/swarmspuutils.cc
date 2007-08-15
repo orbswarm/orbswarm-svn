@@ -172,7 +172,6 @@ int spulog(char* msg, int msgSize, char* logdir)
   return bytesWritten;
 }
 
-
 int getMessageType(char* message)
 {
   int messageSize = strlen(message); 
@@ -182,12 +181,12 @@ int getMessageType(char* message)
   {
     case MSG_HEAD_MOTOR_CONTROLER : 
       // The firs char of the message matched so lets check the last  
-      if(message[messageSize] == MSG_END_MOTOR_CONTROLER) 
+      if((rindex(message, MSG_END_MOTOR_CONTROLER)!= NULL)) 
         messageType = AGGR_MSG_TYPE_MOTOR_CONTROL; 
     break;
     case MSG_HEAD_LIGHTING : 
       // The firs char of the message matched so lets check the last  
-      if(message[messageSize] == MSG_END_LIGHTING) 
+      if((rindex(message, MSG_END_LIGHTING)!= NULL)) 
         messageType = AGGR_MSG_TYPE_EFFECTS; 
     break;
     case MSG_HEAD_MOTHER_SHIP : 
@@ -197,9 +196,10 @@ int getMessageType(char* message)
       if(rindex(message, MSG_END_MOTHER_SHIP) != NULL) 
       {
          char* msgptr = NULL;
+         char* strtok_r_buf;
          char msgBufCpy[MAX_BUFF_SZ + 1];
          strcpy(msgBufCpy, message);
-         msgptr = strtok(&msgBufCpy[1],MOTHER_SHIP_MSG_DELIM);
+         msgptr = strtok_r(&msgBufCpy[1],MOTHER_SHIP_MSG_DELIM,&strtok_r_buf);
          fprintf(stderr, "\nstrtok returned **%s** for message type\n",msgptr);
          if(msgptr != NULL)
          {
@@ -226,37 +226,29 @@ int getMessageType(char* message)
 void genSpuDump(char* logBuffer, int maxBufSz, swarmGpsData *gpsData, spuADConverterStatus *adConverterStatus)
 {
   char * scratchBuff = (char *)malloc(maxBufSz * 2);
-  char *adBuffer = (char *)malloc(50);
-  int bytesUsed = sprintf(scratchBuff,"NORTH=%lf\nEAST=%lf\nUTC_TIME=%s\nHEADING=%f\nSPEED=%f\nMSHIP_N=%lf\nMSHIP_E=%lf\n",
+  //char *adBuffer = (char *)malloc(50);
+  int bytesUsed = sprintf(scratchBuff,"NORTH=%lf\nEAST=%lf\nUTC_TIME=%s\nHEADING=%f\nSPEED=%f\nMSHIP_N=%lf\nMSHIP_E=%lf\nAD_CHANNEL_0=%3.3fV\nAD_CHANNEL_1=%3.3fV\nAD_CHANNEL_2=%3.3fV\nAD_CHANNEL_3=%3.3fV\nAD_CHANNEL_4=%3.3fV\nSONAR=%3.3f inches\nBATTERY=%3.3f inches\n",
 						   gpsData->UTMNorthing,
 						   gpsData->UTMEasting,
 						   gpsData->nmea_utctime,
 						   gpsData->nmea_course,
 						   gpsData->speed, 
 						   gpsData->metFromMshipNorth, 
-						   gpsData->metFromMshipEast);
+						   gpsData->metFromMshipEast,
+                                                   adConverterStatus->ad_vals[0],
+                                                   adConverterStatus->ad_vals[1],
+                                                   adConverterStatus->ad_vals[2],
+                                                   adConverterStatus->ad_vals[3],
+                                                   adConverterStatus->ad_vals[4],
+                                                   adConverterStatus->sonar,
+                                                   adConverterStatus->battery_voltage
+                                                   );
 				
 	
 
-  // This section removed by Jon because it means you need to link with adconverter.o anyplace you link to swarmspuutils.o
-  // the way to do this is to populate a data structure (spustatus, say) then call genSPuDump. genSpuDump should not call get_ADC_channel directly
-
-#ifndef foo
-	for(int i = 0; i < 5; i++) {
-		//sprintf(scratchBuff+strlen(scratchbuf), "AD_CHANNEL_%d=%3.3fV\r\n", i, get_ADC_channel(i, 3.3, AD_POLL_PRECISION)); 
-		sprintf(adBuffer, "AD_CHANNEL_%d=%3.3fV\r\n", i, adConverterStatus->ad_vals[i]); 
-		//get_ADC_channel(i, adMaxVoltage, AD_POLL_PRECISION)
-		strncat(scratchBuff, adBuffer, strlen(adBuffer));
-	}
-	
-	sprintf(adBuffer, "SONAR=%3.3f inches\r\n", adConverterStatus->sonar); 
-	sprintf(adBuffer, "BATTERY=%3.3f inches\r\n", adConverterStatus->battery_voltage); 
-	strncat(scratchBuff, adBuffer, strlen(adBuffer));
-
-#endif
 	strncpy(logBuffer,scratchBuff, maxBufSz -1);
   
   free(scratchBuff);
-  free(adBuffer);
+  //free(adBuffer);
 }
 
