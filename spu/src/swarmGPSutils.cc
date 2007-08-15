@@ -19,10 +19,11 @@ int parseGPSSentence(swarmGpsData * gpsdata)
   char* paramptr = NULL;
   int paramcount = 0;
   char gpssentcpy[MAX_GPS_SENTENCE_SZ];
+  char* strtok_r_ptr = NULL;
 
   strcpy(gpssentcpy, gpsdata->gpsSentence);
    
-  paramptr = strtok(gpssentcpy,SWARM_NMEA_GPS_DATA_DELIM);
+  paramptr = strtok_r(gpssentcpy,SWARM_NMEA_GPS_DATA_DELIM,&strtok_r_ptr);
   if(paramptr != NULL){
      strcpy(gpsdata->gpsSentenceType,&paramptr[1]); //skip the leading $ char 
      paramcount++; 
@@ -34,7 +35,7 @@ int parseGPSSentence(swarmGpsData * gpsdata)
       //Sentence type is correct so go ahead and get the rest of the data 
       while(paramptr != NULL)
 	{
-	  paramptr = strtok(NULL,SWARM_NMEA_GPS_DATA_DELIM);
+	  paramptr = strtok_r(NULL,SWARM_NMEA_GPS_DATA_DELIM,&strtok_r_ptr);
 	  if(paramptr != NULL)
 	    {
 	      switch(paramcount)
@@ -87,11 +88,12 @@ int parseGPSVtgSentance(swarmGpsData * gpsdata)
   char* paramptr = NULL;
   int paramcount = 0;
   char gpssentcpy[MAX_GPS_SENTENCE_SZ];
+  char* strtok_r_ptr = NULL;
 
   // populate nmea_course, speed, and mode
   
   strcpy(gpssentcpy, gpsdata->vtgSentence);
-  paramptr = strtok(gpssentcpy, SWARM_NMEA_GPS_DATA_DELIM);
+  paramptr = strtok_r(gpssentcpy, SWARM_NMEA_GPS_DATA_DELIM,&strtok_r_ptr);
   
   //fprintf(stderr, "\nstrtok returned **%s** for gps sentence type\n",paramptr);
   
@@ -119,53 +121,53 @@ int parseGPSVtgSentance(swarmGpsData * gpsdata)
   char mode;
 
   // Course over ground (degrees, referenced to true north)
-  paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
+  paramptr = strtok_r(NULL, SWARM_NMEA_GPS_DATA_DELIM,&strtok_r_ptr);
   //fprintf(stderr,"\nSTRTOK GOT %s\n",paramptr);
   e = sscanf(paramptr, "%f", &degrees);
   if (e != 1) { return SWARM_INVALID_GPS_SENTENCE; }
 
   // Indicator of course reference (T == true north)
-  paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
+  paramptr = strtok_r(NULL, SWARM_NMEA_GPS_DATA_DELIM,&strtok_r_ptr);
   //fprintf(stderr,"\nSTRTOK GOT %s\n",paramptr);
   e = sscanf(paramptr, "%c", &discard_char);
   if (e != 1 || discard_char != 'T') { return SWARM_INVALID_GPS_SENTENCE; }
   
   // Indicator of course reference (M == magnetic north)
-  paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
+  paramptr = strtok_r(NULL, SWARM_NMEA_GPS_DATA_DELIM,&strtok_r_ptr);
   //fprintf(stderr,"\nSTRTOK GOT 2: %s\n",paramptr);
   e = sscanf(paramptr, "%c", &discard_char);
   if (e != 1 || discard_char != 'M') { return SWARM_INVALID_GPS_SENTENCE; }
 
   // Speed over ground (knots)
-  paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
+  paramptr = strtok_r(NULL, SWARM_NMEA_GPS_DATA_DELIM,&strtok_r_ptr);
   //fprintf(stderr,"\nSTRTOK GOT 3: %s\n",paramptr);
   e = sscanf(paramptr, "%f", &discard_float);
   if (e != 1) { return SWARM_INVALID_GPS_SENTENCE; }
 
   //fprintf(stderr,"\nMADE IT 6\n");
   // Units (knots)
-  paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
+  paramptr = strtok_r(NULL, SWARM_NMEA_GPS_DATA_DELIM,&strtok_r_ptr);
   //fprintf(stderr,"\nSTRTOK GOT 4: %s\n",paramptr);
   e = sscanf(paramptr, "%c", &discard_char);
   if (e != 1 || discard_char != 'N') { return SWARM_INVALID_GPS_SENTENCE; }
   
   //fprintf(stderr,"\nMADE IT 7\n");
   // Speed over ground (km/h)
-  paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
+  paramptr = strtok_r(NULL, SWARM_NMEA_GPS_DATA_DELIM,&strtok_r_ptr);
   //fprintf(stderr,"\nSTRTOK GOT 5: %s\n",paramptr);
   e = sscanf(paramptr, "%f", &kmph);
   if (e != 1) { return SWARM_INVALID_GPS_SENTENCE; }
     
   //fprintf(stderr,"\nMADE IT 8\n");
   // Units (km/h)
-  paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
+  paramptr = strtok_r(NULL, SWARM_NMEA_GPS_DATA_DELIM,&strtok_r_ptr);
   //fprintf(stderr,"\nSTRTOK GOT 6: %s\n",paramptr);
   e = sscanf(paramptr, "%c", &discard_char);
   if (e != 1 || discard_char != 'K') { return SWARM_INVALID_GPS_SENTENCE; }
 
   //fprintf(stderr,"\nMADE IT 9\n");
   // Mode
-  paramptr = strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM);
+  paramptr = strtok_r(NULL, SWARM_NMEA_GPS_DATA_DELIM,&strtok_r_ptr);
   //fprintf(stderr,"\nSTRTOK GOT 7: %s\n",paramptr);
   mode = paramptr[0];
   
@@ -188,7 +190,7 @@ int parseGPSVtgSentance(swarmGpsData * gpsdata)
   */
 
   // Done!
- // if (strtok(NULL, SWARM_NMEA_GPS_DATA_DELIM) != NULL) {
+ // if (strtok_r(NULL, SWARM_NMEA_GPS_DATA_DELIM,&strtok_r_ptr) != NULL) {
   //  return SWARM_INVALID_GPS_SENTENCE;
  // }
 
@@ -333,8 +335,9 @@ int parseRawAggregatorGPSData(char* rawGPS, swarmGpsData * gpsdata)
    char* sentptr = NULL;
    int gpscnt = 0;
    char gpsBufCpy[MAX_BUFF_SZ + 1];
+   char* strtok_r_ptr = NULL;
    strcpy(gpsBufCpy, rawGPS);
-   sentptr = strtok(gpsBufCpy,"\n");
+   sentptr = strtok_r(gpsBufCpy,"\n",&strtok_r_ptr);
    while(sentptr != NULL)
    {
      switch(gpscnt)
@@ -350,7 +353,7 @@ int parseRawAggregatorGPSData(char* rawGPS, swarmGpsData * gpsdata)
        break;//end GPS VTG data parse 
      }
      gpscnt++; 
-     sentptr = strtok(NULL,"\n");
+     sentptr = strtok_r(NULL,"\n",&strtok_r_ptr);
    }
    return status;
 }
