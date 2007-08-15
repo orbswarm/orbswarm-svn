@@ -15,11 +15,10 @@ int processRawSerial(int port_fd, char* buff, int* numBytesRead, int maxBufSz,lo
   int state = eAggregatorMsgStateInit;
   long nTrys =0;
   while(nTrys < maxTrys){
-    ///usleep(20000);
     //printf("try=%dl state=%d\n", nTrys, state);
     numReadBytes = 0;
     readCharsFromSerialPort(port_fd, localBuff, &numReadBytes,maxBufSz); 
-    //printf("read=%s", localBuff);
+    printf("read=%s", localBuff);
     for(int i=0; i < numReadBytes; i++){
       char c = localBuff[i];
       //printf("reading byte=%d is=%c\n", i,c);
