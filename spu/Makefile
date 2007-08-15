@@ -15,6 +15,7 @@ NATIVECC = gcc
 # (I'm sure there's a more elegant way to do this...)
 
 CC = $(CYGWINCC)
+#CC = $(LINUXCC)
 #CC = $(NATIVECC)
 #CPP = $(LINUXCPP)
 CFLAGS = -Wall -g -fno-exceptions -O3 -D_REENTRANT 
@@ -45,8 +46,8 @@ testspuutils: testspuutils.o swarmspuutils.o swarmserial.o
 testspuutils.o: $(TEST)/testspuutils.cc $(INC)/swarmspuutils.h $(INC)/swarmGPSutils.h $(INC)/swarmdefines.h $(INC)/swarmserial.h
 	$(CC) $(CFLAGS)-c $(TEST)/testspuutils.cc
 
-testpacketizer: testpacketizer.o 
-	$(CC) $(LIBS) $(CFLAGS) testpacketizer.o -o testpacketizer
+testpacketizer: testpacketizer.o  swarmspuutils.o swarmserial.o 
+	$(CC) $(LIBS) $(CFLAGS) testpacketizer.o  swarmspuutils.o swarmserial.o -o testpacketizer
 
 testpacketizer.o: $(TEST)/testpacketizer.cc 
 	$(CC) $(CFLAGS)-c $(TEST)/testpacketizer.cc
@@ -94,6 +95,11 @@ testcom: testcom.o swarmserial.o
 testcom.o: $(TEST)/testcom.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h 
 	$(CC) $(CFLAGS)-c $(TEST)/testcom.cc
 
+testSpuCom2RW: testSpuCom2RW.o swarmserial.o 
+	$(CC) $(LIBS) $(CFLAGS) testSpuCom2RW.o swarmserial.o -o testSpuCom2RW 
+
+testSpuCom2RW.o: $(TEST)/testSpuCom2RW.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h 
+	$(CC) $(CFLAGS)-c $(TEST)/testSpuCom2RW.cc
 
 spu: spu.o swarmserial.o 
 	$(CC) $(LIBS) $(CFLAGS) spu.o swarmserial.o -o spu 
@@ -109,8 +115,8 @@ spumond: spumond.o swarmspuutils.o swarmserial.o
 spumond.o: $(SRC)/spumond.cc
 	$(CC) $(CFLAGS)-c $(SRC)/spumond.cc
 
-mainloop: mainloop.o swarmserial.o swarmspuutils.o  swarmGPSutils.o  swarmIMUutils.o adconverter.o
-	$(CC) $(LIBS) $(CFLAGS) mainloop.o swarmserial.o swarmspuutils.o swarmGPSutils.o swarmIMUutils.o adconverter.o -o mainloop 
+mainloop: mainloop.o swarmserial.o swarmspuutils.o  swarmGPSutils.o  swarmIMUutils.o 
+	$(CC) $(LIBS) $(CFLAGS) mainloop.o swarmserial.o swarmspuutils.o swarmGPSutils.o swarmIMUutils.o  -o mainloop 
 
 mainloop.o: $(SRC)/mainloop.cc $(SRC)/swarmserial.cc $(SRC)/swarmspuutils.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h 
 	$(CC) $(CFLAGS)-c $(SRC)/mainloop.cc
