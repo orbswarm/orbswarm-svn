@@ -10,7 +10,7 @@
 #include "../include/swarmGPSutils.h"
 #include "../include/swarmIMUutils.h"
 #include "../include/adconverter.h"
-
+#include "../include/state_mc.h"
 
 int main(int argc, char *argv[]) 
 {
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 
        if (0){ 			// always poll IMU
 
-	 // Poll motor controller to get IMU data
+	 // Poll aggregator to get IMU data
 	 writeCharsToSerialPort(com5, "$QI*", strlen("$QI*"));
 	 readCharsFromSerialPort(com5, buffer, &bytes2,MAX_BUFF_SZ); 
 	 
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
 	 }
        }
 
-       if (1){ 			// always poll drive motor
+       if (0){ 			// always poll drive motor
 
 	 // Poll  to get drive motor data incldata
 	 writeCharsToSerialPort(com5, "$QD*", strlen("$QD*"));
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
 
 
 
-       if(0) { // always poll AGGRIGATOR 
+       if(1) { // always poll AGGRIGATOR 
        printf("START AGGREGATOR TRANSACTION**********\n"); 
 
        //memset(gpsBuff,0,MAX_BUFF_SZ);
@@ -139,35 +139,42 @@ int main(int argc, char *argv[])
        writeCharsToSerialPort(com2, AGGR_GPS_QUERY_CMD, strlen(AGGR_GPS_QUERY_CMD));
        usleep(20000);
        //readCharsFromSerialPortUntilAck(com2, gpsBuff, &gpsBytes, MAX_BUFF_SZ,100 , AGGR_DATA_XFER_ACK);
-       readCharsFromSerialPortUntilAck(com2, buffer, &bytes2, MAX_BUFF_SZ, 100 , AGGR_DATA_XFER_ACK);
+       //readCharsFromSerialPortUntilAck(com2, buffer, &bytes2, MAX_BUFF_SZ, 100 , AGGR_DATA_XFER_ACK);
   
-       //HEY NILADRI PUT CODE HEAR
+       int status = processRawSerial(com2, buffer, &bytes2, MAX_BUFF_SZ, 
+			1000, AGGR_DATA_XFER_ACK);
+       if(SWARM_SUCCESS != status){
+	 printf("FAILED TO READ XXXXXXXXXXXXXXXX");
+	 //return 1;
+       }
 
        if (VERBOSE) printf("\n RAW AGGREGATOR DATA STREAM is \"%s\" SIZE:%d\n",buffer,bytes2);
-     
+       writeCharsToSerialPort(com2, testbuff, strlen(testbuff));
+        
        char* msgptr = NULL;
+       char* strtok_r_buff = NULL;
        int msgcount = 0;
        char msgBufCpy[MAX_BUFF_SZ + 1];
        int messageType = 0;
        strcpy(msgBufCpy, buffer);
        
        //fprintf(stderr, "\nBuffer to strtok **%s** for message\n",zigbeeBufCpy);
-       fprintf(stderr, "\nBuffer to strtok **%s** for message\n",msgBufCpy);
-       msgptr = strtok(msgBufCpy,AGGR_MESSAGE_DELIM_END);
+       if (VERBOSE) printf("\nBuffer to strtok **%s** for message\n",msgBufCpy);
+       msgptr = strtok_r(msgBufCpy, ";",&strtok_r_buff);
 
-       fprintf(stderr, "\nstrtok returned **%s** for first part of gps message \n",msgptr);
+       if (VERBOSE) printf("\nstrtok returned **%s** for first part of gps message \n",msgptr);
        //We ARE being very trusing hear that we will get the first gps sentance  
          strcpy(currentOrbLoc.gpsSentence,msgptr);
        
-       msgptr = strtok(NULL,AGGR_MESSAGE_DELIM_END);
-       fprintf(stderr, "\nstrtok returned **%s** for the second part of gps message \n",msgptr);
+       msgptr = strtok_r(NULL,";", &strtok_r_buff);
+       if (VERBOSE) printf("\nstrtok returned **%s** for the second part of gps message \n",msgptr);
        //Here we are expecting the GPS velocity data
-         strcpy(currentOrbLoc.vtgSentence,msgptr);
-
+       strcpy(currentOrbLoc.vtgSentence,msgptr);
+       msgptr = strtok_r(NULL,";", &strtok_r_buff);
        //
        //we recieved data now parse GPS sentence
        //
-       parseAndConvertGPSData(gpsBuff, &currentOrbLoc); 
+       //parseAndConvertGPSData(gpsBuff, &currentOrbLoc); 
 
 
        //Tell the agg that we want whatever zigbee data it has to give 
@@ -182,14 +189,18 @@ int main(int argc, char *argv[])
 
          //We should be done with gps data so now we loop through the zigbee messages 
 
-         msgptr = strtok(NULL,AGGR_MESSAGE_DELIM_END);
+       
+       if (VERBOSE) printf("\nstrtok returned **%s** for the xbee messages \n",msgptr);
          while(msgptr != NULL)
          {
            //do the work 
             
-           fprintf(stderr, "\nCALLING getMessageType: %s\n",msgptr);
+           if (VERBOSE) printf("\nCALLING getMessageType: %s\n",msgptr);
            messageType = getMessageType(msgptr);
-           fprintf(stderr, "\ngot message type **%d** \n",messageType);
+           if (VERBOSE) printf("\ngot message type **%d** \n",messageType);
+
+           //send back the data that we are getting
+           packetizeAndSendMotherShipData(com2 , msgptr, strlen(msgptr));
              
            switch(messageType)
            {
@@ -198,8 +209,9 @@ int main(int argc, char *argv[])
                		fprintf(stderr, "\nHANDELING SPU POLL\n");
                		char spuPollData[MAX_BUFF_SZ + 1]; 
 
-			getAdConverterStatus(&adConverterStatus, AD_DEFAULT_MAX_VOLTAGE, AD_DEFAULT_PRECISION);
+			//			getAdConverterStatus(&adConverterStatus, AD_DEFAULT_MAX_VOLTAGE, AD_DEFAULT_PRECISION);
 			genSpuDump(spuPollData, MAX_BUFF_SZ, &currentOrbLoc, &adConverterStatus);
+                        packetizeAndSendMotherShipData(com2 , spuPollData, strlen(spuPollData));
                
              break;
              
@@ -219,7 +231,7 @@ int main(int argc, char *argv[])
                break;
            }
            msgcount++; 
-           msgptr = strtok(NULL,AGGR_MESSAGE_DELIM_END);
+           msgptr = strtok_r(NULL,AGGR_MESSAGE_DELIM_END, &strtok_r_buff);
          }
          printf("END AGGREGATOR TRANSACTION**********\n"); 
        }//End poll Agregator
