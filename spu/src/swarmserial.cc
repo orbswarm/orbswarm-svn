@@ -234,6 +234,27 @@ int readCharsFromSerialPortUntilAck(int port_fd, char* buff, int* numBytesRead, 
 // treats porFd as a serial port fd. set portFd to -1 to avoid writing to 
 // serial port useful for debugging.
 
+int packetize(int portFd, char* buffToWrite, int buffSz)
+{
+  if(1){
+    int nByteCnt =0;
+    int isDone=false;
+    char buffer[100];
+    while(nByteCnt < buffSz){
+      buffer[0]='$';
+      buffer[1]='A';
+      buffer[2]='s';
+      int i=3;
+      for(; i < 98 && nByteCnt < buffSz; i++){
+	buffer[i] =buffToWrite[nByteCnt++]; 
+      }
+      buffer[i++]='*';
+      buffer[i]='$';
+      writeCharsToSerialPort(portFd, buffer, (i+1));
+    }
+  }
+}
+
 int packetizeAndSendMotherShipData(int portFd, char* buffToWrite, int buffSz)
 {
   int status = SWARM_SUCCESS;
