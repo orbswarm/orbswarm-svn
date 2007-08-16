@@ -34,6 +34,7 @@ public class Temporal {
     public static final String ENDTIME      = "endTime:";
     public static final String LENGTH       = "length";
     public static final String COLOR        = "<color>";
+    public static final String FADE_TIME    = "fadeTime:";
     public static final String END_COLOR    = "</color>";
 
     public static final float NO_TIME = -1.f;
@@ -87,7 +88,13 @@ public class Temporal {
         this.endTime = val;
     }
     public float getEndTime()     {
-        return this.endTime;
+        if (this.endTime != NO_TIME) {
+            return this.endTime;
+        } else if (this.duration == NO_TIME) {
+            return this.endTime;
+        } else {
+            return this.startTime + this.duration;
+        }
     }
 
     public static  boolean intervalIntersects(double st1, double end1,

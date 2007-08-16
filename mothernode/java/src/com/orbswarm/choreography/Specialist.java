@@ -3,6 +3,8 @@ package com.orbswarm.choreography;
 import java.util.Properties;
 
 public interface Specialist {
+    public static final float NO_TIME = -1.f;
+
     /** Called to initialize the specialist.
         Implemented in AbstractSpecialist superclass.
         Most implementations will call super.setup(...)
@@ -38,6 +40,9 @@ public interface Specialist {
     /// Typically implemented in AbstractSpecialist ///
     ///////////////////////////////////////////////////
 
+    public float   getDuration();  // return NO_TIME if not set. 
+    public void    setDuration(float durationInSecs);
+    
     public void    setProperties(Properties properties);
     public void    setProperty(String name, String val);
     public String  getProperty(String name);

@@ -1,0 +1,68 @@
+<timeline>
+  name: Simple sound test. 
+  arena: 200.
+  duration: 40.
+  <event>
+     name: reds
+     specialist: SimpleColor
+     startTime: 2
+     <orbs> 0 1 2 3 4 5  </orbs>
+     <color> RGB 255 0 0 </color>
+  </event>
+  <event>
+     name:  Birds1
+     specialist: SimpleSound
+     <notes> This is the first sample event </notes>
+     startTime: 10
+     endTime: 21
+     <orbs> 1  </orbs>
+     <properties>
+          soundfile /orbsongs/general/Birds1.aif
+     </properties>
+  </event>
+
+  <event>
+     name:  Birds2
+     specialist: SimpleSound
+     <notes> This is the first sample event </notes>
+     startTime: 15
+     endTime: 25
+     <orbs> 2  </orbs>
+     <properties>
+          soundfile /orbsongs/general/Birds2.aif
+     </properties>
+  </event>
+
+  <event>
+     name:  HorseMagpie
+     specialist: SimpleSound
+     <notes> This is the first sample event </notes>
+     startTime: 17
+     endTime: 21
+     <orbs> 3  </orbs>
+     <properties>
+          soundfile /orbsongs/general/Horsemagpie.aif
+     </properties>
+  </event>
+
+  <event>
+     name:  Chime_C2
+     specialist: SimpleSound
+     startTime: 19
+     endTime: 21
+     <orbs> 4  </orbs>
+     <properties>
+          soundfile /orbsongs/general/DC_c2a.aif
+     </properties>
+  </event>
+
+  <event>
+     name: blues
+     specialist: SimpleColor
+     startTime: 21
+     <orbs> 0 1 2 3 4 5  </orbs>
+     <color> RGB 0 0 255 </color>
+  </event>
+
+
+</timeline>

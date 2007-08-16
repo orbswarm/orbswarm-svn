@@ -6,6 +6,7 @@
      name: reds
      specialist: SimpleColor
      startTime: 2
+     fadetime: 10
      <orbs> 0 1 2 3 4 5  </orbs>
      <color> RGB 255 0 0 </color>
   </event>
@@ -14,6 +15,7 @@
      name: ZeroBlue
      specialist: SimpleColor
      startTime: 5
+     fadetime: 3
      <orbs> 0 </orbs>
      <color> RGB 150 150 255 </color>
   </event>
@@ -29,25 +31,29 @@
      name: blues
      specialist: SimpleColor
      startTime: 40
+     fadetime: 2
      <orbs> 0 1 2 3 4 5 </orbs>
      <color> RGB 0 0 255 </color>
   </event>
   <event>
      specialist: SimpleColor
      startTime: 10
+     fadetime: 2
      <orbs> 1 </orbs>
      <color> HSV .2 .7 .8 </color>
   </event>
   <event>
      specialist: SimpleColor
-     startTime: 11
+     startTime: 11 
+     fadetime: 2
      <orbs> 2 </orbs>
      <color> HSV .3 .7 .8 </color>
   </event>
   <event>
      specialist: SimpleColor
-     startTime: 12
-     <orbs> 3 </orbs>
+     startTime: 12 
+     fadetime: 2
+    <orbs> 3 </orbs>
      <color> HSV .4 .7 .8 </color>
   </event>
   <event>
@@ -120,6 +126,7 @@
   <event>
      specialist: SimpleColor
      startTime: 32
+     fadetime: 2
      <orbs> 2 4 0 </orbs>
      <color> HSV 2.5 .1 .2 </color>
      <properties>

@@ -3,6 +3,7 @@ package com.orbswarm.choreography.timeline;
 import com.orbswarm.choreography.OrbControl;
 import com.orbswarm.choreography.Specialist;
 import com.orbswarm.swarmcomposer.util.StdDraw;
+import com.orbswarm.swarmcomposer.util.TokenReader;
 import com.orbswarm.swarmcomposer.color.HSV;
 
 import com.orbswarm.swarmcon.SwarmCon;
@@ -171,10 +172,7 @@ public class TimelineDisplay  {
         drop.setBackground(bgColor);
         // TODO: find the choreography files and populate dropdown with them
         drop.addItem("== Select a timeline ==");
-        drop.addItem("sampletimeline.tml");
-        drop.addItem("timeline1.tml");
-        drop.addItem("timeline2.tml");
-        drop.addItem("timeline3.tml");
+        addTimelines(drop);
 
         panel.add(drop, gbc); //
         drop.addActionListener(new ActionListener() {
@@ -237,6 +235,31 @@ public class TimelineDisplay  {
         return panel;
     }
 
+    public void addTimelines(JComboBox cb) {
+        List timelines = findTimelines();
+        for(Iterator it=timelines.iterator(); it.hasNext(); ) {
+            cb.addItem((String)it.next());
+        }
+    }
+
+    public List findTimelines() {
+        String timelinesFile = "resources/timelines/timelines.list";
+        ArrayList timelines = new ArrayList();
+        try {
+            TokenReader reader = new TokenReader(timelinesFile);
+            String token = reader.readToken();
+            while (token != null) {
+                timelines.add(token);
+                token = reader.readToken();
+            }
+        } catch (IOException ex) {
+            System.out.println("TimelineDisplay.fineTimelines caught exception reading timelines.");
+            ex.printStackTrace();
+        }
+        return timelines;
+    }
+    
+        
     public void calculateDimensions(boolean rescaleDrawer) {
         boolean changed = false;
         double newTimeWindowWidth = timelineWidth * hZoom;
@@ -347,6 +370,14 @@ public class TimelineDisplay  {
             sp.stop();
             event.setSpecialist(null);
         }
+        // if this is a composite event, stop its subevents.
+        ArrayList subEvents = event.getEvents();
+        if (subEvents != null) {
+            for(Iterator it = subEvents.iterator(); it.hasNext(); ) {
+                Event sub = (Event)it.next();
+                stopEvent(sub);
+            }
+        }
     }
 
     public void startEvent(Event event) {
@@ -359,6 +390,14 @@ public class TimelineDisplay  {
         } else {
             event.startSpecialist(orbControl);
             runningEventMap.put(event.getName(), event);
+        }
+        // if this is a composite event, start its subevents.
+        ArrayList subEvents = event.getEvents();
+        if (subEvents != null) {
+            for(Iterator it = subEvents.iterator(); it.hasNext(); ) {
+                Event sub = (Event)it.next();
+                startEvent(sub);
+            }
         }
     }
 
@@ -487,6 +526,7 @@ public class TimelineDisplay  {
         //System.out.println("DisplayEvent. name: " + event.getName() + " start: " + st + " end: " + et);
         
         Color eventColor;
+        Color jcolor = event.jcolor; // for a color event, a swatch indicating the actual color
         double timeFudge = 0.;
         double evStartX = timeWindowPixel(timeToTimePixel(st));
         double evEndX = timeWindowPixel(timeToTimePixel(et));
@@ -505,11 +545,11 @@ public class TimelineDisplay  {
             displayEventDuration(evStartX, evEndX, evY);
             displayEventEndPoint(evEndX, evY);
         }
-        displayEventStartPoint(evStartX, evY);
+        displayEventStartPoint(evStartX, evY, jcolor);
         displayEventText(evStartX + eventTrackHeight * .5, evY - eventTrackHeight * .4, event.getName());
     }
 
-    public void displayEventStartPoint(double evStartX, double evY) {
+    public void displayEventStartPoint(double evStartX, double evY, Color jcolor) {
         double eventTickWidth = eventTrackHeight / 2.;
         double x = evStartX;
         double y =  evY - eventTrackHeight;
@@ -518,6 +558,11 @@ public class TimelineDisplay  {
         Color keep = drawer.getPenColor();
         drawer.setPenColor(eventColor_border);
         drawer.line(x, y, x, evY);
+        if (jcolor != null) {
+            drawer.setPenColor(jcolor);
+            drawer.filledRectangle(x + eventTickWidth, y,
+                               2 * eventTickWidth, eventTrackHeight);
+        }
         drawer.setPenColor(keep);
     }
 

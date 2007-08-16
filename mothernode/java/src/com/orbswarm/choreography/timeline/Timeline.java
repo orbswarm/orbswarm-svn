@@ -115,6 +115,10 @@ public class Timeline extends Temporal {
                 HSV color = colorFromSpec(colorSpec);
                 event.setColor(color);
 
+            } else if (token.equalsIgnoreCase(FADE_TIME)) {
+                float  fadeTime = reader.readFloat();
+                event.setFadeTime(fadeTime);
+
             } else if (token.equalsIgnoreCase(PROPERTIES)) {
                 Properties properties = readProperties(reader);
                 event.setProperties(properties);

@@ -1,25 +1,41 @@
 package com.orbswarm.choreography;
 
+import com.orbswarm.swarmcomposer.composer.Sound;
+
 import java.util.Properties;
 
 public class SingleSoundSpecialist extends AbstractSpecialist {
     private boolean enabled = true;
+    private Sound sound = null;
     
     public void setup(OrbControl orbControl, Properties initialProperties, int[] orbs) {
         super.setup(orbControl, initialProperties, orbs);
     }
+
+    public void setProperty(String name, String val) {
+        super.setProperty(name, val);
+        System.out.println("SingleSoundSpecialist: setProperty(" + name + ") = " + val);
+        if (name.equalsIgnoreCase("soundfile")) {
+            System.out.println("SingleSound: looking up soundfile: " + val);
+            sound = orbControl.lookupSound(val);
+            System.out.println("             ==> " + sound);
+        }
+    }
     
     public void start() {
         if (enabled) {
-            String soundFilePath = getProperty("soundFile", null);
+            String soundFilePath = getProperty("soundfile", null);
+            System.out.println("SSS:start. soundFilePath: " + soundFilePath);
             if (soundFilePath != null) {
-                int durationMS = 0;
+                long durationMS = 0;
                 for(int i=0; i < orbs.length; i++) {
                     int orbNum = orbs[i];
-                    float durationSec = orbControl.playSoundFile(orbNum, soundFilePath);
-                    durationMS = (int)(1000 * durationSec);
+                    if (sound != null) {
+                        float durationSec = orbControl.playSound(orbNum, sound);
+                        durationMS = (int)(1000 * durationSec);
+                    }
                 }
-                delayedBroadcastCommandCompleted(durationMS, "start", orbs, soundFilePath);
+                delayedBroadcastCommandCompleted(durationMS, "start", orbs, sound.getName());
             }
         }
     }

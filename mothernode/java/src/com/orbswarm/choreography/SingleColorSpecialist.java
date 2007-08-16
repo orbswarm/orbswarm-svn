@@ -15,6 +15,7 @@ public class SingleColorSpecialist extends AbstractSpecialist implements ColorSp
 
     public void setColor(HSV color, float fadeTimeSec) {
         this.color = color;
+        setDuration(fadeTimeSec);
         this.fadeTimeMS = (int)(fadeTimeSec * 1000);
     }
     

@@ -6,6 +6,7 @@ import com.orbswarm.choreography.Specialist;
 import com.orbswarm.swarmcomposer.util.TokenReader;
 import com.orbswarm.swarmcomposer.color.HSV;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
@@ -39,6 +40,7 @@ public class Event extends Temporal {
     protected String specialistName = null;
     protected int[]  orbs       = null;
     protected HSV    color      = null;
+    protected Color  jcolor     = null;
     protected float  fadeTime   = NO_TIME;
     protected String sound      = null;
     protected String song       = null;
@@ -147,12 +149,33 @@ public class Event extends Temporal {
     public String getCommand() {
         return this.command;
     }
+
     
-    public void setColor( HSV val) {
+    public void setColor(HSV val) {
         this.color = val;
+        this.jcolor = val.toColor();
     }
     public HSV getColor() {
         return this.color;
+    }
+
+    public void setFadeTime(float val) {
+        this.fadeTime = val;
+        if (this.duration == NO_TIME) {
+            setDuration(this.fadeTime);
+        }
+    }
+    public float getFadeTime() {
+        return this.fadeTime;
+    }
+
+    // for composite events, the duration is the longest of the
+    // children's durations. 
+    public void setDuration(float val) {
+        super.setDuration(val);
+        if (parent != null && this.duration > parent.getDuration()) {
+            parent.setDuration(this.duration);
+        }
     }
 
     // TODO: remember whether it was specified as HSV or RGB
@@ -216,7 +239,6 @@ public class Event extends Temporal {
         if (specialist instanceof ColorSpecialist && modifyingEvent.color != null) {
             ColorSpecialist cs = (ColorSpecialist)specialist;
             cs.setColor(modifyingEvent.color, modifyingEvent.fadeTime);
-            
         }
         // TODO: run the command
     }
@@ -276,15 +298,17 @@ public class Event extends Temporal {
 
     public boolean intersects(Event other) {
         float fudgeFactor = .5f;
+        float thisEndTime = this.getEndTime();  // these can be derived
+        float otherEndTime = other.getEndTime();
         if (endTime == NO_TIME) {
-            if (other.endTime == NO_TIME) {
+            if (otherEndTime == NO_TIME) {
                 return (Math.abs(startTime - other.startTime) < fudgeFactor);
             }
-            return (startTime >= other.startTime && startTime <= other.endTime) ;
+            return (startTime >= other.startTime && startTime <= otherEndTime) ;
         } else {
-            return ((other.startTime >= startTime && other.startTime <= endTime) ||
-                    (other.endTime   >= startTime && other.endTime   <= endTime) ||
-                    (other.startTime <  startTime && other.endTime >  endTime));
+            return ((other.startTime >= startTime && other.startTime <= thisEndTime) ||
+                    (otherEndTime   >= startTime && otherEndTime   <= thisEndTime) ||
+                    (other.startTime <  startTime && otherEndTime >  thisEndTime));
         }
     }
     

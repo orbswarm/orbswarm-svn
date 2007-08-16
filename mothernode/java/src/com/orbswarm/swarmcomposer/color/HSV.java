@@ -10,6 +10,7 @@ public class HSV {
     protected float hue;
     protected float sat;
     protected float val;
+    protected Color jcolor = null;
 
     public HSV(float hue, float sat, float val) {
         this.hue = hue;
@@ -24,11 +25,15 @@ public class HSV {
     public static HSV fromColor(Color color) {
         float[] hsb = new float[3];
         Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), hsb);
-        return new HSV(hsb[0], hsb[1], hsb[2]);
+        HSV result =  new HSV(hsb[0], hsb[1], hsb[2]);
+        result.jcolor = color;
+        return result;
     }
     
     public HSV copy() {
-        return new HSV(hue, sat, val);
+        HSV copy = new HSV(hue, sat, val);
+        copy.jcolor = jcolor;
+        return copy;
     }
     
     public float getHue() {
@@ -37,6 +42,7 @@ public class HSV {
 
     public void setHue(float val) {
         this.hue = val;
+        jcolor = null;
     }
 
 
@@ -46,6 +52,7 @@ public class HSV {
 
     public void setSat(float val) {
         this.sat = val;
+        jcolor = null;
     }
 
 
@@ -55,10 +62,14 @@ public class HSV {
 
     public void setVal(float val) {
         this.val = val;
+        jcolor = null;
     }
 
     public Color toColor() {
-        return Color.getHSBColor(hue, sat, val);
+        if (jcolor == null) {
+            jcolor =  Color.getHSBColor(hue, sat, val);
+        }
+        return jcolor;
     }
 
     public String toString() {

@@ -6,7 +6,7 @@
      name:  ongoing
      specialist: SimpleColor
      <notes> This is the first sample event </notes>
-     startTime: 0
+     startTime: 0.1
      endTime: end
      <orbs> 1 2 3 4 </orbs>
      <color> RGB 255 255 155 </color>
@@ -26,7 +26,7 @@
      specialist: SimpleColor
      <notes> This is the first sample event </notes>
      startTime: 16
-     endTime: 26
+     duration: 8
      <orbs> 0 1 5 3 </orbs>
      <color> RGB 35 35 255 </color>
   </event>
@@ -58,19 +58,21 @@
      endTime: end
      <orbs> 1 2 3 4 </orbs>
      <properties>
-          soundfile /orbsounds/general/sound5
-     </poroperties>
+          soundfile /orbsongs/general/Birds1.aif
+     </properties>
   </event>
 
   <event>
     name: composite1
     <notes> A simple composite event </notes>
-    startTime: 35
+    startTime: 4
     <subevent>
       specialist: SimpleColor
       <orbs> 1 2 </orbs>
       <color> HSV .7 .2 .8 </color>
+      <fadetime> 6 </fadetime>
     </subevent>
+
 
     <subevent>
       specialist: SimpleColor
@@ -83,6 +85,16 @@
       <orbs> 5 6 </orbs>
       <color> HSV .7 .95 .8 </color>
     </subevent>
+
+    <subevent>
+      specialist: FadeColor
+      <orbs> 0 </orbs>
+      <properties>
+         initialcolor RGB 255 255 255
+         finalcolor HSV .7 .2 .8
+         fadetime 6
+    </subevent>
+
   </event>
 
 </timeline>

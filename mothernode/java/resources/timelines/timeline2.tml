@@ -2,10 +2,21 @@
   name: Simple color test. 
   arena: 200.
   duration: 40.
+
+  <event>
+     name: SingleYello
+     specialist: SimpleColor
+     startTime: 1
+     fadeTime: 2
+     <orbs> 3  </orbs>
+     <color> RGB 255 255 0 </color>
+  </event>
+
   <event>
      name: reds
      specialist: SimpleColor
-     startTime: 2
+     startTime: 12
+     fadeTime: 5
      <orbs> 0 1 2 3 4 5  </orbs>
      <color> RGB 255 0 0 </color>
   </event>
@@ -13,7 +24,8 @@
   <event>
      name: ZeroBlue
      specialist: SimpleColor
-     startTime: 5
+     startTime: 15
+     fadeTime: 10
      <orbs> 0 </orbs>
      <color> RGB 150 150 255 </color>
   </event>
@@ -21,9 +33,19 @@
   <event>
      name: OneGreen
      specialist: SimpleColor
-     startTime: 15
+     startTime: 25
+     fadeTime: 2
      <orbs> 1 </orbs>
      <color> RGB 150 255 150 </color>
+  </event>
+
+  <event>
+     name: InstantPurple
+     specialist: SimpleColor
+     startTime: 30
+     fadeTime: 0
+     <orbs> 0 1 2 3 4 5 </orbs>
+     <color> RGB 150 30 150 </color>
   </event>
 </timeline>
 

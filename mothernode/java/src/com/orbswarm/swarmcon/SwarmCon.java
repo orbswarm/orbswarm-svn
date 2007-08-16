@@ -432,7 +432,7 @@ public class SwarmCon extends JFrame
          gbc.weighty = 1.;
          gbc.fill    = GridBagConstraints.BOTH;
          gbc.anchor  = GridBagConstraints.NORTHWEST;
-         arena.setBorder(BorderFactory.createLineBorder(Color.GREEN));
+         arena.setBorder(BorderFactory.createLineBorder(Color.GREEN, 4));
 
          actionPanel.add(arena, gbc);
 
@@ -535,6 +535,12 @@ public class SwarmCon extends JFrame
          // config graphics
                      
          Graphics2D g = (Graphics2D)graphics;
+         // debug
+         g.setColor(Color.GREEN);
+         g.fillRect(0, 0, 10, 10);
+         g.fillRect(getWidth()-10, 0, 10, 10);
+         g.fillRect(0, getHeight()-10, 10, 10);
+         g.fillRect(getWidth()-10, getHeight()-10, 10, 10);
          g.setColor(BACKGROUND);
          g.fillRect(0, 0, getWidth(), getHeight());
          g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
@@ -1060,5 +1066,6 @@ public class SwarmCon extends JFrame
     public static void registerSpecialists() {
         String chpkg = "com.orbswarm.choreography";
         Timeline.registerSpecialist("SimpleColor", chpkg + "." + "SingleColorSpecialist");
+        Timeline.registerSpecialist("SimpleSound", chpkg + "." + "SingleSoundSpecialist");
     }
 }
