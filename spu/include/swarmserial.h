@@ -45,6 +45,6 @@ int readCharsFromSerialPortUntilAck(int port_fd, char* buff, int* numBytesRead,
                                     int maxBufSz, int maxTrys, char ackChar);
 
 int packetizeAndSendMotherShipData(int portFd, char* buffToWrite, int buffSz);
-
+int packetize(int portFd, char* buffToWrite, int buffSz);
 #endif
 
