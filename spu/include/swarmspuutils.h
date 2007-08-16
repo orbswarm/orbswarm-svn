@@ -28,7 +28,7 @@ int spulog(char* msg, int msgSize, char* logdir);
 
 int getMessageType(char* message);
 
-void genSpuDump(char* logBuffer, int maxBufSz, swarmGpsData *gpsData, spuADConverterStatus *adConverterStatus);
+void genSpuDump(char* logBuffer, int maxBufSz, swarmGpsData *gpsData, spuADConverterStatus *adConverterStatus, swarmMotorData* motorData);
 
 
 #endif
