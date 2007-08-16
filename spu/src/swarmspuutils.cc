@@ -223,11 +223,11 @@ int getMessageType(char* message)
   return messageType;
 }
 
-void genSpuDump(char* logBuffer, int maxBufSz, swarmGpsData *gpsData, spuADConverterStatus *adConverterStatus)
+void genSpuDump(char* logBuffer, int maxBufSz, swarmGpsData *gpsData, spuADConverterStatus *adConverterStatus, swarmMotorData* motorData)
 {
   char * scratchBuff = (char *)malloc(maxBufSz * 2);
   //char *adBuffer = (char *)malloc(50);
-  int bytesUsed = sprintf(scratchBuff,"NORTH=%lf\nEAST=%lf\nUTC_TIME=%s\nHEADING=%f\nSPEED=%f\nMSHIP_N=%lf\nMSHIP_E=%lf\nAD_CHANNEL_0=%3.3fV\nAD_CHANNEL_1=%3.3fV\nAD_CHANNEL_2=%3.3fV\nAD_CHANNEL_3=%3.3fV\nAD_CHANNEL_4=%3.3fV\nSONAR=%3.3f inches\nBATTERY=%3.3f inches\n",
+  int bytesUsed = sprintf(scratchBuff,"NORTH=%lf\nEAST=%lf\nUTC_TIME=%s\nHEADING=%f\nSPEED=%f\nMSHIP_N=%lf\nMSHIP_E=%lf\nAD_CHANNEL_0=%3.3fV\nAD_CHANNEL_1=%3.3fV\nAD_CHANNEL_2=%3.3fV\nAD_CHANNEL_3=%3.3fV\nAD_CHANNEL_4=%3.3fV\nSONAR=%3.3f inches\nBATTERY=%3.3f inches\nSTEER_ACTUAL=%d\nDRIVE_ACTUAL%d\n",
 						   gpsData->UTMNorthing,
 						   gpsData->UTMEasting,
 						   gpsData->nmea_utctime,
@@ -241,7 +241,9 @@ void genSpuDump(char* logBuffer, int maxBufSz, swarmGpsData *gpsData, spuADConve
                                                    adConverterStatus->ad_vals[3],
                                                    adConverterStatus->ad_vals[4],
                                                    adConverterStatus->sonar,
-                                                   adConverterStatus->battery_voltage
+                                                   adConverterStatus->battery_voltage,
+                                                   motorData->steerActual,
+                                                   motorData->driveActual
                                                    );
 				
 	
