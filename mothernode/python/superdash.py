@@ -40,9 +40,9 @@ driveRange = driveMax - driveMin
 steerRange = steerMax - steerMin
 
 
-currentlyLogging = 0 # set if we are writing to the logfile
-
-fileLen = 0 # number of data points logged to file
+# struct to hang events from 
+class eventStruct:
+    pass
 
 class Dashboard(wx.Frame):
     
@@ -55,6 +55,9 @@ class Dashboard(wx.Frame):
 
         # and a menu 
         menu = wx.Menu()
+
+        # array of events ordered by time tick
+        self.eventList = []
 
         # add an item to the menu, using \tKeyName automatically
         # creates an accelerator, the third param is some help text
@@ -99,7 +102,7 @@ class Dashboard(wx.Frame):
         self.InitJoystick()
         self.InitTimer(100)
         self.Bind(wx.EVT_TIMER, self.OnTimerEvt)
-       
+        self.tick=0
         self.outQ = []  #output queue for serial commands
         
         # create the Panel to put the controls on.
@@ -153,10 +156,19 @@ class Dashboard(wx.Frame):
         sendBtn = wx.Button(panel, -1, "Send custom command")
 
         # start/stop logging command
-        self.logBtn = wx.Button(panel, -1, "Start logging")
-        self.logBtn.SetForegroundColour((0,255,0))
+        self.logBtn = wx.Button(panel, -1, "Start record")
+        self.logBtn.SetBackgroundColour((0,255,0))
         self.currentlyLogging = 0 # set if we are writing to the logfile
+        self.ticks = 0
         self.fileLen = 0 #  number of data points written to logfile
+
+        # start/stop logging command
+        self.playBtn = wx.Button(panel, -1, "Start playback")
+        self.playBtn.SetBackgroundColour((0,255,0))
+        self.currentlyPlaying = 0 # set if we are writing to the logfile
+        self.pbtick = 0
+        self.maxplayticks = 0;
+
 
         # bind the control events to handlers
         self.Bind(wx.EVT_SCROLL, self.OnSlideEvt,self.drive)
@@ -164,6 +176,7 @@ class Dashboard(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.OnStopBtn, stopBtn)
         self.Bind(wx.EVT_BUTTON, self.OnSendBtn, sendBtn)
         self.Bind(wx.EVT_BUTTON, self.OnLogBtn, self.logBtn)
+        self.Bind(wx.EVT_BUTTON, self.OnPlayBtn, self.playBtn)
 
         # Bind commandbox "enter" key to execute command
         self.Bind(wx.EVT_TEXT_ENTER , self.OnSendBtn, self.commandbox)
@@ -185,7 +198,7 @@ class Dashboard(wx.Frame):
             (self.commandbox,0, wx.ALIGN_LEFT),
             #fifth row
             (self.logBtn,        0, wx.ALIGN_CENTER),
-            (self.resultbox,0, wx.ALIGN_LEFT),
+            (self.playBtn,       0, wx.ALIGN_CENTER),
             ])
         panel.SetSizer(bigGrid)
         panel.Layout()
@@ -204,24 +217,23 @@ class Dashboard(wx.Frame):
 
     def OnLogBtn(self, evt):
         """Event handler for the Log button."""
+        if self.currentlyPlaying:
+            return
         if  self.currentlyLogging == 0:
             # start logging
-            self.currentlyLogging = 1
-            self.logBtn.SetForegroundColour((255,0,0))
-            self.logBtn.SetLabel('Stop logging')
-            self.logfile = open(logFileName,'w')
-            self.logfile.write('opened\n')
-            self.csvfile = open("log.csv", "wb")
-            self.logger = csv.writer(self.csvfile)
-            writer.writerows(someiterable)
-
+            self.startRecord()
         else:
-            self.logBtn.SetForegroundColour((0,255,0))
-            self.logBtn.SetLabel('Start logging')
-            self.currentlyLogging = 0
-            self.fileLen = 0
-            self.logfile.close
-            self.csvfile.close
+            self.stopRecord()
+
+    def OnPlayBtn(self, evt):
+        """toggle stop/start playback."""
+        if self.currentlyLogging:
+            return
+        if  self.currentlyPlaying == 0:
+            self.startPlayback()
+        else:
+            self.stopPlayback()
+
 
     def OnSendBtn(self, evt):
         """Event handler for the Send button.
@@ -240,13 +252,74 @@ class Dashboard(wx.Frame):
 
     # this is called regularly by the timer.    
     def OnTimerEvt(self,evt):
-        # Poll pygame for joystick events
-        e = pygame.event.poll()
-        while (e.type != pygame.NOEVENT):
-            self.OnJoystick(e)
-            e = pygame.event.poll()
 
+
+        if self.currentlyPlaying:
+            if (self.pbtick < self.maxplayticks):
+                self.playbackTick(self.pbtick)
+                self.pbtick = self.pbtick + 1
+            else:
+                self.stopPlayback()
+            
+        else:
+            # Poll pygame for joystick events
+            e = pygame.event.poll()
+            while (e.type != pygame.NOEVENT):
+                self.OnJoystick(e)
+                e = pygame.event.poll()
+            if self.currentlyLogging:
+                self.ticks = self.ticks + 1
+                self.maxplayticks = self.ticks
+                self.recordState(self.ticks)
+                self.printState(self.ticks)
         #self.SendSerial()
+
+
+    ########################################################
+    # recording/playback handlers
+
+    # store events in event structure at time "tick" 
+    def recordState(self,tick):
+        print "recording state %d" % tick
+        thisEv = eventStruct()
+        thisEv.tick = tick
+        thisEv.steer = self.steer.GetValue()
+        thisEv.drive = self.drive.GetValue()
+        self.eventList.append(thisEv)
+
+    def printState(self,tick):
+        print "event at %d" % tick
+        thisEv =  self.eventList[tick-1]
+
+    def playbackTick(self,tick):
+        thisEv = self.eventList[tick]
+        print "playback percent  %2.0f%%" % (100*float(tick)/float(self.maxplayticks))
+        self.steer.SetValue(thisEv.steer) 
+        self.drive.SetValue(thisEv.drive)
+
+
+    def startRecord(self):
+        self.currentlyLogging = 1
+        self.logBtn.SetBackgroundColour((255,0,0))
+        self.logBtn.SetLabel('STOP')
+
+    def stopRecord(self):
+        self.logBtn.SetBackgroundColour((0,255,0))
+        self.logBtn.SetLabel('RECORD')
+        self.currentlyLogging = 0
+        self.ticks=0
+    
+    def startPlayback(self):
+        # start playback
+        self.currentlyPlaying = 1
+        self.playBtn.SetBackgroundColour((255,0,255))
+        self.playBtn.SetLabel('STOP')
+        self.pbtick=0
+            
+    def stopPlayback(self):
+        self.playBtn.SetBackgroundColour((0,255,0))
+        self.playBtn.SetLabel('PLAY')
+        self.currentlyPlaying = 0
 
 
     #####################################  serial handlers
