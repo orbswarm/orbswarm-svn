@@ -432,7 +432,6 @@ public class SwarmCon extends JFrame
          gbc.weighty = 1.;
          gbc.fill    = GridBagConstraints.BOTH;
          gbc.anchor  = GridBagConstraints.NORTHWEST;
-         arena.setBorder(BorderFactory.createLineBorder(Color.GREEN, 4));
 
          actionPanel.add(arena, gbc);
 
@@ -533,16 +532,13 @@ public class SwarmCon extends JFrame
       public void paintArena(Graphics graphics)
       {
          // config graphics
-                     
+
+         int width = arena.getWidth();
+         int height = arena.getHeight();
          Graphics2D g = (Graphics2D)graphics;
-         // debug
-         g.setColor(Color.GREEN);
-         g.fillRect(0, 0, 10, 10);
-         g.fillRect(getWidth()-10, 0, 10, 10);
-         g.fillRect(0, getHeight()-10, 10, 10);
-         g.fillRect(getWidth()-10, getHeight()-10, 10, 10);
+
          g.setColor(BACKGROUND);
-         g.fillRect(0, 0, getWidth(), getHeight());
+         g.fillRect(0, 0, width, height);
          g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
                             RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -588,7 +584,7 @@ public class SwarmCon extends JFrame
          }
          // set 0,0 to lower left corner, and scale for meters
 
-         g.translate(0, getHeight());
+         g.translate(0, height);
          g.scale(PIXLES_PER_METER, -PIXLES_PER_METER);
                      
          // draw mobjects
@@ -971,7 +967,6 @@ public class SwarmCon extends JFrame
          gbc.anchor  = GridBagConstraints.EAST;
 
          actionPanel.add(controlUIPanel, gbc);
-         //arena.add(controlUIPanel, gbc);
          
          gbc = new GridBagConstraints();
          gbc.gridx      = 0;
@@ -1061,11 +1056,13 @@ public class SwarmCon extends JFrame
     {
         System.out.println("Swarmcon: STOP Timeline!!!!!!111!1eleven!!");
         stopControlling();
+        timelineDisplay.stopAllRunningEvents();
     }
 
     public static void registerSpecialists() {
         String chpkg = "com.orbswarm.choreography";
         Timeline.registerSpecialist("SimpleColor", chpkg + "." + "SingleColorSpecialist");
         Timeline.registerSpecialist("SimpleSound", chpkg + "." + "SingleSoundSpecialist");
+        Timeline.registerSpecialist("Multitrack", chpkg + "." + "MultitrackSongSpecialist");
     }
 }

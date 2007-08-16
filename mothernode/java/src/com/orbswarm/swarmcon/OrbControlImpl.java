@@ -72,12 +72,19 @@ public class OrbControlImpl implements OrbControl {
         return sound;
     }
     
-    public void stopSound(int orb) {}
+    public void stopSound(int orbNum) {
+        SoundFilePlayer player = getSoundPlayer(orbNum);
+        //System.out.println("OCI: stopSound(orb:" + orbNum + ") player: " + player);
+        if (player != null) {
+            player.stop();
+        }
+    }
+    
     public void volume(int orb, int volume) {}
 
     // only one Light control method implemented
     public void orbColor(int orbNum, int hue, int sat, int val, int timeMS) {
-        System.out.println("SwarmCon:OrbControl orbColor(orb: " + orbNum + "HSV: [" + hue + ", " + sat + ", " + val + "])");
+        //System.out.println("SwarmCon:OrbControl orbColor(orb: " + orbNum + "HSV: [" + hue + ", " + sat + ", " + val + "])");
         float fhue = hue / 255.f;
         float fsat = sat / 255.f;
         float fval = val / 255.f;

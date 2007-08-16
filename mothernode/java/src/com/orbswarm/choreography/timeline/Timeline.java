@@ -194,14 +194,15 @@ public class Timeline extends Temporal {
     public static void registerSpecialist(String specialistName, String specialistClassName) {
         try {
             Class specialistClass = Class.forName(specialistClassName);
-            specialistRegistry.put(specialistName, specialistClass);
+            specialistRegistry.put(specialistName.toLowerCase(), specialistClass);
         } catch (Exception ex) {
             System.err.println("Timeline caught exception registering specialist " + specialistName  + " as " + specialistClassName);
+            ex.printStackTrace();
         }
     }
 
     public static Class getSpecialistClass(String specialistName) {
-        return (Class)specialistRegistry.get(specialistName);
+        return (Class)specialistRegistry.get(specialistName.toLowerCase());
     }
         
 }

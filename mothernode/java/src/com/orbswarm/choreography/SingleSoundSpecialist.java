@@ -41,8 +41,14 @@ public class SingleSoundSpecialist extends AbstractSpecialist {
     }
 
     public void stop() {
-        int orbNum = getIntProperty("orb", -1);
-        orbControl.stopSound(orbNum);
+        if (sound != null) {
+            for(int i=0; i < orbs.length; i++) {
+                int orbNum = orbs[i];
+                if (sound != null) {
+                    orbControl.stopSound(orbNum);
+                }
+            }
+        }
     }
 
     public void enable(boolean value) {

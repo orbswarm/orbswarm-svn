@@ -44,8 +44,8 @@ public class TimelineDisplay  {
     private double timeWindowScrollTimePixel = 0.;     // timePixel of start of timeWindow
     private double timeCursor  = 0.;  // 
     private double timeCursorWidth  = 1.;  // in TimePixels?
-    private double eventTrackHeight = timelineHeight / 10;
-    private double eventTrackPadding = eventTrackHeight / 10;
+    private double eventTrackHeight = timelineHeight / 10.;
+    private double eventTrackPadding = eventTrackHeight / 10.;
 
     private ArrayList pendingEvents;
     private ArrayList runningEvents;
@@ -91,7 +91,7 @@ public class TimelineDisplay  {
         setupTimelineRunner(this.timeline);
         extractEventTracks(this.timeline);
         display(0.f);
-        drawer.show(false);
+        drawer.show(true);
         repaint();
     }
     
@@ -253,7 +253,7 @@ public class TimelineDisplay  {
                 token = reader.readToken();
             }
         } catch (IOException ex) {
-            System.out.println("TimelineDisplay.fineTimelines caught exception reading timelines.");
+            System.out.println("TimelineDisplay.findTimelines caught exception reading timelines.");
             ex.printStackTrace();
         }
         return timelines;
@@ -330,6 +330,7 @@ public class TimelineDisplay  {
     }
 
     public void stopStoppableEvents(float time) {
+        //System.out.println("TD::Stop Stoppables...");
         for(Iterator it = runningEvents.iterator(); it.hasNext(); ) {
             Event event = (Event)it.next();
             float et = event.getEndTime();
@@ -338,6 +339,16 @@ public class TimelineDisplay  {
                 it.remove();
                 completedEvents.add(event);
             }
+        }
+    }
+
+    public void stopAllRunningEvents() {
+        System.out.println("TD: stop all running events. ");
+        for(Iterator it = runningEvents.iterator(); it.hasNext(); ) {
+            Event event = (Event)it.next();
+            stopEvent(event);
+            it.remove();
+            completedEvents.add(event);
         }
     }
 
@@ -350,9 +361,10 @@ public class TimelineDisplay  {
                 float et = event.getEndTime();
                 it.remove();
                 if (et != Event.NO_TIME && et != st) {
-                    completedEvents.add(event);
-                } else {
+                    //System.out.println("  adding event " + event.getName() + " to running events. ");
                     runningEvents.add(event);
+                } else {
+                    completedEvents.add(event);
                 }
             }
         }
@@ -449,28 +461,9 @@ public class TimelineDisplay  {
         return false;
     }
             
-       
-    
     /////////////////////////////////////////
     /// Display current state of timeline ///
     /////////////////////////////////////////
-
-    public void testDraw(double startTime) {
-        double startPixel = timeToTimePixel(startTime);
-        //double startPixel = timeWindowPixel(timeToTimePixel(startTime));
-        int nsq = 10;
-        double r = timeWindowHeight / nsq / 2.;
-        drawer.setPenColor(Color.DARK_GRAY);
-        for(int i=0; i < nsq; i++) {
-            double x = startPixel + i * 2. * r + r;
-            double y = i * 2. * r + r;
-            System.out.println("TestDraw.  startPixel: " + startPixel + " sq(" + x + ", " + y + ", " + r + ")");
-            if (i != 2) {
-                drawer.filledSquare(x, y, r);
-            }
-        }
-
-    }
 
     // TODO: give orbState messages to running specialists
     public boolean cycle(float time) {
@@ -513,7 +506,7 @@ public class TimelineDisplay  {
         // TODO: if there are too many tracks, reduce the trackHeight
 
         displayTimeCursor(time);
-        drawer.show(false);
+        drawer.show(true);
         repaint();
     }
 
@@ -546,11 +539,11 @@ public class TimelineDisplay  {
             displayEventEndPoint(evEndX, evY);
         }
         displayEventStartPoint(evStartX, evY, jcolor);
-        displayEventText(evStartX + eventTrackHeight * .5, evY - eventTrackHeight * .4, event.getName());
+        displayEventText(evStartX + eventTrackHeight * .5, evY - eventTrackHeight * .4, event.getName(), jcolor);
     }
 
     public void displayEventStartPoint(double evStartX, double evY, Color jcolor) {
-        double eventTickWidth = eventTrackHeight / 2.;
+        double eventTickWidth = eventTrackHeight * .5;
         double x = evStartX;
         double y =  evY - eventTrackHeight;
         drawer.filledRectangle(x, y,
@@ -567,7 +560,7 @@ public class TimelineDisplay  {
     }
 
     public void displayEventEndPoint(double evEndX, double evY) {
-        double eventTickWidth = eventTrackHeight / 2.;
+        double eventTickWidth = eventTrackHeight * .5;
         double x = evEndX - eventTickWidth;
         double y = evY - eventTrackHeight;
         drawer.filledRectangle(x, y, 
@@ -586,14 +579,17 @@ public class TimelineDisplay  {
         drawer.filledRectangle(evStartX, y, width, barHeight);
     }
 
-    public void displayEventText(double evStartX, double evY, String text) {
+    public void displayEventText(double evStartX, double evY, String text, Color jcolor) {
         drawer.setPenColor(eventColor_text);
-        drawer.text(evStartX, evY, (text == null ? "<>" : text));
+        double eventTickWidth = eventTrackHeight * .5;
+        double offset = (jcolor == null ? 0. : 2 * eventTickWidth);
+        drawer.text(evStartX + offset, evY, (text == null ? "<>" : text));
+        // TODO: use the width of the text in determining whether events overlap
     }
 
     public void displayTimeCursor(float time) {
         double timePixel = timeToTimePixel(time);
-        double timeWindowPixel = timeWindowPixel(timePixel) - timeCursorWidth / 2.;
+        double timeWindowPixel = timeWindowPixel(timePixel) - timeCursorWidth * .5;
         drawer.setPenColor(timeCursorColor);
         drawer.filledRectangle(timeWindowPixel, 0., timeCursorWidth, timeWindowHeight);
     }
@@ -664,7 +660,6 @@ public class TimelineDisplay  {
         float interval = duration / slices;
         for(int t=0; t < slices; t++) {
             boolean keepGoing = this.cycle(t * interval);
-            //this.testDraw(t * interval);
             this.repaint();
             if (!keepGoing) {
                 break;
