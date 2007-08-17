@@ -9,6 +9,8 @@ import java.util.Vector;
 import java.util.Enumeration;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.LineNumberReader;
+import java.io.InputStreamReader;
 import java.lang.Thread;
 
 /** SerialIo provids serial I/O between this software and devices on
@@ -16,6 +18,10 @@ import java.lang.Thread;
 
 public class SerialIo
 {
+      /** debugging output option */
+
+      boolean debug = false;
+
       /** baud */
 
       int baud     = 38400;
@@ -48,9 +54,10 @@ public class SerialIo
 
       OutputStream out;
 
-      /** listener to events serial */
+      /** registered line listeners */
 
-      SerialPortEventListener eventListener;
+      Vector<LineListener> lineListeners = new Vector<LineListener>();
+
 
       /** load correct library */
 
@@ -67,12 +74,27 @@ public class SerialIo
             e.printStackTrace();
          }
       }
-      /** Construct a SerialIo object. */
+      /** Construct a SerialIo object.
+       * 
+       * @param portName correct name for serial port on this os
+       * @param debug print all serial IO on standard out
+       */
 
       public SerialIo(String portName)
       {
+         this(portName, false);
+      }
+      /** Construct a SerialIo object.
+       * 
+       * @param portName correct name for serial port on this os
+       * @param debug print all serial IO on standard out
+       */
+
+      public SerialIo(String portName, boolean debug)
+      {
          try
          {
+            this.debug = debug;
             portId = CommPortIdentifier.getPortIdentifier(portName);
             open();
          }
@@ -108,50 +130,16 @@ public class SerialIo
 
          in = serialPort.getInputStream();
          out = serialPort.getOutputStream();
+
+         // activate listeners
+
+         activateListeners();
       }
       
-      /** Add an event listener to the serial port.  I can't seem to
-       * get the event listner to work, so this is likely dead code.
+      /** List available serial ports.
+       *
+       * @return A vector of strings which are valid serial ports on this system.
        */
-
-      public void addEventListener()
-      {
-         try
-         {
-            // and add event listener
-            
-            eventListener = new SerialPortEventListener()
-               {
-                     public void serialEvent(SerialPortEvent ev)
-                     {
-                        System.out.println("got data!");
-                        try
-                        {
-                           byte[] buffer = new byte[256];
-                           switch (ev.getEventType())
-                           {
-                              case SerialPortEvent.DATA_AVAILABLE:
-                                 in.read(buffer);
-                                 System.out.println("got: {" + new String(buffer) + "}");
-                                 break;
-                              default:
-                                 System.out.println("unknown event type: " + ev.getEventType());
-                           }
-                        }
-                        catch (Exception e)
-                        {
-                           e.printStackTrace();
-                        }
-                     }
-               };
-            serialPort.addEventListener(eventListener);
-         }
-         catch (Exception e)
-         {
-            e.printStackTrace();
-         }
-      }
-      /** List available ports. */
 
       static Vector<String> listSerialPorts()
       {
@@ -192,6 +180,7 @@ public class SerialIo
          {
             out.write(string.getBytes());
             out.flush();
+            debugIo(string, true);
          }
          catch (Exception e)
          {
@@ -214,5 +203,69 @@ public class SerialIo
          {
             e.printStackTrace();
          }
+      }
+
+      /** Standard way to print serial degging messages. 
+       *
+       * @param message string being sent or recieved
+       * @param isOutbound true if message is headed out to serial device
+       * @param beforSend true is this is before the messages is sent
+       */
+      
+      public void debugIo(String message, boolean isOutbound)
+      {
+         if (debug)
+         {
+            System.out.println((isOutbound 
+                                ? "-> "
+                                : "<- ") + message);
+         }
+      }
+
+      /** Activate line listening thread */
+
+      public void activateListeners()
+      {
+         // construct a thread to read GPS data from
+         
+         new Thread()
+         {
+               public void run()
+               {
+                  try
+                  {
+                     LineNumberReader lnr = new LineNumberReader(
+                        new InputStreamReader(in));
+
+                     while(true)
+                     {
+                        String line = lnr.readLine();
+                        debugIo(line, false);
+                        for (LineListener l: lineListeners)
+                           l.lineEvent(line);
+                     }
+                  }
+                  catch (Exception e)
+                  {
+                     e.printStackTrace();
+                  }
+               }
+         }.start();
+      }
+      /** Register a line linstener to receive line events.
+       *
+       * @param lineListener listener which will receive line events
+       */
+
+      public void registerLineListener(LineListener lineListener)
+      {
+         lineListeners.add(lineListener);
+      }
+
+      /** Listener for line events comming from serial device */
+
+      public abstract class LineListener
+      {
+         abstract void lineEvent(String line);
       }
 }

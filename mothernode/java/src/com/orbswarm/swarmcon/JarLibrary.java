@@ -60,7 +60,11 @@ public class JarLibrary
          
          catch (UnsatisfiedLinkError er) 
          {
-            System.load("/usr/lib/rxtx-2/" + libname);
+            String sysLibName = "/usr/lib/rxtx-2/" + libname;
+//            String sysLibName = "/usr/lib/" + libname;
+            System.out.println("loading system library: " + sysLibName);
+            System.load(sysLibName);
+            
             //System.loadLibrary(libname);
             //throw new Exception (er.getMessage());
          }

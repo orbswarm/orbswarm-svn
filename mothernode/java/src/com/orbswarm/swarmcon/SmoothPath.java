@@ -269,7 +269,7 @@ class SmoothPath extends Vector<Waypoint>
    public static void main(String[] args)
    {
       final int count = 5;
-      final double curveWidth = 60;
+      final double curveWidth = 120;
 
       final Rate rate = new Rate("test", 0, 30, 1);
       final java.util.Random rnd = new java.util.Random();
