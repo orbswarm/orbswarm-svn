@@ -809,7 +809,7 @@ public class SwarmCon extends JFrame
             {
                try
                {
-                  gpsIo = new GpsIo(portId);
+                  orbIo = new OrbIo(portId);
                   cardLayout.last(centerPanel);
                }
                catch (Exception ex)
