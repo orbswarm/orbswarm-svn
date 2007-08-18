@@ -153,9 +153,9 @@ public class OrbControlImpl implements OrbControl {
 
     public String wrapOrbCommand(int orbNum, String message) {
         StringBuffer buf = new StringBuffer();
-        buf.append("{");
-        buf.append(orbNum);
-        buf.append(", ");
+        buf.append("{Orb");
+        buf.append(60 + orbNum); // this is an IP Addr?
+        buf.append(" ");
         buf.append(message);
         buf.append("}");
         return buf.toString();
