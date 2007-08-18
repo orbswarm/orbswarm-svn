@@ -345,7 +345,7 @@ public class Bot implements NeighborListener {
                 sound.setDuration(duration);
             } else if (token.equalsIgnoreCase(HASH)) {
                 String hash = reader.readToken();
-                sound.setHash(hash);
+                sound.setPCMHash(hash);
             } else if (token.equalsIgnoreCase(MP3_HASH)) {
                 String hash = reader.readToken();
                 sound.setMP3Hash(hash);
@@ -369,7 +369,7 @@ public class Bot implements NeighborListener {
                 track.setDuration(duration);
             } else if (token.equalsIgnoreCase(HASH)) {
                 String hash = reader.readToken();
-                track.setHash(hash);
+                track.setPCMHash(hash);
             } else if (token.equalsIgnoreCase(MP3_HASH)) {
                 String hash = reader.readToken();
                 track.setMP3Hash(hash);

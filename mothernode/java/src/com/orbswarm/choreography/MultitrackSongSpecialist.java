@@ -60,7 +60,7 @@ public class MultitrackSongSpecialist extends AbstractSpecialist {
         tracks[trackNum] = sound;
         float soundLength = sound.getDuration();
         float dur = getDuration();
-        if (dur != NO_TIME && soundLength > dur) {
+        if (soundLength > dur) {
             setDuration(soundLength);
         }
     }

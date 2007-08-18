@@ -17,10 +17,10 @@ public  class ColorSchemeSpecialist extends AbstractSpecialist implements ColorS
     private boolean enabled = true;
     private BotControllerColor botctl_color;
 
-    public void setup(OrbControl orbControl, Properties initialProperties) {
-        super.setup(orbControl, initialProperties);
+    public void setup(OrbControl orbControl, Properties initialProperties, int[] orbs) {
+        super.setup(orbControl, initialProperties, orbs);
 
-        int numbots = 6; // where does this really come from?
+        int numbots = orbs.length; 
         botctl_color = new BotControllerColor(numbots, "/orbsongs");
         botctl_color.addBotColorListener(this);
     }

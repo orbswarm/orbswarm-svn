@@ -110,7 +110,11 @@ public class SwarmCon extends JFrame
       {
           return orbControlImpl;
       }
-    
+
+      public OrbIo getOrbIo()
+      {
+          return this.orbIo;
+      }
     
       /**  Specialists listening to OrbState messages */
       ArrayList specialists = new ArrayList();

@@ -60,6 +60,9 @@ public class Timeline extends Temporal {
             } else if (token.equalsIgnoreCase(EVENT)) {
                 Event event = readEvent(reader, timeline, null, END_EVENT);
                 timeline.addEvent(event);
+            } else if (token.equalsIgnoreCase(SEQUENCE)) {
+                Sequence seq = readSequence(reader, timeline, null, END_SEQUENCE);
+                timeline.addEvent(seq);
             }
             token = reader.readToken(); 
         }
@@ -106,6 +109,10 @@ public class Timeline extends Temporal {
                 Event subEvent = readEvent(reader, timeline, event, END_SUBEVENT);
                 event.addEvent(subEvent);
 
+            } else if (token.equalsIgnoreCase(SEQUENCE)) {
+                Sequence seq = readSequence(reader, timeline, event, END_SEQUENCE);
+                event.addEvent(seq);
+
             } else if (token.equalsIgnoreCase(ORBS)) {
                 List orbs = reader.gatherTokensUntilToken(END_ORBS, false);
                 event.setOrbsFromStrings(orbs);
@@ -129,6 +136,42 @@ public class Timeline extends Temporal {
         //System.out.println("Finished ReadEvent: " + token);
 
         return event;
+    }
+
+    public static Sequence readSequence(TokenReader reader,
+                                        Timeline timeline, Event parent,
+                                        String endToken)  throws IOException {
+        Sequence seq = new Sequence(timeline, parent);
+        String token = reader.readToken();
+        while (token != null && !token.equalsIgnoreCase(endToken)) {
+            //System.out.println("ReadSequence: " + token);
+            if (token.equalsIgnoreCase(NAME)) {
+                String name = reader.readToken();
+                seq.setName(name);
+            } else if (token.equalsIgnoreCase(NOTES)) {
+                String notes = reader.gatherUntilToken(END_NOTES, false);
+                seq.setNotes(notes);
+            } else if (token.equalsIgnoreCase(STARTTIME)) {
+                float startTime = reader.readFloat();
+                seq.setStartTime(startTime);
+            } else if (token.equalsIgnoreCase(EVENT)) {
+                Event event = readEvent(reader, timeline, null, END_EVENT);
+                seq.appendEvent(event);
+
+            } else if (token.equalsIgnoreCase(SEQUENCE)) {
+                Sequence subseq = readSequence(reader, timeline, seq, END_SEQUENCE);
+                seq.addEvent(subseq);
+
+            } else if (token.equalsIgnoreCase(PROPERTIES)) {
+                Properties properties = readProperties(reader);
+                seq.setProperties(properties);
+
+            } 
+            token = reader.readToken();
+        }
+        //System.out.println("Finished ReadSequence: " + token);
+
+        return seq;
     }
 
     public static Properties readProperties(TokenReader reader) throws IOException {
@@ -204,6 +247,16 @@ public class Timeline extends Temporal {
     public static Class getSpecialistClass(String specialistName) {
         return (Class)specialistRegistry.get(specialistName.toLowerCase());
     }
-        
+
+    //
+    // We need a facility for triggering events or sequences when various conditions happen.
+    // The first use of this will be to create identificatory leitmotifs for the orbs so that
+    // the people driving them with joysticks will be able to find out which ones are theirs.
+    //
+    // Ideally what would be triggered would be a sequence of events that could be specified
+    // in the timeline. 
+    //
+    public void leitMotif(int orb) {
+    }
 }
 

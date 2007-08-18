@@ -243,10 +243,11 @@ public class Event extends Temporal {
         // TODO: run the command
     }
 
+    
     //
-    // Start up this event's specialist.
+    // Set up this event's specialist.
     //
-    public Specialist startSpecialist(OrbControl orbControl) {
+    public Specialist setupSpecialist(OrbControl orbControl) {
         if (specialistName == null) {
             return null;
         }
@@ -270,14 +271,33 @@ public class Event extends Temporal {
             }
             System.out.println();
             */
+            if (this.duration == NO_TIME) {
+                this.duration = sp.getDuration();
+            }
+            // handle compositve events...
 
-            sp.start();
+        } catch (Exception ex) {
+            System.out.println("Event [name: " + getName() + "] caught exception setting up specialist. ");
+            ex.printStackTrace();
+        }
+        return sp;
+    }
+
+    //
+    // Start up this event's specialist.
+    //
+    public Specialist startSpecialist(OrbControl orbControl) {
+        try {
+            if (specialist == null) {
+                return null;
+            }
             // later: perform the command, if any.
+            specialist.start();
         } catch (Exception ex) {
             System.out.println("Event [name: " + getName() + "] caught exception starting specialist. ");
             ex.printStackTrace();
         }
-        return sp;
+        return specialist;
     }
 
     
@@ -310,6 +330,22 @@ public class Event extends Temporal {
                     (otherEndTime   >= startTime && otherEndTime   <= thisEndTime) ||
                     (other.startTime <  startTime && otherEndTime >  thisEndTime));
         }
+    }
+
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        buf.append("Event<" + name );
+        if (target != null) {
+            buf.append(" target: " + target);
+        }
+        buf.append("{" + startTime);
+        if (endTime != NO_TIME) {
+            buf.append(", " + endTime);
+        }
+        buf.append("}");
+        buf.append("dur: " + getDuration());
+        buf.append(">");
+        return buf.toString();
     }
     
     public String write(String indent) {

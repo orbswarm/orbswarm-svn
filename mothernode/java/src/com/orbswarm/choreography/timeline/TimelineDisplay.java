@@ -67,7 +67,6 @@ public class TimelineDisplay  {
     public TimelineDisplay(int canvasWidth, int canvasHeight) {
         this.canvasWidth  = canvasWidth;
         this.canvasHeight = canvasHeight;
-        this.orbControl = orbControl;
         initColors();
         setupDrawer();
         calculateDimensions(true);
@@ -426,6 +425,7 @@ public class TimelineDisplay  {
         eventTracks.add(new ArrayList()); // first track!
         for(Iterator it = timeline.getEvents().iterator(); it.hasNext() ; ) {
             Event event = (Event)it.next();
+            event.setupSpecialist(orbControl);
             if (!placeEventInTrack(event, eventTracks)) {
                 ArrayList newTrack = new ArrayList();
                 newTrack.add(event);
@@ -510,6 +510,7 @@ public class TimelineDisplay  {
         repaint();
     }
 
+    // TODO: display sequences...
     public void displayEvent(Event event, int track) {
         float st = event.getStartTime();
         float et = event.getEndTime();

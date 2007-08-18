@@ -18,7 +18,8 @@ public class SingleSoundSpecialist extends AbstractSpecialist {
         if (name.equalsIgnoreCase("soundfile")) {
             System.out.println("SingleSound: looking up soundfile: " + val);
             sound = orbControl.lookupSound(val);
-            System.out.println("             ==> " + sound);
+            System.out.println("             ==> " + sound + " duration: " + (sound == null ? -1.f : sound.getDuration()));
+            setDuration(sound.getDuration());
         }
     }
     

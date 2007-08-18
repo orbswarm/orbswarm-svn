@@ -6,6 +6,7 @@
      name: reds
      specialist: SimpleColor
      startTime: 2
+     fadeTime: 10
      <orbs> 0 1 2 3 4 5  </orbs>
      <color> RGB 255 0 0 </color>
   </event>
@@ -14,7 +15,6 @@
      specialist: SimpleSound
      <notes> This is the first sample event </notes>
      startTime: 10
-     endTime: 21
      <orbs> 1  </orbs>
      <properties>
           soundfile /orbsongs/general/Birds1.aif
@@ -26,7 +26,6 @@
      specialist: SimpleSound
      <notes> This is the first sample event </notes>
      startTime: 15
-     endTime: 25
      <orbs> 2  </orbs>
      <properties>
           soundfile /orbsongs/general/Birds2.aif
@@ -41,7 +40,7 @@
      endTime: 21
      <orbs> 3  </orbs>
      <properties>
-          soundfile /orbsongs/general/Horsemagpie.aif
+          soundfile /orbsongs/general/horsemagpie.aif
      </properties>
   </event>
 

@@ -7,16 +7,28 @@ import com.orbswarm.swarmcomposer.color.HSV;
 import com.orbswarm.swarmcomposer.composer.Sound;
 import com.orbswarm.swarmcomposer.composer.SoundFilePlayer;
 import com.orbswarm.swarmcomposer.sound.SimpleJavaPlayer;
+import com.orbswarm.swarmcomposer.util.TokenReader;
 
 import java.awt.Color;
+import java.util.HashMap;
 
 public class OrbControlImpl implements OrbControl {
     private SwarmCon swarmCon;
     private SoundFilePlayer[] soundFilePlayers;
-    
+    private HashMap soundCatalog;
+    private OrbIo orbIo;
+
+    // TODO: hook these up to toggles somehow... (or keep in SwarmCon?)
+    //
+    private boolean sendCommandsToOrbs = true;
+    private boolean simulateColors = true;
+    private boolean simulateSounds = true;
+
     public OrbControlImpl(SwarmCon swarmCon) {
         this.swarmCon = swarmCon;
+        this.orbIo = swarmCon.getOrbIo();
         setupSoundPlayers(6); // TODO: generalize
+        readSoundCatalog();
     }
 
     public void setupSoundPlayers(int n) {
@@ -25,7 +37,26 @@ public class OrbControlImpl implements OrbControl {
             soundFilePlayers[i] = new SimpleJavaPlayer(i);
         }
     }
-    
+
+    private void readSoundCatalog() {
+        soundCatalog = new HashMap();
+        try {
+            TokenReader reader = new TokenReader("resources/songs/sounds.catalog");
+            String path = reader.readToken();
+            while (path != null) {
+                float duration = reader.readFloat();
+                String pcmHash = reader.readToken();
+                String mp3Hash = reader.readToken();
+                Sound sound = new Sound(path, duration, pcmHash, mp3Hash);
+                soundCatalog.put(path, sound);
+                path = reader.readToken();
+            }
+        } catch (Exception ex) {
+            System.out.println("OrbControlImpl caught exception reading sound catalog. ");
+            ex.printStackTrace();
+        }
+    }
+
     //
     // Implementation of methods from com.orbswarm.choreography.OrbControl
     //
@@ -65,11 +96,7 @@ public class OrbControlImpl implements OrbControl {
     }
     
     public Sound lookupSound(String soundFilePath) {
-        //TODO: here's where we get the sound from the master soundfile -> {key, mp3key, duration} list
-        Sound sound = new Sound(null, soundFilePath);
-        sound.setHash("foo_hash");
-        sound.setDuration(11.f);
-        return sound;
+        return (Sound)soundCatalog.get(soundFilePath);
     }
     
     public void stopSound(int orbNum) {
@@ -85,27 +112,56 @@ public class OrbControlImpl implements OrbControl {
     // only one Light control method implemented
     public void orbColor(int orbNum, int hue, int sat, int val, int timeMS) {
         //System.out.println("SwarmCon:OrbControl orbColor(orb: " + orbNum + "HSV: [" + hue + ", " + sat + ", " + val + "])");
-        float fhue = hue / 255.f;
-        float fsat = sat / 255.f;
-        float fval = val / 255.f;
-        final Orb orb = (Orb)swarmCon.swarm.getOrb(orbNum);
-        Color prevOrbColor = orb.getOrbColor();
-        final HSV prevHSV = HSV.fromColor(prevOrbColor);
-        final HSV hsv = new HSV(fhue, fsat, fval);
-        if (timeMS <= 0) {
-            Color color = hsv.toColor();
-            orb.setOrbColor(color);
-        } else {
-            final int _timeMS = timeMS;
-            new Thread() {
-                public void run()  {
-                    fadeColor(orb, prevHSV, hsv, _timeMS, 100);
-                }
-            }.start();
+        if (simulateColors) {
+            float fhue = hue / 255.f;
+            float fsat = sat / 255.f;
+            float fval = val / 255.f;
+            final Orb orb = (Orb)swarmCon.swarm.getOrb(orbNum);
+            Color prevOrbColor = orb.getOrbColor();
+            final HSV prevHSV = HSV.fromColor(prevOrbColor);
+            final HSV hsv = new HSV(fhue, fsat, fval);
+            if (timeMS <= 0) {
+                Color color = hsv.toColor();
+                orb.setOrbColor(color);
+            } else {
+                final int _timeMS = timeMS;
+                new Thread() {
+                    public void run()  {
+                        fadeColor(orb, prevHSV, hsv, _timeMS, 100);
+                    }
+                }.start();
+            }
         }
-        // TODO: send color command out on OrbIO, or give it to model, or something. 
+        if (sendCommandsToOrbs && orbIo != null) {
+            // TODO: send color command out on OrbIO, or give it to model, or something.
+            // TODO: one board or two (later -- we get two light commands per orb)
+            // fade:  <LH64><LS200><LV220><LT2200> to set h,s,v,time on all boards
+            //        <LF> to do the fade  <L0F> to fade the first, <L1F> the second board
+            String boardAddress = "";  // later: possibly independent board controls
+            StringBuffer buf = new StringBuffer();
+            // question: do we send all the commands in one string, or one at a time?
+            // answer: yes, we can send them all on one string
+            buf.append("<L" + boardAddress + "H" + hue + ">");
+            buf.append("<L" + boardAddress + "S" + sat + ">");
+            buf.append("<L" + boardAddress + "V" + val + ">");
+            buf.append("<L" + boardAddress + "T" + timeMS + ">");
+            buf.append("<LF>");
+            String orbCmd = wrapOrbCommand(orbNum, buf.toString());
+            orbIo.send(orbCmd);
+        }
     }
 
+    public String wrapOrbCommand(int orbNum, String message) {
+        StringBuffer buf = new StringBuffer();
+        buf.append("{");
+        buf.append(orbNum);
+        buf.append(", ");
+        buf.append(message);
+        buf.append("}");
+        return buf.toString();
+    }
+
+    // simulate the color fading behaviour on an orb. 
     public void fadeColor(Orb orb, HSV prev, HSV target, int timeMS, int slewMS) {
         int steps = timeMS / slewMS;
         float hue      = prev.getHue();

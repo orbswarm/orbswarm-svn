@@ -20,6 +20,7 @@ import com.orbswarm.swarmcomposer.color.ColorSchemeListener;
 import com.orbswarm.swarmcomposer.color.ColorSchemer;
 import com.orbswarm.swarmcomposer.color.HSV;
 
+import com.orbswarm.swarmcomposer.composer.Sound;
 import com.orbswarm.swarmcomposer.composer.SwarmListener;
 
 import com.orbswarm.swarmcomposer.util.StdDraw;
@@ -1166,9 +1167,11 @@ public class Swarmulator implements MouseListener, MouseMotionListener, ColorSch
     }
 
     // sound control methods not implemented.
-    public int  playSoundFile(int orb, String soundFilePath) {return -1;}
+    public float playSoundFile(int orb, String soundFilePath) {return -1.f;}
+    public float playSound(int orb, Sound sound) {return -1.f;}
     public void stopSound(int orb) {}
     public void volume(int orb, int volume) {}
+    public Sound lookupSound(String soundFilePath) {return null;}
 
     // only one Light control method implemented
     public void orbColor(int orb, int hue, int sat, int val, int time) {

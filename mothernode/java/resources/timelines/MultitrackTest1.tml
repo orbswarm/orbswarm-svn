@@ -6,7 +6,6 @@
      name: PlayItSam
      specialist: MultiTrack
      startTime: 2
-     endTime: end
      <properties>
          base /MultiChannelSongs/SpaceCase
          track1 SpaceCase_1_Drums.aif

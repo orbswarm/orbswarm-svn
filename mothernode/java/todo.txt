@@ -22,15 +22,12 @@ done:
 
 
 Simran's list
-   - sound file -> hashkey compiler & sound file mover
    - MP3 sound files. 
    - ColorScheme specialist, with special schemer hookup
    - RandomSong specialist, with BV hookup
    - property events
    - read colors from properties (generalize color from string)
-   - if end time not specified, calculate duration from (song time, fade time, etc)
-      . this would mean creating all the specialists up front
-   - take motion out of SwarmCon simulator. 
+   - X take motion out of SwarmCon simulator. 
    - fix color wheel not responding to mouse. 
    - get song files, timelines, etc from resources rather than from 
      filesystem. (i.e. run from jar when not in mothernode/java)
@@ -48,3 +45,7 @@ done:
    - simulate orb fade times.    (070815)
    - MultiTrack song specialist (tracks in properties)    (070816)
    - figure out refresh flashing stuff.   (070816)
+   - sound file -> hashkey compiler & sound file mover   (070816)
+   - if end time not specified, calculate duration from (070817)
+     (song time, fade time, etc)
+      . this would mean creating all the specialists up front

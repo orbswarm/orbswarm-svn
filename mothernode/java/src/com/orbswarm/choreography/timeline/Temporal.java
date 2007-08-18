@@ -75,6 +75,16 @@ public class Temporal {
     public float getDuration() {
         return this.duration;
     }
+
+    public float calculateDuration() {
+        if (this.duration != NO_TIME) {
+            return this.duration;
+        }
+        if (this.endTime != NO_TIME && this.startTime != NO_TIME) {
+            return this.endTime - this.startTime;
+        }
+        return NO_TIME;
+    }
     
 
     public void setStartTime(float val) {

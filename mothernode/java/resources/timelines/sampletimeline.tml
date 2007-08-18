@@ -51,11 +51,10 @@
   </event>
 
   <event>
-     name:  sound5
+     name:  sound_no_end
      specialist: SimpleSound
      <notes> This is the first sample event </notes>
      startTime: 30
-     endTime: end
      <orbs> 1 2 3 4 </orbs>
      <properties>
           soundfile /orbsongs/general/Birds1.aif

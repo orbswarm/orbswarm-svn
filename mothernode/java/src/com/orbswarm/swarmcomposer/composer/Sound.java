@@ -26,8 +26,8 @@ public class Sound {
     protected int     type;
     protected String  extension = "";
     protected Set     set;
-    protected String  hashedFileName = null;
-    protected String  hashedMP3FileName = null;
+    protected String  pcmHash = null;
+    protected String  mp3Hash = null;
     protected float   duration = 0.f; // seconds
 
     protected Sound() {
@@ -37,13 +37,21 @@ public class Sound {
         this.set = set;
         setFileName(filename);
     }
+
+    public Sound(String filePath, float duration, String pcmHash, String mp3Hash) {
+        setFileName(filePath);
+        setDuration(duration);
+        setPCMHash(pcmHash);
+        setMP3Hash(mp3Hash);
+    }
+        
     public void setFileName(String filename) {
         this.filename = filename;
         if (this.filename.startsWith("/")) {
             hasAbsolutePath = true;
         }
         extension = getExtension(filename);
-        System.out.println("Sound("+(set == null?"":set.getName())+", " + filename + "). ext: " + extension);
+        //System.out.println("Sound("+(set == null?"":set.getName())+", " + filename + "). ext: " + extension);
         type = UNKNOWN;
         if (extension.equalsIgnoreCase("mp3")) {
             type = MP3;
@@ -90,24 +98,28 @@ public class Sound {
         this.duration = val;
     }
 
-    public String getHash() {
-        return this.hashedFileName;
+    public String getPCMHash() {
+        return this.pcmHash;
     }
 
-    public void setHash(String val) {
-        this.hashedFileName = val;
+    public void setPCMHash(String val) {
+        this.pcmHash = val;
     }
 
     public String getMP3Hash() {
-        return this.hashedMP3FileName;
+        return this.mp3Hash;
     }
 
     public void setMP3Hash(String val) {
-        this.hashedMP3FileName = val;
+        this.mp3Hash = val;
     }
     
+
+    public static String getExtension(File file) {
+        return getExtension(file.getName());
+    }
     
-    public String getExtension(String filename) {
+    public static String getExtension(String filename) {
         if (filename == null) {
             return null;
         }
@@ -141,20 +153,23 @@ public class Sound {
     }
 
     public void calculateHash(String songHash) {
+        calculateHash(songHash, 0);
+    }
+    // offset allows us to try to hash again if there is a conflict. 
+    public void calculateHash(String songHash, int offset) {
         String fullPath = getFullPath();
-        int pathHashCode = (int)(Math.abs(fullPath.hashCode()));
+        int pathHashCode = (int)(Math.abs(fullPath.hashCode())) - offset;
         String soundHash = "S" + pathHashCode;
         String mp3Hash = "M" + pathHashCode;
-        this.hashedFileName = soundHash; // songHash + ":" + soundHash;
-        this.hashedMP3FileName = mp3Hash; 
-        // later: check to see if there is a conflict with an existing sound file, and if
-        //        so, subtract 1 from the hash until there isn't anymore.
-        // but that would mean copying the sound files as we make them.
-        // or keeping a list of the sound hashes that got made in this compile run. 
+        this.pcmHash = soundHash; // songHash + ":" + soundHash;
+        this.mp3Hash = mp3Hash; 
+        // The offset allows us to
+        // check to see if there is a conflict with an existing sound file, and if
+        // so, subtract 1 from the hash until there isn't anymore.
     }
 
     public float findSoundDuration() {
-        System.out.println("FindSoundDuration(" + getName() + "). duration: " + duration);
+        //System.out.println("FindSoundDuration(" + getName() + "). duration: " + duration);
         if (duration == 0.f) {
             // note: don't know whether to use the path or the hashed file.
             //       for now, we're only using this method from the SongCompiler, so
@@ -167,7 +182,7 @@ public class Sound {
                 int frames = audioFileFormat.getFrameLength();
                 float frameRate = format.getFrameRate();
                 duration = (frames / frameRate);
-                System.out.println("Sound(" + getName() + ") frames: " + frames + " rate: " + frameRate + " 1/rate: " + 1.0f/frameRate + " duration: " + duration);
+                //System.out.println("Sound(" + getName() + ") frames: " + frames + " rate: " + frameRate + " 1/rate: " + 1.0f/frameRate + " duration: " + duration);
             } catch (Exception ex) {
                 System.out.println("Caught exception getting duration of sound file " + soundFile);
                 ex.printStackTrace();
@@ -197,12 +212,12 @@ public class Sound {
             Bot.writeAttribute_nlf(buf, indent, Bot.DURATION, duration);
             buf.append(' ');
         }
-        if (hashedFileName != null) {
-            Bot.writeAttribute_nlf(buf, indent, Bot.HASH, hashedFileName);
+        if (pcmHash != null) {
+            Bot.writeAttribute_nlf(buf, indent, Bot.HASH, pcmHash);
             buf.append(' ');
         }
-        if (hashedMP3FileName != null) {
-            Bot.writeAttribute_nlf(buf, indent, Bot.MP3_HASH, hashedMP3FileName);
+        if (mp3Hash != null) {
+            Bot.writeAttribute_nlf(buf, indent, Bot.MP3_HASH, mp3Hash);
             buf.append(' ');
         }
         buf.append(endTag);

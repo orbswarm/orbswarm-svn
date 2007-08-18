@@ -81,7 +81,7 @@ public class MainSwarmerSpecialists {
 
         OrbControl swarmulatorOrbControl = swarmField.swarmulator.getOrbControl();
         ColorSchemeSpecialist colorSchemeSpecialist = new ColorSchemeSpecialist();
-        colorSchemeSpecialist.setup(swarmulatorOrbControl, null);
+        colorSchemeSpecialist.setup(swarmulatorOrbControl, null, null);
         swarmField.swarmulator.addSpecialist(colorSchemeSpecialist);
 
         ColorScheme.registerColorScheme("Analogous", ColorSchemeAnalogous.class);
