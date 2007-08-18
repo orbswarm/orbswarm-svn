@@ -52,6 +52,12 @@ testpacketizer: testpacketizer.o  swarmspuutils.o swarmserial.o
 testpacketizer.o: $(TEST)/testpacketizer.cc 
 	$(CC) $(CFLAGS)-c $(TEST)/testpacketizer.cc
 
+testaggstreamparser: testaggstreamparser.o  swarmspuutils.o swarmserial.o 
+	$(CC) $(LIBS) $(CFLAGS) testaggstreamparser.o  swarmspuutils.o swarmserial.o -o testaggstreamparser
+
+testaggstreamparser.o: $(TEST)/testaggstreamparser.cc 
+	$(CC) $(CFLAGS)-c $(TEST)/testaggstreamparser.cc
+
 setled: setled.o swarmspuutils.o
 	$(CC) $(LIBS) $(CFLAGS) setled.o swarmspuutils.o -o setled
 
@@ -104,10 +110,14 @@ testSpuCom2RW.o: $(TEST)/testSpuCom2RW.cc $(SRC)/swarmserial.cc $(INC)/swarmseri
 spu: spu.o swarmserial.o 
 	$(CC) $(LIBS) $(CFLAGS) spu.o swarmserial.o -o spu 
 
-
-
 spu.o: $(SRC)/spu.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h
 	$(CC) $(CFLAGS)-c $(SRC)/spu.cc
+
+spu2: spu2.o swarmserial.o swarmspuutils.o
+	$(CC) $(LIBS) $(CFLAGS) spu2.o swarmserial.o swarmspuutils.o -o spu2 
+
+spu2.o: $(SRC)/spu2.cc $(SRC)/swarmserial.cc $(INC)/swarmserial.h $(INC)/swarmdefines.h
+	$(CC) $(CFLAGS)-c $(SRC)/spu2.cc
 
 spumond: spumond.o swarmspuutils.o swarmserial.o
 	$(CC) $(LIBS) $(CFLAGS) spumond.o swarmspuutils.o swarmserial.o -o spumond
