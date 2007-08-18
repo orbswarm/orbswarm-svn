@@ -155,7 +155,7 @@ public class Timeline extends Temporal {
                 float startTime = reader.readFloat();
                 seq.setStartTime(startTime);
             } else if (token.equalsIgnoreCase(EVENT)) {
-                Event event = readEvent(reader, timeline, null, END_EVENT);
+                Event event = readEvent(reader, timeline, seq, END_EVENT);
                 seq.appendEvent(event);
 
             } else if (token.equalsIgnoreCase(SEQUENCE)) {

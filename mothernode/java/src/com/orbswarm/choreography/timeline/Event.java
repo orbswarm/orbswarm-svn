@@ -66,6 +66,13 @@ public class Event extends Temporal {
         return this.type;
     }
 
+    public Event getParent() {
+        return this.parent;
+    }
+    public void setParent(Event val) {
+        this.parent = val;
+    }
+    
     public void setTarget(String val) {
         this.target = val;
     }
@@ -170,10 +177,11 @@ public class Event extends Temporal {
     }
 
     // for composite events, the duration is the longest of the
-    // children's durations. 
+    // children's durations.
+    //  (but not for sequences!
     public void setDuration(float val) {
         super.setDuration(val);
-        if (parent != null && this.duration > parent.getDuration()) {
+        if (parent != null && !(parent instanceof Sequence) && this.duration > parent.getDuration()) {
             parent.setDuration(this.duration);
         }
     }
@@ -264,8 +272,8 @@ public class Event extends Temporal {
                 ColorSpecialist cs = (ColorSpecialist)sp;
                 cs.setColor(color, fadeTime);
             }
-            /* debug...
-            System.out.print("Event(" + getName() + ") startSpecialist. orbs:");
+            /* debug... 
+            System.out.print("Event(" + getName() + ") setupSpecialist. orbs:");
             for(int i=0; i < orbs.length; i++) {
                 System.out.print(" " + i + ":" + orbs[i]);
             }
@@ -287,6 +295,7 @@ public class Event extends Temporal {
     // Start up this event's specialist.
     //
     public Specialist startSpecialist(OrbControl orbControl) {
+        System.out.println("Event(" + getName() + ") startSpecialist:" + specialist);
         try {
             if (specialist == null) {
                 return null;

@@ -51,6 +51,7 @@ public class Sequence extends Event {
     public void appendEvent(Event event) {
         if (first == null) {
             first = event;
+            event.setParent(this);
         } else {
             if (next == null) {
                 next = new Sequence(timeline, parent);
@@ -60,6 +61,7 @@ public class Sequence extends Event {
     }
 
     public Specialist setupSpecialist(OrbControl orbControl) {
+        System.out.println("SEQUENCE.setupSpecialist()");
         Specialist sp = null;
         if (first != null) {
             sp = first.setupSpecialist(orbControl);
@@ -72,7 +74,7 @@ public class Sequence extends Event {
 
     public String toString() {
         StringBuffer buf = new StringBuffer();
-        buf.append("SEQ[");
+        buf.append("SEQ{" + startTime + ", " + endTime + "=" + duration + "}[");
         Sequence n = this;
         while (n != null) {
             if (n.getFirst() == null) {
@@ -90,11 +92,14 @@ public class Sequence extends Event {
     }
 
     public float calculateDuration() {
-        // maybe cache?
-        return getFullDuration();
+        if (duration == NO_TIME) {
+            duration = getFullDuration();
+        }
+        return duration;
     }
     
-    public float getFullDuration() {
+    private float getFullDuration() {
+        System.out.print("Seq: fullDuration(): [");
         float fd = 0;
         Sequence n = this;
         while (n != null) {
@@ -102,12 +107,14 @@ public class Sequence extends Event {
 
             } else {
                 float dur = n.getFirst().calculateDuration();
+                System.out.print(dur + ", ");
                 if (dur != NO_TIME) {
                     fd += dur;
                 }
             }
             n = n.getNext();
         }
+        System.out.println("]: " + fd);
         return fd;
     }
 
@@ -140,7 +147,7 @@ public class Sequence extends Event {
         if (st == NO_TIME) {
             st = 0.f;
         }
-        return st + getFullDuration();
+        return st + calculateDuration();
     }
 
 }

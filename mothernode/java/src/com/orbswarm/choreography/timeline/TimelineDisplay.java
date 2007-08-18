@@ -49,6 +49,7 @@ public class TimelineDisplay  {
 
     private ArrayList pendingEvents;
     private ArrayList runningEvents;
+    private ArrayList addToRunningEvents;
     private HashMap   runningEventMap;
     private ArrayList completedEvents;
     
@@ -57,6 +58,7 @@ public class TimelineDisplay  {
 
     public Color bgColor, eventColor_past, eventColor_current, eventColor_future;
     public Color eventColor_border, eventColor_text;
+    public Color sequenceColor;
     public Color timeCursorColor;
 
     protected Component repaintComponent;
@@ -106,6 +108,7 @@ public class TimelineDisplay  {
         eventColor_past    = Color.getHSBColor(.65f, .5f,   .6f);
         eventColor_future  = Color.getHSBColor(.65f, .5f,   .65f);
         eventColor_text    = Color.getHSBColor(.95f, .15f, 1.0f);
+        sequenceColor      = Color.getHSBColor(.05f, .35f,   1.0f);
     }
 
     public void setupDrawer() {
@@ -318,6 +321,7 @@ public class TimelineDisplay  {
     public void setupTimelineRunner(Timeline timeline) {
         pendingEvents = new ArrayList();
         runningEvents = new ArrayList();
+        addToRunningEvents = new ArrayList();
         runningEventMap = new HashMap();
         completedEvents = new ArrayList();
         
@@ -338,6 +342,13 @@ public class TimelineDisplay  {
                 it.remove();
                 completedEvents.add(event);
             }
+        }
+        if (addToRunningEvents.size() > 0) {
+            for(Iterator it = addToRunningEvents.iterator(); it.hasNext();) {
+                Event event = (Event)it.next();
+                runningEvents.add(event);
+            }
+            addToRunningEvents = new ArrayList();
         }
     }
 
@@ -370,6 +381,7 @@ public class TimelineDisplay  {
     }
 
     public void stopEvent(Event event) {
+        System.out.println("Stopping event: " + event);
         event.setState(Event.STATE_COMPLETED);
         String name = event.getName();
         if (name != null) {
@@ -389,9 +401,36 @@ public class TimelineDisplay  {
                 stopEvent(sub);
             }
         }
+
+        // if this is a member of a sequence, start the next event in the sequence.
+        Event parent = event.getParent();
+        if (parent != null && parent instanceof Sequence) {
+            Sequence seq = (Sequence)parent;
+            Sequence next = seq.getNext();
+            System.out.println("   stopped event was in a sequence. trying to start next: " + next);
+            if (next != null) {
+                startEvent(next);
+                addToRunningEvents.add(next);
+            }
+        }
     }
 
     public void startEvent(Event event) {
+        if (event == null) {
+            return;
+        }
+        if (event instanceof Sequence) {
+            System.out.println("Starting Sequence: " + event);
+            Event first = ((Sequence)event).getFirst();
+            if (first != null) {
+                System.out.println("Starting first event of Sequence: " + first);
+                startEvent(first);
+                // need to put it on the running event list specially. 
+                addToRunningEvents.add(first);
+            }
+            return;
+        }
+        System.out.println("Starting Event: " + event);
         int type = event.getType();
         if (type == Event.TYPE_PARAMETER || type == Event.TYPE_ACTION) {
             Event targetEvent = findRunningEvent(event.getTarget());
@@ -426,6 +465,11 @@ public class TimelineDisplay  {
         for(Iterator it = timeline.getEvents().iterator(); it.hasNext() ; ) {
             Event event = (Event)it.next();
             event.setupSpecialist(orbControl);
+            if (event instanceof Sequence) {
+                ((Sequence)event).calculateDuration();
+                ((Sequence)event).adjustEventTimes();
+            }
+            
             if (!placeEventInTrack(event, eventTracks)) {
                 ArrayList newTrack = new ArrayList();
                 newTrack.add(event);
@@ -467,7 +511,7 @@ public class TimelineDisplay  {
 
     // TODO: give orbState messages to running specialists
     public boolean cycle(float time) {
-        System.out.println("TIMELINE cycle[" + time + "]");
+        //System.out.println("TIMELINE cycle[" + time + "]");
         if (time < timeline.getDuration()) {
             stopStoppableEvents(time);
             startPendingEvents(time);
@@ -512,6 +556,11 @@ public class TimelineDisplay  {
 
     // TODO: display sequences...
     public void displayEvent(Event event, int track) {
+        if (event instanceof Sequence) {
+            displaySequence((Sequence)event, track);
+            return;
+        }
+        
         float st = event.getStartTime();
         float et = event.getEndTime();
         if (et == Temporal.NO_TIME) {
@@ -542,6 +591,36 @@ public class TimelineDisplay  {
         displayEventStartPoint(evStartX, evY, jcolor);
         displayEventText(evStartX + eventTrackHeight * .5, evY - eventTrackHeight * .4, event.getName(), jcolor);
     }
+
+    public void displaySequence(Sequence seq, int track) {
+        float st = seq.getStartTime();
+        float fd = seq.calculateDuration();
+        float et = st + fd;
+        double seqStartX = timeWindowPixel(timeToTimePixel(st));
+        double seqEndX = timeWindowPixel(timeToTimePixel(et));
+        double seqY = timeWindowHeight - (track + .5) * (eventTrackHeight + eventTrackPadding);
+
+        drawer.setPenColor(sequenceColor);
+        double width = Math.abs(seqEndX - seqStartX);
+        double barHeight = eventTrackHeight * 1.1;
+        double y = seqY - barHeight;
+        drawer.filledRectangle(seqStartX, y, width, barHeight);
+
+        //
+        // Now draw the events in the sequence...
+        //
+        Sequence n = seq;
+        while (n != null) {
+            Event event = n.getFirst();
+            if (event == null) {
+
+            } else {
+                displayEvent(event, track);
+            }
+            n = n.getNext();
+        }
+    }
+
 
     public void displayEventStartPoint(double evStartX, double evY, Color jcolor) {
         double eventTickWidth = eventTrackHeight * .5;
