@@ -344,6 +344,19 @@ void process_command_string(void)
       //putstr(" Fwd\r\n");
     }			
     break;
+
+  case 'r':	// set steer  motor PWM directly ONLY FOR TEST
+    putstr("!!!steerPWM: ");
+    putS16( theData );
+    
+    if (theData < 0) {
+      theData = -theData;
+      Set_Motor2_PWM((unsigned char)theData, REVERSE );
+    }
+    else {
+      Set_Motor2_PWM( (unsigned char)theData, FORWARD );
+    }			
+    break;
     
   case 's':	// set steering  -512 .. 0 .. 512 --- change to 0-100% ???
     putstr("Steer: ");

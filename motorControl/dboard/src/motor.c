@@ -42,17 +42,17 @@
 // ------- New H-Bridge Hardware - OSSC --
 // Switches PWM from non-inverted to inverted output when reversing directions.
 
-#define MOTOR1_FORWARD()  PORTD &= ~_BV(PD4); TCCR1A &= ~_BV(COM1A0); TCCR1A |= _BV(COM1A1)
-#define MOTOR1_REVERSE()  PORTD |= _BV(PD4); TCCR1A |= (_BV(COM1A0) | _BV(COM1A1))
+#define MOTOR1_FORWARD()  PORTD &= ~_BV(PD4); TCCR1A &= ~_BV(COM1B0); TCCR1A |= _BV(COM1B1)
+#define MOTOR1_REVERSE()  PORTD |= _BV(PD4); TCCR1A |= (_BV(COM1B0) | _BV(COM1B1))
 #define MOTOR1_DISABLE() PORTD |= _BV(PD5)
 #define MOTOR1_ENABLE()  PORTD &= ~_BV(PD5)
-#define MOTOR1_BRAKE()   TCCR1A &= ~_BV(COM1A1)
+#define MOTOR1_BRAKE()   TCCR1A &= ~_BV(COM1B1)
 
-#define MOTOR2_FORWARD() PORTD &= ~_BV(PD6); TCCR1A &= ~_BV(COM1B0); TCCR1A |= _BV(COM1B1)
-#define MOTOR2_REVERSE() PORTD |= _BV(PD6); TCCR1A |= (_BV(COM1B0) | _BV(COM1B1))
+#define MOTOR2_FORWARD() PORTD &= ~_BV(PD6); TCCR1A &= ~_BV(COM1A0); TCCR1A |= _BV(COM1A1)
+#define MOTOR2_REVERSE() PORTD |= _BV(PD6); TCCR1A |= (_BV(COM1A0) | _BV(COM1A1))
 #define MOTOR2_DISABLE() PORTD |= _BV(PD7)
 #define MOTOR2_ENABLE()  PORTD &= ~_BV(PD7)
-#define MOTOR2_BRAKE()   TCCR1A &= ~_BV(COM1B1)
+#define MOTOR2_BRAKE()   TCCR1A &= ~_BV(COM1A1)
 
 
 
@@ -249,18 +249,20 @@ void Motor_clear_mcb( motor_control_block *m )
 // ---------------------------------------------------------------------
 // Special care must be taken writing to these 16 bit PWM registers.
 // High byte must be written first.
+// OCR1A and OCR1B swapped to reflect daughterboard
 
-void write_OCR1A( unsigned char value )
+void write_drivePWM( unsigned char value )
+{
+	OCR1BH = 0;
+	OCR1BL = value;
+}
+
+void write_steerPWM( unsigned char value )
 {
 	OCR1AH = 0;
 	OCR1AL = value;
 }
 
-void write_OCR1B( unsigned char value )
-{
-	OCR1BH = 0;
-	OCR1BL = value;
-}
 
 // Setup torque control - turn on PID
 // This is also used to setup velocity control
@@ -277,6 +279,7 @@ void Set_Drive_Speed(short t)
 // This routine is tied to specific Speed Control Hardware - OSSC
 // Input pwm = 0..255
 
+
 void Set_Motor1_PWM(unsigned char pwm, signed char direction)
 {	
 
@@ -287,7 +290,7 @@ void Set_Motor1_PWM(unsigned char pwm, signed char direction)
   if (pwm == 0)			// STOP - Turn off PWM
     {
       MOTOR1_DISABLE();
-      write_OCR1A( 0 );
+      write_drivePWM( 0 );
  
     }
   else
@@ -295,7 +298,7 @@ void Set_Motor1_PWM(unsigned char pwm, signed char direction)
       if (direction == FORWARD)
 	{
 	  MOTOR1_FORWARD();  // setup direction pin & non-inverted PWM
-	  write_OCR1A( pwm );	// Set PWM as 16 bit value
+	  write_drivePWM( pwm );	// Set PWM as 16 bit value
 
 	  //	  putstr("\n SforwardPWM: ");
 	  //	  putS16((unsigned short)pwm); 
@@ -304,7 +307,7 @@ void Set_Motor1_PWM(unsigned char pwm, signed char direction)
       else // direction == REVERSE
 	{
 	  MOTOR1_REVERSE();		// setup direction pin & inverted PWM
-	  write_OCR1A( pwm );		// Set PWM as 16 bit value
+	  write_drivePWM( pwm );		// Set PWM as 16 bit value
 	  //putstr("\n SreversePWM: ");
 	  //putS16((unsigned short)pwm); 
 	}
@@ -323,19 +326,19 @@ void Set_Motor2_PWM(unsigned char pwm, signed char direction)
   if (pwm == 0)		// STOP - Turn off PWM
     {
       MOTOR2_DISABLE();
-      write_OCR1B( 0 );
+      write_steerPWM( 0 );
     }
   else
     {		
       if(direction == FORWARD)
 	{
 	  MOTOR2_FORWARD();
-	  write_OCR1B( pwm );	// Set PWM as 16 bit value
+	  write_steerPWM( pwm );	// Set PWM as 16 bit value
 	}
       else // direction == REVERSE
 	{	  
 	  MOTOR2_REVERSE();
-	  write_OCR1B( pwm );	// Set PWM as 16 bit value
+	  write_steerPWM( pwm );	// Set PWM as 16 bit value
 	}
       MOTOR2_ENABLE();
     }
