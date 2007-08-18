@@ -14,6 +14,11 @@
 #define SWARM_NMEA_GPS_DATA_DELIM ","
 #define MAX_GPS_SENTENCE_SZ 1024 
 #define SWARM_INVALID_AGG_DATA 14
+#define AGGR_MSG_FOOTER_WITHOUT_HEADER_ERROR 15
+#define AGGR_MSG_TO_LARGE_FOR_BUFFER_ERROR 16
+#define AGGR_MSG_INCOMPLETE_OR_INVALID 17
+#define AGGR_MSG_HEADER_WITHOUT_FOOTER_ERROR 18
+#define AGGR_MSG_NO_DELIMS_FOUND_ERROR 19
 
 
 #define AGGR_MSG_TYPE_UNKNOWN 200 
@@ -22,6 +27,7 @@
 #define AGGR_MSG_TYPE_MOTHER_SHIP_LOC 203 
 #define AGGR_MSG_TYPE_EFFECTS 204 
 #define AGGR_MSG_TYPE_MOTOR_CONTROL 205 
+#define AGGR_MSG_TYPE_MOTHER_SHIP 206 
 
 #define SPU_LED_RED_ON 40  
 #define SPU_LED_GREEN_ON 41 
@@ -48,9 +54,11 @@
 #define MSG_END_MOTOR_CONTROLER '*'
 #define MSG_HEAD_LIGHTING '<'   //used to identify lighting/sound messages
 #define MSG_END_LIGHTING '>'    //used to identify lighting/sound messages
-#define MSG_HEAD_MOTHER_SHIP '{'//used to supply the orb with info about the mothership
-#define MSG_END_MOTHER_SHIP '}' //used to supply the orb with info about the mothership
+#define MSG_HEAD_MOTHER_SHIP '['//used to supply the orb with info about the mothership
+#define MSG_END_MOTHER_SHIP ']' //used to supply the orb with info about the mothership
                                 //E.G. the location of the mothership in UTM format
+#define MSG_HEAD_AGG_STREAM '{'//used to supply the orb with info about the mothership
+#define MSG_END_AGG_STREAM '}' //used to supply the orb with info about the mothership
 
 #define MOTHER_SHIP_MSG_DELIM " " //blank space for newline
 #define MOTHER_SHIP_MSG_HEAD_STATUS "DUMP_STATUS"

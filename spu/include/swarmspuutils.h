@@ -30,5 +30,10 @@ int getMessageType(char* message);
 
 void genSpuDump(char* logBuffer, int maxBufSz, swarmGpsData *gpsData, spuADConverterStatus *adConverterStatus, swarmMotorData* motorData);
 
+/*******************************************************************************
+ * 
+ *******************************************************************************/
+int getMessageForDelims(char* msgBuff, int maxMsgSz, int* msgSize, char* input,
+                                    int inputSz, char startDelim, char endDelim, bool incDelimsInMsg); 
 
 #endif
