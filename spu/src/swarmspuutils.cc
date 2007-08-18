@@ -254,3 +254,106 @@ void genSpuDump(char* logBuffer, int maxBufSz, swarmGpsData *gpsData, spuADConve
   //free(adBuffer);
 }
 
+int getMessageForDelims(char* msgBuff, int maxMsgSz, int* msgSize,
+               char* input, int inputSz, char startDelim, char endDelim, bool incDelimsInMsg) 
+{
+   int status = SWARM_SUCCESS;
+   int msgStartIdx = 0;
+   int msgEndIdx = 0;
+   int tempMsgSize = 0;
+   bool foundStart = false;
+   bool foundEnd = false;
+   bool delimsSame = false;
+
+   if(startDelim == endDelim)
+     delimsSame = true;
+
+   if(input != NULL){
+      for(int i = 0; i < inputSz;i++)
+      {
+         if(!delimsSame)
+         {
+           if(input[i] == startDelim)
+           {
+             foundStart = true;
+             msgStartIdx = i;
+           } 
+           else if(input[i] == endDelim) 
+           {
+             if(foundStart)
+               {
+                /*
+                  great we found the end of the message and it is consitant with
+                  what we got for the beginning
+                */ 
+                   msgEndIdx = i;
+                   foundEnd = true;
+                   tempMsgSize =(msgEndIdx - msgStartIdx) + 1;
+               } 
+               else
+               {
+                /* Something got fucked up so report Error */
+                //fprintf(stderr,"\nSETTING STATUS TO : AGGR_MSG_FOOTER_WITHOUT_HEADER_ERROR \n");
+                 foundEnd = true;
+                 status = AGGR_MSG_FOOTER_WITHOUT_HEADER_ERROR; 
+               }
+           }
+         }
+         else
+         {
+           if(input[i] == startDelim) //start and end delims the same
+           {
+             if(!foundStart) //First occurance of delim
+             {
+               foundStart = true;
+               msgStartIdx = i;
+             }
+             else if(foundStart && (msgStartIdx != i)) //second occurance of delim
+             {
+               /*
+                 great we found the end of the message and it is consitant with
+                 what we got for the beginning
+               */ 
+               msgEndIdx = i;
+               foundEnd = true;
+               tempMsgSize = (msgEndIdx - msgStartIdx) + 1;
+             }
+           }
+         }
+         
+         if(status != SWARM_SUCCESS) break; //get out of loop on error
+         if(foundStart && foundEnd) break; //get out of loop when 1 message found
+      }
+      if(foundStart && foundEnd)
+      {
+         if(tempMsgSize < maxMsgSz)
+         { 
+          if(!incDelimsInMsg)
+          {
+            msgStartIdx++;
+            tempMsgSize = tempMsgSize - 2;
+          }
+          memcpy(msgBuff,&input[msgStartIdx],tempMsgSize);
+          //Null terminate the message so string funcs can manip it
+          msgBuff[tempMsgSize] = 0;
+          *msgSize = tempMsgSize;
+         }
+         else
+         {
+           status = AGGR_MSG_TO_LARGE_FOR_BUFFER_ERROR;  
+         }
+      }
+      else if(foundStart && !foundEnd && (status == SWARM_SUCCESS))
+      {
+                //fprintf(stderr,"\nSETTING STATUS TO : AGGR_MSG_HEADER_WITHOUT_FOOTER_ERROR\n");
+        status = AGGR_MSG_HEADER_WITHOUT_FOOTER_ERROR; 
+      }
+      else if(!foundStart && !foundEnd)
+      {
+        //fprintf(stderr,"\nSETTING STATUS TO : AGGR_MSG_NO_DELIMS_FOUND_ERROR\n");
+        status = AGGR_MSG_NO_DELIMS_FOUND_ERROR; 
+      }
+   }
+   return status;
+}
+
