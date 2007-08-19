@@ -1,7 +1,7 @@
 # Makefile for sample - AVR Sample code
 
 # default target when "make" is run w/o arguments
-all: sample.rom
+all: sample.hex
 
 # compile UART.c into UART.o
 UART.o: UART.c UART.h
@@ -24,12 +24,12 @@ sample.elf: main.o UART.o USI_UART.o putstr.o
 	avr-gcc main.o UART.o USI_UART.o putstr.o -Wl,-Map=sample.map,--cref -mmcu=attiny2313 -o sample.elf
 
 # copy ROM (FLASH) object out of sample.elf into sample.rom
-sample.rom: sample.elf
-	avr-objcopy -O ihex sample.elf sample.rom
+sample.hex: sample.elf
+	avr-objcopy -O ihex sample.elf sample.hex
 
 # command to program chip (optional) (invoked by running "make install")
 install:
-	avrdude -P COM1 -c stk500v2  -C  c:\WinAVR\bin\avrdude.conf  -p t2313 -U flash:w:sample.rom 
+	avrdude -P COM1 -c stk500v2  -C  c:\WinAVR\bin\avrdude.conf  -p t2313 -U flash:w:sample.hex 
 
 # command to set fuse for 8.0 Mhz internal Osc on AT-Tiny2313
 internalosc:
@@ -41,4 +41,4 @@ internalosc:
 
 # command to clean up junk (no source files) (invoked by "make clean")
 clean:
-	rm -f *.o *.rom *.elf *.map *~
+	rm -f *.o *.hex *.elf *.map *~

@@ -29,12 +29,14 @@
 
 #define led_port	PORTD
 
+#define BUF_SIZE 20
 // =====================================================================================================================================
 
 int main( void )
 {
-    unsigned char cData, CmdStr[4];
+    unsigned char cData, CmdStr[BUF_SIZE];
 	unsigned char CmdLen = 0;
+	unsigned char n=0;
 		
 	DDRD = 0xF2;		/* 0b 1111 0010	   1 indicates Output pin */
 //	led_port = 0xF0;	// turn OFF leds
@@ -52,6 +54,10 @@ int main( void )
 	putstr("\r\n...Tiny Test...\r\n");
 	
 // =====================================================================================================================================
+// 	USI_UART_Transmit_Byte('V');	// Send Play All to MP3 player
+//	USI_UART_Transmit_Byte('3');
+//	USI_UART_Transmit_Byte('A');
+//	USI_UART_Transmit_Byte(13);		
 
     for( ; ; )					// Run forever
     {
@@ -61,27 +67,22 @@ int main( void )
 											// Echo byte from SPU to lighting unit.
 		UART_Transmit(cData);				// wait for empty buffer. send byte now.
 	//	UART_send_byte(cData);				// put byte in buffer - send using interupts
+//		USI_UART_Transmit_Byte('x');
+//	USI_UART_Transmit_Byte(13);		
+					
+		if (cData == '>'){	// process commands after Carrage Return is rcvd
+//			USI_UART_Transmit_Byte('y');
+//	USI_UART_Transmit_Byte(13);		
 		
-		if (cData == 13)	// process commands after Carrage Return is rcvd
-			{
-			if (CmdStr[0] == 'M')		// send music cmds to MP3 player
-				{
-				if (CmdStr[1] == '1')	// Music Cmds are M1, M2 for Play All, Stop 
-					{
-					putstr("Got M1 Cmd.\r\n");
-					USI_UART_Transmit_Byte('V');	// Send Play All to MP3 player
-					USI_UART_Transmit_Byte('3');
-					USI_UART_Transmit_Byte('A');
-					USI_UART_Transmit_Byte(13);					
-					}
-				else
-					{
-					putstr("Got M2 Cmd.\r\n");
-					USI_UART_Transmit_Byte('V');	// Send Stop Cmd to MP3 player
-					USI_UART_Transmit_Byte('S');
-					USI_UART_Transmit_Byte('T');
-					USI_UART_Transmit_Byte(13);						
-					}
+			if ((CmdStr[0] == '<') && (CmdStr[1] == 'M')){ 	// send music cmds to MP3 player
+//			if (CmdStr[0] == '<'){ 	// send music cmds to MP3 player
+
+//			USI_UART_Transmit_Byte('z');
+			for(n=4;n<CmdLen;n++) {
+				USI_UART_Transmit_Byte(CmdStr[n]);		
+		       }
+			USI_UART_Transmit_Byte(13);
+
 				}
 			CmdStr[0] = 0;	// reset CmdStr to blank
 			CmdLen = 0;
@@ -89,7 +90,7 @@ int main( void )
 		else
 			{
 			CmdStr[CmdLen] = cData;		// store CmdStr until Carrage Return received
-			if (CmdLen < 3) CmdLen++;
+			if (CmdLen < BUF_SIZE) CmdLen++;
 			}
 		}
     }    
