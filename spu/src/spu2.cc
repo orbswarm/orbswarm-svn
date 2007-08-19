@@ -13,11 +13,9 @@ int main(int argc, char *argv[])
 {
   int com1=0; /* File descriptor for the port */
   int com2=0; /* File descriptor for the port */
-  int com3=0, com4=0, com5=0; 	/* ditto */
+  int com3=0, com5=0; 	/* ditto */
   int tenHzticks = 0;
   int n;
-  char buff[MAX_BUFF_SZ + 1];
-  int bytes;
   char buff2[MAX_BUFF_SZ + 1];
 
   int bytes2 = 0;
@@ -35,15 +33,12 @@ int main(int argc, char *argv[])
   fprintf(stderr,"\nMY ORB ID: %d\n",myOrbId);
 
 
-  //  com1 = initSerialPort("/dev/ttyAM0", 38400);
   com2 = initSerialPort(COM2, 38400);
   com3 = initSerialPort(COM3, 38400);
-  //com4 = initSerialPort(COM4, 38400);
   com5 = initSerialPort(COM5, 38400);
 
   max_fd = (com2 > com1 ? com2 : com1) + 1;
   max_fd = (com3 > max_fd ? com3 : max_fd) + 1;
-  //max_fd = (com4 > max_fd ? com4 : max_fd) + 1;
   max_fd = (com5 > max_fd ? com5 : max_fd) + 1;
 
   while(1)
@@ -70,17 +65,16 @@ int main(int argc, char *argv[])
        //printf("No data within 10 secs.");
        ++tenHzticks;
        if(tenHzticks == 5) {
-	 toggleSpuLed(SPU_LED_RED_ON);  
+	 toggleSpuLed(SPU_LED_GREEN_ON);  
        }
 
        if(tenHzticks == 10) {
 	 tenHzticks = 0;
-	 toggleSpuLed(SPU_LED_RED_OFF);  
+	 toggleSpuLed(SPU_LED_GREEN_OFF);  
        }
    
         char msgBuff[MAX_BUFF_SZ + 1];
         int msgSize = 0;
-        int spuId = 0;
         int numTrys = 0;
         int totalBytes = 0;
         //Check to see if data is waiting on com2 
@@ -116,7 +110,6 @@ int main(int argc, char *argv[])
            int msgOrbId = 0; 
            totalBytes = 0;
            char dummyBuff[MAX_BUFF_SZ];
-           char dummyBuff2[MAX_BUFF_SZ];
            while(SWARM_SUCCESS == status)
            {
              strncpy(dummyBuff,&msgBuff[1],3); //extract the orbid max 3 digits 
