@@ -472,6 +472,10 @@ public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMo
         colorSchemeListeners.add(ear);
     }
 
+    public void removeColorSchemeListener(ColorSchemeListener ear) {
+        colorSchemeListeners.remove(ear);
+    }
+
     public void broadcastColorSchemeChanged() {
         broadcastColorSchemeChanged(colorScheme);
     }

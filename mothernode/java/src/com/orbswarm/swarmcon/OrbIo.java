@@ -79,4 +79,14 @@ public class OrbIo extends SerialIo
       {
          orbs.get(id).handleMessage(message);
       }
+
+    /** Send a message to the orbs.
+     */
+    public void send(String string)
+    {
+        super.send(string);
+        // only overriden so we can print a debugging message. 
+        System.out.println("OrbIo.send(" + string + ")");
+    }
+
 }

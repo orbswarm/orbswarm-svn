@@ -1,0 +1,87 @@
+<song> terminal
+    // Based on the original Alea random composition AirportClone21,
+    // an homage to Eno's Music for Airports. Single note samples
+    // of voices, with a few added cellos & long-attach low piano notes,
+    // hovering around a Bb6/9 chord,
+    // with the addition of Landing, a recombobulation of AirportClone21
+    // modulated to a Bbmin6/b9 chord, and adding in field recordings
+    // of the las vegas airport.
+    //
+    // In this case, I'll be splitting the major/minor notes into
+    // separate sets and coalescing the common notes into a single set
+    //  (per layer).
+    // I'm also throwing in samples from two other airports: SFO & PDX
+    //
+    // Theory:
+    //   Bb6/9:      1:Bb  3:D  5:F  6:G   9:C
+    //   Bbmin6/b9:  1:Bb b3:Db 5:F b6:Gb b9:B
+    //     COMMON:   1:Bb       5:F   
+    //   chromatics:
+    //          b7: Ab M7:A 2:C 3:D b3:Db 4:Eb b5:E 5:F b6:Gb
+    //   chromatics that fit the major chord:
+    //   chromatics that fit the minor chord:
+    strategy random
+    <matrix>  
+       headers   major  minor common end
+       major      100     20   80    end
+       minor        -    100  100    end
+       common       -      -   90    end
+    </matrix>
+
+    // additional matricies add to the matrix, without having to specify
+    // the full sparse matrix.
+    //   sets that have no matrix element specified against each other
+    //    are assumed to have 100% compatibility. 
+
+    <matrix>
+        // only one airport can be played at a time. 
+
+        headers sfo pdx vegas end
+        sfo     100    0    0 end
+        pdx       -  100    0 end
+        vegas     -    -  100 end
+    </matrix>
+    <layer> lows
+        <set> major
+        </set>
+        <set> minor
+        </set>
+        <set> common
+        </set>
+    </layer>
+    <layer> 135
+        <set> major
+        </set>
+        <set> minor
+        </set>
+        <set> common
+        </set>
+    </layer>
+    <layer> 169
+        <set> major
+        </set>
+        <set> minor
+        </set>
+    </layer>
+    <layer> chromatic
+        <set> major
+        </set>
+        <set> minor
+        </set>
+    </layer>
+    <layer> thumps
+        <set> hits
+        </set>
+        <set> riffs
+        </set>
+    </layer>
+    <layer> terminal
+        <set> vegas
+        </set>
+  //      <set> sfo
+  //      </set>
+  //      <set> pdx
+  //      </set>
+    </layer>
+    
+</song>

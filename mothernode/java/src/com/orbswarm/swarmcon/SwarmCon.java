@@ -20,7 +20,7 @@ import com.orbswarm.choreography.timeline.TimelineDisplay;
 
 import com.orbswarm.swarmcomposer.color.*;
 import com.orbswarm.swarmcomposer.composer.BotVisualizer;
-import com.orbswarm.swarmcomposer.composer.RandomSongSpecialist;
+//import com.orbswarm.swarmcomposer.composer.RandomSongSpecialist;
 
 import static org.trebor.util.ShapeTools.*;
 import static java.lang.System.*;
@@ -164,6 +164,10 @@ public class SwarmCon extends JFrame
 
       Swarm swarm;
 
+    public Swarm getSwarm() {
+        return swarm;
+    }
+    
       /** selected objects */
 
       Mobjects selected = new Mobjects();
@@ -201,10 +205,15 @@ public class SwarmCon extends JFrame
          SwarmCon sc = new SwarmCon();
       }
 
+    public ColorSchemer colorSchemer;
+    public BotVisualizer botVisualizer;
+
       public void constructControlUI(SwarmCon sc) 
       {
-         ColorSchemer schemer = setupColorSchemeSpecialist(sc);
-         BotVisualizer bv = setupRandomSongSpecialist(sc);
+         ColorSchemer schemer = setupColorSchemer(sc);
+         this.colorSchemer = schemer; // too close coupling here, but it's late in the game...
+         BotVisualizer bv = setupBotVisualizer(sc);
+         this.botVisualizer = bv;
          TimelineDisplay timelineDisplay = new TimelineDisplay(1100, 150);
          sc.setTimelineDisplay(timelineDisplay);
          timelineDisplay.setSwarmCon(sc);
@@ -359,11 +368,21 @@ public class SwarmCon extends JFrame
          }
       }
 
+    public void repaint() {
+        arena.repaint();
+    }
+    
       // add a Specialist to list of OrbState receivers
       public void addSpecialist(Specialist sp) 
       {
           System.out.println("SWARMCON: adding specialist... " + sp);
          specialists.add(sp);
+      }
+
+      public void removeSpecialist(Specialist sp) 
+      {
+          System.out.println("SWARMCON: removing specialist... " + sp);
+         specialists.remove(sp);
       }
     
       // broadcast OrbState messages to all the Specialists\
@@ -919,7 +938,7 @@ public class SwarmCon extends JFrame
     }
     
     /** Setup the ColorSchemeSpecialist and it's controller interface */
-    public static ColorSchemer setupColorSchemeSpecialist(SwarmCon swarmCon) {
+    public static ColorSchemer setupColorSchemer(SwarmCon swarmCon) {
         registerColorSchemes();
         /* not doing the specialists this way anymore!
         ColorSchemeSpecialist colorSchemeSpecialist = new ColorSchemeSpecialist();
@@ -940,7 +959,7 @@ public class SwarmCon extends JFrame
     }
 
       /** Setup the ColorSchemeSpecialist and it's controller interface */
-      public static BotVisualizer setupRandomSongSpecialist(SwarmCon swarmCon) {
+      public static BotVisualizer setupBotVisualizer(SwarmCon swarmCon) {
 
           /* later...
           RandomSongSpecialist randomSongSpecialist = new RandomSongSpecialist();
@@ -949,11 +968,7 @@ public class SwarmCon extends JFrame
           */
                 
           int numbots = 6; // TODO: Whither Data?
-          BotVisualizer bv = new BotVisualizer(numbots); 
-          //randomSongSpecialist.addNeighborListener(bv);
-          //randomSongSpecialist.addSwarmListener(bv);
-          // don't want to start this just yet...
-          //randomSongSpecialist.start();
+          BotVisualizer bv = new BotVisualizer(numbots);
           return bv;
       }
     
@@ -1065,8 +1080,11 @@ public class SwarmCon extends JFrame
 
     public static void registerSpecialists() {
         String chpkg = "com.orbswarm.choreography";
-        Timeline.registerSpecialist("SimpleColor", chpkg + "." + "SingleColorSpecialist");
-        Timeline.registerSpecialist("SimpleSound", chpkg + "." + "SingleSoundSpecialist");
-        Timeline.registerSpecialist("Multitrack", chpkg + "." + "MultitrackSongSpecialist");
+        Timeline.registerSpecialist("SimpleColor",  chpkg + "." + "SingleColorSpecialist");
+        Timeline.registerSpecialist("ColorScheme",  "com.orbswarm.swarmcomposer.color.ColorSchemeSpecialist");
+        Timeline.registerSpecialist("ColorSchemer", "com.orbswarm.swarmcomposer.color.ColorSchemeSpecialist");
+        Timeline.registerSpecialist("RandomSongPlayer", "com.orbswarm.swarmcomposer.composer.RandomSongSpecialist");
+        Timeline.registerSpecialist("SimpleSound",  chpkg + "." + "SingleSoundSpecialist");
+        Timeline.registerSpecialist("Multitrack",   chpkg + "." + "MultitrackSongSpecialist");
     }
 }

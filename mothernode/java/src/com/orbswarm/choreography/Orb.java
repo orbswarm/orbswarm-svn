@@ -1,5 +1,7 @@
 package com.orbswarm.choreography;
 
+import java.awt.Color;
+
 /**
  * Abstraction of an Orb, giving the information needed by Specialist
  * objects.
@@ -19,4 +21,6 @@ public interface Orb {
     /**
      * Do we need methods for orb position and such?
      */
+
+    public Color getOrbColor();
 }

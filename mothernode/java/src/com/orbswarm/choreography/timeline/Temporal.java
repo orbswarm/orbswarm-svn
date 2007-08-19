@@ -187,7 +187,18 @@ public class Temporal {
         buf.append('\n');
     }
 
+    public static HSV colorFromSpec(String specStr) {
+        if (specStr == null) {
+            return null;
+        }
+        List colorSpecList = splitString(specStr, " ");
+        return colorFromSpec(colorSpecList);
+    }
+    
     public static HSV colorFromSpec(List colorSpec) {
+        if (colorSpec == null) {
+            return null;
+        }
         HSV color = null;
         try {
             Iterator it = colorSpec.iterator();
@@ -208,6 +219,24 @@ public class Temporal {
             ex.printStackTrace();
         }
        return color;
+    }
 
+    public static List splitString(String str, String sep) {
+        List l = new ArrayList();
+        int sepl = sep.length();
+        int from = 0;
+        int sepIndex = str.indexOf(sep, from);
+        System.out.println("splitStr(" + str + ")");
+        while (sepIndex > -1) {
+            l.add(str.substring(from, sepIndex));
+            System.out.println("    adding [" + str.substring(from, sepIndex) + "]");
+            from = sepIndex + sepl;
+            sepIndex = str.indexOf(sep, from);
+        }
+        if (from < str.length()) {
+            l.add(str.substring(from));
+            System.out.println("    adding [" + str.substring(from) + "]");
+        }
+        return l;
     }
 }

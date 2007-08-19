@@ -1,5 +1,7 @@
 package com.orbswarm.swarmcomposer.composer;
 
+import com.orbswarm.choreography.OrbControl;
+
 import com.orbswarm.swarmcomposer.util.TokenReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,6 +51,7 @@ public class Bot implements NeighborListener {
     protected ArrayList songs;
 
     protected PlayerThread playerThread = null;
+    protected OrbControl orbControl;
 
     //
     // current selections
@@ -75,10 +78,11 @@ public class Bot implements NeighborListener {
     // TODO: multichannel player
     // TOOO: test strategy reading. 
 
-    public Bot(int num, String name, String basePath) {
+    public Bot(int num, String name, String basePath, OrbControl orbControl) {
         this.botnum = num;
         this.name = name;
         this.basePath = basePath;
+        this.orbControl = orbControl;
         this.songs = new ArrayList();
         this.neighbors = new HashMap();
         this.neighborListeners = new ArrayList();
@@ -846,7 +850,7 @@ public class Bot implements NeighborListener {
                     // ignore. 
                 } else {
                     currentSound = sound;
-                    currentPlayer = bot.getPlayer(sound);
+                    //currentPlayer = bot.getPlayer(sound);
                     broadcastGossip("sound_start", sound.getName());
                     // possibly wait for a beat...
                     long waitForBeatTime = currentLayer.getWaitForBeatTime(runningTime);
@@ -858,11 +862,16 @@ public class Bot implements NeighborListener {
                         }
                         System.out.println("Bot("+bot.getName()+") DONE waiting for beat lock...");
                     } 
-                    
-                    currentPlayer.play(sound);
+
+                    int orbNum = botnum;
+                    float durationSec = orbControl.playSound(orbNum, sound);
+                    try {
+                        Thread.sleep((int)(1000 * durationSec));
+                    } catch (Exception ex) {
+                    }
                     currentSound = null;
                     // might not want to release tre player at every play...
-                    bot.releasePlayer(currentPlayer);
+                    //bot.releasePlayer(currentPlayer);
                     currentPlayer = null;
                 }
             }

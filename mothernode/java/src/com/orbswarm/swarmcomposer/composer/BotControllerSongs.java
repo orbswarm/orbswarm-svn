@@ -1,5 +1,6 @@
 package com.orbswarm.swarmcomposer.composer;
 
+import com.orbswarm.choreography.OrbControl;
 import com.orbswarm.swarmcomposer.sound.SimpleJavaPlayer;
 
 import com.orbswarm.swarmcomposer.color.BotColorListener;
@@ -29,14 +30,15 @@ public class BotControllerSongs extends BotController implements NeighborListene
     private ArrayList orbsongs;
     private ArrayList playList; // songs
     private int songTime = 0;
+    private OrbControl orbControl;
     
-    public BotControllerSongs(int numBots, String basePath) {
-        super(numBots, basePath);
+    public BotControllerSongs(int numbots, String basePath, OrbControl orbControl) {
+        super(numbots, basePath, orbControl);
         orbsongs = new ArrayList(); // songs
         playList = new ArrayList(); // songs
-        for(int i=0; i < numBots; i++) {
+        for(int i=0; i < numbots; i++) {
             Bot bot = (Bot)bots.get(i);
-            bot.setDefaultPlayer(new SimpleJavaPlayer(i));  // songs
+            //bot.setDefaultPlayer(new SimpleJavaPlayer(i));  // songs
         }
     }
 
@@ -188,7 +190,7 @@ public class BotControllerSongs extends BotController implements NeighborListene
     public static void main(String[] args) {
         int numbots = 6;
         if (args.length > 0) {
-            BotControllerSongs botctl = new BotControllerSongs(numbots, "/orbsongs");
+            BotControllerSongs botctl = new BotControllerSongs(numbots, "/orbsongs", null);
             botctl.handleArgs(args);
             botctl.playSongs();
         }

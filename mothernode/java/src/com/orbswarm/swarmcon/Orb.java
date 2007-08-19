@@ -102,7 +102,7 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
          this.orbColor = val;
       }
 
-      Color getOrbColor() {
+      public Color getOrbColor() {
          if (this.orbColor == null) {
             return ORB_CLR;
          } else {

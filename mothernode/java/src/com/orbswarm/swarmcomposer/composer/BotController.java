@@ -1,5 +1,7 @@
 package com.orbswarm.swarmcomposer.composer;
 
+import com.orbswarm.choreography.OrbControl;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -14,13 +16,14 @@ public class BotController implements NeighborListener, SwarmListener {
     protected ArrayList bots;
     protected String basePath;
     protected int numbots;
+    protected OrbControl orbControl;
     
-    public BotController(int numBots, String basePath) {
+    public BotController(int numbots, String basePath, OrbControl orbControl) {
         this.numbots = numbots;
         this.basePath = basePath;
         bots = new ArrayList();
-        for(int i=0; i < numBots; i++) {
-            Bot bot = new Bot(i, "Bot_" + i, basePath);
+        for(int i=0; i < numbots; i++) {
+            Bot bot = new Bot(i, "Bot_" + i, basePath, orbControl);
             bots.add(bot);
         }
 

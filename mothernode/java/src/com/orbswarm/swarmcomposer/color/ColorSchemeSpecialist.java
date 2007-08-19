@@ -5,6 +5,10 @@ import com.orbswarm.choreography.OrbControl;
 import com.orbswarm.choreography.Specialist;
 import com.orbswarm.choreography.AbstractSpecialist;
 import com.orbswarm.choreography.Swarm;
+import com.orbswarm.choreography.timeline.Timeline;
+
+import com.orbswarm.swarmcon.OrbControlImpl;
+import com.orbswarm.swarmcon.SwarmCon;
 
 import com.orbswarm.swarmcomposer.composer.BotControllerColor; // this needs to move!
 
@@ -16,28 +20,60 @@ import java.util.Properties;
 public  class ColorSchemeSpecialist extends AbstractSpecialist implements ColorSchemeListener, BotColorListener {
     private boolean enabled = true;
     private BotControllerColor botctl_color;
+    private ColorSchemer schemer;
+    private SwarmCon swarmCon;
 
     public void setup(OrbControl orbControl, Properties initialProperties, int[] orbs) {
         super.setup(orbControl, initialProperties, orbs);
+        // HACQUE ALERT! this is too tightly coupled, but we're late in the game, and OUCH!
+        OrbControlImpl oci = (OrbControlImpl)orbControl; // bad simran! bad simran!!
+        swarmCon = oci.getSwarmCon();
+        schemer = swarmCon.colorSchemer;
+        this.addBotColorListener(schemer);
+        schemer.addColorSchemeListener(this);
 
-        int numbots = orbs.length; 
-        botctl_color = new BotControllerColor(numbots, "/orbsongs");
+        int numbots = orbs.length;
+        numbots = 6;
+        botctl_color = new BotControllerColor(numbots, "/orbsongs", orbControl);
         botctl_color.addBotColorListener(this);
+
+        schemer.broadcastNewColorScheme();
+        schemer.broadcastColorSchemeChanged();
+        // need to do this again to set the properties on the schemer, etc once it's been created. 
+        setProperties(initialProperties);
     }
 
     
     public void start() {
         if (enabled) {
-            int orbNum = getIntProperty("orb",   -1);
-            int hue    = getIntProperty("hue",    0);
-            int sat    = getIntProperty("sat",   80);
-            int val    = getIntProperty("val",   80);
-            int time   = getIntProperty("time", 400);
+            String scheme = getProperty("colorscheme", null);
+            if (schemer != null && scheme != null) {
+                schemer.setColorScheme(scheme);
+            }
+            String baseColorStr = getProperty("basecolor", null);
+            HSV color = Timeline.colorFromSpec(baseColorStr);
+            if (color != null) {
+                schemer.getColorScheme().setBaseColor(color);
+            }
+            int spread = getIntProperty("spread", -1);
+            if (spread != -1) {
+                schemer.getColorScheme().setSpread((float)spread / 100.f);
+            }
+            int meander = getIntProperty("meander", -1);
+            if (meander != -1) {
+                botctl_color.setMeander((float)meander / 100.f);
+            }
+            
+            swarmCon.addSpecialist(this);
         }
     }
 
     public void stop() {
-        // N/A
+        if (schemer != null) {
+            schemer.removeColorSchemeListener(this);
+        }
+        swarmCon.removeSpecialist(this);
+
     }
 
     public void enable(boolean value) {
@@ -45,7 +81,7 @@ public  class ColorSchemeSpecialist extends AbstractSpecialist implements ColorS
     }
 
     public void orbState(Swarm orbSwarm) {
-        //System.out.println("COlorSchemeSpecialist.orbState()");
+        System.out.println("COlorSchemeSpecialist.orbState()");
         //int n = orbSwarm.getNumOrbs();
         int n = 6;
         double[][] distances = new double[n][n];
@@ -96,6 +132,26 @@ public  class ColorSchemeSpecialist extends AbstractSpecialist implements ColorS
 
     public void setProperty(String name, String value) {
         super.setProperty(name, value);
+        if (name.equalsIgnoreCase("colorscheme") && schemer != null) { 
+            schemer.setColorScheme(value);
+
+        } else if (name.equalsIgnoreCase("basecolor") && schemer != null) {
+            HSV color = Timeline.colorFromSpec(value);
+            if (color != null) {
+                schemer.getColorScheme().setBaseColor(color);
+            }
+
+        } else if  (name.equalsIgnoreCase("spread") && schemer != null) {
+            int spread = getIntProperty("spread", -1);
+            if (spread != -1) {
+                schemer.getColorScheme().setSpread((float)spread / 100.f);
+            }
+        } else if  (name.equalsIgnoreCase("meander") && botctl_color != null) {
+            int meander = getIntProperty("meander", -1);
+            if (meander != -1) {
+                botctl_color.setMeander((float)meander / 100.f);
+            }
+        }
         //TODO: handle settinghte color scheme, base color, etc.
     }
     
@@ -109,18 +165,21 @@ public  class ColorSchemeSpecialist extends AbstractSpecialist implements ColorS
     //////////////////////////////////////
 
     public void colorSchemeChanged(ColorScheme colorScheme) {
+        System.out.println("CSS.colorChemeChanged(" + colorScheme + ")");
         botctl_color.colorSchemeChanged(colorScheme);
     }
 
     public void newColorScheme(ColorScheme ncs) {
-        System.out.println("ColorSchemeSpecialist.newColorScheme(" + ncs + ")");
+        System.out.println("CSS.newColorScheme(" + ncs + ")");
         botctl_color.newColorScheme(ncs);
     }
 
       //////////////////////////////////////
      /// Bot Color Listener             ///
     //////////////////////////////////////
+
     public void botColorChanged(int bot, int swatch, HSV color) {
+        System.out.println("CSS: botColorChanged( " + bot + " ) " + color);
         int hue = (int)(255 * color.getHue());
         int sat = (int)(255 * color.getSat());
         int val = (int)(255 * color.getVal());

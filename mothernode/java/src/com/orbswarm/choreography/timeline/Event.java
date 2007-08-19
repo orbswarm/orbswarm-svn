@@ -75,6 +75,7 @@ public class Event extends Temporal {
     
     public void setTarget(String val) {
         this.target = val;
+        this.type = TYPE_PARAMETER;
     }
     public String getTarget()  {
         return this.target;

@@ -1,5 +1,6 @@
 package com.orbswarm.swarmcomposer.composer;
 
+import com.orbswarm.choreography.OrbControl;
 import com.orbswarm.swarmcomposer.color.BotColorListener;
 import com.orbswarm.swarmcomposer.color.ColorScheme;
 import com.orbswarm.swarmcomposer.color.ColorSchemeListener;
@@ -18,10 +19,11 @@ import javax.swing.*;
  */
 public class BotControllerColor extends BotController implements SwarmListener, ColorSchemeListener {
     private ArrayList botColorListeners = new ArrayList();
+    private float meander =1.f;   // how far colors can wander from their scheme colors
 
-    public BotControllerColor(int numBots, String basePath) {
-        super(numBots, basePath);
-        setupBotColors(numBots, numBots);
+    public BotControllerColor(int numbots, String basePath, OrbControl orbControl) {
+        super(numbots, basePath, orbControl);
+        setupBotColors(numbots, numbots);
     }
 
     public void updateSwarmDistances(double radius, int nbeasties, double [][] distances) {
@@ -29,6 +31,9 @@ public class BotControllerColor extends BotController implements SwarmListener, 
         updateBotColors(nbeasties, distances, currentColorScheme);
     }
 
+    public void setMeander(float val) {
+        this.meander = val;
+    }
 
     ///////////////////////////////////////
     ///  Color algorithm.              
@@ -157,7 +162,7 @@ public class BotControllerColor extends BotController implements SwarmListener, 
                     double[] botDistances = distances[i];
                     double distanceToBase = botDistances[baseColorBot];
                     
-                    float rangeMultiplier = (float)distanceToBase / 100.f;
+                    float rangeMultiplier = meander * (float)distanceToBase / 100.f;
                     
                     int swatch = botToSwatchMapping[i];
                     HSV currentSchemeColor = colorScheme.getColor(swatch);
@@ -200,16 +205,19 @@ public class BotControllerColor extends BotController implements SwarmListener, 
     //////////////////////////////////////
 
     public void colorSchemeChanged(ColorScheme colorScheme) {
-        System.out.println("BC: colorschemechanged....");
+        System.out.println("BC: colorschemechanged.... numbots="+numbots);
+        
         for(int i=0; i < numbots; i++) {
             int swatch = botToSwatchMapping[i];
             botColors[i] = colorScheme.getColor(swatch).copy();
+            broadcastBotColorChanged(i, swatch, botColors[i]);
         }
     }
 
     public void newColorScheme(ColorScheme ncs) {
         System.out.println("BC: got NEW color scheme. ");
         setColorScheme(ncs);
+        colorSchemeChanged(ncs);
     }
     
     public void addBotColorListener(BotColorListener snoop) {

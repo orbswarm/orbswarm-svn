@@ -1,0 +1,49 @@
+<timeline>
+  name: ColorSchemeTest
+  arena: 200.
+  duration: 120.
+  <event>
+     name: ColorSchemer
+     specialist: ColorScheme
+     startTime: 2
+     endTime: end
+     <orbs> 0 1 2 3 4 5  </orbs>
+     <properties>
+         colorscheme Analogous
+         basecolor RGB 255 220 140
+         spread 12
+         meander 100
+     </properties>
+  </event>
+
+  <event>
+      target: ColorSchemer
+      startTime: 35
+      <properties>
+         colorscheme Triad
+         basecolor RGB 255 240 120
+         spread 35
+         meander 10
+      </properties>
+  </event>
+
+  <event>
+      target: ColorSchemer
+      startTime: 55
+      <properties>
+         basecolor RGB 0 0 255
+         spread 15
+         meander 100
+      </properties>
+  </event>
+
+  <event>
+      target: ColorSchemer
+      startTime: 60
+      <properties>
+         colorscheme Crown
+         meander 45
+      </properties>
+  </event>
+
+</timeline>

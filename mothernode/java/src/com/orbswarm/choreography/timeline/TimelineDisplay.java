@@ -1,5 +1,6 @@
 package com.orbswarm.choreography.timeline;
 
+import com.orbswarm.choreography.Orb;
 import com.orbswarm.choreography.OrbControl;
 import com.orbswarm.choreography.Specialist;
 import com.orbswarm.swarmcomposer.util.StdDraw;
@@ -7,6 +8,7 @@ import com.orbswarm.swarmcomposer.util.TokenReader;
 import com.orbswarm.swarmcomposer.color.HSV;
 
 import com.orbswarm.swarmcon.SwarmCon;
+import com.orbswarm.swarmcon.Swarm;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -60,7 +62,7 @@ public class TimelineDisplay  {
     public Color eventColor_border, eventColor_text;
     public Color sequenceColor;
     public Color timeCursorColor;
-
+    public HSV[] leitMotifColors;
     protected Component repaintComponent;
 
     private Timeline timeline = null;
@@ -70,6 +72,7 @@ public class TimelineDisplay  {
         this.canvasWidth  = canvasWidth;
         this.canvasHeight = canvasHeight;
         initColors();
+        initLeitMotifColors();
         setupDrawer();
         calculateDimensions(true);
         createMainPanel(); // TODO: pass in place to find the choreoography files.
@@ -110,7 +113,15 @@ public class TimelineDisplay  {
         eventColor_text    = Color.getHSBColor(.95f, .15f, 1.0f);
         sequenceColor      = Color.getHSBColor(.05f, .35f,   1.0f);
     }
-
+    
+    public void initLeitMotifColors() {
+        leitMotifColors = new HSV[6];
+        for(int i=0; i < leitMotifColors.length; i++) {
+            float hue = (float)i / (float)leitMotifColors.length;
+            leitMotifColors[i] = new HSV(hue, 1.f, 1.f);
+        }
+    }
+    
     public void setupDrawer() {
         drawer = new StdDraw(canvasWidth, canvasHeight);
         setRepaintComponent(drawer.getDrawingPane());
@@ -165,7 +176,7 @@ public class TimelineDisplay  {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.gridwidth = 2;
+        gbc.gridwidth = 4;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
@@ -200,7 +211,7 @@ public class TimelineDisplay  {
         JButton goButton = new JButton(" > ");
         gbc.gridx = 0;
         gbc.gridy = 1;
-        gbc.gridwidth = 1;
+        gbc.gridwidth = 2;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
@@ -219,7 +230,7 @@ public class TimelineDisplay  {
         JButton stopButton = new JButton(" [] ");
         gbc.gridx = 1;
         gbc.gridy = 1;
-        gbc.gridwidth = 1;
+        gbc.gridwidth = 2;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
@@ -234,9 +245,41 @@ public class TimelineDisplay  {
                     }
                 }
             });
+        addDebugLeitMotifButtons(panel);
         return panel;
     }
+    public void addDebugLeitMotifButtons(JPanel panel) {
+        int r =0;
+        int c = 0;
+        for(int i=0; i < 6; i++) {
+            JButton lmButton = new JButton("[" + i + "]");
+            lmButton.setPreferredSize(new Dimension(55, 12));
+            lmButton.setMinimumSize(new Dimension(55, 12));
+            GridBagConstraints gbc = new GridBagConstraints();
+            
+            gbc.gridx = c;
+            gbc.gridy = 2 + r;
+            c++;
+            if (c > 2) {
+                c = 0;
+                r++;
+            }
+            gbc.fill = GridBagConstraints.NONE;
+            panel.add(lmButton, gbc);
+            lmButton.addActionListener(new lmButtonActionListener(i));
+        }
+    }
 
+    class lmButtonActionListener implements ActionListener {
+        private int orbNum;
+        public lmButtonActionListener(int orbNum) {
+            this.orbNum = orbNum;
+        }
+        public void actionPerformed(ActionEvent e) {
+            doLeitMotif(orbNum);
+        }
+    }
+    
     public void addTimelines(JComboBox cb) {
         List timelines = findTimelines();
         for(Iterator it=timelines.iterator(); it.hasNext(); ) {
@@ -589,7 +632,14 @@ public class TimelineDisplay  {
             displayEventEndPoint(evEndX, evY);
         }
         displayEventStartPoint(evStartX, evY, jcolor);
-        displayEventText(evStartX + eventTrackHeight * .5, evY - eventTrackHeight * .4, event.getName(), jcolor);
+        String text = event.getName();
+        if (text == null) {
+            text = "<>";
+        }
+        if (event.getTarget() != null) {
+            text += "->" + event.getTarget();
+        }
+        displayEventText(evStartX + eventTrackHeight * .5, evY - eventTrackHeight * .4, text, jcolor);
     }
 
     public void displaySequence(Sequence seq, int track) {
@@ -760,6 +810,41 @@ public class TimelineDisplay  {
         return frame;
 
     }
-        
+
+    public void doLeitMotif(int orbNum) {
+        doLeitMotifInThread(orbNum);
+    }
     
+    public void doLeitMotifInThread(int orbNum) {
+        final int _orbNum = orbNum;
+        final Orb orb = (Orb)swarmCon.getSwarm().getOrb(_orbNum);
+        final OrbControl _orbControl = orbControl;
+        final HSV leitMotifColor = leitMotifColors[_orbNum];
+        final Color prevColor = orb.getOrbColor();
+        final HSV prevHSV = HSV.fromColor(prevColor);
+        new Thread() {
+            public void run()  {
+                System.out.println("TimelineDisplay:doLeitMotif(" + _orbNum + ")");
+                int toColor = 500;
+                int toWhite = 200;
+                int fromWhite = 200;
+                int fromColor = 500;
+                int lh = (int)(leitMotifColor.getHue() * 255);
+                int ls = (int)(leitMotifColor.getSat() * 255);
+                int lv = (int)(leitMotifColor.getVal() * 255);
+                _orbControl.orbColor(_orbNum, lh, ls, lv, toColor);
+                try { Thread.sleep(toColor); } catch (Exception ex) {}
+                _orbControl.orbColor(_orbNum, 0, 0, 255, toWhite);
+                try { Thread.sleep(toWhite); } catch (Exception ex) {}
+                _orbControl.orbColor(_orbNum, lh, ls, lv, fromWhite);
+                try { Thread.sleep(fromWhite); } catch (Exception ex) {}
+                _orbControl.orbColor(_orbNum,
+                                     (int)(255*prevHSV.getHue()),
+                                     (int)(255*prevHSV.getSat()),
+                                     (int)(255*prevHSV.getVal()),
+                                     fromColor);
+            }
+        }.start();
+    }
+
 }

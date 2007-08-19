@@ -31,6 +31,10 @@ public class OrbControlImpl implements OrbControl {
         readSoundCatalog();
     }
 
+    public SwarmCon getSwarmCon() {
+        return swarmCon;
+    }
+    
     public void setupSoundPlayers(int n) {
         soundFilePlayers = new SoundFilePlayer[n];
         for(int i=0; i < n; i++) {
@@ -72,11 +76,24 @@ public class OrbControlImpl implements OrbControl {
     }
     
     public float playSound(int orbNum, Sound sound) {
-        System.out.println("ORI: playsound(" + orbNum + ", " + sound + ")");
-        SoundFilePlayer player = getSoundPlayer(orbNum);
-        playOnThread(player, sound);
-        return sound.getDuration();
+        float dur = sound.getDuration();
+        if (simulateSounds) {
+            System.out.println("ORI: playsound(" + orbNum + ", " + sound + ")");
+            SoundFilePlayer player = getSoundPlayer(orbNum);
+            playOnThread(player, sound);
+        }
+        if (sendCommandsToOrbs && orbIo != null) {
+            String mp3Hash = sound.getMP3Hash();
+            StringBuffer buf = new StringBuffer();
+            buf.append("<SPlay ");
+            buf.append(mp3Hash);
+            buf.append(">");
+            String orbCmd = wrapOrbCommand(orbNum, buf.toString());
+            orbIo.send(orbCmd);
+        }
+        return dur;
     }
+
 
     private void playOnThread(SoundFilePlayer player, Sound sound) {
         final Sound _sound = sound;
@@ -100,18 +117,36 @@ public class OrbControlImpl implements OrbControl {
     }
     
     public void stopSound(int orbNum) {
-        SoundFilePlayer player = getSoundPlayer(orbNum);
-        //System.out.println("OCI: stopSound(orb:" + orbNum + ") player: " + player);
-        if (player != null) {
-            player.stop();
+        if (simulateSounds) {
+            SoundFilePlayer player = getSoundPlayer(orbNum);
+            //System.out.println("OCI: stopSound(orb:" + orbNum + ") player: " + player);
+            if (player != null) {
+                player.stop();
+            }
         }
+        if (sendCommandsToOrbs && orbIo != null) {
+            StringBuffer buf = new StringBuffer();
+            buf.append("<SStop>");
+            String orbCmd = wrapOrbCommand(orbNum, buf.toString());
+            orbIo.send(orbCmd);
+        }
+    
     }
     
-    public void volume(int orb, int volume) {}
+    public void volume(int orbNum, int volume) {
+        if (sendCommandsToOrbs && orbIo != null) {
+            StringBuffer buf = new StringBuffer();
+            buf.append("<SVol ");
+            buf.append(volume);
+            buf.append(">");
+            String orbCmd = wrapOrbCommand(orbNum, buf.toString());
+            orbIo.send(orbCmd);
+        }
+    }
 
     // only one Light control method implemented
     public void orbColor(int orbNum, int hue, int sat, int val, int timeMS) {
-        //System.out.println("SwarmCon:OrbControl orbColor(orb: " + orbNum + "HSV: [" + hue + ", " + sat + ", " + val + "])");
+        System.out.println("SwarmCon:OrbControlImpl orbColor(orb: " + orbNum + "HSV: [" + hue + ", " + sat + ", " + val + "]@" + timeMS + ")");
         if (simulateColors) {
             float fhue = hue / 255.f;
             float fsat = sat / 255.f;
@@ -127,7 +162,7 @@ public class OrbControlImpl implements OrbControl {
                 final int _timeMS = timeMS;
                 new Thread() {
                     public void run()  {
-                        fadeColor(orb, prevHSV, hsv, _timeMS, 100);
+                        fadeColor(orb, prevHSV, hsv, _timeMS, 20);
                     }
                 }.start();
             }
@@ -182,6 +217,7 @@ public class OrbControlImpl implements OrbControl {
             }
         }
         orb.setOrbColor(target.toColor());
+        swarmCon.repaint(); // todo: only if swarmcon not running?
     }
         
             

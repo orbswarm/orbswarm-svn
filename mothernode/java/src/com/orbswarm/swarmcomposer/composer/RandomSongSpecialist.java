@@ -6,6 +6,9 @@ import com.orbswarm.choreography.Specialist;
 import com.orbswarm.choreography.AbstractSpecialist;
 import com.orbswarm.choreography.Swarm;
 
+import com.orbswarm.swarmcon.OrbControlImpl;
+import com.orbswarm.swarmcon.SwarmCon;
+
 import java.io.File;
 
 import java.util.ArrayList;
@@ -16,20 +19,34 @@ import java.util.Properties;
 public  class RandomSongSpecialist extends AbstractSpecialist {
     private boolean enabled = true;
     private BotControllerSongs botctl_songs;
-    
+    private BotVisualizer bv;
+    private SwarmCon swarmCon;
+
     public void setup(OrbControl orbControl, Properties initialProperties, int[] orbs) {
         super.setup(orbControl, initialProperties, orbs);
 
-        int numbots = orbs.length;
-        botctl_songs = new BotControllerSongs(numbots, "/orbsongs");
+        // HACQUE ALERT! this is too tightly coupled, but we're late in the game, and OUCH!
+        OrbControlImpl oci = (OrbControlImpl)orbControl; // bad simran! bad simran!!
+        swarmCon = oci.getSwarmCon();
+        bv = swarmCon.botVisualizer;
 
+
+        int numbots = orbs.length;
+        numbots = 6; // TODO: allow it to control only the specified bots.
+        
+        botctl_songs = new BotControllerSongs(numbots, "/orbsongs", orbControl);
+        this.addNeighborListener(bv);
+        this.addSwarmListener(bv);
+        setProperties(initialProperties);
     }
     
     public void start() {
         if (enabled) {
-            String songDir  = getProperty("songdir",   "../songs");
+            String songDir  = getProperty("songdir",   "resources/songs");
             String songName = getProperty("song",   "terminal.orbs");
             int time        = getIntProperty("time", 124); // seconds
+            setDuration(time);
+            swarmCon.addSpecialist(this);
 
             // TODO: set up the player to play through the OrbControl. 
             playSong(songDir + File.separatorChar + songName, time);
@@ -47,7 +64,7 @@ public  class RandomSongSpecialist extends AbstractSpecialist {
     }
     
     public void stop() {
-        // N/A
+        swarmCon.removeSpecialist(this);
     }
 
     public void enable(boolean value) {

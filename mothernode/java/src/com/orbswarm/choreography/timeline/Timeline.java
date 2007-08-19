@@ -256,7 +256,26 @@ public class Timeline extends Temporal {
     // Ideally what would be triggered would be a sequence of events that could be specified
     // in the timeline. 
     //
-    public void leitMotif(int orb) {
+    private Event[] leitMotifs = new Event[6];
+    public Event getLeitMotif(int orbNum) {
+        if (leitMotifs[orbNum] == null) {
+            leitMotifs[orbNum] = createLeitMotif(orbNum);
+        }
+        return leitMotifs[orbNum];
+    }
+
+    public Event createLeitMotif(int orbNum) {
+        Sequence seq = new Sequence(this, null);
+        Event toColor = new Event(this, seq);
+        int[] orbs = new int[1];
+        orbs[0] = orbNum;
+        toColor.setOrbs(orbs);
+        toColor.setSpecialistName("SimpleColor");
+        //toColor.setColor(leitMotifColor[orbNum]); // not yet?
+        toColor.setFadeTime(.5f);
+        // problem: in this scheme we can't make the color go back to where it was before we triggered the leitmotif.
+        seq.appendEvent(toColor);
+        return seq;
     }
 }
 

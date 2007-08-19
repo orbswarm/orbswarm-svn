@@ -1,0 +1,15 @@
+<timeline>
+  name: RandomSongTest
+  arena: 200.
+  duration: 120.
+  <event>
+     name: Rplayer
+     specialist: RandomSongPlayer
+     startTime: 2
+     endTime: end
+     <orbs> 0 1 2 3 4 5  </orbs>
+     <properties>
+         song terminal.orbs
+     </properties>
+  </event>
+</timeline>

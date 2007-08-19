@@ -62,6 +62,8 @@ public final class TokenReader {
     
     public void setInputStream(InputStream in) {
         reader = new BufferedReader(new InputStreamReader(in));
+        lastTokenRead = null;
+        clearTokenStack();
     }
     
     public void open(String filename) {

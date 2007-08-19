@@ -1,0 +1,126 @@
+<song> SolsticeNocturne_S07
+    // Simple chord patterns and notes in E harmonic minor
+    // Where the matricies determine most of how the melodic
+    // combinations work. 
+    //
+    // small amount of rhythmic drones in the chord patterns, loosely
+    // based on memories of a woman playing a Hang playing at the 
+    // Chapel of the chimes on solstice eve, summer 07. 
+    //
+    // Theory:
+    //   Ehm:  E F# G A B C Eb E
+    //     i: Em  :: E  G  B   EmM7: Eb
+    //    ii: F#m :: F# A  C   F#m7: E
+    //  III+: G+  :: G  B  Eb  G+M7: F#
+    //    iv: Am  :: A  C  E   Am7:  G
+    //   ivo: Ao  :: A  C  Eb  Ao7:  F#  Ao/7: G
+    //     V: B   :: B  Eb F#  B7:   A
+    //    VI: C   :: C  E  G   CM7:  B
+    //  VII+: Eb+ :: Eb G  B   (same as G+)
+    //  viio: Ebo :: Eb F# A   Ebo7: C
+
+    strategy random
+    // this one will be beat-locked in 6/8, with notes starting on 
+    // eight notes, and chord patterns starting on the measure. 
+    bpm 100
+    beatlock 6
+    
+    // matrix of notes against chords
+    <matrix>  
+       headers   Em  F#m   G+   Am   Ao Bmaj Cmaj  Eb+  Ebo   end
+         e      100   80    0  100    0    0  100   40    0   end
+         f#      10  100   60   70   40  100   50    0  100   end
+         g      100   20  100   80   70   76  100  100    0   end
+         a       60  100    0  100  100   90   70    0  100   end
+         b      100   50  100    0    0  100   90  100    0   end
+         c       50  100    0  100  100   20  100   10   60   end
+         eb      70   70  100   50  100  100    0  100  100   end
+    </matrix>
+
+    // matrix of chords against chords
+    <matrix>
+       headers   Em  F#m   G+   Am   Ao Bmaj Cmaj  Eb+  Ebo   end
+         Em     100    0   80   50    0    0   95   80    0   end
+         F#m      -  100    0   70   80    0    0    0   90   end
+         G+       -    -  100    0   30   70    0  100    0   end
+         Am       -    -    -  100   50    0   90    0   20   end
+         Ao       -    -    -    -  100    0    0   30   70   end
+         Bmaj     -    -    -    -    -  100    0   70   95   end
+         Cmaj     -    -    -    -    -    -  100    0    0   end
+         Eb+      -    -    -    -    -    -    -  100    0   end
+         Ebo      -    -    -    -    -    -    -    -  100   end
+    </matrix>
+    <layer> chords
+        beatlock 6
+        botlimit: 2
+        <set> Em   </set>
+        <set> F#m  </set>
+        <set> G+   </set>
+        <set> Am   </set>
+        <set> Ao   </set>
+        <set> Bmaj </set>
+        <set> Cmaj </set>
+        <set> Eb+  </set>
+        <set> Ebo  </set>
+    </layer>
+    <layer> chords2
+        beatlock 6
+        botlimit: 2
+        <set> Em   </set>
+        <set> F#m  </set>
+        <set> G+   </set>
+        <set> Am   </set>
+        <set> Ao   </set>
+        <set> Bmaj </set>
+        <set> Cmaj </set>
+        <set> Eb+  </set>
+        <set> Ebo  </set>
+    </layer>
+    <layer> lowchords
+        beatlock 6
+        botlimit: 2
+        <set> Em   </set>
+        <set> F#m  </set>
+        <set> G+   </set>
+        <set> Am   </set>
+        <set> Ao   </set>
+        <set> Bmaj </set>
+        <set> Cmaj </set>
+        <set> Eb+  </set>
+        <set> Ebo  </set>
+    </layer>
+    <layer> notes
+        beatlock 1
+        botlimit: 2
+        <set> e  </set>
+        <set> f# </set>
+        <set> g  </set>
+        <set> a  </set>
+        <set> b  </set>
+        <set> c  </set>
+        <set> eb </set>
+    </layer>
+    <layer> notes2
+        beatlock 1
+        botlimit: 2
+        <set> e  </set>
+        <set> f# </set>
+        <set> g  </set>
+        <set> a  </set>
+        <set> b  </set>
+        <set> c  </set>
+        <set> eb </set>
+    </layer>
+    <layer> notes3
+        beatlock 1
+        botlimit: 2
+        <set> e  </set>
+        <set> f# </set>
+        <set> g  </set>
+        <set> a  </set>
+        <set> b  </set>
+        <set> c  </set>
+        <set> eb </set>
+    </layer>
+
+</song>
