@@ -3,7 +3,7 @@ import signal
 import sys
 import threading
 import signal
-from os import *
+#from os import *
 
 try:
 	import pygame
@@ -13,19 +13,37 @@ except:
 
 # globals go here
 joy = []
-
-
+dataFiles = []
+dataFileNameBase = "/tmp/joydata%d.txt"
 
 def handleJoyEvent(e):
 	if e.type == pygame.JOYAXISMOTION:
-		if (e.dict['axis'] == 0):
-			print "Stick %d Axis 0 %f" % (e.dict['joy'], e.dict['value'])
-		elif (e.dict['axis'] == 1):
-			print "Stick %d Axis 1 %f" % (e.dict['joy'], e.dict['value'])
+                if (e.dict['axis'] == 0):
+                        axis = "x1"
+                
+                if (e.dict['axis'] == 1):
+                        axis = "y1"
+                        
+                if (e.dict['axis'] == 2):
+                        axis = "x2"
+
+                if (e.dict['axis'] == 3):
+                        axis = "y2"
+
+                str = "axis: %s value: %f" % (axis, e.dict['value'])
+                output(str, e.dict['joy'])
+
 	elif e.type == pygame.JOYBUTTONDOWN:
-		print "Stick %d Button %d" % (e.dict['joy'], e.dict['button'])
+                str = "button: %d" % (e.dict['button'])
+                output(str, e.dict['joy'])
 	else:
 		pass
+
+def output(line, stick):
+        print "stick: %d %s" % (stick, line)
+        dataFiles[stick].write(line)
+        dataFiles[stick].write("\n")
+        dataFiles[stick].flush()
 
 def joystickControl():
 	while True:
@@ -51,6 +69,7 @@ def main():
 		myjoy = pygame.joystick.Joystick(i)
 		myjoy.init()
 		joy.append(myjoy)
+                dataFiles.append(open(dataFileNameBase % (i), "w"))
 		print "Got stick %d axes: %d name: " % (i, joy[i].get_numaxes()) + joy[i].get_name()
 
 		
