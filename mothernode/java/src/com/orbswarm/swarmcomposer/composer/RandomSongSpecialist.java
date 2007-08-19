@@ -65,6 +65,7 @@ public  class RandomSongSpecialist extends AbstractSpecialist {
     
     public void stop() {
         swarmCon.removeSpecialist(this);
+        botctl_songs.stopControlling();
     }
 
     public void enable(boolean value) {

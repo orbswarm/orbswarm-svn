@@ -70,7 +70,7 @@ public class MainSwarmer {
         /// Set up the color bot controller  ///
         ////////////////////////////////////////
 
-        BotControllerColor botctl_color = new BotControllerColor(numbots, "/orbsongs");
+        BotControllerColor botctl_color = new BotControllerColor(numbots, "/orbsongs", null);
         swarmField.swarmulator.addSwarmListener(botctl_color);
 
         ColorScheme.registerColorScheme("Analogous", ColorSchemeAnalogous.class);
@@ -93,7 +93,7 @@ public class MainSwarmer {
         ////////////////////////////////////////
         /// Set up the songs bot controller  ///
         ////////////////////////////////////////
-        BotControllerSongs botctl_songs = new BotControllerSongs(numbots, "/orbsongs");
+        BotControllerSongs botctl_songs = new BotControllerSongs(numbots, "/orbsongs", null);
         botctl_songs.handleArgs(swarmComposerArgs);
 
         swarmField.swarmulator.addSwarmListener(botctl_songs);

@@ -804,12 +804,16 @@ public class Bot implements NeighborListener {
     }
     
     public void stopPlayerThread() {
+        System.out.println("Bot(" + getName() + ") stopPlayerThread.");
         if (playerThread != null) {
             playerThread.halt();
             playerThread = null;
         }
+        int orbNum = botnum;
+        orbControl.stopSound(orbNum);
         if (currentPlayer != null) {
             currentPlayer.stop();
+            
         }
     }
     class PlayerThread extends Thread {

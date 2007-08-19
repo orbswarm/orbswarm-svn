@@ -15,7 +15,7 @@ import java.util.HashMap;
 public class OrbControlImpl implements OrbControl {
     private SwarmCon swarmCon;
     private SoundFilePlayer[] soundFilePlayers;
-    private HashMap soundCatalog;
+    private static HashMap soundCatalog;
     private OrbIo orbIo;
 
     // TODO: hook these up to toggles somehow... (or keep in SwarmCon?)
@@ -50,6 +50,9 @@ public class OrbControlImpl implements OrbControl {
             while (path != null) {
                 float duration = reader.readFloat();
                 String pcmHash = reader.readToken();
+                if (pcmHash.equals("-")) {
+                    pcmHash = null;
+                }
                 String mp3Hash = reader.readToken();
                 Sound sound = new Sound(path, duration, pcmHash, mp3Hash);
                 soundCatalog.put(path, sound);
@@ -78,7 +81,7 @@ public class OrbControlImpl implements OrbControl {
     public float playSound(int orbNum, Sound sound) {
         float dur = sound.getDuration();
         if (simulateSounds) {
-            System.out.println("ORI: playsound(" + orbNum + ", " + sound + ")");
+            System.out.println("ORI: playsound(" + orbNum + ", " + sound + ") dur:" + dur);
             SoundFilePlayer player = getSoundPlayer(orbNum);
             playOnThread(player, sound);
         }
@@ -101,7 +104,7 @@ public class OrbControlImpl implements OrbControl {
         
         new Thread() {
             public void run()  {
-                System.out.println("Playing sound" + _sound + " on thread.");
+                System.out.println("  Playing sound" + _sound + " on thread. " + this);
                 _player.play(_sound);
             }
         }.start();
@@ -112,7 +115,11 @@ public class OrbControlImpl implements OrbControl {
         return soundFilePlayers[orbNum];
     }
     
-    public Sound lookupSound(String soundFilePath) {
+    public  Sound lookupSound(String soundFilePath) {
+        return staticLookupSound(soundFilePath);
+    }
+    // OUCHY! Hacque hacque HACQUE!!!
+    public static Sound staticLookupSound(String soundFilePath) {
         return (Sound)soundCatalog.get(soundFilePath);
     }
     

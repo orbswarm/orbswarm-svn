@@ -128,6 +128,12 @@ public class BotControllerSongs extends BotController implements NeighborListene
         }
     }
 
+    public void stopControllerThread() {
+        super.stopControllerThread();
+        stopBots();
+    }
+
+
     public void playMultiChannelComposition(MultiChannelComposition song) {
         ArrayList threads = new ArrayList();
         for(int i=0; i < song.numTracks(); i++) {
@@ -182,7 +188,6 @@ public class BotControllerSongs extends BotController implements NeighborListene
         Bot bot0 = (Bot) this.bots.get(0);
         System.out.println(bot0.toString());
         System.out.println("----------------");
-
         
         this.startControlling();
     }

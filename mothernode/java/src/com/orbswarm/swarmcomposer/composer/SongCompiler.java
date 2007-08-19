@@ -28,6 +28,8 @@ import java.util.List;
 public class SongCompiler {
     public static final String COMPILED_SONG_EXTENSION = ".orbc";
 
+    private static int numConflicts = 0;
+    
     public SongCompiler() {
     }
 
@@ -177,6 +179,7 @@ public class SongCompiler {
         sound.findSoundDuration(); // Note: we might not (yet?) have something that works for MP3 files?
         int offset = 0;
         boolean foundUniqueHash = false;
+        boolean conflictFound = false;
         while (offset < 1000 && !foundUniqueHash) {
             sound.calculateHash(null, offset);
             Sound conflictingSound = findConflict(catalog, sound);
@@ -185,7 +188,11 @@ public class SongCompiler {
             } else {
                 offset++;
                 System.out.println("CONFLICT! Hash for sound " + sound + " conflicts with " + conflictingSound);
+                conflictFound = true;
             }
+        }
+        if (conflictFound) {
+            numConflicts ++;
         }
         return sound;
     }
@@ -349,8 +356,9 @@ public class SongCompiler {
             }
             SongCompiler scribe = new SongCompiler();
             System.out.println("Catalogueing...");
+            numConflicts = 0;
             int nSounds = scribe.catalog(catalogFile, targetDir, sourceDirs);
-            System.out.println("Catalogued " + nSounds + " sounds.");
+            System.out.println("Catalogued " + nSounds + " sounds. " + numConflicts + " conflicts found.");
             System.exit(0);
         }
 

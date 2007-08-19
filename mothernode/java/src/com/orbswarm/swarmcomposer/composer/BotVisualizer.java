@@ -29,8 +29,8 @@ public class BotVisualizer implements NeighborListener, SwarmListener {
     }
 
     public void setupFonts() {
-        distancesFont = new Font("Monospaced", Font.PLAIN, 12);
-        botPanelFont  = new Font("SansSerif", Font.PLAIN, 12);
+        distancesFont = new Font("Monospaced", Font.PLAIN, 10);
+        botPanelFont  = new Font("SansSerif", Font.PLAIN, 10);
         soundNameFont = new Font("SansSerif", Font.PLAIN, 10);
     }
     
@@ -42,7 +42,7 @@ public class BotVisualizer implements NeighborListener, SwarmListener {
         Neighbor neighbor = gev.getNeighbor();
         NeighborView nv = getNeighborView(neighbor);
         if (nv != null) {
-            nv.songField.setText ("Song:  " + neighbor.getSong());
+            nv.songField.setText ("[" + nv.name + "]: " + neighbor.getSong());
             nv.layerField.setText("Layer: " + neighbor.getLayer());
             nv.setField.setText  ("Set:   " + neighbor.getSet());
             nv.soundField.setText(neighbor.getSound());
@@ -188,13 +188,13 @@ public class BotVisualizer implements NeighborListener, SwarmListener {
         panel.setBorder(BorderFactory.createLineBorder(foregroundColor));
         GridBagConstraints gbc = new GridBagConstraints();
 
-        String botName = "Bot_" + bot;
-        JLabel bnLabel    = new JLabel(botName);
-        JLabel songField  = new JLabel();
-        JLabel layerField = new JLabel();
-        JLabel setField   = new JLabel();
-        JLabel soundField = new JLabel();
-        bnLabel.setFont(botPanelFont);
+        String botName = "" + bot;
+        //JLabel bnLabel    = new JLabel(botName);
+        JLabel songField  = new JLabel("[" + botName + "]");
+        JLabel layerField = new JLabel("layer: ");
+        JLabel setField   = new JLabel("set: ");
+        JLabel soundField = new JLabel(" ");
+        //bnLabel.setFont(botPanelFont);
         songField.setFont(botPanelFont);
         layerField.setFont(botPanelFont);
         setField.setFont(botPanelFont);
@@ -212,9 +212,9 @@ public class BotVisualizer implements NeighborListener, SwarmListener {
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
 
-        panel.add(bnLabel, gbc);
+        //panel.add(bnLabel, gbc);
         
-        gbc.gridy++;
+        gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.WEST;
         panel.add(nb.songField, gbc);
 

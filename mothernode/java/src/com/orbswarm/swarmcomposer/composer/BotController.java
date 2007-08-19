@@ -17,18 +17,19 @@ public class BotController implements NeighborListener, SwarmListener {
     protected String basePath;
     protected int numbots;
     protected OrbControl orbControl;
+    protected ControllerThread controllerThread = null;
+    protected double[][] swarmDistances;
     
     public BotController(int numbots, String basePath, OrbControl orbControl) {
         this.numbots = numbots;
         this.basePath = basePath;
         bots = new ArrayList();
         for(int i=0; i < numbots; i++) {
-            Bot bot = new Bot(i, "Bot_" + i, basePath, orbControl);
+            Bot bot = new Bot(i, "" + i, basePath, orbControl);
             bots.add(bot);
         }
 
     }
-
 
     public void startControlling() {
         setupBots();
@@ -36,13 +37,16 @@ public class BotController implements NeighborListener, SwarmListener {
         startControllerThread();
     }
 
+    public void stopControlling() {
+        stopControllerThread();
+    }
+    
     public void displayCurrentlyPlayingBots() {
         for(Iterator bit = bots.iterator(); bit.hasNext(); ) {
             Bot bot = (Bot)bit.next();
             System.out.println("Bot("  + bot.getName() + ") currently playing:" + bot.displayCurrentlyPlaying());
         }
     }
-
 
     public void setupBots() {
         for(Iterator it = bots.iterator(); it.hasNext();) {
@@ -81,8 +85,66 @@ public class BotController implements NeighborListener, SwarmListener {
         }        
     }
 
-    public void startControllerThread() {
+    public void stopBots() {
+        System.out.println("BC: stopBots(((((((()))))))).");
+
+        for(Iterator it = bots.iterator(); it.hasNext(); ) {
+            Bot bot = (Bot)it.next();
+            bot.stopPlaying();
+        }        
     }
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// The controller thread.                                               ///
+    /// The idea is to have the bots update distances and negotiate          ///
+    /// songs, sets, etc on a separate thread from the one that sends the    ///
+    /// distances to the BotController. That happens here.                   ///
+    ////////////////////////////////////////////////////////////////////////////
+
+    public void startControllerThread() {
+        System.out.println("start controller thread. controllerThread: " + controllerThread);
+        if (controllerThread == null) {
+            controllerThread = new ControllerThread(this);
+            System.out.println("created controller thread. ");
+        }
+        System.out.println("starting controller thread: " + controllerThread);
+        controllerThread.start();
+        System.out.println("started controller thread: " + controllerThread);
+
+    }
+
+    public void stopControllerThread() {
+        if (controllerThread != null) {
+            controllerThread.halt();
+        }
+    }
+
+    class ControllerThread extends Thread {
+        public boolean controlling = false;
+        protected BotController botController;
+        public ControllerThread(BotController botController) {
+            this.botController = botController;
+        }
+        public synchronized void run() {
+            try {
+                controlling = true;
+                while (controlling) {
+                    botController.sendSwarmDistancesToBots();
+                    try { Thread.currentThread().sleep(400); }
+                    catch (InterruptedException e) { System.out.println("Error sleeping"); }
+                }
+            } catch (Exception ex) {
+                System.err.println("Controller Thread caught exception: " + ex);
+                ex.printStackTrace(System.err);
+            }
+        }
+
+        public  void halt() {
+            System.out.println("\n\n\n======ControllerTHread   HALT!!!\n\n\n");
+            controlling = false;
+        }
+    }
+
     /////////////////////////////
     /// Neighborly relations  ///
     /////////////////////////////
@@ -153,16 +215,31 @@ public class BotController implements NeighborListener, SwarmListener {
     // this is how the bot controller gets the distance measurements
     public void updateSwarmDistances(double radius, int nbeasties, double [][] distances) {
         //System.out.println("BotController:: updateSwarmDistances...");
-        int i=0;
-        for(Iterator it = bots.iterator(); it.hasNext();) {
-            Bot bot = (Bot)it.next();
-            bot.updateNeighborDistances(distances[i]);
-            i++;
-        }
+        swarmDistances = distances;
+        needToSendSwarmDistances = true;
         for(Iterator it = swarmListeners.iterator(); it.hasNext(); ) {
             SwarmListener sl = (SwarmListener)it.next();
             sl.updateSwarmDistances(radius, nbeasties, distances);
         }
+
+    }
+
+    boolean needToSendSwarmDistances = false;
+    public void sendSwarmDistancesToBots() {
+        System.out.println("BotController:: send Swarm Distances to bots... needed=" + needToSendSwarmDistances);
+        if (!needToSendSwarmDistances) {
+            return;
+        }
+        // Somehow this needs to go on another thread...
+        // maybe we need some nasty semaphore stuff to tell it when new
+        // distances have arrived. 
+        int i=0;
+        for(Iterator it = bots.iterator(); it.hasNext();) {
+            Bot bot = (Bot)it.next();
+            bot.updateNeighborDistances(swarmDistances[i]);
+            i++;
+        }
+        needToSendSwarmDistances = false;
     } 
 
     //////////////////////////

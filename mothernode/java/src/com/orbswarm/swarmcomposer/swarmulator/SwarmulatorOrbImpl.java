@@ -2,6 +2,8 @@ package com.orbswarm.swarmcomposer.swarmulator;
 
 import com.orbswarm.choreography.Orb;
 
+import java.awt.Color;
+
 public class SwarmulatorOrbImpl implements Orb {
     private int id=0;
     private int numOrbs;
@@ -29,4 +31,9 @@ public class SwarmulatorOrbImpl implements Orb {
     public double[] getDistances() {
         return distances;
     }
+
+    public Color getOrbColor() {
+        return null;
+    }
+
 }

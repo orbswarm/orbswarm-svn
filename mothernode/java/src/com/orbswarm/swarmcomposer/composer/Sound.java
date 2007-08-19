@@ -22,6 +22,7 @@ public class Sound {
     public static final Sound LAYER_CHANGE = new Sound();
     
     protected String  filename;
+    protected String  fullPath;
     protected boolean hasAbsolutePath = false;
     protected int     type;
     protected String  extension = "";
@@ -49,6 +50,14 @@ public class Sound {
         this.filename = filename;
         if (this.filename.startsWith("/")) {
             hasAbsolutePath = true;
+            fullPath = filename;
+            this.filename = new File(filename).getName();
+        } else {
+            if (set != null) {
+                fullPath = set.getFullPath() + File.separatorChar + filename;
+            } else {
+                fullPath = filename;
+            }
         }
         extension = getExtension(filename);
         //System.out.println("Sound("+(set == null?"":set.getName())+", " + filename + "). ext: " + extension);
@@ -76,10 +85,14 @@ public class Sound {
     }
     
     public String getFullPath() {
-        if (hasAbsolutePath) {
-            return filename;
+        if (fullPath == null) {
+            if (hasAbsolutePath) {
+                fullPath = filename;
+            } else {
+                fullPath = set.getFullPath() + File.separatorChar + filename;
+            }
         }
-        return set.getFullPath() + File.separatorChar + filename;
+        return  fullPath;
     }
 
     public String getName() {
@@ -159,10 +172,21 @@ public class Sound {
     public void calculateHash(String songHash, int offset) {
         String fullPath = getFullPath();
         int pathHashCode = (int)(Math.abs(fullPath.hashCode())) - offset;
-        String soundHash = "S" + pathHashCode;
-        String mp3Hash = "M" + pathHashCode;
-        this.pcmHash = soundHash; // songHash + ":" + soundHash;
-        this.mp3Hash = mp3Hash; 
+        String pathHashCodeStr = "" + pathHashCode;
+        // the MP3 file needs to be 8 chars + ".mp3"
+        // so we take the last 8 chars of the pathHashCode, and append extension
+        int hlen = pathHashCodeStr.length();
+        if (hlen > 8) {
+            pathHashCodeStr = pathHashCodeStr.substring(hlen - 8);
+        }            
+        String soundHash = "S" + pathHashCodeStr;
+        this.mp3Hash = pathHashCodeStr + ".mp3";
+        // TODO: if the sound's extension is "mp3" there shouldn't be a pcm hash.
+        if (type == MP3) {
+            this.pcmHash = null;
+        } else {
+            this.pcmHash = soundHash;
+        }
         // The offset allows us to
         // check to see if there is a conflict with an existing sound file, and if
         // so, subtract 1 from the hash until there isn't anymore.
