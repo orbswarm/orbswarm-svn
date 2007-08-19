@@ -46,6 +46,7 @@ public class JarLibrary
 
             else
             {
+               System.out.println("should not get here!");
                //System.loadLibrary("/usr/lib/rxtx-2/" + libname);
                //System.loadLibrary("/usr/lib/rxtx-2/" + libname);
             }
@@ -60,8 +61,7 @@ public class JarLibrary
          
          catch (UnsatisfiedLinkError er) 
          {
-            String sysLibName = "/usr/lib/rxtx-2/" + libname;
-//            String sysLibName = "/usr/lib/" + libname;
+            String sysLibName = "/usr/lib/" + libname;
             System.out.println("loading system library: " + sysLibName);
             System.load(sysLibName);
             

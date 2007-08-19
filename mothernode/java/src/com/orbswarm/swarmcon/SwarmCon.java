@@ -302,13 +302,14 @@ public class SwarmCon extends JFrame
             // add behvaiors
 
             swarm.add(orb);
+            Behavior jb = new JoyBehavior("/tmp/joydata" + i + ".txt");
             Behavior wb = new WanderBehavior();
             Behavior fb = new FollowBehavior(preveouse);
             Behavior rb = new RandomBehavior();
             Behavior cb = new ClusterBehavior();
             Behavior fab = new AvoidBehavior(fb);
             Behavior cab = new AvoidBehavior(cb);
-            //orb.add(wb);
+            orb.add(jb);
             orb.add(fb);
             orb.add(rb);
             orb.add(cb);
@@ -321,6 +322,24 @@ public class SwarmCon extends JFrame
 
          return controllers;
       }
+
+      /** Open a resource which is contained in the jar or if running
+       * unjarred code, rooted in the directory from which the code is
+       * run.
+       *
+       * @param path realtive path to the file
+       */
+
+//       public loadResource(String path)
+//       {
+//          URL url = this.getClass().getResource(path);
+         
+//          // if the file exists load the audo clip
+         
+//          if (url != null)
+//             sound = Applet.newAudioClip(url);
+//       }
+
       // update the world
 
       public void update()
@@ -807,6 +826,7 @@ public class SwarmCon extends JFrame
                return (String)getValue(NAME);
             }
       }
+
       /** Action class wich selects a given serial port with witch to
        * commucate to the orbs. */
 

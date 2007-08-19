@@ -149,6 +149,43 @@ public class SerialIo
             list.add(((CommPortIdentifier) portEnum.nextElement()).getName());
          return list;
       }
+
+      /** for testing */
+      
+      public static void main(String[] args)
+      {
+         SerialIo sio = new SerialIo(args[0]);
+         for (String port: sio.listSerialPorts())
+            System.out.println("port: " + port);
+
+
+         LineListener ll = new LineListener()
+            {
+                  public void lineEvent(String line)
+                  {
+                     System.out.println("got: " + line);
+                  }
+            };
+
+         sio.registerLineListener(ll);
+         
+         String test = "this is a test\n";
+         
+         while (true)
+         {
+            try
+            {
+               sio.send(test);
+               System.out.println("sent: " + test);
+               java.lang.Thread.sleep(500);
+            }
+            catch (Exception e)
+            {
+               e.printStackTrace();
+            }
+         }
+      }
+      
       /** Map port type numbers to a string. */
 
       static String getPortTypeName(int portType)
@@ -264,7 +301,7 @@ public class SerialIo
 
       /** Listener for line events comming from serial device */
 
-      public abstract class LineListener
+      public static abstract class LineListener
       {
          abstract void lineEvent(String line);
       }
