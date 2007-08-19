@@ -12,6 +12,11 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include <sys/socket.h>
+#include <net/if.h>
+#include <net/ethernet.h>
+#include <arpa/inet.h>
+#include  <sys/ioctl.h>
 
 /* This is a collection of general utility methods for working with the spu */
 #ifndef SWARM_SPU_UTILS_H 
@@ -35,5 +40,8 @@ void genSpuDump(char* logBuffer, int maxBufSz, swarmGpsData *gpsData, spuADConve
  *******************************************************************************/
 int getMessageForDelims(char* msgBuff, int maxMsgSz, int* msgSize, char* input,
                                     int inputSz, char startDelim, char endDelim, bool incDelimsInMsg); 
+
+/* retrieve IP address via ioctl interface */
+int getIP(const char *Interface, char *ip);
 
 #endif
