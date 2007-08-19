@@ -8,8 +8,6 @@
 #include "../include/swarmdefines.h"
 #include "../include/swarmspuutils.h"
 
-#define GPS_START_DELIM "\n{"
-#define GPS_STOP_DELIM "}\n"
 
 int main(int argc, char *argv[]) 
 {
@@ -26,6 +24,16 @@ int main(int argc, char *argv[])
   int             max_fd;
   fd_set          input;
   struct timeval tv;
+
+  //Get this orbs Address from its IP address
+  char myIP[32];
+  getIP("eth0", myIP);
+  fprintf(stderr,"\nMY IP ADDRESS: %s\n",myIP);
+  int myOrbId =0;
+  char* orbAddStart = rindex(myIP,'.');
+  myOrbId = atoi(&orbAddStart[1]);
+  fprintf(stderr,"\nMY ORB ID: %d\n",myOrbId);
+
 
   //  com1 = initSerialPort("/dev/ttyAM0", 38400);
   com2 = initSerialPort(COM2, 38400);
@@ -86,7 +94,7 @@ int main(int argc, char *argv[])
            printf("\n GOT BYTES \"%s\" from  com2\n",buff2);
            while(SWARM_SUCCESS != getMessageForDelims(msgBuff, MAX_BUFF_SZ, &msgSize,
                                    buff2, totalBytes, MSG_HEAD_AGG_STREAM,
-                                   MSG_END_AGG_STREAM,false))  
+                                   MSG_END_AGG_STREAM,true))  
            { 
               if(numTrys >= 10)
               {
@@ -98,12 +106,25 @@ int main(int argc, char *argv[])
               totalBytes += bytes2;
               numTrys++;
            }
+
            bytes2 = totalBytes;
            buff2[bytes2] = 0;
            printf("\n GOT MESSAGE \"%s\" from  com2\n",msgBuff);
            char msgBuff2[MAX_BUFF_SZ + 1];
            int msgSize2 = 0;
-
+           int status = SWARM_SUCCESS;
+           int msgOrbId = 0; 
+           totalBytes = 0;
+           char dummyBuff[MAX_BUFF_SZ];
+           char dummyBuff2[MAX_BUFF_SZ];
+           while(SWARM_SUCCESS == status)
+           {
+             strncpy(dummyBuff,&msgBuff[1],3); //extract the orbid max 3 digits 
+             msgOrbId = atoi(dummyBuff);  //atoi very forgiving does not complain if whitespace
+            fprintf(stderr, "\nGOT MESSAGE ORB ID : %d\n",msgOrbId);
+           if(msgOrbId == myOrbId)
+           {
+            fprintf(stderr, "\nGOT MESSAGE ORB ID MATCHED\n" );
            if(SWARM_SUCCESS == getMessageForDelims(msgBuff2, MAX_BUFF_SZ, &msgSize2,
                                    msgBuff, msgSize, MSG_HEAD_MOTOR_CONTROLER,
                                    MSG_END_MOTOR_CONTROLER,true))  
@@ -142,9 +163,20 @@ int main(int argc, char *argv[])
                */
               //Mothership Data
           }
-        }
-
+          }
+          if(bytes2 > msgSize){
+            totalBytes += msgSize; 
+            status = getMessageForDelims(msgBuff, MAX_BUFF_SZ, &msgSize,
+                                   &buff2[totalBytes],bytes2 - totalBytes, MSG_HEAD_AGG_STREAM,
+                                   MSG_END_AGG_STREAM,true);  
+          } 
+          else
+          {
+            status = -1;
+          }
+        } 
            //printf("\n Read \"%s\" from  com2\n",buff2);
+        }
               
 
         bytes2 = 0; 
@@ -152,7 +184,10 @@ int main(int argc, char *argv[])
         readCharsFromSerialPort(com5, buff2, &bytes2,MAX_BUFF_SZ); 
         buff2[bytes2] = '\0';
         if(bytes2 > 0)
-        printf("\n Read data: \"%s\"  com5\n",buff2);
+        {
+          printf("\n Read data: \"%s\"  com5\n",buff2);
+          writeCharsToSerialPort(com2, buff2,bytes2);
+        }
       }
 	 printf("main loop tick %d\n",tenHzticks);
   }
