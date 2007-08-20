@@ -1,4 +1,4 @@
-# Makefile for sample - AVR Sample code
+# Makefile for Illuminator Board -- atmega 8
 
 # set chip target here
 #TARGET=attiny2313
@@ -9,10 +9,10 @@ PGMR = stk500v2
 
 # set avrdude COM port here
 #COM = COM1
-COM = COM4
+COM = COM5
 
 # default target when "make" is run w/o arguments
-all: sample.rom
+all: sample.hex
 
 # compile UART.c into UART.o
 UART.o: UART.c UART.h
@@ -38,29 +38,22 @@ sample.elf: main.o UART.o  putstr.o parser.o
 	avr-gcc main.o UART.o  putstr.o parser.o -Wl,-Map=sample.map,--cref -mmcu=${TARGET} -o sample.elf
 
 # copy ROM (FLASH) object out of sample.elf into sample.rom
-sample.rom: sample.elf
-	avr-objcopy -O ihex sample.elf sample.rom
+sample.hex: sample.elf
+	avr-objcopy -O ihex sample.elf sample.hex
 
 # command to program chip (optional) (invoked by running "make install")
 install:
-	avrdude -P ${COM} -c ${PGMR}  -C  c:\WinAVR\bin\avrdude.conf  -p $(TARGET) -U flash:w:sample.rom 
+	avrdude -P ${COM} -c ${PGMR}  -C  c:\WinAVR\bin\avrdude.conf  -p $(TARGET) -U flash:w:sample.hex
 
-# command to set fuse for 8.0 Mhz internal Osc on AT-Tiny2313
-tinyInt:
-	avrdude ${COM} -p t2313 -U lfuse:w:0xE4:m
-
-# command to set fuse for 7.32Mhz external xtal Osc on AT-Tiny2313
-tinyXtal:
-	avrdude -p t2313 -U lfuse:w:0xDD:m
 
 # set the fuses  for 7.32Mhz atmega8
-atmegaLfuse:
+lfuse:
 	avrdude.exe -v -P ${COM}  -c stk500v2  -p m8  -C  c:\WinAVR\bin\avrdude.conf  -U lfuse:w:0xEF:m
 
-atmegahfuse:
+hfuse:
 	avrdude.exe -v -P ${COM}  -c stk500v2  -p m8  -C  c:\WinAVR\bin\avrdude.conf  -U hfuse:w:0xD9:m
 
 
 # command to clean up junk (no source files) (invoked by "make clean")
 clean:
-	rm -f *.o *.rom *.elf *.map *~
+	rm -f *.o *.hex *.elf *.map *~

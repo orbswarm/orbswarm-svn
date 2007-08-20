@@ -24,7 +24,6 @@
 #include "illuminator.h"	/* contains illuminatorStruct definition */
 #include "parser.h"	/* contains illuminatorStruct definition */
 
-#define led_port	PORTD
 
 // =======================================================
 
@@ -46,18 +45,23 @@ volatile int pwm=0;
 int main( void ){
   unsigned char cData; 		/* byte to read from UART */
 
-  
+
+  /* set up DDRD for serial IO */
   DDRD = 0xF2;		/* 0b 1111 0010	   1 indicates Output pin */
   //	led_port = 0xF0;	// turn OFF leds
   
-  UART_Init(11); // 12 = 38.4k when system clock is 8Mhz (AT Tiny2313) 
+   UART_Init(11); // 12 = 38.4k when system clock is 8Mhz (AT Tiny2313) 
   //11 = 38.4K for 7.37MHz xtal 
   // 51 = 9600 baud when system clock is 8Mhz
-  sei();
+   sei();
 
-  DDRB = 0x07; 			/* use PB0 for R, PB1 for G, PB2 for B */
+  DDRB |= _BV(PB0); /*  PB0 is spare debug  */
+  DDRB |= _BV(PB1); /*  PB1 is RED output */
+  DDRB |= _BV(PB2); /*  PB2 is GRN output */
+  DDRB |= _BV(PB3); /*  PB3 is BLU output */
 
-  putstr("\r\n...Illuminator says hello...\r\n"); // DBG_REMOVE
+
+  //  putstr("\r\n...Illuminator says hello...\r\n"); // DBG_REMOVE
  
   /* init data structure */
   illum.Addr = 0; 		/* may want to set this from DIP? */
@@ -74,7 +78,8 @@ int main( void ){
   illum.Now=0;
   // =======================================================
   
-  
+
+
   while(1)    {
     
     // Main parser loop starts here. To save space, not modularized 
@@ -86,19 +91,18 @@ int main( void ){
       }
       // Echo byte to next illuminator downstream
       //UART_Transmit(cData);   // wait for empty buffer. send byte now.
-       UART_send_byte(cData);   // put byte in buffer - send using interupts
+      //UART_send_byte(cData);   // put byte in buffer - send using interupts
     }
 
-    /* Crude PWM loop runs as fast as we can...*/
-    PORTB = 0x07;		/* turn R, G, B on */
+    PORTB=0x0F; 		/* turn on all LEDs */
+
     for(pwm=0;pwm<255;pwm++){
       if(pwm >= illum.R)     /* if we've reached red value turn off R bit */
-	PORTB &=~_BV(0);	
+	PORTB &=~_BV(PB1);	
       if(pwm >= illum.G)       
-	PORTB &=~_BV(1);     /* if we've reached grn value turn off B bit */
+	PORTB &=~_BV(PB2);     /* if we've reached grn value turn off B bit */
       if(pwm >= illum.B)
-	PORTB &=~_BV(2);     /* if we've reached blu value turn off G bit */
+	PORTB &=~_BV(PB3);     /* if we've reached blu value turn off G bit */
     }
-    
   }
 }

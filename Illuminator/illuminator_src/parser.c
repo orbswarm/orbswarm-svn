@@ -19,7 +19,7 @@ void parseCommand(){
   unsigned char c;
   /* if command does not start with L then they ain't talking to us */
   if(commandStr[charPos++] != 'L') {
-    putstr("No L in cmd\r\n ");
+    putstr("\r\n no L command\r\n ");
     return;
   }  
 
