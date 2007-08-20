@@ -202,7 +202,7 @@ public class OrbControlImpl implements OrbControl {
             // fade:  <LH64><LS200><LV220><LT2200> to set {h, s, v, time} on all boards (OBSOLETE)
             // fade:  <LR64><LG200><LB220><LT2200> to set {r, g, b, time} on all boards
             //        <LF> to do the fade  <L0F> to fade the first, <L1F> the second board
-            String boardAddress = "";  // later: possibly independent board controls
+            String boardAddress = " ";  // later: possibly independent board controls
             StringBuffer buf = new StringBuffer();
             // question: do we send all the commands in one string, or one at a time?
             // answer: yes, we can send them all on one string
@@ -211,14 +211,12 @@ public class OrbControlImpl implements OrbControl {
                buf.append("<L" + boardAddress + "S" + sat + ">");
                buf.append("<L" + boardAddress + "V" + val + ">");
             */
-            buf.append("<L" + boardAddress + "R" + hsvColor.getRed() + ">");
-            buf.append("<L" + boardAddress + "G" + hsvColor.getGreen() + ">");
-            buf.append("<L" + boardAddress + "B" + hsvColor.getBlue() + ">");
+            orbIo.send(wrapOrbCommand(orbNum, "<L" + boardAddress + "R" + hsvColor.getRed() + ">"));
+            orbIo.send(wrapOrbCommand(orbNum, "<L" + boardAddress + "G" + hsvColor.getGreen() + ">"));
+            orbIo.send(wrapOrbCommand(orbNum, "<L" + boardAddress + "B" + hsvColor.getBlue() + ">"));
 
-            buf.append("<L" + boardAddress + "T" + timeMS + ">");
-            buf.append("<LF>");
-            String orbCmd = wrapOrbCommand(orbNum, buf.toString());
-            orbIo.send(orbCmd);
+            orbIo.send(wrapOrbCommand(orbNum, "<L" + boardAddress + "T" + timeMS + ">"));
+            orbIo.send(wrapOrbCommand(orbNum, "<LF>"));
         } else {
             System.out.println("sendCommandsToOrbs: " + sendCommandsToOrbs + " orbIo: " + orbIo);
         }
@@ -227,7 +225,8 @@ public class OrbControlImpl implements OrbControl {
 
     public String wrapOrbCommand(int orbNum, String message) {
         StringBuffer buf = new StringBuffer();
-        buf.append("{Orb");
+        // e.g. {60 <LG200>}
+        buf.append("{");
         buf.append(60 + orbNum); // this is an IP Addr?
         buf.append(" ");
         buf.append(message);
