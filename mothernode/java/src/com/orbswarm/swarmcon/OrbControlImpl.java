@@ -160,7 +160,7 @@ public class OrbControlImpl implements OrbControl {
 
     // only one Light control method implemented
     public void orbColor(int orbNum, int hue, int sat, int val, int timeMS) {
-        System.out.println("SwarmCon:OrbControlImpl orbColor(orb: " + orbNum + "HSV: [" + hue + ", " + sat + ", " + val + "]@" + timeMS + ")");
+        //System.out.println("SwarmCon:OrbControlImpl orbColor(orb: " + orbNum + "HSV: [" + hue + ", " + sat + ", " + val + "]@" + timeMS + ")");
         if (simulateColors) {
             float fhue = hue / 255.f;
             float fsat = sat / 255.f;
