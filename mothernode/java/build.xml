@@ -34,6 +34,7 @@ The text of the MIT license apears in the mit-license.txt file.
     <include name = "RXTXcomm.jar"/>
     <include name = "util.jar"/>
     <include name = "pid.jar"/>
+    <include name = "jusb.jar"/>
   </fileset>
 
   <!-- any extra resources which may be neaded by the application -->

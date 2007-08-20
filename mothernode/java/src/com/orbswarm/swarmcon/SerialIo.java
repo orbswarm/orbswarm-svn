@@ -215,9 +215,12 @@ public class SerialIo
       {
          try
          {
-            out.write(string.getBytes());
-            out.flush();
-            debugIo(string, true);
+            if (out != null)
+            {
+               out.write(string.getBytes());
+               out.flush();
+               debugIo(string, true);
+            }
          }
          catch (Exception e)
          {

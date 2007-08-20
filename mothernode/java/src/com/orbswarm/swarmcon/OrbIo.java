@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.LineNumberReader;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
 
 /** OrbIo provids all I/O between phycical orbs and the orb objects in
  * this software as well as the joystick information.  There will be one
@@ -15,6 +16,9 @@ import java.io.InputStreamReader;
 
 public class OrbIo extends SerialIo
 {
+      /** format for printing orb id's to spu not used */
+
+      //DeciDecimalFormat orbIdFmt = new DecimalFormat("###");
       
       /** hash of orbs to dispatch messages to */
 
@@ -22,6 +26,10 @@ public class OrbIo extends SerialIo
 
       /** Construct a OrbIo object. */
 
+      public OrbIo(String portName, boolean debug)
+      {
+         super(portName, debug);
+      }
       public OrbIo(String portName)
       {
          super(portName);
@@ -81,13 +89,50 @@ public class OrbIo extends SerialIo
          orbs.get(id).handleMessage(message);
       }
 
-    /** Send a message to the orbs.
-     */
-    public void send(String string)
-    {
-        super.send(string);
-        // only overriden so we can print a debugging message. 
-        System.out.println("OrbIo.send(" + string + ")");
-    }
+      /** Send a message to the orbs.
+       */
+      public void motorCommand(int orbId, double roll, double pitch)
+      {
+         //super.send("{" + 60 + orbId + " xy " + x + " " + y + "}");
+      }
+      /** command */
 
+      public void driveOrb(int orbId, double x, double y)
+      {
+         ///super.send("{" + orbId + " xy " + x + " " + y + "}");
+      }
+      /** for testing */
+      
+      public static void main(String[] args)
+      {
+         OrbIo oio = new OrbIo(args[0], true);
+         for (String port: oio.listSerialPorts())
+            System.out.println("port: " + port);
+
+         LineListener ll = new LineListener()
+            {
+                  public void lineEvent(String line)
+                  {
+                     System.out.println("got: " + line);
+                  }
+            };
+
+         oio.registerLineListener(ll);
+         
+         String test = "this is a test\n";
+         
+         while (true)
+         {
+            try
+            {
+               oio.send(test);
+               System.out.println("sent: " + test);
+               java.lang.Thread.sleep(1000);
+            }
+            catch (Exception e)
+            {
+               e.printStackTrace();
+            }
+         }
+      }
 }

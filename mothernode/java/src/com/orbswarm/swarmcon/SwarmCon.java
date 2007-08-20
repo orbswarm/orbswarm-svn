@@ -896,7 +896,7 @@ public class SwarmCon extends JFrame
             {
                try
                {
-                  orbIo = new OrbIo(portId);
+                  orbIo = new OrbIo(portId, true);
                   cardLayout.last(centerPanel);
                }
                catch (Exception ex)
@@ -1106,12 +1106,16 @@ public class SwarmCon extends JFrame
       ///////////////////////////////////
       /// Joystick handling           ///
       ///////////////////////////////////
-    public void joystickXY(int orbNum, double x1, double y1, double x2, double y2) 
-      {
-          timelineDisplay.joystickXY(orbNum, x1, y1, x2, y2);
-          // stub
-      }
 
+      public void joystickXY(int orbNum, double x1, double y1, 
+                           double x2, double y2)
+      {
+         if (orbIo != null)
+            orbIo.driveOrb(orbNum, x1, y1);
+         
+         timelineDisplay.joystickXY(orbNum, x1, y1, x2, y2);
+      }
+      
       public void joystickButton(int orbNum, int buttonNumber)
       {
           timelineDisplay.joystickButton(orbNum, buttonNumber);
