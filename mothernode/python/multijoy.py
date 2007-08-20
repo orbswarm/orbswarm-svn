@@ -29,7 +29,8 @@ def handleJoyEvent(e):
 
                 if (e.dict['axis'] == 3):
                         axis = "y2"
-
+                
+                print "value of axis: %s" % (axis)
                 str = "axis: %s value: %f" % (axis, e.dict['value'])
                 output(str, e.dict['joy'])
 
