@@ -46,6 +46,10 @@ public class OrbControlImpl implements OrbControl {
     public SwarmCon getSwarmCon() {
         return swarmCon;
     }
+
+    public void setOrbIo(OrbIo orbIo) {
+        this.orbIo = orbIo;
+    }
     
     public void setupSoundPlayers(int n) {
         soundFilePlayers = new SoundFilePlayer[n];
