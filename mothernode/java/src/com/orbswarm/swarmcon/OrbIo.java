@@ -91,9 +91,11 @@ public class OrbIo extends SerialIo
 
       /** Send a message to the orbs.
        */
+
+      public static final int POWER_RANGE = 25;
       public void motorCommand(int orbId, double roll, double pitch)
       {
-         //super.send("{" + 60 + orbId + " xy " + x + " " + y + "}");
+         //super.send("{" + 60 + orbId + " drive $" + x + " " + y + "}");
       }
       /** command */
 

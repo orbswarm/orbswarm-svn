@@ -898,6 +898,7 @@ public class SwarmCon extends JFrame
                {
                   orbIo = new OrbIo(portId, true);
                   cardLayout.last(centerPanel);
+                  orbControlImpl.setOrbIo(orbIo);
                }
                catch (Exception ex)
                {
