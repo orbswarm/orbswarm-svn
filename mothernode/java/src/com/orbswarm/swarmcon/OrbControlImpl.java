@@ -17,6 +17,7 @@ public class OrbControlImpl implements OrbControl {
     private SoundFilePlayer[] soundFilePlayers;
     private static HashMap soundCatalog;
     private OrbIo orbIo;
+    private HSV[] orbColors;
 
     // TODO: hook these up to toggles somehow... (or keep in SwarmCon?)
     //
@@ -33,6 +34,10 @@ public class OrbControlImpl implements OrbControl {
         this.simulateColors = simulateColors;
         this.simulateSounds = simulateSounds;
         setupSoundPlayers(6); // TODO: generalize
+        orbColors = new HSV[6];
+        for(int i=0; i < 6; i++) {
+            orbColors[i] = null;
+        }
     }
     static {
         readSoundCatalog();
@@ -158,6 +163,10 @@ public class OrbControlImpl implements OrbControl {
         }
     }
 
+    public HSV getOrbColor(int orbNum) {
+        return orbColors[orbNum];
+    }
+
     // only one Light control method implemented
     public void orbColor(int orbNum, HSV hsvColor, int timeMS) {
         //System.out.println("SwarmCon:OrbControlImpl orbColor(orb: " + orbNum + "HSV: [" + hue + ", " + sat + ", " + val + "]@" + timeMS + ")");
@@ -167,17 +176,22 @@ public class OrbControlImpl implements OrbControl {
             final HSV prevHSV = HSV.fromColor(prevOrbColor);
             if (timeMS <= 0) {
                 Color color = hsvColor.toColor();
+                orbColors[orbNum] = hsvColor;
                 orb.setOrbColor(color);
             } else {
                 final int _timeMS = timeMS;
                 final HSV _hsvColor = hsvColor;
+                final int _orbNum = orbNum;
                 new Thread() {
                     public void run()  {
-                        fadeColor(orb, prevHSV, _hsvColor, _timeMS, 20);
+                        fadeColor(_orbNum, orb, prevHSV, _hsvColor, _timeMS, 20);
                     }
                 }.start();
             }
+        } else {
+            orbColors[orbNum] = hsvColor;
         }
+        
         if (sendCommandsToOrbs && orbIo != null) {
             // TODO: send color command out on OrbIO, or give it to model, or something.
             // TODO: one board or two (later -- we get two light commands per orb)
@@ -215,7 +229,7 @@ public class OrbControlImpl implements OrbControl {
     }
 
     // simulate the color fading behaviour on an orb. 
-    public void fadeColor(Orb orb, HSV prev, HSV target, int timeMS, int slewMS) {
+    public void fadeColor(int orbNum, Orb orb, HSV prev, HSV target, int timeMS, int slewMS) {
         int steps = timeMS / slewMS;
         float hue      = prev.getHue();
         float sat      = prev.getSat();
@@ -227,7 +241,10 @@ public class OrbControlImpl implements OrbControl {
             float h1 = hue + i * hueDelta;
             float s1 = sat + i * satDelta;
             float v1 = val + i * valDelta;
-            Color stepColor = (new HSV(h1, s1, v1)).toColor();
+            HSV stepColorHSV = new HSV(h1, s1, v1);
+            orbColors[orbNum] = stepColorHSV;
+                
+            Color stepColor = stepColorHSV.toColor();
             orb.setOrbColor(stepColor);
             try {
                 Thread.sleep(slewMS);

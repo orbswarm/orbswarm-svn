@@ -24,11 +24,18 @@ public interface OrbControl {
     //
     // Light control methods
     //
-    public void orbColor(int orb, HSV color, int fadeTimeMS);
-    public void orbColorFade(int orb,
+    public void orbColor(int orbNum, HSV color, int fadeTimeMS);
+    public void orbColorFade(int orbNum,
                              HSV color1,
                              HSV color2,
                              int fadeTimeMS);
+    /**
+     * @return the last color this orb was set to.
+     *  Note: if it is during a fade, can return either the color as it's
+     *        fading, or the target color that it is supposed to fade to.
+     */
+    public HSV getOrbColor(int orbNum);
+
     //
     // Motion methods
     //

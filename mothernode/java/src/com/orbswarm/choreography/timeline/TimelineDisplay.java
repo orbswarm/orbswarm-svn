@@ -893,10 +893,12 @@ public class TimelineDisplay  {
 
     public void incrementHue(int orbNum, double coord) {
         // val ranges from 0 to 1. We want to increment the hue by some
-        double hueFactor = .01;
-        Orb orb = (Orb)swarmCon.getSwarm().getOrb(orbNum);
-        HSV orbColor = HSV.fromColor(orb.getOrbColor());
-        float hue = orbColor.getHue();
+        double hueFactor = .0015; // to compensate for how fast the joystick events come in. 
+        HSV orbColor = orbControl.getOrbColor(orbNum);
+        float hue = 0.f;
+        if (orbColor != null) {
+            hue = orbColor.getHue();
+        }
         hue += (float)(hueFactor * coord);
         if (hue > 1.f)  {
             hue -= 1.f;
@@ -907,10 +909,12 @@ public class TimelineDisplay  {
 
     public void incrementVal(int orbNum, double coord) {
         // val ranges from 0 to 1. We want to increment the hue by some
-        double valFactor = .01;
-        Orb orb = (Orb)swarmCon.getSwarm().getOrb(orbNum);
-        HSV orbColor = HSV.fromColor(orb.getOrbColor());
-        float val = orbColor.getVal();
+        double valFactor = .008;
+        HSV orbColor = orbControl.getOrbColor(orbNum);
+        float val = 0.f;
+        if (orbColor != null) {
+            val = orbColor.getVal();
+        }
         val += (float)(valFactor * coord);
         if (val > 1.f)  {
             val = 1.f;
@@ -923,10 +927,12 @@ public class TimelineDisplay  {
 
     public void incrementSat(int orbNum, double coord) {
         // sat ranges from 0 to 1. We want to increment the hue by some
-        double satFactor = .01;
-        Orb orb = (Orb)swarmCon.getSwarm().getOrb(orbNum);
-        HSV orbColor = HSV.fromColor(orb.getOrbColor());
-        float sat = orbColor.getSat();
+        double satFactor = .008;
+        HSV orbColor = orbControl.getOrbColor(orbNum);
+        float sat = 0.f;
+        if (orbColor != null) {
+            sat = orbColor.getSat();
+        }
         sat += (float)(satFactor * coord);
         if (sat > 1.f)  {
             sat = 1.f;

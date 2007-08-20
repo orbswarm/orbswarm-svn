@@ -112,7 +112,12 @@ public class JoyBehavior extends Behavior
 
       public void update(double time, MotionModel model)
       {
-         System.out.println("Joy:[Orb: " + orbNum + "](" + x1 +", " + y1 + ")");
+          if (x1 != 0. && y1 != 0.) {
+              System.out.println("Joy:[Orb: " + orbNum + "](" + x1 +", " + y1 + ")");
+          }
+          if (x2 != 0. && y2 != 0.) {
+              System.out.println("                       Joy:[Orb: " + orbNum + "](" + x1 +", " + y1 + ")");
+          }
          model.setTargetRollPitchRates(x1, y1);
          swarmCon.joystickXY(orbNum, x1, y1, x2, y2);
          if (buttonPressed)

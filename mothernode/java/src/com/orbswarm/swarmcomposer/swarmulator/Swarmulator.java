@@ -1180,10 +1180,14 @@ public class Swarmulator implements MouseListener, MouseMotionListener, ColorSch
         beasties[orb].setColor(hsv.toColor());
     }
     
-    public void orbColorFade(int orb,
+    public void orbColorFade(int orbNum,
                              HSV color1, HSV color2,
                              int time) {}
 
+    public HSV getOrbColor(int orbNum) {
+        return null;
+    }
+    
     //
     // Motion methods
     //
