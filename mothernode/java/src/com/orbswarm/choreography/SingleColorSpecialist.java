@@ -22,7 +22,7 @@ public class SingleColorSpecialist extends AbstractSpecialist implements ColorSp
     public void start() {
         if (enabled && color != null) {
             if (fadeTimeMS < 0) {
-                fadeTimeMS = 400;
+                fadeTimeMS = 40;
             }
             int hue    = (int)(color.getHue() * 255);
             int sat    = (int)(color.getSat() * 255);

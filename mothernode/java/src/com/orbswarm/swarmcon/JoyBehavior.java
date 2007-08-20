@@ -14,14 +14,20 @@ public class JoyBehavior extends Behavior
       double y1;
       double x2;
       double y2;
+      boolean buttonPressed = false;
+      int buttonNumber;
+      int orbNum;
+      SwarmCon swarmCon;
 
       Thread inputReader;
 
       // create a joy behavior
 
-      public JoyBehavior(final String joyDataFileName)
+    public JoyBehavior(final String joyDataFileName, int orbNum, SwarmCon swarmCon)
       {
          super("Joy");
+         this.orbNum = orbNum;
+         this.swarmCon = swarmCon;
          
          inputReader = new Thread()
             {
@@ -84,7 +90,7 @@ public class JoyBehavior extends Behavior
             {
                String axis = tokens[i + 1];
                String value = tokens[i + 3];
-
+               i += 3;
                if (axis.equals("x1"))
                   x1 = Double.valueOf(value);
                else if (axis.equals("y1"))
@@ -94,14 +100,25 @@ public class JoyBehavior extends Behavior
                else if (axis.equals("y2"))
                   y2 = -1 * Double.valueOf(value);
             }
+            else if (token.equals("button:"))
+            {
+                i++;
+                buttonNumber  = Integer.parseInt(tokens[i]);
+                buttonPressed = true;
+            }
          }
       }
       // update
 
       public void update(double time, MotionModel model)
       {
-         System.out.println("(" + x1 +", " + y1 + ")");
-         model.setTargetRollPitchRates(
-            x1, y1);
+         System.out.println("Joy:[Orb: " + orbNum + "](" + x1 +", " + y1 + ")");
+         model.setTargetRollPitchRates(x1, y1);
+         swarmCon.joystickXY(orbNum, x1, y1);
+         if (buttonPressed)
+         {
+             System.out.println("Joy:[Orb: " + orbNum + "] Button " + buttonNumber);
+             swarmCon.joystickButton(orbNum, buttonNumber);
+         }
       }
 }

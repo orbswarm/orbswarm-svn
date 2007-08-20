@@ -346,7 +346,7 @@ public class SwarmCon extends JFrame
             // add behvaiors
 
             swarm.add(orb);
-            Behavior jb = new JoyBehavior("/tmp/joydata" + i + ".txt");
+            Behavior jb = new JoyBehavior("/tmp/joydata" + i + ".txt", i, this);
             Behavior wb = new WanderBehavior();
             Behavior fb = new FollowBehavior(preveouse);
             Behavior rb = new RandomBehavior();
@@ -1101,6 +1101,19 @@ public class SwarmCon extends JFrame
          frame.pack();
          frame.setVisible(true);
          return frame;
+      }
+
+      ///////////////////////////////////
+      /// Joystick handling           ///
+      ///////////////////////////////////
+      public void joystickXY(int orbNum, double x, double y) 
+      {
+          // stub
+      }
+
+      public void joystickButton(int orbNum, int buttonNumber)
+      {
+          timelineDisplay.joystickButton(orbNum, buttonNumber);
       }
 
       ///////////////////////////////////

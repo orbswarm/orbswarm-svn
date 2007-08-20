@@ -847,4 +847,15 @@ public class TimelineDisplay  {
         }.start();
     }
 
+    //////////////////////////////////////////////////
+    /// Joystick control                           ///
+    //////////////////////////////////////////////////
+    public static final int LEITMOTIF_BUTTON = 0;
+
+    public void joystickButton(int orbNum, int buttonNumber) {
+        if (buttonNumber == LEITMOTIF_BUTTON) {
+            doLeitMotif(orbNum);
+        }
+    }
+    
 }
