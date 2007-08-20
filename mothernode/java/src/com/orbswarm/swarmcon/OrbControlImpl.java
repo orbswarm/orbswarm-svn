@@ -215,7 +215,10 @@ public class OrbControlImpl implements OrbControl {
             buf.append("<LF>");
             String orbCmd = wrapOrbCommand(orbNum, buf.toString());
             orbIo.send(orbCmd);
+        } else {
+            System.out.println("sendCommandsToOrbs: " + sendCommandsToOrbs + " orbIo: " + orbIo);
         }
+
     }
 
     public String wrapOrbCommand(int orbNum, String message) {
