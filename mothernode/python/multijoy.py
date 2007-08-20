@@ -18,6 +18,7 @@ dataFileNameBase = "/tmp/joydata%d.txt"
 
 def handleJoyEvent(e):
 	if e.type == pygame.JOYAXISMOTION:
+                axis = "unknown"
                 if (e.dict['axis'] == 0):
                         axis = "x1"
                 
@@ -30,9 +31,11 @@ def handleJoyEvent(e):
                 if (e.dict['axis'] == 3):
                         axis = "y2"
                 
-                print "value of axis: %s" % (axis)
-                str = "axis: %s value: %f" % (axis, e.dict['value'])
-                output(str, e.dict['joy'])
+                if (axis != "unknown"):
+                        str = "axis: %s value: %f" % (axis, e.dict['value'])
+                        output(str, e.dict['joy'])
+                else:
+                        print "axis unknown: %d" % (e.dict['axis'])  
 
 	elif e.type == pygame.JOYBUTTONDOWN:
                 str = "button: %d" % (e.dict['button'])
