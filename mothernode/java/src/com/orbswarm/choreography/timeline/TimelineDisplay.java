@@ -893,7 +893,7 @@ public class TimelineDisplay  {
 
     public void incrementHue(int orbNum, double coord) {
         // val ranges from 0 to 1. We want to increment the hue by some
-        double hueFactor = .1;
+        double hueFactor = .01;
         Orb orb = (Orb)swarmCon.getSwarm().getOrb(orbNum);
         HSV orbColor = HSV.fromColor(orb.getOrbColor());
         float hue = orbColor.getHue();
@@ -907,7 +907,7 @@ public class TimelineDisplay  {
 
     public void incrementVal(int orbNum, double coord) {
         // val ranges from 0 to 1. We want to increment the hue by some
-        double valFactor = .1;
+        double valFactor = .01;
         Orb orb = (Orb)swarmCon.getSwarm().getOrb(orbNum);
         HSV orbColor = HSV.fromColor(orb.getOrbColor());
         float val = orbColor.getVal();
@@ -923,7 +923,7 @@ public class TimelineDisplay  {
 
     public void incrementSat(int orbNum, double coord) {
         // sat ranges from 0 to 1. We want to increment the hue by some
-        double satFactor = .1;
+        double satFactor = .01;
         Orb orb = (Orb)swarmCon.getSwarm().getOrb(orbNum);
         HSV orbColor = HSV.fromColor(orb.getOrbColor());
         float sat = orbColor.getSat();
