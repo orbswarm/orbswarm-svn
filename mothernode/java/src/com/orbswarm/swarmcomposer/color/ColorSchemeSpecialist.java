@@ -81,7 +81,7 @@ public  class ColorSchemeSpecialist extends AbstractSpecialist implements ColorS
     }
 
     public void orbState(Swarm orbSwarm) {
-        System.out.println("COlorSchemeSpecialist.orbState()");
+        //System.out.println("COlorSchemeSpecialist.orbState()");
         //int n = orbSwarm.getNumOrbs();
         int n = 6;
         double[][] distances = new double[n][n];
@@ -179,12 +179,9 @@ public  class ColorSchemeSpecialist extends AbstractSpecialist implements ColorS
     //////////////////////////////////////
 
     public void botColorChanged(int bot, int swatch, HSV color) {
-        System.out.println("CSS: botColorChanged( " + bot + " ) " + color);
-        int hue = (int)(255 * color.getHue());
-        int sat = (int)(255 * color.getSat());
-        int val = (int)(255 * color.getVal());
+        //System.out.println("CSS: botColorChanged( " + bot + " ) " + color);
         int time = 400; // what should this be?
-        orbControl.orbColor(bot, hue, sat, val, time);
+        orbControl.orbColor(bot, color, time);
         
         broadcastBotColorChanged(bot, swatch, color);
     }

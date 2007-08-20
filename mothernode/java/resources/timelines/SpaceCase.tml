@@ -1,0 +1,66 @@
+<timeline>
+  name: SpaceCase
+  arena: 200.
+  duration: 380.
+  <event>
+     name: SpaceCase
+     specialist: MultiTrack
+     startTime: 2
+     <properties>
+         base /MultiChannelSongs/SpaceCase
+         track1 SpaceCase_1_Drums.aif
+         track2 SpaceCase_2_Drums.aif
+         track3 SpaceCase_3_Marvin.aif
+         track4 SpaceCase_4_Space.aif
+         track5 SpaceCase_5_BubblesLR.aif
+         track6 SpaceCase_6_VocoderGrowlLR.aif
+      </properties>
+  </event>
+  <event>
+       name: black
+       specialist: SimpleColor
+       startTime: 0
+       fadeTime: 0
+       <color> RGB 0 0 0 </color>
+  </event>
+  <event>
+       name: reds
+       specialist: SimpleColor
+       startTime: 2
+       fadeTime: 25
+       <color> RGB 255 0 0 </color>
+  </event>
+
+  <event>
+       name: Red->blue
+       specialist: SimpleColor
+       startTime: 27
+       fadeTime: 25
+       <color> RGB 0 0 255 </color>
+  </event>
+
+  <event>
+       name: all_white
+       specialist: SimpleColor
+       startTime: 55
+       fadeTime: 10
+       <color> RGB 255 255 255 </color>
+  </event>
+
+  <event>
+       name: green
+       specialist: SimpleColor
+       startTime: 100
+       fadeTime: 10
+       <color> RGB 55 150 40 </color>
+  </event>
+
+  <event>
+       name: fadetoblack
+       specialist: SimpleColor
+       startTime: 350
+       fadeTime: 20
+       <color> RGB 55 150 40 </color>
+  </event>
+
+</timeline>

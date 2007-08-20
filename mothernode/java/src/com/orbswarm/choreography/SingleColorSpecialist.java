@@ -24,12 +24,9 @@ public class SingleColorSpecialist extends AbstractSpecialist implements ColorSp
             if (fadeTimeMS < 0) {
                 fadeTimeMS = 40;
             }
-            int hue    = (int)(color.getHue() * 255);
-            int sat    = (int)(color.getSat() * 255);
-            int val    = (int)(color.getVal() * 255);
             for(int i=0; i < orbs.length; i++) {
                 if (orbs[i] >= 0) {
-                    orbControl.orbColor(orbs[i], hue, sat, val, fadeTimeMS);
+                    orbControl.orbColor(orbs[i], color, fadeTimeMS);
                 }
             }
             broadcastCommandCompleted("start", orbs, null);

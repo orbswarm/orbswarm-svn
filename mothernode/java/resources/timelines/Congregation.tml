@@ -3,24 +3,31 @@
   arena: 200.
   duration: 460.
   <event>
+  <event>
      name: Congregation_Multichannel
-     specialist: RandomSongPlayer
-     startTime: 0
-     endTime: end
-     <orbs> 0 1 2 3 4 5  </orbs>
+     specialist: MultiTrack
+     startTime: .1
      <properties>
-         song congregation
-     </properties>
+         base /MultiChannelSongs/Congregation
+         track1 Congregation_1.aif
+         track2 Congregation_2.aif
+         track3 Congregation_3.aif
+         track4 Congregation_4.aif
+         track5 Congregation_5.aif
+         track6 Congregation_6.aif
+      </properties>
   </event>
   <event>
      name: black
      specialist: SimpleColor
-     startTime: 0
-     fadeTime: 0
+     startTime: 0.1
+     fadeTime: 4
      <color> RGB 0 0 0 </color>
+  </event>
   <event>
      name: fadeIn
-     startTime: .1
+     specialist: SimpleColor
+     startTime: 4
      fadeTime: 15
      <color> RGB 80 80 200 </color>
   </event>
@@ -28,15 +35,47 @@
   <event>
      name: colorscheme
      specialist: ColorScheme
-     startTime: 15
+     startTime: 20
      endTime: end
      <orbs> 0 1 2 3 4 5  </orbs>
      <properties>
          colorscheme Analogous
          basecolor RGB 80 80 200
-         spread 12
+         spread 10
          meander 40
      </properties>
+  </event>
+
+  <event>
+      name: bleu
+      target: colorscheme
+      startTime: 60
+      <properties>
+         basecolor RGB 0 0 255
+         spread 10
+         meander 50
+      </properties>
+  </event>
+
+  <event>
+      name: cyan
+      target: colorscheme
+      startTime: 65
+      <properties>
+         basecolor RGB 0 255 255
+         spread 5
+         meander 60
+      </properties>
+  </event>
+
+  <event>
+      name: wide
+      target: colorscheme
+      startTime: 75
+      <properties>
+         spread 45
+         meander 60
+      </properties>
   </event>
 
 </timeline>

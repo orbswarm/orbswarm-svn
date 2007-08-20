@@ -1,6 +1,7 @@
 package com.orbswarm.choreography;
 
 import java.util.List;
+import com.orbswarm.swarmcomposer.color.HSV;
 import com.orbswarm.swarmcomposer.composer.Sound;
 
 public interface OrbControl {
@@ -23,10 +24,10 @@ public interface OrbControl {
     //
     // Light control methods
     //
-    public void orbColor(int orb, int hue, int sat, int val, int fadeTimeMS);
+    public void orbColor(int orb, HSV color, int fadeTimeMS);
     public void orbColorFade(int orb,
-                             int hue1, int sat1, int val1,
-                             int hue2, int sat2, int val2,
+                             HSV color1,
+                             HSV color2,
                              int fadeTimeMS);
     //
     // Motion methods

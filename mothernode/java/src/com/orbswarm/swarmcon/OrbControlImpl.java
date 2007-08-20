@@ -159,24 +159,21 @@ public class OrbControlImpl implements OrbControl {
     }
 
     // only one Light control method implemented
-    public void orbColor(int orbNum, int hue, int sat, int val, int timeMS) {
+    public void orbColor(int orbNum, HSV hsvColor, int timeMS) {
         //System.out.println("SwarmCon:OrbControlImpl orbColor(orb: " + orbNum + "HSV: [" + hue + ", " + sat + ", " + val + "]@" + timeMS + ")");
         if (simulateColors) {
-            float fhue = hue / 255.f;
-            float fsat = sat / 255.f;
-            float fval = val / 255.f;
             final Orb orb = (Orb)swarmCon.swarm.getOrb(orbNum);
             Color prevOrbColor = orb.getOrbColor();
             final HSV prevHSV = HSV.fromColor(prevOrbColor);
-            final HSV hsv = new HSV(fhue, fsat, fval);
             if (timeMS <= 0) {
-                Color color = hsv.toColor();
+                Color color = hsvColor.toColor();
                 orb.setOrbColor(color);
             } else {
                 final int _timeMS = timeMS;
+                final HSV _hsvColor = hsvColor;
                 new Thread() {
                     public void run()  {
-                        fadeColor(orb, prevHSV, hsv, _timeMS, 20);
+                        fadeColor(orb, prevHSV, _hsvColor, _timeMS, 20);
                     }
                 }.start();
             }
@@ -184,15 +181,21 @@ public class OrbControlImpl implements OrbControl {
         if (sendCommandsToOrbs && orbIo != null) {
             // TODO: send color command out on OrbIO, or give it to model, or something.
             // TODO: one board or two (later -- we get two light commands per orb)
-            // fade:  <LH64><LS200><LV220><LT2200> to set h,s,v,time on all boards
+            // fade:  <LH64><LS200><LV220><LT2200> to set {h, s, v, time} on all boards (OBSOLETE)
+            // fade:  <LR64><LG200><LB220><LT2200> to set {r, g, b, time} on all boards
             //        <LF> to do the fade  <L0F> to fade the first, <L1F> the second board
             String boardAddress = "";  // later: possibly independent board controls
             StringBuffer buf = new StringBuffer();
             // question: do we send all the commands in one string, or one at a time?
             // answer: yes, we can send them all on one string
-            buf.append("<L" + boardAddress + "H" + hue + ">");
-            buf.append("<L" + boardAddress + "S" + sat + ">");
-            buf.append("<L" + boardAddress + "V" + val + ">");
+            /* there's been a change: now we send colors as RGB...
+               buf.append("<L" + boardAddress + "H" + hue + ">");
+               buf.append("<L" + boardAddress + "S" + sat + ">");
+               buf.append("<L" + boardAddress + "V" + val + ">");
+            */
+            buf.append("<L" + boardAddress + "R" + hsvColor.getRed() + ">");
+            buf.append("<L" + boardAddress + "G" + hsvColor.getGreen() + ">");
+            buf.append("<L" + boardAddress + "B" + hsvColor.getBlue() + ">");
             buf.append("<L" + boardAddress + "T" + timeMS + ">");
             buf.append("<LF>");
             String orbCmd = wrapOrbCommand(orbNum, buf.toString());
@@ -238,8 +241,7 @@ public class OrbControlImpl implements OrbControl {
             
     
     public void orbColorFade(int orb,
-                             int hue1, int sat1, int val1,
-                             int hue2, int sat2, int val2,
+                             HSV color1, HSV color2,
                              int time) {}
 
     //

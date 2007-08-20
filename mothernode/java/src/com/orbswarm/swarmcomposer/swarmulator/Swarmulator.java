@@ -1174,19 +1174,14 @@ public class Swarmulator implements MouseListener, MouseMotionListener, ColorSch
     public Sound lookupSound(String soundFilePath) {return null;}
 
     // only one Light control method implemented
-    public void orbColor(int orb, int hue, int sat, int val, int time) {
-        System.out.println("Swarmulator: orbColor(orb: " + orb + "HSV: [" + hue + ", " + sat + ", " + val + "])");
-        float fhue = hue / 255.f;
-        float fsat = sat / 255.f;
-        float fval = val / 255.f;
-        HSV hsv = new HSV(fhue, fsat, fval);
+    public void orbColor(int orb, HSV hsv, int time) {
+        System.out.println("Swarmulator: orbColor(orb: " + orb + ") HSV: " + hsv);
         // time ignored here. 
         beasties[orb].setColor(hsv.toColor());
     }
     
     public void orbColorFade(int orb,
-                             int hue1, int sat1, int val1,
-                             int hue2, int sat2, int val2,
+                             HSV color1, HSV color2,
                              int time) {}
 
     //

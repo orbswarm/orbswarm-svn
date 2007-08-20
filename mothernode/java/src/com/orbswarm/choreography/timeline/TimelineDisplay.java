@@ -61,7 +61,7 @@ public class TimelineDisplay  {
     public Color bgColor, eventColor_past, eventColor_current, eventColor_future;
     public Color eventColor_border, eventColor_text;
     public Color sequenceColor;
-    public Color timeCursorColor;
+    public Color timeCursorColor, tickColor;
     public HSV[] leitMotifColors;
     protected Component repaintComponent;
 
@@ -106,6 +106,7 @@ public class TimelineDisplay  {
     public void initColors() {
         bgColor            = Color.getHSBColor(.1f,  .05f,  .65f);
         timeCursorColor    = Color.getHSBColor(.01f, .9f,   .9f);
+        tickColor          = Color.getHSBColor(.9f,  .2f,   .9f);
         eventColor_border  = Color.getHSBColor(.8f,  .65f,  .4f);
         eventColor_current = Color.getHSBColor(.65f, .6f,   .9f);
         eventColor_past    = Color.getHSBColor(.65f, .5f,   .6f);
@@ -591,13 +592,41 @@ public class TimelineDisplay  {
         }
 
         // TODO: if there are too many tracks, reduce the trackHeight
-
+        displayTimeTicks();
         displayTimeCursor(time);
         drawer.show(true);
         repaint();
     }
 
-    // TODO: display sequences...
+    public void displayTimeTicks() {
+        int minutes = (int)(timelineDuration / 60);
+        int extraSeconds = (int)timelineDuration  - minutes * 60;
+        double minuteTickWidth = 3.;
+        double minuteTickHeight = 10.;
+        double secondTickWidth = 2.;
+        double secondTickHeight = 5.;
+        drawer.setPenColor(tickColor);
+        double tmin = 0.;
+        for(int i=0; i <= minutes; i++) {
+            tmin = i * 60.;
+            double x = timeWindowPixel(timeToTimePixel(tmin));
+            drawer.filledRectangle(x, 0., minuteTickWidth, minuteTickHeight);
+            for(int sec = 10; sec < 60; sec += 10) {
+                double tsec = tmin + sec;
+                x = timeWindowPixel(timeToTimePixel(tsec));
+                drawer.filledRectangle(x, 0., secondTickWidth, secondTickHeight);
+            }
+        }
+        for(int sec = 10; sec < extraSeconds; sec += 10) {
+            double tsec = tmin + sec;
+            double x = timeWindowPixel(timeToTimePixel(tsec));
+            drawer.filledRectangle(x, 0., secondTickWidth, secondTickHeight);
+        }
+
+    }   
+            
+
+    
     public void displayEvent(Event event, int track) {
         if (event instanceof Sequence) {
             displaySequence((Sequence)event, track);
@@ -820,6 +849,7 @@ public class TimelineDisplay  {
         final Orb orb = (Orb)swarmCon.getSwarm().getOrb(_orbNum);
         final OrbControl _orbControl = orbControl;
         final HSV leitMotifColor = leitMotifColors[_orbNum];
+        final HSV white = new HSV(0.f, 0.f, 1.f);
         final Color prevColor = orb.getOrbColor();
         final HSV prevHSV = HSV.fromColor(prevColor);
         new Thread() {
@@ -829,20 +859,13 @@ public class TimelineDisplay  {
                 int toWhite = 200;
                 int fromWhite = 200;
                 int fromColor = 500;
-                int lh = (int)(leitMotifColor.getHue() * 255);
-                int ls = (int)(leitMotifColor.getSat() * 255);
-                int lv = (int)(leitMotifColor.getVal() * 255);
-                _orbControl.orbColor(_orbNum, lh, ls, lv, toColor);
+                _orbControl.orbColor(_orbNum, leitMotifColor, toColor);
                 try { Thread.sleep(toColor); } catch (Exception ex) {}
-                _orbControl.orbColor(_orbNum, 0, 0, 255, toWhite);
+                _orbControl.orbColor(_orbNum, white, toWhite);
                 try { Thread.sleep(toWhite); } catch (Exception ex) {}
-                _orbControl.orbColor(_orbNum, lh, ls, lv, fromWhite);
+                _orbControl.orbColor(_orbNum, leitMotifColor, fromWhite);
                 try { Thread.sleep(fromWhite); } catch (Exception ex) {}
-                _orbControl.orbColor(_orbNum,
-                                     (int)(255*prevHSV.getHue()),
-                                     (int)(255*prevHSV.getSat()),
-                                     (int)(255*prevHSV.getVal()),
-                                     fromColor);
+                _orbControl.orbColor(_orbNum, prevHSV, fromColor);
             }
         }.start();
     }

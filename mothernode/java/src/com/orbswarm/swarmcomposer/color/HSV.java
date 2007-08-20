@@ -29,7 +29,7 @@ public class HSV {
         result.jcolor = color;
         return result;
     }
-    
+
     public HSV copy() {
         HSV copy = new HSV(hue, sat, val);
         copy.jcolor = jcolor;
@@ -65,6 +65,18 @@ public class HSV {
         jcolor = null;
     }
 
+    public int getRed() {
+        return toColor().getRed();
+    }
+
+    public int getGreen() {
+        return toColor().getGreen();
+    }
+
+    public int getBlue() {
+        return toColor().getBlue();
+    }
+    
     public Color toColor() {
         if (jcolor == null) {
             jcolor =  Color.getHSBColor(hue, sat, val);
