@@ -1,0 +1,42 @@
+<timeline>
+  name: Congregation
+  arena: 200.
+  duration: 460.
+  <event>
+     name: Congregation_Multichannel
+     specialist: RandomSongPlayer
+     startTime: 0
+     endTime: end
+     <orbs> 0 1 2 3 4 5  </orbs>
+     <properties>
+         song congregation
+     </properties>
+  </event>
+  <event>
+     name: black
+     specialist: SimpleColor
+     startTime: 0
+     fadeTime: 0
+     <color> RGB 0 0 0 </color>
+  <event>
+     name: fadeIn
+     startTime: .1
+     fadeTime: 15
+     <color> RGB 80 80 200 </color>
+  </event>
+     
+  <event>
+     name: colorscheme
+     specialist: ColorScheme
+     startTime: 15
+     endTime: end
+     <orbs> 0 1 2 3 4 5  </orbs>
+     <properties>
+         colorscheme Analogous
+         basecolor RGB 80 80 200
+         spread 12
+         meander 40
+     </properties>
+  </event>
+
+</timeline>

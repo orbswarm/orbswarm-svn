@@ -1,0 +1,14 @@
+<timeline>
+  name: LongBlankTimeline
+  arena: 200.
+  duration: 600.
+  <event>
+     name: AllBlue
+     specialist: SimpleColor
+     startTime: 0
+     endTime: end
+     <orbs> 0 1 2 3 4 5  </orbs>
+     <color> RGB 45 60 200 </color>
+  </event>
+
+</timeline>
