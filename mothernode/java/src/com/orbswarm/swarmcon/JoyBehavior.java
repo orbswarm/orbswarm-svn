@@ -114,7 +114,7 @@ public class JoyBehavior extends Behavior
       {
          System.out.println("Joy:[Orb: " + orbNum + "](" + x1 +", " + y1 + ")");
          model.setTargetRollPitchRates(x1, y1);
-         swarmCon.joystickXY(orbNum, x1, y1);
+         swarmCon.joystickXY(orbNum, x1, y1, x2, y2);
          if (buttonPressed)
          {
              System.out.println("             Joy:[Orb: " + orbNum + "] Button " + buttonNumber);

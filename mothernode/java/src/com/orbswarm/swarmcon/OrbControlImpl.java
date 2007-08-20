@@ -196,6 +196,7 @@ public class OrbControlImpl implements OrbControl {
             buf.append("<L" + boardAddress + "R" + hsvColor.getRed() + ">");
             buf.append("<L" + boardAddress + "G" + hsvColor.getGreen() + ">");
             buf.append("<L" + boardAddress + "B" + hsvColor.getBlue() + ">");
+
             buf.append("<L" + boardAddress + "T" + timeMS + ">");
             buf.append("<LF>");
             String orbCmd = wrapOrbCommand(orbNum, buf.toString());

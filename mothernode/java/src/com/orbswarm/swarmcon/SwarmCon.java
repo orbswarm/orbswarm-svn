@@ -1106,8 +1106,9 @@ public class SwarmCon extends JFrame
       ///////////////////////////////////
       /// Joystick handling           ///
       ///////////////////////////////////
-      public void joystickXY(int orbNum, double x, double y) 
+    public void joystickXY(int orbNum, double x1, double y1, double x2, double y2) 
       {
+          timelineDisplay.joystickXY(orbNum, x1, y1, x2, y2);
           // stub
       }
 

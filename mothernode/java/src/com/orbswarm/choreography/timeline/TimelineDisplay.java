@@ -880,5 +880,63 @@ public class TimelineDisplay  {
             doLeitMotif(orbNum);
         }
     }
+    public void joystickXY(int orbNum, double x1, double y1, double x2, double y2) {
+        // assign x2 to the hue.
+        if (x2 != 0.) {
+            incrementHue(orbNum, x2);
+        }
+        // assign x2 to the value.
+        if (y2 != 0.) {
+            incrementVal(orbNum, y2);
+        }
+    }
+
+    public void incrementHue(int orbNum, double coord) {
+        // val ranges from 0 to 1. We want to increment the hue by some
+        double hueFactor = .1;
+        Orb orb = (Orb)swarmCon.getSwarm().getOrb(orbNum);
+        HSV orbColor = HSV.fromColor(orb.getOrbColor());
+        float hue = orbColor.getHue();
+        hue += (float)(hueFactor * coord);
+        if (hue > 1.f)  {
+            hue -= 1.f;
+        }
+        orbColor.setHue(hue);
+        orbControl.orbColor(orbNum, orbColor, 0);
+    }
+
+    public void incrementVal(int orbNum, double coord) {
+        // val ranges from 0 to 1. We want to increment the hue by some
+        double valFactor = .1;
+        Orb orb = (Orb)swarmCon.getSwarm().getOrb(orbNum);
+        HSV orbColor = HSV.fromColor(orb.getOrbColor());
+        float val = orbColor.getVal();
+        val += (float)(valFactor * coord);
+        if (val > 1.f)  {
+            val = 1.f;
+        } else if (val < 0.f) {
+            val = 0.f;
+        }
+        orbColor.setVal(val);
+        orbControl.orbColor(orbNum, orbColor, 0);
+    }
+
+    public void incrementSat(int orbNum, double coord) {
+        // sat ranges from 0 to 1. We want to increment the hue by some
+        double satFactor = .1;
+        Orb orb = (Orb)swarmCon.getSwarm().getOrb(orbNum);
+        HSV orbColor = HSV.fromColor(orb.getOrbColor());
+        float sat = orbColor.getSat();
+        sat += (float)(satFactor * coord);
+        if (sat > 1.f)  {
+            sat = 1.f;
+        } else if (sat < 0.f) {
+            sat = 0.f;
+        }
+        orbColor.setSat(sat);
+        orbControl.orbColor(orbNum, orbColor, 0);
+    }
+
+        
     
 }
