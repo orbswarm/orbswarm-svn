@@ -9,7 +9,7 @@
      endTime: 55
      <orbs> 0 1 2 3 4 5  </orbs>
      <properties>
-         song terminal.orbs
+         song terminal
      </properties>
   </event>
 </timeline>

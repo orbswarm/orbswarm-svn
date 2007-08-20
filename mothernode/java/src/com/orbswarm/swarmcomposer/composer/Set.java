@@ -114,8 +114,10 @@ public class Set {
         for(int i=0; i < soundFiles.length; i++) {
             File soundFile = soundFiles[i];
             if (soundFileIsValid(soundFile)) {
-                //Sound sound = new Sound(this, soundFile.getName());
                 Sound sound = OrbControlImpl.staticLookupSound(soundFile.getAbsolutePath());
+                if (sound == null) {
+                    sound = new Sound(this, soundFile.getName());
+                }
                 //System.out.println("   SET: looked up SOUND(" + soundFile.getAbsolutePath() +  "): " + sound);
                 addSound(sound);
             }

@@ -228,7 +228,7 @@ public class TimelineDisplay  {
             });
 
         JButton stopButton = new JButton(" [] ");
-        gbc.gridx = 1;
+        gbc.gridx = 2;
         gbc.gridy = 1;
         gbc.gridwidth = 2;
         gbc.weightx = 1.0;

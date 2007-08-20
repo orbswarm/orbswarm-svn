@@ -2,13 +2,14 @@
     // Based on the original Alea random composition DMinor9Drones
     strategy random
     <matrix>  
-       headers   139 157 13 5679 57 469 Dm7 end
-       139      100     20   80    end
-       157        -    100  100    end
-       5679       -      -   90    end
-       57
-       469
-       Dm7
+       headers   139    157    13 5679    57   469   Dm7   end
+       139       100     20   100   60    60    10    80   end
+       157        -     100    90   60   100    10   100   end
+       13         -      -    100   80    90    30   100   end
+       5679       -      -      -  100    90    40    80   end
+       57         -      -      -    -   100    40   100   end    
+       469        -      -      -    -     -   100    10   end
+       Dm7        -      -      -    -     -     -   100   end
     </matrix>
 
     // additional matricies add to the matrix, without having to specify

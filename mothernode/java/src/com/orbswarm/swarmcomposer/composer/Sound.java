@@ -179,7 +179,7 @@ public class Sound {
         if (hlen > 8) {
             pathHashCodeStr = pathHashCodeStr.substring(hlen - 8);
         }            
-        String soundHash = "S" + pathHashCodeStr;
+        String soundHash =  pathHashCodeStr + "." + (extension == null ? "" : extension);
         this.mp3Hash = pathHashCodeStr + ".mp3";
         // TODO: if the sound's extension is "mp3" there shouldn't be a pcm hash.
         if (type == MP3) {

@@ -316,15 +316,15 @@ public class SongCompiler {
         }
 
         if (args[0].equalsIgnoreCase("compile")) {
-            if (args.length < 3) {
+            if (args.length < 4) {
                 usage();
                 System.exit(0);
             }
 
-            String songFileName = args[0];
+            String songFileName = args[1];
             String targetFileName = null; // default.
-            String basePath = args[1];
-            String compiledSongDir = args[2];
+            String basePath = args[2];
+            String compiledSongDir = args[3];
             
             SongCompiler scribe = new SongCompiler();
             System.out.println("Compiling...");

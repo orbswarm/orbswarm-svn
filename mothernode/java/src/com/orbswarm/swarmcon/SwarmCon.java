@@ -199,10 +199,47 @@ public class SwarmCon extends JFrame
       }
       // entry point
 
+    //
+    // Some booleans that control whether this is a simulation, sends commands to the 
+    // actual orbs, or what.
+    // Default: sendCommands to the orbs, simulate the colors, but not the sounds.
+    // Toggleable with args to the main.
+    //
+    private boolean sendCommandsToOrbs = true;
+    private boolean simulateColors = true;
+    private boolean simulateSounds = false;
+    
       public static void main(String[] args)
       {
+          boolean sendCommandsToOrbs = true;
+          boolean simulateColors = true;
+          boolean simulateSounds = false;
+          
          registerSpecialists(); 
-         SwarmCon sc = new SwarmCon();
+         int i=0;
+         while (i < args.length)
+         {
+             if (args[i].equalsIgnoreCase("--simulateSounds"))
+             {
+                 i++;
+                 simulateSounds = args[i].equalsIgnoreCase("true");
+             } 
+
+             else if (args[i].equalsIgnoreCase("--simulateColors"))
+             {
+                 i++;
+                 simulateColors = args[i].equalsIgnoreCase("true");
+             }
+             // Note: not giving the option to turn off sending commands to orbs right now. 
+
+             else if (args[i].equalsIgnoreCase("--help")) 
+             {
+                 System.out.println("java com.orbswarm.swarmcon.SwarmCon [--simulateSounds true|false] [--simulateColors true|false]");
+             }
+             i++;
+         }
+         SwarmCon sc = new SwarmCon(sendCommandsToOrbs, simulateColors, simulateSounds);
+
       }
 
     public ColorSchemer colorSchemer;
@@ -224,10 +261,17 @@ public class SwarmCon extends JFrame
     
       // construct a swarm
 
-      public SwarmCon()
+      public SwarmCon(boolean sendCommandsToOrbs, boolean simulateColors, boolean simulateSounds)
       {
+        this.sendCommandsToOrbs = sendCommandsToOrbs;
+        this.simulateColors = simulateColors;
+        this.simulateSounds = simulateSounds;
+
          // OrbControl for Specialists
-         orbControlImpl = new OrbControlImpl(this);
+        orbControlImpl = new OrbControlImpl(this,
+                                            sendCommandsToOrbs,
+                                            simulateColors,
+                                            simulateSounds);
 
          // construct the frame
          

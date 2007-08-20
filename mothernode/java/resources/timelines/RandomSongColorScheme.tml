@@ -1,0 +1,41 @@
+<timeline>
+  name: RandomSongTest
+  arena: 200.
+  duration: 120.
+  <event>
+     name: Rplayer
+     specialist: RandomSongPlayer
+     startTime: 6
+     endTime: 55
+     <orbs> 0 1 2 3 4 5  </orbs>
+     <properties>
+         song terminal
+     </properties>
+  </event>
+
+    <event>
+     name: ColorSchemer
+     specialist: ColorScheme
+     startTime: 2
+     endTime: end
+     <orbs> 0 1 2 3 4 5  </orbs>
+     <properties>
+         colorscheme Analogous
+         basecolor RGB 255 220 140
+         spread 12
+         meander 100
+     </properties>
+  </event>
+
+  <event>
+      target: ColorSchemer
+      startTime: 35
+      <properties>
+         colorscheme Triad
+         basecolor RGB 255 240 120
+         spread 35
+         meander 10
+      </properties>
+  </event>
+
+</timeline>

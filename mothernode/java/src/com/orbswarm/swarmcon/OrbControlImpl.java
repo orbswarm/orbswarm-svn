@@ -24,13 +24,20 @@ public class OrbControlImpl implements OrbControl {
     private boolean simulateColors = true;
     private boolean simulateSounds = true;
 
-    public OrbControlImpl(SwarmCon swarmCon) {
+    public OrbControlImpl(SwarmCon swarmCon,
+                          boolean sendCommandsToOrbs,
+                          boolean simulateColors, boolean simulateSounds) {
         this.swarmCon = swarmCon;
         this.orbIo = swarmCon.getOrbIo();
+        this.sendCommandsToOrbs = sendCommandsToOrbs;
+        this.simulateColors = simulateColors;
+        this.simulateSounds = simulateSounds;
         setupSoundPlayers(6); // TODO: generalize
+    }
+    static {
         readSoundCatalog();
     }
-
+    
     public SwarmCon getSwarmCon() {
         return swarmCon;
     }
@@ -42,7 +49,7 @@ public class OrbControlImpl implements OrbControl {
         }
     }
 
-    private void readSoundCatalog() {
+    private static void readSoundCatalog() {
         soundCatalog = new HashMap();
         try {
             TokenReader reader = new TokenReader("resources/songs/sounds.catalog");
@@ -88,7 +95,7 @@ public class OrbControlImpl implements OrbControl {
         if (sendCommandsToOrbs && orbIo != null) {
             String mp3Hash = sound.getMP3Hash();
             StringBuffer buf = new StringBuffer();
-            buf.append("<SPlay ");
+            buf.append("<M1 VPF ");
             buf.append(mp3Hash);
             buf.append(">");
             String orbCmd = wrapOrbCommand(orbNum, buf.toString());
@@ -133,7 +140,7 @@ public class OrbControlImpl implements OrbControl {
         }
         if (sendCommandsToOrbs && orbIo != null) {
             StringBuffer buf = new StringBuffer();
-            buf.append("<SStop>");
+            buf.append("<M1 VST>");
             String orbCmd = wrapOrbCommand(orbNum, buf.toString());
             orbIo.send(orbCmd);
         }
@@ -143,7 +150,7 @@ public class OrbControlImpl implements OrbControl {
     public void volume(int orbNum, int volume) {
         if (sendCommandsToOrbs && orbIo != null) {
             StringBuffer buf = new StringBuffer();
-            buf.append("<SVol ");
+            buf.append("<M1 VWR ");
             buf.append(volume);
             buf.append(">");
             String orbCmd = wrapOrbCommand(orbNum, buf.toString());

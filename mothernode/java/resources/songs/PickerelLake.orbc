@@ -1,0 +1,119 @@
+<song> PickerelLake
+    strategy random
+     compiled true
+     <matrix>
+               headers end
+    </matrix>
+    <layer> Harmon_IiiiV
+        <set> main
+            <sound> 8barbreak.aif    path /orbsongs/PickerelLake/Harmon_IiiiV/main/8barbreak.aif duration 19.2 hash S19920057 mp3hash 19920057.mp3 </sound>
+            <sound> Blank16.aif    path /orbsongs/PickerelLake/Harmon_IiiiV/main/Blank16.aif duration 38.4 hash S51790030 mp3hash 51790030.mp3 </sound>
+            <sound> Blank8.aif    path /orbsongs/PickerelLake/Harmon_IiiiV/main/Blank8.aif duration 19.2 hash S96320655 mp3hash 96320655.mp3 </sound>
+            <sound> MartianOrgan_13.aif    path /orbsongs/PickerelLake/Harmon_IiiiV/main/MartianOrgan_13.aif duration 38.4 hash S54597435 mp3hash 54597435.mp3 </sound>
+            <sound> MartianOrgan_35.aif    path /orbsongs/PickerelLake/Harmon_IiiiV/main/MartianOrgan_35.aif duration 38.4 hash S95492091 mp3hash 95492091.mp3 </sound>
+            <sound> MartianOrgan_I_1.aif    path /orbsongs/PickerelLake/Harmon_IiiiV/main/MartianOrgan_I_1.aif duration 38.4 hash S48363416 mp3hash 48363416.mp3 </sound>
+            <sound> MartianOrgan_I_2.aif    path /orbsongs/PickerelLake/Harmon_IiiiV/main/MartianOrgan_I_2.aif duration 38.4 hash S49286937 mp3hash 49286937.mp3 </sound>
+            <sound> MartianOrgan_iiitheme.aif    path /orbsongs/PickerelLake/Harmon_IiiiV/main/MartianOrgan_iiitheme.aif duration 38.4 hash S41933437 mp3hash 41933437.mp3 </sound>
+            <sound> MartianOrgan_iiitheme_16T.aif    path /orbsongs/PickerelLake/Harmon_IiiiV/main/MartianOrgan_iiitheme_16T.aif duration 19.2 hash S20178963 mp3hash 20178963.mp3 </sound>
+            <sound> MartianOrgan_iiitheme_halfT.aif    path /orbsongs/PickerelLake/Harmon_IiiiV/main/MartianOrgan_iiitheme_halfT.aif duration 38.4 hash S07755461 mp3hash 07755461.mp3 </sound>
+            <sound> MartianOrgan_Itheme_half.aif    path /orbsongs/PickerelLake/Harmon_IiiiV/main/MartianOrgan_Itheme_half.aif duration 19.2 hash S21468239 mp3hash 21468239.mp3 </sound>
+            <sound> MartianOrgan_V_1.aif    path /orbsongs/PickerelLake/Harmon_IiiiV/main/MartianOrgan_V_1.aif duration 38.4 hash S98990619 mp3hash 98990619.mp3 </sound>
+            <sound> MartianOrgan_Vtheme.aif    path /orbsongs/PickerelLake/Harmon_IiiiV/main/MartianOrgan_Vtheme.aif duration 38.4 hash S72890410 mp3hash 72890410.mp3 </sound>
+            <sound> MartianOrgan_Vtheme_half.aif    path /orbsongs/PickerelLake/Harmon_IiiiV/main/MartianOrgan_Vtheme_half.aif duration 38.4 hash S55194724 mp3hash 55194724.mp3 </sound>
+            <sound> MartianOrgan_Vtheme_halfT.aif    path /orbsongs/PickerelLake/Harmon_IiiiV/main/MartianOrgan_Vtheme_halfT.aif duration 38.4 hash S07432408 mp3hash 07432408.mp3 </sound>
+            <sound> Vibes_iiitheme.aif    path /orbsongs/PickerelLake/Harmon_IiiiV/main/Vibes_iiitheme.aif duration 28.8 hash S55132237 mp3hash 55132237.mp3 </sound>
+            <sound> Vibes_Isubtheme.aif    path /orbsongs/PickerelLake/Harmon_IiiiV/main/Vibes_Isubtheme.aif duration 28.8 hash S94995685 mp3hash 94995685.mp3 </sound>
+            <sound> Vibes_Itheme.aif    path /orbsongs/PickerelLake/Harmon_IiiiV/main/Vibes_Itheme.aif duration 28.8 hash S41377651 mp3hash 41377651.mp3 </sound>
+            <sound> Vibes_Itheme_lohalf.aif    path /orbsongs/PickerelLake/Harmon_IiiiV/main/Vibes_Itheme_lohalf.aif duration 28.8 hash S57955000 mp3hash 57955000.mp3 </sound>
+            <sound> Vibes_loI6run.aif    path /orbsongs/PickerelLake/Harmon_IiiiV/main/Vibes_loI6run.aif duration 19.2 hash S47088882 mp3hash 47088882.mp3 </sound>
+            <sound> Vibes_loVtheme.aif    path /orbsongs/PickerelLake/Harmon_IiiiV/main/Vibes_loVtheme.aif duration 28.8 hash S10603869 mp3hash 10603869.mp3 </sound>
+            <sound> Vibes_Vsubtheme.aif    path /orbsongs/PickerelLake/Harmon_IiiiV/main/Vibes_Vsubtheme.aif duration 19.2 hash S75723890 mp3hash 75723890.mp3 </sound>
+            <sound> Vibes_Vtheme.aif    path /orbsongs/PickerelLake/Harmon_IiiiV/main/Vibes_Vtheme.aif duration 28.8 hash S98914080 mp3hash 98914080.mp3 </sound>
+            <sound> Vibes_Vtheme_lohalf.aif    path /orbsongs/PickerelLake/Harmon_IiiiV/main/Vibes_Vtheme_lohalf.aif duration 28.8 hash S44798123 mp3hash 44798123.mp3 </sound>
+        </set>
+    </layer>
+    <layer> Harmon_iiiVvi
+        <set> main
+            <sound> Blank16.aif    path /orbsongs/PickerelLake/Harmon_iiiVvi/main/Blank16.aif duration 38.4 hash S49864608 mp3hash 49864608.mp3 </sound>
+            <sound> Blank8.aif    path /orbsongs/PickerelLake/Harmon_iiiVvi/main/Blank8.aif duration 19.2 hash S09486461 mp3hash 09486461.mp3 </sound>
+            <sound> MartianOrgan_16_1.aif    path /orbsongs/PickerelLake/Harmon_iiiVvi/main/MartianOrgan_16_1.aif duration 38.4 hash S84084044 mp3hash 84084044.mp3 </sound>
+            <sound> MartianOrgan_36.aif    path /orbsongs/PickerelLake/Harmon_iiiVvi/main/MartianOrgan_36.aif duration 38.4 hash S06770264 mp3hash 06770264.mp3 </sound>
+            <sound> MartianOrgan_57.aif    path /orbsongs/PickerelLake/Harmon_iiiVvi/main/MartianOrgan_57.aif duration 38.4 hash S64952087 mp3hash 64952087.mp3 </sound>
+            <sound> MartianOrgan_iii_1.aif    path /orbsongs/PickerelLake/Harmon_iiiVvi/main/MartianOrgan_iii_1.aif duration 38.4 hash S65704006 mp3hash 65704006.mp3 </sound>
+            <sound> MartianOrgan_loVtheme.aif    path /orbsongs/PickerelLake/Harmon_iiiVvi/main/MartianOrgan_loVtheme.aif duration 38.4 hash S47230677 mp3hash 47230677.mp3 </sound>
+            <sound> MartianOrgan_loVtheme_eight.aif    path /orbsongs/PickerelLake/Harmon_iiiVvi/main/MartianOrgan_loVtheme_eight.aif duration 38.4 hash S99349125 mp3hash 99349125.mp3 </sound>
+            <sound> MartianOrgan_V_2.aif    path /orbsongs/PickerelLake/Harmon_iiiVvi/main/MartianOrgan_V_2.aif duration 38.4 hash S44090836 mp3hash 44090836.mp3 </sound>
+            <sound> MartianOrgan_vi.aif    path /orbsongs/PickerelLake/Harmon_iiiVvi/main/MartianOrgan_vi.aif duration 39.000816 hash S22944344 mp3hash 22944344.mp3 </sound>
+            <sound> MartianOrgan_vitheme.aif    path /orbsongs/PickerelLake/Harmon_iiiVvi/main/MartianOrgan_vitheme.aif duration 38.4 hash S11196351 mp3hash 11196351.mp3 </sound>
+            <sound> MartianOrgan_vitheme_16T.aif    path /orbsongs/PickerelLake/Harmon_iiiVvi/main/MartianOrgan_vitheme_16T.aif duration 38.4 hash S57155025 mp3hash 57155025.mp3 </sound>
+            <sound> MartianOrgan_vitheme_eighth.aif    path /orbsongs/PickerelLake/Harmon_iiiVvi/main/MartianOrgan_vitheme_eighth.aif duration 38.4 hash S81946903 mp3hash 81946903.mp3 </sound>
+            <sound> MartianOrgan_vitheme_quart.aif    path /orbsongs/PickerelLake/Harmon_iiiVvi/main/MartianOrgan_vitheme_quart.aif duration 38.4 hash S03210687 mp3hash 03210687.mp3 </sound>
+            <sound> SlapBass_35.aif    path /orbsongs/PickerelLake/Harmon_iiiVvi/main/SlapBass_35.aif duration 24.000725 hash S71550847 mp3hash 71550847.mp3 </sound>
+            <sound> SlapBass_36.aif    path /orbsongs/PickerelLake/Harmon_iiiVvi/main/SlapBass_36.aif duration 28.8 hash S70627326 mp3hash 70627326.mp3 </sound>
+            <sound> SlapBass_vi_1.aif    path /orbsongs/PickerelLake/Harmon_iiiVvi/main/SlapBass_vi_1.aif duration 28.8 hash S23871620 mp3hash 23871620.mp3 </sound>
+            <sound> SlapBass_vi_2rumble.aif    path /orbsongs/PickerelLake/Harmon_iiiVvi/main/SlapBass_vi_2rumble.aif duration 28.8 hash S27249322 mp3hash 27249322.mp3 </sound>
+            <sound> SlapBass_vi_3.aif    path /orbsongs/PickerelLake/Harmon_iiiVvi/main/SlapBass_vi_3.aif duration 19.2 hash S25718662 mp3hash 25718662.mp3 </sound>
+            <sound> Vibes_iiisubtheme.aif    path /orbsongs/PickerelLake/Harmon_iiiVvi/main/Vibes_iiisubtheme.aif duration 19.2 hash S29135991 mp3hash 29135991.mp3 </sound>
+            <sound> Vibes_iiitheme.aif    path /orbsongs/PickerelLake/Harmon_iiiVvi/main/Vibes_iiitheme.aif duration 28.8 hash S02543301 mp3hash 02543301.mp3 </sound>
+            <sound> Vibes_iiitheme_lohalf.aif    path /orbsongs/PickerelLake/Harmon_iiiVvi/main/Vibes_iiitheme_lohalf.aif duration 28.8 hash S58428378 mp3hash 58428378.mp3 </sound>
+            <sound> Vibes_vitheme_1.aif    path /orbsongs/PickerelLake/Harmon_iiiVvi/main/Vibes_vitheme_1.aif duration 48.0 hash S27475981 mp3hash 27475981.mp3 </sound>
+            <sound> Vibes_vitheme_2.aif    path /orbsongs/PickerelLake/Harmon_iiiVvi/main/Vibes_vitheme_2.aif duration 28.8 hash S28399502 mp3hash 28399502.mp3 </sound>
+        </set>
+    </layer>
+    <layer> Melody_Found
+        <set> main
+            <sound> 8barbreak.aif    path /orbsongs/PickerelLake/Melody_Found/main/8barbreak.aif duration 19.2 hash S79549872 mp3hash 79549872.mp3 </sound>
+            <sound> Birds1.aif    path /orbsongs/PickerelLake/Melody_Found/main/Birds1.aif duration 11.454195 hash S53648629 mp3hash 53648629.mp3 </sound>
+            <sound> Birds2.aif    path /orbsongs/PickerelLake/Melody_Found/main/Birds2.aif duration 10.343741 hash S52725108 mp3hash 52725108.mp3 </sound>
+            <sound> Blank16.aif    path /orbsongs/PickerelLake/Melody_Found/main/Blank16.aif duration 38.4 hash S97019611 mp3hash 97019611.mp3 </sound>
+            <sound> Blank16a.aif    path /orbsongs/PickerelLake/Melody_Found/main/Blank16a.aif duration 38.4 hash S72100612 mp3hash 72100612.mp3 </sound>
+            <sound> Blank16b.aif    path /orbsongs/PickerelLake/Melody_Found/main/Blank16b.aif duration 38.4 hash S71177091 mp3hash 71177091.mp3 </sound>
+            <sound> Blank8.aif    path /orbsongs/PickerelLake/Melody_Found/main/Blank8.aif duration 19.2 hash S81515688 mp3hash 81515688.mp3 </sound>
+            <sound> Blank8a.aif    path /orbsongs/PickerelLake/Melody_Found/main/Blank8a.aif duration 19.2 hash S56904151 mp3hash 56904151.mp3 </sound>
+            <sound> Blank8b.aif    path /orbsongs/PickerelLake/Melody_Found/main/Blank8b.aif duration 19.2 hash S55980630 mp3hash 55980630.mp3 </sound>
+            <sound> Brushies16.aif    path /orbsongs/PickerelLake/Melody_Found/main/Brushies16.aif duration 38.4 hash S92166710 mp3hash 92166710.mp3 </sound>
+            <sound> horsemagpie.aif    path /orbsongs/PickerelLake/Melody_Found/main/horsemagpie.aif duration 4.2944217 hash S14690878 mp3hash 14690878.mp3 </sound>
+            <sound> Vibes_2lines8.aif    path /orbsongs/PickerelLake/Melody_Found/main/Vibes_2lines8.aif duration 16.801088 hash S90203339 mp3hash 90203339.mp3 </sound>
+            <sound> Vibes_Chordhi_iii.aif    path /orbsongs/PickerelLake/Melody_Found/main/Vibes_Chordhi_iii.aif duration 9.6 hash S83979855 mp3hash 83979855.mp3 </sound>
+            <sound> Vibes_Chordhi_V.aif    path /orbsongs/PickerelLake/Melody_Found/main/Vibes_Chordhi_V.aif duration 9.6 hash S44383426 mp3hash 44383426.mp3 </sound>
+            <sound> Vibes_Chordhi_vi.aif    path /orbsongs/PickerelLake/Melody_Found/main/Vibes_Chordhi_vi.aif duration 9.6 hash S73076715 mp3hash 73076715.mp3 </sound>
+            <sound> Vibes_fig4_I.aif    path /orbsongs/PickerelLake/Melody_Found/main/Vibes_fig4_I.aif duration 9.6 hash S24573712 mp3hash 24573712.mp3 </sound>
+            <sound> Vibes_singlerun_high4.aif    path /orbsongs/PickerelLake/Melody_Found/main/Vibes_singlerun_high4.aif duration 9.6 hash S76453184 mp3hash 76453184.mp3 </sound>
+            <sound> Vibes_TonyG.aif    path /orbsongs/PickerelLake/Melody_Found/main/Vibes_TonyG.aif duration 16.801088 hash S51432885 mp3hash 51432885.mp3 </sound>
+        </set>
+    </layer>
+    <layer> Perc_Found
+        <set> main
+            <sound> 8barbreak.aif    path /orbsongs/PickerelLake/Perc_Found/main/8barbreak.aif duration 19.2 hash S94418022 mp3hash 94418022.mp3 </sound>
+            <sound> Blank16.aif    path /orbsongs/PickerelLake/Perc_Found/main/Blank16.aif duration 38.4 hash S06427665 mp3hash 06427665.mp3 </sound>
+            <sound> Blank16a.aif    path /orbsongs/PickerelLake/Perc_Found/main/Blank16a.aif duration 38.4 hash S16118898 mp3hash 16118898.mp3 </sound>
+            <sound> Blank4.aif    path /orbsongs/PickerelLake/Perc_Found/main/Blank4.aif duration 9.6 hash S54777674 mp3hash 54777674.mp3 </sound>
+            <sound> Blank4a.aif    path /orbsongs/PickerelLake/Perc_Found/main/Blank4a.aif duration 9.6 hash S80828809 mp3hash 80828809.mp3 </sound>
+            <sound> Blank8.aif    path /orbsongs/PickerelLake/Perc_Found/main/Blank8.aif duration 19.2 hash S58471758 mp3hash 58471758.mp3 </sound>
+            <sound> Blank8a.aif    path /orbsongs/PickerelLake/Perc_Found/main/Blank8a.aif duration 19.2 hash S66312205 mp3hash 66312205.mp3 </sound>
+            <sound> Brushies16.aif    path /orbsongs/PickerelLake/Perc_Found/main/Brushies16.aif duration 38.4 hash S36286764 mp3hash 36286764.mp3 </sound>
+            <sound> FastBrushies12.aif    path /orbsongs/PickerelLake/Perc_Found/main/FastBrushies12.aif duration 28.8 hash S64818084 mp3hash 64818084.mp3 </sound>
+            <sound> SimpleHats.aif    path /orbsongs/PickerelLake/Perc_Found/main/SimpleHats.aif duration 57.6 hash S71837428 mp3hash 71837428.mp3 </sound>
+            <sound> SimpleHats2.aif    path /orbsongs/PickerelLake/Perc_Found/main/SimpleHats2.aif duration 38.4 hash S40676258 mp3hash 40676258.mp3 </sound>
+            <sound> TwoToms.aif    path /orbsongs/PickerelLake/Perc_Found/main/TwoToms.aif duration 19.2 hash S22285501 mp3hash 22285501.mp3 </sound>
+        </set>
+    </layer>
+    <layer> SlapBass_IiiiV
+        <set> main
+            <sound> Blank16.aif    path /orbsongs/PickerelLake/SlapBass_IiiiV/main/Blank16.aif duration 38.4 hash S53934682 mp3hash 53934682.mp3 </sound>
+            <sound> Blank8.aif    path /orbsongs/PickerelLake/SlapBass_IiiiV/main/Blank8.aif duration 19.2 hash S26883203 mp3hash 26883203.mp3 </sound>
+            <sound> SlapBass_13.aif    path /orbsongs/PickerelLake/SlapBass_IiiiV/main/SlapBass_13.aif duration 28.8 hash S08899323 mp3hash 08899323.mp3 </sound>
+            <sound> SlapBass_16.aif    path /orbsongs/PickerelLake/SlapBass_IiiiV/main/SlapBass_16.aif duration 28.8 hash S11669886 mp3hash 11669886.mp3 </sound>
+            <sound> SlapBass_57.aif    path /orbsongs/PickerelLake/SlapBass_IiiiV/main/SlapBass_57.aif duration 19.2 hash S27110011 mp3hash 27110011.mp3 </sound>
+            <sound> SlapBass_I_2.aif    path /orbsongs/PickerelLake/SlapBass_IiiiV/main/SlapBass_I_2.aif duration 19.2 hash S88144291 mp3hash 88144291.mp3 </sound>
+            <sound> SlapBass_I_4rumble.aif    path /orbsongs/PickerelLake/SlapBass_IiiiV/main/SlapBass_I_4rumble.aif duration 28.8 hash S00861706 mp3hash 00861706.mp3 </sound>
+            <sound> SlapBass_iii_1.aif    path /orbsongs/PickerelLake/SlapBass_IiiiV/main/SlapBass_iii_1.aif duration 38.4 hash S32625054 mp3hash 32625054.mp3 </sound>
+            <sound> SlapBass_iii_2rumble.aif    path /orbsongs/PickerelLake/SlapBass_IiiiV/main/SlapBass_iii_2rumble.aif duration 28.8 hash S86182220 mp3hash 86182220.mp3 </sound>
+            <sound> SlapBass_Isubtheme.aif    path /orbsongs/PickerelLake/SlapBass_IiiiV/main/SlapBass_Isubtheme.aif duration 28.8 hash S28169607 mp3hash 28169607.mp3 </sound>
+            <sound> SlapBass_V_1.aif    path /orbsongs/PickerelLake/SlapBass_IiiiV/main/SlapBass_V_1.aif duration 14.400725 hash S39866735 mp3hash 39866735.mp3 </sound>
+            <sound> SlapBass_V_2theme.aif    path /orbsongs/PickerelLake/SlapBass_IiiiV/main/SlapBass_V_2theme.aif duration 38.4 hash S93114119 mp3hash 93114119.mp3 </sound>
+            <sound> SlapBass_V_3.aif    path /orbsongs/PickerelLake/SlapBass_IiiiV/main/SlapBass_V_3.aif duration 19.2 hash S41713777 mp3hash 41713777.mp3 </sound>
+        </set>
+    </layer>
+</song>
+

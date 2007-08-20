@@ -177,6 +177,7 @@ public class BotControllerSongs extends BotController implements NeighborListene
     }
 
     public void playSong(String songFile, int songTime) {
+        songFile = songFile + ".orbc";
         System.out.println("BotController: reading song file: " + songFile);
         setSongTime(songTime);
         try {
