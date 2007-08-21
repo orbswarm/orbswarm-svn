@@ -62,9 +62,12 @@
 
 #define MOTHER_SHIP_MSG_DELIM " " //blank space for newline
 #define MOTHER_SHIP_MSG_HEAD_STATUS "DUMP_STATUS"
+#define MOTHER_SHIP_MSG_HEAD_MOTOR_STATUS "MOTOR_STATUS"
 #define MOTHER_SHIP_MSG_HEAD_TRAJECTORY "TRAJ"
 #define MOTHER_SHIP_MSG_HEAD_LOCATION "MSLOC"
-
+#define MOTHER_SHIP_MSG_LOW_VERBOCITY "LOW_VERBOCITY"   //will not echo back random motor controller commands
+#define MOTHER_SHIP_MSG_HIGH_VERBOCITY "HIGH_VERBOCITY" //echos anything that the motor controller echos back to the
+                                                        //mother ship  
 #define AGGR_DATA_XFER_ACK '!'  //found at the end of a data stream from the Agg 
                                        //Note: a data stream may contain >1 messages
 #define AGGR_MESSAGE_DELIM_END ";" 
@@ -92,8 +95,8 @@
 #define BATTERY_CHANNEL 3
 #define BATTERY_MAX_VOLTAGE 26
 
-
 /************************Constants**************************************/
+
 const double PI = 3.14159265;
 const double FOURTHPI = PI / 4;
 const double deg2rad = PI / 180;
