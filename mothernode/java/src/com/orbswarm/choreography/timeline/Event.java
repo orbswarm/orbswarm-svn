@@ -48,6 +48,16 @@ public class Event extends Temporal {
     protected String command    = null;
     protected Specialist specialist = null;
 
+    //
+    // Triggers: if an event is a trigger, then when it gets started, it posts itself on the
+    //           trigger list in the appropriate place (hashed by button/orb)
+    //           Note that it replaces whatever is there. (later maybe we'll have an 
+    //           "add" keyword or something).
+    //
+    protected boolean isTrigger         = false;
+    protected int     triggerAction     = TRIGGER_ACTION_REPLACE;  // REPLACE, ADD, CLEAR
+    protected String  triggerLocation   = null;
+
     ///
     /// Ephemeral items used when running the timeline
     ///
@@ -66,6 +76,27 @@ public class Event extends Temporal {
         return this.type;
     }
 
+    public void setTrigger(boolean val) {
+        this.isTrigger = val;
+    }
+    public boolean isTrigger() {
+        return this.isTrigger;
+    }
+
+    public void  setTriggerAction(int action) {
+        this.triggerAction = action;
+    }
+    public int getTriggerAction() {
+        return this.triggerAction;
+    }
+
+    public void setTriggerLocation(String val) {
+        this.triggerLocation = val;
+    }
+    public String getTriggerLocation() {
+        return this.triggerLocation;
+    }
+    
     public Event getParent() {
         return this.parent;
     }

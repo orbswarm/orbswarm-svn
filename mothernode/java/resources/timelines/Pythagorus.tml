@@ -1,23 +1,22 @@
 <timeline>
-  name: Congregation
+  name: Pythagorus
   arena: 200.
-  duration: 460.
+  duration: 180.
   <event>
-     name: Congregation_Multichannel
+     name: Pythagorus
      specialist: MultiTrack
-     startTime: .1
+     startTime: 5
      <properties>
-         base /orbsounds/MultiChannelSongs/Congregation
-         track1 Congregation_1.aif
-         track2 Congregation_2.aif
-         track3 Congregation_3.aif
-         track4 Congregation_4.aif
-         track5 Congregation_5.aif
-         track6 Congregation_6.aif
+         base /orbsounds/MultiChannelSongs/Pythagorus
+         track1 Pythagorus_1Drums.aif
+         track2 Pythagorus_2Drums.aif
+         track3 Pythagorus_3Bells.aif
+         track4 Pythagorus_4Dff.aif
+         track5 Pythagorus_5Bass.aif
+         track6 Pythagorus_6Flut.aif
       </properties>
   </event>
   <event>
-     name: black
      specialist: SimpleColor
      startTime: 0.1
      fadeTime: 4
@@ -39,7 +38,7 @@
      <orbs> 0 1 2 3 4 5  </orbs>
      <properties>
          colorscheme Analogous
-         basecolor RGB 80 80 200
+         basecolor RGB 200 80 80
          spread 10
          meander 40
      </properties>
@@ -50,18 +49,18 @@
       target: colorscheme
       startTime: 60
       <properties>
-         basecolor RGB 0 0 255
+         basecolor RGB 180 180 40
          spread 10
          meander 50
       </properties>
   </event>
 
   <event>
-      name: cyan
+      name: purple
       target: colorscheme
       startTime: 65
       <properties>
-         basecolor RGB 0 255 255
+         basecolor RGB 255 0 180
          spread 5
          meander 60
       </properties>

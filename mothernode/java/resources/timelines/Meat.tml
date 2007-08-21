@@ -1,0 +1,100 @@
+<timeline>
+  name: Meat_A_play_By_Terry_Bisson
+  arena: 200.
+  duration: 460.
+  <event>
+  <event>
+     name: Meat
+     specialist: MultiTrack
+     startTime: 1
+     <properties>
+         base /orbsounds/MultiChannelSongs/Meat
+         track1 Meat6_1_Voices.aif
+         track2 Meat6_2_Voices.aif
+         track3 Meat6_3_Clock.aif
+         track4 Meat6_4_Bass.aif
+         track5 Meat6_5_ChoirOrganLR.aif
+         track6 Meat6_6_TrumpetFHornLR.aif
+      </properties>
+  </event>
+  <event>
+     name: black
+     specialist: SimpleColor
+     startTime: 0.1
+     fadeTime: 4
+     <color> RGB 0 0 0 </color>
+  </event>
+  <event>
+     name: fadeIn
+     specialist: SimpleColor
+     startTime: 8
+     fadeTime: 8
+     <orbs> 0 1 2 3 4 5 </orbs>
+     <color> RGB 80 80 150 </color>
+  </event>
+
+  <event>
+     name: wiggles1a
+     specialist: SimpleColor
+     startTime: 20
+     fadeTime: 40
+     <orbs> 2 3 4 5 </orbs>
+     <color> RGB 0 150 80 </color>
+  </event>
+
+  <event>
+     name: wiggles1b
+     specialist: SimpleColor
+     startTime: 20
+     fadeTime: 45
+     <orbs> 2 3 4 5 </orbs>
+     <color> RGB 50 50 180 </color>
+  </event>
+
+  <event>
+     name: voice1Color
+     specialist: SimpleColor
+     startTime: 42
+     fadeTime: 5
+     <orbs> 0 </orbs>
+     <color> RGB 255 80 0 </color>
+  </event>
+
+  <event>
+     name: voice2Color
+     specialist: SimpleColor
+     startTime: 45
+     fadeTime: 7
+     <orbs> 1 </orbs>
+     <color> RGB 255 0 80 </color>
+  </event>
+
+  <event>
+     name: wiggles2a
+     specialist: SimpleColor
+     startTime: 65
+     fadeTime: 60
+     <orbs> 2 3 4 5 </orbs>
+     <color> RGB 0 0 100 </color>
+  </event>
+
+  <event>
+     name: wiggles2b
+     specialist: SimpleColor
+     startTime: 70
+     fadeTime: 60
+     <orbs> 2 3 4 5 </orbs>
+     <color> RGB 50 50 180 </color>
+  </event>
+
+  <event>
+     name: greens3
+     specialist: SimpleColor
+     startTime: 130
+     fadeTime: 30
+     <orbs> 2 3 4 5 </orbs>
+     <color> RGB 0 0 100 </color>
+  </event>
+
+    
+</timeline>

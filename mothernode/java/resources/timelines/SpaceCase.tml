@@ -7,7 +7,7 @@
      specialist: MultiTrack
      startTime: 2
      <properties>
-         base /MultiChannelSongs/SpaceCase
+         base /orbsounds/MultiChannelSongs/SpaceCase
          track1 SpaceCase_1_Drums.aif
          track2 SpaceCase_2_Drums.aif
          track3 SpaceCase_3_Marvin.aif

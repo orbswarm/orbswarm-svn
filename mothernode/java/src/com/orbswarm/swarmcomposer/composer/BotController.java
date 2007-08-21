@@ -226,7 +226,7 @@ public class BotController implements NeighborListener, SwarmListener {
 
     boolean needToSendSwarmDistances = false;
     public void sendSwarmDistancesToBots() {
-        System.out.println("BotController:: send Swarm Distances to bots... needed=" + needToSendSwarmDistances);
+        //System.out.println("BotController:: send Swarm Distances to bots... needed=" + needToSendSwarmDistances);
         if (!needToSendSwarmDistances) {
             return;
         }

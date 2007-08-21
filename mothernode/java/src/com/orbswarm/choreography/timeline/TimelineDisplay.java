@@ -54,6 +54,7 @@ public class TimelineDisplay  {
     private ArrayList addToRunningEvents;
     private HashMap   runningEventMap;
     private ArrayList completedEvents;
+    private HashMap   triggerSet;
     
 
     private float timelineDuration = 1.0f;
@@ -250,34 +251,40 @@ public class TimelineDisplay  {
         return panel;
     }
     public void addDebugLeitMotifButtons(JPanel panel) {
-        int r =0;
-        int c = 0;
-        for(int i=0; i < 6; i++) {
-            JButton lmButton = new JButton("[" + i + "]");
-            lmButton.setPreferredSize(new Dimension(55, 12));
-            lmButton.setMinimumSize(new Dimension(55, 12));
-            GridBagConstraints gbc = new GridBagConstraints();
-            
-            gbc.gridx = c;
-            gbc.gridy = 2 + r;
-            c++;
-            if (c > 2) {
-                c = 0;
-                r++;
+        JPanel dbb = new JPanel();
+        GridBagConstraints gbc0 = new GridBagConstraints();
+        gbc0.gridx = 0;
+        gbc0.gridy = 2;
+        gbc0.gridwidth = 4;
+        panel.add(dbb, gbc0);
+        dbb.setLayout(new GridBagLayout());
+        Font lmbFont  = new Font("SansSerif", Font.PLAIN, 10);
+        for(int orbNum=0; orbNum < 6; orbNum++) {
+            for(int bNum = 0; bNum < 5; bNum++) {
+                JButton lmButton = new JButton(orbNum + "b" + bNum + "");
+                lmButton.setFont(lmbFont);
+                lmButton.setPreferredSize(new Dimension(60, 16));
+                lmButton.setMinimumSize(new Dimension(60, 16));
+                GridBagConstraints gbc = new GridBagConstraints();
+                
+                gbc.gridx = orbNum;
+                gbc.gridy = bNum;
+                gbc.fill = GridBagConstraints.NONE;
+                dbb.add(lmButton, gbc);
+                lmButton.addActionListener(new lmButtonActionListener(orbNum, bNum));
             }
-            gbc.fill = GridBagConstraints.NONE;
-            panel.add(lmButton, gbc);
-            lmButton.addActionListener(new lmButtonActionListener(i));
         }
     }
 
     class lmButtonActionListener implements ActionListener {
         private int orbNum;
-        public lmButtonActionListener(int orbNum) {
+        private int buttonNum;
+        public lmButtonActionListener(int orbNum, int buttonNum) {
             this.orbNum = orbNum;
+            this.buttonNum = buttonNum;
         }
         public void actionPerformed(ActionEvent e) {
-            doLeitMotif(orbNum);
+            joystickButton(orbNum, buttonNum);
         }
     }
     
@@ -368,7 +375,8 @@ public class TimelineDisplay  {
         addToRunningEvents = new ArrayList();
         runningEventMap = new HashMap();
         completedEvents = new ArrayList();
-        
+        triggerSet = new HashMap();
+
         for(Iterator it = timeline.getEvents().iterator(); it.hasNext() ; ) {
             Event event = (Event)it.next();
             event.setState(Event.STATE_PENDING);
@@ -425,6 +433,9 @@ public class TimelineDisplay  {
     }
 
     public void stopEvent(Event event) {
+        if (event.isTrigger()) {
+            return;
+        }
         System.out.println("Stopping event: " + event);
         event.setState(Event.STATE_COMPLETED);
         String name = event.getName();
@@ -463,6 +474,16 @@ public class TimelineDisplay  {
         if (event == null) {
             return;
         }
+        //
+        // if this is a trigger, then put the event into the trigger set when the
+        // event gets started.
+        //
+        if (event.isTrigger()) {
+            System.out.println("Adding trigger: " + event);
+            addTrigger(event);
+            return;
+        }
+        
         if (event instanceof Sequence) {
             System.out.println("Starting Sequence: " + event);
             Event first = ((Sequence)event).getFirst();
@@ -495,6 +516,40 @@ public class TimelineDisplay  {
         }
     }
 
+    public void addTrigger(Event event) {
+        String location = event.getTriggerLocation();
+        int[] orbs = event.getOrbs();
+        int action = event.getTriggerAction();
+        //
+        // once an event is put in the trigger set, it is no longer a trigger
+        //  (so when we run it as it gets triggered, it doesn't just put itself on the list again)
+        //
+        event.setTrigger(false);
+        
+        for(int i=0; i < orbs.length; i++) {
+            int orbNum = orbs[i];
+            String triggerHash = location + ":Orb" + orbNum;
+            if (action == Event.TRIGGER_ACTION_CLEAR) {
+                triggerSet.put(triggerHash, null);
+            } else if (action == Event.TRIGGER_ACTION_REPLACE) {
+                triggerSet.put(triggerHash, singletonList(event));
+            } else if (action == Event.TRIGGER_ACTION_ADD) {
+                ArrayList events = (ArrayList)triggerSet.get(triggerHash);
+                if (events == null) {
+                    events = new ArrayList();
+                }
+                events.add(event);
+                triggerSet.put(triggerHash, events);
+            }
+        }
+    }
+
+    public ArrayList singletonList(Object thang) {
+        ArrayList sl = new ArrayList();
+        sl.add(thang);
+        return sl;
+    }
+    
     public Event findRunningEvent(String name) {
         return (Event)runningEventMap.get(name);
     }
@@ -664,6 +719,9 @@ public class TimelineDisplay  {
         String text = event.getName();
         if (text == null) {
             text = "<>";
+        }
+        if (event.isTrigger()) {
+            text = "T" + event.getTriggerLocation() + ": " + text;
         }
         if (event.getTarget() != null) {
             text += "->" + event.getTarget();
@@ -879,7 +937,26 @@ public class TimelineDisplay  {
         if (buttonNumber == LEITMOTIF_BUTTON) {
             doLeitMotif(orbNum);
         }
+        if (triggerSet != null) {
+            String triggerHash = "button" + buttonNumber + ":Orb" + orbNum;
+            ArrayList triggeredEvents = (ArrayList)triggerSet.get(triggerHash);
+            if (triggeredEvents != null) {
+                for(Iterator it = triggeredEvents.iterator(); it.hasNext(); ) {
+                    Event event = (Event)it.next();
+                    System.out.println("Triggering event(" + triggerHash + "): " + event);
+                    startTriggeredEvent(event);
+                }
+            }
+        }
     }
+
+    public void startTriggeredEvent(Event event) {
+        // Not sure if we need to clone the event or something..
+        // Also: probably need to reset the startTime to now, & the endTime
+        //       based on the duration.
+        startEvent(event);
+    }
+    
     public void joystickXY(int orbNum, double x1, double y1, double x2, double y2) {
         // assign x2 to the hue.
         if (x2 != 0.) {

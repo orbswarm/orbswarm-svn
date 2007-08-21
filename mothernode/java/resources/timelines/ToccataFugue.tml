@@ -1,23 +1,22 @@
 <timeline>
-  name: Congregation
+  name: Toccata_and_Fugue_in_D_minor
   arena: 200.
-  duration: 460.
+  duration: 560.
   <event>
-     name: Congregation_Multichannel
+     name: Toccata and Fugue in D minor
      specialist: MultiTrack
-     startTime: .1
+     startTime: 5
      <properties>
-         base /orbsounds/MultiChannelSongs/Congregation
-         track1 Congregation_1.aif
-         track2 Congregation_2.aif
-         track3 Congregation_3.aif
-         track4 Congregation_4.aif
-         track5 Congregation_5.aif
-         track6 Congregation_6.aif
+         base /orbsounds/MultiChannelSongs/ToccataFugue
+         track1 ToccataFugue1_GreatA.aif
+         track2 ToccataFugue2_GreatB.aif
+         track3 ToccataFugue3_GreatCpd.aif
+         track4 ToccataFugue4_Swell_A.aif
+         track5 ToccataFugue5_SwellB.aif
+         track6 ToccataFugue6_C.aif
       </properties>
   </event>
   <event>
-     name: black
      specialist: SimpleColor
      startTime: 0.1
      fadeTime: 4

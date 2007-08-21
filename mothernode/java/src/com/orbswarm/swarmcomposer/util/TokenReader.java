@@ -267,6 +267,7 @@ public final class TokenReader {
       public boolean readBoolean()  throws IOException  { return reader.readBoolean();   }
     */
     // read until end of line
+    // note: readline doesn't take into account the pushed token stack!!
     public String readLine()      throws IOException  {
         String rl = reader.readLine();
         atEol = true;

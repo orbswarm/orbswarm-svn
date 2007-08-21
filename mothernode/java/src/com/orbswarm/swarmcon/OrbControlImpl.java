@@ -40,7 +40,9 @@ public class OrbControlImpl implements OrbControl {
         }
     }
     static {
-        readSoundCatalog();
+        soundCatalog = new HashMap();
+        readSoundCatalog("resources/songs/sounds.catalog");
+        readSoundCatalog("resources/songs/errata.catalog");
     }
     
     public SwarmCon getSwarmCon() {
@@ -58,10 +60,9 @@ public class OrbControlImpl implements OrbControl {
         }
     }
 
-    private static void readSoundCatalog() {
-        soundCatalog = new HashMap();
+    private static void readSoundCatalog(String catalogFile) {
         try {
-            TokenReader reader = new TokenReader("resources/songs/sounds.catalog");
+            TokenReader reader = new TokenReader(catalogFile);
             String path = reader.readToken();
             while (path != null) {
                 float duration = reader.readFloat();
@@ -75,7 +76,7 @@ public class OrbControlImpl implements OrbControl {
                 path = reader.readToken();
             }
         } catch (Exception ex) {
-            System.out.println("OrbControlImpl caught exception reading sound catalog. ");
+            System.out.println("OrbControlImpl caught exception reading sound catalog: " + catalogFile);
             ex.printStackTrace();
         }
     }
@@ -211,18 +212,24 @@ public class OrbControlImpl implements OrbControl {
                buf.append("<L" + boardAddress + "S" + sat + ">");
                buf.append("<L" + boardAddress + "V" + val + ">");
             */
-            orbIo.send(wrapOrbCommand(orbNum, "<L" + boardAddress + "R" + hsvColor.getRed() + ">"));
-            orbIo.send(wrapOrbCommand(orbNum, "<L" + boardAddress + "G" + hsvColor.getGreen() + ">"));
-            orbIo.send(wrapOrbCommand(orbNum, "<L" + boardAddress + "B" + hsvColor.getBlue() + ">"));
+            sendLightingCommand(orbNum, boardAddress,  "R" + hsvColor.getRed());
+            sendLightingCommand(orbNum, boardAddress,  "G" + hsvColor.getGreen());
+            sendLightingCommand(orbNum, boardAddress,  "B" + hsvColor.getBlue());
+            sendLightingCommand(orbNum, boardAddress,  "T" + timeMS);
 
             orbIo.send(wrapOrbCommand(orbNum, "<L" + boardAddress + "T" + timeMS + ">"));
             orbIo.send(wrapOrbCommand(orbNum, "<LF>"));
         } else {
-            System.out.println("sendCommandsToOrbs: " + sendCommandsToOrbs + " orbIo: " + orbIo);
+            //System.out.println("sendCommandsToOrbs: " + sendCommandsToOrbs + " orbIo: " + orbIo);
         }
 
     }
 
+    // lighting commands need to be sent individually
+    public void sendLightingCommand(int orbNum, String boardAddress, String cmd) {
+        orbIo.send(wrapOrbCommand(orbNum, "<L" + boardAddress + cmd + ">"));
+    }
+        
     public String wrapOrbCommand(int orbNum, String message) {
         StringBuffer buf = new StringBuffer();
         // e.g. {60 <LG200>}

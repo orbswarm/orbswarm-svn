@@ -11,47 +11,43 @@
      <color> RGB 255 0 0 </color>
   </event>
   <event>
-     name:  Birds2
+     name:  door slams
      specialist: SimpleSound
-     <notes> This is the first sample event </notes>
-     startTime: 10
+     startTime: 4
      <orbs> 1  </orbs>
      <properties>
-          soundfile /orbsounds/FX/pastoral/BIRD_2.wav
+          soundfile /orbsounds/FX/city/doorslams.mp3
      </properties>
   </event>
 
   <event>
-     name:  Birds2
+     name:  toilet
      specialist: SimpleSound
-     <notes> This is the first sample event </notes>
-     startTime: 15
+     startTime: 10
      <orbs> 2  </orbs>
      <properties>
-          soundfile /orbsounds/FX/pastoral/Birds2.aif
+          soundfile /orbsounds/FX/etc/toilet_flushing.mp3
      </properties>
   </event>
 
   <event>
-     name:  HorseMagpie
+     name:  bird_2
      specialist: SimpleSound
-     <notes> This is the first sample event </notes>
      startTime: 17
      endTime: 21
      <orbs> 3  </orbs>
      <properties>
-          soundfile /orbsounds/FX/pastoral/horsemagpie.aif
+          soundfile /orbsounds/FX/pastoral/bird2.mp3 
      </properties>
   </event>
 
   <event>
-     name:  Chime_C2
+     name:  radiotune dur=0.
      specialist: SimpleSound
-     startTime: 19
-     endTime: 21
+     startTime: 22
      <orbs> 4  </orbs>
      <properties>
-          soundfile /orbsounds/FX/chimes/DC_c2a.aif
+          soundfile /orbsounds/FX/etc/radiotune.wav 
      </properties>
   </event>
 

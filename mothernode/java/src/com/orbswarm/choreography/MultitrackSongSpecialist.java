@@ -57,6 +57,10 @@ public class MultitrackSongSpecialist extends AbstractSpecialist {
             soundFilePath = base + "/" + soundFilePath;
         }
         Sound sound = orbControl.lookupSound(soundFilePath);
+        if (sound == null) {
+            System.out.println("MultichannelSongSpecialist got null sound: " + soundFilePath);
+            return;
+        }
         tracks[trackNum] = sound;
         float soundLength = sound.getDuration();
         float dur = getDuration();

@@ -800,6 +800,7 @@ public class Bot implements NeighborListener {
     }
 
     public void stopPlaying() {
+        System.out.println("Bot(" + getName() + ") stopPlaying.");
         stopPlayerThread();
     }
     
@@ -882,6 +883,7 @@ public class Bot implements NeighborListener {
         }
         
         public void halt() {
+            System.out.println("Bot.playerthread.halt()");
             playing = false;
             if (currentPlayer != null) {
                 currentPlayer.stop();

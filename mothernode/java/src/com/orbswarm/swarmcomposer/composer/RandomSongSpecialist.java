@@ -34,7 +34,7 @@ public  class RandomSongSpecialist extends AbstractSpecialist {
         int numbots = orbs.length;
         numbots = 6; // TODO: allow it to control only the specified bots.
         
-        botctl_songs = new BotControllerSongs(numbots, "/orbsongs", orbControl);
+        botctl_songs = new BotControllerSongs(numbots, "/orbsounds/songs", orbControl);
         this.addNeighborListener(bv);
         this.addSwarmListener(bv);
         setProperties(initialProperties);
@@ -102,7 +102,7 @@ public  class RandomSongSpecialist extends AbstractSpecialist {
         if (command.equalsIgnoreCase("play")) {
             String songDir  = getProperty("songdir",   "../songs");
             String songName = getProperty("song",   "terminal.orbs");
-            int time        = getIntProperty("time", 124); // seconds
+            int time        = getIntProperty("time", 0); // seconds
             
             playSong(songDir + File.separatorChar + songName, time);
         }

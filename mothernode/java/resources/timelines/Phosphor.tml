@@ -1,20 +1,19 @@
 <timeline>
-  name: MultitrackTest2
+  name: Phosphor
   arena: 200.
-  duration: 80.
+  duration: 180
   <event>
-     name: PlayItSam
+     name: Phosphor
      specialist: MultiTrack
-     startTime: 2
-     endTime: 75
+     startTime: 20
      <properties>
-         base /orbsounds/MultiChannelSongs/SpaceCase
-         track1 SpaceCase_1_Drums.aif
-         track2 SpaceCase_2_Drums.aif
-         track3 SpaceCase_3_Marvin.aif
-         track4 SpaceCase_4_Space.aif
-         track5 SpaceCase_5_BubblesLR.aif
-         track6 SpaceCase_6_VocoderGrowlLR.aif
+         base /orbsounds/MultiChannelSongs/Phosphor
+         track1 phosphor1_Cellos.aif
+         track2 phosphor2_Cellos.aif
+         track3 phosphor3_Beats.aif
+         track4 phosphor4_Beats.aif
+         track5 phosphor5_Toobs.aif
+         track6 phosphor6_Bass.aif
       </properties>
   </event>
   <event>
@@ -49,10 +48,18 @@
   </event>
 
   <event>
+       name: green
+       specialist: SimpleColor
+       startTime: 100
+       fadeTime: 10
+       <color> RGB 55 150 40 </color>
+  </event>
+
+  <event>
        name: fadetoblack
        specialist: SimpleColor
-       startTime: 65
-       fadeTime: 15
+       startTime: 350
+       fadeTime: 20
        <color> RGB 55 150 40 </color>
   </event>
 

@@ -25,6 +25,14 @@ public class Temporal {
     public static final String ARENA        = "arena:";
     public static final String NAME         = "name:";
     public static final String TARGET       = "target:";
+    public static final String TRIGGER      = "trigger:";
+    public static final String TRIGGER_ADDITIVE  = "additive";
+    public static final String TRIGGER_CLEAR     = "clear";
+    public static final String TRIGGER_REPLACE   = "replace";
+    public static final int    TRIGGER_ACTION_REPLACE = 0;
+    public static final int    TRIGGER_ACTION_ADD     = 1;
+    public static final int    TRIGGER_ACTION_CLEAR   = 2;
+    
     public static final String SPECIALIST   = "specialist:";
     public static final String NOTES        = "<notes>";
     public static final String END_NOTES    = "</notes>";
@@ -33,9 +41,10 @@ public class Temporal {
     public static final String STARTTIME    = "startTime:";
     public static final String ENDTIME      = "endTime:";
     public static final String LENGTH       = "length";
-    public static final String COLOR        = "<color>";
-    public static final String FADE_TIME    = "fadeTime:";
+    public static final String COLOR        = "color:";
+    public static final String COLOR_TAG    = "<color>";
     public static final String END_COLOR    = "</color>";
+    public static final String FADE_TIME    = "fadeTime:";
 
     public static final float NO_TIME = -1.f;
     public static final float NO_SIZE = -1.f;

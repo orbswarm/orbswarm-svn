@@ -40,7 +40,7 @@ public class Timeline extends Temporal {
         while (token != null && !token.equalsIgnoreCase(END_TIMELINE)) {
             //System.out.println("ReadTimeline: " + token);
             if (token.equalsIgnoreCase(NAME)) {
-                String name = reader.readToken();
+                String name = reader.readLine();
                 timeline.setName(name);
             } else if (token.equalsIgnoreCase(DURATION)) {
                 float duration = reader.readFloat();
@@ -80,11 +80,25 @@ public class Timeline extends Temporal {
         while (token != null && !token.equalsIgnoreCase(endToken)) {
             //System.out.println("ReadEvent: " + token);
             if (token.equalsIgnoreCase(NAME)) {
-                String name = reader.readToken();
+                String name = reader.readLine();
                 event.setName(name);
             } else if (token.equalsIgnoreCase(TARGET)) {
                 String target = reader.readToken();
                 event.setTarget(target); 
+
+            } else if (token.equalsIgnoreCase(TRIGGER)) {
+                String location = reader.readToken();
+                event.setTrigger(true);
+                event.setTriggerLocation(location.toLowerCase());
+                String maybeAction = reader.readToken();
+                if (maybeAction.equalsIgnoreCase(TRIGGER_ADDITIVE)) {
+                    event.setTriggerAction(TRIGGER_ACTION_ADD);
+                } else if (maybeAction.equalsIgnoreCase(TRIGGER_CLEAR)) {
+                    event.setTriggerAction(TRIGGER_ACTION_CLEAR);
+                } else {
+                    reader.pushToken();
+                }
+
             } else if (token.equalsIgnoreCase(SPECIALIST)) {
                 String specialistName = reader.readToken();
                 event.setSpecialistName(specialistName); 
@@ -117,8 +131,13 @@ public class Timeline extends Temporal {
                 List orbs = reader.gatherTokensUntilToken(END_ORBS, false);
                 event.setOrbsFromStrings(orbs);
                 
-            } else if (token.equalsIgnoreCase(COLOR)) {
+            } else if (token.equalsIgnoreCase(COLOR_TAG)) {
                 List colorSpec = reader.gatherTokensUntilToken(END_COLOR, false);
+                HSV color = colorFromSpec(colorSpec);
+                event.setColor(color);
+
+            } else if (token.equalsIgnoreCase(COLOR)) {
+                String colorSpec = reader.readLine();
                 HSV color = colorFromSpec(colorSpec);
                 event.setColor(color);
 
@@ -146,7 +165,7 @@ public class Timeline extends Temporal {
         while (token != null && !token.equalsIgnoreCase(endToken)) {
             //System.out.println("ReadSequence: " + token);
             if (token.equalsIgnoreCase(NAME)) {
-                String name = reader.readToken();
+                String name = reader.readLine();
                 seq.setName(name);
             } else if (token.equalsIgnoreCase(NOTES)) {
                 String notes = reader.gatherUntilToken(END_NOTES, false);
@@ -154,6 +173,20 @@ public class Timeline extends Temporal {
             } else if (token.equalsIgnoreCase(STARTTIME)) {
                 float startTime = reader.readFloat();
                 seq.setStartTime(startTime);
+
+            } else if (token.equalsIgnoreCase(TRIGGER)) {
+                String location = reader.readToken();
+                seq.setTrigger(true);
+                seq.setTriggerLocation(location.toLowerCase());
+                String maybeAction = reader.readToken();
+                if (maybeAction.equalsIgnoreCase(TRIGGER_ADDITIVE)) {
+                    seq.setTriggerAction(TRIGGER_ACTION_ADD);
+                } else if (maybeAction.equalsIgnoreCase(TRIGGER_CLEAR)) {
+                    seq.setTriggerAction(TRIGGER_ACTION_CLEAR);
+                } else {
+                    reader.pushToken();
+                }
+
             } else if (token.equalsIgnoreCase(EVENT)) {
                 Event event = readEvent(reader, timeline, seq, END_EVENT);
                 seq.appendEvent(event);

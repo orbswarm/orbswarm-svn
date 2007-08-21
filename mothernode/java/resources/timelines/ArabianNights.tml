@@ -1,0 +1,149 @@
+<timeline>
+  name: Arabian Nights
+  arena: 200.
+  duration: 180.
+  <event>
+      name: bees1a
+      specialist: SimpleSound
+      startTime: 25
+      <orbs> 0 2 </orbs>
+      <properties>      
+         soundfile /orbsounds/FX/animals/bee-swarm.aiff
+      </properties>
+  </event>
+
+  <event>
+      name: bees1b
+      specialist: SimpleSound
+      startTime: 30
+      <orbs> 3 5 </orbs>
+      <properties>      
+         soundfile /orbsounds/FX/animals/bee-swarm.aiff
+      </properties>
+  </event>
+
+  <event>
+      name: bees1c
+      specialist: SimpleSound
+      startTime: 35
+      <orbs> 0 2 </orbs>
+      <properties>      
+         soundfile /orbsounds/FX/animals/bee-swarm.aiff
+      </properties>
+  </event>
+
+  <event>
+      name: bees1d
+      specialist: SimpleSound
+      startTime: 40
+      endTime: 44.7
+      <orbs> 4 1 </orbs>
+      <properties>      
+         soundfile /orbsounds/FX/animals/bee-swarm.aiff
+      </properties>
+  </event>
+
+  <event>
+     name: Arabian Nights
+     specialist: MultiTrack
+     startTime: 45
+     <properties>
+         base /orbsounds/MultiChannelSongs/ArabianNights
+         track1 ArabianNights1_Drums.aif
+         track2 ArabianNights2_Drums.aif
+         track3 ArabianNights3_Drones.aif
+         track4 ArabianNights4_Drones.aif
+         track5 ArabianNights5_Horns.aif
+         track6 ArabianNights6_Bass.aif
+      </properties>
+  </event>
+  <event>
+     specialist: SimpleColor
+     startTime: 0.1
+     fadeTime: 4
+     <color> RGB 0 0 0 </color>
+  </event>
+  <event>
+     name: fadeIn
+     specialist: SimpleColor
+     startTime: 4
+     fadeTime: 15
+     <color> RGB 80 200 80 </color>
+  </event>
+     
+  <event>
+     name: colorscheme
+     specialist: ColorScheme
+     startTime: 20
+     endTime: 160
+     <orbs> 0 1 2 3 4 5  </orbs>
+     <properties>
+         colorscheme Analogous
+         basecolor RGB 80 200 80
+         spread 10
+         meander 40
+     </properties>
+  </event>
+
+  <event>
+      name: bleu
+      target: colorscheme
+      startTime: 90
+      <properties>
+         basecolor RGB 0 155 0
+         spread 10
+         meander 50
+      </properties>
+  </event>
+
+  <event>
+      name: cyan
+      target: colorscheme
+      startTime: 115
+      <properties>
+         basecolor RGB 120 180 45
+         spread 5
+         meander 60
+      </properties>
+  </event>
+
+  <event>
+      name: wide
+      target: colorscheme
+      startTime: 75
+      <properties>
+         spread 45
+         meander 60
+      </properties>
+  </event>
+
+  <event>
+      name: fadeout
+      specialist: SimpleColor
+      startTime: 160
+      fadeTime: 20
+      color: RGB 0 0 0 
+  </event>
+
+  <event>
+      name: donkey
+      specialist: SimpleSound
+      startTime: 135
+      <orbs> 1 3 5 </orbs>
+      <properties>      
+         soundfile /orbsounds/FX/animals/Donkey.wav
+      </properties>
+  </event>
+
+  <event>
+      name: bees2
+      specialist: SimpleSound
+      startTime: 138
+      <orbs> 0 2 4 </orbs>
+      <properties>      
+         soundfile /orbsounds/FX/animals/bee-swarm.aiff
+      </properties>
+  </event>
+
+
+</timeline>

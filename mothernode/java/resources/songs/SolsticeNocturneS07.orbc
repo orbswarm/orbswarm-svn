@@ -1,0 +1,874 @@
+<song> SolsticeNocturne_S07
+    bpm 100
+     beatlock 6
+     strategy random
+     compiled true
+     <matrix>
+               headers       F#m      Cmaj         c        Am       Eb+        G+         g         b        f#         a        eb      Bmaj        Ao       Ebo        Em         e end
+                   F#m       100         0       100        70         0         0        20        50       100       100        70         0        80        90         0        80 end
+                  Cmaj         0       100       100        90         0         0       100        90        50        70         0         0         0         0        95       100 end
+                     c       100       100         -       100        10         0         -         -         -         -         -        20       100        60        50         - end
+                    Am        70        90       100       100         0         0        80         0        70       100        50         0        50        20        50       100 end
+                   Eb+         0         0        10         0       100       100       100       100         0         0       100        70        30         0        80        40 end
+                    G+         0         0         0         0       100       100       100       100        60         0       100        70        30         0        80         0 end
+                     g        20       100         -        80       100       100         -         -         -         -         -        76        70         0       100         - end
+                     b        50        90         -         0       100       100         -         -         -         -         -       100         0         0       100         - end
+                    f#       100        50         -        70         0        60         -         -         -         -         -       100        40       100        10         - end
+                     a       100        70         -       100         0         0         -         -         -         -         -        90       100       100        60         - end
+                    eb        70         0         -        50       100       100         -         -         -         -         -       100       100       100        70         - end
+                  Bmaj         0         0        20         0        70        70        76       100       100        90       100       100         0        95         0         0 end
+                    Ao        80         0       100        50        30        30        70         0        40       100       100         0       100        70         0         0 end
+                   Ebo        90         0        60        20         0         0         0         0       100       100       100        95        70       100         0         0 end
+                    Em         0        95        50        50        80        80       100       100        10        60        70         0         0         0       100       100 end
+                     e        80       100         -       100        40         0         -         -         -         -         -         0         0         0       100         - end
+    </matrix>
+    <layer> chords
+        beatlock 6
+         <set> Em
+            <sound> Em_DC_1.aif    duration 10.8 hash 27429279.aif mp3hash 27429279.mp3 </sound>
+            <sound> Em_DC_2.aif    duration 10.8 hash 26505758.aif mp3hash 26505758.mp3 </sound>
+            <sound> Em_DC_2_3.aif    duration 25.199978 hash 43930134.aif mp3hash 43930134.mp3 </sound>
+            <sound> Em_DC_3.aif    duration 14.399978 hash 25582237.aif mp3hash 25582237.mp3 </sound>
+            <sound> Em_DC_4.aif    duration 10.799977 hash 24658716.aif mp3hash 24658716.mp3 </sound>
+            <sound> Em_DC_5.aif    duration 16.199978 hash 23735195.aif mp3hash 23735195.mp3 </sound>
+            <sound> Em_V_1.aif    duration 10.8 hash 22588344.aif mp3hash 22588344.mp3 </sound>
+            <sound> Em_V_2.aif    duration 7.2 hash 23511865.aif mp3hash 23511865.mp3 </sound>
+            <sound> Em_V_3.aif    duration 16.199978 hash 24435386.aif mp3hash 24435386.mp3 </sound>
+            <sound> Em_V_4.aif    duration 10.799977 hash 25358907.aif mp3hash 25358907.mp3 </sound>
+            <sound> Em_V_4a.aif    duration 5.399977 hash 66927782.aif mp3hash 66927782.mp3 </sound>
+            <sound> Em_VDC_1.aif    duration 10.8 hash 99413641.aif mp3hash 99413641.mp3 </sound>
+            <sound> Em_VDC_2.aif    duration 10.8 hash 98490120.aif mp3hash 98490120.mp3 </sound>
+            <sound> Em_VDC_2_3.aif    duration 26.999977 hash 49048148.aif mp3hash 49048148.mp3 </sound>
+            <sound> Em_VDC_3.aif    duration 16.199978 hash 97566599.aif mp3hash 97566599.mp3 </sound>
+            <sound> Em_VDC_4.aif    duration 10.799977 hash 96643078.aif mp3hash 96643078.mp3 </sound>
+        </set>
+        <set> F#m
+        </set>
+        <set> G+
+        </set>
+        <set> Am
+            <sound> Am_DC_1.aif    duration 10.8 hash 07323935.aif mp3hash 07323935.mp3 </sound>
+            <sound> Am_DC_3.aif    duration 16.199978 hash 05476893.aif mp3hash 05476893.mp3 </sound>
+            <sound> Am_DC_4.aif    duration 10.799977 hash 04553372.aif mp3hash 04553372.mp3 </sound>
+            <sound> Am_DC_5.aif    duration 14.399978 hash 03629851.aif mp3hash 03629851.mp3 </sound>
+            <sound> Am_V_1.aif    duration 10.8 hash 12712904.aif mp3hash 12712904.mp3 </sound>
+            <sound> Am_V_1_2.aif    duration 18.0 hash 34019221.aif mp3hash 34019221.mp3 </sound>
+            <sound> Am_V_3.aif    duration 16.199978 hash 10865862.aif mp3hash 10865862.mp3 </sound>
+            <sound> Am_VDC_1.aif    duration 10.8 hash 43982839.aif mp3hash 43982839.mp3 </sound>
+            <sound> Am_VDC_2.aif    duration 10.8 hash 44906360.aif mp3hash 44906360.mp3 </sound>
+            <sound> Am_VDC_3.aif    duration 16.199978 hash 45829881.aif mp3hash 45829881.mp3 </sound>
+            <sound> Am_VDC_3_4.aif    duration 26.999977 hash 43342062.aif mp3hash 43342062.mp3 </sound>
+            <sound> Am_VDC_4.aif    duration 10.799977 hash 46753402.aif mp3hash 46753402.mp3 </sound>
+        </set>
+        <set> Ao
+        </set>
+        <set> Bmaj
+        </set>
+        <set> Cmaj
+        </set>
+        <set> Eb+
+        </set>
+        <set> Ebo
+        </set>
+    </layer>
+    <layer> chords2
+        beatlock 6
+         <set> Em
+            <sound> Em_DC_1.aif    duration 10.8 hash 25711283.aif mp3hash 25711283.mp3 </sound>
+            <sound> Em_DC_2.aif    duration 10.8 hash 24787762.aif mp3hash 24787762.mp3 </sound>
+            <sound> Em_DC_2_3.aif    duration 25.199978 hash 24806654.aif mp3hash 24806654.mp3 </sound>
+            <sound> Em_DC_3.aif    duration 14.399978 hash 23864241.aif mp3hash 23864241.mp3 </sound>
+            <sound> Em_DC_4.aif    duration 10.799977 hash 22940720.aif mp3hash 22940720.mp3 </sound>
+            <sound> Em_DC_5.aif    duration 16.199978 hash 22017199.aif mp3hash 22017199.mp3 </sound>
+            <sound> Em_V_1.aif    duration 10.8 hash 94762932.aif mp3hash 94762932.mp3 </sound>
+            <sound> Em_V_2.aif    duration 7.2 hash 93839411.aif mp3hash 93839411.mp3 </sound>
+            <sound> Em_V_3.aif    duration 16.199978 hash 92915890.aif mp3hash 92915890.mp3 </sound>
+            <sound> Em_V_4.aif    duration 10.799977 hash 91992369.aif mp3hash 91992369.mp3 </sound>
+            <sound> Em_V_4a.aif    duration 5.399977 hash 26321518.aif mp3hash 26321518.mp3 </sound>
+            <sound> Em_VDC_1.aif    duration 10.8 hash 4171275.aif mp3hash 4171275.mp3 </sound>
+            <sound> Em_VDC_2.aif    duration 10.8 hash 5094796.aif mp3hash 5094796.mp3 </sound>
+            <sound> Em_VDC_2_3.aif    duration 26.999977 hash 59718976.aif mp3hash 59718976.mp3 </sound>
+            <sound> Em_VDC_3.aif    duration 16.199978 hash 6018317.aif mp3hash 6018317.mp3 </sound>
+            <sound> Em_VDC_4.aif    duration 10.799977 hash 6941838.aif mp3hash 6941838.mp3 </sound>
+        </set>
+        <set> F#m
+        </set>
+        <set> G+
+        </set>
+        <set> Am
+            <sound> Am_DC_1.aif    duration 10.8 hash 94394061.aif mp3hash 94394061.mp3 </sound>
+            <sound> Am_DC_3.aif    duration 16.199978 hash 96241103.aif mp3hash 96241103.mp3 </sound>
+            <sound> Am_DC_4.aif    duration 10.799977 hash 97164624.aif mp3hash 97164624.mp3 </sound>
+            <sound> Am_DC_5.aif    duration 14.399978 hash 98088145.aif mp3hash 98088145.mp3 </sound>
+            <sound> Am_V_1.aif    duration 10.8 hash 64903116.aif mp3hash 64903116.mp3 </sound>
+            <sound> Am_V_1_2.aif    duration 18.0 hash 30434305.aif mp3hash 30434305.mp3 </sound>
+            <sound> Am_V_3.aif    duration 16.199978 hash 66750158.aif mp3hash 66750158.mp3 </sound>
+            <sound> Am_VDC_1.aif    duration 10.8 hash 47567755.aif mp3hash 47567755.mp3 </sound>
+            <sound> Am_VDC_2.aif    duration 10.8 hash 48491276.aif mp3hash 48491276.mp3 </sound>
+            <sound> Am_VDC_3.aif    duration 16.199978 hash 49414797.aif mp3hash 49414797.mp3 </sound>
+            <sound> Am_VDC_3_4.aif    duration 26.999977 hash 42858110.aif mp3hash 42858110.mp3 </sound>
+            <sound> Am_VDC_4.aif    duration 10.799977 hash 50338318.aif mp3hash 50338318.mp3 </sound>
+        </set>
+        <set> Ao
+        </set>
+        <set> Bmaj
+        </set>
+        <set> Cmaj
+        </set>
+        <set> Eb+
+        </set>
+        <set> Ebo
+        </set>
+    </layer>
+    <layer> lowchords
+        beatlock 6
+         <set> Em
+        </set>
+        <set> F#m
+        </set>
+        <set> G+
+        </set>
+        <set> Am
+        </set>
+        <set> Ao
+        </set>
+        <set> Bmaj
+        </set>
+        <set> Cmaj
+        </set>
+        <set> Eb+
+        </set>
+        <set> Ebo
+        </set>
+    </layer>
+    <layer> notes
+        beatlock 1
+         <set> e
+            <sound> DC_e1_2.aif    duration 24.0 hash 65982705.aif mp3hash 65982705.mp3 </sound>
+            <sound> DC_e1_2_dca.aif    duration 17.999977 hash 26729966.aif mp3hash 26729966.mp3 </sound>
+            <sound> DC_e1_2a.aif    duration 17.999977 hash 99891118.aif mp3hash 99891118.mp3 </sound>
+            <sound> DC_e1_2b.aif    duration 24.0 hash 98967597.aif mp3hash 98967597.mp3 </sound>
+            <sound> DC_e1a.aif    duration 12.0 hash 92385317.aif mp3hash 92385317.mp3 </sound>
+            <sound> DC_e1aa.aif    duration 12.0 hash 34681084.aif mp3hash 34681084.mp3 </sound>
+            <sound> DC_e2.aif    duration 12.0 hash 56421539.aif mp3hash 56421539.mp3 </sound>
+            <sound> DC_e2a.aif    duration 12.0 hash 21014468.aif mp3hash 21014468.mp3 </sound>
+            <sound> DC_e3.aif    duration 11.999977 hash 55498018.aif mp3hash 55498018.mp3 </sound>
+            <sound> DC_e3a.aif    duration 11.999977 hash 49643619.aif mp3hash 49643619.mp3 </sound>
+            <sound> DC_e4.aif    duration 11.999977 hash 54574497.aif mp3hash 54574497.mp3 </sound>
+            <sound> DC_e4a.aif    duration 11.999977 hash 78272770.aif mp3hash 78272770.mp3 </sound>
+            <sound> DC_e5.aif    duration 12.0 hash 53650976.aif mp3hash 53650976.mp3 </sound>
+            <sound> DC_e5a.aif    duration 12.0 hash 06901921.aif mp3hash 06901921.mp3 </sound>
+            <sound> LR_e2.aif    duration 6.0 hash 36163190.aif mp3hash 36163190.mp3 </sound>
+            <sound> LR_e3.aif    duration 6.0 hash 37086711.aif mp3hash 37086711.mp3 </sound>
+            <sound> LR_e4.aif    duration 6.0 hash 38010232.aif mp3hash 38010232.mp3 </sound>
+            <sound> RT_e2.aif    duration 8.0 hash 27975622.aif mp3hash 27975622.mp3 </sound>
+            <sound> RT_e3.aif    duration 8.0 hash 27052101.aif mp3hash 27052101.mp3 </sound>
+            <sound> RT_e4.aif    duration 8.0 hash 26128580.aif mp3hash 26128580.mp3 </sound>
+            <sound> RT_e5.aif    duration 8.0 hash 25205059.aif mp3hash 25205059.mp3 </sound>
+            <sound> Vibe2_e3.aif    duration 5.0 hash 65169823.aif mp3hash 65169823.mp3 </sound>
+            <sound> Vibe2_e3a.aif    duration 5.0 hash 90079296.aif mp3hash 90079296.mp3 </sound>
+            <sound> Vibe2_e4.aif    duration 4.999977 hash 64246302.aif mp3hash 64246302.mp3 </sound>
+            <sound> Vibe2_e4a.aif    duration 4.999977 hash 18708447.aif mp3hash 18708447.mp3 </sound>
+            <sound> Vibe3_e3.aif    duration 4.499977 hash 77640512.aif mp3hash 77640512.mp3 </sound>
+            <sound> Vibe3_e3a.aif    duration 4.499977 hash 17375167.aif mp3hash 17375167.mp3 </sound>
+            <sound> Vibe3_e4.aif    duration 4.499977 hash 78564033.aif mp3hash 78564033.mp3 </sound>
+            <sound> Vibe3_e4a.aif    duration 4.499977 hash 88746016.aif mp3hash 88746016.mp3 </sound>
+            <sound> Vibe3_e5.aif    duration 4.499977 hash 79487554.aif mp3hash 79487554.mp3 </sound>
+            <sound> Vibe3_e5a.aif    duration 4.499977 hash 60116865.aif mp3hash 60116865.mp3 </sound>
+            <sound> Vibe_E1.aif    duration 2.0 hash 26128571.aif mp3hash 26128571.mp3 </sound>
+            <sound> Vibe_e1a.aif    duration 2.5 hash 64295172.aif mp3hash 64295172.mp3 </sound>
+            <sound> Vibe_e2.aif    duration 2.5 hash 9072218.aif mp3hash 9072218.mp3 </sound>
+            <sound> Vibe_e3a.aif    duration 2.5 hash 07036870.aif mp3hash 07036870.mp3 </sound>
+            <sound> Vibe_e4.aif    duration 2.5 hash 7225176.aif mp3hash 7225176.mp3 </sound>
+            <sound> Xylo_e2.aif    duration 1.0 hash 96302296.aif mp3hash 96302296.mp3 </sound>
+            <sound> Xylo_e3.aif    duration 1.0 hash 97225817.aif mp3hash 97225817.mp3 </sound>
+            <sound> Xylo_e4.aif    duration 1.0 hash 98149338.aif mp3hash 98149338.mp3 </sound>
+        </set>
+        <set> f#
+            <sound> DC_F#1.aif    duration 17.999977 hash 87426144.aif mp3hash 87426144.mp3 </sound>
+            <sound> DC_F#1a.aif    duration 17.999977 hash 69937121.aif mp3hash 69937121.mp3 </sound>
+            <sound> DC_F#1c.aif    duration 11.999977 hash 71784163.aif mp3hash 71784163.mp3 </sound>
+            <sound> DC_F#1ca.aif    duration 11.999977 hash 85979902.aif mp3hash 85979902.mp3 </sound>
+            <sound> DC_f#2.aif    duration 12.0 hash 43811393.aif mp3hash 43811393.mp3 </sound>
+            <sound> DC_f#2a.aif    duration 12.0 hash 33922144.aif mp3hash 33922144.mp3 </sound>
+            <sound> DC_f#3.aif    duration 11.999977 hash 44734914.aif mp3hash 44734914.mp3 </sound>
+            <sound> DC_f#3a.aif    duration 11.999977 hash 62551295.aif mp3hash 62551295.mp3 </sound>
+            <sound> DC_f#4.aif    duration 11.999977 hash 45658435.aif mp3hash 45658435.mp3 </sound>
+            <sound> DC_f#4a.aif    duration 11.999977 hash 91180446.aif mp3hash 91180446.mp3 </sound>
+            <sound> LR_f#2.aif    duration 6.0 hash 70309816.aif mp3hash 70309816.mp3 </sound>
+            <sound> LR_f#3.aif    duration 6.0 hash 69386295.aif mp3hash 69386295.mp3 </sound>
+            <sound> RT_f#2.aif    duration 8.0 hash 25634820.aif mp3hash 25634820.mp3 </sound>
+            <sound> RT_f#3.aif    duration 8.0 hash 26558341.aif mp3hash 26558341.mp3 </sound>
+            <sound> RT_f#4.aif    duration 8.0 hash 27481862.aif mp3hash 27481862.mp3 </sound>
+            <sound> Vibe2_f#3.aif    duration 5.0 hash 29701465.aif mp3hash 29701465.mp3 </sound>
+            <sound> Vibe2_f#4.aif    duration 4.999977 hash 28777944.aif mp3hash 28777944.mp3 </sound>
+            <sound> Vibe3_f#3.aif    duration 4.499977 hash 57811368.aif mp3hash 57811368.mp3 </sound>
+            <sound> Vibe3_f#4.aif    duration 4.499977 hash 58734889.aif mp3hash 58734889.mp3 </sound>
+            <sound> Vibe_f#1.aif    duration 2.5 hash 30362217.aif mp3hash 30362217.mp3 </sound>
+            <sound> Vibe_f#2.aif    duration 2.5 hash 29438696.aif mp3hash 29438696.mp3 </sound>
+            <sound> Vibe_f#3.aif    duration 2.5 hash 28515175.aif mp3hash 28515175.mp3 </sound>
+            <sound> Vibe_f#4.aif    duration 2.5 hash 27591654.aif mp3hash 27591654.mp3 </sound>
+            <sound> Xylo_f#2.aif    duration 1.0 hash 77432870.aif mp3hash 77432870.mp3 </sound>
+            <sound> Xylo_f#3.aif    duration 1.0 hash 78356391.aif mp3hash 78356391.mp3 </sound>
+        </set>
+        <set> g
+            <sound> DC_g1.aif    duration 11.999977 hash 99022180.aif mp3hash 99022180.mp3 </sound>
+            <sound> DC_g1a.aif    duration 11.999977 hash 69409179.aif mp3hash 69409179.mp3 </sound>
+            <sound> DC_g2.aif    duration 12.0 hash 98098659.aif mp3hash 98098659.mp3 </sound>
+            <sound> DC_g2a.aif    duration 12.0 hash 40780028.aif mp3hash 40780028.mp3 </sound>
+            <sound> DC_g3.aif    duration 11.999977 hash 97175138.aif mp3hash 97175138.mp3 </sound>
+            <sound> DC_g3a.aif    duration 11.999977 hash 12150877.aif mp3hash 12150877.mp3 </sound>
+            <sound> DC_g4.aif    duration 12.0 hash 96251617.aif mp3hash 96251617.mp3 </sound>
+            <sound> DC_g4a.aif    duration 12.0 hash 83521726.aif mp3hash 83521726.mp3 </sound>
+            <sound> LR_g1.aif    duration 6.0 hash 93562549.aif mp3hash 93562549.mp3 </sound>
+            <sound> LR_g2.aif    duration 6.0 hash 94486070.aif mp3hash 94486070.mp3 </sound>
+            <sound> LR_g3.aif    duration 6.0 hash 95409591.aif mp3hash 95409591.mp3 </sound>
+            <sound> RT_g1.aif    duration 8.0 hash 70576263.aif mp3hash 70576263.mp3 </sound>
+            <sound> RT_g2.aif    duration 8.0 hash 69652742.aif mp3hash 69652742.mp3 </sound>
+            <sound> RT_g3.aif    duration 8.0 hash 68729221.aif mp3hash 68729221.mp3 </sound>
+            <sound> RT_g4.aif    duration 8.0 hash 67805700.aif mp3hash 67805700.mp3 </sound>
+            <sound> Vibe2_g3.aif    duration 5.0 hash 19028771.aif mp3hash 19028771.mp3 </sound>
+            <sound> Vibe2_g4.aif    duration 4.999977 hash 18105250.aif mp3hash 18105250.mp3 </sound>
+            <sound> Vibe3_g3.aif    duration 4.499977 hash 76218436.aif mp3hash 76218436.mp3 </sound>
+            <sound> Vibe3_g4.aif    duration 4.499977 hash 75294915.aif mp3hash 75294915.mp3 </sound>
+            <sound> Vibe_g1.aif    duration 2.5 hash 39543451.aif mp3hash 39543451.mp3 </sound>
+            <sound> Vibe_g2.aif    duration 2.5 hash 38619930.aif mp3hash 38619930.mp3 </sound>
+            <sound> Vibe_g3.aif    duration 2.5 hash 37696409.aif mp3hash 37696409.mp3 </sound>
+            <sound> Xylo_G1.aif    duration 1.0 hash 50301769.aif mp3hash 50301769.mp3 </sound>
+            <sound> Xylo_g2.aif    duration 1.0 hash 66754584.aif mp3hash 66754584.mp3 </sound>
+            <sound> Xylo_g3.aif    duration 1.0 hash 67678105.aif mp3hash 67678105.mp3 </sound>
+        </set>
+        <set> a
+            <sound> DC_a1.aif    duration 12.0 hash 20976476.aif mp3hash 20976476.mp3 </sound>
+            <sound> DC_a1a.aif    duration 12.0 hash 21007013.aif mp3hash 21007013.mp3 </sound>
+            <sound> DC_a2.aif    duration 12.0 hash 21899997.aif mp3hash 21899997.mp3 </sound>
+            <sound> DC_a2a.aif    duration 12.0 hash 49636164.aif mp3hash 49636164.mp3 </sound>
+            <sound> DC_a3.aif    duration 11.999977 hash 22823518.aif mp3hash 22823518.mp3 </sound>
+            <sound> DC_a3.wav    duration 11.999977 hash 22844428.wav mp3hash 22844428.mp3 </sound>
+            <sound> DC_a3a.aif    duration 11.999977 hash 78265315.aif mp3hash 78265315.mp3 </sound>
+            <sound> DC_a3a.wav    duration 11.999977 hash 78286225.wav mp3hash 78286225.mp3 </sound>
+            <sound> DC_a4.aif    duration 12.0 hash 23747039.aif mp3hash 23747039.mp3 </sound>
+            <sound> DC_a4.wav    duration 12.0 hash 23767949.wav mp3hash 23767949.mp3 </sound>
+            <sound> DC_a4a.aif    duration 12.0 hash 06894466.aif mp3hash 06894466.mp3 </sound>
+            <sound> DC_a4a.wav    duration 12.0 hash 06915376.wav mp3hash 06915376.mp3 </sound>
+            <sound> LR_a1.aif    duration 6.0 hash 81406091.aif mp3hash 81406091.mp3 </sound>
+            <sound> LR_a2.aif    duration 6.0 hash 80482570.aif mp3hash 80482570.mp3 </sound>
+            <sound> LR_a3.aif    duration 6.0 hash 79559049.aif mp3hash 79559049.mp3 </sound>
+            <sound> RT_a1.aif    duration 8.0 hash 49422393.aif mp3hash 49422393.mp3 </sound>
+            <sound> RT_a2.aif    duration 8.0 hash 50345914.aif mp3hash 50345914.mp3 </sound>
+            <sound> RT_a3.aif    duration 8.0 hash 51269435.aif mp3hash 51269435.mp3 </sound>
+            <sound> RT_a4.aif    duration 8.0 hash 52192956.aif mp3hash 52192956.mp3 </sound>
+            <sound> Vibe2_a3.aif    duration 5.0 hash 42548073.aif mp3hash 42548073.mp3 </sound>
+            <sound> Vibe2_a3a.aif    duration 5.0 hash 00208072.aif mp3hash 00208072.mp3 </sound>
+            <sound> Vibe3_a3.aif    duration 4.499977 hash 09608888.aif mp3hash 09608888.mp3 </sound>
+            <sound> Vibe3_a3a.aif    duration 4.499977 hash 87304761.aif mp3hash 87304761.mp3 </sound>
+            <sound> Vibe3_a4.aif    duration 4.499977 hash 08685367.aif mp3hash 08685367.mp3 </sound>
+            <sound> Vibe3_a4a.aif    duration 4.499977 hash 15933912.aif mp3hash 15933912.mp3 </sound>
+            <sound> Vibe_a1.aif    duration 2.5 hash 49099685.aif mp3hash 49099685.mp3 </sound>
+            <sound> Vibe_a1a.aif    duration 2.5 hash 92075396.aif mp3hash 92075396.mp3 </sound>
+            <sound> Vibe_a2.aif    duration 2.5 hash 50023206.aif mp3hash 50023206.mp3 </sound>
+            <sound> Vibe_a2a.aif    duration 2.5 hash 63446245.aif mp3hash 63446245.mp3 </sound>
+            <sound> Vibe_a3.aif    duration 2.5 hash 50946727.aif mp3hash 50946727.mp3 </sound>
+            <sound> Vibe_a3a.aif    duration 2.5 hash 34817094.aif mp3hash 34817094.mp3 </sound>
+            <sound> Xylo_a1.aif    duration 1.0 hash 40493097.aif mp3hash 40493097.mp3 </sound>
+            <sound> Xylo_a2.aif    duration 1.0 hash 39569576.aif mp3hash 39569576.mp3 </sound>
+            <sound> Xylo_a3.aif    duration 1.0 hash 38646055.aif mp3hash 38646055.mp3 </sound>
+        </set>
+        <set> b
+            <sound> DC_b1.aif    duration 12.0 hash 47345732.aif mp3hash 47345732.mp3 </sound>
+            <sound> DC_b1a.aif    duration 12.0 hash 37593413.aif mp3hash 37593413.mp3 </sound>
+            <sound> DC_b2.aif    duration 11.999977 hash 46422211.aif mp3hash 46422211.mp3 </sound>
+            <sound> DC_b2a.aif    duration 11.999977 hash 66222564.aif mp3hash 66222564.mp3 </sound>
+            <sound> DC_b3.aif    duration 11.999977 hash 45498690.aif mp3hash 45498690.mp3 </sound>
+            <sound> DC_b3a.aif    duration 11.999977 hash 94851715.aif mp3hash 94851715.mp3 </sound>
+            <sound> DC_b4.aif    duration 12.0 hash 44575169.aif mp3hash 44575169.mp3 </sound>
+            <sound> DC_b4a.aif    duration 12.0 hash 23480866.aif mp3hash 23480866.mp3 </sound>
+            <sound> LR_b1.aif    duration 6.0 hash 45238997.aif mp3hash 45238997.mp3 </sound>
+            <sound> LR_b2.aif    duration 6.0 hash 46162518.aif mp3hash 46162518.mp3 </sound>
+            <sound> LR_b3.aif    duration 6.0 hash 47086039.aif mp3hash 47086039.mp3 </sound>
+            <sound> RT_b1.aif    duration 8.0 hash 18899815.aif mp3hash 18899815.mp3 </sound>
+            <sound> RT_b1.wav    duration 8.0 hash 18878905.wav mp3hash 18878905.mp3 </sound>
+            <sound> RT_b2.aif    duration 6.0 hash 17976294.aif mp3hash 17976294.mp3 </sound>
+            <sound> RT_b2.wav    duration 6.0 hash 17955384.wav mp3hash 17955384.mp3 </sound>
+            <sound> RT_b3.aif    duration 8.0 hash 17052773.aif mp3hash 17052773.mp3 </sound>
+            <sound> RT_b3.wav    duration 8.0 hash 17031863.wav mp3hash 17031863.mp3 </sound>
+            <sound> RT_b4.aif    duration 8.0 hash 16129252.aif mp3hash 16129252.mp3 </sound>
+            <sound> RT_b4.wav    duration 8.0 hash 16108342.wav mp3hash 16108342.mp3 </sound>
+            <sound> Vibe2_B2.aif    duration 5.0 hash 51437754.aif mp3hash 51437754.mp3 </sound>
+            <sound> Vibe2_B2a.aif    duration 5.0 hash 64095749.aif mp3hash 64095749.mp3 </sound>
+            <sound> Vibe2_b3.aif    duration 5.0 hash 65618599.aif mp3hash 65618599.mp3 </sound>
+            <sound> Vibe2_b3a.aif    duration 5.0 hash 94847418.aif mp3hash 94847418.mp3 </sound>
+            <sound> Vibe3_b2.aif    duration 4.499977 hash 87461883.aif mp3hash 87461883.mp3 </sound>
+            <sound> Vibe3_b2a.aif    duration 4.499977 hash 41236196.aif mp3hash 41236196.mp3 </sound>
+            <sound> Vibe3_b3.aif    duration 4.499977 hash 86538362.aif mp3hash 86538362.mp3 </sound>
+            <sound> Vibe3_b3a.aif    duration 4.499977 hash 12607045.aif mp3hash 12607045.mp3 </sound>
+            <sound> Vibe3_b4.aif    duration 4.499977 hash 85614841.aif mp3hash 85614841.mp3 </sound>
+            <sound> Vibe3_b4a.aif    duration 4.499977 hash 83977894.aif mp3hash 83977894.mp3 </sound>
+            <sound> Vibe_b1.aif    duration 2.5 hash 84325829.aif mp3hash 84325829.mp3 </sound>
+            <sound> Vibe_b1a.aif    duration 2.5 hash 10130340.aif mp3hash 10130340.mp3 </sound>
+            <sound> Vibe_b2.aif    duration 2.5 hash 85249350.aif mp3hash 85249350.mp3 </sound>
+            <sound> Vibe_b2y.aif    duration 2.5 hash 59336685.aif mp3hash 59336685.mp3 </sound>
+            <sound> Vibe_b3.aif    duration 2.0 hash 86172871.aif mp3hash 86172871.mp3 </sound>
+            <sound> Vibe_b3a.aif    duration 2.5 hash 52872038.aif mp3hash 52872038.mp3 </sound>
+            <sound> Vibe_b3ab.aif    duration 2.5 hash 57136040.aif mp3hash 57136040.mp3 </sound>
+            <sound> Vibe_b3ay.aif    duration 2.0 hash 78377023.aif mp3hash 78377023.mp3 </sound>
+            <sound> Xylo_b1.aif    duration 1.0 hash 89700343.aif mp3hash 89700343.mp3 </sound>
+            <sound> Xylo_b2.aif    duration 1.0 hash 90623864.aif mp3hash 90623864.mp3 </sound>
+            <sound> Xylo_b3.aif    duration 1.0 hash 91547385.aif mp3hash 91547385.mp3 </sound>
+        </set>
+        <set> c
+            <sound> DC_c2.aif    duration 12.0 hash 80222877.aif mp3hash 80222877.mp3 </sound>
+            <sound> DC_c2a.aif    duration 12.0 hash 12158332.aif mp3hash 12158332.mp3 </sound>
+            <sound> DC_c3.aif    duration 11.999977 hash 81146398.aif mp3hash 81146398.mp3 </sound>
+            <sound> DC_c3a.aif    duration 11.999977 hash 83529181.aif mp3hash 83529181.mp3 </sound>
+            <sound> DC_c4.aif    duration 11.999977 hash 82069919.aif mp3hash 82069919.mp3 </sound>
+            <sound> DC_c4a.aif    duration 11.999977 hash 54900030.aif mp3hash 54900030.mp3 </sound>
+            <sound> DC_c5.aif    duration 12.0 hash 82993440.aif mp3hash 82993440.mp3 </sound>
+            <sound> DC_c5a.aif    duration 12.0 hash 26270879.aif mp3hash 26270879.mp3 </sound>
+            <sound> LR_c2.aif    duration 6.0 hash 77840310.aif mp3hash 77840310.mp3 </sound>
+            <sound> LR_c3.aif    duration 6.0 hash 78763831.aif mp3hash 78763831.mp3 </sound>
+            <sound> LR_c4.aif    duration 6.0 hash 79687352.aif mp3hash 79687352.mp3 </sound>
+            <sound> RT_c2.aif    duration 8.0 hash 08668794.aif mp3hash 08668794.mp3 </sound>
+            <sound> RT_c3.aif    duration 8.0 hash 09592315.aif mp3hash 09592315.mp3 </sound>
+            <sound> RT_c4.aif    duration 8.0 hash 10515836.aif mp3hash 10515836.mp3 </sound>
+            <sound> RT_c5.aif    duration 8.0 hash 11439357.aif mp3hash 11439357.mp3 </sound>
+            <sound> Vibe2_c3.aif    duration 5.0 hash 11310875.aif mp3hash 11310875.mp3 </sound>
+            <sound> Vibe2_c3a.aif    duration 5.0 hash 05064388.aif mp3hash 05064388.mp3 </sound>
+            <sound> Vibe2_c4.aif    duration 5.0 hash 10387354.aif mp3hash 10387354.mp3 </sound>
+            <sound> Vibe2_c4ay.aif    duration 5.0 hash 88179486.aif mp3hash 88179486.mp3 </sound>
+            <sound> Vibe3_c3.aif    duration 4.499977 hash 31499460.aif mp3hash 31499460.mp3 </sound>
+            <sound> Vibe3_c3a.aif    duration 4.499977 hash 12518851.aif mp3hash 12518851.mp3 </sound>
+            <sound> Vibe3_c4.aif    duration 4.499977 hash 32422981.aif mp3hash 32422981.mp3 </sound>
+            <sound> Vibe3_c4a.aif    duration 4.499977 hash 83889700.aif mp3hash 83889700.mp3 </sound>
+            <sound> Vibe3_c5.aif    duration 4.499977 hash 33346502.aif mp3hash 33346502.mp3 </sound>
+            <sound> Vibe3_c5a.aif    duration 4.499977 hash 55260549.aif mp3hash 55260549.mp3 </sound>
+            <sound> Vibe_c2.aif    duration 2.5 hash 20475494.aif mp3hash 20475494.mp3 </sound>
+            <sound> Vibe_c3.aif    duration 2.5 hash 21399015.aif mp3hash 21399015.mp3 </sound>
+            <sound> Vibe_c4.aif    duration 2.5 hash 22322536.aif mp3hash 22322536.mp3 </sound>
+            <sound> Xylo_c2.aif    duration 1.0 hash 25850008.aif mp3hash 25850008.mp3 </sound>
+            <sound> Xylo_c3.aif    duration 1.0 hash 26773529.aif mp3hash 26773529.mp3 </sound>
+            <sound> Xylo_c4.aif    duration 1.0 hash 27697050.aif mp3hash 27697050.mp3 </sound>
+        </set>
+        <set> eb
+            <sound> DC_Eb2.aif    duration 12.0 hash 34690079.aif mp3hash 34690079.mp3 </sound>
+            <sound> DC_Eb2ay.aif    duration 12.0 hash 19228455.aif mp3hash 19228455.mp3 </sound>
+            <sound> DC_Eb3.aif    duration 11.999977 hash 33766558.aif mp3hash 33766558.mp3 </sound>
+            <sound> DC_Eb3a.aif    duration 11.999977 hash 36419489.aif mp3hash 36419489.mp3 </sound>
+            <sound> DC_Eb4.aif    duration 11.999977 hash 32843037.aif mp3hash 32843037.mp3 </sound>
+            <sound> DC_Eb4a.aif    duration 11.999977 hash 07790338.aif mp3hash 07790338.mp3 </sound>
+            <sound> DC_Eb5.aif    duration 12.0 hash 31919516.aif mp3hash 31919516.mp3 </sound>
+            <sound> DC_Eb5a.aif    duration 12.0 hash 79161187.aif mp3hash 79161187.mp3 </sound>
+            <sound> LR_Eb2.aif    duration 6.0 hash 46156008.aif mp3hash 46156008.mp3 </sound>
+            <sound> LR_Eb3.aif    duration 6.0 hash 47079529.aif mp3hash 47079529.mp3 </sound>
+            <sound> LR_Eb4.aif    duration 6.0 hash 48003050.aif mp3hash 48003050.mp3 </sound>
+            <sound> RT_Eb2.aif    duration 8.0 hash 52866652.aif mp3hash 52866652.mp3 </sound>
+            <sound> RT_Eb3.aif    duration 8.0 hash 51943131.aif mp3hash 51943131.mp3 </sound>
+            <sound> RT_Eb4.aif    duration 8.0 hash 51019610.aif mp3hash 51019610.mp3 </sound>
+            <sound> RT_Eb5.aif    duration 8.0 hash 50096089.aif mp3hash 50096089.mp3 </sound>
+            <sound> Vibe2_Eb3.aif    duration 5.0 hash 46865017.aif mp3hash 46865017.mp3 </sound>
+            <sound> Vibe2_Eb3a.aif    duration 5.0 hash 17266650.aif mp3hash 17266650.mp3 </sound>
+            <sound> Vibe2_Eb4.aif    duration 4.999977 hash 45941496.aif mp3hash 45941496.mp3 </sound>
+            <sound> Vibe2_Eb4a.aif    duration 4.999977 hash 45895801.aif mp3hash 45895801.mp3 </sound>
+            <sound> Vibe3_Eb3.aif    duration 4.499977 hash 40647816.aif mp3hash 40647816.mp3 </sound>
+            <sound> Vibe3_Eb3a.aif    duration 4.499977 hash 20753145.aif mp3hash 20753145.mp3 </sound>
+            <sound> Vibe3_Eb4.aif    duration 6.0 hash 41571337.aif mp3hash 41571337.mp3 </sound>
+            <sound> Vibe3_Eb4a.aif    duration 4.499977 hash 49382296.aif mp3hash 49382296.mp3 </sound>
+            <sound> Vibe3_Eb4b.aif    duration 6.0 hash 50305817.aif mp3hash 50305817.mp3 </sound>
+            <sound> Vibe3_Eb4c.aif    duration 4.499977 hash 51229338.aif mp3hash 51229338.mp3 </sound>
+            <sound> Vibe3_Eb5.aif    duration 4.499977 hash 42494858.aif mp3hash 42494858.mp3 </sound>
+            <sound> Vibe_Eb2.aif    duration 2.5 hash 41626696.aif mp3hash 41626696.mp3 </sound>
+            <sound> Vibe_Eb3.aif    duration 2.5 hash 40703175.aif mp3hash 40703175.mp3 </sound>
+            <sound> Vibe_Eb4.aif    duration 2.5 hash 39779654.aif mp3hash 39779654.mp3 </sound>
+            <sound> Xylo_Eb2.aif    duration 1.0 hash 65244870.aif mp3hash 65244870.mp3 </sound>
+            <sound> Xylo_Eb3.aif    duration 1.0 hash 66168391.aif mp3hash 66168391.mp3 </sound>
+            <sound> Xylo_Eb4.aif    duration 1.0 hash 67091912.aif mp3hash 67091912.mp3 </sound>
+        </set>
+    </layer>
+    <layer> notes2
+        beatlock 1
+         <set> e
+            <sound> DC_e1_2.aif    duration 24.0 hash 44952785.aif mp3hash 44952785.mp3 </sound>
+            <sound> DC_e1_2_dca.aif    duration 17.999977 hash 58965198.aif mp3hash 58965198.mp3 </sound>
+            <sound> DC_e1_2a.aif    duration 17.999977 hash 63061710.aif mp3hash 63061710.mp3 </sound>
+            <sound> DC_e1_2b.aif    duration 24.0 hash 62138189.aif mp3hash 62138189.mp3 </sound>
+            <sound> DC_e1a.aif    duration 12.0 hash 65633797.aif mp3hash 65633797.mp3 </sound>
+            <sound> DC_e1aa.aif    duration 12.0 hash 44288996.aif mp3hash 44288996.mp3 </sound>
+            <sound> DC_e2.aif    duration 12.0 hash 66086781.aif mp3hash 66086781.mp3 </sound>
+            <sound> DC_e2a.aif    duration 12.0 hash 94262948.aif mp3hash 94262948.mp3 </sound>
+            <sound> DC_e3.aif    duration 11.999977 hash 67010302.aif mp3hash 67010302.mp3 </sound>
+            <sound> DC_e3a.aif    duration 11.999977 hash 22892099.aif mp3hash 22892099.mp3 </sound>
+            <sound> DC_e4.aif    duration 11.999977 hash 67933823.aif mp3hash 67933823.mp3 </sound>
+            <sound> DC_e4a.aif    duration 11.999977 hash 43446046.aif mp3hash 43446046.mp3 </sound>
+            <sound> DC_e5.aif    duration 12.0 hash 68857344.aif mp3hash 68857344.mp3 </sound>
+            <sound> DC_e5a.aif    duration 12.0 hash 14816895.aif mp3hash 14816895.mp3 </sound>
+            <sound> LR_e2.aif    duration 6.0 hash 36295786.aif mp3hash 36295786.mp3 </sound>
+            <sound> LR_e3.aif    duration 6.0 hash 35372265.aif mp3hash 35372265.mp3 </sound>
+            <sound> LR_e4.aif    duration 6.0 hash 34448744.aif mp3hash 34448744.mp3 </sound>
+            <sound> RT_e2.aif    duration 8.0 hash 94532698.aif mp3hash 94532698.mp3 </sound>
+            <sound> RT_e3.aif    duration 8.0 hash 95456219.aif mp3hash 95456219.mp3 </sound>
+            <sound> RT_e4.aif    duration 8.0 hash 96379740.aif mp3hash 96379740.mp3 </sound>
+            <sound> RT_e5.aif    duration 8.0 hash 97303261.aif mp3hash 97303261.mp3 </sound>
+            <sound> Vibe2_e3.aif    duration 5.0 hash 71659585.aif mp3hash 71659585.mp3 </sound>
+            <sound> Vibe2_e3a.aif    duration 5.0 hash 72052576.aif mp3hash 72052576.mp3 </sound>
+            <sound> Vibe2_e4.aif    duration 4.999977 hash 72583106.aif mp3hash 72583106.mp3 </sound>
+            <sound> Vibe2_e4a.aif    duration 4.999977 hash 00681727.aif mp3hash 00681727.mp3 </sound>
+            <sound> Vibe3_e3.aif    duration 4.499977 hash 14469920.aif mp3hash 14469920.mp3 </sound>
+            <sound> Vibe3_e3a.aif    duration 4.499977 hash 35401887.aif mp3hash 35401887.mp3 </sound>
+            <sound> Vibe3_e4.aif    duration 4.499977 hash 15393441.aif mp3hash 15393441.mp3 </sound>
+            <sound> Vibe3_e4a.aif    duration 4.499977 hash 06772736.aif mp3hash 06772736.mp3 </sound>
+            <sound> Vibe3_e5.aif    duration 4.499977 hash 16316962.aif mp3hash 16316962.mp3 </sound>
+            <sound> Vibe3_e5a.aif    duration 4.499977 hash 78143585.aif mp3hash 78143585.mp3 </sound>
+            <sound> Vibe_E1.aif    duration 2.0 hash 05098651.aif mp3hash 05098651.mp3 </sound>
+            <sound> Vibe_e1a.aif    duration 2.5 hash 72534236.aif mp3hash 72534236.mp3 </sound>
+            <sound> Vibe_e2.aif    duration 2.5 hash 88042298.aif mp3hash 88042298.mp3 </sound>
+            <sound> Vibe_e3a.aif    duration 2.5 hash 29792538.aif mp3hash 29792538.mp3 </sound>
+            <sound> Vibe_e4.aif    duration 2.5 hash 86195256.aif mp3hash 86195256.mp3 </sound>
+            <sound> Xylo_e2.aif    duration 1.0 hash 17332216.aif mp3hash 17332216.mp3 </sound>
+            <sound> Xylo_e3.aif    duration 1.0 hash 18255737.aif mp3hash 18255737.mp3 </sound>
+            <sound> Xylo_e4.aif    duration 1.0 hash 19179258.aif mp3hash 19179258.mp3 </sound>
+        </set>
+        <set> f#
+            <sound> DC_F#1.aif    duration 17.999977 hash 28571072.aif mp3hash 28571072.mp3 </sound>
+            <sound> DC_F#1a.aif    duration 17.999977 hash 06766529.aif mp3hash 06766529.mp3 </sound>
+            <sound> DC_F#1c.aif    duration 11.999977 hash 08613571.aif mp3hash 08613571.mp3 </sound>
+            <sound> DC_F#1ca.aif    duration 11.999977 hash 27014114.aif mp3hash 27014114.mp3 </sound>
+            <sound> DC_f#2.aif    duration 12.0 hash 64841313.aif mp3hash 64841313.mp3 </sound>
+            <sound> DC_f#2a.aif    duration 12.0 hash 70751552.aif mp3hash 70751552.mp3 </sound>
+            <sound> DC_f#3.aif    duration 11.999977 hash 65764834.aif mp3hash 65764834.mp3 </sound>
+            <sound> DC_f#3a.aif    duration 11.999977 hash 99380703.aif mp3hash 99380703.mp3 </sound>
+            <sound> DC_f#4.aif    duration 11.999977 hash 66688355.aif mp3hash 66688355.mp3 </sound>
+            <sound> DC_f#4a.aif    duration 11.999977 hash 28009854.aif mp3hash 28009854.mp3 </sound>
+            <sound> LR_f#2.aif    duration 6.0 hash 45687400.aif mp3hash 45687400.mp3 </sound>
+            <sound> LR_f#3.aif    duration 6.0 hash 46610921.aif mp3hash 46610921.mp3 </sound>
+            <sound> RT_f#2.aif    duration 8.0 hash 46664740.aif mp3hash 46664740.mp3 </sound>
+            <sound> RT_f#3.aif    duration 8.0 hash 47588261.aif mp3hash 47588261.mp3 </sound>
+            <sound> RT_f#4.aif    duration 8.0 hash 48511782.aif mp3hash 48511782.mp3 </sound>
+            <sound> Vibe2_f#3.aif    duration 5.0 hash 41666439.aif mp3hash 41666439.mp3 </sound>
+            <sound> Vibe2_f#4.aif    duration 4.999977 hash 42589960.aif mp3hash 42589960.mp3 </sound>
+            <sound> Vibe3_f#3.aif    duration 4.499977 hash 65788024.aif mp3hash 65788024.mp3 </sound>
+            <sound> Vibe3_f#4.aif    duration 4.499977 hash 64864503.aif mp3hash 64864503.mp3 </sound>
+            <sound> Vibe_f#1.aif    duration 2.5 hash 48388937.aif mp3hash 48388937.mp3 </sound>
+            <sound> Vibe_f#2.aif    duration 2.5 hash 47465416.aif mp3hash 47465416.mp3 </sound>
+            <sound> Vibe_f#3.aif    duration 2.5 hash 46541895.aif mp3hash 46541895.mp3 </sound>
+            <sound> Vibe_f#4.aif    duration 2.5 hash 45618374.aif mp3hash 45618374.mp3 </sound>
+            <sound> Xylo_f#2.aif    duration 1.0 hash 35561146.aif mp3hash 35561146.mp3 </sound>
+            <sound> Xylo_f#3.aif    duration 1.0 hash 34637625.aif mp3hash 34637625.mp3 </sound>
+        </set>
+        <set> g
+            <sound> DC_g1.aif    duration 11.999977 hash 23486140.aif mp3hash 23486140.mp3 </sound>
+            <sound> DC_g1a.aif    duration 11.999977 hash 96160699.aif mp3hash 96160699.mp3 </sound>
+            <sound> DC_g2.aif    duration 12.0 hash 24409661.aif mp3hash 24409661.mp3 </sound>
+            <sound> DC_g2a.aif    duration 12.0 hash 67531548.aif mp3hash 67531548.mp3 </sound>
+            <sound> DC_g3.aif    duration 11.999977 hash 25333182.aif mp3hash 25333182.mp3 </sound>
+            <sound> DC_g3a.aif    duration 11.999977 hash 38902397.aif mp3hash 38902397.mp3 </sound>
+            <sound> DC_g4.aif    duration 12.0 hash 26256703.aif mp3hash 26256703.mp3 </sound>
+            <sound> DC_g4a.aif    duration 12.0 hash 10273246.aif mp3hash 10273246.mp3 </sound>
+            <sound> LR_g1.aif    duration 6.0 hash 78896427.aif mp3hash 78896427.mp3 </sound>
+            <sound> LR_g2.aif    duration 6.0 hash 77972906.aif mp3hash 77972906.mp3 </sound>
+            <sound> LR_g3.aif    duration 6.0 hash 77049385.aif mp3hash 77049385.mp3 </sound>
+            <sound> RT_g1.aif    duration 8.0 hash 51932057.aif mp3hash 51932057.mp3 </sound>
+            <sound> RT_g2.aif    duration 8.0 hash 52855578.aif mp3hash 52855578.mp3 </sound>
+            <sound> RT_g3.aif    duration 8.0 hash 53779099.aif mp3hash 53779099.mp3 </sound>
+            <sound> RT_g4.aif    duration 8.0 hash 54702620.aif mp3hash 54702620.mp3 </sound>
+            <sound> Vibe2_g3.aif    duration 5.0 hash 82199363.aif mp3hash 82199363.mp3 </sound>
+            <sound> Vibe2_g4.aif    duration 4.999977 hash 81275842.aif mp3hash 81275842.mp3 </sound>
+            <sound> Vibe3_g3.aif    duration 4.499977 hash 60610972.aif mp3hash 60610972.mp3 </sound>
+            <sound> Vibe3_g4.aif    duration 4.499977 hash 61534493.aif mp3hash 61534493.mp3 </sound>
+            <sound> Vibe_g1.aif    duration 2.5 hash 18513531.aif mp3hash 18513531.mp3 </sound>
+            <sound> Vibe_g2.aif    duration 2.5 hash 17590010.aif mp3hash 17590010.mp3 </sound>
+            <sound> Vibe_g3.aif    duration 2.5 hash 16666489.aif mp3hash 16666489.mp3 </sound>
+            <sound> Xylo_G1.aif    duration 1.0 hash 29271849.aif mp3hash 29271849.mp3 </sound>
+            <sound> Xylo_g2.aif    duration 1.0 hash 87784504.aif mp3hash 87784504.mp3 </sound>
+            <sound> Xylo_g3.aif    duration 1.0 hash 88708025.aif mp3hash 88708025.mp3 </sound>
+        </set>
+        <set> a
+            <sound> DC_a1.aif    duration 12.0 hash 51482500.aif mp3hash 51482500.mp3 </sound>
+            <sound> DC_a1a.aif    duration 12.0 hash 00711803.aif mp3hash 00711803.mp3 </sound>
+            <sound> DC_a2.aif    duration 12.0 hash 50558979.aif mp3hash 50558979.mp3 </sound>
+            <sound> DC_a2a.aif    duration 12.0 hash 72082652.aif mp3hash 72082652.mp3 </sound>
+            <sound> DC_a3.aif    duration 11.999977 hash 49635458.aif mp3hash 49635458.mp3 </sound>
+            <sound> DC_a3.wav    duration 11.999977 hash 49614548.wav mp3hash 49614548.mp3 </sound>
+            <sound> DC_a3a.aif    duration 11.999977 hash 43453501.aif mp3hash 43453501.mp3 </sound>
+            <sound> DC_a3a.wav    duration 11.999977 hash 43432591.wav mp3hash 43432591.mp3 </sound>
+            <sound> DC_a4.aif    duration 12.0 hash 48711937.aif mp3hash 48711937.mp3 </sound>
+            <sound> DC_a4.wav    duration 12.0 hash 48691027.wav mp3hash 48691027.mp3 </sound>
+            <sound> DC_a4a.aif    duration 12.0 hash 14824350.aif mp3hash 14824350.mp3 </sound>
+            <sound> DC_a4a.wav    duration 12.0 hash 14803440.wav mp3hash 14803440.mp3 </sound>
+            <sound> LR_a1.aif    duration 6.0 hash 41102229.aif mp3hash 41102229.mp3 </sound>
+            <sound> LR_a2.aif    duration 6.0 hash 42025750.aif mp3hash 42025750.mp3 </sound>
+            <sound> LR_a3.aif    duration 6.0 hash 42949271.aif mp3hash 42949271.mp3 </sound>
+            <sound> RT_a1.aif    duration 8.0 hash 23036583.aif mp3hash 23036583.mp3 </sound>
+            <sound> RT_a2.aif    duration 8.0 hash 22113062.aif mp3hash 22113062.mp3 </sound>
+            <sound> RT_a3.aif    duration 8.0 hash 21189541.aif mp3hash 21189541.mp3 </sound>
+            <sound> RT_a4.aif    duration 8.0 hash 20266020.aif mp3hash 20266020.mp3 </sound>
+            <sound> Vibe2_a3.aif    duration 5.0 hash 79377481.aif mp3hash 79377481.mp3 </sound>
+            <sound> Vibe2_a3a.aif    duration 5.0 hash 81765208.aif mp3hash 81765208.mp3 </sound>
+            <sound> Vibe3_a3.aif    duration 4.499977 hash 72779480.aif mp3hash 72779480.mp3 </sound>
+            <sound> Vibe3_a3a.aif    duration 4.499977 hash 25689255.aif mp3hash 25689255.mp3 </sound>
+            <sound> Vibe3_a4.aif    duration 4.499977 hash 71855959.aif mp3hash 71855959.mp3 </sound>
+            <sound> Vibe3_a4a.aif    duration 4.499977 hash 97060104.aif mp3hash 97060104.mp3 </sound>
+            <sound> Vibe_a1.aif    duration 2.5 hash 70129605.aif mp3hash 70129605.mp3 </sound>
+            <sound> Vibe_a1a.aif    duration 2.5 hash 55245988.aif mp3hash 55245988.mp3 </sound>
+            <sound> Vibe_a2.aif    duration 2.5 hash 71053126.aif mp3hash 71053126.mp3 </sound>
+            <sound> Vibe_a2a.aif    duration 2.5 hash 26616837.aif mp3hash 26616837.mp3 </sound>
+            <sound> Vibe_a3.aif    duration 2.5 hash 71976647.aif mp3hash 71976647.mp3 </sound>
+            <sound> Vibe_a3a.aif    duration 2.5 hash 97987686.aif mp3hash 97987686.mp3 </sound>
+            <sound> Xylo_a1.aif    duration 1.0 hash 75504119.aif mp3hash 75504119.mp3 </sound>
+            <sound> Xylo_a2.aif    duration 1.0 hash 76427640.aif mp3hash 76427640.mp3 </sound>
+            <sound> Xylo_a3.aif    duration 1.0 hash 77351161.aif mp3hash 77351161.mp3 </sound>
+        </set>
+        <set> b
+            <sound> DC_b1.aif    duration 12.0 hash 75162588.aif mp3hash 75162588.mp3 </sound>
+            <sound> DC_b1a.aif    duration 12.0 hash 84125403.aif mp3hash 84125403.mp3 </sound>
+            <sound> DC_b2.aif    duration 11.999977 hash 76086109.aif mp3hash 76086109.mp3 </sound>
+            <sound> DC_b2a.aif    duration 11.999977 hash 55496252.aif mp3hash 55496252.mp3 </sound>
+            <sound> DC_b3.aif    duration 11.999977 hash 77009630.aif mp3hash 77009630.mp3 </sound>
+            <sound> DC_b3a.aif    duration 11.999977 hash 26867101.aif mp3hash 26867101.mp3 </sound>
+            <sound> DC_b4.aif    duration 12.0 hash 77933151.aif mp3hash 77933151.mp3 </sound>
+            <sound> DC_b4a.aif    duration 12.0 hash 98237950.aif mp3hash 98237950.mp3 </sound>
+            <sound> LR_b1.aif    duration 6.0 hash 27219979.aif mp3hash 27219979.mp3 </sound>
+            <sound> LR_b2.aif    duration 6.0 hash 26296458.aif mp3hash 26296458.mp3 </sound>
+            <sound> LR_b3.aif    duration 6.0 hash 25372937.aif mp3hash 25372937.mp3 </sound>
+            <sound> RT_b1.aif    duration 8.0 hash 03608505.aif mp3hash 03608505.mp3 </sound>
+            <sound> RT_b1.wav    duration 8.0 hash 03629415.wav mp3hash 03629415.mp3 </sound>
+            <sound> RT_b2.aif    duration 6.0 hash 04532026.aif mp3hash 04532026.mp3 </sound>
+            <sound> RT_b2.wav    duration 6.0 hash 04552936.wav mp3hash 04552936.mp3 </sound>
+            <sound> RT_b3.aif    duration 8.0 hash 05455547.aif mp3hash 05455547.mp3 </sound>
+            <sound> RT_b3.wav    duration 8.0 hash 05476457.wav mp3hash 05476457.mp3 </sound>
+            <sound> RT_b4.aif    duration 8.0 hash 06379068.aif mp3hash 06379068.mp3 </sound>
+            <sound> RT_b4.wav    duration 8.0 hash 06399978.wav mp3hash 06399978.mp3 </sound>
+            <sound> Vibe2_B2.aif    duration 5.0 hash 85391654.aif mp3hash 85391654.mp3 </sound>
+            <sound> Vibe2_B2a.aif    duration 5.0 hash 82122469.aif mp3hash 82122469.mp3 </sound>
+            <sound> Vibe2_b3.aif    duration 5.0 hash 02448007.aif mp3hash 02448007.mp3 </sound>
+            <sound> Vibe2_b3a.aif    duration 5.0 hash 18146598.aif mp3hash 18146598.mp3 </sound>
+            <sound> Vibe3_b2.aif    duration 4.499977 hash 50632475.aif mp3hash 50632475.mp3 </sound>
+            <sound> Vibe3_b2a.aif    duration 4.499977 hash 40737084.aif mp3hash 40737084.mp3 </sound>
+            <sound> Vibe3_b3.aif    duration 4.499977 hash 49708954.aif mp3hash 49708954.mp3 </sound>
+            <sound> Vibe3_b3a.aif    duration 4.499977 hash 69366235.aif mp3hash 69366235.mp3 </sound>
+            <sound> Vibe3_b4.aif    duration 4.499977 hash 48785433.aif mp3hash 48785433.mp3 </sound>
+            <sound> Vibe3_b4a.aif    duration 4.499977 hash 97995386.aif mp3hash 97995386.mp3 </sound>
+            <sound> Vibe_b1.aif    duration 2.5 hash 05355749.aif mp3hash 05355749.mp3 </sound>
+            <sound> Vibe_b1a.aif    duration 2.5 hash 73300932.aif mp3hash 73300932.mp3 </sound>
+            <sound> Vibe_b2.aif    duration 2.5 hash 06279270.aif mp3hash 06279270.mp3 </sound>
+            <sound> Vibe_b2y.aif    duration 2.5 hash 22507277.aif mp3hash 22507277.mp3 </sound>
+            <sound> Vibe_b3.aif    duration 2.0 hash 07202791.aif mp3hash 07202791.mp3 </sound>
+            <sound> Vibe_b3a.aif    duration 2.5 hash 16042630.aif mp3hash 16042630.mp3 </sound>
+            <sound> Vibe_b3ab.aif    duration 2.5 hash 39109320.aif mp3hash 39109320.mp3 </sound>
+            <sound> Vibe_b3ay.aif    duration 2.0 hash 60350303.aif mp3hash 60350303.mp3 </sound>
+            <sound> Xylo_b1.aif    duration 1.0 hash 10730263.aif mp3hash 10730263.mp3 </sound>
+            <sound> Xylo_b2.aif    duration 1.0 hash 11653784.aif mp3hash 11653784.mp3 </sound>
+            <sound> Xylo_b3.aif    duration 1.0 hash 12577305.aif mp3hash 12577305.mp3 </sound>
+        </set>
+        <set> c
+            <sound> DC_c2.aif    duration 12.0 hash 92236099.aif mp3hash 92236099.mp3 </sound>
+            <sound> DC_c2a.aif    duration 12.0 hash 61090148.aif mp3hash 61090148.mp3 </sound>
+            <sound> DC_c3.aif    duration 11.999977 hash 91312578.aif mp3hash 91312578.mp3 </sound>
+            <sound> DC_c3a.aif    duration 11.999977 hash 89719299.aif mp3hash 89719299.mp3 </sound>
+            <sound> DC_c4.aif    duration 11.999977 hash 90389057.aif mp3hash 90389057.mp3 </sound>
+            <sound> DC_c4a.aif    duration 11.999977 hash 18348450.aif mp3hash 18348450.mp3 </sound>
+            <sound> DC_c5.aif    duration 12.0 hash 89465536.aif mp3hash 89465536.mp3 </sound>
+            <sound> DC_c5a.aif    duration 12.0 hash 46977601.aif mp3hash 46977601.mp3 </sound>
+            <sound> LR_c2.aif    duration 6.0 hash 94618666.aif mp3hash 94618666.mp3 </sound>
+            <sound> LR_c3.aif    duration 6.0 hash 93695145.aif mp3hash 93695145.mp3 </sound>
+            <sound> LR_c4.aif    duration 6.0 hash 92771624.aif mp3hash 92771624.mp3 </sound>
+            <sound> RT_c2.aif    duration 8.0 hash 63790182.aif mp3hash 63790182.mp3 </sound>
+            <sound> RT_c3.aif    duration 8.0 hash 62866661.aif mp3hash 62866661.mp3 </sound>
+            <sound> RT_c4.aif    duration 8.0 hash 61943140.aif mp3hash 61943140.mp3 </sound>
+            <sound> RT_c5.aif    duration 8.0 hash 61019619.aif mp3hash 61019619.mp3 </sound>
+            <sound> Vibe2_c3.aif    duration 5.0 hash 25518533.aif mp3hash 25518533.mp3 </sound>
+            <sound> Vibe2_c3a.aif    duration 5.0 hash 76908892.aif mp3hash 76908892.mp3 </sound>
+            <sound> Vibe2_c4.aif    duration 5.0 hash 26442054.aif mp3hash 26442054.mp3 </sound>
+            <sound> Vibe2_c4ay.aif    duration 5.0 hash 59547390.aif mp3hash 59547390.mp3 </sound>
+            <sound> Vibe3_c3.aif    duration 4.499977 hash 26638428.aif mp3hash 26638428.mp3 </sound>
+            <sound> Vibe3_c3a.aif    duration 4.499977 hash 30545571.aif mp3hash 30545571.mp3 </sound>
+            <sound> Vibe3_c4.aif    duration 4.499977 hash 25714907.aif mp3hash 25714907.mp3 </sound>
+            <sound> Vibe3_c4a.aif    duration 4.499977 hash 01916420.aif mp3hash 01916420.mp3 </sound>
+            <sound> Vibe3_c5.aif    duration 4.499977 hash 24791386.aif mp3hash 24791386.mp3 </sound>
+            <sound> Vibe3_c5a.aif    duration 4.499977 hash 73287269.aif mp3hash 73287269.mp3 </sound>
+            <sound> Vibe_c2.aif    duration 2.5 hash 41505414.aif mp3hash 41505414.mp3 </sound>
+            <sound> Vibe_c3.aif    duration 2.5 hash 42428935.aif mp3hash 42428935.mp3 </sound>
+            <sound> Vibe_c4.aif    duration 2.5 hash 43352456.aif mp3hash 43352456.mp3 </sound>
+            <sound> Xylo_c2.aif    duration 1.0 hash 46879928.aif mp3hash 46879928.mp3 </sound>
+            <sound> Xylo_c3.aif    duration 1.0 hash 47803449.aif mp3hash 47803449.mp3 </sound>
+            <sound> Xylo_c4.aif    duration 1.0 hash 48726970.aif mp3hash 48726970.mp3 </sound>
+        </set>
+        <set> eb
+            <sound> DC_Eb2.aif    duration 12.0 hash 13660159.aif mp3hash 13660159.mp3 </sound>
+            <sound> DC_Eb2ay.aif    duration 12.0 hash 62744825.aif mp3hash 62744825.mp3 </sound>
+            <sound> DC_Eb3.aif    duration 11.999977 hash 12736638.aif mp3hash 12736638.mp3 </sound>
+            <sound> DC_Eb3a.aif    duration 11.999977 hash 99590081.aif mp3hash 99590081.mp3 </sound>
+            <sound> DC_Eb4.aif    duration 11.999977 hash 11813117.aif mp3hash 11813117.mp3 </sound>
+            <sound> DC_Eb4a.aif    duration 11.999977 hash 70960930.aif mp3hash 70960930.mp3 </sound>
+            <sound> DC_Eb5.aif    duration 12.0 hash 10889596.aif mp3hash 10889596.mp3 </sound>
+            <sound> DC_Eb5a.aif    duration 12.0 hash 42331779.aif mp3hash 42331779.mp3 </sound>
+            <sound> LR_Eb2.aif    duration 6.0 hash 32814072.aif mp3hash 32814072.mp3 </sound>
+            <sound> LR_Eb3.aif    duration 6.0 hash 31890551.aif mp3hash 31890551.mp3 </sound>
+            <sound> LR_Eb4.aif    duration 6.0 hash 30967030.aif mp3hash 30967030.mp3 </sound>
+            <sound> RT_Eb2.aif    duration 8.0 hash 31836732.aif mp3hash 31836732.mp3 </sound>
+            <sound> RT_Eb3.aif    duration 8.0 hash 30913211.aif mp3hash 30913211.mp3 </sound>
+            <sound> RT_Eb4.aif    duration 8.0 hash 29989690.aif mp3hash 29989690.mp3 </sound>
+            <sound> RT_Eb5.aif    duration 8.0 hash 29066169.aif mp3hash 29066169.mp3 </sound>
+            <sound> Vibe2_Eb3.aif    duration 5.0 hash 75497113.aif mp3hash 75497113.mp3 </sound>
+            <sound> Vibe2_Eb3a.aif    duration 5.0 hash 09935878.aif mp3hash 09935878.mp3 </sound>
+            <sound> Vibe2_Eb4.aif    duration 4.999977 hash 74573592.aif mp3hash 74573592.mp3 </sound>
+            <sound> Vibe2_Eb4a.aif    duration 4.999977 hash 81306727.aif mp3hash 81306727.mp3 </sound>
+            <sound> Vibe3_Eb3.aif    duration 4.499977 hash 12015720.aif mp3hash 12015720.mp3 </sound>
+            <sound> Vibe3_Eb3a.aif    duration 4.499977 hash 06449383.aif mp3hash 06449383.mp3 </sound>
+            <sound> Vibe3_Eb4.aif    duration 6.0 hash 12939241.aif mp3hash 12939241.mp3 </sound>
+            <sound> Vibe3_Eb4a.aif    duration 4.499977 hash 77820232.aif mp3hash 77820232.mp3 </sound>
+            <sound> Vibe3_Eb4b.aif    duration 6.0 hash 76896711.aif mp3hash 76896711.mp3 </sound>
+            <sound> Vibe3_Eb4c.aif    duration 4.499977 hash 75973190.aif mp3hash 75973190.mp3 </sound>
+            <sound> Vibe3_Eb5.aif    duration 4.499977 hash 13862762.aif mp3hash 13862762.mp3 </sound>
+            <sound> Vibe_Eb2.aif    duration 2.5 hash 59653416.aif mp3hash 59653416.mp3 </sound>
+            <sound> Vibe_Eb3.aif    duration 2.5 hash 58729895.aif mp3hash 58729895.mp3 </sound>
+            <sound> Vibe_Eb4.aif    duration 2.5 hash 57806374.aif mp3hash 57806374.mp3 </sound>
+            <sound> Xylo_Eb2.aif    duration 1.0 hash 47218150.aif mp3hash 47218150.mp3 </sound>
+            <sound> Xylo_Eb3.aif    duration 1.0 hash 48141671.aif mp3hash 48141671.mp3 </sound>
+            <sound> Xylo_Eb4.aif    duration 1.0 hash 49065192.aif mp3hash 49065192.mp3 </sound>
+        </set>
+    </layer>
+    <layer> notes3
+        beatlock 1
+         <set> e
+            <sound> DC_e1_2.aif    duration 24.0 hash 62599024.aif mp3hash 62599024.mp3 </sound>
+            <sound> DC_e1_2_dca.aif    duration 17.999977 hash 03437069.aif mp3hash 03437069.mp3 </sound>
+            <sound> DC_e1_2a.aif    duration 17.999977 hash 73595887.aif mp3hash 73595887.mp3 </sound>
+            <sound> DC_e1_2b.aif    duration 24.0 hash 72672366.aif mp3hash 72672366.mp3 </sound>
+            <sound> DC_e1a.aif    duration 12.0 hash 60075172.aif mp3hash 60075172.mp3 </sound>
+            <sound> DC_e1aa.aif    duration 12.0 hash 63262813.aif mp3hash 63262813.mp3 </sound>
+            <sound> DC_e2.aif    duration 12.0 hash 27316226.aif mp3hash 27316226.mp3 </sound>
+            <sound> DC_e2a.aif    duration 12.0 hash 88704323.aif mp3hash 88704323.mp3 </sound>
+            <sound> DC_e3.aif    duration 11.999977 hash 26392705.aif mp3hash 26392705.mp3 </sound>
+            <sound> DC_e3a.aif    duration 11.999977 hash 17333474.aif mp3hash 17333474.mp3 </sound>
+            <sound> DC_e4.aif    duration 11.999977 hash 25469184.aif mp3hash 25469184.mp3 </sound>
+            <sound> DC_e4a.aif    duration 11.999977 hash 45962625.aif mp3hash 45962625.mp3 </sound>
+            <sound> DC_e5.aif    duration 12.0 hash 24545663.aif mp3hash 24545663.mp3 </sound>
+            <sound> DC_e5a.aif    duration 12.0 hash 74591776.aif mp3hash 74591776.mp3 </sound>
+            <sound> LR_e2.aif    duration 6.0 hash 29698793.aif mp3hash 29698793.mp3 </sound>
+            <sound> LR_e3.aif    duration 6.0 hash 28775272.aif mp3hash 28775272.mp3 </sound>
+            <sound> LR_e4.aif    duration 6.0 hash 27851751.aif mp3hash 27851751.mp3 </sound>
+            <sound> RT_e2.aif    duration 8.0 hash 98870309.aif mp3hash 98870309.mp3 </sound>
+            <sound> RT_e3.aif    duration 8.0 hash 97946788.aif mp3hash 97946788.mp3 </sound>
+            <sound> RT_e4.aif    duration 8.0 hash 97023267.aif mp3hash 97023267.mp3 </sound>
+            <sound> RT_e5.aif    duration 8.0 hash 96099746.aif mp3hash 96099746.mp3 </sound>
+            <sound> Vibe2_e3.aif    duration 5.0 hash 38874592.aif mp3hash 38874592.mp3 </sound>
+            <sound> Vibe2_e3a.aif    duration 5.0 hash 69605023.aif mp3hash 69605023.mp3 </sound>
+            <sound> Vibe2_e4.aif    duration 4.999977 hash 37951071.aif mp3hash 37951071.mp3 </sound>
+            <sound> Vibe2_e4a.aif    duration 4.999977 hash 40975872.aif mp3hash 40975872.mp3 </sound>
+            <sound> Vibe3_e3.aif    duration 4.499977 hash 03935743.aif mp3hash 03935743.mp3 </sound>
+            <sound> Vibe3_e3a.aif    duration 4.499977 hash 17907810.aif mp3hash 17907810.mp3 </sound>
+            <sound> Vibe3_e4.aif    duration 4.499977 hash 04859264.aif mp3hash 04859264.mp3 </sound>
+            <sound> Vibe3_e4a.aif    duration 4.499977 hash 46536961.aif mp3hash 46536961.mp3 </sound>
+            <sound> Vibe3_e5.aif    duration 4.499977 hash 05782785.aif mp3hash 05782785.mp3 </sound>
+            <sound> Vibe3_e5a.aif    duration 4.499977 hash 75166112.aif mp3hash 75166112.mp3 </sound>
+            <sound> Vibe_E1.aif    duration 2.0 hash 02453158.aif mp3hash 02453158.mp3 </sound>
+            <sound> Vibe_e1a.aif    duration 2.5 hash 62000059.aif mp3hash 62000059.mp3 </sound>
+            <sound> Vibe_e2.aif    duration 2.5 hash 19509511.aif mp3hash 19509511.mp3 </sound>
+            <sound> Vibe_e3a.aif    duration 2.5 hash 19258361.aif mp3hash 19258361.mp3 </sound>
+            <sound> Vibe_e4.aif    duration 2.5 hash 21356553.aif mp3hash 21356553.mp3 </sound>
+            <sound> Xylo_e2.aif    duration 1.0 hash 70083271.aif mp3hash 70083271.mp3 </sound>
+            <sound> Xylo_e3.aif    duration 1.0 hash 69159750.aif mp3hash 69159750.mp3 </sound>
+            <sound> Xylo_e4.aif    duration 1.0 hash 68236229.aif mp3hash 68236229.mp3 </sound>
+        </set>
+        <set> f#
+            <sound> DC_F#1.aif    duration 17.999977 hash 58844415.aif mp3hash 58844415.mp3 </sound>
+            <sound> DC_F#1a.aif    duration 17.999977 hash 96232352.aif mp3hash 96232352.mp3 </sound>
+            <sound> DC_F#1c.aif    duration 11.999977 hash 98079394.aif mp3hash 98079394.mp3 </sound>
+            <sound> DC_F#1ca.aif    duration 11.999977 hash 73704417.aif mp3hash 73704417.mp3 </sound>
+            <sound> DC_f#2.aif    duration 12.0 hash 72393122.aif mp3hash 72393122.mp3 </sound>
+            <sound> DC_f#2a.aif    duration 12.0 hash 60217375.aif mp3hash 60217375.mp3 </sound>
+            <sound> DC_f#3.aif    duration 11.999977 hash 73316643.aif mp3hash 73316643.mp3 </sound>
+            <sound> DC_f#3a.aif    duration 11.999977 hash 88846526.aif mp3hash 88846526.mp3 </sound>
+            <sound> DC_f#4.aif    duration 11.999977 hash 74240164.aif mp3hash 74240164.mp3 </sound>
+            <sound> DC_f#4a.aif    duration 11.999977 hash 17475677.aif mp3hash 17475677.mp3 </sound>
+            <sound> LR_f#2.aif    duration 6.0 hash 41728087.aif mp3hash 41728087.mp3 </sound>
+            <sound> LR_f#3.aif    duration 6.0 hash 40804566.aif mp3hash 40804566.mp3 </sound>
+            <sound> RT_f#2.aif    duration 8.0 hash 40750747.aif mp3hash 40750747.mp3 </sound>
+            <sound> RT_f#3.aif    duration 8.0 hash 39827226.aif mp3hash 39827226.mp3 </sound>
+            <sound> RT_f#4.aif    duration 8.0 hash 38903705.aif mp3hash 38903705.mp3 </sound>
+            <sound> Vibe2_f#3.aif    duration 5.0 hash 55405914.aif mp3hash 55405914.mp3 </sound>
+            <sound> Vibe2_f#4.aif    duration 4.999977 hash 54482393.aif mp3hash 54482393.mp3 </sound>
+            <sound> Vibe3_f#3.aif    duration 4.499977 hash 32106919.aif mp3hash 32106919.mp3 </sound>
+            <sound> Vibe3_f#4.aif    duration 4.499977 hash 33030440.aif mp3hash 33030440.mp3 </sound>
+            <sound> Vibe_f#1.aif    duration 2.5 hash 04920760.aif mp3hash 04920760.mp3 </sound>
+            <sound> Vibe_f#2.aif    duration 2.5 hash 05844281.aif mp3hash 05844281.mp3 </sound>
+            <sound> Vibe_f#3.aif    duration 2.5 hash 06767802.aif mp3hash 06767802.mp3 </sound>
+            <sound> Vibe_f#4.aif    duration 2.5 hash 07691323.aif mp3hash 07691323.mp3 </sound>
+            <sound> Xylo_f#2.aif    duration 1.0 hash 82251449.aif mp3hash 82251449.mp3 </sound>
+            <sound> Xylo_f#3.aif    duration 1.0 hash 81327928.aif mp3hash 81327928.mp3 </sound>
+        </set>
+        <set> g
+            <sound> DC_g1.aif    duration 11.999977 hash 30083133.aif mp3hash 30083133.mp3 </sound>
+            <sound> DC_g1a.aif    duration 11.999977 hash 01719324.aif mp3hash 01719324.mp3 </sound>
+            <sound> DC_g2.aif    duration 12.0 hash 31006654.aif mp3hash 31006654.mp3 </sound>
+            <sound> DC_g2a.aif    duration 12.0 hash 73090173.aif mp3hash 73090173.mp3 </sound>
+            <sound> DC_g3.aif    duration 11.999977 hash 31930175.aif mp3hash 31930175.mp3 </sound>
+            <sound> DC_g3a.aif    duration 11.999977 hash 44461022.aif mp3hash 44461022.mp3 </sound>
+            <sound> DC_g4.aif    duration 12.0 hash 32853696.aif mp3hash 32853696.mp3 </sound>
+            <sound> DC_g4a.aif    duration 12.0 hash 15831871.aif mp3hash 15831871.mp3 </sound>
+            <sound> LR_g1.aif    duration 6.0 hash 72299434.aif mp3hash 72299434.mp3 </sound>
+            <sound> LR_g2.aif    duration 6.0 hash 71375913.aif mp3hash 71375913.mp3 </sound>
+            <sound> LR_g3.aif    duration 6.0 hash 70452392.aif mp3hash 70452392.mp3 </sound>
+            <sound> RT_g1.aif    duration 8.0 hash 58529050.aif mp3hash 58529050.mp3 </sound>
+            <sound> RT_g2.aif    duration 8.0 hash 59452571.aif mp3hash 59452571.mp3 </sound>
+            <sound> RT_g3.aif    duration 8.0 hash 60376092.aif mp3hash 60376092.mp3 </sound>
+            <sound> RT_g4.aif    duration 8.0 hash 61299613.aif mp3hash 61299613.mp3 </sound>
+            <sound> Vibe2_g3.aif    duration 5.0 hash 92733540.aif mp3hash 92733540.mp3 </sound>
+            <sound> Vibe2_g4.aif    duration 4.999977 hash 91810019.aif mp3hash 91810019.mp3 </sound>
+            <sound> Vibe3_g3.aif    duration 4.499977 hash 50076795.aif mp3hash 50076795.mp3 </sound>
+            <sound> Vibe3_g4.aif    duration 4.499977 hash 51000316.aif mp3hash 51000316.mp3 </sound>
+            <sound> Vibe_g1.aif    duration 2.5 hash 89038278.aif mp3hash 89038278.mp3 </sound>
+            <sound> Vibe_g2.aif    duration 2.5 hash 89961799.aif mp3hash 89961799.mp3 </sound>
+            <sound> Vibe_g3.aif    duration 2.5 hash 90885320.aif mp3hash 90885320.mp3 </sound>
+            <sound> Xylo_G1.aif    duration 1.0 hash 78279960.aif mp3hash 78279960.mp3 </sound>
+            <sound> Xylo_g2.aif    duration 1.0 hash 95336313.aif mp3hash 95336313.mp3 </sound>
+            <sound> Xylo_g3.aif    duration 1.0 hash 96259834.aif mp3hash 96259834.mp3 </sound>
+        </set>
+        <set> a
+            <sound> DC_a1.aif    duration 12.0 hash 44885507.aif mp3hash 44885507.mp3 </sound>
+            <sound> DC_a1a.aif    duration 12.0 hash 88696868.aif mp3hash 88696868.mp3 </sound>
+            <sound> DC_a2.aif    duration 12.0 hash 43961986.aif mp3hash 43961986.mp3 </sound>
+            <sound> DC_a2a.aif    duration 12.0 hash 17326019.aif mp3hash 17326019.mp3 </sound>
+            <sound> DC_a3.aif    duration 11.999977 hash 43038465.aif mp3hash 43038465.mp3 </sound>
+            <sound> DC_a3.wav    duration 11.999977 hash 43017555.wav mp3hash 43017555.mp3 </sound>
+            <sound> DC_a3a.aif    duration 11.999977 hash 45955170.aif mp3hash 45955170.mp3 </sound>
+            <sound> DC_a3a.wav    duration 11.999977 hash 45976080.wav mp3hash 45976080.mp3 </sound>
+            <sound> DC_a4.aif    duration 12.0 hash 42114944.aif mp3hash 42114944.mp3 </sound>
+            <sound> DC_a4.wav    duration 12.0 hash 42094034.wav mp3hash 42094034.mp3 </sound>
+            <sound> DC_a4a.aif    duration 12.0 hash 74584321.aif mp3hash 74584321.mp3 </sound>
+            <sound> DC_a4a.wav    duration 12.0 hash 74605231.wav mp3hash 74605231.mp3 </sound>
+            <sound> LR_a1.aif    duration 6.0 hash 47699222.aif mp3hash 47699222.mp3 </sound>
+            <sound> LR_a2.aif    duration 6.0 hash 48622743.aif mp3hash 48622743.mp3 </sound>
+            <sound> LR_a3.aif    duration 6.0 hash 49546264.aif mp3hash 49546264.mp3 </sound>
+            <sound> RT_a1.aif    duration 8.0 hash 16439590.aif mp3hash 16439590.mp3 </sound>
+            <sound> RT_a2.aif    duration 8.0 hash 15516069.aif mp3hash 15516069.mp3 </sound>
+            <sound> RT_a3.aif    duration 8.0 hash 14592548.aif mp3hash 14592548.mp3 </sound>
+            <sound> RT_a4.aif    duration 8.0 hash 13669027.aif mp3hash 13669027.mp3 </sound>
+            <sound> Vibe2_a3.aif    duration 5.0 hash 68843304.aif mp3hash 68843304.mp3 </sound>
+            <sound> Vibe2_a3a.aif    duration 5.0 hash 35074905.aif mp3hash 35074905.mp3 </sound>
+            <sound> Vibe3_a3.aif    duration 4.499977 hash 83313657.aif mp3hash 83313657.mp3 </sound>
+            <sound> Vibe3_a3a.aif    duration 4.499977 hash 72379558.aif mp3hash 72379558.mp3 </sound>
+            <sound> Vibe3_a4.aif    duration 4.499977 hash 82390136.aif mp3hash 82390136.mp3 </sound>
+            <sound> Vibe3_a4a.aif    duration 4.499977 hash 43750407.aif mp3hash 43750407.mp3 </sound>
+            <sound> Vibe_a1.aif    duration 2.5 hash 17285882.aif mp3hash 17285882.mp3 </sound>
+            <sound> Vibe_a1a.aif    duration 2.5 hash 65780165.aif mp3hash 65780165.mp3 </sound>
+            <sound> Vibe_a2.aif    duration 2.5 hash 16362361.aif mp3hash 16362361.mp3 </sound>
+            <sound> Vibe_a2a.aif    duration 2.5 hash 37151014.aif mp3hash 37151014.mp3 </sound>
+            <sound> Vibe_a3.aif    duration 2.5 hash 15438840.aif mp3hash 15438840.mp3 </sound>
+            <sound> Vibe_a3a.aif    duration 2.5 hash 08521863.aif mp3hash 08521863.mp3 </sound>
+            <sound> Xylo_a1.aif    duration 1.0 hash 11911368.aif mp3hash 11911368.mp3 </sound>
+            <sound> Xylo_a2.aif    duration 1.0 hash 10987847.aif mp3hash 10987847.mp3 </sound>
+            <sound> Xylo_a3.aif    duration 1.0 hash 10064326.aif mp3hash 10064326.mp3 </sound>
+        </set>
+        <set> b
+            <sound> DC_b1.aif    duration 12.0 hash 81759581.aif mp3hash 81759581.mp3 </sound>
+            <sound> DC_b1a.aif    duration 12.0 hash 89684028.aif mp3hash 89684028.mp3 </sound>
+            <sound> DC_b2.aif    duration 11.999977 hash 82683102.aif mp3hash 82683102.mp3 </sound>
+            <sound> DC_b2a.aif    duration 11.999977 hash 61054877.aif mp3hash 61054877.mp3 </sound>
+            <sound> DC_b3.aif    duration 11.999977 hash 83606623.aif mp3hash 83606623.mp3 </sound>
+            <sound> DC_b3a.aif    duration 11.999977 hash 32425726.aif mp3hash 32425726.mp3 </sound>
+            <sound> DC_b4.aif    duration 12.0 hash 84530144.aif mp3hash 84530144.mp3 </sound>
+            <sound> DC_b4a.aif    duration 12.0 hash 03796575.aif mp3hash 03796575.mp3 </sound>
+            <sound> LR_b1.aif    duration 6.0 hash 20622986.aif mp3hash 20622986.mp3 </sound>
+            <sound> LR_b2.aif    duration 6.0 hash 19699465.aif mp3hash 19699465.mp3 </sound>
+            <sound> LR_b3.aif    duration 6.0 hash 18775944.aif mp3hash 18775944.mp3 </sound>
+            <sound> RT_b1.aif    duration 8.0 hash 10205498.aif mp3hash 10205498.mp3 </sound>
+            <sound> RT_b1.wav    duration 8.0 hash 10226408.wav mp3hash 10226408.mp3 </sound>
+            <sound> RT_b2.aif    duration 6.0 hash 11129019.aif mp3hash 11129019.mp3 </sound>
+            <sound> RT_b2.wav    duration 6.0 hash 11149929.wav mp3hash 11149929.mp3 </sound>
+            <sound> RT_b3.aif    duration 8.0 hash 12052540.aif mp3hash 12052540.mp3 </sound>
+            <sound> RT_b3.wav    duration 8.0 hash 12073450.wav mp3hash 12073450.mp3 </sound>
+            <sound> RT_b4.aif    duration 8.0 hash 12976061.aif mp3hash 12976061.mp3 </sound>
+            <sound> RT_b4.wav    duration 8.0 hash 12996971.wav mp3hash 12996971.mp3 </sound>
+            <sound> Vibe2_B2.aif    duration 5.0 hash 74857477.aif mp3hash 74857477.mp3 </sound>
+            <sound> Vibe2_B2a.aif    duration 5.0 hash 71187228.aif mp3hash 71187228.mp3 </sound>
+            <sound> Vibe2_b3.aif    duration 5.0 hash 91913830.aif mp3hash 91913830.mp3 </sound>
+            <sound> Vibe2_b3a.aif    duration 5.0 hash 64836901.aif mp3hash 64836901.mp3 </sound>
+            <sound> Vibe3_b2.aif    duration 4.499977 hash 61166652.aif mp3hash 61166652.mp3 </sound>
+            <sound> Vibe3_b2a.aif    duration 4.499977 hash 94046781.aif mp3hash 94046781.mp3 </sound>
+            <sound> Vibe3_b3.aif    duration 4.499977 hash 60243131.aif mp3hash 60243131.mp3 </sound>
+            <sound> Vibe3_b3a.aif    duration 4.499977 hash 22675932.aif mp3hash 22675932.mp3 </sound>
+            <sound> Vibe3_b4.aif    duration 4.499977 hash 59319610.aif mp3hash 59319610.mp3 </sound>
+            <sound> Vibe3_b4a.aif    duration 4.499977 hash 51305083.aif mp3hash 51305083.mp3 </sound>
+            <sound> Vibe_b1.aif    duration 2.5 hash 12907558.aif mp3hash 12907558.mp3 </sound>
+            <sound> Vibe_b1a.aif    duration 2.5 hash 83835109.aif mp3hash 83835109.mp3 </sound>
+            <sound> Vibe_b2.aif    duration 2.5 hash 13831079.aif mp3hash 13831079.mp3 </sound>
+            <sound> Vibe_b2y.aif    duration 2.5 hash 33041454.aif mp3hash 33041454.mp3 </sound>
+            <sound> Vibe_b3.aif    duration 2.0 hash 14754600.aif mp3hash 14754600.mp3 </sound>
+            <sound> Vibe_b3a.aif    duration 2.5 hash 26576807.aif mp3hash 26576807.mp3 </sound>
+            <sound> Vibe_b3ab.aif    duration 2.5 hash 02548279.aif mp3hash 02548279.mp3 </sound>
+            <sound> Vibe_b3ay.aif    duration 2.0 hash 81307296.aif mp3hash 81307296.mp3 </sound>
+            <sound> Xylo_b1.aif    duration 1.0 hash 76685224.aif mp3hash 76685224.mp3 </sound>
+            <sound> Xylo_b2.aif    duration 1.0 hash 75761703.aif mp3hash 75761703.mp3 </sound>
+            <sound> Xylo_b3.aif    duration 1.0 hash 74838182.aif mp3hash 74838182.mp3 </sound>
+        </set>
+        <set> c
+            <sound> DC_c2.aif    duration 12.0 hash 85639106.aif mp3hash 85639106.mp3 </sound>
+            <sound> DC_c2a.aif    duration 12.0 hash 44468477.aif mp3hash 44468477.mp3 </sound>
+            <sound> DC_c3.aif    duration 11.999977 hash 84715585.aif mp3hash 84715585.mp3 </sound>
+            <sound> DC_c3a.aif    duration 11.999977 hash 15839326.aif mp3hash 15839326.mp3 </sound>
+            <sound> DC_c4.aif    duration 11.999977 hash 83792064.aif mp3hash 83792064.mp3 </sound>
+            <sound> DC_c4a.aif    duration 11.999977 hash 87210175.aif mp3hash 87210175.mp3 </sound>
+            <sound> DC_c5.aif    duration 12.0 hash 82868543.aif mp3hash 82868543.mp3 </sound>
+            <sound> DC_c5a.aif    duration 12.0 hash 58581024.aif mp3hash 58581024.mp3 </sound>
+            <sound> LR_c2.aif    duration 6.0 hash 06945623.aif mp3hash 06945623.mp3 </sound>
+            <sound> LR_c3.aif    duration 6.0 hash 07869144.aif mp3hash 07869144.mp3 </sound>
+            <sound> LR_c4.aif    duration 6.0 hash 08792665.aif mp3hash 08792665.mp3 </sound>
+            <sound> RT_c2.aif    duration 8.0 hash 57193189.aif mp3hash 57193189.mp3 </sound>
+            <sound> RT_c3.aif    duration 8.0 hash 56269668.aif mp3hash 56269668.mp3 </sound>
+            <sound> RT_c4.aif    duration 8.0 hash 55346147.aif mp3hash 55346147.mp3 </sound>
+            <sound> RT_c5.aif    duration 8.0 hash 54422626.aif mp3hash 54422626.mp3 </sound>
+            <sound> Vibe2_c3.aif    duration 5.0 hash 14984356.aif mp3hash 14984356.mp3 </sound>
+            <sound> Vibe2_c3a.aif    duration 5.0 hash 30218589.aif mp3hash 30218589.mp3 </sound>
+            <sound> Vibe2_c4.aif    duration 5.0 hash 15907877.aif mp3hash 15907877.mp3 </sound>
+            <sound> Vibe2_c4ay.aif    duration 5.0 hash 62475037.aif mp3hash 62475037.mp3 </sound>
+            <sound> Vibe3_c3.aif    duration 4.499977 hash 37172605.aif mp3hash 37172605.mp3 </sound>
+            <sound> Vibe3_c3a.aif    duration 4.499977 hash 22764126.aif mp3hash 22764126.mp3 </sound>
+            <sound> Vibe3_c4.aif    duration 4.499977 hash 36249084.aif mp3hash 36249084.mp3 </sound>
+            <sound> Vibe3_c4a.aif    duration 4.499977 hash 51393277.aif mp3hash 51393277.mp3 </sound>
+            <sound> Vibe3_c5.aif    duration 4.499977 hash 35325563.aif mp3hash 35325563.mp3 </sound>
+            <sound> Vibe3_c5a.aif    duration 4.499977 hash 80022428.aif mp3hash 80022428.mp3 </sound>
+            <sound> Vibe_c2.aif    duration 2.5 hash 49057223.aif mp3hash 49057223.mp3 </sound>
+            <sound> Vibe_c3.aif    duration 2.5 hash 49980744.aif mp3hash 49980744.mp3 </sound>
+            <sound> Vibe_c4.aif    duration 2.5 hash 50904265.aif mp3hash 50904265.mp3 </sound>
+            <sound> Xylo_c2.aif    duration 1.0 hash 40535559.aif mp3hash 40535559.mp3 </sound>
+            <sound> Xylo_c3.aif    duration 1.0 hash 39612038.aif mp3hash 39612038.mp3 </sound>
+            <sound> Xylo_c4.aif    duration 1.0 hash 38688517.aif mp3hash 38688517.mp3 </sound>
+        </set>
+        <set> eb
+            <sound> DC_Eb2.aif    duration 12.0 hash 93891650.aif mp3hash 93891650.mp3 </sound>
+            <sound> DC_Eb2ay.aif    duration 12.0 hash 16054522.aif mp3hash 16054522.mp3 </sound>
+            <sound> DC_Eb3.aif    duration 11.999977 hash 94815171.aif mp3hash 94815171.mp3 </sound>
+            <sound> DC_Eb3a.aif    duration 11.999977 hash 10124258.aif mp3hash 10124258.mp3 </sound>
+            <sound> DC_Eb4.aif    duration 11.999977 hash 95738692.aif mp3hash 95738692.mp3 </sound>
+            <sound> DC_Eb4a.aif    duration 11.999977 hash 81495107.aif mp3hash 81495107.mp3 </sound>
+            <sound> DC_Eb5.aif    duration 12.0 hash 96662213.aif mp3hash 96662213.mp3 </sound>
+            <sound> DC_Eb5a.aif    duration 12.0 hash 52865956.aif mp3hash 52865956.mp3 </sound>
+            <sound> LR_Eb2.aif    duration 6.0 hash 74737737.aif mp3hash 74737737.mp3 </sound>
+            <sound> LR_Eb3.aif    duration 6.0 hash 75661258.aif mp3hash 75661258.mp3 </sound>
+            <sound> LR_Eb4.aif    duration 6.0 hash 76584779.aif mp3hash 76584779.mp3 </sound>
+            <sound> RT_Eb2.aif    duration 8.0 hash 75715077.aif mp3hash 75715077.mp3 </sound>
+            <sound> RT_Eb3.aif    duration 8.0 hash 76638598.aif mp3hash 76638598.mp3 </sound>
+            <sound> RT_Eb4.aif    duration 8.0 hash 77562119.aif mp3hash 77562119.mp3 </sound>
+            <sound> RT_Eb5.aif    duration 8.0 hash 78485640.aif mp3hash 78485640.mp3 </sound>
+            <sound> Vibe2_Eb3.aif    duration 5.0 hash 72569466.aif mp3hash 72569466.mp3 </sound>
+            <sound> Vibe2_Eb3a.aif    duration 5.0 hash 40559547.aif mp3hash 40559547.mp3 </sound>
+            <sound> Vibe2_Eb4.aif    duration 4.999977 hash 71645945.aif mp3hash 71645945.mp3 </sound>
+            <sound> Vibe2_Eb4a.aif    duration 4.999977 hash 69188698.aif mp3hash 69188698.mp3 </sound>
+            <sound> Vibe3_Eb3.aif    duration 4.499977 hash 14943367.aif mp3hash 14943367.mp3 </sound>
+            <sound> Vibe3_Eb3a.aif    duration 4.499977 hash 44046042.aif mp3hash 44046042.mp3 </sound>
+            <sound> Vibe3_Eb4.aif    duration 6.0 hash 15866888.aif mp3hash 15866888.mp3 </sound>
+            <sound> Vibe3_Eb4a.aif    duration 4.499977 hash 72675193.aif mp3hash 72675193.mp3 </sound>
+            <sound> Vibe3_Eb4b.aif    duration 6.0 hash 73598714.aif mp3hash 73598714.mp3 </sound>
+            <sound> Vibe3_Eb4c.aif    duration 4.499977 hash 74522235.aif mp3hash 74522235.mp3 </sound>
+            <sound> Vibe3_Eb5.aif    duration 4.499977 hash 16790409.aif mp3hash 16790409.mp3 </sound>
+            <sound> Vibe_Eb2.aif    duration 2.5 hash 93656281.aif mp3hash 93656281.mp3 </sound>
+            <sound> Vibe_Eb3.aif    duration 2.5 hash 94579802.aif mp3hash 94579802.mp3 </sound>
+            <sound> Vibe_Eb4.aif    duration 2.5 hash 95503323.aif mp3hash 95503323.mp3 </sound>
+            <sound> Xylo_Eb2.aif    duration 1.0 hash 94439449.aif mp3hash 94439449.mp3 </sound>
+            <sound> Xylo_Eb3.aif    duration 1.0 hash 93515928.aif mp3hash 93515928.mp3 </sound>
+            <sound> Xylo_Eb4.aif    duration 1.0 hash 92592407.aif mp3hash 92592407.mp3 </sound>
+        </set>
+    </layer>
+</song>
+

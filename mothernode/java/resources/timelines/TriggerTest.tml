@@ -1,0 +1,53 @@
+<timeline>
+  name: TriggerTest
+  arena: 200.
+  duration: 120.
+  <event>
+      name: chimes o1 b1
+      trigger: button1
+      startTime: 10
+      <orbs> 1 </orbs>
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/chimes/DC_c2a.aif
+      </properties>
+  </event>
+
+  <event>
+      name: Red o234 b2
+      trigger: button2
+      startTime: 20
+      <orbs> 2 3 4 </orbs>
+      specialist: SimpleColor
+      color: RGB 255 0 0
+  </event>
+
+  <event>
+      name: all blues 1
+      startTime: 0
+      fadeTime: 10
+      <orbs> 0 1 2 3 4 5 </orbs>
+      specialist: SimpleColor
+      color: RGB 0 0 200
+  </event>
+
+  <event>
+      name: all blues 2
+      startTime: 30
+      fadeTime: 5
+      <orbs> 0 1 2 3 4 5 </orbs>
+      specialist: SimpleColor
+      color: RGB 0 0 250
+  </event>
+
+
+  <event>
+      name: all blues 3
+      startTime: 60
+      fadeTime: 5
+      <orbs> 0 1 2 3 4 5 </orbs>
+      specialist: SimpleColor
+      color: RGB 0 0 150
+  </event>
+      
+</timeline>

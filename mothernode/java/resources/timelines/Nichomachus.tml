@@ -1,20 +1,19 @@
 <timeline>
-  name: MultitrackTest2
+  name: Nichomachus
   arena: 200.
-  duration: 80.
+  duration: 600
   <event>
-     name: PlayItSam
+     name: Nichomachus
      specialist: MultiTrack
      startTime: 2
-     endTime: 75
      <properties>
-         base /orbsounds/MultiChannelSongs/SpaceCase
-         track1 SpaceCase_1_Drums.aif
-         track2 SpaceCase_2_Drums.aif
-         track3 SpaceCase_3_Marvin.aif
-         track4 SpaceCase_4_Space.aif
-         track5 SpaceCase_5_BubblesLR.aif
-         track6 SpaceCase_6_VocoderGrowlLR.aif
+         base /orbsounds/MultiChannelSongs/Nichomachus
+         track1 Nichomachus1_DarkAtmoR.aif
+         track2 Nichomachus2_LushL.aif
+         track3 Nichomachus3_Basses.aif
+         track4 Nichomachus4_PanFluteL.aif
+         track5 Nichomachus5_BubblesL.aif
+         track6 Nichomachus6_BubblesR.aif
       </properties>
   </event>
   <event>
@@ -49,10 +48,18 @@
   </event>
 
   <event>
+       name: green
+       specialist: SimpleColor
+       startTime: 100
+       fadeTime: 10
+       <color> RGB 55 150 40 </color>
+  </event>
+
+  <event>
        name: fadetoblack
        specialist: SimpleColor
-       startTime: 65
-       fadeTime: 15
+       startTime: 350
+       fadeTime: 20
        <color> RGB 55 150 40 </color>
   </event>
 

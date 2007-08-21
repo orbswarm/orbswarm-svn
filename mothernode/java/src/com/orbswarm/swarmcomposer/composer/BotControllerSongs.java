@@ -114,6 +114,7 @@ public class BotControllerSongs extends BotController implements NeighborListene
                             pt.join();
                             System.out.println("BC::FINISHED bot thread(" + bot.getName() + ")");
                         } catch (InterruptedException ex) {
+                            System.out.println("BotControllerSongs got interrupted exception waiting for bot threads. ");
                         }
                     }
                 }
@@ -129,6 +130,7 @@ public class BotControllerSongs extends BotController implements NeighborListene
     }
 
     public void stopControllerThread() {
+        System.out.println("BotControllerSongs.stopControllerThread()");
         super.stopControllerThread();
         stopBots();
     }
@@ -196,7 +198,7 @@ public class BotControllerSongs extends BotController implements NeighborListene
     public static void main(String[] args) {
         int numbots = 6;
         if (args.length > 0) {
-            BotControllerSongs botctl = new BotControllerSongs(numbots, "/orbsongs", null);
+            BotControllerSongs botctl = new BotControllerSongs(numbots, "/orbsounds/songs", null);
             botctl.handleArgs(args);
             botctl.playSongs();
         }
