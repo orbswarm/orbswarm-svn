@@ -215,7 +215,7 @@ int main(int argc, char *argv[])
           {
             if(ENABLE_DEBUG) 
               printf("\n Read data: \"%s\"  com5\n",buff2);
-            writeCharsToSerialPort(com2, buff2,bytes2);
+              writeCharsToSerialPort(com2, buff2,bytes2);
           }
         }
       }
