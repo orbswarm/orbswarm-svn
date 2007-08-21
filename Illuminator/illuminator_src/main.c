@@ -71,6 +71,9 @@ int main( void ){
   illum.R=0; 			/* raw RGB output vales */
   illum.G=0;
   illum.B=0;
+  illum.tR=0; 			/* target RGB values */
+  illum.tG=0;
+  illum.tB=0;
   illum.tHue=0;
   illum.tSat=0;
   illum.tVal=0;
@@ -78,7 +81,6 @@ int main( void ){
   illum.Now=0;
   // =======================================================
   
-
 
   while(1)    {
     
@@ -95,7 +97,6 @@ int main( void ){
     }
 
     PORTB=0x0F; 		/* turn on all LEDs */
-
     for(pwm=0;pwm<255;pwm++){
       if(pwm >= illum.R)     /* if we've reached red value turn off R bit */
 	PORTB &=~_BV(PB1);	
