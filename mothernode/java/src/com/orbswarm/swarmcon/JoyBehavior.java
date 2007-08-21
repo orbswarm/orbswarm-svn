@@ -99,12 +99,14 @@ public class JoyBehavior extends Behavior
                   x2 = Double.valueOf(value);
                else if (axis.equals("y2"))
                   y2 = -1 * Double.valueOf(value);
+               swarmCon.joystickXYMotors(orbNum, x1, y1, x2, y2);
             }
             else if (token.equals("button:"))
             {
                 i++;
                 buttonNumber  = Integer.parseInt(tokens[i]);
                 buttonPressed = true;
+                swarmCon.joystickButton(orbNum, buttonNumber);
             }
          }
       }
@@ -112,19 +114,7 @@ public class JoyBehavior extends Behavior
 
       public void update(double time, MotionModel model)
       {
-          if (x1 != 0. && y1 != 0.) {
-              System.out.println("Joy:[Orb: " + orbNum + "](" + x1 +", " + y1 + ")");
-          }
-          if (x2 != 0. && y2 != 0.) {
-              System.out.println("                       Joy:[Orb: " + orbNum + "](" + x1 +", " + y1 + ")");
-          }
-         model.setTargetRollPitchRates(x1, y1);
          swarmCon.joystickXY(orbNum, x1, y1, x2, y2);
-         if (buttonPressed)
-         {
-             System.out.println("             Joy:[Orb: " + orbNum + "] Button " + buttonNumber);
-             swarmCon.joystickButton(orbNum, buttonNumber);
-             buttonPressed = false;
-         }
+         model.setTargetRollPitchRates(x1, y1);
       }
 }

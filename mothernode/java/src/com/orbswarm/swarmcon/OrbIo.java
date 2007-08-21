@@ -41,32 +41,6 @@ public class OrbIo extends SerialIo
          // open serial port
 
          super.open();
-
-         // create a thread to read in orb data
-
-         new Thread()
-         {
-               public void run()
-               {
-                  try
-                  {
-                     LineNumberReader lnr = new LineNumberReader(
-                        new InputStreamReader(in));
-
-                     // now start working
-
-                     while (true)
-                     {
-                        String line = lnr.readLine();
-                        System.out.println("from orb: " + line);
-                     }                        
-                  }
-                  catch (Exception e)
-                  {
-                     e.printStackTrace();
-                  }
-               }
-         }.start();
       }
       /** Register an orb as activly recieiving messages from this
        * object.
@@ -89,19 +63,32 @@ public class OrbIo extends SerialIo
          orbs.get(id).handleMessage(message);
       }
 
-      /** Send a message to the orbs.
-       */
+      /** Send a steering message to orb. */
 
-      public static final int POWER_RANGE = 25;
-      public void motorCommand(int orbId, double roll, double pitch)
+      public void steerOrb(int orbId, int roll)
       {
-         //super.send("{" + 60 + orbId + " drive $" + x + " " + y + "}");
+         orbMotorCommand(orbId, "s" + roll);
       }
-      /** command */
 
-      public void driveOrb(int orbId, double x, double y)
+      /** Send power command to orb. */
+
+      public void powerOrb(int orbId, int power)
       {
-         ///super.send("{" + orbId + " xy " + x + " " + y + "}");
+         orbMotorCommand(orbId, "p" + power);
+      }
+
+      /** Send motor command to orb */
+
+      public void orbMotorCommand(int orbId, String motorCommand)
+      {
+         orbCommand(orbId, "$" + motorCommand + "*");
+      }
+
+      /** Send command to orb */
+
+      public void orbCommand(int orbId, String command)
+      {
+         super.send("{" + (60 + orbId) + " " + command + "}");
       }
       /** for testing */
       

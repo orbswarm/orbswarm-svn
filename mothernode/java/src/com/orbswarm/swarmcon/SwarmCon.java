@@ -31,6 +31,48 @@ import static java.awt.event.KeyEvent.*;
 
 public class SwarmCon extends JFrame 
 {
+      /** allowable range of values for steering */
+
+      public static final int STEERING_RANGE = 100;
+      
+      /** allowable range of values for power */
+
+      public static final int POWER_RANGE = 25;
+
+      /** period between commands in milliseconds */
+
+      public static final int MOTOR_CMD_MILLISECS = 100;
+
+      class MotorCommandInfo
+      {
+            /** steering position */
+            
+            int commandedSteering = 0;
+            
+            /** old steering position */
+            
+            int oldCommandedSteering = 0;
+            
+            /** power position */
+            
+            int commandedPower = 0;
+            
+            /** old power position */
+            
+            int oldCommandedPower = 0;
+      }
+
+      MotorCommandInfo motorCommandInfo[] = 
+      {
+         new MotorCommandInfo(),
+         new MotorCommandInfo(),
+         new MotorCommandInfo(),
+         new MotorCommandInfo(),
+         new MotorCommandInfo(),
+         new MotorCommandInfo(),
+      };
+
+
       // global source of randomness
 
       public static final Random RND = new Random();
@@ -302,7 +344,9 @@ public class SwarmCon extends JFrame
          }
          cardLayout.first(centerPanel);
 
-         // start the animation thread
+         // start motor control thread
+
+         activateMotorControllThread();
       }
 
       boolean running;
@@ -1104,6 +1148,62 @@ public class SwarmCon extends JFrame
          return frame;
       }
 
+      //////////////////////////////////////////
+      /// Joystick handling for motor events ///
+      //////////////////////////////////////////
+
+      public void joystickXYMotors(int orbNum, double x1, double y1, 
+                                   double x2, double y2)
+      {
+         motorCommandInfo[orbNum].commandedSteering = (int)(x1 * STEERING_RANGE);
+         motorCommandInfo[orbNum].commandedPower    = (int)(y1 * POWER_RANGE);
+      }
+
+      public void activateMotorControllThread()
+      {
+         Thread mct = new Thread()
+            {
+                  public void run()
+                  {
+                     while (true)
+                     {
+                        try 
+                        {
+                           commandMotors();
+                           sleep(MOTOR_CMD_MILLISECS);
+                        }
+                        catch (Exception e)
+                        {
+                           e.printStackTrace();
+                        }
+                     }
+                  }
+            };
+         mct.start();
+      }
+
+      public void commandMotors()
+      {
+         if (orbIo != null)
+         {
+            for (int i = 0; i < motorCommandInfo.length; ++i)
+            {
+               MotorCommandInfo mci = motorCommandInfo[i];
+               if (mci.commandedSteering != mci.oldCommandedSteering)
+               {
+                  orbIo.steerOrb(i, mci.commandedSteering);
+                  mci.oldCommandedSteering = mci.commandedSteering;
+               }
+               
+               if (mci.commandedPower != mci.oldCommandedPower)
+               {
+                  orbIo.powerOrb(i, mci.commandedPower);
+                  mci.oldCommandedPower = mci.commandedPower;
+               }
+            }
+         }
+      }
+
       ///////////////////////////////////
       /// Joystick handling           ///
       ///////////////////////////////////
@@ -1111,9 +1211,6 @@ public class SwarmCon extends JFrame
       public void joystickXY(int orbNum, double x1, double y1, 
                            double x2, double y2)
       {
-         if (orbIo != null)
-            orbIo.driveOrb(orbNum, x1, y1);
-         
          timelineDisplay.joystickXY(orbNum, x1, y1, x2, y2);
       }
       
