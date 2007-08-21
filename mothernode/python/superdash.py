@@ -18,7 +18,7 @@ import sys
 import csv
 
 # User settings. OK to edit these if you know what you are doing 
-comport = "COM4"
+comport = "COM5"
 baudrate = 38400
 logFileName = 'dash-log.txt'
 
@@ -33,22 +33,28 @@ driveMin = -30
 steerMax = 100
 steerMin = -100
 
-
+STEERID = 100
+DRIVEID = 101
+AUXID = 102
 
 # don't edit these
 driveRange = driveMax - driveMin
 steerRange = steerMax - steerMin
 
+# struct for orb controller
+class orbStruct:
+	id = 0
+	pass
 
 # struct to hang events from 
 class eventStruct:
-    pass
+	pass
 
 class Dashboard(wx.Frame):
     
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, -1, title,
-                          pos=(150, 150), size=(500, 600))
+                          pos=(150, 20), size=(550, 700))
 
         # Create the menubar
         menuBar = wx.MenuBar()
@@ -73,43 +79,29 @@ class Dashboard(wx.Frame):
         
         self.CreateStatusBar()
         self.InitSerial(comport,baudrate)
-        #self.ser.write('$v16*')  # Kp -- PID prop. gain
-        #self.ser.write('$f20*')  # Ki -- PID integral
-        #self.ser.write('$e10*')  # Kd -- PID derivative
-        #self.ser.write('$b60*')  # Min drive
-        #self.ser.write('$c200*') # Max drive
-        #self.ser.write('$a255*') # Max accel
-        #self.ser.write('$d10*')  # dead band
-
-
-        #self.ser.write('$v5*')  # Kp -- PID prop. gain
-        #self.ser.write('$f0*')  # Ki -- PID integral
-        #self.ser.write('$e00*')  # Kd -- PID derivative
-        #self.ser.write('$b60*')  # Min drive
-        #self.ser.write('$c200*') # Max drive
-        #self.ser.write('$a255*') # Max accel
-        #self.ser.write('$d10*')  # dead band
-
-        # NEW PID CONSTANTS
-#        self.ser.write('$v15*')  # Kp -- PID prop. gain
-#        self.ser.write('$f1*')  # Ki -- PID integral
-#        self.ser.write('$e0*')  # Kd -- PID derivative
-#        self.ser.write('$b30*')  # Min drive
-#        self.ser.write('$c200*') # Max drive
-#        self.ser.write('$a255*') # Max accel
-#        self.ser.write('$d10*')  # dead band
 
         self.InitJoystick()
         self.InitTimer(100)
         self.Bind(wx.EVT_TIMER, self.OnTimerEvt)
         self.tick=0
         self.outQ = []  #output queue for serial commands
-        
+
+	# make list of orbstructs
+	self.orb = []
+	for n in range(6):
+            self.orb.append(orbStruct())
+
+	count = 0
+	for orb in self.orb:
+		orb.enabled = 1
+		orb.orbID = count + 60
+		count = count + 1
+		
         # create the Panel to put the controls on.
         panel = wx.Panel(self)
 
         # add drive control
-        drivelabel = wx.StaticText(panel, -1, "Drive")
+        drivelabel = wx.StaticText(panel, DRIVEID, "Drive")
         drivelabel.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.BOLD))
         drivelabel.SetSize(drivelabel.GetBestSize())
         # slider args: parent, ID, value, min, max, pos, size, flags
@@ -121,9 +113,10 @@ class Dashboard(wx.Frame):
                                wx.SL_LEFT  |
                                wx.SL_INVERSE)
         self.drive.SetTickFreq(8, 1)
+	self.drive.sID = DRIVEID
 
         #steering control
-        steerlabel = wx.StaticText(panel, -1, "Steering")
+        steerlabel = wx.StaticText(panel,STEERID, "Steering")
         steerlabel.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.BOLD))
         steerlabel.SetSize(steerlabel.GetBestSize())
         # slider args: parent, ID, value, min, max, pos, size, flags
@@ -133,6 +126,26 @@ class Dashboard(wx.Frame):
                                wx.SL_AUTOTICKS |
                                wx.SL_LABELS)
         self.steer.SetTickFreq(8, 1)
+	self.steer.sID = STEERID
+
+
+	        #steering control
+        auxlabel = wx.StaticText(panel, AUXID, "AUX")
+        auxlabel.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.BOLD))
+        auxlabel.SetSize(steerlabel.GetBestSize())
+        # slider args: parent, ID, value, min, max, pos, size, flags
+        self.aux = wx.Slider(panel, -1, 0, -100, 100,
+                               wx.DefaultPosition, (-1,250), 
+                               wx.SL_VERTICAL |
+                               wx.SL_AUTOTICKS |
+                               wx.SL_LABELS |
+                               wx.SL_LEFT  |
+                               wx.SL_INVERSE)
+        self.aux.SetTickFreq(8, 1)
+	self.aux.sID = AUXID
+
+
+	
 
 
         # status box for returned serial data
@@ -144,12 +157,30 @@ class Dashboard(wx.Frame):
         self.commandbox = wx.TextCtrl(panel, -1,"send this",
                                       size=(200, 20),
                                       style=wx.TE_PROCESS_ENTER)
-        self.resultbox = wx.TextCtrl(panel, -1,"",
-                                      size=(200, 20),
-                                      style=wx.TE_PROCESS_ENTER)
-        
+#        self.resultbox = wx.TextCtrl(panel, -1,"",
+#                                      size=(200, 20),
+#                                      style=wx.TE_PROCESS_ENTER)
+
+        self.cbox = []
+	self.cbox.append(wx.CheckBox(panel, -1, "Orb60"))
+	self.cbox.append(wx.CheckBox(panel, -1, "Orb61"))
+	self.cbox.append(wx.CheckBox(panel, -1, "Orb62"))
+	self.cbox.append(wx.CheckBox(panel, -1, "Orb63"))
+	self.cbox.append(wx.CheckBox(panel, -1, "Orb64"))
+	self.cbox.append(wx.CheckBox(panel, -1, "Orb65"))
+
+
+	count = 0;
+	for cbox in self.cbox:
+		cbox.n = count
+		cbox.SetValue(self.orb[count].enabled)
+		count = count + 1
+# Should disable if no joystick
+#		if (count > self.myJoy.numjoy): 
+#			cbox.Enable(0)
+
         # send emergency stop command
-        stopBtn = wx.Button(panel, -1, "EMERGENCY STOP")
+        stopBtn = wx.Button(panel, -1, "ALL STOP")
         stopBtn.SetForegroundColour((255,0,0))
 
         # send any command typed into commandbox
@@ -169,42 +200,82 @@ class Dashboard(wx.Frame):
         self.pbtick = 0
         self.maxplayticks = 0;
 
+       
 
         # bind the control events to handlers
         self.Bind(wx.EVT_SCROLL, self.OnSlideEvt,self.drive)
         self.Bind(wx.EVT_SCROLL, self.OnSlideEvt,self.steer)
+        self.Bind(wx.EVT_SCROLL, self.OnSlideEvt,self.aux)
         self.Bind(wx.EVT_BUTTON, self.OnStopBtn, stopBtn)
         self.Bind(wx.EVT_BUTTON, self.OnSendBtn, sendBtn)
         self.Bind(wx.EVT_BUTTON, self.OnLogBtn, self.logBtn)
         self.Bind(wx.EVT_BUTTON, self.OnPlayBtn, self.playBtn)
+	for cbox in self.cbox:
+		self.Bind(wx.EVT_CHECKBOX, self.OnCheckBox, cbox)
+
 
         # Bind commandbox "enter" key to execute command
         self.Bind(wx.EVT_TEXT_ENTER , self.OnSendBtn, self.commandbox)
 
+ 
         # Use a sizer to lay out the controls, in a grid
-        bigGrid = wx.FlexGridSizer(5, 2, 10, 10)  # rows, cols, hgap, vgap
+        bigGrid = wx.FlexGridSizer(11, 3, 10, 10)  # rows, cols, hgap, vgap
         bigGrid.AddMany([
             # top row
             (drivelabel,     0,  wx.ALIGN_CENTER),
             (steerlabel,     0,  0),
+            (auxlabel,     0,  0),
             # second row
             (self.drive,     0, wx.ALIGN_RIGHT),
             (self.steer,     0, wx.ALIGN_LEFT ),
+            (self.aux,     0, wx.ALIGN_LEFT ),
             # third row
             (stopBtn,        0, wx.ALIGN_CENTER),
             (self.statusbox, 0, wx.ALIGN_CENTER),
+            ((10,10),     0,  wx.ALIGN_CENTER),	    
             #fourth row
             (sendBtn,        0, wx.ALIGN_CENTER),
             (self.commandbox,0, wx.ALIGN_LEFT),
+            ((10,10),     0,  wx.ALIGN_CENTER),	    
             #fifth row
             (self.logBtn,        0, wx.ALIGN_CENTER),
             (self.playBtn,       0, wx.ALIGN_CENTER),
+            ((10,10),     0,  wx.ALIGN_CENTER),	    
+	     #sixth row
+            (self.cbox[0],     0,  wx.ALIGN_CENTER),
+            ((10,10),     0,  wx.ALIGN_CENTER),
+            ((10,10),     0,  wx.ALIGN_CENTER),	    
+	     # row 7
+            (self.cbox[1],     0,  wx.ALIGN_CENTER),
+            ((10,10),     0,  wx.ALIGN_CENTER),	    
+            ((10,10),     0,  wx.ALIGN_CENTER),	    
+	     # row 8
+            (self.cbox[2],     0,  wx.ALIGN_CENTER),
+            ((10,10),     0,  wx.ALIGN_CENTER),	    
+            ((10,10),     0,  wx.ALIGN_CENTER),	    
+	     # row 9
+            (self.cbox[3],     0,  wx.ALIGN_CENTER),
+            ((10,10),     0,  wx.ALIGN_CENTER),	    
+            ((10,10),     0,  wx.ALIGN_CENTER),	    
+	     # row 10
+            (self.cbox[4],     0,  wx.ALIGN_CENTER),
+            ((10,10),     0,  wx.ALIGN_CENTER),	    
+            ((10,10),     0,  wx.ALIGN_CENTER),	    
+	     # row 11
+            (self.cbox[5],     0,  wx.ALIGN_CENTER),
+            ((10,10),     0,  wx.ALIGN_CENTER),	    
+            ((10,10),     0,  wx.ALIGN_CENTER)	    
             ])
         panel.SetSizer(bigGrid)
         panel.Layout()
 
 
 ######################################### event handlers
+    def OnCheckBox(self, evt):
+	cbox = evt.GetEventObject()
+	print cbox.GetValue()
+	self.orb[cbox.n].enabled = cbox.GetValue() 
+
     def OnTimeToClose(self, evt):
         """Event handler for any close events."""
         self.ser.Close()
@@ -247,12 +318,35 @@ class Dashboard(wx.Frame):
         self.commandbox.SetValue(cmdStr)
 
     def OnSlideEvt(self,evt):
-        foo=1
-       # self.SendSerial()
+	slider = evt.GetEventObject()
+	if slider.sID == STEERID:
+	    self.DoDriveEvt()	
+	elif slider.sID == DRIVEID:
+	    self.DoSteerEvt()
+        elif slider.sID == AUXID:
+	    self.DoAuxEvt()	
+
+
+    def DoDriveEvt(self):
+	drive = self.drive.GetValue()
+	for o in self.orb:
+	    if(o.enabled):    
+	        print  "{%d $p%d*}" % (o.orbID,drive)
+
+    def DoSteerEvt(self):
+	drive = self.drive.GetValue()
+	for o in self.orb:
+	    if(o.enabled):    
+	        print  "{%d $p%d*}" % (o.orbID,drive)
+
+    def DoAuxEvt(self):
+	aux = self.aux.GetValue()
+	for o in self.orb:
+	    if(o.enabled):    
+	        print  "{%d <L R%d}" % (o.orbID,aux+100)
 
     # this is called regularly by the timer.    
     def OnTimerEvt(self,evt):
-
 
         if self.currentlyPlaying:
             if (self.pbtick < self.maxplayticks):
@@ -333,19 +427,20 @@ class Dashboard(wx.Frame):
         #self.outputStatus(self.ReadSerial())
         drive = self.drive.GetValue()
         if drive != olddrive[0]:
-            print "Drive: %d" % drive
+	    print "Drive: %d" % drive
             #self.ser.write('$t%d*' % drive)
-            self.ser.write('$p%d*' % drive)
-            olddrive[0] = drive
+	    for o in self.orb:
+		#self.ser.write('{%d $p%d*}' % (o.orbID,drive))
+		print  "{%d $p%d*}" % (o.orbID,drive)
+	    olddrive[0] = drive
+
             #self.outputStatus(self.ReadSerial())
         steer = self.steer.GetValue()
         if steer != oldsteer[0]:
-            print "Steer: %d" % steer
             self.ser.write('$s%d*' % steer)
-            #self.outputStatus(self.ReadSerial())
-            self.ser.write('$?*')
-            statline=self.ReadSerial()
-            print statline
+	    for o in self.orb:
+		#self.ser.write('{%d $p%d*}' % (o.orbID,drive))
+		print  "{%d $s%d*}" % (o.orbID,steer)
             oldsteer[0] = steer
         # send any queued serial commands
         while (len(self.outQ) > 0) :
@@ -354,14 +449,16 @@ class Dashboard(wx.Frame):
             #self.resultbox.AppendText(self.ReadSerial())
             print self.ReadSerial()
         #send status query command to flush queue:
-        #send debug off query command to flush queue:
-        self.ser.write('$L0*')
-        #statline=self.ReadSerial()
-        #print statline
-        #self.outputStatus(self.ReadSerial())
-        #self.ser.write('$QI*')
-        #self.parseStatus(self.ReadSerial())
-            
+
+    def sendMotorCmd(self,orb,addr,command):
+	pass
+
+    def sendSoundCmd(self,orb,addr,command):
+	pass
+
+    def sendLEDCmd(self,orb,addr,command):
+	print  "{%d <%d%s>}" % (orb,addr,command)
+    
     def ReadSerial(self):
         incount = self.ser.inWaiting()
         readstring = ""
@@ -398,8 +495,6 @@ class Dashboard(wx.Frame):
             self.fileLen += 1
 
 
-
-
 ########################################  joystick handling 
 
     def OnJoystick(self,e):
@@ -407,11 +502,21 @@ class Dashboard(wx.Frame):
 
         if e.type == pygame.JOYAXISMOTION:
             if (e.dict['axis'] == 0):
-                print "Stick %d Axis 0 %f" % (e.dict['joy'], e.dict['value'])
+                #print "Stick %d Axis 0 %f" % (e.dict['joy'], e.dict['value'])
                 self.steer.SetValue(self.JoyXtoSteer(e.dict['value']))
+		self.DoSteerEvt()
             elif (e.dict['axis'] == 1):
-                print "Stick %d Axis 1 %f" % (e.dict['joy'], e.dict['value'])
+                #print "Stick %d Axis 1 %f" % (e.dict['joy'], e.dict['value'])
                 self.drive.SetValue(self.JoyYtoDrive(e.dict['value']))
+		self.DoDriveEvt()
+            elif (e.dict['axis'] == 2):
+                #print "Stick %d Axis 2 %f" % (e.dict['joy'], e.dict['value'])
+		return  # ignore for now
+            elif (e.dict['axis'] == 3):
+                print "Stick %d Axis 3 %f" % (e.dict['joy'], e.dict['value'])
+                self.aux.SetValue(100*(e.dict['value']))
+		self.DoAuxEvt()
+
         elif e.type == pygame.JOYBUTTONDOWN:
             print "Stick %d Button %d" % (e.dict['joy'], e.dict['button'])
 
