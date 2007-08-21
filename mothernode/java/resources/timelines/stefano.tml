@@ -1,0 +1,81 @@
+<timeline>
+  name: Stephano Symphonic
+  arena: 200.
+  duration: 180.
+  <event>
+     name: Thus spake the big Z
+     specialist: MultiTrack
+     startTime: 15
+     <properties>
+         base /orbsounds/mp3stefano
+         track1 1.mp3
+         track2 2.mp3
+         track3 3.mp3
+         track4 4.mp3
+         track5 5.mp3
+         track6 6.mp3
+      </properties>
+  </event>
+  <event>
+     name: black
+     specialist: SimpleColor
+     startTime: 0.1
+     fadeTime: 4
+     <color> RGB 0 0 0 </color>
+  </event>
+
+  <event>
+     name: fadeIn
+     specialist: SimpleColor
+     startTime: 4
+     fadeTime: 15
+     <color> RGB 80 80 200 </color>
+  </event>
+     
+  <event>
+     name: colorscheme
+     specialist: ColorScheme
+     startTime: 20
+     endTime: end
+     <orbs> 0 1 2 3 4 5  </orbs>
+     <properties>
+         colorscheme Analogous
+         basecolor RGB 80 80 200
+         spread 10
+         meander 40
+     </properties>
+  </event>
+
+  <event>
+      name: bleu
+      target: colorscheme
+      startTime: 60
+      <properties>
+         basecolor RGB 0 0 255
+         spread 10
+         meander 50
+      </properties>
+  </event>
+
+  <event>
+      name: cyan
+      target: colorscheme
+      startTime: 65
+      <properties>
+         basecolor RGB 0 255 255
+         spread 5
+         meander 60
+      </properties>
+  </event>
+
+  <event>
+      name: wide
+      target: colorscheme
+      startTime: 75
+      <properties>
+         spread 45
+         meander 60
+      </properties>
+  </event>
+
+</timeline>
