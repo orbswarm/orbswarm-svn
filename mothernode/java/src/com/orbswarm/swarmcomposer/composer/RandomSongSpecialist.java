@@ -44,7 +44,7 @@ public  class RandomSongSpecialist extends AbstractSpecialist {
         if (enabled) {
             String songDir  = getProperty("songdir",   "resources/songs");
             String songName = getProperty("song",   "terminal.orbs");
-            int time        = getIntProperty("time", 124); // seconds
+            int time        = getIntProperty("time", 0); // seconds
             setDuration(time);
             swarmCon.addSpecialist(this);
 

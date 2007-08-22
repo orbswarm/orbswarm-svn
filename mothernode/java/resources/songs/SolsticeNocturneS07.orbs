@@ -10,7 +10,7 @@
     // Theory:
     //   Ehm:  E F# G A B C Eb E
     //     i: Em  :: E  G  B   EmM7: Eb
-    //    ii: F#m :: F# A  C   F#m7: E
+    //    ii: F#o :: F# A  C   F#o7: E
     //  III+: G+  :: G  B  Eb  G+M7: F#
     //    iv: Am  :: A  C  E   Am7:  G
     //   ivo: Ao  :: A  C  Eb  Ao7:  F#  Ao/7: G
@@ -27,7 +27,7 @@
     
     // matrix of notes against chords
     <matrix>  
-       headers   Em  F#m   G+   Am   Ao Bmaj Cmaj  Eb+  Ebo   end
+       headers   Em  F#o   G+   Am   Ao Bmaj Cmaj  Eb+  Ebo   end
          e      100   80    0  100    0    0  100   40    0   end
          f#      10  100   60   70   40  100   50    0  100   end
          g      100   20  100   80   70   76  100  100    0   end
@@ -39,9 +39,9 @@
 
     // matrix of chords against chords
     <matrix>
-       headers   Em  F#m   G+   Am   Ao Bmaj Cmaj  Eb+  Ebo   end
+       headers   Em  F#o   G+   Am   Ao Bmaj Cmaj  Eb+  Ebo   end
          Em     100    0   80   50    0    0   95   80    0   end
-         F#m      -  100    0   70   80    0    0    0   90   end
+         F#o      -  100    0   70   80    0    0    0   90   end
          G+       -    -  100    0   30   70    0  100    0   end
          Am       -    -    -  100   50    0   90    0   20   end
          Ao       -    -    -    -  100    0    0   30   70   end
@@ -54,7 +54,7 @@
         beatlock 6
         botlimit: 2
         <set> Em   </set>
-        <set> F#m  </set>
+        <set> F#o  </set>
         <set> G+   </set>
         <set> Am   </set>
         <set> Ao   </set>
@@ -67,7 +67,7 @@
         beatlock 6
         botlimit: 2
         <set> Em   </set>
-        <set> F#m  </set>
+        <set> F#o  </set>
         <set> G+   </set>
         <set> Am   </set>
         <set> Ao   </set>
@@ -80,7 +80,7 @@
         beatlock 6
         botlimit: 2
         <set> Em   </set>
-        <set> F#m  </set>
+        <set> F#o  </set>
         <set> G+   </set>
         <set> Am   </set>
         <set> Ao   </set>

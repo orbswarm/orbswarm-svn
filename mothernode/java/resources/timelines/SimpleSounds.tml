@@ -7,7 +7,7 @@
      specialist: SimpleColor
      startTime: 2
      fadeTime: 10
-     <orbs> 0 1 2 3 4 5  </orbs>
+     <orbs> 0 1 2 3 4 5 </orbs>
      <color> RGB 255 0 0 </color>
   </event>
   <event>

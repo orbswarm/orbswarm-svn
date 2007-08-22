@@ -1,0 +1,311 @@
+<song> Dminor9Drones
+    strategy random
+     compiled true
+     <matrix>
+               headers        57       157       Dm7      5679        13       469 end
+                    57       100       100       100        90        90        40 end
+                   157       100       100       100        60        90        10 end
+                   Dm7       100       100       100        80       100        10 end
+                  5679        90        60        80       100        80        40 end
+                    13        90        90       100        80       100        30 end
+                   469        40        10        10        40        30       100 end
+    </matrix>
+    <layer> drones_low
+        <set> 13
+            <sound> Blank_3b_1.aif    duration 7.2010884 hash 17487070.aif mp3hash 17487070.mp3 </sound>
+            <sound> Blank_4b_1.aif    duration 9.6 hash 25323265.aif mp3hash 25323265.mp3 </sound>
+            <sound> Blank_6b_1.aif    duration 14.400725 hash 15976639.aif mp3hash 15976639.mp3 </sound>
+            <sound> GrandDrone_D0_2b.aif    duration 4.897959 hash 65420378.aif mp3hash 65420378.mp3 </sound>
+            <sound> GrandDrone_D0_4b.aif    duration 9.795918 hash 08162076.aif mp3hash 08162076.mp3 </sound>
+            <sound> GrandDrone_D0_4b_copy.aif    duration 9.795918 hash 47558032.aif mp3hash 47558032.mp3 </sound>
+            <sound> GrandDrone_D1_2b.aif    duration 4.897959 hash 77389957.aif mp3hash 77389957.mp3 </sound>
+            <sound> GrandDrone_D1_4b.aif    duration 9.795918 hash 34648259.aif mp3hash 34648259.mp3 </sound>
+            <sound> GrandDrone_D1_4b_copy.aif    duration 9.795918 hash 54155025.aif mp3hash 54155025.mp3 </sound>
+            <sound> GrandDrone_F0_2b.aif    duration 4.897959 hash 85362008.aif mp3hash 85362008.mp3 </sound>
+            <sound> GrandDrone_F0_4b.aif    duration 9.795918 hash 28103706.aif mp3hash 28103706.mp3 </sound>
+            <sound> GrandDrone_F0_4b_copy.aif    duration 9.795918 hash 63559218.aif mp3hash 63559218.mp3 </sound>
+            <sound> Tambura_D2_8b.aif    duration 21.600363 hash 59744056.aif mp3hash 59744056.mp3 </sound>
+            <sound> Voces_D2_4b.aif    duration 12.000362 hash 98076642.aif mp3hash 98076642.mp3 </sound>
+            <sound> Voces_E2_2b.aif    duration 7.2010884 hash 66636123.aif mp3hash 66636123.mp3 </sound>
+            <sound> Voces_F2_4b.aif    duration 12.000362 hash 78135012.aif mp3hash 78135012.mp3 </sound>
+        </set>
+        <set> 567
+            <sound> Blank_3b_1.aif    duration 7.2010884 hash 90039556.aif mp3hash 90039556.mp3 </sound>
+            <sound> Blank_4b_1.aif    duration 9.6 hash 52770779.aif mp3hash 52770779.mp3 </sound>
+            <sound> Blank_6b_1.aif    duration 14.400725 hash 56575847.aif mp3hash 56575847.mp3 </sound>
+            <sound> GrandDrone_A0_2b.aif    duration 4.897959 hash 94049789.aif mp3hash 94049789.mp3 </sound>
+            <sound> GrandDrone_A0_4b.aif    duration 9.795918 hash 51308091.aif mp3hash 51308091.mp3 </sound>
+            <sound> GrandDrone_A0_4b_copy.aif    duration 9.795918 hash 40142745.aif mp3hash 40142745.mp3 </sound>
+            <sound> Tambura_Bb2_2b.aif    duration 7.2010884 hash 39257322.aif mp3hash 39257322.mp3 </sound>
+            <sound> Voces_A2_4b.aif    duration 12.000362 hash 15953221.aif mp3hash 15953221.mp3 </sound>
+            <sound> Voces_Bb2_2b.aif    duration 7.2010884 hash 41876332.aif mp3hash 41876332.mp3 </sound>
+        </set>
+    </layer>
+    <layer> drones_high
+        <set> 13
+            <sound> Blank_3b_1.aif    duration 7.2010884 hash 81868216.aif mp3hash 81868216.mp3 </sound>
+            <sound> Blank_3b_2.aif    duration 7.2010884 hash 80944695.aif mp3hash 80944695.mp3 </sound>
+            <sound> Blank_4b_1.aif    duration 9.6 hash 60942119.aif mp3hash 60942119.mp3 </sound>
+            <sound> Blank_4b_2.aif    duration 9.6 hash 61865640.aif mp3hash 61865640.mp3 </sound>
+            <sound> Blank_5b_1.aif    duration 12.000362 hash 91214842.aif mp3hash 91214842.mp3 </sound>
+            <sound> Blank_5b_2.aif    duration 12.000362 hash 90291321.aif mp3hash 90291321.mp3 </sound>
+            <sound> Blank_6b_1.aif    duration 14.400725 hash 51595493.aif mp3hash 51595493.mp3 </sound>
+            <sound> Blank_6b_2.aif    duration 14.400725 hash 52519014.aif mp3hash 52519014.mp3 </sound>
+            <sound> Blank_6b_3.aif    duration 14.400725 hash 53442535.aif mp3hash 53442535.mp3 </sound>
+            <sound> Blank_6b_4.aif    duration 14.400725 hash 54366056.aif mp3hash 54366056.mp3 </sound>
+            <sound> Blank_7b_1.aif    duration 16.801088 hash 94405828.aif mp3hash 94405828.mp3 </sound>
+            <sound> Blank_7b_2.aif    duration 16.801088 hash 95329349.aif mp3hash 95329349.mp3 </sound>
+            <sound> Tambura_D3_8b.aif    duration 21.600363 hash 20949185.aif mp3hash 20949185.mp3 </sound>
+            <sound> Tambura_F3_2b.aif    duration 7.2010884 hash 29232649.aif mp3hash 29232649.mp3 </sound>
+            <sound> Voces_D3_4b.aif    duration 12.000362 hash 19907931.aif mp3hash 19907931.mp3 </sound>
+            <sound> Voces_D4_4b.aif    duration 12.000362 hash 62718266.aif mp3hash 62718266.mp3 </sound>
+            <sound> Voces_E3_2b.aif    duration 7.2010884 hash 44804834.aif mp3hash 44804834.mp3 </sound>
+            <sound> Voces_E4_2b.aif    duration 7.2010884 hash 98005501.aif mp3hash 98005501.mp3 </sound>
+            <sound> Voces_F3_4b.aif    duration 12.000362 hash 99966301.aif mp3hash 99966301.mp3 </sound>
+            <sound> Voces_F4_4b.aif    duration 12.000362 hash 52190660.aif mp3hash 52190660.mp3 </sound>
+        </set>
+        <set> 567
+            <sound> Blank_3b_1.aif    duration 7.2010884 hash 83948694.aif mp3hash 83948694.mp3 </sound>
+            <sound> Blank_3b_2.aif    duration 7.2010884 hash 84872215.aif mp3hash 84872215.mp3 </sound>
+            <sound> Blank_4b_1.aif    duration 9.6 hash 26759029.aif mp3hash 26759029.mp3 </sound>
+            <sound> Blank_4b_2.aif    duration 9.6 hash 27682550.aif mp3hash 27682550.mp3 </sound>
+            <sound> Blank_5b_1.aif    duration 12.000362 hash 25397932.aif mp3hash 25397932.mp3 </sound>
+            <sound> Blank_5b_2.aif    duration 12.000362 hash 24474411.aif mp3hash 24474411.mp3 </sound>
+            <sound> Blank_6b_1.aif    duration 14.400725 hash 17412403.aif mp3hash 17412403.mp3 </sound>
+            <sound> Blank_6b_2.aif    duration 14.400725 hash 18335924.aif mp3hash 18335924.mp3 </sound>
+            <sound> Blank_6b_3.aif    duration 14.400725 hash 19259445.aif mp3hash 19259445.mp3 </sound>
+            <sound> Blank_6b_4.aif    duration 14.400725 hash 20182966.aif mp3hash 20182966.mp3 </sound>
+            <sound> Blank_7b_1.aif    duration 16.801088 hash 34744558.aif mp3hash 34744558.mp3 </sound>
+            <sound> Blank_7b_2.aif    duration 16.801088 hash 33821037.aif mp3hash 33821037.mp3 </sound>
+            <sound> Voces_A3_4b.aif    duration 12.000362 hash 67077430.aif mp3hash 67077430.mp3 </sound>
+            <sound> Voces_A4_4b.aif    duration 12.000362 hash 75732905.aif mp3hash 75732905.mp3 </sound>
+            <sound> Voces_Bb3_2b.aif    duration 7.2010884 hash 38816909.aif mp3hash 38816909.mp3 </sound>
+            <sound> Voces_Bb4_2b.aif    duration 7.2010884 hash 13340052.aif mp3hash 13340052.mp3 </sound>
+            <sound> Voces_C3_2b.aif    duration 7.2010884 hash 44277362.aif mp3hash 44277362.mp3 </sound>
+            <sound> Voces_C4_2b.aif    duration 7.2010884 hash 98532973.aif mp3hash 98532973.mp3 </sound>
+            <sound> Voces_C5_2b.aif    duration 7.2010884 hash 53623988.aif mp3hash 53623988.mp3 </sound>
+        </set>
+    </layer>
+    <layer> horns_low
+        <set> 13
+            <sound> Blank_3b_1.aif    duration 7.2010884 hash 53995367.aif mp3hash 53995367.mp3 </sound>
+            <sound> Blank_4b_1.aif    duration 9.6 hash 98161594.aif mp3hash 98161594.mp3 </sound>
+            <sound> Blank_6b_1.aif    duration 14.400725 hash 87459076.aif mp3hash 87459076.mp3 </sound>
+            <sound> GrandDrone_D0_2b.aif    duration 4.897959 hash 61930965.aif mp3hash 61930965.mp3 </sound>
+            <sound> GrandDrone_D0_4b.aif    duration 9.795918 hash 04672663.aif mp3hash 04672663.mp3 </sound>
+            <sound> GrandDrone_D0_4b_copy.aif    duration 9.795918 hash 74009557.aif mp3hash 74009557.mp3 </sound>
+            <sound> GrandDrone_D1_2b.aif    duration 4.897959 hash 80879370.aif mp3hash 80879370.mp3 </sound>
+            <sound> GrandDrone_D1_4b.aif    duration 9.795918 hash 38137672.aif mp3hash 38137672.mp3 </sound>
+            <sound> GrandDrone_D1_4b_copy.aif    duration 9.795918 hash 67412564.aif mp3hash 67412564.mp3 </sound>
+            <sound> GrandDrone_F0_2b.aif    duration 4.897959 hash 81872595.aif mp3hash 81872595.mp3 </sound>
+            <sound> GrandDrone_F0_4b.aif    duration 9.795918 hash 24614293.aif mp3hash 24614293.mp3 </sound>
+            <sound> GrandDrone_F0_4b_copy.aif    duration 9.795918 hash 09840489.aif mp3hash 09840489.mp3 </sound>
+            <sound> Tambura_D2_8b.aif    duration 21.600363 hash 96464285.aif mp3hash 96464285.mp3 </sound>
+            <sound> Voces_D2_4b.aif    duration 12.000362 hash 55771587.aif mp3hash 55771587.mp3 </sound>
+            <sound> Voces_E2_2b.aif    duration 7.2010884 hash 74482944.aif mp3hash 74482944.mp3 </sound>
+            <sound> Voces_F2_4b.aif    duration 12.000362 hash 75713217.aif mp3hash 75713217.mp3 </sound>
+        </set>
+        <set> 5679
+            <sound> Blank_3b_1.aif    duration 7.2010884 hash 32020058.aif mp3hash 32020058.mp3 </sound>
+            <sound> Blank_4b_1.aif    duration 9.6 hash 10790277.aif mp3hash 10790277.mp3 </sound>
+            <sound> Blank_6b_1.aif    duration 14.400725 hash 01443651.aif mp3hash 01443651.mp3 </sound>
+            <sound> GrandDrone_A0_2b.aif    duration 4.897959 hash 97330727.aif mp3hash 97330727.mp3 </sound>
+            <sound> GrandDrone_A0_4b.aif    duration 9.795918 hash 54589029.aif mp3hash 54589029.mp3 </sound>
+            <sound> GrandDrone_A0_4b_copy.aif    duration 9.795918 hash 88743855.aif mp3hash 88743855.mp3 </sound>
+            <sound> Tambura_Bb2_2b.aif    duration 7.2010884 hash 64334700.aif mp3hash 64334700.mp3 </sound>
+            <sound> Voces_A2_4b.aif    duration 12.000362 hash 59851995.aif mp3hash 59851995.mp3 </sound>
+            <sound> Voces_Bb2_2b.aif    duration 7.2010884 hash 29051070.aif mp3hash 29051070.mp3 </sound>
+        </set>
+    </layer>
+    <layer> horns_high
+        <set> 13
+            <sound> Blank_3b_1.aif    duration 7.2010884 hash 59250851.aif mp3hash 59250851.mp3 </sound>
+            <sound> Blank_3b_2.aif    duration 7.2010884 hash 60174372.aif mp3hash 60174372.mp3 </sound>
+            <sound> Blank_4b_1.aif    duration 9.6 hash 92906110.aif mp3hash 92906110.mp3 </sound>
+            <sound> Blank_4b_2.aif    duration 9.6 hash 91982589.aif mp3hash 91982589.mp3 </sound>
+            <sound> Blank_5b_1.aif    duration 12.000362 hash 49904225.aif mp3hash 49904225.mp3 </sound>
+            <sound> Blank_5b_2.aif    duration 12.000362 hash 50827746.aif mp3hash 50827746.mp3 </sound>
+            <sound> Blank_6b_1.aif    duration 14.400725 hash 02252736.aif mp3hash 02252736.mp3 </sound>
+            <sound> Blank_6b_2.aif    duration 14.400725 hash 01329215.aif mp3hash 01329215.mp3 </sound>
+            <sound> Blank_6b_3.aif    duration 14.400725 hash 00405694.aif mp3hash 00405694.mp3 </sound>
+            <sound> Blank_6b_4.aif    duration 14.400725 hash 99482173.aif mp3hash 99482173.mp3 </sound>
+            <sound> FHorn_D3_1b.aif    duration 2.4003627 hash 37253716.aif mp3hash 37253716.mp3 </sound>
+            <sound> FHorn_D3_2b.aif    duration 4.8007255 hash 65882867.aif mp3hash 65882867.mp3 </sound>
+            <sound> FHorn_D3_q.aif    duration 0.6008163 hash 93479342.aif mp3hash 93479342.mp3 </sound>
+            <sound> FHorn_D4_q.aif    duration 0.6008163 hash 80983023.aif mp3hash 80983023.mp3 </sound>
+            <sound> FHorn_F3_2b.aif    duration 4.8007255 hash 45941237.aif mp3hash 45941237.mp3 </sound>
+            <sound> FHorn_F3_q.aif    duration 0.6008163 hash 15867284.aif mp3hash 15867284.mp3 </sound>
+            <sound> TrumpetSfz_D3_1b.aif    duration 2.4497051 hash 39858551.aif mp3hash 39858551.mp3 </sound>
+            <sound> TrumpetSfz_D3_2b.aif    duration 4.897959 hash 68487702.aif mp3hash 68487702.mp3 </sound>
+            <sound> TrumpetSfz_D4_2b.aif    duration 4.897959 hash 83669259.aif mp3hash 83669259.mp3 </sound>
+            <sound> TrumpetSfz_F3_1b.aif    duration 2.4497051 hash 75050375.aif mp3hash 75050375.mp3 </sound>
+            <sound> TrumpetSfz_F3_2b.aif    duration 4.897959 hash 46421224.aif mp3hash 46421224.mp3 </sound>
+            <sound> TrumpetSfz_F3_h.aif    duration 1.2248526 hash 31696736.aif mp3hash 31696736.mp3 </sound>
+        </set>
+        <set> 5679
+            <sound> Blank_3b_1.aif    duration 7.2010884 hash 35106274.aif mp3hash 35106274.mp3 </sound>
+            <sound> Blank_3b_2.aif    duration 7.2010884 hash 36029795.aif mp3hash 36029795.mp3 </sound>
+            <sound> Blank_3b_3.aif    duration 7.2010884 hash 36953316.aif mp3hash 36953316.mp3 </sound>
+            <sound> Blank_4b_1.aif    duration 9.6 hash 17050687.aif mp3hash 17050687.mp3 </sound>
+            <sound> Blank_4b_2.aif    duration 9.6 hash 16127166.aif mp3hash 16127166.mp3 </sound>
+            <sound> Blank_5b_1.aif    duration 12.000362 hash 25759648.aif mp3hash 25759648.mp3 </sound>
+            <sound> Blank_5b_2.aif    duration 12.000362 hash 26683169.aif mp3hash 26683169.mp3 </sound>
+            <sound> Blank_6b_1.aif    duration 14.400725 hash 26397313.aif mp3hash 26397313.mp3 </sound>
+            <sound> Blank_6b_2.aif    duration 14.400725 hash 25473792.aif mp3hash 25473792.mp3 </sound>
+            <sound> Blank_6b_3.aif    duration 14.400725 hash 24550271.aif mp3hash 24550271.mp3 </sound>
+            <sound> Blank_6b_4.aif    duration 14.400725 hash 23626750.aif mp3hash 23626750.mp3 </sound>
+            <sound> Blank_7b_1.aif    duration 16.801088 hash 16413022.aif mp3hash 16413022.mp3 </sound>
+            <sound> Blank_7b_2.aif    duration 16.801088 hash 17336543.aif mp3hash 17336543.mp3 </sound>
+            <sound> FHorn_Bb3_q.aif    duration 0.6008163 hash 61823449.aif mp3hash 61823449.mp3 </sound>
+            <sound> FHorn_E3_1b.aif    duration 2.4003627 hash 08617226.aif mp3hash 08617226.mp3 </sound>
+            <sound> FHorn_E3_2b.aif    duration 4.8007255 hash 79988075.aif mp3hash 79988075.mp3 </sound>
+            <sound> FHorn_E3_q.aif    duration 0.6008163 hash 82822196.aif mp3hash 82822196.mp3 </sound>
+            <sound> TrumpetSfz_A2_1b.aif    duration 2.4497051 hash 98379116.aif mp3hash 98379116.mp3 </sound>
+            <sound> TrumpetSfz_A2_2b.aif    duration 4.897959 hash 69749965.aif mp3hash 69749965.mp3 </sound>
+            <sound> TrumpetSfz_A3_1b.aif    duration 2.4497051 hash 44431219.aif mp3hash 44431219.mp3 </sound>
+            <sound> TrumpetSfz_A3_h.aif    duration 1.2248526 hash 87657946.aif mp3hash 87657946.mp3 </sound>
+            <sound> TrumpetSfz_Bb3_h.aif    duration 1.2248526 hash 71709649.aif mp3hash 71709649.mp3 </sound>
+            <sound> TrumpetSfz_C4_h.aif    duration 1.2248526 hash 09500891.aif mp3hash 09500891.mp3 </sound>
+            <sound> TrumpetSfz_E3_h.aif    duration 1.2248526 hash 06351198.aif mp3hash 06351198.mp3 </sound>
+        </set>
+    </layer>
+    <layer> pianos
+        <set> 13
+            <sound> Blank_3b_1.aif    duration 7.2010884 hash 75195268.aif mp3hash 75195268.mp3 </sound>
+            <sound> Blank_4b_1.aif    duration 9.6 hash 67615067.aif mp3hash 67615067.mp3 </sound>
+            <sound> Blank_6b_1.aif    duration 14.400725 hash 41731559.aif mp3hash 41731559.mp3 </sound>
+            <sound> Grand_D1_1b.aif    duration 2.4497051 hash 07998240.aif mp3hash 07998240.mp3 </sound>
+            <sound> Grand_D1_2b.aif    duration 4.897959 hash 36627391.aif mp3hash 36627391.mp3 </sound>
+            <sound> Grand_D2_1b.aif    duration 2.4497051 hash 50808575.aif mp3hash 50808575.mp3 </sound>
+            <sound> Grand_D2_2b.aif    duration 4.897959 hash 79437726.aif mp3hash 79437726.mp3 </sound>
+            <sound> Grand_D3_1b.aif    duration 2.4497051 hash 01348386.aif mp3hash 01348386.mp3 </sound>
+            <sound> Grand_D3_2b.aif    duration 4.897959 hash 72719235.aif mp3hash 72719235.mp3 </sound>
+            <sound> Grand_D4_1b.aif    duration 2.4497051 hash 41461949.aif mp3hash 41461949.mp3 </sound>
+            <sound> Grand_D4_2b.aif    duration 4.897959 hash 70091100.aif mp3hash 70091100.mp3 </sound>
+            <sound> Grand_D5_1b.aif    duration 2.4497051 hash 10695012.aif mp3hash 10695012.mp3 </sound>
+            <sound> Grand_F1_1b.aif    duration 2.4497051 hash 88056610.aif mp3hash 88056610.mp3 </sound>
+            <sound> Grand_F1_2b.aif    duration 4.897959 hash 16685761.aif mp3hash 16685761.mp3 </sound>
+            <sound> Grand_F2_1b.aif    duration 2.4497051 hash 64100351.aif mp3hash 64100351.mp3 </sound>
+            <sound> Grand_F2_2b.aif    duration 4.897959 hash 35471200.aif mp3hash 35471200.mp3 </sound>
+            <sound> Grand_F3_1b.aif    duration 2.4497051 hash 21290016.aif mp3hash 21290016.mp3 </sound>
+            <sound> Grand_F3_2b.aif    duration 4.897959 hash 7339135.aif mp3hash 7339135.mp3 </sound>
+            <sound> Grand_F4_1b.aif    duration 2.4497051 hash 21520319.aif mp3hash 21520319.mp3 </sound>
+            <sound> GrandDrone_D0_1b.aif    duration 2.4497051 hash 81796383.aif mp3hash 81796383.mp3 </sound>
+            <sound> GrandDrone_D1_1b.aif    duration 2.4497051 hash 61013952.aif mp3hash 61013952.mp3 </sound>
+            <sound> GrandDrone_F0_1b.aif    duration 2.4497051 hash 01738013.aif mp3hash 01738013.mp3 </sound>
+            <sound> Grandu_D0_1b.aif    duration 2.4497051 hash 83351838.aif mp3hash 83351838.mp3 </sound>
+            <sound> Grandu_D0_2b.aif    duration 4.897959 hash 11980989.aif mp3hash 11980989.mp3 </sound>
+            <sound> Grandu_D1_1b.aif    duration 2.4497051 hash 68805123.aif mp3hash 68805123.mp3 </sound>
+            <sound> Grandu_D1_2b.aif    duration 4.897959 hash 40175972.aif mp3hash 40175972.mp3 </sound>
+            <sound> Grandu_F0_1b.aif    duration 2.4497051 hash 31557088.aif mp3hash 31557088.mp3 </sound>
+            <sound> Grandu_F0_2b.aif    duration 4.897959 hash 02927937.aif mp3hash 02927937.mp3 </sound>
+        </set>
+        <set> 57
+            <sound> Blank_3b_1.aif    duration 7.2010884 hash 95906812.aif mp3hash 95906812.mp3 </sound>
+            <sound> Blank_4b_1.aif    duration 9.6 hash 56250149.aif mp3hash 56250149.mp3 </sound>
+            <sound> Blank_6b_1.aif    duration 14.400725 hash 65596775.aif mp3hash 65596775.mp3 </sound>
+            <sound> Grand_A1_1b.aif    duration 2.4497051 hash 34623587.aif mp3hash 34623587.mp3 </sound>
+            <sound> Grand_A1_2b.aif    duration 4.897959 hash 05994436.aif mp3hash 05994436.mp3 </sound>
+            <sound> Grand_A2_1b.aif    duration 2.4497051 hash 08186748.aif mp3hash 08186748.mp3 </sound>
+            <sound> Grand_A2_2b.aif    duration 4.897959 hash 36815899.aif mp3hash 36815899.mp3 </sound>
+            <sound> Grand_A3_1b.aif    duration 2.4497051 hash 50997083.aif mp3hash 50997083.mp3 </sound>
+            <sound> Grand_A3_2b.aif    duration 4.897959 hash 79626234.aif mp3hash 79626234.mp3 </sound>
+            <sound> Grand_A4_1b.aif    duration 2.4497051 hash 01159878.aif mp3hash 01159878.mp3 </sound>
+            <sound> Grand_C3_1b.aif    duration 2.4497051 hash 63911843.aif mp3hash 63911843.mp3 </sound>
+            <sound> Grand_C3_2b.aif    duration 4.897959 hash 35282692.aif mp3hash 35282692.mp3 </sound>
+            <sound> Grand_C5_1b.aif    duration 2.4497051 hash 21708827.aif mp3hash 21708827.mp3 </sound>
+            <sound> GrandDrone_A0_1b.aif    duration 2.4497051 hash 67399774.aif mp3hash 67399774.mp3 </sound>
+            <sound> Grandu_A0_1b.aif    duration 2.4497051 hash 39538331.aif mp3hash 39538331.mp3 </sound>
+            <sound> Grandu_A0_2b.aif    duration 4.897959 hash 68167482.aif mp3hash 68167482.mp3 </sound>
+        </set>
+    </layer>
+    <layer> shorts
+        <set> 469
+            <sound> Blank_3b_1.aif    duration 7.2010884 hash 81673164.aif mp3hash 81673164.mp3 </sound>
+            <sound> Blank_4b_1.aif    duration 9.6 hash 61137171.aif mp3hash 61137171.mp3 </sound>
+            <sound> Blank_6b_1.aif    duration 14.400725 hash 48209455.aif mp3hash 48209455.mp3 </sound>
+            <sound> Grand_Bb3_h.aif    duration 1.2248526 hash 32390527.aif mp3hash 32390527.mp3 </sound>
+            <sound> Grand_Bb4_h.aif    duration 1.2248526 hash 55113154.aif mp3hash 55113154.mp3 </sound>
+            <sound> Grand_Bb4_q.aif    duration 0.6124263 hash 63424843.aif mp3hash 63424843.mp3 </sound>
+            <sound> Grand_E3_1b.aif    duration 2.4497051 hash 00447783.aif mp3hash 00447783.mp3 </sound>
+            <sound> Grand_E3_2b.aif    duration 4.897959 hash 29076934.aif mp3hash 29076934.mp3 </sound>
+            <sound> Grand_E3_h.aif    duration 1.2248526 hash 00681230.aif mp3hash 00681230.mp3 </sound>
+            <sound> Grand_E4_1b.aif    duration 2.4497051 hash 51709178.aif mp3hash 51709178.mp3 </sound>
+            <sound> Grand_E4_h.aif    duration 1.2248526 hash 13177549.aif mp3hash 13177549.mp3 </sound>
+            <sound> Grandu_Bb0_h.aif    duration 1.2248526 hash 26598923.aif mp3hash 26598923.mp3 </sound>
+            <sound> Grandu_Bb0_q.aif    duration 0.6124263 hash 34910612.aif mp3hash 34910612.mp3 </sound>
+            <sound> Grandu_E0_h.aif    duration 1.2248526 hash 93271874.aif mp3hash 93271874.mp3 </sound>
+            <sound> Grandu_E0_q.aif    duration 0.6124263 hash 01583563.aif mp3hash 01583563.mp3 </sound>
+            <sound> Voces_Bb4_2b.aif    duration 7.2010884 hash 84046986.aif mp3hash 84046986.mp3 </sound>
+            <sound> Voces_Bb4_h.aif    duration 1.2001814 hash 22787410.aif mp3hash 22787410.mp3 </sound>
+            <sound> Voces_Bb4_q.aif    duration 0.6008163 hash 14475721.aif mp3hash 14475721.mp3 </sound>
+            <sound> Voces_E4_2b.aif    duration 7.2010884 hash 00980591.aif mp3hash 00980591.mp3 </sound>
+            <sound> Voces_E4_h.aif    duration 1.2001814 hash 71709895.aif mp3hash 71709895.mp3 </sound>
+            <sound> Voces_E4_q.aif    duration 0.6008163 hash 80021584.aif mp3hash 80021584.mp3 </sound>
+            <sound> Voces_E5_h.aif    duration 1.2001814 hash 35753720.aif mp3hash 35753720.mp3 </sound>
+        </set>
+        <set> Dm7
+            <sound> Blank_3b_1.aif    duration 7.2010884 hash 11271267.aif mp3hash 11271267.mp3 </sound>
+            <sound> Blank_4b_1.aif    duration 9.6 hash 31539068.aif mp3hash 31539068.mp3 </sound>
+            <sound> Blank_6b_1.aif    duration 14.400725 hash 77807558.aif mp3hash 77807558.mp3 </sound>
+            <sound> Grand_A1_h.aif    duration 1.2248526 hash 86593443.aif mp3hash 86593443.mp3 </sound>
+            <sound> Grand_A1_q.aif    duration 0.6124263 hash 78281754.aif mp3hash 78281754.mp3 </sound>
+            <sound> Grand_A2_1b.aif    duration 2.4497051 hash 45184005.aif mp3hash 45184005.mp3 </sound>
+            <sound> Grand_A2_h.aif    duration 1.2248526 hash 99089762.aif mp3hash 99089762.mp3 </sound>
+            <sound> Grand_A2_q.aif    duration 0.6124263 hash 90778073.aif mp3hash 90778073.mp3 </sound>
+            <sound> Grand_A3_h.aif    duration 1.2248526 hash 11586081.aif mp3hash 11586081.mp3 </sound>
+            <sound> Grand_A3_q.aif    duration 0.6124263 hash 03274392.aif mp3hash 03274392.mp3 </sound>
+            <sound> Grand_A4_1b.aif    duration 2.4497051 hash 54530631.aif mp3hash 54530631.mp3 </sound>
+            <sound> Grand_A4_h.aif    duration 1.2248526 hash 75917600.aif mp3hash 75917600.mp3 </sound>
+            <sound> Grand_C3_h.aif    duration 1.2248526 hash 20932707.aif mp3hash 20932707.mp3 </sound>
+            <sound> Grand_C3_q.aif    duration 0.6124263 hash 12621018.aif mp3hash 12621018.mp3 </sound>
+            <sound> Grand_C4_h.aif    duration 1.2248526 hash 33429026.aif mp3hash 33429026.mp3 </sound>
+            <sound> Grand_C5_h.aif    duration 1.2248526 hash 54074655.aif mp3hash 54074655.mp3 </sound>
+            <sound> Grand_C5_q.aif    duration 0.6124263 hash 62386344.aif mp3hash 62386344.mp3 </sound>
+            <sound> Grand_D1_h.aif    duration 1.2248526 hash 53129734.aif mp3hash 53129734.mp3 </sound>
+            <sound> Grand_D1_q.aif    duration 0.6124263 hash 44818045.aif mp3hash 44818045.mp3 </sound>
+            <sound> Grand_D2_1b.aif    duration 2.4497051 hash 72580098.aif mp3hash 72580098.mp3 </sound>
+            <sound> Grand_D2_h.aif    duration 1.2248526 hash 65626053.aif mp3hash 65626053.mp3 </sound>
+            <sound> Grand_D2_q.aif    duration 0.6124263 hash 57314364.aif mp3hash 57314364.mp3 </sound>
+            <sound> Grand_D3_1b.aif    duration 2.4497051 hash 70230237.aif mp3hash 70230237.mp3 </sound>
+            <sound> Grand_D3_h.aif    duration 1.2248526 hash 21877628.aif mp3hash 21877628.mp3 </sound>
+            <sound> Grand_D3_q.aif    duration 0.6124263 hash 30189317.aif mp3hash 30189317.mp3 </sound>
+            <sound> Grand_D4_1b.aif    duration 2.4497051 hash 81926724.aif mp3hash 81926724.mp3 </sound>
+            <sound> Grand_D4_h.aif    duration 1.2248526 hash 09381309.aif mp3hash 09381309.mp3 </sound>
+            <sound> Grand_D4_q.aif    duration 0.6124263 hash 17692998.aif mp3hash 17692998.mp3 </sound>
+            <sound> Grand_D5_h.aif    duration 1.2248526 hash 98082306.aif mp3hash 98082306.mp3 </sound>
+            <sound> Grand_D5_q.aif    duration 0.6124263 hash 89770617.aif mp3hash 89770617.mp3 </sound>
+            <sound> Grand_F1_h.aif    duration 1.2248526 hash 62476360.aif mp3hash 62476360.mp3 </sound>
+            <sound> Grand_F1_q.aif    duration 0.6124263 hash 54164671.aif mp3hash 54164671.mp3 </sound>
+            <sound> Grand_F2_h.aif    duration 1.2248526 hash 74972679.aif mp3hash 74972679.mp3 </sound>
+            <sound> Grand_F3_h.aif    duration 1.2248526 hash 87468998.aif mp3hash 87468998.mp3 </sound>
+            <sound> Grand_F3_q.aif    duration 0.6124263 hash 79157309.aif mp3hash 79157309.mp3 </sound>
+            <sound> Grand_F4_1b.aif    duration 2.4497051 hash 01868354.aif mp3hash 01868354.mp3 </sound>
+            <sound> Grand_F4_h.aif    duration 1.2248526 hash 00034683.aif mp3hash 00034683.mp3 </sound>
+            <sound> Grandu_A0_h.aif    duration 1.2248526 hash 74293117.aif mp3hash 74293117.mp3 </sound>
+            <sound> Grandu_A0_q.aif    duration 0.6124263 hash 82604806.aif mp3hash 82604806.mp3 </sound>
+            <sound> Grandu_C0_h.aif    duration 1.2248526 hash 35053509.aif mp3hash 35053509.mp3 </sound>
+            <sound> Grandu_C0_q.aif    duration 0.6124263 hash 26741820.aif mp3hash 26741820.mp3 </sound>
+            <sound> Grandu_C1_h.aif    duration 1.2248526 hash 52450172.aif mp3hash 52450172.mp3 </sound>
+            <sound> Grandu_D0_h.aif    duration 1.2248526 hash 07756826.aif mp3hash 07756826.mp3 </sound>
+            <sound> Grandu_D0_q.aif    duration 0.6124263 hash 16068515.aif mp3hash 16068515.mp3 </sound>
+            <sound> Grandu_D1_h.aif    duration 1.2248526 hash 95260507.aif mp3hash 95260507.mp3 </sound>
+            <sound> Grandu_F0_h.aif    duration 1.2248526 hash 98410200.aif mp3hash 98410200.mp3 </sound>
+            <sound> Grandu_F0_q.aif    duration 0.6124263 hash 06721889.aif mp3hash 06721889.mp3 </sound>
+            <sound> Voces_A4_h.aif    duration 1.2001814 hash 34162252.aif mp3hash 34162252.mp3 </sound>
+            <sound> Voces_A4_q.aif    duration 0.6008163 hash 25850563.aif mp3hash 25850563.mp3 </sound>
+            <sound> Voces_A5_h.aif    duration 1.2001814 hash 46658571.aif mp3hash 46658571.mp3 </sound>
+            <sound> Voces_C4_2b.aif    duration 7.2010884 hash 23743674.aif mp3hash 23743674.mp3 </sound>
+            <sound> Voces_C4_q.aif    duration 0.6008163 hash 35197189.aif mp3hash 35197189.mp3 </sound>
+            <sound> Voces_C5_q.aif    duration 0.6008163 hash 47693508.aif mp3hash 47693508.mp3 </sound>
+            <sound> Voces_D4_h.aif    duration 1.2001814 hash 00698543.aif mp3hash 00698543.mp3 </sound>
+            <sound> Voces_D4_q.aif    duration 0.6008163 hash 92386854.aif mp3hash 92386854.mp3 </sound>
+            <sound> Voces_D5_h.aif    duration 1.2001814 hash 86805138.aif mp3hash 86805138.mp3 </sound>
+            <sound> Voces_D5_q.aif    duration 0.6008163 hash 95116827.aif mp3hash 95116827.mp3 </sound>
+            <sound> Voces_F4_h.aif    duration 1.2001814 hash 10045169.aif mp3hash 10045169.mp3 </sound>
+            <sound> Voces_F4_q.aif    duration 0.6008163 hash 01733480.aif mp3hash 01733480.mp3 </sound>
+            <sound> Voces_F5_h.aif    duration 1.2001814 hash 22541488.aif mp3hash 22541488.mp3 </sound>
+        </set>
+    </layer>
+</song>
+

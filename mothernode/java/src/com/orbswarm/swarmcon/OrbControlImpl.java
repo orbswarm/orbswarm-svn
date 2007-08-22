@@ -153,6 +153,12 @@ public class OrbControlImpl implements OrbControl {
             buf.append("<M1 VST>");
             String orbCmd = wrapOrbCommand(orbNum, buf.toString());
             orbIo.send(orbCmd);
+            //
+            // Because the sto commands aren't working too well, after we send the stop command, we play a
+            // 10ms long blank sound to make sure it stops.
+            //
+            String stopSoundCmd = wrapOrbCommand(orbNum, "<M1 VPF Stop.mp3>");
+            orbIo.send(stopSoundCmd);
         }
     
     }

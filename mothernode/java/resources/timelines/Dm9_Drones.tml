@@ -1,0 +1,41 @@
+<timeline>
+  name: Dminor 9 drones
+  arena: 200.
+  duration: 245.
+  <event>
+     name: D minr 9 drones. 
+     specialist: RandomSongPlayer
+     startTime: 16
+     endTime: 230.
+     <orbs> 0 1 2 3 4 5  </orbs>
+     <properties>
+         song Dminor9Drones
+     </properties>
+  </event>
+
+    <event>
+     name: ColorSchemer
+     specialist: ColorScheme
+     startTime: 2
+     endTime: end
+     <orbs> 0 1 2 3 4 5  </orbs>
+     <properties>
+         colorscheme Analogous
+         basecolor RGB 124 200 60
+         spread 12
+         meander 100
+     </properties>
+  </event>
+
+  <event>
+      target: ColorSchemer
+      startTime: 35
+      <properties>
+         colorscheme Crown
+         basecolor RGB 180 240 120
+         spread 15
+         meander 10
+      </properties>
+  </event>
+
+</timeline>
