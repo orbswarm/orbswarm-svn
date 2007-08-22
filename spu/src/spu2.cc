@@ -34,8 +34,8 @@ int main(int argc, char *argv[])
   //Get this orbs Address from its IP address
   char myIP[32];
   getIP("eth0", myIP);
-  if(ENABLE_DEBUG)
-    fprintf(stderr,"\nMY IP ADDRESS: %s\n",myIP);
+  //if(ENABLE_DEBUG)
+    //fprintf(stderr,"\nMY IP ADDRESS: %s\n",myIP);
   int myOrbId =0;
   char* orbAddStart = rindex(myIP,'.');
   myOrbId = atoi(&orbAddStart[1]);
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
            if(msgOrbId == myOrbId)
            {
             if(ENABLE_DEBUG)
-              fprintf(stderr, "\nGOT MESSAGE ORB ID MATCHED\n" );
+              //fprintf(stderr, "\nGOT MESSAGE ORB ID MATCHED\n" );
            if(SWARM_SUCCESS == getMessageForDelims(msgBuff2, MAX_BUFF_SZ, &msgSize2,
                                    msgBuff, msgSize, MSG_HEAD_MOTOR_CONTROLER,
                                    MSG_END_MOTOR_CONTROLER,true))  
@@ -215,12 +215,12 @@ int main(int argc, char *argv[])
           {
             if(ENABLE_DEBUG) 
               printf("\n Read data: \"%s\"  com5\n",buff2);
-              writeCharsToSerialPort(com2, buff2,bytes2);
+            writeCharsToSerialPort(com2, buff2,bytes2);
           }
         }
       }
-         if(ENABLE_DEBUG) 
-	   printf("main loop tick %d\n",tenHzticks);
+         //if(ENABLE_DEBUG) 
+	   //printf("main loop tick %d\n",tenHzticks);
   }
 } //END main() 
 
