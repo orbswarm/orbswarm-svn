@@ -331,19 +331,25 @@ class Dashboard(wx.Frame):
 	drive = self.drive.GetValue()
 	for o in self.orb:
 	    if(o.enabled):    
-	        print  "{%d $p%d*}" % (o.orbID,drive)
+		cmd =  "{%d $p%d*}" % (o.orbID,drive)   
+	        print cmd
+		self.ser.write(cmd);
 
     def DoSteerEvt(self):
 	drive = self.drive.GetValue()
 	for o in self.orb:
 	    if(o.enabled):    
-	        print  "{%d $p%d*}" % (o.orbID,drive)
-
+	        cmd =  "{%d $p%d*}" % (o.orbID,drive)
+	        print cmd
+		self.ser.write(cmd);
+		
     def DoAuxEvt(self):
 	aux = self.aux.GetValue()
 	for o in self.orb:
 	    if(o.enabled):    
-	        print  "{%d <L R%d}" % (o.orbID,aux+100)
+	        cmd =  "{%d <L B%d>}" % (o.orbID,int(2.5*(aux+100)))
+	        print cmd
+		self.ser.write(cmd);
 
     # this is called regularly by the timer.    
     def OnTimerEvt(self,evt):
@@ -450,14 +456,6 @@ class Dashboard(wx.Frame):
             print self.ReadSerial()
         #send status query command to flush queue:
 
-    def sendMotorCmd(self,orb,addr,command):
-	pass
-
-    def sendSoundCmd(self,orb,addr,command):
-	pass
-
-    def sendLEDCmd(self,orb,addr,command):
-	print  "{%d <%d%s>}" % (orb,addr,command)
     
     def ReadSerial(self):
         incount = self.ser.inWaiting()
@@ -493,7 +491,6 @@ class Dashboard(wx.Frame):
             intList= [int(value) for value in dataLine]
             self.logger.writerow(intList)
             self.fileLen += 1
-
 
 ########################################  joystick handling 
 
