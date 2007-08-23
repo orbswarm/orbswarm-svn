@@ -153,6 +153,12 @@ public class SwarmCon extends JFrame
           return orbControlImpl;
       }
 
+      // HACQUE! get the specifically-typed version so we can break our nicely-wrought loose coupling. 
+      public OrbControlImpl getOrbControlImpl() 
+      {
+          return orbControlImpl;
+      }
+
       public OrbIo getOrbIo()
       {
           return this.orbIo;
@@ -293,7 +299,7 @@ public class SwarmCon extends JFrame
          this.colorSchemer = schemer; // too close coupling here, but it's late in the game...
          BotVisualizer bv = setupBotVisualizer(sc);
          this.botVisualizer = bv;
-         TimelineDisplay timelineDisplay = new TimelineDisplay(1100, 150);
+         TimelineDisplay timelineDisplay = new TimelineDisplay(sc, 1100, 150);
          sc.setTimelineDisplay(timelineDisplay);
          timelineDisplay.setSwarmCon(sc);
          sc.setupControlPanel(schemer, bv, timelineDisplay);

@@ -139,7 +139,29 @@ public class OrbControlImpl implements OrbControl {
     public static Sound staticLookupSound(String soundFilePath) {
         return (Sound)soundCatalog.get(soundFilePath);
     }
-    
+
+    boolean sendStopFile = true;
+    boolean sendStopCommand = false;
+    public void setSendStopFile(boolean val) {
+        sendStopFile = val;
+    }
+    public boolean getSendStopFile() {
+        return sendStopFile;
+    }
+
+    public void setSendStopCommand(boolean val) {
+        sendStopCommand = val;
+    }
+    public boolean getSendStopCommand() {
+        return sendStopCommand;
+    }
+
+    // TODO: good defaults mechanism.
+    private int defaultSoundVolume = 100;  // what is acceptable range of values?
+    public int getDefaultSoundVolume() {
+        return defaultSoundVolume;
+    }
+
     public void stopSound(int orbNum) {
         if (simulateSounds) {
             SoundFilePlayer player = getSoundPlayer(orbNum);
@@ -149,20 +171,25 @@ public class OrbControlImpl implements OrbControl {
             }
         }
         if (sendCommandsToOrbs && orbIo != null) {
-            StringBuffer buf = new StringBuffer();
-            buf.append("<M1 VST>");
-            String orbCmd = wrapOrbCommand(orbNum, buf.toString());
-            orbIo.send(orbCmd);
+            if (sendStopCommand) {
+                String stopCommand = "<M1 VST>";
+                String orbCmd = wrapOrbCommand(orbNum, stopCommand);
+                orbIo.send(orbCmd);
+            }
             //
-            // Because the sto commands aren't working too well, after we send the stop command, we play a
+            // Because the stop commands aren't working too well,
+            //  we can optionally play a
             // 10ms long blank sound to make sure it stops.
             //
-            String stopSoundCmd = wrapOrbCommand(orbNum, "<M1 VPF Stop.mp3>");
-            orbIo.send(stopSoundCmd);
+            if (sendStopFile) {
+                String stopSoundCmd = wrapOrbCommand(orbNum, "<M1 VPF Stop.mp3>");
+                orbIo.send(stopSoundCmd);
+            }
         }
     
     }
-    
+
+    // TODO: some kind of master volume facility. 
     public void volume(int orbNum, int volume) {
         if (sendCommandsToOrbs && orbIo != null) {
             StringBuffer buf = new StringBuffer();
@@ -180,7 +207,7 @@ public class OrbControlImpl implements OrbControl {
 
     // only one Light control method implemented
     public void orbColor(int orbNum, HSV hsvColor, int timeMS) {
-        //System.out.println("SwarmCon:OrbControlImpl orbColor(orb: " + orbNum + "HSV: [" + hue + ", " + sat + ", " + val + "]@" + timeMS + ")");
+        //System.out.println("SwarmCon:OrbControlImpl orbColor(orb: " + orbNum + "HSV: " + hsvColor + " time:" + timeMS + ")");
         if (simulateColors) {
             final Orb orb = (Orb)swarmCon.swarm.getOrb(orbNum);
             Color prevOrbColor = orb.getOrbColor();
@@ -195,7 +222,8 @@ public class OrbControlImpl implements OrbControl {
                 final int _orbNum = orbNum;
                 new Thread() {
                     public void run()  {
-                        fadeColor(_orbNum, orb, prevHSV, _hsvColor, _timeMS, 20);
+                        boolean sendFadesToOrbs = true; // need this until Jon implements on-board fades. 
+                        fadeColor(_orbNum, orb, prevHSV, _hsvColor, _timeMS, 200, sendFadesToOrbs);
                     }
                 }.start();
             }
@@ -210,7 +238,7 @@ public class OrbControlImpl implements OrbControl {
             // fade:  <LR64><LG200><LB220><LT2200> to set {r, g, b, time} on all boards
             //        <LF> to do the fade  <L0F> to fade the first, <L1F> the second board
             String boardAddress = " ";  // later: possibly independent board controls
-            StringBuffer buf = new StringBuffer();
+            //StringBuffer buf = new StringBuffer();
             // question: do we send all the commands in one string, or one at a time?
             // answer: yes, we can send them all on one string
             /* there's been a change: now we send colors as RGB...
@@ -218,22 +246,27 @@ public class OrbControlImpl implements OrbControl {
                buf.append("<L" + boardAddress + "S" + sat + ">");
                buf.append("<L" + boardAddress + "V" + val + ">");
             */
-            sendLightingCommand(orbNum, boardAddress,  "R" + hsvColor.getRed());
-            sendLightingCommand(orbNum, boardAddress,  "G" + hsvColor.getGreen());
-            sendLightingCommand(orbNum, boardAddress,  "B" + hsvColor.getBlue());
-            sendLightingCommand(orbNum, boardAddress,  "T" + timeMS);
-
-            orbIo.send(wrapOrbCommand(orbNum, "<L" + boardAddress + "T" + timeMS + ">"));
-            orbIo.send(wrapOrbCommand(orbNum, "<LF>"));
+            sendLightCommand(orbNum, boardAddress, hsvColor, timeMS);
         } else {
             //System.out.println("sendCommandsToOrbs: " + sendCommandsToOrbs + " orbIo: " + orbIo);
         }
+    }
 
+    public void sendLightCommand(int orbNum, String boardAddress, HSV hsvColor, int timeMS) {
+        sendLightingCommand(orbNum, boardAddress,  "R" + hsvColor.getRed());
+        sendLightingCommand(orbNum, boardAddress,  "G" + hsvColor.getGreen());
+        sendLightingCommand(orbNum, boardAddress,  "B" + hsvColor.getBlue());
+        sendLightingCommand(orbNum, boardAddress,  "T" + timeMS);
+        if (orbIo != null) {
+            orbIo.send(wrapOrbCommand(orbNum, "<L F>"));
+        }
     }
 
     // lighting commands need to be sent individually
     public void sendLightingCommand(int orbNum, String boardAddress, String cmd) {
-        orbIo.send(wrapOrbCommand(orbNum, "<L" + boardAddress + cmd + ">"));
+        if (orbIo != null) {
+            orbIo.send(wrapOrbCommand(orbNum, "<L" + boardAddress + cmd + ">"));
+        }
     }
         
     public String wrapOrbCommand(int orbNum, String message) {
@@ -248,8 +281,12 @@ public class OrbControlImpl implements OrbControl {
     }
 
     // simulate the color fading behaviour on an orb. 
-    public void fadeColor(int orbNum, Orb orb, HSV prev, HSV target, int timeMS, int slewMS) {
+    public void fadeColor(int orbNum, Orb orb, HSV prev, HSV target, int timeMS, int slewMS, boolean sendFadesToOrbs) {
+        //System.out.println(" fade color. target: " + target + " timeMS: " + timeMS);
         int steps = timeMS / slewMS;
+        if (steps == 0) {
+            steps = 1;
+        }
         float hue      = prev.getHue();
         float sat      = prev.getSat();
         float val      = prev.getVal();
@@ -264,6 +301,12 @@ public class OrbControlImpl implements OrbControl {
             orbColors[orbNum] = stepColorHSV;
                 
             Color stepColor = stepColorHSV.toColor();
+            if (sendFadesToOrbs) {
+                String boardAddress = " "; // TODO: refactor this.
+                sendLightCommand(orbNum, boardAddress, stepColorHSV, 0);
+                //System.out.println("        FadeColor step: " + stepColorHSV);
+
+            }
             orb.setOrbColor(stepColor);
             try {
                 Thread.sleep(slewMS);

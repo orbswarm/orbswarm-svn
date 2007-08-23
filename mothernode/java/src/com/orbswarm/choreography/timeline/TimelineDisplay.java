@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import javax.swing.*;
+import javax.swing.event.*;
 
 
 /**
@@ -69,7 +70,8 @@ public class TimelineDisplay  {
     private Timeline timeline = null;
     private ArrayList eventTracks = null;
     
-    public TimelineDisplay(int canvasWidth, int canvasHeight) {
+    public TimelineDisplay(SwarmCon swarmCon, int canvasWidth, int canvasHeight) {
+        this.swarmCon = swarmCon;
         this.canvasWidth  = canvasWidth;
         this.canvasHeight = canvasHeight;
         initColors();
@@ -174,7 +176,7 @@ public class TimelineDisplay  {
     public JPanel createTimelineControls() {
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
-        panel.setBackground(bgColor.darker());
+        panel.setBackground(bgColor);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -247,16 +249,139 @@ public class TimelineDisplay  {
                     }
                 }
             });
-        addDebugLeitMotifButtons(panel);
+
+        soundCtlPanel = createSoundCtlPanel();
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 4;
+        panel.add(soundCtlPanel, gbc);
+
+        // TODO: make this panel appear/disappear with a checkbox. 
+        final JPanel triggerButtonsPanel = createTriggerButtonsPanel();
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+
+        JCheckBox triggerPanelCheck = new JCheckBox("triggerTest");
+        triggerPanelCheck.setFont(scpFont);
+        triggerPanelCheck.setBackground(bgColor);
+        triggerPanelCheck.setSelected(false);
+        triggerPanelCheck.addItemListener(new ItemListener() {
+                public void itemStateChanged(ItemEvent itemEvent) {
+                    int state = itemEvent.getStateChange();
+                    boolean sel = (state == ItemEvent.SELECTED);
+                    triggerButtonsPanel.setVisible(sel);
+                }
+            });
+
+        panel.add(triggerPanelCheck, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.gridwidth = 4;
+        triggerButtonsPanel.setVisible(false);
+        panel.add(triggerButtonsPanel, gbc);
+        
         return panel;
     }
-    public void addDebugLeitMotifButtons(JPanel panel) {
+
+    JPanel soundCtlPanel;
+    JPanel triggerButtonsPanel;
+    private JSlider volSlider;
+    JCheckBox vstCheck;
+    JCheckBox stopFileCheck;
+    Font scpFont  = new Font("SansSerif", Font.PLAIN, 8);
+    
+    public JPanel createSoundCtlPanel() {
+        JPanel scp = new JPanel();
+        scp.setBackground(bgColor);
+        scp.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+                
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        JLabel volLabel = new JLabel("Volume");
+        volLabel.setFont(scpFont);
+
+        scp.add(volLabel, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        volSlider = make0100Slider(null, swarmCon.getOrbControlImpl().getDefaultSoundVolume());
+        final JLabel volValueLabel = new JLabel("" + swarmCon.getOrbControlImpl().getDefaultSoundVolume());
+        volSlider.addChangeListener(new ChangeListener() {
+                public void stateChanged(ChangeEvent e) {
+                    JSlider source = (JSlider)e.getSource();
+                    int volume = source.getValue();
+                    volValueLabel.setText("" + volume);
+                    if (!source.getValueIsAdjusting()) {
+                        for(int i=0; i < 6; i++) {
+                            swarmCon.getOrbControl().volume(i, volume);
+                        }
+                    }
+                }
+            });
+        scp.add(volSlider, gbc);
+
+        volValueLabel.setFont(scpFont);
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        scp.add(volValueLabel, gbc);
+
+        vstCheck = new JCheckBox("stopCmd");
+        vstCheck.setBackground(bgColor);
+        vstCheck.setFont(scpFont);
+        vstCheck.setSelected(swarmCon.getOrbControlImpl().getSendStopCommand());
+        vstCheck.addItemListener(new ItemListener() {
+                public void itemStateChanged(ItemEvent itemEvent) {
+                    int state = itemEvent.getStateChange();
+                    boolean sel = (state == ItemEvent.SELECTED);
+                    swarmCon.getOrbControlImpl().setSendStopCommand(sel);
+                }
+            });
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.WEST;
+        scp.add(vstCheck, gbc);
+
+        stopFileCheck = new JCheckBox("stopFile");
+        stopFileCheck.setBackground(bgColor);
+        stopFileCheck.setFont(scpFont);
+        stopFileCheck.setSelected(swarmCon.getOrbControlImpl().getSendStopFile());
+        stopFileCheck.addItemListener(new ItemListener() {
+                public void itemStateChanged(ItemEvent itemEvent) {
+                    int state = itemEvent.getStateChange();
+                    boolean sel = (state == ItemEvent.SELECTED);
+                    swarmCon.getOrbControlImpl().setSendStopFile(sel);
+                }
+            });
+        gbc.gridx = 1;
+        gbc.weightx = 1.;
+        gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        scp.add(stopFileCheck, gbc);
+        return scp;
+    }
+
+    public JSlider make0100Slider(String label, int val) {
+        JSlider slider = new JSlider(JSlider.HORIZONTAL, 0, 100, val);
+        // size matters.
+        Dimension size = slider.getSize();
+        int sliderWidth = 150;
+        int sliderHeight = 20;
+        slider.setMinimumSize(new Dimension(sliderWidth, sliderHeight));
+        slider.setPreferredSize(new Dimension(sliderWidth, sliderHeight));
+        return slider;
+    }
+
+    public JPanel createTriggerButtonsPanel() {
         JPanel dbb = new JPanel();
-        GridBagConstraints gbc0 = new GridBagConstraints();
-        gbc0.gridx = 0;
-        gbc0.gridy = 2;
-        gbc0.gridwidth = 4;
-        panel.add(dbb, gbc0);
+        dbb.setBackground(bgColor);
         dbb.setLayout(new GridBagLayout());
         Font lmbFont  = new Font("SansSerif", Font.PLAIN, 10);
         for(int orbNum=0; orbNum < 6; orbNum++) {
@@ -274,6 +399,7 @@ public class TimelineDisplay  {
                 lmButton.addActionListener(new lmButtonActionListener(orbNum, bNum));
             }
         }
+        return dbb;
     }
 
     class lmButtonActionListener implements ActionListener {
@@ -608,8 +734,11 @@ public class TimelineDisplay  {
     /// Display current state of timeline ///
     /////////////////////////////////////////
 
+    private float cycleTimeNow = 0.f;
+    
     // TODO: give orbState messages to running specialists
     public boolean cycle(float time) {
+        cycleTimeNow = time;
         //System.out.println("TIMELINE cycle[" + time + "]");
         if (time < timeline.getDuration()) {
             stopStoppableEvents(time);
@@ -849,7 +978,7 @@ public class TimelineDisplay  {
 
             int cw = 600;
             int ch = 150;
-            TimelineDisplay timelineDisplay = new TimelineDisplay(cw, ch); // cw, ch??
+            TimelineDisplay timelineDisplay = new TimelineDisplay(null, cw, ch); // cw, ch??
             createFrame(timelineDisplay.getPanel());
             //timelineDisplay.setTimeline(timeline);
             timelineDisplay.drawer.show(true);
@@ -954,23 +1083,27 @@ public class TimelineDisplay  {
         // Not sure if we need to clone the event or something..
         // Also: probably need to reset the startTime to now, & the endTime
         //       based on the duration.
-        startEvent(event);
+        Event triggeredEvent = event.copy();
+        triggeredEvent.resetStartTime(cycleTimeNow);
+        startEvent(triggeredEvent);
     }
     
     public void joystickXY(int orbNum, double x1, double y1, double x2, double y2) {
         // assign x2 to the hue.
-        if (x2 != 0.) {
+        double threshold = .1;
+        if (Math.abs(x2) > threshold) {
             incrementHue(orbNum, x2);
         }
         // assign x2 to the value.
-        if (y2 != 0.) {
+        if (Math.abs(y2) > threshold) {
             incrementVal(orbNum, y2);
         }
     }
 
     public void incrementHue(int orbNum, double coord) {
         // val ranges from 0 to 1. We want to increment the hue by some
-        double hueFactor = .0015; // to compensate for how fast the joystick events come in. 
+        System.out.println("TD:incrementHue (o" + orbNum + ") coord: " + coord);
+        double hueFactor = .0045; // to compensate for how fast the joystick events come in. 
         HSV orbColor = orbControl.getOrbColor(orbNum);
         float hue = 0.f;
         if (orbColor != null) {
@@ -986,7 +1119,8 @@ public class TimelineDisplay  {
 
     public void incrementVal(int orbNum, double coord) {
         // val ranges from 0 to 1. We want to increment the hue by some
-        double valFactor = .008;
+        //System.out.println("TD:incrementVAL (o" + orbNum + ") coord: " + coord);
+        double valFactor = .009;
         HSV orbColor = orbControl.getOrbColor(orbNum);
         float val = 0.f;
         if (orbColor != null) {

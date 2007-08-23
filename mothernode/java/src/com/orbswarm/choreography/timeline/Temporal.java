@@ -57,6 +57,21 @@ public class Temporal {
     protected float     endTime   = NO_TIME;
     protected Properties properties = null;
 
+    protected void copyAttributes(Temporal copy) {
+        copy.name = name;
+        copy.notes = notes;
+        copy.duration = duration;
+        copy.startTime = startTime;
+        copy.endTime = endTime;
+        copy.properties = properties;
+        if (events != null) {
+            for(Iterator it = events.iterator(); it.hasNext(); ) {
+                Event childEvent = (Event)it.next();
+                addEvent(childEvent.copy());
+            }
+        }
+    }
+    
     public void setName(String val) {
         this.name = val;
     }
@@ -101,6 +116,15 @@ public class Temporal {
     }
     public float getStartTime() {
         return this.startTime;
+    }
+
+    public void resetStartTime(float val) {
+        float currentDuration = calculateDuration();
+        startTime = val;
+        if (currentDuration != NO_TIME) {
+            duration = currentDuration;
+            endTime = startTime + currentDuration;
+        }
     }
     
     public void setEndTime(float val)     {

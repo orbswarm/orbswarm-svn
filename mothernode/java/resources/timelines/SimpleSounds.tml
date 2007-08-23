@@ -2,6 +2,18 @@
   name: Simple sound test. 
   arena: 200.
   duration: 40.
+
+  <event>
+     name:  Birds2
+     specialist: SimpleSound
+     <notes> This is the first sample event </notes>
+     startTime: 1
+     <orbs> 0 1 2 3 4 5 </orbs>
+     <properties>
+          soundfile /orbsounds/FX/pastoral/Birds2.aif
+     </properties>
+  </event>
+  
   <event>
      name: reds
      specialist: SimpleColor

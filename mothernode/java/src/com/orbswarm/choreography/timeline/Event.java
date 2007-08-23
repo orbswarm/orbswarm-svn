@@ -69,6 +69,27 @@ public class Event extends Temporal {
         this.parent = parent;
     }
 
+    public Event copy() {
+        Event copy = new Event(timeline, parent);
+        copyAttributes(copy);
+        return copy;
+    }
+
+    protected void copyAttributes(Event copy) {
+        super.copyAttributes(copy);
+        copy.setType(type);
+        copy.setTarget(target);
+        copy.setSpecialist(specialist);  // do we need a deep copy of this?
+        copy.specialistName = specialistName;
+        copy.orbs = orbs;
+        copy.color = color;
+        copy.jcolor = jcolor;
+        copy.fadeTime = fadeTime;
+        copy.sound = sound;
+        copy.song = song;
+        copy.playTime = playTime;
+    }
+        
     public void setType(int val) {
         this.type = val;
     }

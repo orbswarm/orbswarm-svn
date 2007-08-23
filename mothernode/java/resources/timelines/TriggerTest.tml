@@ -1,12 +1,13 @@
 <timeline>
   name: TriggerTest
   arena: 200.
-  duration: 120.
+  duration: 240.
   <event>
       name: chimes o1 b1
       trigger: button1
       startTime: 10
-      <orbs> 1 </orbs>
+      duration: 5
+      <orbs> 4 </orbs>
       specialist: SimpleSound
       <properties>
           soundfile /orbsounds/FX/chimes/DC_c2a.aif
@@ -17,6 +18,7 @@
       name: Red o234 b2
       trigger: button2
       startTime: 20
+      duration: 5
       <orbs> 2 3 4 </orbs>
       specialist: SimpleColor
       color: RGB 255 0 0

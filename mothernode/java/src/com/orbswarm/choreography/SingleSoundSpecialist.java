@@ -20,7 +20,11 @@ public class SingleSoundSpecialist extends AbstractSpecialist {
             sound = orbControl.lookupSound(val);
             System.out.println("             ==> " + sound + " duration: " + (sound == null ? -1.f : sound.getDuration()));
             if (sound != null) {
-                setDuration(sound.getDuration());
+                // little hack here: set the duration to a little longer than the sound's
+                // actual duration so the event end doesn't cut off the sound as it is
+                // fading out -- in case of a bit of a timing glitch.
+                float soundDurationFudgeFactor = .05f; // 20ms
+                setDuration(sound.getDuration() + soundDurationFudgeFactor);
             }
         }
     }
@@ -48,6 +52,12 @@ public class SingleSoundSpecialist extends AbstractSpecialist {
             for(int i=0; i < orbs.length; i++) {
                 int orbNum = orbs[i];
                 if (sound != null) {
+                    // Note: we may not actually want to stop the sounds here.
+                    //       (unless specifically asked for. i.e. we want a distinction
+                    //        between a sound event playing out its full duration and a sound event
+                    //        that is stopped either because the timeline finished or the
+                    //        event was given a duration smaller than the sound's duration. )
+                    
                     orbControl.stopSound(orbNum);
                 }
             }

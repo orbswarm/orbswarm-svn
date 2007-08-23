@@ -31,6 +31,25 @@ public class Sequence extends Event {
         this.next = null;
     }
 
+    public Sequence copy() {
+        Sequence copy = new Sequence(timeline, parent);
+        copyAttributes(copy);
+        return copy;
+    }
+
+    protected void copyAttributes(Sequence copy) {
+        super.copyAttributes(copy);
+        // loop through events in the sequence and add copies to the copy sequence.
+        Sequence n = this;
+        while (n != null) {
+            Event event = n.getFirst();
+            if (event != null) {
+                copy.appendEvent(event.copy());
+            }
+            n = n.getNext();
+        }
+    }        
+
     public Event getFirst() {
         return this.first;
     }
