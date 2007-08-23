@@ -1,0 +1,176 @@
+<timeline>
+  name: Chimes
+  arena: 200.
+  duration: 190.
+  <event>
+      name: Initial chimes0
+      startTime: 2
+      <orbs> 1 5 </orbs>
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/chimes/DC_c2a.aif
+      </properties>
+  </event>
+
+  <event>
+      name: Initial chimes1
+      startTime: 2.3
+      <orbs> 0 2 </orbs>
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/chimes/DC_e3a.aif
+      </properties>
+  </event>
+
+  <event>
+      name: Initial chimes2
+      startTime: 3
+      <orbs> 3 4 </orbs>
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/chimes/DC_g2.aif
+      </properties>
+  </event>
+
+  <event>
+      name: chimes FR f#3
+      startTime: 5
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 4 </orbs>
+      <properties>
+          soundfile /orbsounds/FX/chimes/RT_f#3.aif
+      </properties>
+  </event>
+
+  <event>
+      name: chimes b1
+      trigger: button1
+      startTime: 10
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/chimes/DC_b3.aif
+      </properties>
+  </event>
+
+  <event>
+      name: chimes b2
+      trigger: button2
+      startTime: 10
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/chimes/DC_c2a.aif
+      </properties>
+  </event>
+
+  <event>
+      name: chimes b3
+      trigger: button3
+      startTime: 10
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/chimes/DC_e1a.aif
+      </properties>
+  </event>
+
+  <event>
+      name: chimes b4
+      trigger: button4
+      startTime: 10
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/chimes/DC_f#3.aif
+      </properties>
+  </event>
+
+  <event>
+      name: chimes b5
+      trigger: button5
+      startTime: 10
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/chimes/DC_g2.aif
+      </properties>
+  </event>
+
+  <event>
+      name: chimes b6
+      trigger: button6
+      startTime: 10
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/chimes/RT_f#3.aif
+      </properties>
+  </event>
+
+  <event>
+      name: chimes b7
+      trigger: button6
+      startTime: 10
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/chimes/Vibe2_g3.aif
+      </properties>
+  </event>
+
+  <event>
+      name: chimes b8
+      trigger: button8
+      startTime: 10
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/chimes/giantbell.aif
+      </properties>
+  </event>
+
+  <event>
+      name: Green  Fade b4
+      trigger: button4
+      startTime: 20
+      fadeTime: 5
+      <orbs> 0 1 2 3 4 5 </orbs>
+      specialist: SimpleColor
+      color: RGB 0 200 0 
+  </event>
+
+  <event>
+      name: Blue Fade b5
+      trigger: button5
+      startTime: 20
+      fadeTime: 5
+      <orbs> 0 1 2 3 4 5 </orbs>
+      specialist: SimpleColor
+      color: RGB 0 0 200 
+  </event>
+
+
+  <event>
+      name: Red Fade b7
+      trigger: button7
+      startTime: 20
+      fadeTime: 5
+      <orbs> 0 1 2 3 4 5 </orbs>
+      specialist: SimpleColor
+      color: RGB 255 25 45
+  </event>
+
+  <event>
+      name: Yellow Fade b8
+      trigger: button7
+      startTime: 20
+      fadeTime: 5
+      <orbs> 0 1 2 3 4 5 </orbs>
+      specialist: SimpleColor
+      color: RGB 225 245 45
+  </event>
+
+  
+</timeline>
