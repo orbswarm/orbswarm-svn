@@ -649,6 +649,9 @@ public class TimelineDisplay  {
         //System.out.println("addTrigger(event: " + event + ")");
         String location = event.getTriggerLocation();
         int[] orbs = event.getOrbs();
+        if (orbs == null) {
+            orbs = Event.ALL_ORBS;
+        }
         int action = event.getTriggerAction();
         //
         // once an event is put in the trigger set, it is no longer a trigger

@@ -32,6 +32,8 @@ public class Event extends Temporal {
     public static final int TYPE_PARAMETER = 4;
     public static final int TYPE_ACTION    = 5;
 
+    public static final int[] ALL_ORBS = new int[]{0, 1, 2, 3, 4, 5};
+
     protected Timeline timeline;
     protected Event parent;
 
@@ -55,7 +57,7 @@ public class Event extends Temporal {
     //           "add" keyword or something).
     //
     protected boolean isTrigger         = false;
-    protected int     triggerAction     = TRIGGER_ACTION_REPLACE;  // REPLACE, ADD, CLEAR
+    protected int     triggerAction     = TRIGGER_ACTION_ADD;  // REPLACE, ADD, CLEAR
     protected String  triggerLocation   = null;
 
     ///
