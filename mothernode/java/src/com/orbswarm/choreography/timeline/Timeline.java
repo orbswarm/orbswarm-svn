@@ -98,6 +98,8 @@ public class Timeline extends Temporal {
                     event.setTriggerAction(TRIGGER_ACTION_ADD);
                 } else if (action.equalsIgnoreCase(TRIGGER_CLEAR)) {
                     event.setTriggerAction(TRIGGER_ACTION_CLEAR);
+                } else if (action.equalsIgnoreCase(TRIGGER_REPLACE)) {
+                    event.setTriggerAction(TRIGGER_ACTION_REPLACE);
                 }
 
             } else if (token.equalsIgnoreCase(SPECIALIST)) {

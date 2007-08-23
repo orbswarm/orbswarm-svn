@@ -189,6 +189,72 @@
       color: RGB 225 245 45
   </event>
 
+//////////////////////////////////
+/// clear the old triggers...  ///
+//////////////////////////////////
+
+  <event>
+      name: Xb1
+      trigger: button1
+      triggerAction: clear
+      startTime: 118
+      duration: 2
+  </event>
+
+  <event>
+      name: Xb2
+      trigger: button2
+      triggerAction: clear
+      startTime: 118
+      duration: 2
+  </event>
+
+  <event>
+      name: Xb3
+      trigger: button3
+      triggerAction: clear
+      startTime: 118
+      duration: 2
+  </event>
+
+  <event>
+      name: Xb4
+      trigger: button4
+      triggerAction: clear
+      startTime: 118
+      duration: 2
+  </event>
+
+  <event>
+      name: Xb5
+      trigger: button5
+      triggerAction: clear
+      startTime: 118
+      duration: 2
+  </event>
+
+  <event>
+      name: Xb6
+      trigger: button6
+      triggerAction: clear
+      startTime: 118
+      duration: 2
+  </event>
+  <event>
+      name: Xb7
+      trigger: button7
+      triggerAction: clear
+      startTime: 118
+      duration: 2
+  </event>
+  <event>
+      name: Xb8
+      trigger: button8
+      triggerAction: clear
+      startTime: 118
+      duration: 2
+  </event>
+
 //////////////////////////////////////////////////////////////////////////////////////////
 /// After two minutes  there is a change:                                              ///
 /// The donkeys bray, and the sounds and lights associated with each button changes... ///
