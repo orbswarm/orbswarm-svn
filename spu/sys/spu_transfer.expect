@@ -1,0 +1,27 @@
+#!/usr/bin/expect
+#Usage: expect spu_transfer.expect <hostname/IP> <user> <pass>
+#Run from within the directory where the files you want to transfer are.
+#Requires the expect scripting utility. 
+
+set timeout 20 
+set name [lindex $argv 0]
+set user [lindex $argv 1] 
+set password [lindex $argv 2] 
+spawn ftp $name
+expect "Name" 
+send "$user\r\n"
+expect "Password:" 
+send "\r\n"
+expect "ftp>"
+send "bin\r\n"
+expect "ftp>"
+send "put spu\r\n"
+expect "successfully"
+send "put spu2\r\n"
+expect "successfully"
+send "put spumond\r\n"
+expect "successfully"
+send "put testcom\r\n"
+expect "successfully"
+send "bye\r\n"
+exit

@@ -1,0 +1,15 @@
+#!/usr/bin/expect 
+#Sets permissions on the files copied over to the SPU, then reboots the board.
+#Usage: expect spu.expect <hostname/ip address> <username> <pw>
+set timeout 20 
+set name [lindex $argv 0]
+set user [lindex $argv 1] 
+set password [lindex $argv 2] 
+spawn telnet $name
+expect "login:" 
+send "$user\r\n"
+expect "BusyBox" 
+send "chmod 755 spu spu2 spumond testcom\r\n\n"
+expect "$"
+send "reboot\r\n"
+exit
