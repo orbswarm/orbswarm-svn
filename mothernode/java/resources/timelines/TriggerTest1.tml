@@ -13,6 +13,16 @@
   </event>
 
   <event>
+      name: Test chime 2
+      startTime: 5
+      <orbs> 5 </orbs>
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/chimes/DC_b3.aif
+      </properties>
+  </event>
+
+  <event>
       name: chimes o1 b1
       trigger: button1
       startTime: 16
@@ -22,6 +32,38 @@
       <properties>
           soundfile /orbsounds/FX/chimes/DC_c2a.aif
       </properties>
+  </event>
+
+  <event>
+      name: chime2 all orbs b3
+      trigger: button3
+      startTime: 20
+      duration: 5
+      <orbs> 0 1 2 3 4 5 </orbs>
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/chimes/DC_b3.aif
+      </properties>
+  </event>
+
+  <event>
+      name: Green all orbs b4
+      trigger: button4
+      startTime: 20
+      duration: 5
+      <orbs> 0 1 2 3 4 5 </orbs>
+      specialist: SimpleColor
+      color: RGB 0 200 0 
+  </event>
+
+  <event>
+      name: Blue all orbs b5
+      trigger: button5
+      startTime: 20
+      duration: 5
+      <orbs> 0 1 2 3 4 5 </orbs>
+      specialist: SimpleColor
+      color: RGB 0 0 200 
   </event>
 
   <event>

@@ -388,7 +388,7 @@ public class TimelineDisplay  {
         Font lmbFont  = new Font("SansSerif", Font.PLAIN, 10);
         for(int orbNum=0; orbNum < 6; orbNum++) {
             for(int bNum = 0; bNum < 5; bNum++) {
-                JButton lmButton = new JButton(orbNum + "b" + bNum + "");
+                JButton lmButton = new JButton(orbNum + "b" + (bNum + 1) + "");
                 lmButton.setFont(lmbFont);
                 lmButton.setPreferredSize(new Dimension(60, 16));
                 lmButton.setMinimumSize(new Dimension(60, 16));
@@ -1073,6 +1073,8 @@ public class TimelineDisplay  {
         if (buttonNumber == LEITMOTIF_BUTTON) {
             doLeitMotif(orbNum);
         }
+        buttonNumber ++; // correct for zero-based button numbers and 1-based joystick labels. 
+        
         //System.out.println("JOystickButton. triggerSet.size(): " + triggerSet.size());
         if (triggerSet != null) {
             String triggerHash = "button" + buttonNumber + ":Orb" + orbNum;
@@ -1082,21 +1084,22 @@ public class TimelineDisplay  {
                 for(Iterator it = triggeredEvents.iterator(); it.hasNext(); ) {
                     Event event = (Event)it.next();
                     //System.out.println("Triggering event(" + triggerHash + "): " + event);
-                    startTriggeredEvent(event);
+                    startTriggeredEvent(orbNum, event);
                 }
             }
         }
     }
 
-    public void startTriggeredEvent(Event event) {
+    public void startTriggeredEvent(int orbNum, Event event) {
         // Not sure if we need to clone the event or something..
         // Also: probably need to reset the startTime to now, & the endTime
         //       based on the duration.
         //System.out.println("startTriggeredEvent. event: " + event);
         Event triggeredEvent = event.copy();
+        triggeredEvent.resetStartTime(cycleTimeNow);
+        triggeredEvent.setSingleOrb(orbNum);
         triggeredEvent.setupSpecialist(orbControl);
         //System.out.println("    after copy: " + triggeredEvent);
-        triggeredEvent.resetStartTime(cycleTimeNow);
         //System.out.println("    after reset start time: " + triggeredEvent);
         startEvent(triggeredEvent);
     }

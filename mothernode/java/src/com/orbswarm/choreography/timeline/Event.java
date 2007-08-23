@@ -136,6 +136,12 @@ public class Event extends Temporal {
     }
     
     
+    public void setSingleOrb(int orb) {
+        int [] orbs = new int[1];
+        orbs[0] = orb;
+        setOrbs(orbs);
+    }
+    
     public void setOrbs(int[] orbs) {
         this.orbs = orbs;
     }
