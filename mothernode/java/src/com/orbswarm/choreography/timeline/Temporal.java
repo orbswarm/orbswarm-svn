@@ -26,7 +26,8 @@ public class Temporal {
     public static final String NAME         = "name:";
     public static final String TARGET       = "target:";
     public static final String TRIGGER      = "trigger:";
-    public static final String TRIGGER_ADDITIVE  = "additive";
+    public static final String TRIGGER_ACTION  = "triggerAction:";
+    public static final String TRIGGER_ADDITIVE  = "add";
     public static final String TRIGGER_CLEAR     = "clear";
     public static final String TRIGGER_REPLACE   = "replace";
     public static final int    TRIGGER_ACTION_REPLACE = 0;
@@ -267,8 +268,11 @@ public class Temporal {
             sepIndex = str.indexOf(sep, from);
         }
         if (from < str.length()) {
-            l.add(str.substring(from));
-            System.out.println("    adding [" + str.substring(from) + "]");
+            String token = str.substring(from).trim();
+            if (token.length() > 0) {
+                l.add(token);
+                System.out.println("    adding [" + str.substring(from) + "]");
+            }
         }
         return l;
     }

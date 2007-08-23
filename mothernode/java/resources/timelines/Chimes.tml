@@ -1,7 +1,24 @@
 <timeline>
   name: Chimes
   arena: 200.
-  duration: 190.
+  duration: 300.
+  <event>
+      name: fade to black
+      startTime: 0
+      fadeTime: 2
+      specialist: SimpleColor
+      color: RGB 0 0 0 
+  </event>
+
+  <event>
+      name: all tan
+      startTime: 2
+      fadeTime: 10
+      specialist: SimpleColor
+      color: RGB 245 230 100
+  </event>
+
+
   <event>
       name: Initial chimes0
       startTime: 2
@@ -46,7 +63,7 @@
   <event>
       name: chimes b1
       trigger: button1
-      startTime: 10
+      startTime: 20
       duration: 5
       specialist: SimpleSound
       <properties>
@@ -57,7 +74,7 @@
   <event>
       name: chimes b2
       trigger: button2
-      startTime: 10
+      startTime: 20
       duration: 5
       specialist: SimpleSound
       <properties>
@@ -68,7 +85,7 @@
   <event>
       name: chimes b3
       trigger: button3
-      startTime: 10
+      startTime: 20
       duration: 5
       specialist: SimpleSound
       <properties>
@@ -79,7 +96,7 @@
   <event>
       name: chimes b4
       trigger: button4
-      startTime: 10
+      startTime: 20
       duration: 5
       specialist: SimpleSound
       <properties>
@@ -90,7 +107,7 @@
   <event>
       name: chimes b5
       trigger: button5
-      startTime: 10
+      startTime: 20
       duration: 5
       specialist: SimpleSound
       <properties>
@@ -101,7 +118,7 @@
   <event>
       name: chimes b6
       trigger: button6
-      startTime: 10
+      startTime: 20
       duration: 5
       specialist: SimpleSound
       <properties>
@@ -112,7 +129,7 @@
   <event>
       name: chimes b7
       trigger: button6
-      startTime: 10
+      startTime: 20
       duration: 5
       specialist: SimpleSound
       <properties>
@@ -123,7 +140,7 @@
   <event>
       name: chimes b8
       trigger: button8
-      startTime: 10
+      startTime: 20
       duration: 5
       specialist: SimpleSound
       <properties>
@@ -134,7 +151,7 @@
   <event>
       name: Green  Fade b4
       trigger: button4
-      startTime: 20
+      startTime: 4
       fadeTime: 5
       <orbs> 0 1 2 3 4 5 </orbs>
       specialist: SimpleColor
@@ -144,7 +161,7 @@
   <event>
       name: Blue Fade b5
       trigger: button5
-      startTime: 20
+      startTime: 4
       fadeTime: 5
       <orbs> 0 1 2 3 4 5 </orbs>
       specialist: SimpleColor
@@ -155,7 +172,7 @@
   <event>
       name: Red Fade b7
       trigger: button7
-      startTime: 20
+      startTime: 4
       fadeTime: 5
       <orbs> 0 1 2 3 4 5 </orbs>
       specialist: SimpleColor
@@ -165,12 +182,224 @@
   <event>
       name: Yellow Fade b8
       trigger: button7
-      startTime: 20
+      startTime: 4
       fadeTime: 5
       <orbs> 0 1 2 3 4 5 </orbs>
       specialist: SimpleColor
       color: RGB 225 245 45
   </event>
 
-  
+//////////////////////////////////////////////////////////////////////////////////////////
+/// After two minutes  there is a change:                                              ///
+/// The donkeys bray, and the sounds and lights associated with each button changes... ///
+//////////////////////////////////////////////////////////////////////////////////////////
+
+  <event>
+      name: donkey change 1
+      startTime: 120.
+      <orbs> 0 2 </orbs>
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/animals/Donkey.wav
+      </properties>
+  </event>
+
+  <event>
+      name: duck change 2
+      startTime: 123.
+      <orbs> 3 4 </orbs>
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/animals/Duck.wav
+      </properties>
+  </event>
+
+  <event>
+      name: Goat change 2
+      startTime: 126.
+      specialist: SimpleSound
+      <orbs> 1 5 </orbs>
+      <properties>
+          soundfile /orbsounds/FX/animals/Goats.wav
+      </properties>
+  </event>
+
+  <event>
+     name: fade to white
+     startTime: 115
+     fadeTime: 10
+     specialist: SimpleColor
+     <orbs> 0 1 2 3 4 5 </orbs>
+     color: RGB 255 255 255
+  </event>
+
+  <event>
+     name: fade to blue1
+     startTime: 130
+     fadeTime: 10
+     specialist: SimpleColor
+     <orbs> 0 1  </orbs>
+     color: RGB 45 60 255
+  </event>
+
+  <event>
+     name: fade to blue2
+     startTime: 130
+     fadeTime: 10
+     specialist: SimpleColor
+     <orbs> 2 3  </orbs>
+     color: RGB 0 100 200
+  </event>
+
+  <event>
+     name: fade to blue3
+     startTime: 130
+     fadeTime: 10
+     specialist: SimpleColor
+     <orbs> 4 5  </orbs>
+     color: RGB 70 0 180
+  </event>
+
+  /////////////////////////////////////
+  ///  now we set up new triggers.  ///
+  /////////////////////////////////////
+
+  <event>
+      name: chimes b1
+      trigger: button1
+      triggerAction: replace
+      startTime: 145
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/songs/SolsticeNocturne_S07/notes/a/RT_a2.aif
+      </properties>
+  </event>
+
+  <event>
+      name: chimes b2
+      trigger: button2
+      triggerAction: replace
+      startTime: 145
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/songs/SolsticeNocturne_S07/notes/c/RT_c2.aif
+      </properties>
+  </event>
+
+  <event>
+      name: chimes b3
+      trigger: button3
+      startTime: 145
+      triggerAction: replace
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/songs/SolsticeNocturne_S07/notes/e/DC_e2.aif
+      </properties>
+  </event>
+
+  <event>
+      name: chimes b4
+      trigger: button4
+      startTime: 145
+      triggerAction: replace
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/songs/SolsticeNocturne_S07/notes/e/RT_e2.aif
+      </properties>
+  </event>
+
+  <event>
+      name: chimes b5
+      trigger: button5
+      triggerAction: replace
+      startTime: 145
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/songs/SolsticeNocturne_S07/notes/g/RT_g2.aif
+      </properties>
+  </event>
+
+  <event>
+      name: chimes b6
+      trigger: button6
+      triggerAction: replace
+      startTime: 145
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/songs/SolsticeNocturne_S07/notes/a/DC_a2.aif
+      </properties>
+  </event>
+
+  <event>
+      name: chimes b7
+      trigger: button6
+      triggerAction: replace
+      startTime: 145
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/songs/SolsticeNocturne_S07/notes/a/RT_a3.aif
+      </properties>
+  </event>
+
+  <event>
+      name: chimes b8
+      trigger: button8
+      triggerAction: replace
+      startTime: 145
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/songs/SolsticeNocturne_S07/notes/c/DC_c3.aif
+      </properties>
+  </event>
+
+  <event>
+      name: Green  Fade b4
+      trigger: button4
+      startTime: 165
+      fadeTime: 5
+      <orbs> 0 1 2 3 4 5 </orbs>
+      specialist: SimpleColor
+      color: RGB 0 200 0 
+  </event>
+
+  <event>
+      name: Blue Fade b5
+      trigger: button5
+      startTime: 165
+      fadeTime: 5
+      <orbs> 0 1 2 3 4 5 </orbs>
+      specialist: SimpleColor
+      color: RGB 0 0 200 
+  </event>
+
+
+  <event>
+      name: Red Fade b7
+      trigger: button7
+      startTime: 165
+      fadeTime: 5
+      <orbs> 0 1 2 3 4 5 </orbs>
+      specialist: SimpleColor
+      color: RGB 255 25 45
+  </event>
+
+  <event>
+      name: Yellow Fade b8
+      trigger: button7
+      startTime: 165
+      fadeTime: 5
+      <orbs> 0 1 2 3 4 5 </orbs>
+      specialist: SimpleColor
+      color: RGB 225 245 45
+  </event>
+
+
 </timeline>
