@@ -9,4 +9,6 @@ testcom:  terminal-like program. Usage: "testcom N" where N is com port.
 
 spu:  open pipe: takes com2 aqnd pipes it to com 5 and vice-versa
 
-spumond: Dillo's monoitor daemon
+spu2: Matt's rewrite of mainloop and the IMU/GPS parsing code. 
+
+spumond: Dillo's monitor daemon
