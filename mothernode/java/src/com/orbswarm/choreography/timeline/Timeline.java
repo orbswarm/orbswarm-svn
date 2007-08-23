@@ -90,7 +90,10 @@ public class Timeline extends Temporal {
                 String location = reader.readToken();
                 event.setTrigger(true);
                 event.setTriggerLocation(location.toLowerCase());
+                /* pushToken is not working here.
+                   So we get rid of the option of adding/clearing triggers. 
                 String maybeAction = reader.readToken();
+                System.out.println("Trigger.maybeaction: " + maybeAction);
                 if (maybeAction.equalsIgnoreCase(TRIGGER_ADDITIVE)) {
                     event.setTriggerAction(TRIGGER_ACTION_ADD);
                 } else if (maybeAction.equalsIgnoreCase(TRIGGER_CLEAR)) {
@@ -98,6 +101,7 @@ public class Timeline extends Temporal {
                 } else {
                     reader.pushToken();
                 }
+                */
 
             } else if (token.equalsIgnoreCase(SPECIALIST)) {
                 String specialistName = reader.readToken();

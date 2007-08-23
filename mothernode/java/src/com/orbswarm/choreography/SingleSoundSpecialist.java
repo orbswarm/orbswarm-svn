@@ -14,11 +14,11 @@ public class SingleSoundSpecialist extends AbstractSpecialist {
 
     public void setProperty(String name, String val) {
         super.setProperty(name, val);
-        System.out.println("SingleSoundSpecialist: setProperty(" + name + ") = " + val);
+        //System.out.println("SingleSoundSpecialist: setProperty(" + name + ") = " + val);
         if (name.equalsIgnoreCase("soundfile")) {
             System.out.println("SingleSound: looking up soundfile: " + val);
             sound = orbControl.lookupSound(val);
-            System.out.println("             ==> " + sound + " duration: " + (sound == null ? -1.f : sound.getDuration()));
+            //System.out.println("             ==> " + sound + " duration: " + (sound == null ? -1.f : sound.getDuration()));
             if (sound != null) {
                 // little hack here: set the duration to a little longer than the sound's
                 // actual duration so the event end doesn't cut off the sound as it is
@@ -32,7 +32,7 @@ public class SingleSoundSpecialist extends AbstractSpecialist {
     public void start() {
         if (enabled) {
             String soundFilePath = getProperty("soundfile", null);
-            System.out.println("SSS:start. soundFilePath: " + soundFilePath);
+            //System.out.println("SSS:start. soundFilePath: " + soundFilePath);
             if (soundFilePath != null) {
                 long durationMS = 0;
                 for(int i=0; i < orbs.length; i++) {

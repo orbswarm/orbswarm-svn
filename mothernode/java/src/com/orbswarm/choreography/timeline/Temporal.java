@@ -58,7 +58,7 @@ public class Temporal {
     protected Properties properties = null;
 
     protected void copyAttributes(Temporal copy) {
-        copy.name = name;
+        copy.name = name + "Copy";
         copy.notes = notes;
         copy.duration = duration;
         copy.startTime = startTime;

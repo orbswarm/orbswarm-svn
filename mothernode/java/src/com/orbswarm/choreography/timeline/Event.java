@@ -127,7 +127,9 @@ public class Event extends Temporal {
     
     public void setTarget(String val) {
         this.target = val;
-        this.type = TYPE_PARAMETER;
+        if (val != null) {
+            this.type = TYPE_PARAMETER;
+        }
     }
     public String getTarget()  {
         return this.target;
@@ -348,7 +350,7 @@ public class Event extends Temporal {
     // Start up this event's specialist.
     //
     public Specialist startSpecialist(OrbControl orbControl) {
-        System.out.println("Event(" + getName() + ") startSpecialist:" + specialist);
+        //System.out.println("Event(" + getName() + ") startSpecialist:" + specialist);
         try {
             if (specialist == null) {
                 return null;

@@ -213,6 +213,7 @@ public class TimelineDisplay  {
             });
 
         JButton goButton = new JButton(" > ");
+        goButton.setBackground(bgColor);
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 2;
@@ -232,6 +233,7 @@ public class TimelineDisplay  {
             });
 
         JButton stopButton = new JButton(" [] ");
+        stopButton.setBackground(bgColor);
         gbc.gridx = 2;
         gbc.gridy = 1;
         gbc.gridwidth = 2;
@@ -621,7 +623,8 @@ public class TimelineDisplay  {
             }
             return;
         }
-        System.out.println("Starting Event: " + event);
+        //System.out.println("Starting Event: " + event + " event.type: " + event.getType());
+        //System.out.println("         event.specialist: " + event.getSpecialist());
         int type = event.getType();
         if (type == Event.TYPE_PARAMETER || type == Event.TYPE_ACTION) {
             Event targetEvent = findRunningEvent(event.getTarget());
@@ -643,6 +646,7 @@ public class TimelineDisplay  {
     }
 
     public void addTrigger(Event event) {
+        //System.out.println("addTrigger(event: " + event + ")");
         String location = event.getTriggerLocation();
         int[] orbs = event.getOrbs();
         int action = event.getTriggerAction();
@@ -650,11 +654,14 @@ public class TimelineDisplay  {
         // once an event is put in the trigger set, it is no longer a trigger
         //  (so when we run it as it gets triggered, it doesn't just put itself on the list again)
         //
-        event.setTrigger(false);
+        Event triggerEvent = event.copy();
+        //System.out.println("trigger event (after copy): " + triggerEvent + " action: " + action);
+        triggerEvent.setTrigger(false);
         
         for(int i=0; i < orbs.length; i++) {
             int orbNum = orbs[i];
             String triggerHash = location + ":Orb" + orbNum;
+            //System.out.println(" triggerHash: " + triggerHash);
             if (action == Event.TRIGGER_ACTION_CLEAR) {
                 triggerSet.put(triggerHash, null);
             } else if (action == Event.TRIGGER_ACTION_REPLACE) {
@@ -664,7 +671,7 @@ public class TimelineDisplay  {
                 if (events == null) {
                     events = new ArrayList();
                 }
-                events.add(event);
+                events.add(triggerEvent);
                 triggerSet.put(triggerHash, events);
             }
         }
@@ -1066,13 +1073,15 @@ public class TimelineDisplay  {
         if (buttonNumber == LEITMOTIF_BUTTON) {
             doLeitMotif(orbNum);
         }
+        //System.out.println("JOystickButton. triggerSet.size(): " + triggerSet.size());
         if (triggerSet != null) {
             String triggerHash = "button" + buttonNumber + ":Orb" + orbNum;
+            //System.out.println("   triggerHash: " + triggerHash);
             ArrayList triggeredEvents = (ArrayList)triggerSet.get(triggerHash);
             if (triggeredEvents != null) {
                 for(Iterator it = triggeredEvents.iterator(); it.hasNext(); ) {
                     Event event = (Event)it.next();
-                    System.out.println("Triggering event(" + triggerHash + "): " + event);
+                    //System.out.println("Triggering event(" + triggerHash + "): " + event);
                     startTriggeredEvent(event);
                 }
             }
@@ -1083,8 +1092,12 @@ public class TimelineDisplay  {
         // Not sure if we need to clone the event or something..
         // Also: probably need to reset the startTime to now, & the endTime
         //       based on the duration.
+        //System.out.println("startTriggeredEvent. event: " + event);
         Event triggeredEvent = event.copy();
+        triggeredEvent.setupSpecialist(orbControl);
+        //System.out.println("    after copy: " + triggeredEvent);
         triggeredEvent.resetStartTime(cycleTimeNow);
+        //System.out.println("    after reset start time: " + triggeredEvent);
         startEvent(triggeredEvent);
     }
     
