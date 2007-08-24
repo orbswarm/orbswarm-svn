@@ -329,17 +329,18 @@ class Dashboard(wx.Frame):
 
     def DoDriveEvt(self):
 	drive = self.drive.GetValue()
+	cmd = ""
 	for o in self.orb:
 	    if(o.enabled):    
-		cmd =  "{%d $p%d*}" % (o.orbID,drive)   
-	        print cmd
-		self.ser.write(cmd);
+		cmd +=  "{%d $p%d*}\n" % (o.orbID,drive)   
+	print cmd
+	self.ser.write(cmd);
 
     def DoSteerEvt(self):
-	drive = self.drive.GetValue()
+	steer = self.steer.GetValue()
 	for o in self.orb:
 	    if(o.enabled):    
-	        cmd =  "{%d $p%d*}" % (o.orbID,drive)
+	        cmd =  "{%d $s%d*}" % (o.orbID,steer)
 	        print cmd
 		self.ser.write(cmd);
 		
@@ -349,6 +350,31 @@ class Dashboard(wx.Frame):
 	    if(o.enabled):    
 	        cmd =  "{%d <L B%d>}" % (o.orbID,int(2.5*(aux+100)))
 	        print cmd
+		self.ser.write(cmd);
+
+    def DoJoyButton(self, joy, button):
+	print "Stick %d Button %d" % (joy,button)
+	for o in self.orb:
+	    cmd = ""	
+	    if(o.enabled):
+		if button == 0:    
+		    cmd =  "{%d <M1 VPA>}" % o.orbID
+		elif  button == 1:       
+		    cmd =  "{%d <L R%d>}\n" %   (o.orbID,0)
+		    cmd =  "{%d <L G%d>}\n" %   (o.orbID,0)
+		    cmd =  "{%d <L B%d>}\n" %   (o.orbID,0)
+		elif  button == 2:
+		    cmd =  "{%d <M1 VPF 49443526.mp3>}\n" % o.orbID
+		elif  button == 3:       
+		    cmd =  "{%d <M1 VPF 55061608.mp3>}" % o.orbID
+		elif  button == 4:
+		    cmd =  "{%d <M1 VPF 58720567.mp3>}" % o.orbID
+		elif  button == 6:
+		    cmd =  "{%d <L R%d>}\n" %   (o.orbID,255)
+		    cmd =  "{%d <L G%d>}\n" %   (o.orbID,0)
+		    cmd =  "{%d <L B%d>}\n" %   (o.orbID,0)
+		    cmd =  "{%d <M1 VPF 58720567.mp3>}" % o.orbID
+		print cmd
 		self.ser.write(cmd);
 
     # this is called regularly by the timer.    
@@ -372,7 +398,6 @@ class Dashboard(wx.Frame):
                 self.maxplayticks = self.ticks
                 self.recordState(self.ticks)
                 self.printState(self.ticks)
-        #self.SendSerial()
 
 
     ########################################################
@@ -428,33 +453,6 @@ class Dashboard(wx.Frame):
     # process which runs at a rate set by InitTimer()
     # (This is so commands are not sent too fast as requested by Pete.)
     # (olddrive and oldsteer mimic static vars with immutable Python lists)
-
-    def SendSerial(self,olddrive=[0],oldsteer=[0]): 
-        #self.outputStatus(self.ReadSerial())
-        drive = self.drive.GetValue()
-        if drive != olddrive[0]:
-	    print "Drive: %d" % drive
-            #self.ser.write('$t%d*' % drive)
-	    for o in self.orb:
-		#self.ser.write('{%d $p%d*}' % (o.orbID,drive))
-		print  "{%d $p%d*}" % (o.orbID,drive)
-	    olddrive[0] = drive
-
-            #self.outputStatus(self.ReadSerial())
-        steer = self.steer.GetValue()
-        if steer != oldsteer[0]:
-            self.ser.write('$s%d*' % steer)
-	    for o in self.orb:
-		#self.ser.write('{%d $p%d*}' % (o.orbID,drive))
-		print  "{%d $s%d*}" % (o.orbID,steer)
-            oldsteer[0] = steer
-        # send any queued serial commands
-        while (len(self.outQ) > 0) :
-            self.ser.write(self.outQ.pop(0))
-            self.resultbox.SetValue('')  # clear result box
-            #self.resultbox.AppendText(self.ReadSerial())
-            print self.ReadSerial()
-        #send status query command to flush queue:
 
     
     def ReadSerial(self):
@@ -515,7 +513,7 @@ class Dashboard(wx.Frame):
 		self.DoAuxEvt()
 
         elif e.type == pygame.JOYBUTTONDOWN:
-            print "Stick %d Button %d" % (e.dict['joy'], e.dict['button'])
+	    self.DoJoyButton(e.dict['joy'], e.dict['button'])
 
     def JoyYtoDrive(self,y):
         """ return joystick value normalized to drive max/min"""

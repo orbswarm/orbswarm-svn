@@ -114,7 +114,7 @@ IMU assignments from IMU.h
 // #define HB_LED 5 /* for olimex proto board, portC */
 #define HB_LED 0 /* for daughterboard, port B*/
 
-#define VERSIONSTR "v17.0"
+#define VERSIONSTR "v18.0"
 
 extern volatile unsigned short encoder1_count;
 extern volatile short encoder1_speed;
