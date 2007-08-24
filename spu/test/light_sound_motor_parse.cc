@@ -1,4 +1,20 @@
-#include  <stdio.h>    /* Standard input/output definitions */
+// ---------------------------------------------------------------------
+// 
+//      File: light_sound_motor_parse.cc
+//      SWARM Orb SPU code http://www.orbswarm.com
+//	Test harness for reliably parsing/teasing out motor control and light/sound system commands
+//
+//
+//      ParseMsg is the function. 
+//      you just need to feed it a character pointer and a length of how many bytes you're feeding it. 
+//	Note:The message doesn't have to all be in one buffer, but you do have to say how big the 
+//	buffer is. 
+//      Placeholder`s for passing the messages on down the line are at line 116 
+//      Written by Steve " 'dillo" Okay <armadilo@gothpunk.com> for OrbSWARM 
+//	SPU on noble SWARMers!!
+// -----------------------------------------------------------------------
+
+#include  <stdio.h>    
 #include  <stdarg.h>
 #include  <unistd.h>
 #include  <sys/types.h>
@@ -7,31 +23,39 @@
 #include  "../include/swarmdefines.h"
 #include   "../include/swarmspuutils.h"
 
+
+
+
 int ParseMsg(char *msgptr,int msglen) {
 
 int i=0;
 char inchar;
 char motorbuf[10];
 char lnsbuf[1024];
-char addrbyte[2]={0,0};
-static int inmsg=0;
-static int inlns=0;
-static int inmtr=0;
-static int msgpos=0;
-static int addrcnt=0;
-static int motorpos=0;
-static int lnspos=0;
+char addrbyte[2];
+static int inmsg;
+static int inlns;
+static int inmtr;
+static int msgpos;
+static int addrcnt;
+static int motorpos;
+static int lnspos;
 
 
-     memset(motorbuf,0,sizeof(motorbuf));
-     memset(lnsbuf,0,sizeof(lnsbuf));
+/*     printf("inmsg=%d inlns=%d inmtr=%d msgpos=%d addrcnt=%d motorpos=%d lnspos=%d\n",inmsg,inlns,inmtr,msgpos,addrcnt,motorpos,lnspos);
+*/
+
+    if (inmsg == 0) {
+     		memset(motorbuf,0,sizeof(motorbuf));
+     		memset(lnsbuf,0,sizeof(lnsbuf));
+    } 
 
      for (i=0;i < msglen;i++) {
 		inchar = *msgptr++;
 	/*	printf("%c %d",inchar,i);  */
 		if (inmsg ==0) {
 			if (inchar='{') {
-				printf("INPKT\n");
+			/*	printf("INPKT\n"); */
 		    		inmsg=1;
 				
 			}
@@ -39,7 +63,7 @@ static int lnspos=0;
 			if (((isdigit(inchar)) >0) &&(addrcnt !=2)) {
 				addrbyte[addrcnt++]=inchar;
 			} else if (addrcnt==2){
-					printf("INMSG\n");
+				/*	printf("INMSG\n"); */
 					switch (inchar){
 						case ' ':
 							if(inlns==1) {
@@ -76,7 +100,7 @@ static int lnspos=0;
 							break;
 						case '}':
 							inmsg=0;
-							printf("*ENDMSG*\n");
+							/*printf("*ENDMSG*\n"); */
 							break;
 						default:
 							if (inlns==1) {
@@ -119,12 +143,12 @@ static int lnspos=0;
 
 int main(int argc, char **argv) {
    FILE           *in_file;    /* input file */
-   char lineBuff[80];
+   char lineBuff[9];
    char *msgptr;
    
    in_file = fopen(argv[1], "r");
 
-   fprintf(stderr,"\n Got infile name as :%s",argv[1]);
+   fprintf(stderr,"Got infile name as :%s\n",argv[1]);
    if (in_file == NULL) {
        printf("Cannot open %s\n", argv[1]);
        exit(8);
@@ -132,6 +156,7 @@ int main(int argc, char **argv) {
    while(fgets(lineBuff,sizeof(lineBuff),in_file) != NULL)
    {
     msgptr=lineBuff;
+/*    printf("sending linebuff:%s\n",lineBuff); */
     ParseMsg(msgptr,sizeof(lineBuff));
    }
 }
