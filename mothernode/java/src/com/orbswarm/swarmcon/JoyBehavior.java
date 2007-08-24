@@ -8,6 +8,8 @@ import java.io.File;
 
 import static com.orbswarm.swarmcon.SwarmCon.*;
 
+import com.orbswarm.swarmcomposer.util.TokenReader;
+
 public class JoyBehavior extends Behavior
 {
       double x1;
@@ -17,16 +19,20 @@ public class JoyBehavior extends Behavior
       boolean buttonPressed = false;
       int buttonNumber;
       int orbNum;
+      int joystickNum;
       SwarmCon swarmCon;
+      static int[] joystickToOrbMapping = null;
 
       Thread inputReader;
 
       // create a joy behavior
 
-    public JoyBehavior(final String joyDataFileName, int orbNum, SwarmCon swarmCon)
+    public JoyBehavior(final String joyDataFileName, int joystickNum, SwarmCon swarmCon)
       {
          super("Joy");
-         this.orbNum = orbNum;
+         this.joystickNum = joystickNum;
+         orbNum = joystickToOrbNum(joystickNum);
+
          this.swarmCon = swarmCon;
          
          inputReader = new Thread()
@@ -117,4 +123,43 @@ public class JoyBehavior extends Behavior
          swarmCon.joystickXY(orbNum, x1, y1, x2, y2);
          model.setTargetRollPitchRates(x1, y1);
       }
+
+    // joystick to orb mapping
+    public static int joystickToOrbNum(int joystickNum) {
+        if (joystickToOrbMapping == null) {
+            readJoystickToOrbMapping();
+        }
+        if (joystickToOrbMapping == null) {
+            // if we still don't have the mapping, return the default (1:1 correspondence)
+            return joystickNum;
+        }
+        return joystickToOrbMapping[joystickNum];
+    }
+    
+    public static void readJoystickToOrbMapping() {
+        try {
+            TokenReader reader = new TokenReader("resources/JoyStickToOrbMapping.txt");
+            reader.readUntilToken("num_orbs");
+            int numOrbs = reader.readInt();
+            int [] mapping = new int[numOrbs];
+            String token = reader.readToken();
+            while(token != null) {
+                System.out.println("token:" + token);
+                if (token.equalsIgnoreCase("joystick")) {
+                    int j = reader.readInt();
+                    String ot = reader.readToken(); // "orb"
+                    int o = reader.readInt();
+                    mapping[j] = o;
+                }
+                token = reader.readToken();
+            }
+            joystickToOrbMapping = mapping;
+        } catch (Exception ex) {
+            System.out.println("JoyBehaviour.readJoystickToOrbMapping caught exception.");
+            System.out.println(" Using default mapping (0=0, ..., 5=5)");
+            ex.printStackTrace();
+        }
+    }
+            
+    
 }

@@ -234,7 +234,7 @@ public class TimelineDisplay  {
 
         JButton stopButton = new JButton(" [] ");
         stopButton.setBackground(bgColor);
-        gbc.gridx = 2;
+        gbc.gridx = 1;
         gbc.gridy = 1;
         gbc.gridwidth = 2;
         gbc.weightx = 1.0;
@@ -365,7 +365,7 @@ public class TimelineDisplay  {
         gbc.weightx = 1.;
         gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.fill = GridBagConstraints.NONE;
         scp.add(stopFileCheck, gbc);
         return scp;
     }
