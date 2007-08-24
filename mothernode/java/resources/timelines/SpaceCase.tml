@@ -34,7 +34,7 @@
   <event>
        name: Red->blue
        specialist: SimpleColor
-       startTime: 27
+       startTime: 28
        fadeTime: 25
        <color> RGB 0 0 255 </color>
   </event>
@@ -61,6 +61,59 @@
        startTime: 350
        fadeTime: 20
        <color> RGB 55 150 40 </color>
+  </event>
+
+// some triggers
+
+  <event>
+      name: White Fade b2
+      trigger: button2
+      startTime: 33
+      fadeTime: 5
+      <orbs> 0 1 2 3 4 5 </orbs>
+      specialist: SimpleColor
+      color: RGB 0 200 0 
+  </event>
+
+  <event>
+      name: Green  Fade b4
+      trigger: button4
+      startTime: 33
+      fadeTime: 5
+      <orbs> 0 1 2 3 4 5 </orbs>
+      specialist: SimpleColor
+      color: RGB 0 200 0 
+  </event>
+
+  <event>
+      name: Blue Fade b5
+      trigger: button5
+      startTime: 33
+      fadeTime: 5
+      <orbs> 0 1 2 3 4 5 </orbs>
+      specialist: SimpleColor
+      color: RGB 0 0 200 
+  </event>
+
+
+  <event>
+      name: Red Fade b7
+      trigger: button7
+      startTime: 33
+      fadeTime: 5
+      <orbs> 0 1 2 3 4 5 </orbs>
+      specialist: SimpleColor
+      color: RGB 255 25 45
+  </event>
+
+  <event>
+      name: Yellow Fade b8
+      trigger: button8
+      startTime: 33
+      fadeTime: 5
+      <orbs> 0 1 2 3 4 5 </orbs>
+      specialist: SimpleColor
+      color: RGB 225 245 45
   </event>
 
 </timeline>

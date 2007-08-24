@@ -299,13 +299,15 @@ public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMo
         this.colorSchemeType = colorSchemeType;
         ColorScheme oldColorScheme = this.colorScheme;
         ColorScheme newScheme = ColorScheme.getColorScheme(colorSchemeType);
-        System.out.println("Switching color schemes. old: " + oldColorScheme + " new: " + newScheme);
-        this.colorScheme = newScheme;
-        newScheme.copyListeners(oldColorScheme);
-        // TODO: generalize num swatches??
-        newScheme.init(6, oldColorScheme.getBaseColor(), oldColorScheme.getSpread());
-        redraw();
-        broadcastNewColorScheme(this.colorScheme);
+        System.out.println("Switching color schemes. old: " + oldColorScheme + " new: " + newScheme + " new name: " + colorSchemeType);
+        if (newScheme != null) {
+            this.colorScheme = newScheme;
+            newScheme.copyListeners(oldColorScheme);
+            // TODO: generalize num swatches??
+            newScheme.init(6, oldColorScheme.getBaseColor(), oldColorScheme.getSpread());
+            redraw();
+            broadcastNewColorScheme(this.colorScheme);
+        }
     }
 
     public JFrame getFrame() {
@@ -556,7 +558,9 @@ public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMo
     public static void main(String args[]) {
         ColorScheme.registerColorScheme("Crown", ColorSchemeCrown.class);
         ColorScheme.registerColorScheme("Analogous", ColorSchemeAnalogous.class);
+        ColorScheme.registerColorScheme("SplitComplement", ColorSchemeSplitComplement.class);
         ColorScheme.registerColorScheme("Split Complement", ColorSchemeSplitComplement.class);
+        ColorScheme.registerColorScheme("SplitComplement3", ColorSchemeSplitComplement3.class);
         ColorScheme.registerColorScheme("Split Complement 3", ColorSchemeSplitComplement3.class);
         ColorScheme.registerColorScheme("Triad", ColorSchemeTriad.class);
         ColorScheme.registerColorScheme("Tetrad", ColorSchemeTetrad.class);

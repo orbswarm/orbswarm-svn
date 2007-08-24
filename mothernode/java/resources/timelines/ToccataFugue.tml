@@ -76,4 +76,103 @@
       </properties>
   </event>
 
+/// Some events to change the color scheme
+  <event>
+      name: CS b2 Red
+      trigger: button2
+      target: colorscheme
+      startTime: 180
+      <properties>
+         basecolor RGB 200 0 0
+         spread 10
+         meander 40
+      </properties>
+  </event>
+
+  <event>
+      name: CS b3 Purple
+      trigger: button3
+      target: colorscheme
+      targetAction: replace
+      startTime: 240
+      <properties>
+         basecolor RGB 245 24 225
+         spread 12
+         meander 50
+      </properties>
+  </event>
+
+  <event>
+      name: CS b3 Green
+      trigger: button3
+      target: colorscheme
+      startTime: 180
+      colorscheme Crown
+      <properties>
+         basecolor RGB 25 180 0
+         spread 12
+         meander 50
+      </properties>
+  </event>
+
+  <event>
+      name: CS b4 Ochre
+      trigger: button4
+      target: colorscheme
+      startTime: 240
+      <properties>
+         basecolor RGB 150 140 20
+         spread 4
+         meander 50
+      </properties>
+  </event>
+
+  <event>
+      name: CS b5 Blue
+      trigger: button5
+      target: colorscheme
+      startTime: 180
+      <properties>
+         basecolor RGB 100 45 250
+         spread 4
+         meander 40
+      </properties>
+  </event>
+
+  <event>
+      name: CS b6 Triad
+      trigger: button6
+      target: colorscheme
+      startTime: 240
+      <properties>
+         colorscheme Triad
+         spread 25
+         meander 30
+      </properties>
+  </event>
+
+  <event>
+      name: CS b7 SC3
+      trigger: button7
+      target: colorscheme
+      startTime: 180
+      <properties>
+         colorscheme SplitComplement3
+         spread 8
+         meander 10
+      </properties>
+  </event>
+
+  <event>
+      name: CS b8 grey
+      trigger: button8
+      target: colorscheme
+      startTime: 240
+      <properties>
+         spread 8
+         meander 50
+         basecolor RGB 160 160 160
+      </properties>
+  </event>
+
 </timeline>

@@ -272,7 +272,7 @@
 
   <event>
       name: duck change 2
-      startTime: 123.
+      startTime: 121.
       <orbs> 3 4 </orbs>
       specialist: SimpleSound
       <properties>
@@ -282,7 +282,7 @@
 
   <event>
       name: Goat change 2
-      startTime: 126.
+      startTime: 123.
       specialist: SimpleSound
       <orbs> 1 5 </orbs>
       <properties>

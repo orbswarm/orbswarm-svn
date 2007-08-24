@@ -131,28 +131,33 @@ public  class ColorSchemeSpecialist extends AbstractSpecialist implements ColorS
     }
 
     public void setProperty(String name, String value) {
-        super.setProperty(name, value);
-        if (name.equalsIgnoreCase("colorscheme") && schemer != null) { 
-            schemer.setColorScheme(value);
-
-        } else if (name.equalsIgnoreCase("basecolor") && schemer != null) {
-            HSV color = Timeline.colorFromSpec(value);
-            if (color != null) {
-                schemer.getColorScheme().setBaseColor(color);
+        try {
+            super.setProperty(name, value);
+            if (name.equalsIgnoreCase("colorscheme") && schemer != null) { 
+                schemer.setColorScheme(value);
+                
+            } else if (name.equalsIgnoreCase("basecolor") && schemer != null) {
+                HSV color = Timeline.colorFromSpec(value);
+                if (color != null) {
+                    schemer.getColorScheme().setBaseColor(color);
+                }
+                
+            } else if  (name.equalsIgnoreCase("spread") && schemer != null) {
+                int spread = getIntProperty("spread", -1);
+                if (spread != -1) {
+                    schemer.getColorScheme().setSpread((float)spread / 100.f);
+                }
+            } else if  (name.equalsIgnoreCase("meander") && botctl_color != null) {
+                int meander = getIntProperty("meander", -1);
+                if (meander != -1) {
+                    botctl_color.setMeander((float)meander / 100.f);
+                }
             }
-
-        } else if  (name.equalsIgnoreCase("spread") && schemer != null) {
-            int spread = getIntProperty("spread", -1);
-            if (spread != -1) {
-                schemer.getColorScheme().setSpread((float)spread / 100.f);
-            }
-        } else if  (name.equalsIgnoreCase("meander") && botctl_color != null) {
-            int meander = getIntProperty("meander", -1);
-            if (meander != -1) {
-                botctl_color.setMeander((float)meander / 100.f);
-            }
+        } catch (Exception ex) {
+            System.out.println("ERROR ColroSchemeSpecialst caught exception setting property: " + name + " = " + value);
         }
         //TODO: handle settinghte color scheme, base color, etc.
+                               
     }
     
     public void command(String command, int orb, String property) {
