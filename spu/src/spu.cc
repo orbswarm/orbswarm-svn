@@ -20,6 +20,8 @@ int main(int argc, char *argv[])
   int bytes;
   char buff2[MAX_BUFF_SZ + 1];
 
+  char procbuf[MAX_BUFF_SZ +1];
+
   char *gps_start_str = GPS_START_DELIM; // string to indicate start of GPS data
   char *gps_stop_str = GPS_STOP_DELIM; // string to indicate end of GPS data
   int bytes2 = 0;
@@ -49,9 +51,6 @@ int main(int argc, char *argv[])
      tv.tv_sec = 10; // set timeouts for select()
      tv.tv_usec = 0;
 
-  
-
-
 
      /* Do the select */
      n = select(max_fd, &input, NULL, NULL,&tv);
@@ -73,10 +72,13 @@ int main(int argc, char *argv[])
         readCharsFromSerialPort(com2, buff2, &bytes2,MAX_BUFF_SZ); 
         buff2[bytes2+1] = '\0';
         printf("\n Read \"%s\" from  com2\n",buff2);
-  
-        //write data to com5
+
+
+	parseLSMP(buff2,(sizeof(buff2)),com5,com2); 
+	/* 
         printf("\nWriting back to com5 \n");
-        writeCharsToSerialPort(com5, buff2, bytes2);
+        //writeCharsToSerialPort(com5, buff2, bytes2);
+	 */
       }
 
       /* We have input */
@@ -104,14 +106,12 @@ int main(int argc, char *argv[])
         printf("\n Read data: \"%s\"  com5\n",buff2);
 	//FD_CLR(com5,&input);
 
+	parseLSMP(buff2,(sizeof(buff2)),com5,com2); 
         //write data to com2
-        printf("\nWriting back to com2 \n");
-        writeCharsToSerialPort(com2, buff2, bytes2);
+        //printf("\nWriting back to com2 \n");
+        //writeCharsToSerialPort(com2, buff2, bytes2);
 
       }
-
-
-
     }
   }
 } //END main() 

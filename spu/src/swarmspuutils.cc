@@ -394,3 +394,117 @@ int getIP(const char *Interface, char *ip)
   return(0);
 }
 
+int parseLSMP(char *msgptr,int msglen,int lnsport,int motorport) {
+
+int i=0;
+char inchar;
+char motorbuf[10];
+char lnsbuf[1024];
+char addrbyte[2];
+static int inmsg;
+static int inlns;
+static int inmtr;
+static int msgpos;
+static int addrcnt;
+static int motorpos;
+static int lnspos;
+
+
+/*     printf("inmsg=%d inlns=%d inmtr=%d msgpos=%d addrcnt=%d motorpos=%d lnspos=%d\n",inmsg,inlns,inmtr,msgpos,addrcnt,motorpos,lnspos);
+*/
+
+    if (inmsg == 0) {
+     		memset(motorbuf,0,sizeof(motorbuf));
+     		memset(lnsbuf,0,sizeof(lnsbuf));
+    } 
+
+     for (i=0;i < msglen;i++) {
+		inchar = *msgptr++;
+	/*	printf("%c %d",inchar,i);  */
+		if (inmsg ==0) {
+			if (inchar='{') {
+			/*	printf("INPKT\n"); */
+		    		inmsg=1;
+				
+			}
+		} else {
+			if (((isdigit(inchar)) >0) &&(addrcnt !=2)) {
+				addrbyte[addrcnt++]=inchar;
+			} else if (addrcnt==2){
+				/*	printf("INMSG\n"); */
+					switch (inchar){
+						case ' ':
+							if(inlns==1) {
+								lnsbuf[lnspos++]=inchar;
+							}
+							if (inmtr==1) {
+								motorbuf[motorpos++]=inchar;
+							}
+							break;
+						case '{':
+							addrcnt=0;
+							lnspos=0;
+							motorpos=0;
+							inlns=0;
+							inmtr=0;
+     							memset(motorbuf,0,sizeof(motorbuf));
+     							memset(lnsbuf,0,sizeof(lnsbuf));
+							break;
+						case '<':
+							inlns=1;
+							lnsbuf[lnspos++]=inchar;
+							break;
+						case '>':
+							inlns=2;
+							lnsbuf[lnspos++]=inchar;
+							break;
+						case '$':
+							inmtr=1;
+							motorbuf[motorpos++]=inchar;
+							break;
+						case '*':
+							inmtr=2;
+							motorbuf[motorpos++]=inchar;
+							break;
+						case '}':
+							inmsg=0;
+							/*printf("*ENDMSG*\n"); */
+							break;
+						default:
+							if (inlns==1) {
+							 if( ((isalnum(inchar))>0) || ((isspace(inchar))>0))
+							    	lnsbuf[lnspos++]=inchar;
+							}
+							if (inmtr==1) {
+							  if( ((isalnum(inchar))>0) || ((isspace(inchar))>0))
+							   	motorbuf[motorpos++]=inchar;
+							}
+							break;
+					}
+					if (inmsg==0) {
+						if ((inlns==2) && (lnspos > 6)){
+							printf("lnsbuf=%s lnspos=%d\n",lnsbuf,lnspos);
+							writeCharsToSerialPort(lnsport, lnsbuf, (sizeof(lnsbuf)));
+							inlns=0;
+						} 
+
+						if ( (inmtr==2) && (motorpos >3)) {
+						      printf("motorbuf=%s motorpos=%d\n",motorbuf,motorpos);
+							writeCharsToSerialPort(motorport, motorbuf, (sizeof(motorbuf)));
+							inmtr=0;
+						} 
+
+					addrcnt=0;
+					inlns=0;
+					inmtr=0;
+					lnspos=0;
+					motorpos=0;
+     					memset(motorbuf,0,sizeof(motorbuf));
+     					memset(lnsbuf,0,sizeof(lnsbuf));
+					}
+						
+				} 
+	     		}
+			
+		}									
+}
