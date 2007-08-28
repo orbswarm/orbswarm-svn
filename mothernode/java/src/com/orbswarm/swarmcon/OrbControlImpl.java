@@ -109,6 +109,12 @@ public class OrbControlImpl implements OrbControl {
             buf.append(mp3Hash);
             buf.append(">");
             String orbCmd = wrapOrbCommand(orbNum, buf.toString());
+            // Note: not all the events are getting through, so 
+            // sending the sounds a few times to make sure
+            // seems like a reasonable hack to me. 
+            orbIo.send(orbCmd);
+            orbIo.send(orbCmd);
+            orbIo.send(orbCmd);
             orbIo.send(orbCmd);
         }
         return dur;
