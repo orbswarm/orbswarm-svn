@@ -16,6 +16,10 @@ import java.text.DecimalFormat;
 
 public class OrbIo extends SerialIo
 {
+    // support for resend-motion control hack
+    int [] currentOrbPower;
+    int [] currentOrbSteer;
+    
       /** format for printing orb id's to spu not used */
 
       //DeciDecimalFormat orbIdFmt = new DecimalFormat("###");
@@ -29,11 +33,24 @@ public class OrbIo extends SerialIo
       public OrbIo(String portName, boolean debug)
       {
          super(portName, debug);
+         currentOrbPower = new int[6];
+         currentOrbSteer = new int[6];
+         for(int i=0; i < 6; i++) {
+             currentOrbPower[i] = -1;
+             currentOrbSteer[i] = -1;
+         }
       }
+
       public OrbIo(String portName)
       {
          super(portName);
-      }
+         currentOrbPower = new int[6];
+         currentOrbSteer = new int[6];
+         for(int i=0; i < 6; i++) {
+             currentOrbPower[i] = -1;
+             currentOrbSteer[i] = -1;
+         }
+     }
       /** open a serial port */
 
       public void open() throws Exception
@@ -65,8 +82,20 @@ public class OrbIo extends SerialIo
 
       /** Send a steering message to orb. */
 
+    //
+    // replicating Jonathan's hack: send the current power & steer out
+    // all the time, about 10 times a second.
+    //
+    public int[] getCurrentOrbSteer() {
+        return currentOrbSteer;
+    }
+    public int[] getCurrentOrbPower() {
+        return currentOrbPower;
+    }
+
       public void steerOrb(int orbId, int roll)
       {
+          currentOrbSteer[orbId] = roll;
          orbMotorCommand(orbId, "s" + roll);
       }
 
@@ -74,6 +103,7 @@ public class OrbIo extends SerialIo
 
       public void powerOrb(int orbId, int power)
       {
+          currentOrbPower[orbId] = power;
          orbMotorCommand(orbId, "p" + power);
       }
 

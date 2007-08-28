@@ -8,6 +8,7 @@ import com.orbswarm.swarmcomposer.util.TokenReader;
 import com.orbswarm.swarmcomposer.color.HSV;
 
 import com.orbswarm.swarmcon.SwarmCon;
+import com.orbswarm.swarmcon.OrbControlImpl;
 import com.orbswarm.swarmcon.Swarm;
 
 import java.awt.*;
@@ -32,8 +33,9 @@ public class TimelineDisplay  {
 
     // TODO: we really want looser coupling than this. but for now...
     SwarmCon swarmCon = null;
-    OrbControl orbControl = null;
-    
+    OrbControl orbControl = null; 
+    OrbControlImpl orbControlImpl = null;
+   
     private int canvasWidth;
     private int canvasHeight;
     private double timelineWidth    = 1000.;
@@ -84,6 +86,7 @@ public class TimelineDisplay  {
     public void setSwarmCon(SwarmCon val) {
         this.swarmCon = val;
         this.orbControl = swarmCon.getOrbControl();
+        this.orbControlImpl = (OrbControlImpl)swarmCon.getOrbControl();
     }
     
     public void setTimeline(String timelinePath) throws IOException {
@@ -1037,6 +1040,12 @@ public class TimelineDisplay  {
 
     }
 
+    public void doStopButton(int orbNum) {
+        System.out.println("STOP BUTTON!!!!");
+        for(int i=0; i < 10; i++) {
+            orbControlImpl.stopOrb(orbNum);
+        }
+    }
     public void doLeitMotif(int orbNum) {
         doLeitMotifInThread(orbNum);
     }
@@ -1071,10 +1080,14 @@ public class TimelineDisplay  {
     /// Joystick control                           ///
     //////////////////////////////////////////////////
     public static final int LEITMOTIF_BUTTON = 0;
+    public static final int STOP_BUTTON = 9;
 
     public void joystickButton(int orbNum, int buttonNumber) {
         if (buttonNumber == LEITMOTIF_BUTTON) {
             doLeitMotif(orbNum);
+        }
+        if (buttonNumber == STOP_BUTTON) {
+            doStopButton(orbNum);
         }
         buttonNumber ++; // correct for zero-based button numbers and 1-based joystick labels. 
         

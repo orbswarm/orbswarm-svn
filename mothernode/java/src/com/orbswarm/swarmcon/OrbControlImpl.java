@@ -191,11 +191,21 @@ public class OrbControlImpl implements OrbControl {
 
     // TODO: some kind of master volume facility. 
     public void volume(int orbNum, int volume) {
+        // volume goes from 1 to 100.
+        // need to write register 0xB, values range from 0-FF
+        // left byte, right byte. 
+        //  (attenuation value: FF = no volume)
+        //  e.g. <M1 VWR B FF00> turns off left channel; full volume on right.
         if (sendCommandsToOrbs && orbIo != null) {
             StringBuffer buf = new StringBuffer();
-            buf.append("<M1 VWR ");
-            buf.append(volume);
+            buf.append("<M1 VWR B ");
+            float atten = (100.f - volume) / 100.f;
+            int atten256 = (int)(256.f * atten);
+            byte attenByte = (byte)atten256; // (byte)(0x00FF & atten256);
+            buf.append(attenByte);
+            buf.append(attenByte);
             buf.append(">");
+            System.out.println("Vol: " + volume + " atten: " + atten  + " attenByte: " + attenByte + " buf: " + buf);
             String orbCmd = wrapOrbCommand(orbNum, buf.toString());
             orbIo.send(orbCmd);
         }
@@ -328,7 +338,9 @@ public class OrbControlImpl implements OrbControl {
     // Motion methods
     //
     public void followPath(com.orbswarm.choreography.Point[] wayPoints) {}
-    public void stopOrb(int orb) {}
+    public void stopOrb(int orbNum) {
+        orbIo.powerOrb(orbNum, 0);
+    }
     
     //
     // SoundFile -> sound hash mapping.

@@ -360,10 +360,12 @@ public class SwarmCon extends JFrame
       {
           System.out.println("SWARM CON: start controlling");
          running = true;
+         startOrbSteeringThread();
          new Thread()
          {
                public void run()
                {
+
                   try {sleep(1000); repaint();} 
                   catch (Exception e) {e.printStackTrace();}
                   lastUpdate = Calendar.getInstance();
@@ -375,6 +377,8 @@ public class SwarmCon extends JFrame
       public void stopControlling()
       {
           running = false;
+          stopOrbSteeringThread();
+
       }
 
       public Controller[] addOrbs(Rectangle2D.Double bounds)
@@ -1210,6 +1214,57 @@ public class SwarmCon extends JFrame
          }
       }
 
+    //
+    // replicating Jonathan's hack: send the current power & steer out
+    // all the time, about 10 times a second.
+    //
+    public void startOrbSteeringThread() {
+        if (orbIo != null) {
+            final int[] currentOrbPower = orbIo.getCurrentOrbPower();
+            final int[] currentOrbSteer = orbIo.getCurrentOrbSteer();
+            System.out.println("StartOrbSteeringThread.");
+            orbSteeringThread = new OrbSteeringThread(orbIo);
+            orbSteeringThread.start();
+        }
+    }
+    OrbSteeringThread orbSteeringThread = null;
+    public void stopOrbSteeringThread() {
+        if (orbSteeringThread != null) {
+            orbSteeringThread.halt();
+        }
+    }
+    
+    class OrbSteeringThread extends Thread {
+        OrbIo orbIo;
+        boolean running = false;
+        
+        public OrbSteeringThread(OrbIo orbIo) {
+            this.orbIo = orbIo;
+        }    
+        public void run() {
+            running = true;
+            int [] currentOrbPower = orbIo.getCurrentOrbPower();
+            int [] currentOrbSteer = orbIo.getCurrentOrbSteer();
+            while (running) {
+                //System.out.println("    OrbSteeringThread...");
+                for(int i=0; i < 6; i ++) {
+                    if (currentOrbPower[i] != -1) {
+                        orbIo.powerOrb(i, currentOrbPower[i]);
+                    }
+                    if (currentOrbSteer[i] != -1) {
+                        orbIo.steerOrb(i, currentOrbSteer[i]);
+                    }
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ex) {
+                }
+            }
+        }
+        public void halt() {
+            running = false;
+        }
+    }
       ///////////////////////////////////
       /// Joystick handling           ///
       ///////////////////////////////////
