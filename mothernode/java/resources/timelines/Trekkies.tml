@@ -1,0 +1,193 @@
+<timeline>
+  name: Trekkie
+  arena: 200.
+  duration: 360.
+  <event>
+      name: fade to black
+      startTime: 0
+      fadeTime: 2
+      specialist: SimpleColor
+      color: RGB 0 0 0 
+  </event>
+
+  <event>
+      name: all Green
+      startTime: 3
+      fadeTime: 10
+      specialist: SimpleColor
+      color: RGB 60 245 30
+  </event>
+// initial sounds
+
+  <event>
+      name: Initial bridge
+      startTime: 2
+      <orbs> 1 5 </orbs>
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/trek/01EnterpriseBridgeSequence.mp3
+      </properties>
+  </event>
+
+  <event>
+      name: more ongoing sounds
+      startTime: 55
+      <orbs> 1 5 </orbs>
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/trek/17MainViewingScreen.mp3
+      </properties>
+  </event>
+
+  <event>
+      name: warp drive
+      startTime: 55
+      <orbs> 0 4 </orbs>
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/trek/14WarpDrive.mp3
+      </properties>
+  </event>
+
+// trigggggers
+
+  <event>
+      name: voice b1
+      trigger: button1
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/Trek/08CommunicatorBeeps.mp3
+      </properties>
+  </event>
+
+  <event>
+      name: voice b2
+      trigger: button2
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/trek/15SpocksViewerOnTheBridge.mp3
+      </properties>
+  </event>
+
+  <event>
+      name: beastLicker b3
+      trigger: button3
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/trek/23PhasersStrikingDeflectorShield.mp3
+      </properties>
+  </event>
+
+  <event>
+      name: beastLicker b4
+      trigger: button4
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/trek/51ComedyBackgroundFX.mp3
+      </properties>
+  </event>
+
+  <event>
+      name: cycle b5
+      trigger: button5
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/trek/04TransporterEnergize.mp3
+      </properties>
+  </event>
+
+  <event>
+      name: cycle b6
+      trigger: button6
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/trek/16ButtonsOnBridge.mp3
+      </properties>
+  </event>
+
+  <event>
+      name: cycle b7
+      trigger: button7
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 4 1 </orbs>
+      <properties>
+          soundfile /orbsounds/FX/trek/22PhotonTorpedo.mp3
+      </properties>
+  </event>
+
+  <event>
+      name: cycle b7
+      trigger: button7
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 0 5 </orbs>
+      <properties>
+          soundfile /orbsounds/FX/trek/03EnterpriseDoorsOpenIntoTransp.mp3
+      </properties>
+  </event>
+
+  <event>
+      name: cycle b8
+      trigger: button8
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 0 1 </orbs>
+      <properties>
+          soundfile /orbsounds/FX/trek/13RedAlertKlaxon.mp3
+      </properties>
+  </event>
+
+  <event>
+      name: cycle b8 b
+      trigger: button8
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 4 5 </orbs>
+      <properties>
+          soundfile /orbsounds/FX/14WarpDrive.mp3
+      </properties>
+  </event>
+
+
+
+  <event>
+      name: benign
+      trigger: button9
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/trek/62HandHeldMedicalScanner.mp3
+      </properties>
+  </event>
+
+  <event>
+      name: Stop Button
+      trigger: button10
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/pastoral/chicken_hawk.wav
+      </properties>
+  </event>
+
+
+</timeline>

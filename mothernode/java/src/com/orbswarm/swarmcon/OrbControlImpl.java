@@ -18,6 +18,7 @@ public class OrbControlImpl implements OrbControl {
     private static HashMap soundCatalog;
     private OrbIo orbIo;
     private HSV[] orbColors;
+    private boolean[] orbEnabledMap;
 
     // TODO: hook these up to toggles somehow... (or keep in SwarmCon?)
     //
@@ -38,7 +39,22 @@ public class OrbControlImpl implements OrbControl {
         for(int i=0; i < 6; i++) {
             orbColors[i] = null;
         }
+        setupOrbEnabledMap();
     }
+    public void setupOrbEnabledMap() {
+        orbEnabledMap = new boolean[6];
+        for(int i=0; i < 6; i++) {
+            orbEnabledMap[i] = true;
+        }
+        orbEnabledMap[2] = false;
+        orbEnabledMap[3] = false;  // TODO: read this from a file!!!
+    }
+    public boolean isEnabled(int orbNum) {
+        boolean enabled =  (orbNum < orbEnabledMap.length && orbEnabledMap[orbNum]);
+        //System.out.println("isEnabled[" + orbNum + "] = " + enabled);
+        return enabled;
+    }
+
     static {
         soundCatalog = new HashMap();
         readSoundCatalog("resources/songs/sounds.catalog");
@@ -102,7 +118,7 @@ public class OrbControlImpl implements OrbControl {
             SoundFilePlayer player = getSoundPlayer(orbNum);
             playOnThread(player, sound);
         }
-        if (sendCommandsToOrbs && orbIo != null) {
+        if (sendCommandsToOrbs && orbIo != null  && isEnabled(orbNum)) {
             String mp3Hash = sound.getMP3Hash();
             StringBuffer buf = new StringBuffer();
             buf.append("<M1 VPF ");
@@ -176,7 +192,7 @@ public class OrbControlImpl implements OrbControl {
                 player.stop();
             }
         }
-        if (sendCommandsToOrbs && orbIo != null) {
+        if (sendCommandsToOrbs && orbIo != null  && isEnabled(orbNum)) {
             if (sendStopCommand) {
                 String stopCommand = "<M1 VST>";
                 String orbCmd = wrapOrbCommand(orbNum, stopCommand);
@@ -202,7 +218,7 @@ public class OrbControlImpl implements OrbControl {
         // left byte, right byte. 
         //  (attenuation value: FF = no volume)
         //  e.g. <M1 VWR B FF00> turns off left channel; full volume on right.
-        if (sendCommandsToOrbs && orbIo != null) {
+        if (sendCommandsToOrbs && orbIo != null  && isEnabled(orbNum)) {
             StringBuffer buf = new StringBuffer();
             buf.append("<M1 VWR B ");
             float atten = (100.f - volume) / 100.f;
@@ -239,7 +255,7 @@ public class OrbControlImpl implements OrbControl {
                 new Thread() {
                     public void run()  {
                         boolean sendFadesToOrbs = true; // need this until Jon implements on-board fades. 
-                        fadeColor(_orbNum, orb, prevHSV, _hsvColor, _timeMS, 200, sendFadesToOrbs);
+                        fadeColor(_orbNum, orb, prevHSV, _hsvColor, _timeMS, 300, sendFadesToOrbs);
                     }
                 }.start();
             }
@@ -247,7 +263,7 @@ public class OrbControlImpl implements OrbControl {
             orbColors[orbNum] = hsvColor;
         }
         
-        if (sendCommandsToOrbs && orbIo != null) {
+        if (sendCommandsToOrbs && orbIo != null && isEnabled(orbNum)) {
             // TODO: send color command out on OrbIO, or give it to model, or something.
             // TODO: one board or two (later -- we get two light commands per orb)
             // fade:  <LH64><LS200><LV220><LT2200> to set {h, s, v, time} on all boards (OBSOLETE)
@@ -317,7 +333,7 @@ public class OrbControlImpl implements OrbControl {
             orbColors[orbNum] = stepColorHSV;
                 
             Color stepColor = stepColorHSV.toColor();
-            if (sendFadesToOrbs) {
+            if (sendFadesToOrbs && orbIo != null && isEnabled(orbNum)) {
                 String boardAddress = " "; // TODO: refactor this.
                 sendLightCommand(orbNum, boardAddress, stepColorHSV, 0);
                 //System.out.println("        FadeColor step: " + stepColorHSV);

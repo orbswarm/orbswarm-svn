@@ -1,0 +1,194 @@
+<timeline>
+  name: DJ Olot
+  arena: 200.
+  duration: 360.
+  <event>
+      name: fade to black
+      startTime: 0
+      fadeTime: 2
+      specialist: SimpleColor
+      color: RGB 0 0 0 
+  </event>
+
+  <event>
+      name: all Red
+      startTime: 3
+      fadeTime: 10
+      specialist: SimpleColor
+      color: RGB 245 30 80
+  </event>
+
+  <event>
+      name: start widow 401
+      startTime: 2
+      duration: 17
+      specialist: SimpleSound
+      <orbs> 4 0 1 </orbs>
+      <properties>
+          soundfile /orbsounds/Markafiles/Aug-17-mp3s/white_widow_works_mp3/aqua_fozz01.mp3
+      </properties>
+  </event>
+
+  <event>
+      name: 
+      startTime: 2
+      duration: 30
+      <orbs> 5  </orbs>
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/Markafiles/Aug-17-mp3s/white_widow_works_mp3/aqua_fozz04.mp3
+      </properties>
+  </event>
+
+  <event>
+      name: second chant4
+      startTime: 10
+      duration: 30
+      <orbs> 4 </orbs>
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/Markafiles/Aug-17-mp3s/white_widow_works_mp3/aqua_fozz05.mp3
+      </properties>
+  </event>
+
+  <event>
+      name: Secondchant0
+      startTime: 30
+      duration: 22
+      <orbs> 0 </orbs>
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/Markafiles/Aug-17-mp3s/white_widow_works_mp3/aqua_fozz20.mp3
+      </properties>
+  </event>
+
+// trigggggers
+
+  <event>
+      name: beastLicker b1
+      trigger: button1
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/Markafiles/Aug-17-mp3s/the_lick_of_the_beast_mp3/beast_licker01.mp3
+      </properties>
+  </event>
+
+  <event>
+      name: beastLicker b2
+      trigger: button2
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/Markafiles/Aug-17-mp3s/the_lick_of_the_beast_mp3/beast_licker06.mp3
+      </properties>
+  </event>
+
+  <event>
+      name: beastLicker b3
+      trigger: button3
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/Markafiles/Aug-17-mp3s/the_lick_of_the_beast_mp3/beast_licker14.mp3
+      </properties>
+  </event>
+
+  <event>
+      name: beastLicker b4
+      trigger: button4
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/Markafiles/Aug-17-mp3s/the_lick_of_the_beast_mp3/beast_licker23.mp3
+      </properties>
+  </event>
+
+  <event>
+      name: cycle b5
+      trigger: button5
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/Markafiles/Aug-17-mp3s/cycle_clicosk_mp3/cyclo_clicosck01.mp3
+      </properties>
+  </event>
+
+  <event>
+      name: cycle b6
+      trigger: button6
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/Markafiles/Aug-17-mp3s/cycle_clicosk_mp3/cyclo_clicosck21.mp3
+      </properties>
+  </event>
+
+  <event>
+      name: cycle b7
+      trigger: button7
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 4 1 </orbs>
+      <properties>
+          soundfile /orbsounds/Markafiles/Aug-17-mp3s/cycle_clicosk_mp3/cyclo_clicosck10.mp3
+      </properties>
+  </event>
+
+  <event>
+      name: cycle b7
+      trigger: button7
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 0 5 </orbs>
+      <properties>
+          soundfile /orbsounds/Markafiles/Aug-17-mp3s/dog_balls_mp3/dog_balls07.mp3
+      </properties>
+  </event>
+
+  <event>
+      name: cycle b8
+      trigger: button8
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 0 1 </orbs>
+      <properties>
+          soundfile /orbsounds/Markafiles/Aug-17-mp3s/cycle_clicosk_mp3/cyclo_clicosck14.mp3
+      </properties>
+  </event>
+
+  <event>
+      name: cycle b8
+      trigger: button8
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 4 5 </orbs>
+      <properties>
+          soundfile /orbsounds/Markafiles/Aug-17-mp3s/dog_balls_mp3/dog_balls01.mp3
+      </properties>
+  </event>
+
+
+  <event>
+      name: Stop Button
+      trigger: button10
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/voices/BOOBOO.wav
+      </properties>
+  </event>
+
+
+</timeline>

@@ -1,6 +1,9 @@
 LongBlankTimeline.tml
 ===songs====
 Chimes.tml
+ThroatSinging.tml
+Voices.tml
+DJ_Olot.tml
 ToccataFugue.tml
 Congregation.tml
 SpaceCase.tml
@@ -19,7 +22,6 @@ TriggerTest1.tml
 TriggerTest.tml
 ColorSchemeTest.tml
 RandomSongTest.tml
-RandomSongColorScheme.tml
 ColorTest1.tml
 sampletimeline.tml
 timeline2.tml
@@ -27,3 +29,6 @@ SimpleSounds.tml
 MultitrackTest0.tml
 MultitrackTest1.tml
 SequenceTest.tml
+=====NotDoneYet======
+Animals.tml
+Trekkies.tml

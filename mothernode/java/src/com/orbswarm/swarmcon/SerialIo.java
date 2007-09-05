@@ -211,7 +211,7 @@ public class SerialIo
        * @param string string to sent out to the serial port
        */
 
-      public void send(String string)
+      public synchronized void send(String string)
       {
          try
          {

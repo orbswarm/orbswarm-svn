@@ -34,10 +34,12 @@ public class SwarmCon extends JFrame
       /** allowable range of values for steering */
 
       public static final int STEERING_RANGE = 100;
+    public int steering_range = 100;
       
       /** allowable range of values for power */
 
-      public static final int POWER_RANGE = 25;
+    public static final int POWER_RANGE = 50;
+    public int power_range = 50;
 
       /** period between commands in milliseconds */
 
@@ -85,7 +87,7 @@ public class SwarmCon extends JFrame
 
       public static final double ORB_RADIUS        =   0.5; // meters
       public static final double MAX_ROLL          =  35.0; // deg
-      public static final double MAX_ROLL_RATE     =  30.0; // deg/sec
+      public static final double MAX_ROLL_RATE     =  50.0; // deg/sec
       public static final double DROLL_RATE_DT     =  10.0; // deg/sec
       public static final double MAX_PITCH_RATE    = 114.6; // deg/sec
       public static final double DPITCH_RATE_DT    =  40.0; // deg/sec
@@ -262,6 +264,11 @@ public class SwarmCon extends JFrame
           boolean sendCommandsToOrbs = true;
           boolean simulateColors = true;
           boolean simulateSounds = false;
+          int steering_refresh_delay = 200;
+          int power_range = -1;
+          int steering_range = -1;
+          int timeline_width = -1;
+          int timeline_height = -1;
           
          registerSpecialists(); 
          int i=0;
@@ -278,20 +285,87 @@ public class SwarmCon extends JFrame
                  i++;
                  simulateColors = args[i].equalsIgnoreCase("true");
              }
+
+
+             else if (args[i].equalsIgnoreCase("--power") || args[i].equalsIgnoreCase("--power_range"))
+             {
+                 i++;
+                 int da_powah = Integer.parseInt(args[i]);
+                 i++;
+                 power_range = da_powah;
+             }
+
+             else if (args[i].equalsIgnoreCase("--steering") || args[i].equalsIgnoreCase("--steering_range"))
+             {
+                 i++;
+                 int da_steer = Integer.parseInt(args[i]);
+                 i++;
+                 steering_range = da_steer;
+             }
+
+             else if (args[i].equalsIgnoreCase("--timeline_width")) 
+             {
+                 i++;
+                 int w = Integer.parseInt(args[i]);
+                 i++;
+                 timeline_width = w;
+             }
+
+             else if (args[i].equalsIgnoreCase("--timeline_height")) 
+             {
+                 i++;
+                 int w = Integer.parseInt(args[i]);
+                 i++;
+                 timeline_height = w;
+             }
+
+             else if (args[i].equalsIgnoreCase("--steeringrefresh"))
+             {
+                 i++;
+                 int refresh = Integer.parseInt(args[i]);
+                 i++;
+                 steering_refresh_delay = refresh;
+             }
              // Note: not giving the option to turn off sending commands to orbs right now. 
 
-             else if (args[i].equalsIgnoreCase("--help")) 
+             else if (args[i].equalsIgnoreCase("--help") || args[i].equalsIgnoreCase("-help")) 
              {
-                 System.out.println("java com.orbswarm.swarmcon.SwarmCon [--simulateSounds true|false] [--simulateColors true|false]");
+                 usage();
+                 System.exit(0);
              }
              i++;
          }
          SwarmCon sc = new SwarmCon(sendCommandsToOrbs, simulateColors, simulateSounds);
+         sc.steering_refresh_delay = steering_refresh_delay;
+         if (power_range != -1) {
+             sc.setPowerRange(power_range);
+         }
+         if (steering_range != -1) {
+             sc.setSteeringRange(steering_range);
+         }
 
+         if (timeline_width != -1) {
+             sc.timeline_width = timeline_width;
+         }
+         sc.initialize();
       }
 
+    public static void usage() {
+        System.out.println("java com.orbswarm.swarmcon.SwarmCon [options]");
+        System.out.println("  options: ");
+        System.out.println("     --simulateSounds true|false   default: false");
+        System.out.println("     --simulateColors true|false   default: true");
+        System.out.println("     --steeringrefresh <ms>        default: 200");
+        System.out.println("     --power <0-100>               default:  50");
+        System.out.println("     --steering <0-100>            default: 100");
+        System.out.println("     --timeline_width <int>        default: 900");
+        System.out.println("     --timeline_height <int>       default: 150");
+    }
+    
     public ColorSchemer colorSchemer;
     public BotVisualizer botVisualizer;
+    int timeline_width = 900;
+    int timeline_height = 150;
 
       public void constructControlUI(SwarmCon sc) 
       {
@@ -299,7 +373,7 @@ public class SwarmCon extends JFrame
          this.colorSchemer = schemer; // too close coupling here, but it's late in the game...
          BotVisualizer bv = setupBotVisualizer(sc);
          this.botVisualizer = bv;
-         TimelineDisplay timelineDisplay = new TimelineDisplay(sc, 1100, 150);
+         TimelineDisplay timelineDisplay = new TimelineDisplay(sc, timeline_width, timeline_height);
          sc.setTimelineDisplay(timelineDisplay);
          timelineDisplay.setSwarmCon(sc);
          sc.setupControlPanel(schemer, bv, timelineDisplay);
@@ -314,7 +388,13 @@ public class SwarmCon extends JFrame
         this.sendCommandsToOrbs = sendCommandsToOrbs;
         this.simulateColors = simulateColors;
         this.simulateSounds = simulateSounds;
+        this.power_range = POWER_RANGE;
+        this.steering_range = POWER_RANGE;
+      }
 
+    // splitting constructor from initializer, so that parameters can be set in the main routine
+    // before starting it up. (e.g. can't reset the timeline width after constructing the frame).
+    public void initialize() {
          // OrbControl for Specialists
         orbControlImpl = new OrbControlImpl(this,
                                             sendCommandsToOrbs,
@@ -355,6 +435,14 @@ public class SwarmCon extends JFrame
          activateMotorControllThread();
       }
 
+    public void setPowerRange(int val) {
+        this.power_range = val;
+    }
+    
+    public void setSteeringRange(int val) {
+        this.steering_range = val;
+    }
+    
       boolean running;
       public void startControlling()
       {
@@ -1165,8 +1253,8 @@ public class SwarmCon extends JFrame
       public void joystickXYMotors(int orbNum, double x1, double y1, 
                                    double x2, double y2)
       {
-         motorCommandInfo[orbNum].commandedSteering = (int)(x1 * STEERING_RANGE);
-         motorCommandInfo[orbNum].commandedPower    = (int)(y1 * POWER_RANGE);
+         motorCommandInfo[orbNum].commandedSteering = (int)(x1 * steering_range);
+         motorCommandInfo[orbNum].commandedPower    = (int)(y1 * power_range);
       }
 
       public void activateMotorControllThread()
@@ -1218,6 +1306,7 @@ public class SwarmCon extends JFrame
     // replicating Jonathan's hack: send the current power & steer out
     // all the time, about 10 times a second.
     //
+    int steering_refresh_delay = 200;
     public void startOrbSteeringThread() {
         if (orbIo != null) {
             final int[] currentOrbPower = orbIo.getCurrentOrbPower();
@@ -1256,7 +1345,7 @@ public class SwarmCon extends JFrame
                     }
                 }
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(steering_refresh_delay);  // Jon's Hack
                 } catch (InterruptedException ex) {
                 }
             }

@@ -1,0 +1,150 @@
+<timeline>
+  name: Voices
+  arena: 200.
+  duration: 360.
+  <event>
+      name: fade to black
+      startTime: 0
+      fadeTime: 2
+      specialist: SimpleColor
+      color: RGB 0 0 0 
+  </event>
+
+  <event>
+      name: all Blue
+      startTime: 3
+      fadeTime: 10
+      specialist: SimpleColor
+      color: RGB 80 30 245
+  </event>
+
+// trigggggers
+
+  <event>
+      name: voice b1
+      trigger: button1
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/voices/BadGirl.wav
+      </properties>
+  </event>
+
+  <event>
+      name: voice b2
+      trigger: button2
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/voices/COOL_F.wav
+      </properties>
+  </event>
+
+  <event>
+      name: beastLicker b3
+      trigger: button3
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/voices/COOL.wav
+      </properties>
+  </event>
+
+  <event>
+      name: beastLicker b4
+      trigger: button4
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/voices/GIGGLE.wav
+      </properties>
+  </event>
+
+  <event>
+      name: cycle b5
+      trigger: button5
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/voices/LostInSpace_does_not_compute.wav
+      </properties>
+  </event>
+
+  <event>
+      name: cycle b6
+      trigger: button6
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/voices/marvin_martian_capture.wav
+      </properties>
+  </event>
+
+  <event>
+      name: cycle b7
+      trigger: button7
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 4 1 </orbs>
+      <properties>
+          soundfile /orbsounds/FX/voices/moe_broadcasting.wav
+      </properties>
+  </event>
+
+  <event>
+      name: cycle b7
+      trigger: button7
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 0 5 </orbs>
+      <properties>
+          soundfile /orbsounds/FX/voices/BOOBOO.wav
+      </properties>
+  </event>
+
+  <event>
+      name: cycle b8
+      trigger: button8
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 0 1 </orbs>
+      <properties>
+          soundfile /orbsounds/FX/voices/roadrunner2.wav
+      </properties>
+  </event>
+
+  <event>
+      name: cycle b8
+      trigger: button8
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 4 5 </orbs>
+      <properties>
+          soundfile /orbsounds/FX/voices/WOW.wav
+      </properties>
+  </event>
+
+
+  <event>
+      name: Stop Button
+      trigger: button10
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/voices/porky_thats_all_folks.wav
+      </properties>
+  </event>
+
+
+</timeline>

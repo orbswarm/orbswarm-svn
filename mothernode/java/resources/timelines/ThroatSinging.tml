@@ -1,0 +1,177 @@
+<timeline>
+  name: Tuva or Bust!
+  arena: 200.
+  duration: 360.
+  <event>
+      name: fade to black
+      startTime: 0
+      fadeTime: 2
+      specialist: SimpleColor
+      color: RGB 0 0 0 
+  </event>
+
+  <event>
+      name: all tan
+      startTime: 3
+      fadeTime: 10
+      specialist: SimpleColor
+      color: RGB 245 230 100
+  </event>
+
+  <event>
+      name: chimes FR f#3
+      startTime: 2
+      specialist: SimpleSound
+      <orbs> 4 0 1 </orbs>
+      <properties>
+          soundfile /orbsounds/FX/chimes/RT_f#3.aif
+      </properties>
+  </event>
+
+  <event>
+      name: Initial chant5
+      startTime: 2
+      duration: 30
+      <orbs> 5  </orbs>
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/Markafiles/Xandoru_Wavs_to_Convert/Tuvan/tuvan_15489_djgriffin_tibetan_chant_4_colargol.aif
+      </properties>
+  </event>
+
+  <event>
+      name: second chant4
+      startTime: 10
+      duration: 30
+      <orbs> 4 </orbs>
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/Markafiles/Xandoru_Wavs_to_Convert/Tuvan/tuvan_15489_djgriffin_tibetan_chant_4_colargol.aif
+      </properties>
+  </event>
+
+  <event>
+      name: Secondchant0
+      startTime: 30
+      duration: 22
+      <orbs> 0 </orbs>
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/Markafiles/Xandoru_Wavs_to_Convert/Tuvan/tuvan_19040_djgriffin_kumi1_04.aif
+      </properties>
+  </event>
+
+// trigggggers
+
+  <event>
+      name: throat b1
+      trigger: button1
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/Markafiles/Xandoru_Wavs_to_Convert/Tuvan/tuvan_19040_djgriffin_kumi1_04.aif
+      </properties>
+  </event>
+
+  <event>
+      name: throat b2
+      trigger: button2
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/Markafiles/Xandoru_Wavs_to_Convert/Tuvan/tuvan_15489_djgriffin_tibetan_chant_4_colargol.aif
+      </properties>
+  </event>
+
+  <event>
+      name: throat b3
+      trigger: button3
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/Markafiles/Xandoru_Wavs_to_Convert/Tuvan/tuvan_19534_Bram_alfonso_high_15.wav
+      </properties>
+  </event>
+
+  <event>
+      name: throat low b4
+      trigger: button4
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/Markafiles/Xandoru_Wavs_to_Convert/Tuvan/tuvan_19523_Bram_alfonso_low_16.wav
+      </properties>
+  </event>
+
+  <event>
+      name: overtone b5
+      trigger: button5
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/Markafiles/Xandoru_Wavs_to_Convert/Tuvan/tuvan_21219_djgriffin_overtone_exercise.aif
+      </properties>
+  </event>
+
+  <event>
+      name: low17 b6
+      trigger: button6
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/Markafiles/Xandoru_Wavs_to_Convert/Tuvan/tuvan_19524_Bram_alfonso_low_17.wav
+      </properties>
+  </event>
+
+  <event>
+      name: chimes b7
+      trigger: button6
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/chimes/DC_b3.aif
+      </properties>
+  </event>
+
+  <event>
+      name: chimes b8
+      trigger: button8
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/chimes/RT_e4.aif
+      </properties>
+  </event>
+
+  <event>
+      name: Nightingale b9
+      trigger: button9
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/Markafiles/Xandoru_Wavs_to_Convert/Nightingale/Nightingale_excerpt05.wav
+      </properties>
+  </event>
+
+  <event>
+      name: Stop Button
+      trigger: button10
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/voices/BOOBOO.wav
+      </properties>
+  </event>
+
+
+</timeline>

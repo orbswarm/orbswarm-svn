@@ -189,6 +189,7 @@ public class TimelineDisplay  {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         JComboBox drop = new JComboBox();
+        drop.setFont(dropFont);
         drop.setBackground(bgColor);
         // TODO: find the choreography files and populate dropdown with them
         drop.addItem("== Select a timeline ==");
@@ -217,6 +218,7 @@ public class TimelineDisplay  {
 
         JButton goButton = new JButton(" > ");
         goButton.setBackground(bgColor);
+        goButton.setFont(buttonFont);
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 2;
@@ -243,7 +245,7 @@ public class TimelineDisplay  {
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.NONE;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         panel.add(stopButton, gbc);
         stopButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -298,6 +300,8 @@ public class TimelineDisplay  {
     JCheckBox vstCheck;
     JCheckBox stopFileCheck;
     Font scpFont  = new Font("SansSerif", Font.PLAIN, 8);
+    Font dropFont  = new Font("SansSerif", Font.BOLD, 16);
+    Font buttonFont  = new Font("SansSerif", Font.BOLD, 18);
     
     public JPanel createSoundCtlPanel() {
         JPanel scp = new JPanel();
@@ -315,7 +319,7 @@ public class TimelineDisplay  {
         scp.add(volLabel, gbc);
         gbc.gridx = 0;
         gbc.gridy = 1;
-        gbc.gridwidth = 1;
+        gbc.gridwidth = 2;
         volSlider = make0100Slider(null, swarmCon.getOrbControlImpl().getDefaultSoundVolume());
         final JLabel volValueLabel = new JLabel("" + swarmCon.getOrbControlImpl().getDefaultSoundVolume());
         volSlider.addChangeListener(new ChangeListener() {

@@ -319,7 +319,7 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
 
          // record old transform and make the orb the center of the
          // world
-         
+
          AffineTransform old = g.getTransform();
          g.translate(getX(), getY());
          g.scale(ORB_DIAMETER, ORB_DIAMETER);
@@ -328,7 +328,7 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
 
          setColor(g, isSelected() ? SEL_ORB_CLR : getOrbColor()); // was: ORB_CLR
          g.fill(shape);
-         
+         /*                  
          // draw orb shadow
 
          setColor(g, g.getColor().darker());
@@ -358,6 +358,7 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
          // restore old transform
          
          g.setTransform(old);
+         */
       }
       // draw text at a given location
 
