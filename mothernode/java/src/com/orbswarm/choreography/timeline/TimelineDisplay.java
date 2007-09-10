@@ -110,7 +110,7 @@ public class TimelineDisplay  {
     }
     
     public void initColors() {
-        bgColor            = Color.getHSBColor(.1f,  .05f,  .65f);
+        bgColor            = Color.getHSBColor(.1f,  .05f,  .55f);
         timeCursorColor    = Color.getHSBColor(.01f, .9f,   .9f);
         tickColor          = Color.getHSBColor(.9f,  .2f,   .9f);
         eventColor_border  = Color.getHSBColor(.8f,  .65f,  .4f);
@@ -862,6 +862,7 @@ public class TimelineDisplay  {
             displayEventEndPoint(evEndX, evY);
         }
         displayEventStartPoint(evStartX, evY, jcolor);
+        /*
         String text = event.getName();
         if (text == null) {
             text = "<>";
@@ -872,6 +873,8 @@ public class TimelineDisplay  {
         if (event.getTarget() != null) {
             text += "->" + event.getTarget();
         }
+        */
+        String text= event.getLabel();
         displayEventText(evStartX + eventTrackHeight * .5, evY - eventTrackHeight * .4, text, jcolor);
     }
 

@@ -34,6 +34,7 @@ public class OrbControlImpl implements OrbControl {
         this.sendCommandsToOrbs = sendCommandsToOrbs;
         this.simulateColors = simulateColors;
         this.simulateSounds = simulateSounds;
+        setupSoundCatalog();
         setupSoundPlayers(6); // TODO: generalize
         orbColors = new HSV[6];
         for(int i=0; i < 6; i++) {
@@ -55,10 +56,20 @@ public class OrbControlImpl implements OrbControl {
         return enabled;
     }
 
-    static {
+    private void setupSoundCatalog() {
         soundCatalog = new HashMap();
-        readSoundCatalog("resources/songs/sounds.catalog");
-        readSoundCatalog("resources/songs/errata.catalog");
+        // FIXME: this should be done after swarmcon reads its properties.
+        String soundCatalogsProp = swarmCon.getProperty("swarmcon.sound.sound_catalogs",
+                                                        "resources/song/sounds.catalog");
+        String[] soundCatalogs = soundCatalogsProp.trim().split(" ");
+        for(int i=0; i < soundCatalogs.length; i++ ) {
+            if (soundCatalogs[i].length() > 0) {
+                readSoundCatalog(soundCatalogs[i]);
+            }
+        }
+        String errataCatalog = swarmCon.getProperty("swarmcon.sound.errata_catalog",
+                                                    "resources/song/errata.catalog");
+        readSoundCatalog(errataCatalog);
     }
     
     public SwarmCon getSwarmCon() {
@@ -76,6 +87,7 @@ public class OrbControlImpl implements OrbControl {
         }
     }
 
+    // TODO: read catalogFile as resrouce rather than file. 
     private static void readSoundCatalog(String catalogFile) {
         try {
             TokenReader reader = new TokenReader(catalogFile);

@@ -8,8 +8,13 @@ import java.awt.geom.*;
 import java.awt.font.*;
 import java.awt.event.*;
 import java.awt.image.*;
+import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.util.*;
 import java.text.*;
+
 import org.trebor.pid.*;
 
 import com.orbswarm.choreography.Specialist;
@@ -31,14 +36,17 @@ import static java.awt.event.KeyEvent.*;
 
 public class SwarmCon extends JFrame 
 {
-      /** allowable range of values for steering */
+    /** Properties for tweaking the system. */
+    private Properties properties = null;
 
-      public static final int STEERING_RANGE = 100;
-    public int steering_range = 100;
+    /** location of properties file. */
+    public static final String PROPERTIES_FILE_LOCATION = "resources/swarmcon.properties";
+    
+      /** allowable range of values for steering */
+      public int steering_range = 100;
       
       /** allowable range of values for power */
 
-    public static final int POWER_RANGE = 50;
     public int power_range = 50;
 
       /** period between commands in milliseconds */
@@ -105,7 +113,7 @@ public class SwarmCon extends JFrame
 
       /** scale for graphics */
 
-      public static final double PIXLES_PER_METER  = 30.0;
+      public static final double PIXELS_PER_METER  = 30.0;
 
       /** arena in which we play */
 
@@ -204,7 +212,7 @@ public class SwarmCon extends JFrame
       {
          return original.deriveFont(
             (float)(original.getSize() 
-                    / PIXLES_PER_METER));
+                    / PIXELS_PER_METER));
       }
 
       // fix font sizes
@@ -261,29 +269,23 @@ public class SwarmCon extends JFrame
     
       public static void main(String[] args)
       {
-          boolean sendCommandsToOrbs = true;
-          boolean simulateColors = true;
-          boolean simulateSounds = false;
-          int steering_refresh_delay = 200;
-          int power_range = -1;
-          int steering_range = -1;
-          int timeline_width = -1;
-          int timeline_height = -1;
-          
          registerSpecialists(); 
+         SwarmCon sc = new SwarmCon();
          int i=0;
          while (i < args.length)
          {
              if (args[i].equalsIgnoreCase("--simulateSounds"))
              {
                  i++;
-                 simulateSounds = args[i].equalsIgnoreCase("true");
+                 boolean simulateSounds = args[i].equalsIgnoreCase("true");
+                 sc.simulateSounds = simulateSounds;
              } 
 
              else if (args[i].equalsIgnoreCase("--simulateColors"))
              {
                  i++;
-                 simulateColors = args[i].equalsIgnoreCase("true");
+                 boolean simulateColors = args[i].equalsIgnoreCase("true");
+                 sc.simulateColors = simulateColors;
              }
 
 
@@ -292,7 +294,7 @@ public class SwarmCon extends JFrame
                  i++;
                  int da_powah = Integer.parseInt(args[i]);
                  i++;
-                 power_range = da_powah;
+                 sc.setPowerRange(da_powah);
              }
 
              else if (args[i].equalsIgnoreCase("--steering") || args[i].equalsIgnoreCase("--steering_range"))
@@ -300,7 +302,7 @@ public class SwarmCon extends JFrame
                  i++;
                  int da_steer = Integer.parseInt(args[i]);
                  i++;
-                 steering_range = da_steer;
+                 sc.setSteeringRange(da_steer);
              }
 
              else if (args[i].equalsIgnoreCase("--timeline_width")) 
@@ -308,7 +310,7 @@ public class SwarmCon extends JFrame
                  i++;
                  int w = Integer.parseInt(args[i]);
                  i++;
-                 timeline_width = w;
+                 sc.timeline_width = w;
              }
 
              else if (args[i].equalsIgnoreCase("--timeline_height")) 
@@ -316,7 +318,7 @@ public class SwarmCon extends JFrame
                  i++;
                  int w = Integer.parseInt(args[i]);
                  i++;
-                 timeline_height = w;
+                 sc.timeline_height = w;
              }
 
              else if (args[i].equalsIgnoreCase("--steeringrefresh"))
@@ -324,7 +326,7 @@ public class SwarmCon extends JFrame
                  i++;
                  int refresh = Integer.parseInt(args[i]);
                  i++;
-                 steering_refresh_delay = refresh;
+                 sc.steering_refresh_delay = refresh;
              }
              // Note: not giving the option to turn off sending commands to orbs right now. 
 
@@ -335,18 +337,7 @@ public class SwarmCon extends JFrame
              }
              i++;
          }
-         SwarmCon sc = new SwarmCon(sendCommandsToOrbs, simulateColors, simulateSounds);
-         sc.steering_refresh_delay = steering_refresh_delay;
-         if (power_range != -1) {
-             sc.setPowerRange(power_range);
-         }
-         if (steering_range != -1) {
-             sc.setSteeringRange(steering_range);
-         }
 
-         if (timeline_width != -1) {
-             sc.timeline_width = timeline_width;
-         }
          sc.initialize();
       }
 
@@ -383,17 +374,101 @@ public class SwarmCon extends JFrame
     
       // construct a swarm
 
-      public SwarmCon(boolean sendCommandsToOrbs, boolean simulateColors, boolean simulateSounds)
+      public SwarmCon()
       {
-        this.sendCommandsToOrbs = sendCommandsToOrbs;
-        this.simulateColors = simulateColors;
-        this.simulateSounds = simulateSounds;
-        this.power_range = POWER_RANGE;
-        this.steering_range = POWER_RANGE;
+          try {
+              readProperties();
+              setValuesFromProperties();
+          } catch (IOException ex) {
+              System.err.println("SwarmCon() caught exception reading properties. Using defaults.");
+              ex.printStackTrace();
+          }
       }
 
+    private void readProperties() throws IOException {
+        System.out.println("Props file location: " + PROPERTIES_FILE_LOCATION);
+        URL dbres = this.getClass().getResource(PROPERTIES_FILE_LOCATION);
+        System.out.println("getResource(): " + dbres);
+        InputStream propStream = this.getClass().getResourceAsStream(PROPERTIES_FILE_LOCATION);
+        System.out.println("PropStream: " + propStream);
+        if (propStream == null) {
+            propStream = new FileInputStream(PROPERTIES_FILE_LOCATION);
+            System.out.println("PropStream (file input stream): " + propStream);
+        }
+        properties = new Properties();
+        properties.load(propStream);
+        // debug print properties
+        System.out.println("SwarmCon PROPERTIES:");
+        properties.list(System.out);
+    }
+
+    //
+    // all defaults need to be specified in the properties file, and here, in case
+    // the properties file isn't found for some reason.
+    //
+    private void setValuesFromProperties() {
+        this.power_range        = getIntProperty("swarmcon.motion.power_range", 50);
+        this.steering_range     = getIntProperty("swarmcon.motion.steering_range", 100);
+        this.steering_refresh_delay = getIntProperty("swarmcon.motion.steering_refresh_delay", 200);
+        this.sendCommandsToOrbs = getBooleanProperty("swarmcon.comm.send_commands_to_orbs", true);
+        this.simulateColors     = getBooleanProperty("swarmcon.color.simulate_colors", true);
+        this.simulateSounds     = getBooleanProperty("swarmcon.sound.simulate_sounds", false);
+        this.timeline_width     = getIntProperty("swarmcon.timeline.width", 700);
+        this.timeline_height    = getIntProperty("swarmcon.timeline.height", 150);
+    }
+
+    public String getProperty(String key, String defaultVal) {
+        return this.properties.getProperty(key, defaultVal);
+    }
+
+    public int getIntProperty(String key, int defaultVal) {
+        int val = defaultVal;
+        try {
+            String vstr = this.properties.getProperty(key, null);
+            val = Integer.parseInt(vstr);
+        } catch (Exception ex) {
+            // pass
+        }
+        return val;
+    }
+
+    public boolean getBooleanProperty(String key, boolean defaultVal) {
+        boolean val = defaultVal;
+        try {
+            String vstr = this.properties.getProperty(key, null);
+            val = (new Boolean(vstr)).booleanValue();
+        } catch (Exception ex) {
+            // pass
+        }
+        return val;
+    }
+
+    public float getFloatProperty(String key, float defaultVal) {
+        float val = defaultVal;
+        try {
+            String vstr = this.properties.getProperty(key, null);
+            val = Float.parseFloat(vstr);
+        } catch (Exception ex) {
+            // pass
+        }
+        return val;
+    }
+
+    public double getDoubleProperty(String key, double defaultVal) {
+        double val = defaultVal;
+        try {
+            String vstr = this.properties.getProperty(key, null);
+            val = Double.parseDouble(vstr);
+        } catch (Exception ex) {
+            // pass
+        }
+        return val;
+    }
+            
+
     // splitting constructor from initializer, so that parameters can be set in the main routine
-    // before starting it up. (e.g. can't reset the timeline width after constructing the frame).
+    // before starting it up. (e.g. can't reset the timeline width after constructing
+    // the frame).
     public void initialize() {
          // OrbControl for Specialists
         orbControlImpl = new OrbControlImpl(this,
@@ -672,10 +747,10 @@ public class SwarmCon extends JFrame
 
          Controller[] controllers = addOrbs(new Rectangle2D
                                             .Double(0, 0, 20, 20));
-//             .Double(arena.getBounds().getX() / PIXLES_PER_METER,
-//                     arena.getBounds().getY() / PIXLES_PER_METER,
-//                     arena.getBounds().getWidth()  / PIXLES_PER_METER,
-//                     arena.getBounds().getHeight() / PIXLES_PER_METER));
+//             .Double(arena.getBounds().getX() / PIXELS_PER_METER,
+//                     arena.getBounds().getY() / PIXELS_PER_METER,
+//                     arena.getBounds().getWidth()  / PIXELS_PER_METER,
+//                     arena.getBounds().getHeight() / PIXELS_PER_METER));
          
          // add pid tuner
 
@@ -813,7 +888,7 @@ public class SwarmCon extends JFrame
          // set 0,0 to lower left corner, and scale for meters
 
          g.translate(0, height);
-         g.scale(PIXLES_PER_METER, -PIXLES_PER_METER);
+         g.scale(PIXELS_PER_METER, -PIXELS_PER_METER);
                      
          // draw mobjects
                      
@@ -848,9 +923,9 @@ public class SwarmCon extends JFrame
                   {
                         public void mouseMoved(MouseEvent e)
                         {
-                           setPosition(e.getX() / PIXLES_PER_METER,
+                           setPosition(e.getX() / PIXELS_PER_METER,
                                        (arenax.getHeight() - e.getY()) /
-                                       PIXLES_PER_METER);
+                                       PIXELS_PER_METER);
                         }
                   };
                
@@ -936,8 +1011,8 @@ public class SwarmCon extends JFrame
                // convert point to meters
 
                Point2D.Double point = new Point2D.Double(
-                  e.getX() / PIXLES_PER_METER, 
-                  (arena.getHeight() - e.getY()) / PIXLES_PER_METER);
+                  e.getX() / PIXELS_PER_METER, 
+                  (arena.getHeight() - e.getY()) / PIXELS_PER_METER);
 
                // find nearest selectable mobject
 

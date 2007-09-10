@@ -56,9 +56,9 @@ public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMo
         }
         
         drawer = new StdDraw(canvasSize);
-        colorWheel_x = 0;
-        colorWheel_y = radius / 2.5;
-        colorWheelRadius = radius / 1.5;
+        colorWheel_x = 0.;
+        colorWheel_y = radius / 2.5 - 5.;
+        colorWheelRadius = radius / 1.55;
 
         drawer.setXscale(-radius, +radius); 
         drawer.setYscale(-radius, +radius);
@@ -107,9 +107,13 @@ public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMo
             gbc.gridy = 0;
             gbc.weightx = 1.0;
             gbc.weighty = 1.0;
+            gbc.insets = new Insets(0, 0, 0, 0);
             gbc.fill = GridBagConstraints.HORIZONTAL;
             drawingPane = drawer.getDrawingPane();
+            //((JLabel)drawingPane).setBorder(BorderFactory.createLineBorder(Color.RED));
+
             mainPanel.add(drawingPane, gbc);
+            //mainPanel.setBorder(BorderFactory.createLineBorder(Color.BLUE));
 
             gbc.weightx = 0.0;
             gbc.weighty = 0.0;
@@ -133,6 +137,7 @@ public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMo
         gbc.gridy = 0;
         gbc.weightx = 0.0;
         gbc.weighty = 1.0;
+        gbc.insets = new Insets(0, 0, 0, 0);
         gbc.anchor = GridBagConstraints.WEST;
         // put sliders in here for the spread and value
         JLabel csLabel = new JLabel("Color Scheme");
@@ -355,8 +360,8 @@ public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMo
         
         double x = colorWheel_x;
         double y = colorWheel_y;
-        drawer.setPenColor_bg(circleBorderColor);
-        drawer.circle_bg(x, y, colorWheelRadius * 1.05);
+        //drawer.setPenColor_bg(circleBorderColor);
+        //drawer.circle_bg(x, y, colorWheelRadius * 1.05);
         int colorPoints = 25;
         double pointSize = colorWheelRadius / (double)colorPoints;
         double pointRadius = pointSize / 2.;
@@ -505,22 +510,29 @@ public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMo
     
     int dragSwatch = -1;
     public void mousePressed (MouseEvent e) {
-        //System.out.println("Bing!");
         double mx = drawer.mouseX();
         double my = drawer.mouseY();
+        //System.out.println("Bing!  <colorschemer.mousepressed> MX: " + mx + " MY: " + my);
+        //System.out.println("      mouseEventCoords: {" + e.getX() + ", " + e.getY() + "}");
         dragSwatch = findSwatch(mx, my, colorScheme);
     }
 
     public int findSwatch(double mx, double my, ColorScheme colorScheme) {
-        double cwx = mx - colorWheel_x;
-        double cwy = my - colorWheel_y; 
+        double xfudge = 14.;   // don't know why this is happening. 
+        double cwx = mx - colorWheel_x - xfudge;
+        double cwy = my - colorWheel_y;
+        //System.out.println("    cwx: " + cwx + " cwy: " + cwy);
+        //System.out.println("    drawer.location: " + drawingPane.getLocation(null));
+        //System.out.println("    mainPanel.location: " + mainPanel.getLocation(null));
         double threshold = 4.;
         for(int i=0; i < numSwatches; i++) {
+            //System.out.println("   testing swatch " + i);
             HSV color = colorScheme.getColor(i);
             float theta = colorScheme.hueToAngle(color.getHue());
             float r = (float)(color.getSat() * colorWheelRadius);
             double px = r * Math.cos(theta);
             double py = r * Math.sin(theta);
+            //System.out.println("    px: " + px + " py: " + py);
             if ((Math.abs(px - cwx) < threshold) &&
                 (Math.abs(py - cwy) < threshold)) {
                 return i;
@@ -540,10 +552,12 @@ public class ColorSchemer implements ColorSchemeListener, MouseListener, MouseMo
     public void mouseMoved(MouseEvent e) { }
 
     public void mouseDragged(MouseEvent e) {
+        //System.out.println("              DRAG. mousePressed: " + drawer.mousePressed() + " dragSwatch: " + dragSwatch);
         if (drawer.mousePressed() && dragSwatch != -1 ) {
             double mx = drawer.mouseX();
             double my = drawer.mouseY();
-            double cwx = mx - colorWheel_x;
+            double xfudge = 14.;   // don't know why this is happening. 
+            double cwx = mx - colorWheel_x - xfudge;
             double cwy = my - colorWheel_y;
             double r = Math.sqrt(cwx * cwx + cwy * cwy);
             if (r > colorWheelRadius) {

@@ -38,6 +38,7 @@ public class Event extends Temporal {
     protected Event parent;
 
     protected int    type       = TYPE_SINGLE;  // not yet impl
+    protected String label      = null;
     protected String target     = null;
     protected String specialistName = null;
     protected int[]  orbs       = null;
@@ -99,6 +100,36 @@ public class Event extends Temporal {
         return this.type;
     }
 
+    public String getLabel() {
+        if (label == null) {
+            label = calculateLabel();
+        }
+        return label;
+    }
+
+    public String calculateLabel() {
+        String text = this.getName();
+        StringBuffer buf = new StringBuffer(32);
+        if (this.isTrigger()) {
+            buf.append("[");
+            buf.append(this.getShortTriggerLocation());
+            buf.append("]");
+        }
+        if (text == null) {
+            text = "<>";
+        } 
+        buf.append(text);
+
+        // TODO: this won't be necessary if we put property events (targeted) events
+        //       onto the event they're modifying.
+        String target = getTarget();
+        if (target != null) {
+            buf.append("->");
+            buf.append(target);
+        }
+        return buf.toString();
+    }
+
     public void setTrigger(boolean val) {
         this.isTrigger = val;
     }
@@ -118,6 +149,37 @@ public class Event extends Temporal {
     }
     public String getTriggerLocation() {
         return this.triggerLocation;
+    }
+    
+    public String getShortTriggerLocation() {
+        String tl = getTriggerLocation();
+        String stl;
+        if (tl == null) {
+            stl = null;
+        } else if (tl.equals("button1")) {
+            stl = "1";
+        } else if (tl.equals("button2")) {
+            stl = "2";
+        } else if (tl.equals("button3")) {
+            stl = "3";
+        } else if (tl.equals("button4")) {
+            stl = "4";
+        } else if (tl.equals("button5")) {
+            stl = "5";
+        } else if (tl.equals("button6")) {
+            stl = "6";
+        } else if (tl.equals("button7")) {
+            stl = "7";
+        } else if (tl.equals("button8")) {
+            stl = "8";
+        } else if (tl.equals("button9")) {
+            stl = "9";
+        } else if (tl.equals("button10")) {
+            stl = "10";
+        } else {
+            stl = tl;
+        }
+        return stl;
     }
     
     public Event getParent() {
