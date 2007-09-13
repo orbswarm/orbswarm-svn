@@ -44,7 +44,14 @@ steerRange = steerMax - steerMin
 # struct for orb controller
 class orbStruct:
 	id = 0
+	steer = 0
+	drive = 0
+	aux = 0
+	R = 0
+	G = 0
+	B = 0
 	pass
+
 
 # struct to hang events from 
 class eventStruct:
@@ -90,6 +97,10 @@ class Dashboard(wx.Frame):
 	self.orb = []
 	for n in range(6):
             self.orb.append(orbStruct())
+
+	print sys.argv
+	print len(sys.argv)
+	self.verbose = 0    
 
 	count = 0
 	for orb in self.orb:
@@ -145,8 +156,6 @@ class Dashboard(wx.Frame):
 	self.aux.sID = AUXID
 
 
-	
-
 
         # status box for returned serial data
         self.statusbox = wx.TextCtrl(panel, -1,"serial output in this box",
@@ -171,6 +180,8 @@ class Dashboard(wx.Frame):
 
 
 	count = 0;
+	self.orb[2].enable = 0
+	self.orb[3].enable = 0
 	for cbox in self.cbox:
 		cbox.n = count
 		cbox.SetValue(self.orb[count].enabled)
@@ -178,6 +189,8 @@ class Dashboard(wx.Frame):
 # Should disable if no joystick
 #		if (count > self.myJoy.numjoy): 
 #			cbox.Enable(0)
+
+
 
         # send emergency stop command
         stopBtn = wx.Button(panel, -1, "ALL STOP")
@@ -332,48 +345,77 @@ class Dashboard(wx.Frame):
 	cmd = ""
 	for o in self.orb:
 	    if(o.enabled):    
-		cmd +=  "{%d $p%d*}\n" % (o.orbID,drive)   
-	print cmd
+		cmd +=  "{%d $p%d*}" % (o.orbID,o.drive)   
+	if self.verbose:
+	    print cmd
 	self.ser.write(cmd);
 
     def DoSteerEvt(self):
-	steer = self.steer.GetValue()
+	cmd = ""
 	for o in self.orb:
 	    if(o.enabled):    
-	        cmd =  "{%d $s%d*}" % (o.orbID,steer)
-	        print cmd
-		self.ser.write(cmd);
+	        cmd +=  "{%d $s%d*}" % (o.orbID,o.steer)
+	if self.verbose:
+	    print cmd
+	self.ser.write(cmd);
+
 		
     def DoAuxEvt(self):
-	aux = self.aux.GetValue()
+	cmd = ""
 	for o in self.orb:
 	    if(o.enabled):    
-	        cmd =  "{%d <L B%d>}" % (o.orbID,int(2.5*(aux+100)))
-	        print cmd
-		self.ser.write(cmd);
+	        cmd +=  "{%d <L B%d>}" % (o.orbID,int(2.5*(o.aux+100)))
+	if self.verbose:
+	    print cmd
+	self.ser.write(cmd);
 
-    def DoJoyButton(self, joy, button):
-	print "Stick %d Button %d" % (joy,button)
+
+    def DoColorEvt(self):
+	cmd = ""
 	for o in self.orb:
-	    cmd = ""	
-	    if(o.enabled):
+	    if(o.enabled):    
+	        cmd +=  "{%d <L R%d>}" % (o.orbID,o.R))
+	        cmd +=  "{%d <L G%d>}" % (o.orbID,o.G))
+	        cmd +=  "{%d <L B%d>}" % (o.orbID,o.B))
+	if self.verbose:
+	    print cmd
+	self.ser.write(cmd);
+
+
+    def DoJoyButton(self, orbID,  button):
+	print "Orb %d Button %d" % (orbID,button)
+	o = self.orb[orbID]
+        cmd = ""	
+	if(o.enabled):
 		if button == 0:    
-		    cmd =  "{%d <M1 VPA>}" % o.orbID
+		    cmd +=  "{%d <M1 VPA>}" % o.orbID
+		    cmd +=  "{%d <M1 VPA>}" % o.orbID
+		    cmd +=  "{%d <M1 VPA>}" % o.orbID
+		    cmd +=  "{%d <M1 VPA>}" % o.orbID
 		elif  button == 1:       
-		    cmd =  "{%d <L R%d>}\n" %   (o.orbID,0)
-		    cmd =  "{%d <L G%d>}\n" %   (o.orbID,0)
-		    cmd =  "{%d <L B%d>}\n" %   (o.orbID,0)
+		    cmd +=  "{%d <L R%d>}" %   (o.orbID,0)
+		    cmd +=  "{%d <L G%d>}" %   (o.orbID,0)
+		    cmd +=  "{%d <L B%d>}" %   (o.orbID,0)
 		elif  button == 2:
-		    cmd =  "{%d <M1 VPF 49443526.mp3>}\n" % o.orbID
+		    cmd +=  "{%d <M1 VPF 49443526.mp3>}" % o.orbID
+		    cmd +=  "{%d <M1 VPF 49443526.mp3>}" % o.orbID
+		    cmd +=  "{%d <M1 VPF 49443526.mp3>}" % o.orbID
+		    cmd +=  "{%d <M1 VPF 49443526.mp3>}" % o.orbID
 		elif  button == 3:       
-		    cmd =  "{%d <M1 VPF 55061608.mp3>}" % o.orbID
+		    cmd +=  "{%d <M1 VPF 55061608.mp3>}" % o.orbID
+		    cmd +=  "{%d <M1 VPF 55061608.mp3>}" % o.orbID
+		    cmd +=  "{%d <M1 VPF 55061608.mp3>}" % o.orbID
+		    cmd +=  "{%d <M1 VPF 55061608.mp3>}" % o.orbID
 		elif  button == 4:
-		    cmd =  "{%d <M1 VPF 58720567.mp3>}" % o.orbID
+		    cmd +=  "{%d <M1 VPF 58720567.mp3>}" % o.orbID
+		    cmd +=  "{%d <M1 VPF 58720567.mp3>}" % o.orbID
+		    cmd +=  "{%d <M1 VPF 58720567.mp3>}" % o.orbID
+		    cmd +=  "{%d <M1 VPF 58720567.mp3>}" % o.orbID
 		elif  button == 6:
-		    cmd =  "{%d <L R%d>}\n" %   (o.orbID,255)
-		    cmd =  "{%d <L G%d>}\n" %   (o.orbID,0)
-		    cmd =  "{%d <L B%d>}\n" %   (o.orbID,0)
-		    cmd =  "{%d <M1 VPF 58720567.mp3>}" % o.orbID
+		    cmd +=  "{%d <L R%d>}" %   (o.orbID,255)
+		    cmd +=  "{%d <L G%d>}" %   (o.orbID,0)
+		    cmd +=  "{%d <L B%d>}" %   (o.orbID,0)
+		    cmd +=  "{%d <M1 VPF 58720567.mp3>}" % o.orbID
 		print cmd
 		self.ser.write(cmd);
 
@@ -391,12 +433,14 @@ class Dashboard(wx.Frame):
 	    # send all commands all the time 
 	    self.DoDriveEvt()
 	    self.DoSteerEvt()
-	    self.DoAuxEvt()
+	    #self.DoAuxEvt()
+	    self.DoColorEvt()
 
             # Poll pygame for joystick events
             e = pygame.event.poll()
             while (e.type != pygame.NOEVENT):
-                self.OnJoystick(e)
+                #self.OnJoystick(e)
+		self.OnCrudeJoystick(e)
                 e = pygame.event.poll()
             if self.currentlyLogging:
                 self.ticks = self.ticks + 1
@@ -519,6 +563,48 @@ class Dashboard(wx.Frame):
 
         elif e.type == pygame.JOYBUTTONDOWN:
 	    self.DoJoyButton(e.dict['joy'], e.dict['button'])
+
+    # crude joystick to orb id mapping
+    def OrbToJoyMap(self,joy):
+        if joy == 0:
+	    return 0  # orb id 60
+        elif joy == 1:
+	    return 1
+	elif joy == 2:
+	    return 4
+	elif joy == 3:
+	    return 5
+	elif joy == 4:
+	    return 1
+	elif joy == 5:
+	    return 2
+	else:
+	  return 0
+
+
+    # support multistick events
+    def OnCrudeJoystick(self,e):
+        """ Called on any joystick event: change sliders """
+
+        if e.type == pygame.JOYAXISMOTION:
+            if (e.dict['axis'] == 0):
+		orbID = int(self.OrbToJoyMap(int(e.dict['joy'])))
+                print "orb %d Axis 0 %f" % (orbID, e.dict['value'])
+                self.orb[orbID].steer = self.JoyXtoSteer(e.dict['value'])
+            elif (e.dict['axis'] == 1):
+		orbID = int(self.OrbToJoyMap(int(e.dict['joy'])))
+                print "orb %d Axis 1 %f" % (orbID, e.dict['value'])
+                self.orb[orbID].drive = self.JoyYtoDrive(e.dict['value'])
+            elif (e.dict['axis'] == 2):
+                #print "Stick %d Axis 2 %f" % (e.dict['joy'], e.dict['value'])
+		return  # ignore for now
+            elif (e.dict['axis'] == 3):
+		orbID = int(self.OrbToJoyMap(int(e.dict['joy'])))
+                self.orb[orbID].aux = 100*(e.dict['value'])
+
+        elif e.type == pygame.JOYBUTTONDOWN:
+	    orbID = self.OrbToJoyMap(int(e.dict['joy']))
+	    self.DoJoyButton(orbID, e.dict['button'])
 
     def JoyYtoDrive(self,y):
         """ return joystick value normalized to drive max/min"""
