@@ -1,33 +1,27 @@
-/*****************************************************************************
-*
-* File: main.c
-*
-* Main file for AT-Tiny Serial SPU / MP3 Test  
-*
-* Originally Written for AT-Tiny2313
-*
-* Uses UART for 38.4 kb serial communications with SPU and lighting module.
-* Echos all the chrs received from the SPU downstream to any other modules.
-*
-* Written by Petey the Programmer
-* 30-July-2007
-*
-*  Modified for atmega-8 and serial lighting protocol by Jon Foote (Head Rotor)
-*
-****************************************************************************/
+// -----------------------------------------------------------------------
+// 
+//	File: main.c
+//	main file for SWARM Orb LED Illumination Unit http://www.orbswarm.com
+//      which is a custom circuit board by rick L using an Atmel AVR atmega-8
+//      build code using WinAVR toolchain: see makefile
+//
+//	Written by Jonathan Foote (Head Rotor at rotorbrain.com)
+//      based on code by Petey the Programmer
+// -----------------------------------------------------------------------
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <math.h>
 
 #include "UART.h"
-#include "putstr.h"		/* you can eliminate this entirely to save mem */
-#include "illuminator.h"	/* contains illuminatorStruct definition */
-#include "parser.h"	/* contains illuminatorStruct definition */
-
+#include "putstr.h"        /* you can eliminate this entirely to save mem */
+#include "illuminator.h"   /* contains illuminatorStruct definition */
+#include "parser.h"	   /* contains parser for input commands */
+#include "gamma.h"  	   /* contains gamma lookup table */
 
 // =======================================================
 
-
+#define INVERT foo
 
 /* This version uses putstr.c for debugging. To save memory,
    you can remove all instances of putstr and other debug code by
@@ -37,14 +31,75 @@
 
 
 /* this is the main data struct defined in illuminator.h */
-illuminatorStruct illum;
+volatile illuminatorStruct illum;
 
-/* preserve this during interrups if necessary */
+/* preserve this during interrupts if necessary */
 volatile int pwm=0;
+
+
+void doFade(illuminatorStruct *illum){
+  int diff;
+
+  putstr("doFade rcount");
+  illum->rInc = 0;
+  illum->gInc = 0;
+  illum->bInc = 0;
+  if(illum->Time == 0) {
+    illum->R = illum->tR;
+    illum->G = illum->tG;
+    illum->B = illum->tB;
+  }
+
+  /* to fade, find difference (amount we need to change) */
+  /* delay count will be inversely proportional to diff  */
+  /* i.e. more increments per time for bigger difference */
+  /* delay count will be proportional to time param      */
+  /* i.e. wait longer for longer time                   */
+  else {
+    diff = illum->tR - illum->R;
+    if (diff > 0)
+      illum->rInc = 1;
+    else if (diff < 0) {
+      illum->rInc = -1;
+      diff = -diff;
+    }
+
+    illum->rCount = diff==0? 0 : (int) (256/diff);
+    illum->rCount *= illum->Time;
+    putS16(illum->rCount );
+
+
+    diff = illum->tG - illum->G;
+    if (diff > 0)
+      illum->gInc = 1;
+    else if (diff < 0) {
+      illum->gInc = -1;
+      diff = -diff;
+    }
+    illum->gCount = diff==0? 0 : (int) (256/diff);
+    illum->gCount *= illum->Time;
+
+
+    diff = illum->tB - illum->B;
+    if (diff > 0)
+      illum->bInc = 1;
+    else if (diff < 0) {
+      illum->bInc = -1;
+      diff = -diff;
+    }
+    illum->bCount = diff==0? 0 : (int) (256/diff);
+    illum->bCount *= illum->Time;
+
+  }
+
+}
+
 
 int main( void ){
   unsigned char cData; 		/* byte to read from UART */
-
+  unsigned int rdelay=0;
+  unsigned int gdelay=0;
+  unsigned int bdelay=0;
 
   /* set up DDRD for serial IO */
   DDRD = 0xF2;		/* 0b 1111 0010	   1 indicates Output pin */
@@ -61,10 +116,14 @@ int main( void ){
   DDRB |= _BV(PB3); /*  PB3 is BLU output */
 
 
-  //  putstr("\r\n...Illuminator says hello...\r\n"); // DBG_REMOVE
+  putstr("\r\n...Illuminator at address ");
+  readAddressEEPROM(&illum);
+  putS16((short)illum.Addr );
+  putstr(" says hello...\r\n");
+
  
   /* init data structure */
-  illum.Addr = 0; 		/* may want to set this from DIP? */
+  illum.Addr = 0; 		/* set this from program */
   illum.H=0;
   illum.S=0;
   illum.V=0;
@@ -74,11 +133,15 @@ int main( void ){
   illum.tR=0; 			/* target RGB values */
   illum.tG=0;
   illum.tB=0;
-  illum.tHue=0;
-  illum.tSat=0;
-  illum.tVal=0;
+  illum.rCount=0; 			/* fade delay counts */
+  illum.gCount=0; 			
+  illum.bCount=0; 			
+  illum.rInc =0; 			/* fade increment counts */
+  illum.gInc =0; 			/* fade increment counts */
+  illum.bInc =0; 			/* fade increment counts */
   illum.Time=0;
   illum.Now=0;
+  illum.fading=0;
   // =======================================================
   
 
@@ -91,19 +154,54 @@ int main( void ){
 	// if we are here we have a complete command; parse it
 	parseCommand(); // parse and execute commands
       }
-      // Echo byte to next illuminator downstream
-      //UART_Transmit(cData);   // wait for empty buffer. send byte now.
-      //UART_send_byte(cData);   // put byte in buffer - send using interupts
     }
 
+
+#ifdef  INVERT  
+  /* main PWM loop is free-running here INVERTED VERSION */
+    PORTB=0x00; 		/* turn on all LEDs */
+    for(pwm=0;pwm<255;pwm++){
+      if(pwm >= gtab[illum.R]) /* if we've reached red value turn off R bit */
+	PORTB |= _BV(PB1);	
+      if(pwm >= gtab[illum.G])       
+	PORTB |= _BV(PB2);     /* if we've reached grn value turn off B bit */
+      if(pwm >= gtab[illum.B])
+	PORTB |= _BV(PB3);     /* if we've reached blu value turn off G bit */
+#else
+  /* main PWM loop is free-running here */
     PORTB=0x0F; 		/* turn on all LEDs */
     for(pwm=0;pwm<255;pwm++){
-      if(pwm >= illum.R)     /* if we've reached red value turn off R bit */
+      if(pwm >= gtab[illum.R])  /* if we've reached red value turn off R bit */
 	PORTB &=~_BV(PB1);	
-      if(pwm >= illum.G)       
+      if(pwm >= gtab[illum.G])       
 	PORTB &=~_BV(PB2);     /* if we've reached grn value turn off B bit */
-      if(pwm >= illum.B)
+      if(pwm >= gtab[illum.B])
 	PORTB &=~_BV(PB3);     /* if we've reached blu value turn off G bit */
+#endif
+      /* IF we are fading, AND we're not there, AND we've waited enough... */
+      if (illum.rInc && (illum.R != illum.tR) && (rdelay++ >= illum.rCount)) {
+	rdelay = 0;
+	illum.R += illum.rInc;	/* increment towards target */
+	if (illum.R == illum.tR){ 
+	  illum.rInc = 0;	/* we've reached our target, stop increment */
+	}
+
+      }
+
+      if (illum.gInc && (illum.G != illum.tG) && (gdelay++ >= illum.gCount)) {
+	gdelay = 0;
+	illum.G += illum.gInc;	/* increment towards target */
+	if (illum.G == illum.tG) { 
+	  illum.gInc = 0;	/* we've reached our target, stop increment */
+	}
+      }
+
+      if (illum.bInc && (illum.B != illum.tB) && (bdelay++ >= illum.bCount)) {
+	bdelay = 0;
+	illum.B += illum.bInc;	/* increment towards target */
+	if (illum.B == illum.tB) 
+	  illum.bInc = 0;	/* we've reached our target, stop increment */
+      }
     }
   }
 }

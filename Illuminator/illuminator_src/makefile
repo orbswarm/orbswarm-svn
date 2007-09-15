@@ -9,7 +9,7 @@ PGMR = stk500v2
 
 # set avrdude COM port here
 #COM = COM1
-COM = COM5
+COM = COM7
 
 # default target when "make" is run w/o arguments
 all: sample.hex
@@ -21,21 +21,19 @@ UART.o: UART.c UART.h
 parser.o: parser.c parser.h illuminator.h
 	avr-gcc -c -g -O3 -Wall -mmcu=${TARGET} -I. parser.c -o parser.o
 
-# compile USI_UART.c into USI_UART.o
-#USI_UART.o: USI_UART.c USI_UART_config.h
-#	avr-gcc -c -g -O3 -Wall -mmcu=${TARGET} -I. USI_UART.c -o USI_UART.o
+eeprom.o: eeprom.c illuminator.h
+	avr-gcc -c -g -O3 -Wall -mmcu=${TARGET} -I. eeprom.c -o eeprom.o
 
-# compile putstr.c into putstr.o
 putstr.o: putstr.c putstr.h
 	avr-gcc -c -g -O3 -Wall -mmcu=${TARGET} -I. putstr.c -o putstr.o
 
-# compile main.c into sample.o
+
 main.o: main.c UART.h illuminator.h 
 	avr-gcc -c -g -O3 -Wall -mmcu=${TARGET} -I. main.c -o main.o
 
 # link up objects into sample.elf
-sample.elf: main.o UART.o  putstr.o parser.o
-	avr-gcc main.o UART.o  putstr.o parser.o -Wl,-Map=sample.map,--cref -mmcu=${TARGET} -o sample.elf
+sample.elf: main.o UART.o  putstr.o parser.o eeprom.o
+	avr-gcc main.o UART.o  putstr.o parser.o eeprom.o -Wl,-Map=sample.map,--cref -mmcu=${TARGET} -o sample.elf
 
 # copy ROM (FLASH) object out of sample.elf into sample.rom
 sample.hex: sample.elf

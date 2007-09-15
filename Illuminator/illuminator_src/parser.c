@@ -1,8 +1,20 @@
+// -----------------------------------------------------------------------
+// 
+//	File: parser.c
+//	parser file for SWARM Orb LED Illumination Unit http://www.orbswarm.com
+//      which is a custom circuit board by rick L using an Atmel AVR atmega-8
+//      build code using WinAVR toolchain: see makefile
+//
+//	Written by Jonathan Foote (Head Rotor at rotorbrain.com)
+//      based on original code by Petey the Programmer
+// -----------------------------------------------------------------------
+
 #include <avr/io.h>
 #include <ctype.h> 
 #include "illuminator.h"  /* contains illuminatorStruct definition */
 #include "parser.h"	
 #include "putstr.h"	
+#include "UART.h"
 
 extern illuminatorStruct illum;
 unsigned char commandStr[MAX_COMMAND_LENGTH];
@@ -14,9 +26,10 @@ unsigned char commandLen = 0;
 // 
 
 void parseCommand(){
-  unsigned short intData=0; // holds numerical value of input data
-  unsigned char charPos=1;	// start with first char past the "<"
-  unsigned char c;
+  unsigned short intData=0;     /* holds numerical value of parsed data */
+  unsigned char charPos=1;	/* start with first char past the "<" */
+  unsigned char c;		/* next char to parse */
+
   /* if command does not start with L then they ain't talking to us */
   if(commandStr[charPos++] != 'L') {
     putstr("\r\n no L command\r\n ");
@@ -24,19 +37,20 @@ void parseCommand(){
   }  
 
   /* is the next char an address digit? */
-  c = commandStr[charPos++];
+  c = commandStr[charPos];
   if(isdigit(c)) { 
     /* if not our address then they ain't talking to us */
     /* should use parseInt to get multi-byte addr, but assume 0-9 for now */
     if ((c - '0') != illum.Addr) {
       putstr("\r\nwrong address\r\n ");
       UART_send_byte(c);
-      return;
+      return; 			/* skip rest of command */
     }
-  }
+    // it was a digit, so move ahead
+    charPos++;
+  } 
   
   /* OK, they are talking to us: get the rest of the command */
-  
   /* if there's a number in the command, it follows the next (command) byte*/
   /* grab it now*/
   if(isdigit(commandStr[charPos+1]))  // check for end of string 
@@ -44,13 +58,13 @@ void parseCommand(){
   else // short or malformed command
     intData=0;
   
-  switch (commandStr[charPos]) {
-    
+  c = commandStr[charPos];
+  switch (c) {
 
   case 'F':	
     putstr("Got fade command \r\n");
     /* dispatch fade command here */
-    //doFade(illum);
+    doFade(&illum);
     break;
 
   case 'P': 
@@ -71,42 +85,42 @@ void parseCommand(){
     putstr("Got red: ");
     putS16( intData );
     putstr("\r\n");			
-    illum.R = (unsigned char) intData;
+    illum.tR = (unsigned char) intData;
     break;
 
   case 'G':	// set raw green value
     putstr("Got grn: ");
     putS16( intData );
     putstr("\r\n");			
-    illum.G = (unsigned char) intData;
+    illum.tG = (unsigned char) intData;
     break;
 
   case 'B':	// set raw blue value
     putstr("Got blue: ");
     putS16( intData );
     putstr("\r\n");			
-    illum.B = (unsigned char) intData;
+    illum.tB = (unsigned char) intData;
     break;
 
   case 'H':	// set the hue
     putstr("Got hue: ");
     putS16( intData );
     putstr("\r\n");			
-    illum.tHue = (unsigned char) intData;
+    illum.H = (unsigned char) intData;
     break;
     
   case 'S':	// set the hue
     putstr("Got sat: ");
     putS16( intData );
     putstr("\r\n");			
-    illum.tSat = (unsigned char) intData;
+    illum.S = (unsigned char) intData;
     break;
     
   case 'V':	// set the hue
     putstr("Got val: ");
     putS16( intData );
     putstr("\r\n");			
-    illum.tVal = (unsigned char) intData;
+    illum.V = (unsigned char) intData;
       break;
       
   case 'T':	// set the time
@@ -121,10 +135,12 @@ void parseCommand(){
     putS16( intData );
     putstr("\r\n");			
     illum.Addr = (unsigned char) intData;
+    writeAddressEEPROM(&illum);
     break;
     
   default: 			/* poorly formed command string, ignore */
-    putstr("syntax error\n ");
+    putstr("unrecog char:\n ");
+    UART_send_byte(c);
     break;
   }
 }
