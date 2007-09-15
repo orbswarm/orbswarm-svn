@@ -32,5 +32,6 @@ typedef struct {
 } illuminatorStruct;
 
 void doFade(illuminatorStruct *illum);
-void writeAddressEEPROM(illuminatorStruct *illum);
-void readAddressEEPROM(illuminatorStruct *illum);
+void writeAddressEEPROM(unsigned char address);
+unsigned char readAddressEEPROM(void);
+

@@ -42,8 +42,10 @@ void parseCommand(){
     /* if not our address then they ain't talking to us */
     /* should use parseInt to get multi-byte addr, but assume 0-9 for now */
     if ((c - '0') != illum.Addr) {
-      putstr("\r\nwrong address\r\n ");
+      putstr("\r\nwrong address:  ");
       UART_send_byte(c);
+      putstr(" != ");
+      putS16( (short) illum.Addr );
       return; 			/* skip rest of command */
     }
     // it was a digit, so move ahead
@@ -67,17 +69,6 @@ void parseCommand(){
     doFade(&illum);
     break;
 
-  case 'P': 
-    putstr("Got pulse command \r\n");
-    /* dispatch pulse command here */
-    //doPulse(illum);
-    break;
-
-  case 'Z':
-    putstr("Got sawtooth command \r\n");
-    /* dispatch saw command here */
-    //doSawtooth(illum);
-    break;
 
   // everything from here down is data parsing; nothing executable
 
@@ -135,7 +126,7 @@ void parseCommand(){
     putS16( intData );
     putstr("\r\n");			
     illum.Addr = (unsigned char) intData;
-    writeAddressEEPROM(&illum);
+    writeAddressEEPROM(illum.Addr);
     break;
     
   default: 			/* poorly formed command string, ignore */

@@ -21,7 +21,8 @@
 
 // =======================================================
 
-#define INVERT foo
+// Set this for testing when a high output pin turns off the LEDs
+//#define INVERT foo
 
 /* This version uses putstr.c for debugging. To save memory,
    you can remove all instances of putstr and other debug code by
@@ -117,7 +118,7 @@ int main( void ){
 
 
   putstr("\r\n...Illuminator at address ");
-  readAddressEEPROM(&illum);
+  illum.Addr = readAddressEEPROM();
   putS16((short)illum.Addr );
   putstr(" says hello...\r\n");
 
