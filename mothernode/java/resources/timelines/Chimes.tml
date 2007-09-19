@@ -12,7 +12,7 @@
 
   <event>
       name: all tan
-      startTime: 2
+      sutartTime: 2
       fadeTime: 10
       specialist: SimpleColor
       color: RGB 245 230 100
@@ -59,30 +59,30 @@
           soundfile /orbsounds/FX/chimes/RT_f#3.aif
       </properties>
   </event>
-
   <event>
+      name: first triggers
+      startTime: 20
+      duration: 50
+      
+  <subevent>
       name: chimes b1
       trigger: button1
-      startTime: 20
-      duration: 5
       specialist: SimpleSound
       <properties>
           soundfile /orbsounds/FX/chimes/DC_b3.aif
       </properties>
-  </event>
+  </subevent>
 
-  <event>
+  <subevent>
       name: chimes b2
       trigger: button2
-      startTime: 20
-      duration: 5
       specialist: SimpleSound
       <properties>
           soundfile /orbsounds/FX/chimes/DC_c2a.aif
       </properties>
-  </event>
+  </subevent>
 
-  <event>
+  <subevent>
       name: chimes b3
       trigger: button3
       startTime: 20
@@ -91,9 +91,9 @@
       <properties>
           soundfile /orbsounds/FX/chimes/DC_e1a.aif
       </properties>
-  </event>
+  </subevent>
 
-  <event>
+  <subevent>
       name: chimes b4
       trigger: button4
       startTime: 20
@@ -102,9 +102,9 @@
       <properties>
           soundfile /orbsounds/FX/chimes/DC_f#3.aif
       </properties>
-  </event>
+  </subevent>
 
-  <event>
+  <subevent>
       name: chimes b5
       trigger: button5
       startTime: 20
@@ -113,9 +113,9 @@
       <properties>
           soundfile /orbsounds/FX/chimes/DC_g2.aif
       </properties>
-  </event>
+  </subevent>
 
-  <event>
+  <subevent>
       name: chimes b6
       trigger: button6
       startTime: 20
@@ -124,9 +124,9 @@
       <properties>
           soundfile /orbsounds/FX/chimes/RT_f#3.aif
       </properties>
-  </event>
+  </subevent>
 
-  <event>
+  <subevent>
       name: chimes b7
       trigger: button6
       startTime: 20
@@ -135,9 +135,9 @@
       <properties>
           soundfile /orbsounds/FX/chimes/Vibe2_g3.aif
       </properties>
-  </event>
+  </subevent>
 
-  <event>
+  <subevent>
       name: chimes b8
       trigger: button8
       startTime: 20
@@ -146,9 +146,15 @@
       <properties>
           soundfile /orbsounds/FX/chimes/giantbell.aif
       </properties>
-  </event>
+  </subevent>
+ </event>
 
-  <event>
+<event>
+  name: color fade triggers
+  startTime: 4
+  duration: 15
+
+  <subevent>
       name: Green  Fade b4
       trigger: button4
       startTime: 4
@@ -156,9 +162,9 @@
       <orbs> 0 1 2 3 4 5 </orbs>
       specialist: SimpleColor
       color: RGB 0 200 0 
-  </event>
+  </subevent>
 
-  <event>
+  <subevent>
       name: Blue Fade b5
       trigger: button5
       startTime: 4
@@ -166,10 +172,10 @@
       <orbs> 0 1 2 3 4 5 </orbs>
       specialist: SimpleColor
       color: RGB 0 0 200 
-  </event>
+  </subevent>
 
 
-  <event>
+  <subevent>
       name: Red Fade b7
       trigger: button7
       startTime: 4
@@ -177,9 +183,9 @@
       <orbs> 0 1 2 3 4 5 </orbs>
       specialist: SimpleColor
       color: RGB 255 25 45
-  </event>
+  </subevent>
 
-  <event>
+  <subevent>
       name: Yellow Fade b8
       trigger: button7
       startTime: 4
@@ -187,73 +193,79 @@
       <orbs> 0 1 2 3 4 5 </orbs>
       specialist: SimpleColor
       color: RGB 225 245 45
-  </event>
+  </subevent>
+</event>
 
 //////////////////////////////////
 /// clear the old triggers...  ///
 //////////////////////////////////
+<event>
+   name: clear triggers
+   startTime: 118
+   duration: 10
 
-  <event>
+  <subevent>
       name: Xb1
       trigger: button1
       triggerAction: clear
       startTime: 118
       duration: 2
-  </event>
+  </subevent>
 
-  <event>
+  <subevent>
       name: Xb2
       trigger: button2
       triggerAction: clear
       startTime: 118
       duration: 2
-  </event>
+  </subevent>
 
-  <event>
+  <subevent>
       name: Xb3
       trigger: button3
       triggerAction: clear
       startTime: 118
       duration: 2
-  </event>
+  </subevent>
 
-  <event>
+  <subevent>
       name: Xb4
       trigger: button4
       triggerAction: clear
       startTime: 118
       duration: 2
-  </event>
+  </subevent>
 
-  <event>
+  <subevent>
       name: Xb5
       trigger: button5
       triggerAction: clear
       startTime: 118
       duration: 2
-  </event>
+  </subevent>
 
-  <event>
+  <subevent>
       name: Xb6
       trigger: button6
       triggerAction: clear
       startTime: 118
       duration: 2
-  </event>
-  <event>
+  </subevent>
+  <subevent>
       name: Xb7
       trigger: button7
       triggerAction: clear
       startTime: 118
       duration: 2
-  </event>
-  <event>
+  </subevent>
+  <subevent>
       name: Xb8
       trigger: button8
       triggerAction: clear
       startTime: 118
       duration: 2
-  </event>
+  </subevent>
+</event>
 
 //////////////////////////////////////////////////////////////////////////////////////////
 /// After two minutes  there is a change:                                              ///
@@ -330,7 +342,12 @@
   ///  now we set up new triggers.  ///
   /////////////////////////////////////
 
-  <event>
+<event>
+    name: new triggers
+    startTime: 145
+    duration: 60
+
+  <subevent>
       name: chimes b1
       trigger: button1
       triggerAction: replace
@@ -340,9 +357,9 @@
       <properties>
           soundfile /orbsounds/songs/SolsticeNocturne_S07/notes/a/RT_a2.aif
       </properties>
-  </event>
+  </subevent>
 
-  <event>
+  <subevent>
       name: chimes b2
       trigger: button2
       triggerAction: replace
@@ -352,9 +369,9 @@
       <properties>
           soundfile /orbsounds/songs/SolsticeNocturne_S07/notes/c/RT_c2.aif
       </properties>
-  </event>
+  </subevent>
 
-  <event>
+  <subevent>
       name: chimes b3
       trigger: button3
       startTime: 145
@@ -364,9 +381,9 @@
       <properties>
           soundfile /orbsounds/songs/SolsticeNocturne_S07/notes/e/DC_e2.aif
       </properties>
-  </event>
+  </subevent>
 
-  <event>
+  <subevent>
       name: chimes b4
       trigger: button4
       startTime: 145
@@ -376,9 +393,9 @@
       <properties>
           soundfile /orbsounds/songs/SolsticeNocturne_S07/notes/e/RT_e2.aif
       </properties>
-  </event>
+  </subevent>
 
-  <event>
+  <subevent>
       name: chimes b5
       trigger: button5
       triggerAction: replace
@@ -388,9 +405,9 @@
       <properties>
           soundfile /orbsounds/songs/SolsticeNocturne_S07/notes/g/RT_g2.aif
       </properties>
-  </event>
+  </subevent>
 
-  <event>
+  <subevent>
       name: chimes b6
       trigger: button6
       triggerAction: replace
@@ -400,9 +417,9 @@
       <properties>
           soundfile /orbsounds/songs/SolsticeNocturne_S07/notes/a/DC_a2.aif
       </properties>
-  </event>
+  </subevent>
 
-  <event>
+  <subevent>
       name: chimes b7
       trigger: button6
       triggerAction: replace
@@ -412,9 +429,9 @@
       <properties>
           soundfile /orbsounds/songs/SolsticeNocturne_S07/notes/a/RT_a3.aif
       </properties>
-  </event>
+  </subevent>
 
-  <event>
+  <subevent>
       name: chimes b8
       trigger: button8
       triggerAction: replace
@@ -424,7 +441,8 @@
       <properties>
           soundfile /orbsounds/songs/SolsticeNocturne_S07/notes/c/DC_c3.aif
       </properties>
-  </event>
+  </subevent>
+</event>
 
   <event>
       name: Green  Fade b4

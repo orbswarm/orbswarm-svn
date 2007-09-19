@@ -142,6 +142,9 @@ public class SwarmCon extends JFrame
       /** action panel which contains the arena and the controlUI */
       JPanel actionPanel;
 
+      /** tabbed panel for control UI panes. */
+      JTabbedPane controlTabs;
+
       /** pid tuner object */
 
       public PidTuner tuner;
@@ -1257,35 +1260,104 @@ public class SwarmCon extends JFrame
     public  void setupControlPanel(ColorSchemer schemer,
                                    BotVisualizer bv,
                                    TimelineDisplay timelineDisplay) {
-         JPanel controlUIPanel = createControlUIPanel(schemer, bv);
-         GridBagConstraints gbc = new GridBagConstraints();
-         gbc.gridx   = 1;
-         gbc.gridy   = 0;
-         gbc.gridheight = 1;
-         gbc.weightx = 0.;
-         gbc.weighty = 0.;
-         gbc.fill    = GridBagConstraints.VERTICAL;
-         gbc.anchor  = GridBagConstraints.EAST;
+        controlTabs = new JTabbedPane();
+        JPanel colorControlUIPanel = createColorControlUIPanel(schemer, bv);
+        controlTabs.addTab("ColorScheme", colorControlUIPanel);
 
-         actionPanel.add(controlUIPanel, gbc);
-         
-         gbc = new GridBagConstraints();
-         gbc.gridx      = 0;
-         gbc.gridy      = 1;
-         gbc.gridwidth  = 2;
-         //gbc.gridheight = 1;
-         gbc.weightx    = 0.;
-         gbc.weighty    = 0.;
-         gbc.fill       = GridBagConstraints.NONE;
-         gbc.anchor     = GridBagConstraints.SOUTHEAST;
-         actionPanel.add(timelineDisplay.getPanel(), gbc);
-      }
+        JPanel motionControlUIPanel = createMotionControlUIPanel();
+        controlTabs.addTab("Motion", motionControlUIPanel);
+          
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx   = 1;
+        gbc.gridy   = 0;
+        gbc.gridheight = 1;
+        gbc.weightx = 0.;
+        gbc.weighty = 0.;
+        gbc.fill    = GridBagConstraints.VERTICAL;
+        gbc.anchor  = GridBagConstraints.EAST;
+        
+        actionPanel.add(controlTabs, gbc);
+        
+        gbc = new GridBagConstraints();
+        gbc.gridx      = 0;
+        gbc.gridy      = 1;
+        gbc.gridwidth  = 2;
+        //gbc.gridheight = 1;
+        gbc.weightx    = 0.;
+        gbc.weighty    = 0.;
+        gbc.fill       = GridBagConstraints.NONE;
+        gbc.anchor     = GridBagConstraints.SOUTHEAST;
+        actionPanel.add(timelineDisplay.getPanel(), gbc);
+    }
 
     public void resizeTimeline() {
         JPanel p = timelineDisplay.getPanel();
     }
     
-      private static JPanel createControlUIPanel(ColorSchemer colorSchemer, BotVisualizer bv) {
+    private JPanel createMotionControlUIPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
+        //panel.setBackground(colorSchemer.bgColor);
+        GridBagConstraints gbc = new GridBagConstraints();
+        
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        //gbc.weightx = 1.0;
+        //gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        panel.add(new JLabel("Power Range"), gbc);
+        gbc.gridy = 1;
+        JSlider powerSlider = makeRangeSlider(20, 80, power_range);
+        final JLabel powerSliderValue = new JLabel("" + power_range);
+
+        powerSlider.addChangeListener(new ChangeListener() {
+                public void stateChanged(ChangeEvent e) {
+                    JSlider source = (JSlider)e.getSource();
+                    //if (!source.getValueIsAdjusting())
+                    power_range = source.getValue();
+                    powerSliderValue.setText("" + power_range);
+                }
+            });
+        panel.add(powerSlider, gbc);
+        gbc.gridx = 1;
+        panel.add(powerSliderValue, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        panel.add(new JLabel("Steering Range"), gbc);
+        gbc.gridy = 3;
+        //gbc.weightx = 1.0;
+        JSlider steeringSlider = makeRangeSlider(50, 120, steering_range);
+        final JLabel steeringSliderValue = new JLabel("" + steering_range);
+        steeringSlider.addChangeListener(new ChangeListener() {
+                public void stateChanged(ChangeEvent e) {
+                    JSlider source = (JSlider)e.getSource();
+                    //if (!source.getValueIsAdjusting())
+                    power_range = source.getValue();
+                    steeringSliderValue.setText("" + steering_range);
+                }
+            });
+        panel.add(steeringSlider, gbc);
+        gbc.gridx = 1;
+        panel.add(steeringSliderValue, gbc);
+
+        return panel;
+    }
+
+    public JSlider makeRangeSlider(int low, int high, int val) {
+        System.out.println("Make range slider(low: " + low + " hi: " + high + " val: " + val);
+        JSlider slider = new JSlider(JSlider.HORIZONTAL, low, high, val);
+        // size matters.
+        Dimension size = slider.getSize();
+        int sliderWidth = 150;
+        int sliderHeight = 20;
+        slider.setMinimumSize(new Dimension(sliderWidth, sliderHeight));
+        slider.setPreferredSize(new Dimension(sliderWidth, sliderHeight));
+        return slider;
+    }
+
+      private JPanel createColorControlUIPanel(ColorSchemer colorSchemer, BotVisualizer bv) {
          JPanel panel = new JPanel();
          panel.setLayout(new GridBagLayout());
          panel.setBackground(colorSchemer.bgColor);
@@ -1303,7 +1375,6 @@ public class SwarmCon extends JFrame
             panel.add(bv.getPanel(), gbc);
          }
             
-         // put sliders in here for the spread and value
          return panel;
       }
 
