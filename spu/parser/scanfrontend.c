@@ -1,6 +1,6 @@
 /* ---------------------------------------------------------------------
 // 
-//	File: scanfrontend.y
+//	File: scanfrontend.c
 //      SWARM Orb SPU code http://www.orbswarm.com
 //	
 //      Additional code for LEMON-generated parser.
@@ -91,10 +91,12 @@ void doScanner(void * pParser(), int inChar) {
     case '.':
       Parse (pParser, CHAR, inChar);
       break;
-    case 10: /* that's a carriage return (as opposed to a newline) */
-             /* which isblank() on the spu misses */
+    case 10: /* that's a  newline) */
+             /* which isblank() on the spu misses? */
       Parse (pParser, WS, inChar);
       break;
+    case 13: /* that's a <CR>, likely  from windows somewhere. Ignore it. */
+      break;	
     case 0:  /* that's a null which means end of input */
       return;
     default:

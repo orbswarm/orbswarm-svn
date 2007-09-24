@@ -1,4 +1,5 @@
-
+# this is the LOCAL version of the makefile. Will hopefully compile on any reasonable linux
+# arch. Simulates com ports with files. See the readme. 
 
 # Crosstools are slightly different versions for cygwin and linux; 
 LINUXCC = /opt/crosstool/gcc-4.0.1-glibc-2.3.5/arm-unknown-linux-gnu/arm-unknown-linux-gnu/bin/gcc
@@ -10,16 +11,14 @@ NATIVECC = /usr/bin/gcc
 # (I'm sure there's a more elegant way to do this...)
 
 CC = $(NATIVECC)
-CC = $(CYGWINCC)
-
 
 # Version
 VERSION = 0.0.1
 
 # Compiler flags
-CFLAGS = -Wall -Wno-unused-parameter -W -O2 
+CFLAGS = -Wall -Wno-unused-parameter -O2 -DLOCAL -g
 # Linker flags
-LFLAGS =  -O2 -s -pipe -lm
+LFLAGS =  -O2 -s -pipe -lm -g
 
 #scan.c is automatically generated from scan.y by lemon
 #scanfrontend.c has support code and lexical analyser for the lemon scanner
@@ -44,9 +43,6 @@ testharness: scanner.o testharness.o scan.h
 dispatcher: dispatcher.o serial.o spuutils.o scanner.o scan.h serial.h
 	$(CC) $(LFLAGS) -o dispatcher dispatcher.o serial.o spuutils.o scanner.o
 
-install: dispatcher
-	chmod +x $<
-	../transfer.sh $<
 clean:	
 	rm  -f  test *.o scan.c scan.h scan.out
 
