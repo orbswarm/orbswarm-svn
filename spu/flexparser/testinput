@@ -1,3 +1,7 @@
-{99 $thisisamcucommand*}
-{21 <thisisaledcommand>}
-{9 this is just wrong}
+{99 $p30*}
+
+
+{21 <S VPF playme.mp3>}
+{21   <L3R244>}
+{9 X}
+{99 $$p30*}

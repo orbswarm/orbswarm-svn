@@ -10,13 +10,14 @@ NATIVECC = /usr/bin/gcc
 # (I'm sure there's a more elegant way to do this...)
 
 CC = $(NATIVECC)
+CC = $(CYGWINCC)
 
 
 # Version
 VERSION = 0.0.1
 
 # Compiler flags
-CFLAGS = -Wall -W -O2 
+CFLAGS = -Wall -Wno-unused-parameter -W -O2 
 # Linker flags
 LFLAGS =  -O2 -s -pipe -lm
 
@@ -40,6 +41,9 @@ lemon: lemon.c
 testharness: scanner.o testharness.o scan.h
 	$(CC) $(LFLAGS) -o testharness scanner.o testharness.o
 
+install: testharness
+	chmod +x testharness
+	../transfer.sh testharness
 clean:	
 	rm  -f  test *.o scan.c scan.h scan.out
 
