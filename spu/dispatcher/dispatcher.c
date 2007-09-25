@@ -75,6 +75,7 @@ int main(int argc, char *argv[])
   /* init lemon parser here */
   void* pParser = ParseAlloc (malloc);
   int i = 0; 	
+  int seconds = 0; 		/* seconds we've been running */
 
   /* vars for the select() call */
   int             max_fd;
@@ -106,7 +107,7 @@ int main(int argc, char *argv[])
   }
 
 #ifdef LOCAL
-#warning "compiling spuutils.c for LOCAL use (not SPU)"
+#warning "compiling dispatcher.c for LOCAL use (not SPU)"
   /* simulate serial i/o with files */
   com2 = initSerialPort("bigtestinput", 0);
   com3 = initSerialPort("./com3out", 0);
@@ -160,6 +161,7 @@ int main(int argc, char *argv[])
        if(tenHzticks == 10) {
 	 tenHzticks = 0;
 	 setSpuLed(SPU_LED_GREEN_OFF);  
+	 printf(" Runtime: %d\n",seconds++);
        } 
     }
     else { /* we got a select; handle it */

@@ -17,7 +17,7 @@ CC = $(CYGWINCC)
 VERSION = 0.0.1
 
 # Compiler flags
-CFLAGS = -Wall -Wno-unused-parameter -W -O2 
+CFLAGS = -Wall -Wno-unused-parameter  -O2 
 # Linker flags
 LFLAGS =  -O2 -s -pipe -lm
 
@@ -48,6 +48,6 @@ install: dispatcher
 	chmod +x $<
 	../transfer.sh $<
 clean:	
-	rm  -f  test *.o scan.c scan.h scan.out
+	rm  -f  test *.o scan.c scan.h scan.out dispatcher
 
 

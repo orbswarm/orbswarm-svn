@@ -17,8 +17,7 @@
 #include <string.h> /* for strncpy, etc. */
 #include "spuutils.h"
 
-int setSpuLed(const unsigned int ledState)
-{  
+int setSpuLed(const unsigned int ledState){  
 #ifdef LOCAL
 #warning "compiling spuutils.c for LOCAL use (not SPU)"
    switch(ledState) {
@@ -49,8 +48,17 @@ int setSpuLed(const unsigned int ledState)
    volatile unsigned int *PEDR, *PEDDR;
    unsigned char *start;
    int fd = open("/dev/mem", O_RDWR|O_SYNC);
+   if(fd <= 0) {
+     printf("/dev/mem open failed in setSPULed()\n");
+     return(0);
+   }
 
    start =(unsigned char*) mmap(0, getpagesize(), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x80840000);
+
+   if(start <= 0) {
+     printf("/dev/mem map failed in setSPULed()\n");
+     return(0);
+   }
    PEDR = (unsigned int *)(start + 0x20);     // port e data
    PEDDR = (unsigned int *)(start + 0x24);    // port e direction register
 
@@ -58,13 +66,13 @@ int setSpuLed(const unsigned int ledState)
 
    switch(ledState) {
    case SPU_LED_RED_ON: 
-     *PEDR |= 0xFE; 
+     *PEDR |= 0x02; 
      break;
    case SPU_LED_GREEN_ON:
-     *PEDR |= 0xFD; 
+     *PEDR |= 0x01; 
      break;
    case SPU_LED_BOTH_ON:
-     *PEDR |= 0xFF; 
+     *PEDR |= 0x03; 
      break;
    case SPU_LED_BOTH_OFF:
      *PEDR &= 0xFC; 
@@ -78,6 +86,7 @@ int setSpuLed(const unsigned int ledState)
    default:
      fprintf(stderr,"\nUNKNOWN LED STATE");
    }
+   munmap(start,getpagesize());
    close(fd);
    return 0;
 #endif

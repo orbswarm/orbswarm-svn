@@ -44,6 +44,7 @@ dispatcher: dispatcher.o serial.o spuutils.o scanner.o scan.h serial.h
 	$(CC) $(LFLAGS) -o dispatcher dispatcher.o serial.o spuutils.o scanner.o
 
 clean:	
-	rm  -f  test *.o scan.c scan.h scan.out
+	rm  -f  test *.o scan.c scan.h scan.out dispatcher
+
 
 
