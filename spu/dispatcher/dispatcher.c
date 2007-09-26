@@ -11,6 +11,7 @@
 //      based on lots of code by Matt, Dillo, Niladri, Rick, 
 // -----------------------------------------------------------------------
 
+
 #include <stdio.h>    /* Standard input/output definitions */
 #include <unistd.h>
 #include <sys/ioctl.h>
@@ -19,7 +20,7 @@
 #include "spuutils.h"
 #include "serial.h"
 #include "scanner.h"
-
+#include <getopt.h>
 
 
 int parseDebug = 1; 		/*  parser uses this for debug output */
@@ -77,6 +78,9 @@ int main(int argc, char *argv[])
   int i = 0; 	
   int seconds = 0; 		/* seconds we've been running */
 
+  int optchar=0;
+  int dbgflags=0;
+
   /* vars for the select() call */
   int             max_fd;
   fd_set          input;
@@ -101,6 +105,50 @@ int main(int argc, char *argv[])
     parseDebug = atoi(argv[2]);
     fprintf(stderr,"\ndispatcher:  verbose %d\n", parseDebug);
   }
+
+   while ((optchar = getopt (argc, argv, "gilmo:st")) != EOF)  {
+
+             switch(optchar) {
+
+		case 'g':
+		{
+		  dbgflags |= DEBUG_GPS;
+		  break;
+		}
+		case 'i':
+		{
+		  dbgflags |= DEBUG_IMU;
+		  break;
+		}
+		case 'l':
+		{
+		  dbgflags |= DEBUG_LED;
+		  break;
+	        }
+		case 'm':
+		{
+		  dbgflags |= DEBUG_MCU;
+		  break;
+	        }
+                case 'o':
+                {
+                  myOrbId = atoi(optarg);
+                  break;
+		}
+		case 's':
+		{
+		  dbgflags |= DEBUG_SPU;
+		  break;
+		}
+		case 't':
+		{
+		  dbgflags |= DEBUG_T;
+		  break;
+		}
+             }
+     }
+
+printf("debug flags are %d\n",dbgflags);
 
   if(parseDebug) {
     fprintf(stderr,"Dispatcher running for Orb ID: %d\n",myOrbId);
