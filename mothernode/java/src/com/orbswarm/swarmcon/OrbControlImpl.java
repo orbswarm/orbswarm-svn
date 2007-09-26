@@ -141,9 +141,11 @@ public class OrbControlImpl implements OrbControl {
             // sending the sounds a few times to make sure
             // seems like a reasonable hack to me. 
             orbIo.send(orbCmd);
-            orbIo.send(orbCmd);
-            orbIo.send(orbCmd);
-            orbIo.send(orbCmd);
+            if (swarmCon.multiple_sound_commands) {
+                orbIo.send(orbCmd);
+                orbIo.send(orbCmd);
+                orbIo.send(orbCmd);
+            }
         }
         return dur;
     }
@@ -251,7 +253,7 @@ public class OrbControlImpl implements OrbControl {
 
     // only one Light control method implemented
     public void orbColor(int orbNum, HSV hsvColor, int timeMS) {
-        //System.out.println("SwarmCon:OrbControlImpl orbColor(orb: " + orbNum + "HSV: " + hsvColor + " time:" + timeMS + ")");
+        System.out.println("SwarmCon:OrbControlImpl orbColor(orb: " + orbNum + "HSV: " + hsvColor + " time:" + timeMS + ")");
         if (simulateColors) {
             final Orb orb = (Orb)swarmCon.swarm.getOrb(orbNum);
             Color prevOrbColor = orb.getOrbColor();
@@ -266,7 +268,7 @@ public class OrbControlImpl implements OrbControl {
                 final int _orbNum = orbNum;
                 new Thread() {
                     public void run()  {
-                        boolean sendFadesToOrbs = true; // need this until Jon implements on-board fades. 
+                        boolean sendFadesToOrbs = swarmCon.stepped_color_fades; // need this until Jon implements on-board fades. 
                         fadeColor(_orbNum, orb, prevHSV, _hsvColor, _timeMS, 300, sendFadesToOrbs);
                     }
                 }.start();
@@ -274,22 +276,15 @@ public class OrbControlImpl implements OrbControl {
         } else {
             orbColors[orbNum] = hsvColor;
         }
-        
-        if (sendCommandsToOrbs && orbIo != null && isEnabled(orbNum)) {
+
+        // if we're already sending the stepped fade commands, we don't want to send the fully timed one. 
+        if (!swarmCon.stepped_color_fades &&
+            sendCommandsToOrbs && orbIo != null && isEnabled(orbNum)) {
             // TODO: send color command out on OrbIO, or give it to model, or something.
             // TODO: one board or two (later -- we get two light commands per orb)
-            // fade:  <LH64><LS200><LV220><LT2200> to set {h, s, v, time} on all boards (OBSOLETE)
             // fade:  <LR64><LG200><LB220><LT2200> to set {r, g, b, time} on all boards
             //        <LF> to do the fade  <L0F> to fade the first, <L1F> the second board
             String boardAddress = " ";  // later: possibly independent board controls
-            //StringBuffer buf = new StringBuffer();
-            // question: do we send all the commands in one string, or one at a time?
-            // answer: yes, we can send them all on one string
-            /* there's been a change: now we send colors as RGB...
-               buf.append("<L" + boardAddress + "H" + hue + ">");
-               buf.append("<L" + boardAddress + "S" + sat + ">");
-               buf.append("<L" + boardAddress + "V" + val + ">");
-            */
             sendLightCommand(orbNum, boardAddress, hsvColor, timeMS);
         } else {
             //System.out.println("sendCommandsToOrbs: " + sendCommandsToOrbs + " orbIo: " + orbIo);
@@ -357,13 +352,17 @@ public class OrbControlImpl implements OrbControl {
             } catch (InterruptedException ex) {
             }
         }
+        // finally, send the actual color we're targetting
+        // (in case the steps don't line up exactly onthe slew rate boundaries)
+        if (sendFadesToOrbs && orbIo != null && isEnabled(orbNum)) {
+            String boardAddress = " "; // TODO: refactor this.
+            sendLightCommand(orbNum, boardAddress, target, 0);
+        }
         orb.setOrbColor(target.toColor());
         swarmCon.repaint(); // todo: only if swarmcon not running?
     }
         
             
-            
-    
     public void orbColorFade(int orb,
                              HSV color1, HSV color2,
                              int time) {}

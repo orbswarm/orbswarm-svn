@@ -46,11 +46,31 @@ public class SwarmCon extends JFrame
       public int steering_range = 100;
       
       /** allowable range of values for power */
+      public int power_range = 50;
 
-    public int power_range = 50;
+    /** send multiple motion commands */
+    public boolean multiple_motion_commands = true;
 
+    /** send multiple sound commands */
+    public boolean multiple_sound_commands = true;
+
+    public void set_multiple_sound_commands(boolean val) {
+        this.multiple_sound_commands = val;
+    }
+        
+    public void set_multiple_motion_commands(boolean val) {
+        this.multiple_motion_commands = val;
+        if (this.multiple_motion_commands) {
+            startOrbSteeringThread();
+        } else {
+            stopOrbSteeringThread();
+        }
+    }
+            
+    /** stepped color fades (true == do simulation; false = rely on light board to do the fades) */
+    public boolean stepped_color_fades = false;
+    
       /** period between commands in milliseconds */
-
       public static final int MOTOR_CMD_MILLISECS = 100;
 
       class MotorCommandInfo
@@ -413,11 +433,15 @@ public class SwarmCon extends JFrame
         this.power_range        = getIntProperty("swarmcon.motion.power_range", 50);
         this.steering_range     = getIntProperty("swarmcon.motion.steering_range", 100);
         this.steering_refresh_delay = getIntProperty("swarmcon.motion.steering_refresh_delay", 200);
-        this.sendCommandsToOrbs = getBooleanProperty("swarmcon.comm.send_commands_to_orbs", true);
-        this.simulateColors     = getBooleanProperty("swarmcon.color.simulate_colors", true);
-        this.simulateSounds     = getBooleanProperty("swarmcon.sound.simulate_sounds", false);
-        this.timeline_width     = getIntProperty("swarmcon.timeline.width", 700);
-        this.timeline_height    = getIntProperty("swarmcon.timeline.height", 150);
+        this.multiple_motion_commands  = getBooleanProperty("swarmcon.comm.multiple_motion_commands", false);
+        this.multiple_sound_commands  = getBooleanProperty("swarmcon.comm.multiple_sound_commands", false);
+        this.sendCommandsToOrbs  = getBooleanProperty("swarmcon.comm.send_commands_to_orbs", true);
+        this.simulateColors      = getBooleanProperty("swarmcon.color.simulate_colors", true);
+        this.stepped_color_fades = getBooleanProperty("swarmcon.color.stepped_color_fades", false);
+        this.simulateSounds      = getBooleanProperty("swarmcon.sound.simulate_sounds", false);
+
+        this.timeline_width      = getIntProperty("swarmcon.timeline.width", 700);
+        this.timeline_height     = getIntProperty("swarmcon.timeline.height", 150);
     }
 
     public String getProperty(String key, String defaultVal) {
@@ -1261,11 +1285,15 @@ public class SwarmCon extends JFrame
                                    BotVisualizer bv,
                                    TimelineDisplay timelineDisplay) {
         controlTabs = new JTabbedPane();
-        JPanel colorControlUIPanel = createColorControlUIPanel(schemer, bv);
-        controlTabs.addTab("ColorScheme", colorControlUIPanel);
-
         JPanel motionControlUIPanel = createMotionControlUIPanel();
         controlTabs.addTab("Motion", motionControlUIPanel);
+
+        JPanel colorControlUIPanel = createColorControlUIPanel(schemer);
+        controlTabs.addTab("ColorScheme", colorControlUIPanel);
+
+        JPanel soundControlUIPanel = createSoundControlUIPanel(bv);
+        controlTabs.addTab("Sound", soundControlUIPanel);
+
           
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx   = 1;
@@ -1342,6 +1370,45 @@ public class SwarmCon extends JFrame
         gbc.gridx = 1;
         panel.add(steeringSliderValue, gbc);
 
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        JCheckBox multipleMotionCmdsCheck = new JCheckBox("Multiple Motion Commands");
+        multipleMotionCmdsCheck.setSelected(multiple_motion_commands);
+        multipleMotionCmdsCheck.addItemListener(new ItemListener() {
+                public void itemStateChanged(ItemEvent itemEvent) {
+                    int state = itemEvent.getStateChange();
+                    boolean sel = (state == ItemEvent.SELECTED);
+                    set_multiple_motion_commands(sel);
+                }
+            });
+        panel.add(multipleMotionCmdsCheck, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        JCheckBox multipleSoundCmdsCheck = new JCheckBox("Multiple Sound Commands");
+        multipleSoundCmdsCheck.setSelected(multiple_sound_commands);
+        multipleSoundCmdsCheck.addItemListener(new ItemListener() {
+                public void itemStateChanged(ItemEvent itemEvent) {
+                    int state = itemEvent.getStateChange();
+                    boolean sel = (state == ItemEvent.SELECTED);
+                    set_multiple_sound_commands(sel);
+                }
+            });
+        panel.add(multipleSoundCmdsCheck, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+        JCheckBox steppedColorFadesCheck = new JCheckBox("Stepped Color Fades");
+        steppedColorFadesCheck.setSelected(stepped_color_fades);
+        steppedColorFadesCheck.addItemListener(new ItemListener() {
+                public void itemStateChanged(ItemEvent itemEvent) {
+                    int state = itemEvent.getStateChange();
+                    boolean sel = (state == ItemEvent.SELECTED);
+                    stepped_color_fades = sel;
+                }
+            });
+        panel.add(steppedColorFadesCheck, gbc);
+
         return panel;
     }
 
@@ -1357,7 +1424,7 @@ public class SwarmCon extends JFrame
         return slider;
     }
 
-      private JPanel createColorControlUIPanel(ColorSchemer colorSchemer, BotVisualizer bv) {
+      private JPanel createColorControlUIPanel(ColorSchemer colorSchemer) {
          JPanel panel = new JPanel();
          panel.setLayout(new GridBagLayout());
          panel.setBackground(colorSchemer.bgColor);
@@ -1369,8 +1436,18 @@ public class SwarmCon extends JFrame
          //gbc.weighty = 1.0;
          gbc.fill = GridBagConstraints.HORIZONTAL;
          panel.add(colorSchemer.getPanel(), gbc);
+
+         return panel;
+      }
+
+      private JPanel createSoundControlUIPanel(BotVisualizer bv) {
+         JPanel panel = new JPanel();
+         panel.setLayout(new GridBagLayout());
+         panel.setBackground(colorSchemer.bgColor);
+         GridBagConstraints gbc = new GridBagConstraints();
         
-         gbc.gridy = 1;
+         gbc.gridx = 0;
+         gbc.gridy = 0;
          if (bv != null) {
             panel.add(bv.getPanel(), gbc);
          }
@@ -1454,11 +1531,11 @@ public class SwarmCon extends JFrame
     //
     int steering_refresh_delay = 200;
     public void startOrbSteeringThread() {
-        if (orbIo != null) {
+        if (orbIo != null && multiple_motion_commands) {
             final int[] currentOrbPower = orbIo.getCurrentOrbPower();
             final int[] currentOrbSteer = orbIo.getCurrentOrbSteer();
             System.out.println("StartOrbSteeringThread.");
-            orbSteeringThread = new OrbSteeringThread(orbIo);
+            orbSteeringThread = new OrbSteeringThread(orbIo, this);
             orbSteeringThread.start();
         }
     }
@@ -1471,9 +1548,11 @@ public class SwarmCon extends JFrame
     
     class OrbSteeringThread extends Thread {
         OrbIo orbIo;
+        SwarmCon swarmcon;
         boolean running = false;
         
-        public OrbSteeringThread(OrbIo orbIo) {
+        public OrbSteeringThread(OrbIo orbIo, SwarmCon swarmcon) {
+            this.swarmcon = swarmcon;
             this.orbIo = orbIo;
         }    
         public void run() {
@@ -1482,12 +1561,14 @@ public class SwarmCon extends JFrame
             int [] currentOrbSteer = orbIo.getCurrentOrbSteer();
             while (running) {
                 //System.out.println("    OrbSteeringThread...");
-                for(int i=0; i < 6; i ++) {
-                    if (currentOrbPower[i] != -1) {
-                        orbIo.powerOrb(i, currentOrbPower[i]);
-                    }
-                    if (currentOrbSteer[i] != -1) {
-                        orbIo.steerOrb(i, currentOrbSteer[i]);
+                if (swarmcon.multiple_motion_commands) {
+                    for(int i=0; i < 6; i ++) {
+                        if (currentOrbPower[i] != -1) {
+                            orbIo.powerOrb(i, currentOrbPower[i]);
+                        }
+                        if (currentOrbSteer[i] != -1) {
+                            orbIo.steerOrb(i, currentOrbSteer[i]);
+                        }
                     }
                 }
                 try {
