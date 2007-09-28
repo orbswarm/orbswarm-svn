@@ -11,6 +11,8 @@ import com.orbswarm.swarmcon.SwarmCon;
 import com.orbswarm.swarmcon.OrbControlImpl;
 import com.orbswarm.swarmcon.Swarm;
 
+import org.trebor.util.JarTools;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
@@ -434,7 +436,8 @@ public class TimelineDisplay  {
         String timelinesFile = "resources/timelines/timelines.list";
         ArrayList timelines = new ArrayList();
         try {
-            TokenReader reader = new TokenReader(timelinesFile);
+           TokenReader reader = new TokenReader(
+              JarTools.getResourceAsStream(timelinesFile));
             String token = reader.readToken();
             while (token != null) {
                 timelines.add(token);

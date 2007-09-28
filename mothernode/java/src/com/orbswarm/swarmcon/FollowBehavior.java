@@ -19,8 +19,7 @@ public class FollowBehavior extends Behavior
 
       public void update(double time, MotionModel model)
       {
-         model.setYawDistance(
-            orb.headingTo(target),
-            SAFE_DISTANCE - orb.distanceTo(target));
+         model.setTargetYaw(orb.headingTo(target));
+         model.setDistanceError(SAFE_DISTANCE - orb.distanceTo(target));
       }
 }

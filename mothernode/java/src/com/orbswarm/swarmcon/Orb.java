@@ -14,14 +14,14 @@ import static java.lang.Math.*;
 import static com.orbswarm.swarmcon.SwarmCon.*;
 import static org.trebor.util.ShapeTools.*;
 
-// abstract orb
+/** Representation of an  orb. */
       
 public class Orb extends Mobject implements com.orbswarm.choreography.Orb
 {
-      /** identifier counter */
+      /** optionally draw fancy orb on screen */
 
-      static int nextId = 0;
-      
+      private boolean drawFancyOrb = true;
+
       /** orb identifer */
 
       private int id;
@@ -31,6 +31,7 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
       private Shape shape = createOrbShape();
 
       /** settable color of this orb. */
+
       private Color orbColor = ORB_CLR;
 
       /** shadow of the orb */
@@ -72,13 +73,13 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
 
       // construct an orb
 
-      public Orb(Swarm swarm, MotionModel model)
+      public Orb(Swarm swarm, MotionModel model, int id)
       {
          super(ORB_DIAMETER);
          this.model = model;
          this.swarm = swarm;
          this.distances = new double[6]; // how to get swarm size here?
-         id = nextId++;
+         this.id = id;
          randomizePos();
       }
       // randomize position of orb
@@ -109,7 +110,7 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
             return this.orbColor;
          }
       }
-    
+
       /** Return the current orbs motion model */
       
       public MotionModel getModel()
@@ -328,25 +329,30 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
 
          setColor(g, isSelected() ? SEL_ORB_CLR : getOrbColor()); // was: ORB_CLR
          g.fill(shape);
-         /*                  
-         // draw orb shadow
+         
+         // if fancy orb is to be drawn
 
-         setColor(g, g.getColor().darker());
-         g.fill(shadow);
+         if (drawFancyOrb)
+         {
+            // draw orb shadow
 
-         // draw orb frame
+            setColor(g, g.getColor().darker());
+            g.fill(shadow);
+            
+            // draw orb frame
+            
+            setColor(g, ORB_FRAME_CLR);
+            g.fill(rotateAboutCenter(createOrbFrameShape(), -getYaw()));
+         
+            // draw vector line
 
-         setColor(g, ORB_FRAME_CLR);
-         g.fill(rotateAboutCenter(createOrbFrameShape(), -getYaw()));
-
-         // draw vector line
-
-         g.setStroke(vectorStroke);
-         setColor(g, VECTOR_CRL);
-         g.draw(rotate(scale(vectorLine, 
-                             model.getVelocity(), 
-                             model.getVelocity()), 
-                       -model.getDirection()));
+            g.setStroke(vectorStroke);
+            setColor(g, VECTOR_CRL);
+            g.draw(rotate(scale(vectorLine, 
+                                model.getVelocity(), 
+                                model.getVelocity()), 
+                          -model.getDirection()));
+         }
 
          // draw orb id
 
@@ -358,14 +364,15 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
          // restore old transform
          
          g.setTransform(old);
-         */
       }
+
       // draw text at a given location
 
       public void drawText(Graphics2D g, double x, double y, String text)
       {
          drawText(g, new Point(x, y), text);
       }
+
       // draw text at a given location
 
       public void drawText(Graphics2D g, Point2D point, String text)
@@ -381,12 +388,14 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
          g.drawString(text, (int)n.getX(), (int)n.getY());
          g.setTransform(old);
       }
+
       // create orb shape
 
       public Shape createOrbShape()
       {
          return CIRCLE;
       }
+
       // create orb shadow shape
 
       public Shape createOrbShadowShape()
@@ -396,12 +405,14 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
             translate(new Area(CIRCLE), -0.06, 0.06));
          return new GeneralPath(shadow);
       }
+
       // create orb shadow shape
 
       public Shape createOrbFlairShape()
       {
          return translate(scale(CIRCLE, .10, .10), -0.25, 0.25);
       }
+
       // create orb shape
 
       public Shape createOrbFrameShape()

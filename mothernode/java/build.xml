@@ -1,7 +1,7 @@
 <?xml version = "1.0"?>
 
 <!--
-Copyright (C) 2007 Robert B. Harris (orbswarm.com@trebor.org).  This
+Copyright (C) 2007 Orb Swarm (orbswarm.com@trebor.org).  This
 package is released under the terms the MIT license:
 
    http://www.opensource.org/licenses/mit-license.php
@@ -20,14 +20,15 @@ The text of the MIT license apears in the mit-license.txt file.
   <property name = "domain"             value = "swarmcon.com"/>
   <property name = "domain-scope"       value = "com.orbswarm"/>
   <property name = "domain-scope-dir"   value = "com/orbswarm"/>
+<!--   <property name = "main-class"         value = "JoystickManager"/> -->
   <property name = "main-class"         value = "SwarmCon"/>
   <property name = "lib-dir"            value = "lib"/>
   <property name = "resources"          value = "resources"/>
   <property name = "compile-includes"   value = ""/>
   <property name = "compile-excludes"   value = ""/>
-
-    <!-- java library files that belong in the class path and the jar -->
-    
+  
+  <!-- java library files that belong in the class path and the jar -->
+  
   <fileset dir = "${lib-dir}" id = "libraries">
     <include name = "GlgEval2.jar"/>
     <include name = "javagps.jar"/>
@@ -36,7 +37,7 @@ The text of the MIT license apears in the mit-license.txt file.
     <include name = "pid.jar"/>
     <include name = "jusb.jar"/>
   </fileset>
-
+  
   <!-- any extra resources which may be neaded by the application -->
 
   <fileset dir = "." id = "resources">
@@ -45,6 +46,11 @@ The text of the MIT license apears in the mit-license.txt file.
     <include name = "${lib-dir}/librxtxSerial.so"/>
     <include name = "${lib-dir}/rxtxSerial.dll"/>
     <include name = "${resources}/mit-license.txt"/>
+    <include name = "${resources}/multijoy.py"/>
+    <include name = "${resources}/swarmcon.properties"/>
+    <include name = "${resources}/JoyStickToOrbMapping.txt"/>
+    <include name = "${resources}/songs/*"/>
+    <include name = "${resources}/timelines/*"/>
   </fileset>
 
   <!-- derived build variables -->

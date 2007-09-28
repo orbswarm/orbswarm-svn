@@ -12,6 +12,9 @@ import java.io.OutputStream;
 import java.io.LineNumberReader;
 import java.io.InputStreamReader;
 import java.lang.Thread;
+import org.trebor.util.JarTools;
+
+import static java.lang.System.*;
 
 /** SerialIo provids serial I/O between this software and devices on
  * serial ports. */
@@ -65,9 +68,32 @@ public class SerialIo
       {
          try
          {
-            System.out.println("loading...");
-            JarLibrary.load("rxtxSerial");
-            System.out.println("loaded");
+            String libName = "rxtxSerial";
+
+            try
+            {
+               JarTools.loadLibrary("lib", libName);
+            }
+            catch (Exception e)
+            {
+               try
+               {
+                  System.loadLibrary(libName);
+               }
+               catch (java.lang.Throwable t)
+               {
+                  err.println("Failed to load " + libName + " from jar:");
+                  e.printStackTrace();
+                  err.println("Failed to load " + libName + " from system:");
+                  t.printStackTrace();
+                  err.println("Ensure that the directory containing " + 
+                              System.mapLibraryName(libName) +
+                              " appears in the correct enviroment variable:");
+                  err.println("   Mac:     DYLD_LIBRARY_PATH");
+                  err.println("   Unix:    DYLD_LIBRARY_PATH?");
+                  err.println("   Windows: PATH?");
+               }
+            }
          }
          catch (Exception e)
          {
@@ -95,8 +121,11 @@ public class SerialIo
          try
          {
             this.debug = debug;
-            portId = CommPortIdentifier.getPortIdentifier(portName);
-            open();
+            if (portName != null)
+            {
+               portId = CommPortIdentifier.getPortIdentifier(portName);
+               open();
+            }
          }
          catch (Exception e)
          {
@@ -110,7 +139,8 @@ public class SerialIo
          // if port unavailable, say so
 
          if (portId.isCurrentlyOwned())
-            throw(new Exception("Port " + portId.getName() + " is currently in use"));
+            throw(new Exception("Port " + portId.getName() + 
+                                " is currently in use"));
          
          // open com port
 
@@ -119,7 +149,8 @@ public class SerialIo
          // if not a serial port, say so
 
          if (!(commPort instanceof SerialPort))
-            throw(new Exception("Port " + portId.getName() + " is not a serial port"));
+            throw(new Exception("Port " + portId.getName() + 
+                                " is not a serial port"));
 
          // shazam your a serial port
 

@@ -11,8 +11,7 @@ public class RandomBehavior extends Behavior
 
       public void update(double time, MotionModel model)
       {
-         model.setYawDistance(
-            RND.nextInt(360),
-            RND.nextDouble() * 2 * SAFE_DISTANCE);
+         model.setTargetYaw(RND.nextInt(360));
+         model.setDistanceError(RND.nextDouble() * 2 * SAFE_DISTANCE);
       }
 }

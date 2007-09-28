@@ -28,8 +28,13 @@ public class SimModel extends MotionModel
 
       /** yaw rate to roll rate controller */
 
-      private Controller yawRateToRollCtrl = 
-         new PController("yawRate", "roll", -.2, 2, 0.125);
+      private Controller yawRateToRollRateCtrl = 
+         new PController("yawRate", "rollRate", -.2, .2, 0.125);
+
+      /** roll to roll rate controller */
+
+      private Controller rollToRollRateCtrl = 
+         new PController("roll", "rollRate", -.5, .5, 0.0125);
 
       /** distance to veloctiy controller */
 
@@ -46,81 +51,107 @@ public class SimModel extends MotionModel
       Controller[] controllers =
       {
          yawToYawRateCtrl,
-         yawRateToRollCtrl,
+         yawRateToRollRateCtrl,
          distanceToVelocityCtrl,
          velocityToPitchCtrl,
       };
 
-      /** Command low level rate control.
+      /** Command low level roll rate control.
        *
-       * @param targetRollRate target rate of roll
-       * @param targetPitchRate target rate of pitch
+       * @param targetRollRate target roll rate
        */
-
-      public void setTargetRollPitchRates(double targetRollRate,
-                                          double targetPitchRate)
+      public void setTargetRollRate(double targetRollRate)
       {
-         super.setTargetRollPitchRates(targetRollRate, targetPitchRate);
+         super.setTargetRollRate(targetRollRate);
          rollRate.setNormalizedTarget(targetRollRate);
+      }
+
+      /** Command low level pitch rate control.
+       *
+       * @param targetPitchRate target velocity
+       */
+      public void setTargetPitchRate(double targetPitchRate)
+      {
+         super.setTargetPitchRate(targetPitchRate);
          pitchRate.setNormalizedTarget(targetPitchRate);
       }
-      /** Command target yaw rate and velocity.
+
+      /** Command target roll.
+       *
+       * @param targetRoll target roll
+       */
+      public void setTargetRoll(double targetRoll)
+      {
+         super.setTargetRoll(targetRoll);
+         rollToRollRateCtrl.setTarget(targetRoll);
+         rollToRollRateCtrl.setMeasurment(getRoll());
+         setTargetRollRate(rollToRollRateCtrl.compute());
+      }
+
+      /** Command target yaw rate.
        *
        * @param targetYawRate target yaw rate
+       */
+      public void setTargetYawRate(double targetYawRate)
+      {
+         super.setTargetYawRate(targetYawRate);
+         yawRateToRollRateCtrl.setTarget(targetYawRate);
+         yawRateToRollRateCtrl.setMeasurment(getYawRate());
+         setTargetRollRate(yawRateToRollRateCtrl.compute());
+      }
+
+      /** Command target velocity.
+       *
        * @param targetVelocity target velocity
        */
-
-      public void setTargetYawRateVelocity(double targetYawRate, 
-                                           double targetVelocity)
+      public void setTargetVelocity(double targetVelocity)
       {
-         super.setTargetYawRateVelocity(targetYawRate, targetVelocity);
-         yawRateToRollCtrl.setTarget(targetYawRate);
+         super.setTargetVelocity(targetVelocity);
          velocityToPitchCtrl.setTarget(targetVelocity);
-         yawRateToRollCtrl.setMeasurment(getYawRate());
          velocityToPitchCtrl.setMeasurment(getSpeed());
-         setTargetRollPitchRates(
-            yawRateToRollCtrl.compute(),
-            velocityToPitchCtrl.compute());
+         setTargetPitchRate(velocityToPitchCtrl.compute());
       }
-      /** Command yaw and distance.
+
+      /** Command target yaw.
        *
        * @param targetYaw target yaw
-       * @param distanceError error between target and desired distance
        */
-
-      public void setYawDistance(double targetYaw, double distanceError)
+      public void setTargetYaw(double targetYaw)
       {
          // update parent
 
-         super.setYawDistance(targetYaw, distanceError);
+         super.setTargetYaw(targetYaw);
 
          // compute yaw error
 
          double yawError = Angle.difference(getYaw(), getTargetYaw());
 
-
-         // set yaw goal correcting for yaw wrap around
-
-         //rollCtrl.setTarget(yawError < -180
-         //? - (360 - getTargetYaw())
-         //: (yawError > 180 
-         //? targetYaw + 360
-         //: targetYaw));
-
-         // set pitchRate goal based on error
-
-
-         // set targets
+         // compute yaw target rate
 
          yawToYawRateCtrl.setTarget(0);
-         distanceToVelocityCtrl.setTarget(0);
          yawToYawRateCtrl.setMeasurment(yawError);
-         distanceToVelocityCtrl.setMeasurment(distanceError);
-         
-         setTargetYawRateVelocity(
-            yawToYawRateCtrl.compute(),
-            distanceToVelocityCtrl.compute());
+         setTargetYawRate(yawToYawRateCtrl.compute());
       }
+
+      /** Command distance error.
+       *
+       * @param distanceError error between target distance and desired
+       *        distance
+       */
+
+      public void setDistanceError(double distanceError)
+      {
+         // update parent
+
+         super.setDistanceError(distanceError);
+
+         // compute target velocity
+
+         distanceToVelocityCtrl.setTarget(0);
+         distanceToVelocityCtrl.setMeasurment(distanceError);
+         setTargetVelocity(distanceToVelocityCtrl.compute());
+      }
+
       /** Get controllers in the system. */
 
       public Controller[] getControllers()
@@ -143,11 +174,10 @@ public class SimModel extends MotionModel
          pitchRate.update(time);
          rollRate .update(time);
                
-         // copute delta pitch and roll
+         // compute delta pitch and roll
          
          Angle dPitch = new Angle(pitchRate.getRate() * time);
          Angle dRoll  = new Angle(rollRate.getRate() * time);
-
 
          // update absolute pitch and roll
 

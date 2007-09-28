@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+import org.trebor.util.JarTools;
+
 
 /**
  *  Class which handles the timeline.
@@ -30,7 +32,8 @@ public class Timeline extends Temporal {
     
 
     public static Timeline readTimeline(String timelinePath) throws IOException {
-        TokenReader reader = new TokenReader(timelinePath);
+        TokenReader reader = new TokenReader(
+           JarTools.getResourceAsStream(timelinePath));
         return readTimeline(reader);
     }
     

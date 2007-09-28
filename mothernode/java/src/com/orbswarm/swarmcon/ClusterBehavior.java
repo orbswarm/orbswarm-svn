@@ -20,8 +20,7 @@ public class ClusterBehavior extends Behavior
       {
          // head towards centroid
 
-         model.setYawDistance(
-            orb.headingTo(orb.getCentroid()),
-            distance - orb.getNearestDistance());
+         model.setTargetYaw(orb.headingTo(orb.getCentroid()));
+         model.setDistanceError(distance - orb.getNearestDistance());
       }
 }

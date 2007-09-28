@@ -9,6 +9,8 @@ import com.orbswarm.swarmcomposer.composer.SoundFilePlayer;
 import com.orbswarm.swarmcomposer.sound.SimpleJavaPlayer;
 import com.orbswarm.swarmcomposer.util.TokenReader;
 
+import org.trebor.util.JarTools;
+
 import java.awt.Color;
 import java.util.HashMap;
 
@@ -59,15 +61,16 @@ public class OrbControlImpl implements OrbControl {
     private void setupSoundCatalog() {
         soundCatalog = new HashMap();
         // FIXME: this should be done after swarmcon reads its properties.
-        String soundCatalogsProp = swarmCon.getProperty("swarmcon.sound.sound_catalogs",
-                                                        "resources/song/sounds.catalog");
+        String soundCatalogsProp = swarmCon.getProperty(
+           "swarmcon.sound.soundCatalogs",
+           "resources/song/sounds.catalog");
         String[] soundCatalogs = soundCatalogsProp.trim().split(" ");
         for(int i=0; i < soundCatalogs.length; i++ ) {
             if (soundCatalogs[i].length() > 0) {
                 readSoundCatalog(soundCatalogs[i]);
             }
         }
-        String errataCatalog = swarmCon.getProperty("swarmcon.sound.errata_catalog",
+        String errataCatalog = swarmCon.getProperty("swarmcon.sound.errataCatalog",
                                                     "resources/song/errata.catalog");
         readSoundCatalog(errataCatalog);
     }
@@ -90,7 +93,8 @@ public class OrbControlImpl implements OrbControl {
     // TODO: read catalogFile as resrouce rather than file. 
     private static void readSoundCatalog(String catalogFile) {
         try {
-            TokenReader reader = new TokenReader(catalogFile);
+           TokenReader reader = new TokenReader(
+              JarTools.getResourceAsStream(catalogFile));
             String path = reader.readToken();
             while (path != null) {
                 float duration = reader.readFloat();
@@ -141,7 +145,7 @@ public class OrbControlImpl implements OrbControl {
             // sending the sounds a few times to make sure
             // seems like a reasonable hack to me. 
             orbIo.send(orbCmd);
-            if (swarmCon.multiple_sound_commands) {
+            if (swarmCon.multipleSoundCommands) {
                 orbIo.send(orbCmd);
                 orbIo.send(orbCmd);
                 orbIo.send(orbCmd);
@@ -268,7 +272,7 @@ public class OrbControlImpl implements OrbControl {
                 final int _orbNum = orbNum;
                 new Thread() {
                     public void run()  {
-                        boolean sendFadesToOrbs = swarmCon.stepped_color_fades; // need this until Jon implements on-board fades. 
+                        boolean sendFadesToOrbs = swarmCon.steppedColorFades; // need this until Jon implements on-board fades. 
                         fadeColor(_orbNum, orb, prevHSV, _hsvColor, _timeMS, 300, sendFadesToOrbs);
                     }
                 }.start();
@@ -278,7 +282,7 @@ public class OrbControlImpl implements OrbControl {
         }
 
         // if we're already sending the stepped fade commands, we don't want to send the fully timed one. 
-        if (!swarmCon.stepped_color_fades &&
+        if (!swarmCon.steppedColorFades &&
             sendCommandsToOrbs && orbIo != null && isEnabled(orbNum)) {
             // TODO: send color command out on OrbIO, or give it to model, or something.
             // TODO: one board or two (later -- we get two light commands per orb)

@@ -1,56 +1,46 @@
 package com.orbswarm.swarmcon;
 
 import java.util.HashMap;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.LineNumberReader;
-import java.io.InputStreamReader;
-import java.text.DecimalFormat;
 
 /** OrbIo provids all I/O between phycical orbs and the orb objects in
- * this software as well as the joystick information.  There will be one
- * OrbIo object for all the orbs (one to rule them all).  Messages from
- * physical orbs are dispached to the correct orb object and joystick
- * state is made available for orbs to read.
+ * this software.  There will be one OrbIo object for all the orbs (one
+ * to rule them all).  Messages from physical orbs are dispached to the
+ * correct orb object.
  */
 
 public class OrbIo extends SerialIo
 {
-    // support for resend-motion control hack
-    int [] currentOrbPower;
-    int [] currentOrbSteer;
-    
-      /** format for printing orb id's to spu not used */
+      // support for resend-motion control hack
 
-      //DeciDecimalFormat orbIdFmt = new DecimalFormat("###");
+      int [] currentOrbPower;
+      int [] currentOrbSteer;
       
-      /** hash of orbs to dispatch messages to */
+      /** Hash of orbs to used to dispatch messages to orbs. */
 
       HashMap<Integer, Orb> orbs = new HashMap<Integer, Orb>();
 
-      /** Construct a OrbIo object. */
+      /** Construct a OrbIo object. 
+       *
+       * @param portName name of serial port (/dev/XXX or comX)
+       * @param debug print io debugging text
+       */
 
       public OrbIo(String portName, boolean debug)
       {
          super(portName, debug);
          currentOrbPower = new int[6];
          currentOrbSteer = new int[6];
-         for(int i=0; i < 6; i++) {
-             currentOrbPower[i] = -1;
-             currentOrbSteer[i] = -1;
+         for(int i=0; i < 6; i++) 
+         {
+            currentOrbPower[i] = -1;
+            currentOrbSteer[i] = -1;
          }
       }
 
       public OrbIo(String portName)
       {
-         super(portName);
-         currentOrbPower = new int[6];
-         currentOrbSteer = new int[6];
-         for(int i=0; i < 6; i++) {
-             currentOrbPower[i] = -1;
-             currentOrbSteer[i] = -1;
-         }
-     }
+         this(portName, false);
+      }
       /** open a serial port */
 
       public void open() throws Exception
@@ -95,7 +85,7 @@ public class OrbIo extends SerialIo
 
       public void steerOrb(int orbId, int roll)
       {
-          currentOrbSteer[orbId] = roll;
+         currentOrbSteer[orbId] = roll;
          orbMotorCommand(orbId, "s" + roll);
       }
 
@@ -103,7 +93,7 @@ public class OrbIo extends SerialIo
 
       public void powerOrb(int orbId, int power)
       {
-          currentOrbPower[orbId] = power;
+         currentOrbPower[orbId] = power;
          orbMotorCommand(orbId, "p" + power);
       }
 
@@ -114,7 +104,7 @@ public class OrbIo extends SerialIo
          orbCommand(orbId, "$" + motorCommand + "*");
       }
 
-      /** Send command to orb */
+      /** Send command to orb. */
 
       public void orbCommand(int orbId, String command)
       {

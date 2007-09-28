@@ -12,10 +12,6 @@ abstract public class MotionModel
 {
       // ------- vehicle state --------
 
-      /** position of orb */
-
-      private Point position = new Point(0, 0);
-
       /** yaw of orb */
       
       private Angle yaw = new Angle();
@@ -28,17 +24,21 @@ abstract public class MotionModel
 
       private Angle roll = new Angle();
 
-      /** velocity of orb */
-
-      private double velocity;
-
-      /** direction of travel */
+      /** direction of travel (as distinct from yaw) */
 
       private Angle direction = new Angle();
 
+      /** position of orb */
+
+      private Point position = new Point(0, 0);
+
+      /** velocity of orb */
+
+      private double velocity = 0;
+
       /** yaw rate */
 
-      private double yawRate;
+      private double yawRate = 0;
 
       // ------- pitch roll rate control parameters --------
 
@@ -50,7 +50,11 @@ abstract public class MotionModel
 
       private double targetPitchRate;
 
-      // ------- yaw rate velocity control parameters --------
+      // ------- roll, yaw rate & velocity control parameters --------
+
+      /** target roll */
+
+      private Angle targetRoll = new Angle();
 
       /** target yaw rate */
 
@@ -64,7 +68,7 @@ abstract public class MotionModel
 
       /** target yaw */
 
-      private double targetYaw;
+      private Angle targetYaw = new Angle();
 
       /** error between target distance and current distance */
 
@@ -142,56 +146,83 @@ abstract public class MotionModel
       {
          return direction.degrees();
       }
+
       /** Set the current direction of the orb.
        *
        * @param direction orb direction (headign in degrees)
        */
-
       protected void setDirection(double direction)
       {
          this.direction.setAngle(direction);
       }
-      /** Command low level rate control.
+
+      /** Command low level roll rate control.
        *
        * @param targetRollRate target roll rate
-       * @param targetPitchRate target velocity
        */
-
-      public void setTargetRollPitchRates(double targetRollRate, 
-                                          double targetPitchRate)
+      public void setTargetRollRate(double targetRollRate)
       {
          this.targetRollRate = targetRollRate;
+      }
+
+      /** Command low level pitch rate control.
+       *
+       * @param targetPitchRate target velocity
+       */
+      public void setTargetPitchRate(double targetPitchRate)
+      {
          this.targetPitchRate = targetPitchRate;
       }
-      /** Command target yaw rate and velocity.
+
+      /** Command target roll.
+       *
+       * @param targetRoll target roll
+       */
+      public void setTargetRoll(double targetRoll)
+      {
+         this.targetRoll.setAngle(targetRoll);
+      }
+
+      /** Command target yaw rate.
        *
        * @param targetYawRate target yaw rate
-       * @param targetVelocity target velocity
        */
-
-      public void setTargetYawRateVelocity(double targetYawRate, 
-                                           double targetVelocity)
+      public void setTargetYawRate(double targetYawRate)
       {
          this.targetYawRate = targetYawRate;
+      }
+
+      /** Command target velocity.
+       *
+       * @param targetVelocity target velocity
+       */
+      public void setTargetVelocity(double targetVelocity)
+      {
          this.targetVelocity = targetVelocity;
       }
-      /** Command yaw and distance.
+
+      /** Command target yaw.
        *
        * @param targetYaw target yaw
+       */
+      public void setTargetYaw(double targetYaw)
+      {
+         this.targetYaw.setAngle(targetYaw);
+      }
+
+      /** Command yaw and distance.
+       *
        * @param distanceError error between target and desired distance
        */
-
-      public void setYawDistance(double targetYaw, 
-                                 double distanceError)
+      public void setDistanceError(double distanceError)
       {
-         this.targetYaw = targetYaw % 360;
          this.distanceError = distanceError;
       }
+
       /** Command position.
        *
        * @param target target position
        */
-
       public void setTargetPosition(Point target)
       {
          targetPosition = target;
@@ -200,7 +231,13 @@ abstract public class MotionModel
       
       public double getTargetYaw()
       {
-         return targetYaw;
+         return targetYaw.degrees();
+      }
+      /** Get target roll. */
+      
+      public double getTargetRoll()
+      {
+         return targetRoll.degrees();
       }
       // get yaw
 

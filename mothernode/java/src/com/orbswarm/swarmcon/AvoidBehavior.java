@@ -40,9 +40,8 @@ public class AvoidBehavior extends Behavior
          
          if (orb.getNearestDistance() < CRITICAL_DISTANCE)
          {
-            model.setYawDistance(
-               orb.headingTo(orb.getNearest()),
-               SAFE_DISTANCE - orb.getNearestDistance());
+            model.setTargetYaw(orb.headingTo(orb.getNearest()));
+            model.setDistanceError(SAFE_DISTANCE - orb.getNearestDistance());
             return;
          }
       }
