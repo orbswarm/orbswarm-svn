@@ -288,20 +288,21 @@ public class OrbControlImpl implements OrbControl {
             // TODO: one board or two (later -- we get two light commands per orb)
             // fade:  <LR64><LG200><LB220><LT2200> to set {r, g, b, time} on all boards
             //        <LF> to do the fade  <L0F> to fade the first, <L1F> the second board
-            String boardAddress = " ";  // later: possibly independent board controls
-            sendLightCommand(orbNum, boardAddress, hsvColor, timeMS);
+            int timeTics = timeMS * 180 / 1000; 
+            String boardAddress = "";  // later: possibly independent board controls
+            sendLightCommand(orbNum, boardAddress, hsvColor, timeTics);
         } else {
             //System.out.println("sendCommandsToOrbs: " + sendCommandsToOrbs + " orbIo: " + orbIo);
         }
     }
 
-    public void sendLightCommand(int orbNum, String boardAddress, HSV hsvColor, int timeMS) {
+    public void sendLightCommand(int orbNum, String boardAddress, HSV hsvColor, int timeTics) {
         sendLightingCommand(orbNum, boardAddress,  "R" + hsvColor.getRed());
         sendLightingCommand(orbNum, boardAddress,  "G" + hsvColor.getGreen());
         sendLightingCommand(orbNum, boardAddress,  "B" + hsvColor.getBlue());
-        sendLightingCommand(orbNum, boardAddress,  "T" + timeMS);
+        sendLightingCommand(orbNum, boardAddress,  "T" + timeTics);
         if (orbIo != null) {
-            orbIo.send(wrapOrbCommand(orbNum, "<L F>"));
+            orbIo.send(wrapOrbCommand(orbNum, "<L" + boardAddress + "F>"));
         }
     }
 
@@ -327,6 +328,7 @@ public class OrbControlImpl implements OrbControl {
     public void fadeColor(int orbNum, Orb orb, HSV prev, HSV target, int timeMS, int slewMS, boolean sendFadesToOrbs) {
         //System.out.println(" fade color. target: " + target + " timeMS: " + timeMS);
         int steps = timeMS / slewMS;
+        int timeTics = timeMS * 180 / 1000; 
         if (steps == 0) {
             steps = 1;
         }
@@ -345,7 +347,7 @@ public class OrbControlImpl implements OrbControl {
                 
             Color stepColor = stepColorHSV.toColor();
             if (sendFadesToOrbs && orbIo != null && isEnabled(orbNum)) {
-                String boardAddress = " "; // TODO: refactor this.
+                String boardAddress = ""; // TODO: refactor this.
                 sendLightCommand(orbNum, boardAddress, stepColorHSV, 0);
                 //System.out.println("        FadeColor step: " + stepColorHSV);
 
@@ -359,7 +361,7 @@ public class OrbControlImpl implements OrbControl {
         // finally, send the actual color we're targetting
         // (in case the steps don't line up exactly onthe slew rate boundaries)
         if (sendFadesToOrbs && orbIo != null && isEnabled(orbNum)) {
-            String boardAddress = " "; // TODO: refactor this.
+            String boardAddress = ""; // TODO: refactor this.
             sendLightCommand(orbNum, boardAddress, target, 0);
         }
         orb.setOrbColor(target.toColor());

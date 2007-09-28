@@ -1071,6 +1071,7 @@ public class TimelineDisplay  {
         new Thread() {
             public void run()  {
                 System.out.println("TimelineDisplay:doLeitMotif(" + _orbNum + ")");
+                // times are in MS
                 int toColor = 500;
                 int toWhite = 200;
                 int fromWhite = 200;

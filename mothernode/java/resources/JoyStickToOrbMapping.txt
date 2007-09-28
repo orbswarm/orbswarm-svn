@@ -1,8 +1,8 @@
 num_orbs 6
-joystick 0 orb 0
+joystick 0 orb 5
 joystick 1 orb 1
 joystick 2 orb 4
-joystick 3 orb 5
+joystick 3 orb 0 
 // not working
 joystick 4 orb 2
 joystick 5 orb 3
