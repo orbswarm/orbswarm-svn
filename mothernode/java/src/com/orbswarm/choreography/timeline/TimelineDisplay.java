@@ -1131,15 +1131,18 @@ public class TimelineDisplay  {
         startEvent(triggeredEvent);
     }
     
-    public void joystickXY(int orbNum, double x1, double y1, double x2, double y2) {
-        // assign x2 to the hue.
+    public static final int   HUE_AXIS = 2;
+    public static final int VALUE_AXIS = 3;
+
+    public void joystickAxis(int orbNum, int axis, double value) {
+        // if hue axis and enough change on axis, change orb hue
         double threshold = .1;
-        if (Math.abs(x2) > threshold) {
-            incrementHue(orbNum, x2);
+        if (axis == HUE_AXIS && Math.abs(value) > threshold) {
+            incrementHue(orbNum, value);
         }
-        // assign x2 to the value.
-        if (Math.abs(y2) > threshold) {
-            incrementVal(orbNum, y2);
+        // if value axis and enough change on axis, change orb color value
+        if (axis == VALUE_AXIS && Math.abs(value) > threshold) {
+            incrementVal(orbNum, value);
         }
     }
 

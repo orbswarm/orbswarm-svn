@@ -91,11 +91,8 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
          System.getProperty("user.home") + 
          System.getProperty("file.separator") + ".swarmcon.properties";
 
-      /** period between commands in milliseconds */
-      public static final int MOTOR_CMD_MILLISECS = 100;
-
       /** minimum frame delay in milliseconds */
-      public static final long MIN_FRAME_DELAY = 10;
+      public static final long MIN_FRAME_DELAY     =  10;
 
       /** physical radius of the orb */
       public static final double ORB_RADIUS        =   0.5; // meters
@@ -181,8 +178,8 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       /** allowable range of values for steering */
       public int steeringRange = 100;
 
-      /** delay between sending steering commands */
-      public int steeringRefreshDelay = 200;
+      /** delay between sending commands to the orb */
+      public int commandRefreshDelay = 200;
 
       /** enable sending commands to orbs */
       private boolean sendCommandsToOrbs = true;
@@ -443,12 +440,12 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
                sc.timelineHeight = w;
             }
 
-            else if (args[i].equalsIgnoreCase("--steeringrefresh"))
+            else if (args[i].equalsIgnoreCase("--commandRefreshDelay"))
             {
                i++;
                int refresh = Integer.parseInt(args[i]);
                i++;
-               sc.steeringRefreshDelay = refresh;
+               sc.commandRefreshDelay = refresh;
             }
             // Note: not giving the option to turn off sending commands to orbs right now.
 
@@ -469,11 +466,11 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
          System.out.println("  options: ");
          System.out.println("     --simulateSounds true|false   default: false");
          System.out.println("     --simulateColors true|false   default: true");
-         System.out.println("     --steeringrefresh <ms>        default: 200");
+         System.out.println("     --commandRefreshDelay <ms>    default: 200");
          System.out.println("     --power <0-100>               default:  50");
          System.out.println("     --steering <0-100>            default: 100");
-         System.out.println("     --timelineWidth <int>        default: 900");
-         System.out.println("     --timelineHeight <int>       default: 150");
+         System.out.println("     --timelineWidth <int>         default: 900");
+         System.out.println("     --timelineHeight <int>        default: 150");
       }
 
       public ColorSchemer colorSchemer;
@@ -625,8 +622,8 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
                "swarmcon.motion.powerRange", powerRange);
          steeringRange = getIntProperty(
                "swarmcon.motion.steeringRange", steeringRange);
-         steeringRefreshDelay = getIntProperty(
-               "swarmcon.motion.steeringRefreshDelay", steeringRefreshDelay);
+         commandRefreshDelay = getIntProperty(
+               "swarmcon.comm.commandRefreshDelay", commandRefreshDelay);
          sendCommandsToOrbs = getBooleanProperty(
             "swarmcon.comm.sendCommandsToOrbs", sendCommandsToOrbs);
          joystickGuiControl = getBooleanProperty(
@@ -1858,6 +1855,12 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       {
          int orbNum = joystickToOrbId(stick);
 
+         // send joystick events to timeline
+
+         timelineDisplay.joystickAxis(orbNum, axis, value);
+
+         // record steering and power values
+
          switch (axis)
          {
             case JOYSTICK_STEERING_AXIS:
@@ -1931,6 +1934,10 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
       public void joystickButtonPressed(int stick, int button)
       {
+         // send button press event to timeline
+
+         timelineDisplay.joystickButton(joystickToOrbId(stick), button);
+
          // if joysticks are allowed to control the gui
 
          if (joystickGuiControl)
@@ -1984,7 +1991,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
                      try
                      {
                         commandMotors();
-                        sleep(MOTOR_CMD_MILLISECS);
+                        sleep(commandRefreshDelay);
                      }
                      catch (Exception e)
                      {
@@ -2054,22 +2061,6 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
          // if no mapping exists, return the default 1:1 correspondence
          return orbId;
-      }
-
-
-      ///////////////////////////////////
-      /// Joystick handling           ///
-      ///////////////////////////////////
-
-      public void joystickXY(int orbNum, double x1, double y1,
-                             double x2, double y2)
-      {
-         timelineDisplay.joystickXY(orbNum, x1, y1, x2, y2);
-      }
-
-      public void joystickButton(int orbNum, int buttonNumber)
-      {
-         timelineDisplay.joystickButton(orbNum, buttonNumber);
       }
 
       ///////////////////////////////////
