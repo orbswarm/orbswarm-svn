@@ -69,29 +69,42 @@ public class SerialIo
          try
          {
             String libName = "rxtxSerial";
+            String name = "/usr/lib/" + System.mapLibraryName(libName);
 
             try
             {
+               System.out.println("loading from jar: " + libName);
                JarTools.loadLibrary("lib", libName);
             }
-            catch (Exception e)
+            catch (java.lang.Throwable t1)
             {
                try
                {
+                  System.out.println("loading from system: " + libName);
                   System.loadLibrary(libName);
                }
-               catch (java.lang.Throwable t)
+               catch (java.lang.Throwable t2)
                {
-                  err.println("Failed to load " + libName + " from jar:");
-                  e.printStackTrace();
-                  err.println("Failed to load " + libName + " from system:");
-                  t.printStackTrace();
-                  err.println("Ensure that the directory containing " + 
-                              System.mapLibraryName(libName) +
-                              " appears in the correct enviroment variable:");
-                  err.println("   Mac:     DYLD_LIBRARY_PATH");
-                  err.println("   Unix:    DYLD_LIBRARY_PATH?");
-                  err.println("   Windows: PATH?");
+                  try
+                  {
+                     System.out.println("manually loading: " + name);
+                     System.loadLibrary(name);
+                  }
+                  catch (java.lang.Throwable t3)
+                  {
+                     err.println("Failed to load " + libName + " from jar:");
+                     t1.printStackTrace();
+                     err.println("Failed to load " + libName + " from system:");
+                     t2.printStackTrace();
+                     err.println("Failed to load " + name + " manuall:");
+                     t3.printStackTrace();
+                     err.println("Ensure that the directory containing " + 
+                                 System.mapLibraryName(libName) +
+                                 " appears in the correct enviroment variable:");
+                     err.println("   Mac:     DYLD_LIBRARY_PATH");
+                     err.println("   Unix:    DYLD_LIBRARY_PATH?");
+                     err.println("   Windows: PATH?");
+                  }
                }
             }
          }

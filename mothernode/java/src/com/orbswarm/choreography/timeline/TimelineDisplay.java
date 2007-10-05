@@ -1151,16 +1151,19 @@ public class TimelineDisplay  {
         System.out.println("TD:incrementHue (o" + orbNum + ") coord: " + coord);
         double hueFactor = .0045; // to compensate for how fast the joystick events come in. 
         HSV orbColor = orbControl.getOrbColor(orbNum);
-        float hue = 0.f;
-        if (orbColor != null) {
-            hue = orbColor.getHue();
+        if (orbControl != null)
+        {
+           float hue = 0.f;
+           if (orbColor != null) {
+              hue = orbColor.getHue();
+           }
+           hue += (float)(hueFactor * coord);
+           if (hue > 1.f)  {
+              hue -= 1.f;
+           }
+           orbColor.setHue(hue);
+           orbControl.orbColor(orbNum, orbColor, 0);
         }
-        hue += (float)(hueFactor * coord);
-        if (hue > 1.f)  {
-            hue -= 1.f;
-        }
-        orbColor.setHue(hue);
-        orbControl.orbColor(orbNum, orbColor, 0);
     }
 
     public void incrementVal(int orbNum, double coord) {
@@ -1168,18 +1171,21 @@ public class TimelineDisplay  {
         //System.out.println("TD:incrementVAL (o" + orbNum + ") coord: " + coord);
         double valFactor = .009;
         HSV orbColor = orbControl.getOrbColor(orbNum);
-        float val = 0.f;
-        if (orbColor != null) {
-            val = orbColor.getVal();
+        if (orbControl != null)
+        {
+           float val = 0.f;
+           if (orbColor != null) {
+              val = orbColor.getVal();
+           }
+           val += (float)(valFactor * coord);
+           if (val > 1.f)  {
+              val = 1.f;
+           } else if (val < 0.f) {
+              val = 0.f;
+           }
+           orbColor.setVal(val);
+           orbControl.orbColor(orbNum, orbColor, 0);
         }
-        val += (float)(valFactor * coord);
-        if (val > 1.f)  {
-            val = 1.f;
-        } else if (val < 0.f) {
-            val = 0.f;
-        }
-        orbColor.setVal(val);
-        orbControl.orbColor(orbNum, orbColor, 0);
     }
 
     public void incrementSat(int orbNum, double coord) {
