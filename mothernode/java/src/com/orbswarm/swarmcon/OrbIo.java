@@ -10,11 +10,6 @@ import java.util.HashMap;
 
 public class OrbIo extends SerialIo
 {
-      // support for resend-motion control hack
-
-      int [] currentOrbPower;
-      int [] currentOrbSteer;
-      
       /** Hash of orbs to used to dispatch messages to orbs. */
 
       HashMap<Integer, Orb> orbs = new HashMap<Integer, Orb>();
@@ -28,13 +23,6 @@ public class OrbIo extends SerialIo
       public OrbIo(String portName, boolean debug)
       {
          super(portName, debug);
-         currentOrbPower = new int[6];
-         currentOrbSteer = new int[6];
-         for(int i=0; i < 6; i++) 
-         {
-            currentOrbPower[i] = -1;
-            currentOrbSteer[i] = -1;
-         }
       }
 
       public OrbIo(String portName)
@@ -72,20 +60,8 @@ public class OrbIo extends SerialIo
 
       /** Send a steering message to orb. */
 
-    //
-    // replicating Jonathan's hack: send the current power & steer out
-    // all the time, about 10 times a second.
-    //
-    public int[] getCurrentOrbSteer() {
-        return currentOrbSteer;
-    }
-    public int[] getCurrentOrbPower() {
-        return currentOrbPower;
-    }
-
       public void steerOrb(int orbId, int roll)
       {
-         currentOrbSteer[orbId] = roll;
          orbMotorCommand(orbId, "s" + roll);
       }
 
@@ -93,7 +69,6 @@ public class OrbIo extends SerialIo
 
       public void powerOrb(int orbId, int power)
       {
-         currentOrbPower[orbId] = power;
          orbMotorCommand(orbId, "p" + power);
       }
 

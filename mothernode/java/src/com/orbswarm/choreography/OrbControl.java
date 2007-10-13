@@ -16,8 +16,9 @@ public interface OrbControl {
     public float playSound(int orb, Sound sound);
     public void stopSound(int orb);
     public void volume(int orb, int volume);
-    /** the OrbControl is responsible for maintaining the soundFilePath -> Sound mapping,
-     *  which gives us the hashkey, mp3hashkey, and duration information about sounds.
+    /** the OrbControl is responsible for maintaining the soundFilePath
+     *  -> Sound mapping, which gives us the hashkey, mp3hashkey, and
+     *  duration information about sounds.
      */
     public Sound lookupSound(String soundFilePath);
 

@@ -1149,20 +1149,25 @@ public class TimelineDisplay  {
     public void incrementHue(int orbNum, double coord) {
         // val ranges from 0 to 1. We want to increment the hue by some
         System.out.println("TD:incrementHue (o" + orbNum + ") coord: " + coord);
-        double hueFactor = .0045; // to compensate for how fast the joystick events come in. 
-        HSV orbColor = orbControl.getOrbColor(orbNum);
+
+        // to compensate for how fast the joystick events come in. 
+        double hueFactor = .0045; 
+
         if (orbControl != null)
         {
-           float hue = 0.f;
-           if (orbColor != null) {
+           HSV orbColor = orbControl.getOrbColor(orbNum);
+           if (orbColor != null) 
+           {
+              float hue = 0.f;
               hue = orbColor.getHue();
+
+              hue += (float)(hueFactor * coord);
+              if (hue > 1.f)  {
+                 hue -= 1.f;
+              }
+              orbColor.setHue(hue);
+              orbControl.orbColor(orbNum, orbColor, 0);
            }
-           hue += (float)(hueFactor * coord);
-           if (hue > 1.f)  {
-              hue -= 1.f;
-           }
-           orbColor.setHue(hue);
-           orbControl.orbColor(orbNum, orbColor, 0);
         }
     }
 

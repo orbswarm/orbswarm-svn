@@ -378,7 +378,8 @@ public class OrbControlImpl implements OrbControl {
     //
     public void followPath(com.orbswarm.choreography.Point[] wayPoints) {}
     public void stopOrb(int orbNum) {
-        orbIo.powerOrb(orbNum, 0);
+       if (orbIo != null)
+          orbIo.powerOrb(orbNum, 0);
     }
     
     //
