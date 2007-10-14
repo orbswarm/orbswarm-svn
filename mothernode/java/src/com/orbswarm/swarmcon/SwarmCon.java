@@ -1858,7 +1858,9 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
          // send joystick events to timeline
 
          if (timelineDisplay != null)
-            timelineDisplay.joystickAxis(orbNum, axis, value);
+         {
+             timelineDisplay.joystickAxis(orbNum, axis, value);
+         }
 
          // record steering and power values
 

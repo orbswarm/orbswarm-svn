@@ -257,7 +257,7 @@ public class OrbControlImpl implements OrbControl {
 
     // only one Light control method implemented
     public void orbColor(int orbNum, HSV hsvColor, int timeMS) {
-        System.out.println("SwarmCon:OrbControlImpl orbColor(orb: " + orbNum + "HSV: " + hsvColor + " time:" + timeMS + ")");
+        //System.out.println("SwarmCon:OrbControlImpl orbColor(orb: " + orbNum + "HSV: " + hsvColor + " time:" + timeMS + ")");
         if (simulateColors) {
             final Orb orb = (Orb)swarmCon.swarm.getOrb(orbNum);
             Color prevOrbColor = orb.getOrbColor();

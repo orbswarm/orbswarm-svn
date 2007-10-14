@@ -1188,8 +1188,10 @@ public class TimelineDisplay  {
            } else if (val < 0.f) {
               val = 0.f;
            }
-           orbColor.setVal(val);
-           orbControl.orbColor(orbNum, orbColor, 0);
+           if (orbColor != null) {
+               orbColor.setVal(val);
+               orbControl.orbColor(orbNum, orbColor, 0);
+           }
         }
     }
 

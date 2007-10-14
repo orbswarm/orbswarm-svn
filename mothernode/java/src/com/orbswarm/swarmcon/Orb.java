@@ -87,8 +87,11 @@ public class Orb extends Mobject implements com.orbswarm.choreography.Orb
       public void randomizePos()
       {
          Rectangle2D.Double arena = swarm.getArena();
-         setPosition(arena.getX() + RND.nextDouble() * arena.getWidth(),
-                     arena.getY() + RND.nextDouble() * arena.getHeight());
+         // keep the initial positions within a smaller bounding box
+         double boundX = Math.min(10., arena.getWidth());
+         double boundY = Math.min(10., arena.getHeight());
+         setPosition(arena.getX() + RND.nextDouble() * boundX,
+                     arena.getY() + RND.nextDouble() * boundY);
          //setPosition(swarm.getCenter());
       }
       // position setter
