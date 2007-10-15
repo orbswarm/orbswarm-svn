@@ -73,9 +73,12 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       /** Joystick button mapped to the space key */
       public static final int FOCUS_JOYSTICK_PANEL_BUTTON = 11;
 
+      /** path to resources directory */
+      public static final String RESOURCES_PATH    = "resources";
+
       /** location of default properties file. */
       public static final String DEFAULT_PROPERTIES_FILE = 
-         "resources/swarmcon.properties";
+         RESOURCES_PATH + "/swarmcon.properties";
 
       /** size of joystick buttton icon */
       public static final int JOY_BUTTON_ICON_SIZE = 30;
@@ -90,6 +93,9 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       public static final String PROPERTIES_FILE_LOCATION =
          System.getProperty("user.home") + 
          System.getProperty("file.separator") + ".swarmcon.properties";
+
+      /** simulation key word */
+      public static final String SIMULATION = "simulation";
 
       /** minimum frame delay in milliseconds */
       public static final long MIN_FRAME_DELAY     =  10;
@@ -130,6 +136,8 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       /** scale for graphics */
       public static final double PIXELS_PER_METER  = 30.0;
 
+
+
       /* 
        * The following are global objects.
        */
@@ -158,49 +166,52 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
       /** stepped color fades (true == do simulation; false = rely on
        * light board to do the fades) */
-      public boolean steppedColorFades = false;
+      public static boolean steppedColorFades = false;
     
       /** send multiple sound commands */
-      public String serialPortId = "";
+      public static String serialPortId = "";
 
       /** send multiple sound commands */
-      public boolean multipleSoundCommands = true;
+      public static boolean multipleSoundCommands = true;
 
       /** send multiple motion commands */
-      public boolean multipleMotionCommands = true;
+      public static boolean multipleMotionCommands = true;
+
+      /** auto start timeline */
+      public static String autoStartTimeline = "";
 
       /** the number of orbs */
-      public int orbCount = 6;
+      public static int orbCount = 6;
 
       /** allowable range of values for power */
-      public int powerRange = 50;
+      public static int powerRange = 50;
 
       /** allowable range of values for steering */
-      public int steeringRange = 100;
+      public static int steeringRange = 100;
 
       /** delay between sending commands to the orb */
-      public int commandRefreshDelay = 200;
+      public static int commandRefreshDelay = 200;
 
       /** enable sending commands to orbs */
-      private boolean sendCommandsToOrbs = true;
+      public static boolean sendCommandsToOrbs = true;
 
       /** true if joysticks are allowed to control the gui */
-      private boolean joystickGuiControl = false;
+      public static boolean joystickGuiControl = false;
 
       /** enable colors in simulation */
-      private boolean simulateColors = true;
+      public static boolean simulateColors = true;
 
       /** enable sounds in simulation */
-      private boolean simulateSounds = false;
+      public static boolean simulateSounds = false;
 
       /** width of timeline on screen */
-      int timelineWidth = 900;
+      public static int timelineWidth = 900;
 
       /** height of timeline on screen */
-      int timelineHeight = 150;
+      public static int timelineHeight = 150;
 
       /** Joystick or Orb mapping table. */
-      static HashMap<Integer, Integer> joystickToOrbMapping = 
+      public static HashMap<Integer, Integer> joystickToOrbMapping = 
          new HashMap<Integer, Integer>();
 
 
@@ -479,10 +490,12 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       public void constructControlUI(SwarmCon sc)
       {
          ColorSchemer schemer = setupColorSchemer(sc);
-         this.colorSchemer = schemer; // too close coupling here, but it's late in the game...
+         // too close coupling here, but it's late in the game...
+         this.colorSchemer = schemer;
          BotVisualizer bv = setupBotVisualizer(sc);
          this.botVisualizer = bv;
-         TimelineDisplay timelineDisplay = new TimelineDisplay(sc, timelineWidth, timelineHeight);
+         TimelineDisplay timelineDisplay = new TimelineDisplay(
+            sc, timelineWidth, timelineHeight);
          sc.setTimelineDisplay(timelineDisplay);
          timelineDisplay.setSwarmCon(sc);
          sc.setupControlPanel(schemer, bv, timelineDisplay);
@@ -590,7 +603,8 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
             
             // identify where the properties file lives
 
-            System.out.println("Props file location: " + PROPERTIES_FILE_LOCATION);
+            System.out.println("Properties file location: " 
+                               + PROPERTIES_FILE_LOCATION);
 
             // read in the properties
 
@@ -644,6 +658,8 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
             "swarmcon.comm.multipleSoundCommands", false);
          serialPortId  = getProperty(
             "swarmcon.comm.serialPort", serialPortId);
+         autoStartTimeline  = getProperty(
+            "swarmcon.timeline.autostart", autoStartTimeline);
 
          // init the motorCommandInfo now that we know how many orbs we have
 
@@ -745,7 +761,11 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       boolean running;
       public void startControlling()
       {
-         System.out.println("SWARM CON: start controlling");
+         // if we are already running, stop that
+         if (running)
+            stopControlling();
+
+         System.out.println("SwarmCon: start controlling");
          running = true;
          new Thread()
          {
@@ -767,13 +787,13 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
                      update();
                   }
                }
-         }
-            .start();
+         }.start();
       }
 
       public void stopControlling()
       {
          running = false;
+         System.out.println("SwarmCon: stop controlling");
       }
 
       public Controller[] addOrbs(Rectangle2D.Double bounds)
@@ -836,8 +856,9 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
             }
             catch (Exception ex)
             {
-               System.out.println(ex);
+               ex.printStackTrace();
             }
+
             // get now
 
             Calendar now = Calendar.getInstance();
@@ -875,13 +896,13 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       // add a Specialist to list of OrbState receivers
       public void addSpecialist(Specialist sp)
       {
-         System.out.println("SWARMCON: adding specialist... " + sp);
+         System.out.println("SwarmCon: adding specialist " + sp);
          specialists.add(sp);
       }
 
       public void removeSpecialist(Specialist sp)
       {
-         System.out.println("SWARMCON: removing specialist... " + sp);
+         System.out.println("SwarmCon: removing specialist " + sp);
          specialists.remove(sp);
       }
 
@@ -1107,13 +1128,15 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
          centerPanel.setLayout(cardLayout);
          centerPanel.setBorder(BorderFactory.createLineBorder(Color.gray));
 
-
          // identify if we need a splash panel
 
          boolean splashNeeded = true;
-         for (String portId :SerialIo.listSerialPorts())
-            if (serialPortId.equals(portId))
-               splashNeeded = false;
+         if (serialPortId.equalsIgnoreCase(SIMULATION))
+            splashNeeded = false;
+         else 
+            for (String portId: SerialIo.listSerialPorts())
+               if (serialPortId.equals(portId))
+                  splashNeeded = false;
 
          if (splashNeeded)
          {
@@ -1137,13 +1160,9 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
             splash.add(Box.createVerticalGlue());
             centerPanel.add(splash, "splash");
          }
-         else
-         {
-            (new SwarmComPortAction(serialPortId)).actionPerformed(null);
-         }
 
          // intermediary panel to put the arena and control UIs side-by-side
-
+         
          actionPanel = new JPanel();
          actionPanel.setLayout(new GridBagLayout());
          actionPanel.setBorder(BorderFactory.createLineBorder(Color.BLUE));
@@ -1191,6 +1210,13 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
             menu.setFont(MENU_FONT);
             menu.setForeground(MENU_CLR);
             fileMenu.add(menu);
+         }
+
+         // if no splash needed go ahed and start the sytem
+
+         if (!splashNeeded)
+         {
+            (new SwarmComPortAction(serialPortId)).actionPerformed(null);
          }
       }
 
@@ -1483,8 +1509,27 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
             }
       }
 
-      /** Action class wich selects a given serial port with witch to
-       * commucate to the orbs. */
+      /** 
+       * Test to see if the timeline should be auto started, and do so
+       * if it is called for.
+       */
+
+      public void attemptTimelineAutoStart()
+      {
+         // if autostart requested, do that
+         
+         if (autoStartTimeline != "")
+         {
+            System.out.println("autoStartTimeline: " + autoStartTimeline);
+            setTimeline(autoStartTimeline);
+            startTimeline();
+         }
+      }
+
+      /**
+       * Action class wich selects a given serial port with witch to
+       * commucate to the orbs.
+       */
 
       class SwarmComPortAction extends SwarmAction
       {
@@ -1508,9 +1553,13 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
             {
                try
                {
-                  orbIo = new OrbIo(portId, true);
+                  if (!portId.equalsIgnoreCase(SIMULATION))
+                  {
+                     orbIo = new OrbIo(portId, true);
+                     orbControlImpl.setOrbIo(orbIo);
+                  }
                   cardLayout.last(centerPanel);
-                  orbControlImpl.setOrbIo(orbIo);
+                  attemptTimelineAutoStart();
                }
                catch (Exception ex)
                {
@@ -1528,6 +1577,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
                public void actionPerformed(ActionEvent e)
                {
                   cardLayout.last(centerPanel);
+                  attemptTimelineAutoStart();
                }
          };
 
@@ -1648,9 +1698,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
             randomSongSpecialist.setup(swarmCon.orbControlImpl, null, null);
          */
 
-         int numbots = 6; // TODO: Whither Data?
-         BotVisualizer bv = new BotVisualizer(numbots);
-         return bv;
+         return new BotVisualizer(orbCount);
       }
 
       public  void setupControlPanel(ColorSchemer schemer,
@@ -1789,7 +1837,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
     }
 
     public JSlider makeRangeSlider(int low, int high, int val) {
-        System.out.println("Make range slider(low: " + low + " hi: " + high + " val: " + val);
+        System.out.println("SarmCon: make range slider(low: " + low + " hi: " + high + " val: " + val);
         JSlider slider = new JSlider(JSlider.HORIZONTAL, low, high, val);
         // size matters.
         Dimension size = slider.getSize();
@@ -2075,19 +2123,12 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
          this.timelineDisplay = val;
       }
 
-      public void setTimeline(String timelinePath)
+      public void setTimeline(String timelineName)
       {
-
-         if (!timelinePath.startsWith("/"))
-         {
-            String timelineDirectory = "resources/timelines";
-            timelinePath = timelineDirectory + "/" + timelinePath;
-         }
          try
          {
-            Timeline timeline = Timeline.readTimeline(timelinePath);
-            this.timeline = timeline;
-            timelineDisplay.setTimeline(timeline);
+            if (timelineDisplay != null)
+               this.timeline = timelineDisplay.setTimeline(timelineName);
          }
          catch (Exception ex)
          {
@@ -2098,13 +2139,13 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       public void startTimeline()
       {
          this.timelineStarted = System.currentTimeMillis();
-         System.out.println("Swarmcon: startTimeline!!!!!!111!1eleven!!");
+         System.out.println("SwarmCon: start timeline");
          startControlling();
       }
 
       public void stopTimeline()
       {
-         System.out.println("Swarmcon: STOP Timeline!!!!!!111!1eleven!!");
+         System.out.println("SwarmCon: stop timeline");
          stopControlling();
          timelineDisplay.stopAllRunningEvents();
       }

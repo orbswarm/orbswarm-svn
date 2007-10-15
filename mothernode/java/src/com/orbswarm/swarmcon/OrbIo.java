@@ -85,6 +85,7 @@ public class OrbIo extends SerialIo
       {
          super.send("{" + (60 + orbId) + " " + command + "}");
       }
+
       /** for testing */
       
       public static void main(String[] args)

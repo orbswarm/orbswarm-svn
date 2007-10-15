@@ -60,7 +60,7 @@ public class TimelineDisplay  {
     private HashMap   runningEventMap;
     private ArrayList completedEvents;
     private HashMap   triggerSet;
-    
+    private JComboBox timelineComboBox;
 
     private float timelineDuration = 1.0f;
 
@@ -91,9 +91,16 @@ public class TimelineDisplay  {
         this.orbControlImpl = (OrbControlImpl)swarmCon.getOrbControl();
     }
     
-    public void setTimeline(String timelinePath) throws IOException {
+    public Timeline setTimeline(String timelinePath) throws IOException {
+        timelineComboBox.setSelectedItem(timelinePath);
+        if (!timelinePath.startsWith("/")) {
+           String timelineDirectory = SwarmCon.RESOURCES_PATH + "/timelines";
+           timelinePath = timelineDirectory + "/" + timelinePath;
+        }
+        System.out.println("read timeline: " + timelinePath); 
         Timeline timeline = Timeline.readTimeline(timelinePath);
         setTimeline(timeline);
+        return timeline;
     }
     
     public void setTimeline(Timeline val) {
@@ -190,15 +197,15 @@ public class TimelineDisplay  {
         gbc.weighty = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        JComboBox drop = new JComboBox();
-        drop.setFont(dropFont);
-        drop.setBackground(bgColor);
+        timelineComboBox = new JComboBox();
+        timelineComboBox.setFont(dropFont);
+        timelineComboBox.setBackground(bgColor);
         // TODO: find the choreography files and populate dropdown with them
-        drop.addItem("== Select a timeline ==");
-        addTimelines(drop);
+        timelineComboBox.addItem("== Select a timeline ==");
+        addTimelines(timelineComboBox);
 
-        panel.add(drop, gbc); //
-        drop.addActionListener(new ActionListener() {
+        panel.add(timelineComboBox, gbc); //
+        timelineComboBox.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     JComboBox cb = (JComboBox)e.getSource();
                     String timeline = (String)cb.getSelectedItem();
@@ -207,13 +214,11 @@ public class TimelineDisplay  {
                     if (swarmCon != null) {
                         swarmCon.setTimeline(timeline);
                     } else {
-                        String resourceDir = "../resources/timelines/";
-                        String timelinePath = resourceDir + timeline;
-                        try {
-                            setTimeline(timelinePath);
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
+                       try {
+                          setTimeline(timeline);
+                       } catch (Exception ex) {
+                          ex.printStackTrace();
+                       }
                     }
                 }
             });
@@ -433,7 +438,8 @@ public class TimelineDisplay  {
     }
 
     public List findTimelines() {
-        String timelinesFile = "resources/timelines/timelines.list";
+        String timelinesFile = 
+           SwarmCon.RESOURCES_PATH + "/timelines/timelines.list";
         ArrayList timelines = new ArrayList();
         try {
            TokenReader reader = new TokenReader(
@@ -1148,13 +1154,13 @@ public class TimelineDisplay  {
 
     public void incrementHue(int orbNum, double coord) {
         // val ranges from 0 to 1. We want to increment the hue by some
-        System.out.println("TD:incrementHue (o" + orbNum + ") coord: " + coord);
 
         // to compensate for how fast the joystick events come in. 
         double hueFactor = .0045; 
 
         if (orbControl != null)
         {
+           // System.out.println("TD:incrementHue (o" + orbNum + ") coord: " + coord);
            HSV orbColor = orbControl.getOrbColor(orbNum);
            if (orbColor != null) 
            {

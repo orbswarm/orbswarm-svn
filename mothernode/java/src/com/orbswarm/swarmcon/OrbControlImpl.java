@@ -63,15 +63,16 @@ public class OrbControlImpl implements OrbControl {
         // FIXME: this should be done after swarmcon reads its properties.
         String soundCatalogsProp = swarmCon.getProperty(
            "swarmcon.sound.soundCatalogs",
-           "resources/song/sounds.catalog");
+           SwarmCon.RESOURCES_PATH + "/songs/sounds.catalog");
         String[] soundCatalogs = soundCatalogsProp.trim().split(" ");
         for(int i=0; i < soundCatalogs.length; i++ ) {
             if (soundCatalogs[i].length() > 0) {
-                readSoundCatalog(soundCatalogs[i]);
+               readSoundCatalog(soundCatalogs[i]);
             }
         }
-        String errataCatalog = swarmCon.getProperty("swarmcon.sound.errataCatalog",
-                                                    "resources/song/errata.catalog");
+        String errataCatalog = swarmCon.getProperty(
+           "swarmcon.sound.errataCatalog",
+           SwarmCon.RESOURCES_PATH + "/songs/errata.catalog");
         readSoundCatalog(errataCatalog);
     }
     
@@ -257,7 +258,8 @@ public class OrbControlImpl implements OrbControl {
 
     // only one Light control method implemented
     public void orbColor(int orbNum, HSV hsvColor, int timeMS) {
-        //System.out.println("SwarmCon:OrbControlImpl orbColor(orb: " + orbNum + "HSV: " + hsvColor + " time:" + timeMS + ")");
+       //System.out.println("SwarmCon:OrbControlImpl orbColor(orb: " + orbNum + "HSV: " + hsvColor + " time:" + timeMS + ")");
+
         if (simulateColors) {
             final Orb orb = (Orb)swarmCon.swarm.getOrb(orbNum);
             Color prevOrbColor = orb.getOrbColor();
