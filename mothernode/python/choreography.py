@@ -17,6 +17,10 @@ import sys
 
 import csv
 
+#for rgb2hsv
+import colorsys
+
+
 # User settings. OK to edit these if you know what you are doing 
 comport = "COM5"
 baudrate = 38400
@@ -131,7 +135,7 @@ class Dashboard(wx.Frame):
 	self.steer.sID = STEERID
 
 
-	        #steering control
+	#auxillary control (lights, etc.)
         auxlabel = wx.StaticText(panel, AUXID, "AUX")
         auxlabel.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.BOLD))
         auxlabel.SetSize(steerlabel.GetBestSize())
@@ -259,7 +263,7 @@ class Dashboard(wx.Frame):
 	    tups.append( ((20,10), 0, wx.ALIGN_CENTER) )
 	    tups.append( ((20,10), 0, wx.ALIGN_CENTER) )
 	    for j in range(numJoys):
-		label = wx.StaticText(panel, -1, "JS%d" % (j+1))
+		label = wx.StaticText(panel, -1, "Joy%d" % (j+1))
 	        tups.append( (label,   0,  wx.ALIGN_CENTER) )
 
 	i = 0
@@ -356,17 +360,28 @@ class Dashboard(wx.Frame):
 	drive = self.drive.GetValue()
 	for o in self.orb:
 	    if(o.enabled):    
-	        cmd =  "{%d $p%d*}" % (o.orbID,drive)
+	        cmd =  "{%d $s%d*}" % (o.orbID,drive)
 	        print cmd
 		self.ser.write(cmd);
 		
     def DoAuxEvt(self):
 	aux = self.aux.GetValue()
+	aux = float(aux+100)/200
+	print "float aux is %f" % aux
+	colors = colorsys.hsv_to_rgb(aux, 1.0, 1.0)
+	print colors
 	for o in self.orb:
 	    if(o.enabled):    
-	        cmd =  "{%d <L R%d>}" % (o.orbID,aux+100)
+	        cmd =  "{%d <LR%d>}" % (o.orbID,int(colors[0]*255))
+	        cmd +=  "{%d <LG%d>}" % (o.orbID,int(colors[1]*255))
+	        cmd +=  "{%d <LB%d>}" % (o.orbID,int(colors[2]*255))
 	        print cmd
 		self.ser.write(cmd);
+
+    # Flash the control associated with this joystick
+    def DoFlashButton(self,joy):
+	aux = self.aux.GetValue()
+	print 'This is joystick %d' % joy
 
     # this is called regularly by the timer.    
     def OnTimerEvt(self,evt):
@@ -531,8 +546,9 @@ class Dashboard(wx.Frame):
                 self.aux.SetValue(100*(e.dict['value']))
 		self.DoAuxEvt()
 
-        elif e.type == pygame.JOYBUTTONDOWN:
-            print "Stick %d Button %d" % (e.dict['joy'], e.dict['button'])
+	elif e.type == pygame.JOYBUTTONDOWN:
+	    self.DoFlashButton(e.dict['joy'])
+	    print "Stick %d Button %d" % (e.dict['joy'], e.dict['button'])
 
     def JoyYtoDrive(self,y):
         """ return joystick value normalized to drive max/min"""
