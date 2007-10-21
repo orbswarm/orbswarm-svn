@@ -352,15 +352,18 @@ class Dashboard(wx.Frame):
 	drive = self.drive.GetValue()
 	for o in self.orb:
 	    if(o.enabled):    
-		cmd =  "{%d $p%d*}" % (o.orbID,drive)   
-	        print cmd
-		self.ser.write(cmd);
+		self.SendDriveEvt(o.orbID,drive)   
+
+    def SendDriveEvt(self,orbID,value):
+	cmd =  "{%d $p%d*}" % (orbID,value)   
+	print cmd
+	self.ser.write(cmd);
 
     def DoSteerEvt(self):
-	drive = self.drive.GetValue()
+	steer = self.steer.GetValue()
 	for o in self.orb:
 	    if(o.enabled):    
-	        cmd =  "{%d $s%d*}" % (o.orbID,drive)
+	        cmd =  "{%d $s%d*}" % (o.orbID,steer)
 	        print cmd
 		self.ser.write(cmd);
 		
@@ -375,6 +378,7 @@ class Dashboard(wx.Frame):
 	        cmd =  "{%d <LR%d>}" % (o.orbID,int(colors[0]*255))
 	        cmd +=  "{%d <LG%d>}" % (o.orbID,int(colors[1]*255))
 	        cmd +=  "{%d <LB%d>}" % (o.orbID,int(colors[2]*255))
+	        cmd +=  "{%d <LF>}" % o.orbID
 	        print cmd
 		self.ser.write(cmd);
 
@@ -600,6 +604,7 @@ class Dashboard(wx.Frame):
                  'COM6',
                  'COM7',
                  'COM8',
+                 'COM9',
                  'stdout'],
                 wx.CHOICEDLG_STYLE
                 )
