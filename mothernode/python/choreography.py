@@ -99,6 +99,7 @@ class Dashboard(wx.Frame):
 	for orb in self.orb:
 		orb.enabled = 1
 		orb.orbID = count + 60
+		orb.joyList = []
 		count = count + 1
 		
         # create the Panel to put the controls on.
@@ -252,7 +253,7 @@ class Dashboard(wx.Frame):
 	vbox.Add(bigGrid, 0, wx.EXPAND)
 	vbox.Add((10,20), 0, wx.EXPAND)
 	numRows = len(self.cbox)
-	numJoys = 2
+	numJoys = self.myJoy.numjoy
 	numCols = numJoys + 3 # 3 cols for spacers
 	self.crossBarChecks = {}
         crossBarSizer = wx.FlexGridSizer(numRows, numCols, 10, 10) # rows, cols, hgap, vgap
@@ -277,6 +278,9 @@ class Dashboard(wx.Frame):
 		jsCheckBox.indexTup = (i,j)
 		self.crossBarChecks[(i,j)] = jsCheckBox
 		jsCheckBox.SetValue(i == j)
+		if jsCheckBox.GetValue():
+		   self.orb[i].joyList.append(j)
+		   self.myJoy.joy[j].orblist.append(self.orb[i])
 	        tups.append( (jsCheckBox,     0,  wx.ALIGN_CENTER) )
 	    i += 1
 	crossBarSizer.AddMany(tups)
@@ -289,8 +293,19 @@ class Dashboard(wx.Frame):
 ######################################### event handlers
     def OnCrossBarCheckBox(self, evt):
 	cbox = evt.GetEventObject()
-	print cbox.indexTup, cbox.GetValue()
-#	self.orb[cbox.n].enabled = cbox.GetValue() 
+	# tuple is (row, column) i.e. orb, joystick
+	orbID =  cbox.indexTup[0]
+	joy = cbox.indexTup[1]
+	if (cbox.GetValue()): # add this joytick to the list that controls orb
+		self.orb[orbID].joyList.append(joy)
+		self.myJoy.joy[joy].orblist.append(self.orb[orbID])
+	else:	
+		self.orb[orbID].joyList.remove(joy)
+		self.myJoy.joy[joy].orblist.remove(self.orb[orbID])
+#	print ' orb %d joylist: ' % (orbID)
+#	print self.orb[orbID].joyList
+	print ' joy %d orblist: ' % (joy)
+	print self.myJoy.joy[joy].orblist
 
     def OnCheckBox(self, evt):
 	cbox = evt.GetEventObject()
@@ -354,6 +369,11 @@ class Dashboard(wx.Frame):
 	    if(o.enabled):    
 		self.SendDriveEvt(o.orbID,drive)   
 
+    def JoyDriveEvt(self,joy,val):
+        for o in self.myJoy.joy[joy].orblist:
+	    if(o.enabled):    
+		self.SendDriveEvt(o.orbID,val)   
+
     def SendDriveEvt(self,orbID,value):
 	cmd =  "{%d $p%d*}" % (orbID,value)   
 	print cmd
@@ -361,11 +381,11 @@ class Dashboard(wx.Frame):
 
     def DoSteerEvt(self):
 	steer = self.steer.GetValue()
-	for o in self.orb:
-	    if(o.enabled):    
-	        cmd =  "{%d $s%d*}" % (o.orbID,steer)
-	        print cmd
-		self.ser.write(cmd);
+#	for o in self.orb:
+#	    if(o.enabled):    
+#	        cmd =  "{%d $s%d*}" % (o.orbID,steer)
+#	        print cmd
+#		self.ser.write(cmd);
 		
     def DoAuxEvt(self):
 	aux = self.aux.GetValue()
@@ -383,9 +403,22 @@ class Dashboard(wx.Frame):
 		self.ser.write(cmd);
 
     # Flash the control associated with this joystick
-    def DoFlashButton(self,joy):
+    def DoJoyButton(self,joy,btn):
 	aux = self.aux.GetValue()
 	print 'This is joystick %d' % joy
+	cmd = ""
+	for o in self.myJoy.joy[joy].orblist:
+		if(btn == 0):
+			cmd +=  "{%d <M1 VPF 49443526.mp3>}\n" % o.orbID
+		elif(btn == 1):
+			cmd +=  "{%d <M1 VPF 55061608.mp3>}" % o.orbID
+		elif(btn == 2):
+		       	cmd +=  "{%d <M1 VPF 58720567.mp3>}" % o.orbID
+		elif(btn == 3):
+			cmd +=  "{%d <M1 VPF 58720567.mp3>}" % o.orbID
+		else:    
+			print 'btn x'
+        print cmd
 
     # this is called regularly by the timer.    
     def OnTimerEvt(self,evt):
@@ -532,26 +565,27 @@ class Dashboard(wx.Frame):
 
     def OnJoystick(self,e):
         """ Called on any joystick event: change sliders """
-
         if e.type == pygame.JOYAXISMOTION:
+	    joy = e.dict['joy']
+	    val = e.dict['value']
             if (e.dict['axis'] == 0):
-                #print "Stick %d Axis 0 %f" % (e.dict['joy'], e.dict['value'])
-                self.steer.SetValue(self.JoyXtoSteer(e.dict['value']))
+                #print "Stick %d Axis 0 %f" % (joy,val)
+                self.steer.SetValue(self.JoyXtoSteer(val))
 		self.DoSteerEvt()
             elif (e.dict['axis'] == 1):
-                #print "Stick %d Axis 1 %f" % (e.dict['joy'], e.dict['value'])
-                self.drive.SetValue(self.JoyYtoDrive(e.dict['value']))
-		self.DoDriveEvt()
+                #print "Stick %d Axis 1 %f" % (joy,val)
+                self.drive.SetValue(self.JoyYtoDrive(val))
+		self.JoyDriveEvt(joy,self.JoyYtoDrive(val))
             elif (e.dict['axis'] == 2):
                 #print "Stick %d Axis 2 %f" % (e.dict['joy'], e.dict['value'])
 		return  # ignore for now
             elif (e.dict['axis'] == 3):
-                print "Stick %d Axis 3 %f" % (e.dict['joy'], e.dict['value'])
-                self.aux.SetValue(100*(e.dict['value']))
+                print "Stick %d Axis 3 %f" % (joy,val)
+                self.aux.SetValue(100*val)
 		self.DoAuxEvt()
 
 	elif e.type == pygame.JOYBUTTONDOWN:
-	    self.DoFlashButton(e.dict['joy'])
+	    self.DoJoyButton(e.dict['joy'], e.dict['button'])
 	    print "Stick %d Button %d" % (e.dict['joy'], e.dict['button'])
 
     def JoyYtoDrive(self,y):
@@ -658,6 +692,7 @@ class multiJoy:
             myjoy.n = i
             myjoy.j = pygame.joystick.Joystick(i)
             myjoy.j.init()
+	    myjoy.orblist = [] # list of orbs controlled by this stick
             self.joy.append(myjoy)
             print "Got stick %d axes: %d name: " % (i, self.joy[i].j.get_numaxes()) + self.joy[i].j.get_name()
         self.numjoy=pygame.joystick.get_count()
