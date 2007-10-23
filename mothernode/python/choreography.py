@@ -22,13 +22,13 @@ import colorsys
 
 
 # User settings. OK to edit these if you know what you are doing 
-comport = "COM5"
+comport = "COM9"
 baudrate = 38400
 logFileName = 'dash-log.txt'
 
 # User settings: max/min steering and drive values. OK to edit!
-driveMax = 30
-driveMin = -30
+driveMax = 20
+driveMin = -20
 
 #use 40 for PID speed control 
 #driveMax = 40
@@ -409,13 +409,13 @@ class Dashboard(wx.Frame):
 	cmd = ""
 	for o in self.myJoy.joy[joy].orblist:
 		if(btn == 0):
-			cmd +=  "{%d <M1 VPF 49443526.mp3>}\n" % o.orbID
+			cmd +=  "{%d <M VPF 49443526.mp3>}\n" % o.orbID
 		elif(btn == 1):
-			cmd +=  "{%d <M1 VPF 55061608.mp3>}" % o.orbID
+			cmd +=  "{%d <M VPF 55061608.mp3>}" % o.orbID
 		elif(btn == 2):
-		       	cmd +=  "{%d <M1 VPF 58720567.mp3>}" % o.orbID
+		       	cmd +=  "{%d <M VPF 58720567.mp3>}" % o.orbID
 		elif(btn == 3):
-			cmd +=  "{%d <M1 VPF 58720567.mp3>}" % o.orbID
+			cmd +=  "{%d <M VPF 58720567.mp3>}" % o.orbID
 		else:    
 			print 'btn x'
         print cmd
