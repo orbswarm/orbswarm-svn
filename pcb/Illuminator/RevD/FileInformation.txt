@@ -1,0 +1,15 @@
+
+File Information
+
+LAYER1.GRB TOP Copper
+
+MASK1.GRB  TOP Soldermask
+
+LAYER4.GRB BOTTOM Copper
+
+SILK4.GRB  BOTTOM Silkscreen
+
+MASK4.GRB  BOTTOM Soldermask
+
+
+NO TOP SILKSCREEN
