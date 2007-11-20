@@ -6,7 +6,6 @@ F_CPU = 14700000
 #F_CPU = 14745600
 #F_CPU =  3680000
 
-
 MYSRC = $(SVN_TRUNK)/aggregator/aggregator_src/c
 MYBIN = $(SVN_TRUNK)/aggregator/binaries
 GLOBAL_SHARED_INCLUDE = $(SVN_TRUNK)/shared/include
