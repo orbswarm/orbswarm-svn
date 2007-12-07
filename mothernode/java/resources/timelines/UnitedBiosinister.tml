@@ -1,0 +1,314 @@
+<timeline>
+  name: United Bio 
+  arena: 200.
+  duration: 6000.
+  <event>
+      name: fade to black
+      startTime: 0
+      fadeTime: 2
+      specialist: SimpleColor
+      color: RGB 0 0 0 
+  </event>
+
+  <event>
+      name: all tan
+      sutartTime: 2
+      fadeTime: 10
+      specialist: SimpleColor
+      color: RGB 245 230 100
+  </event>
+
+
+  <event>
+      name: Initial chimes0
+      startTime: 2
+      <orbs> 0 </orbs>
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/chimes/DC_c2a.aif
+      </properties>
+  </event>
+
+  <event>
+      name: Initial chimes1
+      startTime: 2.3
+      <orbs> 1 </orbs>
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/chimes/DC_e3a.aif
+      </properties>
+  </event>
+
+  <event>
+      name: Initial chimes2
+      startTime: 3
+      <orbs> 0 </orbs>
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/chimes/DC_g2.aif
+      </properties>
+  </event>
+
+  <event>
+      name: Secondchant0
+      startTime: 20
+      duration: 22
+      <orbs> 1 </orbs>
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/Markafiles/Xandoru_Wavs_to_Convert/Tuvan/tuvan_19040_djgriffin_kumi1_04.aif
+      </properties>
+  </event>
+
+  <event>
+      name: chimes FR f#3
+      startTime: 5
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 1 </orbs>
+      <properties>
+          soundfile /orbsounds/FX/chimes/RT_f#3.aif
+      </properties>
+  </event>
+
+  <event>
+      name: chime triggers
+      startTime: 20
+      duration: 6000
+      
+  <subevent>
+      name: chimes b1
+      trigger: button1
+      specialist: SimpleSound
+      <orbs> 0 </orbs>
+      <properties>
+          soundfile /orbsounds/FX/chimes/DC_b3.aif
+      </properties>
+  </subevent>
+
+  <subevent>
+      name: chimes b2
+      trigger: button2
+      specialist: SimpleSound
+      <orbs> 0 </orbs>
+      <properties>
+          soundfile /orbsounds/FX/chimes/DC_c2a.aif
+      </properties>
+  </subevent>
+
+  <subevent>
+      name: chimes b3
+      trigger: button3
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 0 </orbs>
+      <properties>
+          soundfile /orbsounds/FX/chimes/DC_e1a.aif
+      </properties>
+  </subevent>
+
+  <subevent>
+      name: chimes b4
+      trigger: button4
+      startTime: 20
+      duration: 5
+      <orbs> 0 </orbs>
+      specialist: SimpleSound
+      <properties>
+          soundfile /orbsounds/FX/chimes/DC_f#3.aif
+      </properties>
+  </subevent>
+
+  <subevent>
+      name: chimes b5
+      trigger: button5
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 0 </orbs>
+      <properties>
+          soundfile /orbsounds/FX/chimes/DC_g2.aif
+      </properties>
+  </subevent>
+
+  <subevent>
+      name: chimes b6
+      trigger: button6
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 0 </orbs>
+      <properties>
+          soundfile /orbsounds/FX/chimes/RT_f#3.aif
+      </properties>
+  </subevent>
+
+  <subevent>
+      name: chimes b7
+      trigger: button6
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 0 </orbs>
+      <properties>
+          soundfile /orbsounds/FX/chimes/Vibe2_g3.aif
+      </properties>
+  </subevent>
+
+  <subevent>
+      name: chimes b8
+      trigger: button8
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 0 </orbs>
+      <properties>
+          soundfile /orbsounds/FX/chimes/giantbell.aif
+      </properties>
+  </subevent>
+
+  <subevent>
+      name: chimes b9
+      trigger: button1
+      triggerAction: replace
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 0 </orbs>
+      <properties>
+          soundfile /orbsounds/songs/SolsticeNocturne_S07/notes/a/RT_a2.aif
+      </properties>
+  </subevent>
+
+  <subevent>
+      name: chimes b10
+      trigger: button2
+      triggerAction: replace
+      startTime: 145
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 0 </orbs>
+      <properties>
+          soundfile /orbsounds/songs/SolsticeNocturne_S07/notes/c/RT_c2.aif
+      </properties>
+  </subevent>
+
+ </event>
+
+  <event>
+      name: Throat singing triggers
+      startTime: 20
+      duration: 6000
+
+  <event>
+      name: throat b1
+      trigger: button1
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 1 </orbs>
+      <properties>
+          soundfile /orbsounds/Markafiles/Xandoru_Wavs_to_Convert/Tuvan/tuvan_19040_djgriffin_kumi1_04.aif
+      </properties>
+  </event>
+
+  <event>
+      name: throat b2
+      trigger: button2
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 1 </orbs>
+      <properties>
+          soundfile /orbsounds/Markafiles/Xandoru_Wavs_to_Convert/Tuvan/tuvan_15489_djgriffin_tibetan_chant_4_colargol.aif
+      </properties>
+  </event>
+
+  <event>
+      name: throat b3
+      trigger: button3
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 1 </orbs>
+      <properties>
+          soundfile /orbsounds/Markafiles/Xandoru_Wavs_to_Convert/Tuvan/tuvan_19534_Bram_alfonso_high_15.wav
+      </properties>
+  </event>
+
+  <event>
+      name: throat low b4
+      trigger: button4
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 1 </orbs>
+      <properties>
+          soundfile /orbsounds/Markafiles/Xandoru_Wavs_to_Convert/Tuvan/tuvan_19523_Bram_alfonso_low_16.wav
+      </properties>
+  </event>
+
+  <event>
+      name: overtone b5
+      trigger: button5
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 1 </orbs>
+      <properties>
+          soundfile /orbsounds/Markafiles/Xandoru_Wavs_to_Convert/Tuvan/tuvan_21219_djgriffin_overtone_exercise.aif
+      </properties>
+  </event>
+
+  <event>
+      name: low17 b6
+      trigger: button6
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 1 </orbs>
+      <properties>
+          soundfile /orbsounds/Markafiles/Xandoru_Wavs_to_Convert/Tuvan/tuvan_19524_Bram_alfonso_low_17.wav
+      </properties>
+  </event>
+
+  <event>
+      name: chimes b7
+      trigger: button6
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 1 </orbs>
+      <properties>
+          soundfile /orbsounds/FX/chimes/DC_b3.aif
+      </properties>
+  </event>
+
+  <event>
+      name: chimes b8
+      trigger: button8
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 1 </orbs>
+      <properties>
+          soundfile /orbsounds/FX/chimes/RT_e4.aif
+      </properties>
+  </event>
+
+  <event>
+      name: Nightingale b9
+      trigger: button9
+      startTime: 20
+      duration: 5
+      specialist: SimpleSound
+      <orbs> 1 </orbs>
+      <properties>
+          soundfile /orbsounds/Markafiles/Xandoru_Wavs_to_Convert/Nightingale/Nightingale_excerpt05.wav
+      </properties>
+  </event>
+
+  
+ </event>
+</timeline>

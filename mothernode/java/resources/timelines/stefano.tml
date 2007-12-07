@@ -6,6 +6,7 @@
      name: Thus spake the big Z
      specialist: MultiTrack
      startTime: 15
+      endTime:  160
      <properties>
          base /orbsounds/mp3stefano
          track1 1.mp3
