@@ -1,9 +1,11 @@
 MCU = atmega640
 F_CPU = 14700000
+SVN_TRUNK = c:/trunk
 
 MYSRC = $(SVN_TRUNK)/aggr/src
 MYBIN = $(SVN_TRUNK)/aggr/binaries
-TARGET=blinky_test
+#TARGET=blinky_test
+TARGET=uart_test
 
 # Default target.
 all: 	begin gccversion \
@@ -124,8 +126,10 @@ LST = $(ASRC:.S=.lst) $(SRC:.c=.lst)
 
 # Combine all necessary flags and optional flags.
 # Add target processor to flags.
-ALL_CFLAGS = -I$(LIB_SRC) -I$(GLOBAL_SHARED_INCLUDE)  $(CFLAGS)
-ALL_ASFLAGS = -mmcu=$(MCU) -I$(LIB_SRC)  -I$(GLOBAL_SHARED_INCLUDE) -x assembler-with-cpp $(ASFLAGS)
+#ALL_CFLAGS = -I$(LIB_SRC) -I$(GLOBAL_SHARED_INCLUDE)  $(CFLAGS)
+#ALL_ASFLAGS = -mmcu=$(MCU) -I$(LIB_SRC)  -I$(GLOBAL_SHARED_INCLUDE) -x assembler-with-cpp $(ASFLAGS)
+ALL_CFLAGS = $(CFLAGS)
+ALL_ASFLAGS = -mmcu=$(MCU) -x assembler-with-cpp $(ASFLAGS)
 
 
 # Eye candy.
@@ -163,7 +167,7 @@ $(MYBIN)/%.hex : $(MYBIN)/%.elf
 $(MYBIN)/%.elf: $(MYBIN)/%.o  
 	@echo
 	@echo $(MSG_LINKING) $@
-		$(CC) $(ALL_CFLAGS)  $<  $(LDFLAGS) -o $@ 
+		$(CC) $(ALL_CFLAGS)  $<  $(LDFLAGS) --output $@ 
 
 	
 #$(MYBIN)/%.elf: $(MYBIN)/%.o  
@@ -178,7 +182,7 @@ $(MYBIN)/%.elf: $(MYBIN)/%.o
 $(MYBIN)/%.o : $(MYSRC)/%.c $(MYSRC)/include/timer0.h $(MYSRC)/timer0.c
 	@echo
 	@echo $(MSG_COMPILING) $<
-	$(CC) $(ALL_CFLAGS) -c $< -o $@
+	$(CC) $(ALL_CFLAGS) -c $<  -o $@ 
 
 #$(MYBIN)/%.o : $(MYSRC)/%.c $(GLOBAL_SHARED_INCLUDE)/swarm_messaging.h $(GLOBAL_SHARED_INCLUDE)/packet_type.h $(LIB_SRC)/timer0.h  $(LIB_SRC)/uart.h 
 #	@echo
