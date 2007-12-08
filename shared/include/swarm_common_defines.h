@@ -27,7 +27,7 @@
      #error XBEE queue size not a power of 2
 #endif
 
-#define MAX_SPUGPS_MSG_QUEUE_SIZE 256
+#define MAX_SPUGPS_MSG_QUEUE_SIZE 2
 #define SPUGPS_Q_MASK (MAX_SPUGPS_MSG_QUEUE_SIZE -1)
 #if (MAX_SPUGPS_MSG_QUEUE_SIZE & SPUGPS_Q_MASK)
      #error SPUGPS queue size not a power of 2

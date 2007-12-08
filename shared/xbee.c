@@ -36,17 +36,18 @@ static void initXbeeMsgStart(char c)
   xbee_rx_state=eXbeeStraightSerialRxStartMsg;
   xbee_rx_state_byte_num=0;
   xbee_rx_is_error=0;
-  if('<' ==c || '{' ==c)
+/*   if('<' ==c || '{' ==c) */
+  if('{' ==c)
     xbee_rx_packet.swarm_msg_type=eLinkArt;
-  else 
-    xbee_rx_packet.swarm_msg_type=eLinkMotorControl;
+/*   else  */
+/*     xbee_rx_packet.swarm_msg_type=eLinkMotorControl; */
   xbee_rx_packet.swarm_msg_payload[xbee_rx_state_byte_num]=c;
 }
 
 void handleXbeeSerial(char c, int isError)
 {
   debugCallback();
-  //debug("in handle");
+  debug("\r\nin handleXbeeSerial");
   //if it's an error flag and discard till the start of the next message
   if(isError){
     //debugCallback();
@@ -56,13 +57,15 @@ void handleXbeeSerial(char c, int isError)
   }
   switch(xbee_rx_state){
   case eXbeeStraightSerialRxInit:
-    if('$'==c || '<'== c || '{' ==c){
+ /*     if('$'==c || '<'== c || '{' ==c){ */
+    if('{' ==c){
       //debugCallback();
       initXbeeMsgStart(c);
     }
     break;
   case eXbeeStraightSerialRxStartMsg:
-    if('$' ==c || '<'==c || '{'==c){
+/*     if('$' ==c || '<'==c || '{'==c){ */
+    if('{'==c){
       //empty message
       initXbeeMsgStart(c);
     }
@@ -73,25 +76,41 @@ void handleXbeeSerial(char c, int isError)
     }
     break;
   case eXbeeStraightSerialRxPayload:
-    if('<'==c || '{'==c){
+    if('{'==c){
       //empty message
       initXbeeMsgStart(c);
     }
-    else if('$'==c|| '>'==c || '}'==c)
+/*     else if('$'==c|| '>'==c || '}'==c) */
+/*        { */
+/* 	 if('>'==c || '}'==c) */
+/* 	   xbee_rx_packet.swarm_msg_payload[++xbee_rx_state_byte_num]=c; */
+
+/* 	 //if not error first dispatch old message */
+/* 	 if(!xbee_rx_is_error){ */
+/* 	   xbee_rx_packet.swarm_msg_length[0] =  */
+/* 	     (char)(xbee_rx_state_byte_num>>8); */
+/* 	   xbee_rx_packet.swarm_msg_length[1] = (char)xbee_rx_state_byte_num; */
+/* 	   xbee_rx_packet.swarm_msg_payload[xbee_rx_state_byte_num+1]=';'; */
+/* 	   xbee_rx_packet.swarm_msg_payload[xbee_rx_state_byte_num+2]='\0'; */
+/* 	   pushQ(xbee_rx_packet); */
+/* 	 } */
+/* 	 initXbeeMsgStart(c); */
+/*        } */
+    else if('}'==c)
        {
-	 if('>'==c || '}'==c)
-	   xbee_rx_packet.swarm_msg_payload[++xbee_rx_state_byte_num]=c;
+	 xbee_rx_packet.swarm_msg_payload[++xbee_rx_state_byte_num]=c;
 
 	 //if not error first dispatch old message
 	 if(!xbee_rx_is_error){
 	   xbee_rx_packet.swarm_msg_length[0] = 
 	     (char)(xbee_rx_state_byte_num>>8);
 	   xbee_rx_packet.swarm_msg_length[1] = (char)xbee_rx_state_byte_num;
-	   xbee_rx_packet.swarm_msg_payload[xbee_rx_state_byte_num+1]=';';
-	   xbee_rx_packet.swarm_msg_payload[xbee_rx_state_byte_num+2]='\0';
+/* 	   xbee_rx_packet.swarm_msg_payload[xbee_rx_state_byte_num+1]=';'; */
+	   xbee_rx_packet.swarm_msg_payload[xbee_rx_state_byte_num+1]='\0';
 	   pushQ(xbee_rx_packet);
 	 }
-	 initXbeeMsgStart(c);
+	 //initXbeeMsgStart(c);
+	 xbee_rx_state=eXbeeStraightSerialRxInit;
        }
      else
        {
