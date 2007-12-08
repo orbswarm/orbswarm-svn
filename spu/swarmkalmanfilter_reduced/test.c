@@ -42,12 +42,6 @@ char  output_fname[ FILENAME_MAX ];
 int   num_samples;
 
 
-
-/*   Random Number Generator state variable   */
-
-extern float gasdev( long *idum );  /* random # gen, in random.c */
-long  rseed = -1;
-
 char  dbgstr[ 64 ];
 
 /*  Prototypes of local functions  */
