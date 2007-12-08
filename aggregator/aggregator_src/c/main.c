@@ -81,14 +81,17 @@ int main(void)
   sei();
   
   while(1){
+    /*
     struct SWARM_MSG msg = popQ();
     if(msg.swarm_msg_type == eLinkMotorControl ||
 	    msg.swarm_msg_type == eLinkArt){
       //queue up for sending to spu when asked for
       //But if send is in progress wait for it to be over
+      debug("\r\npushing into spu data q");
       while(isSpuSendInProgress())
 	;
       pushSpuDataQ(msg.swarm_msg_payload);
+      startSpuTransmit();
     }
     else if(msg.swarm_msg_type == eLinkSpuMsg){
       //poor man's strcmp
@@ -106,48 +109,20 @@ int main(void)
 	  sendSpuMsg(gps_msg_buffer);
 	  sendSpuMsg(";");
 
-	  getGpsGpvtgMsg(gps_msg_buffer);
+ 	  getGpsGpvtgMsg(gps_msg_buffer);
 	  sendSpuMsg(gps_msg_buffer);
-	  sendSpuMsg(";");
+	  sendSpuMsg(";!");
 
-	  while(isSpuSendInProgress())
-	    ;
-	  startSpuTransmit();
-	  ///Now sleep for at least one character to be sent
-	  loopTimer0(1);
-	  pushSpuDataQ("!");
-	  startSpuTransmit();
-
-/* 	  getGpsGpggaMsg(gps_msg_buffer); */
-/* 	  pushSpuGpsDataQ(gps_msg_buffer); */
-
-/* 	  getGpsGpvtgMsg(gps_msg_buffer); */
-/* 	  pushSpuGpsDataQ(gps_msg_buffer); */
-
-/* 	  pushSpuGpsDataQ("!"); */
-/* 	  startSpuGpsDataTransmit(); */
-	}
-/*       else if(msg.swarm_msg_payload[0] == '$' && */
-/* 	msg.swarm_msg_payload[1] == 'A' && */
-/* 	 msg.swarm_msg_payload[2] == 'x' && */
-/* 	 msg.swarm_msg_payload[3] == '*') */
-/* 	{ */
-/* 	  while(isSpuSendInProgress()) */
-/* 	    ; */
-/* 	  startSpuTransmit(); */
-/* 	  ///Now sleep for at least one character to be sent */
-/* 	  loopTimer0(1); */
-/* 	  pushSpuDataQ("!"); */
-/* 	  startSpuTransmit(); */
-/* 	} */
       else if(msg.swarm_msg_payload[0] == '$' &&
 	msg.swarm_msg_payload[1] == 'A' &&
 	 msg.swarm_msg_payload[2] == 's')
 	{
+	  debug("\r\nstreaming data through xbee");
 	  pushXbeeDataQ(msg.swarm_msg_payload+3);
 	  startXBeeTransmit();
 	} 
     }
+    */
   } 
   //
   return 0;

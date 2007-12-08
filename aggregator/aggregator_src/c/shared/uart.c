@@ -2,6 +2,7 @@
 #include <avr/interrupt.h>	// include interrupt support
 #include "uart.h"
 //#include <aggregator_utils.h>
+#define UBRR_VAL 23
 
 static void (*  _handleXBeeRecv)(char, int) ;
 static void (*  _handleSpuRecv)(char, int) ;
@@ -15,6 +16,7 @@ volatile static int s_isXbeeSendInProgress=0;
 
 ISR(SIG_USART3_RECV)
 {
+  //sendDebugMsg("\r\n in handler SIG_USART3_RECV");
   int nErrors=0;
 /*   if((UCSR3A<<(8-FE3))>>7) */
 /*     { */
@@ -77,6 +79,7 @@ ISR(SIG_USART1_RECV)
 ISR(SIG_USART3_DATA)
 {
   //PORTB = PORTB ^ (1<<PB7);
+  //sendDebugMsg("\r\n in handler SIG_USART3_DATA");
   char c = (*_getXBeeOutChar)();
   if(c !=0 ){
     UDR3 = c;
@@ -166,7 +169,7 @@ void sendGPSBMsg(const char *s)
 void sendDebugMsg(const char *s)
 {
   //sendXBeeMsg (s);
-  //sendSpuMsg(s);
+  sendSpuMsg(s);
 }
 
 void startXBeeTransmit(void)
@@ -223,7 +226,7 @@ int uart_init( void (*handleXBeeRecv)(char c, int isError),
   //
   UCSR3B = (1<<RXCIE3) | (1<<RXEN3) | (1<<TXEN3) ;
   UCSR3C = (1<<UCSZ31) | (1<< UCSZ30);
-  UBRR3 = 23;
+  UBRR3 = UBRR_VAL;
   _handleXBeeRecv=handleXBeeRecv;
   _getXBeeOutChar=getXBeeOutChar;
 
@@ -233,7 +236,7 @@ int uart_init( void (*handleXBeeRecv)(char c, int isError),
   //Asynchronous UART, no parity, 1 stop bit, 8 data bits, 38400 baud
   UCSR0B = (1<<RXCIE0) | (1<<RXEN0) | (1<<TXEN0);
   UCSR0C = (1<<UCSZ01) | (1<< UCSZ00);
-  UBRR0 = 23;
+  UBRR0 = UBRR_VAL;
   _handleSpuRecv  = handleSpuRecv;
   _getSpuOutChar=getSpuOutChar;
   //
@@ -242,7 +245,7 @@ int uart_init( void (*handleXBeeRecv)(char c, int isError),
   //
   UCSR1B = (1<<RXCIE1) | (1<<RXEN1) | (1<<TXEN1);
   UCSR1C = (1<<UCSZ11) | (1<< UCSZ10);
-  UBRR1 = 23;
+  UBRR1 = UBRR_VAL;
   _handleGpsARecv = handleGpsARecv;
   _getSpuGpsOutChar = getSpuGpsOutChar;
   //
@@ -251,7 +254,7 @@ int uart_init( void (*handleXBeeRecv)(char c, int isError),
   //set up GPSB
   //UCSR2B = (1<<RXCIE2) | (1<<RXEN2) | (1<<TXEN2);
   //UCSR2C = (1<<UCSZ21) | (1<< UCSZ20);
-  //UBRR2 = 23;
+  //UBRR2 = UBRR_VAL;
   //insert handler here later
 
   //sei();

@@ -11,10 +11,10 @@ int main(void)
   //Direction bit = PC1
   //PORTB = PORTB | (1<<PB5);
   //PORTJ  = PORTJ | (1<<PJ3);
-  
-  while(1){
+   PORTB = PORTB ^ (1<<PB6);
+    while(1){
     loopTimer0(1000);
-    PORTB = PORTB ^ (1<<PB7);
+    PORTB = PORTB ^ (1<<PB6);
   }
 
 }
