@@ -10,7 +10,7 @@ int main(void)
   //PORTJ  = PORTJ | (1<<PJ3);
    PORTB = PORTB ^ (1<<PB6);
    while(1){
-    loopTimer0(1000);
+    loopTimer0(500);
     PORTB = PORTB ^ (1<<PB6);
   }
 

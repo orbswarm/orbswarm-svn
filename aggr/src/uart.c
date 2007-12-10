@@ -1,3 +1,5 @@
+#define UBRR_VAL 23
+
 static void (*  _handleXBeeRecv)(char, int) ;
 static void (*  _handleSpuRecv)(char, int) ;
 static void (* _handleGpsARecv)(char, int) ;
@@ -30,6 +32,18 @@ ISR(SIG_USART3_RECV)
 ISR(SIG_USART0_RECV)
 {
   int nErrors=0;
+   if(UCSR0A & (1<<FE0)) 
+     { 
+       nErrors=1; 
+       //flip error bit back 
+       UCSR3A=UCSR3A ^ (1<<FE3); 
+     } 
+   if(UCSR0A & (1<<DOR0)) 
+     { 
+       nErrors=1; 
+       //flip error bit back 
+       UCSR3A=UCSR3A ^ (1<<DOR3); 
+     } 
   (*_handleSpuRecv)(UDR0, nErrors);
 }
 
@@ -86,14 +100,9 @@ void sendSpuMsg(const char *s)
 {
   while(*s)
     {
-      UCSR0A = UCSR0A & (~(1<<UDRE0));
+	while(!(UCSR0A & (1<<UDRE0)))
+		;
       UDR0 = *(s++);
-      while(1)
-	{
-	  //loopTimer0(100);
-	  if((UCSR0A<<(8-UDRE0))>>7)
-	    break;
-	}
     }
 }
 
@@ -133,7 +142,7 @@ void startSpuTransmit(void)
     s_isSpuSendInProgress=1;
     _currentSpuGetter=_getSpuOutChar;
     UCSR0B |=  (1 <<UDRIE0);//enable interrupt
-    UCSR0A |= (1 <<UDRE0);//set 'data register empty' bit to 1(buffer empty)
+    //UCSR0A |= (1 <<UDRE0);//set 'data register empty' bit to 1(buffer empty)
   }
 }
 
@@ -169,7 +178,7 @@ int uart_init( void (*handleXBeeRecv)(char c, int isError),
   //Asynchronous UART, no parity, 1 stop bit, 8 data bits, 38400 baud
   UCSR3B = (1<<RXCIE3) | (1<<RXEN3) | (1<<TXEN3) ;
   UCSR3C = (1<<UCSZ31) | (1<< UCSZ30);
-  UBRR3 = 23;
+  UBRR3 = UBRR_VAL;
   _handleXBeeRecv=handleXBeeRecv;
   _getXBeeOutChar=getXBeeOutChar;
 
@@ -177,14 +186,14 @@ int uart_init( void (*handleXBeeRecv)(char c, int isError),
   //Asynchronous UART, no parity, 1 stop bit, 8 data bits, 38400 baud
   UCSR0B = (1<<RXCIE0) | (1<<RXEN0) | (1<<TXEN0);
   UCSR0C = (1<<UCSZ01) | (1<< UCSZ00);
-  UBRR0 = 23;
+  UBRR0 = UBRR_VAL;
   _handleSpuRecv  = handleSpuRecv;
   _getSpuOutChar=getSpuOutChar;
   
   //Set up GPSA
   UCSR1B = (1<<RXCIE1) | (1<<RXEN1) | (1<<TXEN1);
   UCSR1C = (1<<UCSZ11) | (1<< UCSZ10);
-  UBRR1 = 23;
+  UBRR1 = UBRR_VAL;
   _handleGpsARecv = handleGpsARecv;
   _getSpuGpsOutChar = getSpuGpsOutChar;
 

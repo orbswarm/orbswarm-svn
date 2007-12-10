@@ -6,6 +6,7 @@ MYSRC = $(SVN_TRUNK)/aggr/src
 MYBIN = $(SVN_TRUNK)/aggr/binaries
 #TARGET=blinky_test
 TARGET=uart_test
+#TARGET=simple_uart_test
 
 # Default target.
 all: 	begin gccversion \
@@ -35,11 +36,14 @@ arduino_upload: $(MYBIN)/$(TARGET).hex
 ###set up is usb --> keyspan --> stk DB9 
 AVRDUDE=avrdude
 AVRDUDE_PROGRAMMER = stk500v2
-AVRDUDE_PORT = /dev/tty.USA19H1b1P1.1
+#AVRDUDE_PORT = /dev/tty.USA19H1b1P1.1
 #AVRDUDE_PORT = /dev/tty.usbserial-ftDDKSD7
+AVRDUDE_PORT = COM7
 UPLOAD_RATE = 115200
-AVRDUDE_WRITE_FLASH = -U flash:w:$(MYBIN)/$(TARGET).hex
-AVRDUDE_FLAGS = -v -e -p $(MCU) -b $(UPLOAD_RATE) -P $(AVRDUDE_PORT) \
+AVRDUDE_WRITE_FLASH = -U flash:w:$(MYBIN)/$(TARGET).hex:i
+#AVRDUDE_FLAGS = -v -e -p $(MCU) -b $(UPLOAD_RATE) -P $(AVRDUDE_PORT) \
+#	-c $(AVRDUDE_PROGRAMMER)
+AVRDUDE_FLAGS = -v -p $(MCU) -b $(UPLOAD_RATE) -P $(AVRDUDE_PORT) \
 	-c $(AVRDUDE_PROGRAMMER)
 FORMAT = ihex 		# create a .hex file
 
