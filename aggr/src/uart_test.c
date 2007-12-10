@@ -39,12 +39,12 @@ int main(void)
   uart_init(dummyHandler, testHandler, dummyHandler, dummyPop, dummyPop,dummyPop);
   sei();
   sendSpuMsg("\r\nhello");
-  //startSpuTransmit();
+  startSpuTransmit();
     while(1)
       {
 	loopTimer0(1000);
 	lightLedPortB6();
-	//sendSpuMsg("hello");
+	sendSpuMsg("hello");
       }
 
 }

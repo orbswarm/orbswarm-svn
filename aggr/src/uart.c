@@ -98,12 +98,14 @@ void sendGPSAMsg(const char *s)
 
 void sendSpuMsg(const char *s)
 {
-  while(*s)
+	UCSR0B &= ~(1 << UDRIE0);//turn off interrupt first
+  	while(*s)
     {
-	while(!(UCSR0A & (1<<UDRE0)))
-		;
-      UDR0 = *(s++);
+		while(!(UCSR0A & (1<<UDRE0)))
+			;
+      	UDR0 = *(s++);
     }
+    UCSR0B |=  (1 <<UDRIE0);//enable interrupt
 }
 
 void sendGPSBMsg(const char *s)
