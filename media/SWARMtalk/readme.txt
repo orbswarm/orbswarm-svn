@@ -1,7 +1,12 @@
 
-This is the draft of a SWARM presentation.
-It is in Open Office Presenter format: an open-source Powerpoint replacement.
+In this directory: presentations and images about SWARM
 
-You can get Open Office from here http://www.openoffice.org/
+swarm-talk.*: Short 5-slide presentation for Dorkbot
+(odp is Open Office powerpoint replacement; I will convert to ppt and rename sometime)
+
+SWARM-ignite.*: more complete 20-slide presentation of O'Reilly Ignite
+ppt file is 20MB!
+
+
 
 Jon Foote
