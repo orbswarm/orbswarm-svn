@@ -11,19 +11,23 @@ void lightLedPortB7(void)
   PORTB = PORTB ^ (1<<PB7);
 }
 
-char dummyPop(void)
+static char dummyPop(void)
 {
-	return 'A';
+/*	loopTimer0(1000);
+	lightLedPortB7();*/
+	return 'z';
 }
 
 void dummyHandler(char c, int isError){}
 
 void testHandler(char c, int isError)
 {
-	if(isError)
+	if(isError){
+		lightLedPortB7();
 		sendSpuMsg("\r\nerrah");
+	}
 	else if('B' == c){
-    	lightLedPortB7();
+    	
     	sendSpuMsg("\r\ngot char=");
     	char msg[2];
     	msg[0]=c;
@@ -35,16 +39,18 @@ void testHandler(char c, int isError)
 int main(void)
 {
   DDRB = 0xff;
-  PORTB = 0xff;
-  uart_init(dummyHandler, testHandler, dummyHandler, dummyPop, dummyPop,dummyPop);
+  //PORTB = 0xff;
+  uart_init(dummyHandler, testHandler, dummyHandler, dummyPop, dummyPop);
   sei();
-  sendSpuMsg("\r\nhello");
-  startSpuTransmit();
+  sendSpuMsg("\r\nuart_test:START");
+  //startAsyncSpuTransmit();
     while(1)
       {
 	loopTimer0(1000);
 	lightLedPortB6();
-	sendSpuMsg("hello");
+/*	stopAsyncSpuTransmit();
+	sendSpuMsg("HELLO");
+	startAsyncSpuTransmit();*/
       }
 
 }

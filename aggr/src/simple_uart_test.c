@@ -13,28 +13,6 @@ void lightLedPortB7(void)
 }
 
 
-int testUart3(void)
-{
-    //Set up SPU on USART0
-  //Asynchronous UART, no parity, 1 stop bit, 8 data bits, 38400 baud
-  loopTimer0(1000);
-  DDRB=0xff;
-  //
-  UCSR3B = (1<<RXCIE3) | (1<<RXEN3) | (1<<TXEN3);
-  UCSR3C = (1<<UCSZ31) | (1<< UCSZ30);
-  UBRR3 = 23;
-  //
-
-  while(1)
-    {
-      loopTimer0(1000);
-      UCSR3A = UCSR3A & (~(1<<UDRE3));
-      UDR3 = 'B';
-    }
-//
-
-}
-
 int testUart0(void)
 {
     //Set up SPU on USART0
@@ -46,12 +24,13 @@ int testUart0(void)
   UCSR0C = (1<<UCSZ01) | (1<< UCSZ00);
   UBRR0 = 23;
   //
-
+  loopTimer0(5000);
   while(1)
     {
       loopTimer0(1000);
       lightLedPortB7();
-      UCSR0A = UCSR0A & (~(1<<UDRE0));
+      while(!(UCSR0A & (1<<UDRE0)))
+			;
       UDR0 = 'B';
     }
 //
