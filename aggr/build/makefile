@@ -6,6 +6,7 @@ MYSRC = $(SVN_TRUNK)/aggr/src
 MYBIN = $(SVN_TRUNK)/aggr/binaries
 #TARGET=blinky_test
 TARGET=uart_test
+#TARGET=swarm_queues_test
 #TARGET=simple_uart_test
 
 # Default target.
