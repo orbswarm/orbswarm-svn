@@ -1,3 +1,7 @@
+#include <avr/io.h>      // this contains all the IO port definitions
+#include <avr/interrupt.h>
+#include <stdint.h> 
+#include "include/timer0.h"
 
 volatile uint16_t m_unitsOf1ms=0;
 volatile uint16_t timecount=0;

@@ -1,4 +1,8 @@
+#include <avr/io.h>		// include I/O definitions (port names, pin names, etc)
+#include <avr/interrupt.h>	// include interrupt support
 #define UBRR_VAL 23
+#include "include/uart.h"
+
 
 /*  
  * atmega640 UART notes. The 640 has three status and control registers for 

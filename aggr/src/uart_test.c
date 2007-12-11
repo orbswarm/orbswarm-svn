@@ -1,3 +1,5 @@
+#include <avr/io.h>      // this contains all the IO port definitions
+#include <avr/interrupt.h>
 #include "include/uart.h"
 #include "include/timer0.h"
 
