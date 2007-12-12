@@ -103,6 +103,7 @@ void pushSwarmMsgBus(struct SWARM_MSG msg, int isInterruptCtx)
 		  return;
 	  	}
 	  	s_nSwarmMsgBusPopLock--;
+	  	return;
   	}
   	else if(isInterruptCtx)
   		return;
@@ -133,8 +134,9 @@ struct SWARM_MSG popSwarmMsgBus(int isInterruptCtx)
 		  }
 		  nTmpTail= (s_nTailIdx + 1) & SWARM_MSG_BUS_MASK;
 		  s_nTailIdx=nTmpTail;
+		  struct SWARM_MSG tempMsg =s_queue[nTmpTail]; 
 		  s_nSwarmMsgBusPopLock--;
-		  return s_queue[nTmpTail];
+		  return tempMsg;
   		}
   		s_nSwarmMsgBusPopLock--;
   	  }
