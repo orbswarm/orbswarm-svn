@@ -21,3 +21,5 @@ void stopAsyncSpuTransmit(void);
 int isSpuSendInProgress(void);
 
 int isXBeeSendInProgress(void);
+
+void debug(const char *s);

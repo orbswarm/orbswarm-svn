@@ -141,9 +141,9 @@ void sendSpuMsg(const char *s)
     }
 }
 
-void sendDebugMsg(const char *s)
+void debug(const char *s)
 {
-  //sendSpuMsg(s);
+  sendSpuMsg(s);
 }
 
 void startAsyncXBeeTransmit(void)

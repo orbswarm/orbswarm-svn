@@ -6,8 +6,10 @@ MYSRC = $(SVN_TRUNK)/aggr/src
 MYBIN = $(SVN_TRUNK)/aggr/binaries
 #TARGET=blinky_test
 #TARGET=uart_test
-#TARGET=swarm_queues_test
-TARGET=simple_uart_test
+TARGET=swarm_queues_test
+#TARGET=simple_uart_test
+
+all:  $(MYBIN)/$(TARGET).hex
 
 #####AVRDUDE saection for the arduino
 ARDUINO_UPLOAD_RATE = 19200
@@ -46,7 +48,6 @@ upload: $(MYBIN)/$(TARGET).hex
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH)
 
 
-all:  $(MYBIN)/$(TARGET).hex
 
 $(MYBIN)/timer0.o: $(MYSRC)/timer0.c $(MYSRC)/include/timer0.h
 	avr-gcc -funsigned-char -c -g -O3 -Wall -mmcu=$(MCU) \
@@ -56,14 +57,18 @@ $(MYBIN)/uart.o: $(MYSRC)/uart.c $(MYSRC)/include/uart.h
 	avr-gcc -funsigned-char -c -g -O3 -Wall -mmcu=$(MCU) \
 	$< -o $@
 
+$(MYBIN)/swarm_queues.o: $(MYSRC)/swarm_queues.c $(MYSRC)/include/swarm_queues.h
+	avr-gcc -funsigned-char -c -g -O3 -Wall -mmcu=$(MCU) \
+	$< -o $@
+
 $(MYBIN)/$(TARGET).o: $(MYSRC)/$(TARGET).c $(MYBIN)/uart.o \
-$(MYBIN)/timer0.o
+$(MYBIN)/timer0.o $(MYBIN)/swarm_queues.o
 	avr-gcc -funsigned-char -c -g -O3 -Wall -mmcu=$(MCU) $< \
 	-o $@
 
 $(MYBIN)/$(TARGET).elf: $(MYBIN)/$(TARGET).o
 	avr-gcc -funsigned-char $< $(MYBIN)/timer0.o \
-	$(MYBIN)/uart.o -Wl,\
+	$(MYBIN)/uart.o $(MYBIN)/swarm_queues.o -Wl,\
 	-Map=$(MYBIN)/$(TARGET).map,--cref -mmcu=$(MCU) \
 	-o $@
 
