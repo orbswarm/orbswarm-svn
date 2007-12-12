@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdio.h>
 #include "include/swarm_common_defines.h"
 #include "include/swarm_queues.h"
 
@@ -14,6 +15,18 @@ volatile static struct SWARM_MSG s_queue[MAX_SWARM_MSG_BUS_SIZE];
 volatile static unsigned long s_nHeadIdx=0;
 volatile static unsigned long s_nTailIdx=0;
 
+static void (* _debug)(char*) =0;
+
+void initSwarmMsgBus(void (*debug)(const char *c))
+{
+	_debug=debug;
+}
+
+static void DEBUG(char* s)
+{
+	if(_debug != 0)
+		(*_debug)(s);
+}
 
 void pushSpuDataQ(const char* msg)
 {
@@ -69,7 +82,7 @@ void pushXbeeDataQ(const char* msg)
 
 static volatile int s_nSwarmMsgBusPopLock=0;
 
-void pushSwarmMsgBus(struct SWARM_MSG msg)
+void pushSwarmMsgBus(struct SWARM_MSG msg, int isInterruptCtx)
 {
   unsigned long nTmpHead;
   while(1){
@@ -91,12 +104,16 @@ void pushSwarmMsgBus(struct SWARM_MSG msg)
 	  	}
 	  	s_nSwarmMsgBusPopLock--;
   	}
+  	else if(isInterruptCtx)
+  		return;
   }
 }
 
 
-struct SWARM_MSG popSwarmMsgBus(void)
+struct SWARM_MSG popSwarmMsgBus(int isInterruptCtx)
 {
+	char debugMsg[1024];
+  	DEBUG("popSwarmMsgBus:START");
   struct SWARM_MSG msg;
   msg.swarm_msg_type=eLinkNullMsg;
   strcpy(msg.swarm_msg_payload, "Null msg");
@@ -104,6 +121,8 @@ struct SWARM_MSG popSwarmMsgBus(void)
   {
   	  if(s_nSwarmMsgBusPopLock == 0)
   	  {
+  	  	sprintf(debugMsg, "lock is 0 s_nSwarmMsgBusPopLock=%d",s_nSwarmMsgBusPopLock);
+  	  	DEBUG(debugMsg);
   	  	s_nSwarmMsgBusPopLock++;
   		if(1==s_nSwarmMsgBusPopLock)
   		{ 
@@ -118,6 +137,13 @@ struct SWARM_MSG popSwarmMsgBus(void)
 		  return s_queue[nTmpTail];
   		}
   		s_nSwarmMsgBusPopLock--;
+  	  }
+  	  else
+  	  {
+  	  	sprintf(debugMsg, "lock is not 0 s_nSwarmMsgBusPopLock=%d",s_nSwarmMsgBusPopLock);
+  	  	DEBUG(debugMsg);
+  	  	if(isInterruptCtx)
+  	  		return msg;
   	  }
   }
 }
