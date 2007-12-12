@@ -31,7 +31,7 @@ void testSwarmMessageBus(void)
 {
 	struct SWARM_MSG msg;
 	long i;
-	for(i=0; i < MAX_SWARM_MSG_BUS_SIZE + 100; i++)
+	for(i=0; i < MAX_SWARM_MSG_BUS_SIZE + 1000; i++)
 	{
 		msg.swarm_msg_type=eLinkLoopback; 
 		sprintf(msg.swarm_msg_payload, "message num=%ld", i);

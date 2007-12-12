@@ -67,19 +67,31 @@ void pushXbeeDataQ(const char* msg)
 
 }
 
+static volatile int s_nSwarmMsgBusPopLock=0;
 
 void pushSwarmMsgBus(struct SWARM_MSG msg)
 {
   unsigned long nTmpHead;
-  nTmpHead = ( s_nHeadIdx + 1) & SWARM_MSG_BUS_MASK;
-  /*
-  while(nTmpHead == s_nTailIdx)
-    ;
-  */
-  if(nTmpHead == s_nTailIdx)
-    return;
-  s_queue[nTmpHead]=msg;
-  s_nHeadIdx=nTmpHead;
+  while(1){
+  	if(s_nSwarmMsgBusPopLock == 0)
+  	{
+  	  	s_nSwarmMsgBusPopLock++;
+  		if(1==s_nSwarmMsgBusPopLock)
+	  	{
+		  nTmpHead = ( s_nHeadIdx + 1) & SWARM_MSG_BUS_MASK;
+		  while(nTmpHead == s_nTailIdx){
+		  	unsigned long nTmpTail;
+		  	nTmpTail= (s_nTailIdx + 1) & SWARM_MSG_BUS_MASK;
+		  	s_nTailIdx=nTmpTail;
+		  }
+		  s_queue[nTmpHead]=msg;
+		  s_nHeadIdx=nTmpHead;
+		  s_nSwarmMsgBusPopLock--;
+		  return;
+	  	}
+	  	s_nSwarmMsgBusPopLock--;
+  	}
+  }
 }
 
 
@@ -88,10 +100,24 @@ struct SWARM_MSG popSwarmMsgBus(void)
   struct SWARM_MSG msg;
   msg.swarm_msg_type=eLinkNullMsg;
   strcpy(msg.swarm_msg_payload, "Null msg");
-  unsigned long nTmpTail;
-  if(s_nHeadIdx == s_nTailIdx)
-    return msg;
-  nTmpTail= (s_nTailIdx + 1) & SWARM_MSG_BUS_MASK;
-  s_nTailIdx=nTmpTail;
-  return s_queue[nTmpTail];
+  while(1)
+  {
+  	  if(s_nSwarmMsgBusPopLock == 0)
+  	  {
+  	  	s_nSwarmMsgBusPopLock++;
+  		if(1==s_nSwarmMsgBusPopLock)
+  		{ 
+		  unsigned long nTmpTail;
+		  if(s_nHeadIdx == s_nTailIdx){
+		  	s_nSwarmMsgBusPopLock--;
+		    return msg;
+		  }
+		  nTmpTail= (s_nTailIdx + 1) & SWARM_MSG_BUS_MASK;
+		  s_nTailIdx=nTmpTail;
+		  s_nSwarmMsgBusPopLock--;
+		  return s_queue[nTmpTail];
+  		}
+  		s_nSwarmMsgBusPopLock--;
+  	  }
+  }
 }
