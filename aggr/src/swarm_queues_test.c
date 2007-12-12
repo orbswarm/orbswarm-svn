@@ -31,10 +31,10 @@ void testSwarmMessageBus(void)
 	debug("testSwarmMessageBus:START");
 	struct SWARM_MSG msg;
 	long i;
-	for(i=0; i < MAX_SWARM_MSG_BUS_SIZE + 1000; i++)
+	for(i=0; i < MAX_SWARM_MSG_BUS_SIZE -8 ; i++)
 	{
 		msg.swarm_msg_type=eLinkLoopback; 
-		sprintf(msg.swarm_msg_payload, "message num=%ld", i);
+		sprintf(msg.swarm_msg_payload, "message num=%ld", i+500);
 		pushSwarmMsgBus(msg, 0);
 	}
 	 
@@ -59,7 +59,7 @@ ISR(SIG_OVERFLOW0)
     {
     		struct SWARM_MSG msg;
 			long i;
-			for(i=0; i < MAX_SWARM_MSG_BUS_SIZE; i++)
+			for(i=0; i < MAX_SWARM_MSG_BUS_SIZE + 8; i++)
 			{
 				msg.swarm_msg_type=eLinkLoopback; 
 				sprintf(msg.swarm_msg_payload, "message num=%ld", i);

@@ -103,7 +103,6 @@ void pushSwarmMsgBus(struct SWARM_MSG msg, int isInterruptCtx)
 		  return;
 	  	}
 	  	s_nSwarmMsgBusLock--;
-	  	return;
   	}
   	else if(isInterruptCtx)
   		return;
