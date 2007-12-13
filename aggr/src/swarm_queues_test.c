@@ -35,24 +35,26 @@ void testSwarmMessageBus(void)
 	//debug("testSwarmMessageBus:PUSH");
 	struct SWARM_MSG msg;
 	long i;
-	for(i=0; i < MAX_SWARM_MSG_BUS_SIZE -8 ; i++)
+	char debugMsg[1024];
+	for(i=0; i < MAX_SWARM_MSG_BUS_SIZE + 8 ; i++)
 	{
-		char debugMsg[1024];
-		sprintf(debugMsg, "\r\npushing message=%d", (s_MainLoopMsgCounter +1));
+		sprintf(debugMsg, "\r\npushing message=%d", s_MainLoopMsgCounter);
 		//debug(debugMsg);
 		msg.swarm_msg_type=eLinkLoopback; 
-		sprintf(msg.swarm_msg_payload, "MESSAGE NUM=%d", s_MainLoopMsgCounter++);
+		sprintf(msg.swarm_msg_payload, "from main loop "
+		"MESSAGE NUM=%d", s_MainLoopMsgCounter++);
 		pushSwarmMsgBus(msg, 0);
 	}
+	sprintf(debugMsg, "\r\n last inserted id=%d", (s_MainLoopMsgCounter-1));
+	debug(debugMsg);
 	//debug("testSwarmMessageBus:POP"); 
 	msg = popSwarmMsgBus(0);
 	while(eLinkNullMsg != msg.swarm_msg_type)
 	{
-		char strDebugMsg[1024];
-		sprintf(strDebugMsg, "\r\ngot MSG"
+		sprintf(debugMsg, "\r\ngot MSG"
 			"\r\n type=%d"
 			"\r\n payload=%s", msg.swarm_msg_type, msg.swarm_msg_payload);
-		debug(strDebugMsg);
+		debug(debugMsg);
 		msg = popSwarmMsgBus(0);
 	}	
 	//debug("\r\nDone");
@@ -69,13 +71,14 @@ ISR(SIG_OVERFLOW0)
     	{
     		struct SWARM_MSG msg;
 			long i;
-			for(i=0; i < MAX_SWARM_MSG_BUS_SIZE + 8; i++)
+			for(i=0; i < MAX_SWARM_MSG_BUS_SIZE - 8; i++)
 			{
 				char debugMsg[1024];
 				sprintf(debugMsg, "\r\nPUSHING MSG=%d", (s_IntMsgCounter +1));
 				//debug(debugMsg);
 				msg.swarm_msg_type=eLinkLoopback; 
-				sprintf(msg.swarm_msg_payload, "message num=%d", s_IntMsgCounter++);
+				sprintf(msg.swarm_msg_payload, "from isr "
+				"message num=%d", s_IntMsgCounter++);
 				pushSwarmMsgBus(msg, 1);
 			}
     	}
@@ -93,18 +96,38 @@ void initTimer0(uint16_t units1ms)
   TIMSK0= TIMSK0 | (1<<TOIE0);
 }
 
-int main(void)
+void testAnyncMessageBus(void)
 {
 	DDRB = 0xff;
-	initTimer0(1000);
+	initTimer0(5);
 	uart_init(dummyHandler, dummyHandler, dummyHandler, dummyPop, dummyPop);
 	//initSwarmMsgBus(debug);
 	sei();
 	debug("----START");
 	while(1)
 	{
-		if(timecount == m_unitsOf1ms/2)
+		//if(timecount == m_unitsOf1ms/2)
 			testSwarmMessageBus();
 		blinkLedPortB7();
 	}
+}
+
+void testSyncMessageBus(void)
+{
+	DDRB = 0xff;
+	//initTimer0(5);
+	uart_init(dummyHandler, dummyHandler, dummyHandler, dummyPop, dummyPop);
+	//initSwarmMsgBus(debug);
+	sei();
+	debug("----START");
+	while(1)
+	{
+		testSwarmMessageBus();
+	}
+}
+
+int main(void)
+{
+	//testSyncMessageBus();
+	testAnyncMessageBus();
 }
