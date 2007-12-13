@@ -39,7 +39,7 @@ void testSwarmMessageBus(void)
 	{
 		char debugMsg[1024];
 		sprintf(debugMsg, "\r\npushing message=%d", (s_MainLoopMsgCounter +1));
-		debug(debugMsg);
+		//debug(debugMsg);
 		msg.swarm_msg_type=eLinkLoopback; 
 		sprintf(msg.swarm_msg_payload, "MESSAGE NUM=%d", s_MainLoopMsgCounter++);
 		pushSwarmMsgBus(msg, 0);
@@ -55,7 +55,7 @@ void testSwarmMessageBus(void)
 		debug(strDebugMsg);
 		msg = popSwarmMsgBus(0);
 	}	
-	debug("\r\nDone");
+	//debug("\r\nDone");
 }
 volatile uint16_t m_unitsOf1ms=0;
 volatile uint16_t timecount=0;
@@ -73,7 +73,7 @@ ISR(SIG_OVERFLOW0)
 			{
 				char debugMsg[1024];
 				sprintf(debugMsg, "\r\nPUSHING MSG=%d", (s_IntMsgCounter +1));
-				debug(debugMsg);
+				//debug(debugMsg);
 				msg.swarm_msg_type=eLinkLoopback; 
 				sprintf(msg.swarm_msg_payload, "message num=%d", s_IntMsgCounter++);
 				pushSwarmMsgBus(msg, 1);
