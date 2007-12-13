@@ -45,11 +45,11 @@
  *      #B2,1- UCSZn1:0 : Charcter size. For 8 bits, UCSZn2=0, UCSZn1=1, UCSZn0=1	  
  * 		#B0- UCPOLn
  * */
-static void (*  _handleXBeeRecv)(char, int) ;
-static void (*  _handleSpuRecv)(char, int) ;
-static void (* _handleGpsARecv)(char, int) ;
-static char (* _getXBeeOutChar)(void);
-static char (* _getSpuOutChar)(void);
+static void (*volatile _handleXBeeRecv)(char, int) ;
+static void (*volatile _handleSpuRecv)(char, int) ;
+static void (*volatile _handleGpsARecv)(char, int) ;
+static char (*volatile _getXBeeOutChar)(void);
+static char (*volatile _getSpuOutChar)(void);
 //static char (* _getSpuGpsOutChar)(void);
 //static char (* _currentSpuGetter)(void);
 volatile static int s_isSpuSendInProgress=0;

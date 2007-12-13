@@ -36,7 +36,7 @@ void testSwarmMessageBus(void)
 	struct SWARM_MSG msg;
 	long i;
 	char debugMsg[1024];
-	for(i=0; i < MAX_SWARM_MSG_BUS_SIZE + 8 ; i++)
+	for(i=0; i < MAX_SWARM_MSG_BUS_SIZE -1; i++)
 	{
 		sprintf(debugMsg, "\r\npushing message=%d", s_MainLoopMsgCounter);
 		//debug(debugMsg);
@@ -99,7 +99,7 @@ void initTimer0(uint16_t units1ms)
 void testAnyncMessageBus(void)
 {
 	DDRB = 0xff;
-	initTimer0(5);
+	initTimer0(500);
 	uart_init(dummyHandler, dummyHandler, dummyHandler, dummyPop, dummyPop);
 	//initSwarmMsgBus(debug);
 	sei();
@@ -117,7 +117,7 @@ void testSyncMessageBus(void)
 	DDRB = 0xff;
 	//initTimer0(5);
 	uart_init(dummyHandler, dummyHandler, dummyHandler, dummyPop, dummyPop);
-	//initSwarmMsgBus(debug);
+	initSwarmQueues(debug);
 	sei();
 	debug("----START");
 	while(1)
@@ -130,4 +130,6 @@ int main(void)
 {
 	//testSyncMessageBus();
 	testAnyncMessageBus();
+	return 0;
 }
+

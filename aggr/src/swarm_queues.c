@@ -12,71 +12,142 @@ volatile static char s_xbeeDataQueue[MAX_XBEE_MSG_QUEUE_SIZE];
 volatile static unsigned long s_xbeeDataQueueHeadIdx=0;
 volatile static unsigned long s_xbeeDataQueueTailIdx=0;
 
-volatile static struct SWARM_MSG s_queue[MAX_SWARM_MSG_BUS_SIZE];
-volatile static unsigned long s_nHeadIdx=0;
-volatile static unsigned long s_nTailIdx=0;
+volatile static struct SWARM_MSG s_swarmMsgBus[MAX_SWARM_MSG_BUS_SIZE];
+volatile static unsigned long s_nSwarmMsgBusHeadIdx=0;
+volatile static unsigned long s_nSwarmMsgBusTailIdx=0;
 
-static void (* _debug)(const char*) =0;
+static void (* volatile s_debug)(const char*) =0;
 
-void initSwarmMsgBus(void (*debug)(const char* c))
+static int isDebug(void)
 {
-	_debug=debug;
+	if(0 == s_debug)
+		return 0;
+	else
+		return 1;
+}
+
+void initSwarmQueues(void (*debug)(const char* c))
+{
+	s_debug=debug;
 }
 
 static void DEBUG(const char* s)
 {
-	if(_debug != 0)
-		(*_debug)(s);
+	if(s_debug != 0)
+		(*s_debug)(s);
 }
 
-void pushSpuDataQ(const char* msg)
+void pushSpuDataQ(const char* msg, int isInterruptCtx)
 {
   while(*msg)
     {
       unsigned long nTmpHead;
+      /*
+       * It's ok to have the critical section inside the while loop
+       * because only the main loop will be calling this method. If
+       * that were not the case we would need to have it outside the while 
+       * loop otherwise the messages would get jumbled up. 
+       */ 
+      ////////start critical section
+      if(!isInterruptCtx)
+      	cli();
       nTmpHead = ( s_spuDataQueueHeadIdx + 1) & SPU_Q_MASK;
       if (nTmpHead == s_spuDataQueueTailIdx)
-		return;
-      s_spuDataQueue[nTmpHead]=*msg++;
-      s_spuDataQueueHeadIdx=nTmpHead;
+      {
+		//first pop oldest entry
+		unsigned long nTmpTail;
+	  	nTmpTail= (s_spuDataQueueTailIdx + 1) & SPU_Q_MASK;
+  		s_spuDataQueueTailIdx=nTmpTail;
+  		//the discarded element is s_spuDataQueue[nTmpTail];
+  		s_spuDataQueue[nTmpHead]=*msg;
+      	s_spuDataQueueHeadIdx=nTmpHead;
+      }
+      else
+      {
+      	s_spuDataQueue[nTmpHead]=*msg;
+      	s_spuDataQueueHeadIdx=nTmpHead;
+      }
+      if(!isInterruptCtx)
+      	sei();
+      ////////end critical section
+      msg++;
     }
   
 }
 
-char popSpuDataQ(void)
+char popSpuDataQ(int isInterruptCtx)
 {
   unsigned long nTmpTail;
-  if(s_spuDataQueueHeadIdx == s_spuDataQueueTailIdx)
+  char retChar=0;
+  ////////start critical section
+  if(!isInterruptCtx)
+   	cli();
+  if(s_spuDataQueueHeadIdx != s_spuDataQueueTailIdx)
     {
-       return 0;
+  		nTmpTail= (s_spuDataQueueTailIdx + 1) & SPU_Q_MASK;
+  		s_spuDataQueueTailIdx=nTmpTail;
+  		retChar=s_spuDataQueue[nTmpTail];
     }
-  nTmpTail= (s_spuDataQueueTailIdx + 1) & SPU_Q_MASK;
-  s_spuDataQueueTailIdx=nTmpTail;
-  return s_spuDataQueue[nTmpTail];
+  if(!isInterruptCtx)
+   	sei();
+  ////////end critical section
+  return retChar;
 }
 
-char popXbeeDataQ(void)
+char popXbeeDataQ(int isInterruptCtx)
 {
   unsigned long nTmpTail;
-  if(s_xbeeDataQueueHeadIdx == s_xbeeDataQueueTailIdx)
+  char retChar=0;
+  ////////start critical section
+  if(!isInterruptCtx)
+   	cli();
+  if(s_xbeeDataQueueHeadIdx != s_xbeeDataQueueTailIdx)
     {
-       return 0;
+    	nTmpTail= (s_xbeeDataQueueTailIdx + 1) & XBEE_Q_MASK;
+  		s_xbeeDataQueueTailIdx=nTmpTail;
+  		retChar= s_xbeeDataQueue[nTmpTail];
     }
-  nTmpTail= (s_xbeeDataQueueTailIdx + 1) & XBEE_Q_MASK;
-  s_xbeeDataQueueTailIdx=nTmpTail;
-  return s_xbeeDataQueue[nTmpTail];
+
+  if(!isInterruptCtx)
+   	sei();
+  ////////end critical section
+  return retChar;
 }
 
-void pushXbeeDataQ(const char* msg)
+void pushXbeeDataQ(const char* msg, int isInterruptCtx)
 {
   while(*msg)
     {
       unsigned long nTmpHead;
+      /*
+       * It's ok to have the critical section inside the while loop
+       * because only the main loop will be calling this method. If
+       * that were not the case we would need to have it outside the while 
+       * loop otherwise the messages would get jumbled up. 
+       */ 
+      ////////start critical section
+      if(!isInterruptCtx)
+      	cli();
       nTmpHead = ( s_xbeeDataQueueHeadIdx + 1) & XBEE_Q_MASK;
       if(nTmpHead == s_xbeeDataQueueTailIdx)
-		return;
-      s_xbeeDataQueue[nTmpHead]=*msg++;
-      s_xbeeDataQueueHeadIdx=nTmpHead;
+      {
+      	//first pop oldest entry
+		unsigned long nTmpTail;
+		nTmpTail= (s_xbeeDataQueueTailIdx + 1) & XBEE_Q_MASK;
+  		s_xbeeDataQueueTailIdx=nTmpTail;
+  		//discarded char is s_xbeeDataQueue[nTmpTail];
+  		s_xbeeDataQueue[nTmpHead]=*msg;
+      	s_xbeeDataQueueHeadIdx=nTmpHead;
+      }
+      else
+	  {	
+      	s_xbeeDataQueue[nTmpHead]=*msg;
+      	s_xbeeDataQueueHeadIdx=nTmpHead;
+	  }
+      if(!isInterruptCtx)
+      	sei();
+      ////////end critical section
+      msg++;
     }
 
 }
@@ -85,34 +156,38 @@ static volatile int s_nSwarmMsgBusLock=0;
 
 void pushSwarmMsgBus(struct SWARM_MSG msg, int isInterruptCtx)
 {
-  	//DEBUG("pushSwarmMsgBus:START");
+	//if(isDebug())
+  	//	DEBUG("pushSwarmMsgBus:START");
   	unsigned long nTmpHead;
+  	char debugMsg[1024];
   	//////critical section start
   	if(!isInterruptCtx)
   		cli();
-  	nTmpHead = ( s_nHeadIdx + 1) & SWARM_MSG_BUS_MASK;
-  	if(nTmpHead != s_nTailIdx)
+  	nTmpHead = ( s_nSwarmMsgBusHeadIdx + 1) & SWARM_MSG_BUS_MASK;
+  	if(nTmpHead != s_nSwarmMsgBusTailIdx)
 	{
-  		s_queue[nTmpHead]=msg;
-  		
-  		char debugMsg[1024];
-  		sprintf(debugMsg, "\r\n old head idx=%ld, new head idx=%ld, tail idx=%ld", 
-  			s_nHeadIdx,nTmpHead, s_nTailIdx);
-  		DEBUG(debugMsg);
-  		
-  		s_nHeadIdx=nTmpHead;
+		if(isDebug())
+		{
+	  		sprintf(debugMsg, "\r\n old head idx=%ld, new head idx=%ld, tail idx=%ld", 
+	  			s_nSwarmMsgBusHeadIdx,nTmpHead, s_nSwarmMsgBusTailIdx);
+	  		DEBUG(debugMsg);
+		}
+
+  		s_swarmMsgBus[nTmpHead]=msg;  		
+  		s_nSwarmMsgBusHeadIdx=nTmpHead;
 	}
 	else
 	{
-		DEBUG("\r\n PUSH Q FULL");
+		if(isDebug())
+			DEBUG("\r\n PUSH Q FULL");
 		//first pop oldest message
 		unsigned long nTmpTail;
-  		nTmpTail= (s_nTailIdx + 1) & SWARM_MSG_BUS_MASK; 
-  		s_nTailIdx=nTmpTail;
+  		nTmpTail= (s_nSwarmMsgBusTailIdx + 1) & SWARM_MSG_BUS_MASK; 
+  		s_nSwarmMsgBusTailIdx=nTmpTail;
   		//discarded message is s_queue[nTmpTail];
   		//now push new msg
-  		s_queue[nTmpHead]=msg;
-  		s_nHeadIdx=nTmpHead;
+  		s_swarmMsgBus[nTmpHead]=msg;
+  		s_nSwarmMsgBusHeadIdx=nTmpHead;
 	}
   	if(!isInterruptCtx)
 		sei();
@@ -123,7 +198,9 @@ void pushSwarmMsgBus(struct SWARM_MSG msg, int isInterruptCtx)
 
 struct SWARM_MSG popSwarmMsgBus(int isInterruptCtx)
 {
-  	DEBUG("popSwarmMsgBus:START");
+	char debugMsg[1024];
+	if(isDebug())
+  		DEBUG("popSwarmMsgBus:START");
   	struct SWARM_MSG msg;
   	msg.swarm_msg_type=eLinkNullMsg; 
   	unsigned long nTmpTail;
@@ -131,23 +208,31 @@ struct SWARM_MSG popSwarmMsgBus(int isInterruptCtx)
   	if(!isInterruptCtx)
   		cli();
   
-	char debugMsg[1024];
-	sprintf(debugMsg, "\r\n tail_idx=%ld, head_ix=%ld", s_nTailIdx, s_nHeadIdx);
-	DEBUG(debugMsg);		
-	if(s_nHeadIdx != s_nTailIdx)
+  	if(isDebug())
+  	{
+		sprintf(debugMsg, "\r\n tail_idx=%ld, head_ix=%ld", s_nSwarmMsgBusTailIdx, s_nSwarmMsgBusHeadIdx);
+		DEBUG(debugMsg);
+  	}		
+	if(s_nSwarmMsgBusHeadIdx != s_nSwarmMsgBusTailIdx)
 	{
-  		nTmpTail= (s_nTailIdx + 1) & SWARM_MSG_BUS_MASK;
+  		nTmpTail= (s_nSwarmMsgBusTailIdx + 1) & SWARM_MSG_BUS_MASK;
   		
-  		sprintf(debugMsg, "\r\n old tail idx=%ld, new tail idx=%ld"
-  		",head idx=%ld", 
-  			s_nTailIdx,nTmpTail, s_nHeadIdx);
-  		DEBUG(debugMsg);
+  		if(isDebug())
+  		{
+	  		sprintf(debugMsg, "\r\n old tail idx=%ld, new tail idx=%ld"
+	  		",head idx=%ld", 
+	  			s_nSwarmMsgBusTailIdx,nTmpTail, s_nSwarmMsgBusHeadIdx);
+	  		DEBUG(debugMsg);
+  		}
   		
-  		s_nTailIdx=nTmpTail;
-  		msg= s_queue[nTmpTail];
+  		s_nSwarmMsgBusTailIdx=nTmpTail;
+  		msg= s_swarmMsgBus[nTmpTail];
 	}
 	else
-		DEBUG("\r\npop Q is empty");
+	{
+		if(isDebug())
+			DEBUG("\r\npop Q is empty");
+	}
 	//else msg remains in it's initialized state i.e null
 	if(!isInterruptCtx)
 		sei();

@@ -19,13 +19,13 @@
 #endif
 
 
-void pushSpuDataQ(const char* msg);
-char popSpuDataQ(void);
+void pushSpuDataQ(const char* msg, int isInterruptCtx);
+char popSpuDataQ(int isInterruptCtx);
 
-char popXbeeDataQ(void);
-void pushXbeeDataQ(const char* msg);
+char popXbeeDataQ(int isInterruptCtx);
+void pushXbeeDataQ(const char* msg, int isInterruptCtx);
 
-void initSwarmMsgBus(void (*debug)(const char *c));
+void initSwarmQueues(void (*debug)(const char *c));
 void pushSwarmMsgBus(struct SWARM_MSG msg, int isInterruptCtx);
 struct SWARM_MSG popSwarmMsgBus(int isInterruptCtx);
 	
