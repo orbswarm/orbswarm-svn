@@ -144,7 +144,7 @@ struct SWARM_MSG popSwarmMsgBus(int isInterruptCtx)
   		DEBUG(debugMsg);
   		
   		s_nTailIdx=nTmpTail;
-  		return s_queue[nTmpTail];
+  		msg= s_queue[nTmpTail];
 	}
 	else
 		DEBUG("\r\npop Q is empty");
