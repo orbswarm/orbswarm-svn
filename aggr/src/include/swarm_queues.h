@@ -26,39 +26,6 @@ char popXbeeDataQ(void);
 void pushXbeeDataQ(const char* msg);
 
 void initSwarmMsgBus(void (*debug)(const char *c));
-/*
- * The push() and pop() methods are guarded by a mutex. The strategy for 
- * lock acquire and release is -
- * while(1){
- * 		if(lock ==0)
- * 		{
- * 			lock++;
- * 	    	if(lock ==1)
- * 			{
- * 				//lock acquired
- * 				//do your stuff
- * 				lock --;
- * 				return;
- * 			}
- * 			else
- * 				lock --;
- * 		}
- * 		else if(ctx == interrupt)
- * 			return;
- * }
- * The difference is in the context in which they are invoked
- * Main Thread: In this context the method will loop infinitely trying to
- * acquire a lock.
- * Interrupt handler: In this context the method will return immediately 
- * with a no-op(will return "null" msg for pop()). There is also always the
- * possibilty of losing a message during a push() from the interrupt handler.
- * If possible design you are app so that there are no push()'s from the
- * interrupt handler.
- * 
- * The rationale behind is that there no time slicing in the processor.
- * The interrupt handler always has higher priority and will loop infinitely
- * if wiaitng for lock already acquired by the main thread
- */
 void pushSwarmMsgBus(struct SWARM_MSG msg, int isInterruptCtx);
 struct SWARM_MSG popSwarmMsgBus(int isInterruptCtx);
 	

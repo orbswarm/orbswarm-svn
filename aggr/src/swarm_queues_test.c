@@ -8,6 +8,9 @@
 #include "include/swarm_queues.h"
 #include "include/uart.h"
 
+volatile static int s_IntMsgCounter=0;
+volatile static int s_MainLoopMsgCounter=0;
+
 void blinkLedPortB6(void)
 {
   PORTB = PORTB ^ (1<<PB6);
@@ -28,16 +31,20 @@ void dummyHandler(char c, int isError){}
 
 void testSwarmMessageBus(void)
 {
-	debug("testSwarmMessageBus:START");
+	//debug("testSwarmMessageBus:START");
+	//debug("testSwarmMessageBus:PUSH");
 	struct SWARM_MSG msg;
 	long i;
 	for(i=0; i < MAX_SWARM_MSG_BUS_SIZE -8 ; i++)
 	{
+		char debugMsg[1024];
+		sprintf(debugMsg, "\r\npushing message=%d", (s_MainLoopMsgCounter +1));
+		debug(debugMsg);
 		msg.swarm_msg_type=eLinkLoopback; 
-		sprintf(msg.swarm_msg_payload, "message num=%ld", i+500);
+		sprintf(msg.swarm_msg_payload, "MESSAGE NUM=%d", s_MainLoopMsgCounter++);
 		pushSwarmMsgBus(msg, 0);
 	}
-	 
+	//debug("testSwarmMessageBus:POP"); 
 	msg = popSwarmMsgBus(0);
 	while(eLinkNullMsg != msg.swarm_msg_type)
 	{
@@ -48,6 +55,7 @@ void testSwarmMessageBus(void)
 		debug(strDebugMsg);
 		msg = popSwarmMsgBus(0);
 	}	
+	debug("\r\nDone");
 }
 volatile uint16_t m_unitsOf1ms=0;
 volatile uint16_t timecount=0;
@@ -57,15 +65,20 @@ ISR(SIG_OVERFLOW0)
   TCNT0=26;
   if(++timecount == m_unitsOf1ms)
     {
+    	if(1)
+    	{
     		struct SWARM_MSG msg;
 			long i;
 			for(i=0; i < MAX_SWARM_MSG_BUS_SIZE + 8; i++)
 			{
+				char debugMsg[1024];
+				sprintf(debugMsg, "\r\nPUSHING MSG=%d", (s_IntMsgCounter +1));
+				debug(debugMsg);
 				msg.swarm_msg_type=eLinkLoopback; 
-				sprintf(msg.swarm_msg_payload, "message num=%ld", i);
+				sprintf(msg.swarm_msg_payload, "message num=%d", s_IntMsgCounter++);
 				pushSwarmMsgBus(msg, 1);
 			}
-    	
+    	}
 		timecount=0;
     }
 }
@@ -90,7 +103,8 @@ int main(void)
 	debug("----START");
 	while(1)
 	{
-		testSwarmMessageBus();
+		if(timecount == m_unitsOf1ms/2)
+			testSwarmMessageBus();
 		blinkLedPortB7();
 	}
 }

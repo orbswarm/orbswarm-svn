@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdio.h>
+#include <avr/interrupt.h>
 #include "include/swarm_common_defines.h"
 #include "include/swarm_queues.h"
 
@@ -84,67 +85,72 @@ static volatile int s_nSwarmMsgBusLock=0;
 
 void pushSwarmMsgBus(struct SWARM_MSG msg, int isInterruptCtx)
 {
-  unsigned long nTmpHead;
-  while(1){
-  	if(s_nSwarmMsgBusLock == 0)
-  	{
-  	  	s_nSwarmMsgBusLock++;
-  		if(1==s_nSwarmMsgBusLock)
-	  	{
-		  nTmpHead = ( s_nHeadIdx + 1) & SWARM_MSG_BUS_MASK;
-		  while(nTmpHead == s_nTailIdx){
-		  	unsigned long nTmpTail;
-		  	nTmpTail= (s_nTailIdx + 1) & SWARM_MSG_BUS_MASK;
-		  	s_nTailIdx=nTmpTail;
-		  }
-		  s_queue[nTmpHead]=msg;
-		  s_nHeadIdx=nTmpHead;
-		  s_nSwarmMsgBusLock--;
-		  return;
-	  	}
-	  	s_nSwarmMsgBusLock--;
-  	}
-  	else if(isInterruptCtx)
-  		return;
-  }
+  	//DEBUG("pushSwarmMsgBus:START");
+  	unsigned long nTmpHead;
+  	//////critical section start
+  	if(!isInterruptCtx)
+  		cli();
+  	nTmpHead = ( s_nHeadIdx + 1) & SWARM_MSG_BUS_MASK;
+  	if(nTmpHead != s_nTailIdx)
+	{
+  		s_queue[nTmpHead]=msg;
+  		
+  		char debugMsg[1024];
+  		sprintf(debugMsg, "\r\n old head idx=%ld, new head idx=%ld, tail idx=%ld", 
+  			s_nHeadIdx,nTmpHead, s_nTailIdx);
+  		DEBUG(debugMsg);
+  		
+  		s_nHeadIdx=nTmpHead;
+	}
+	else
+	{
+		DEBUG("\r\n PUSH Q FULL");
+		//first pop oldest message
+		unsigned long nTmpTail;
+  		nTmpTail= (s_nTailIdx + 1) & SWARM_MSG_BUS_MASK; 
+  		s_nTailIdx=nTmpTail;
+  		//discarded message is s_queue[nTmpTail];
+  		//now push new msg
+  		s_queue[nTmpHead]=msg;
+  		s_nHeadIdx=nTmpHead;
+	}
+  	if(!isInterruptCtx)
+		sei();
+	//////critical section end
+	return;
 }
 
 
 struct SWARM_MSG popSwarmMsgBus(int isInterruptCtx)
 {
-	char debugMsg[1024];
   	DEBUG("popSwarmMsgBus:START");
-  struct SWARM_MSG msg;
-  msg.swarm_msg_type=eLinkNullMsg;
-  strcpy(msg.swarm_msg_payload, "Null msg");
-  while(1)
-  {
-  	  if(s_nSwarmMsgBusLock == 0)
-  	  {
-  	  	sprintf(debugMsg, "lock is 0 s_nSwarmMsgBusPopLock=%d",s_nSwarmMsgBusLock);
-  	  	DEBUG(debugMsg);
-  	  	s_nSwarmMsgBusLock++;
-  		if(1==s_nSwarmMsgBusLock)
-  		{ 
-		  unsigned long nTmpTail;
-		  if(s_nHeadIdx == s_nTailIdx){
-		  	s_nSwarmMsgBusLock--;
-		    return msg;
-		  }
-		  nTmpTail= (s_nTailIdx + 1) & SWARM_MSG_BUS_MASK;
-		  s_nTailIdx=nTmpTail;
-		  struct SWARM_MSG tempMsg =s_queue[nTmpTail]; 
-		  s_nSwarmMsgBusLock--;
-		  return tempMsg;
-  		}
-  		s_nSwarmMsgBusLock--;
-  	  }
-  	  else
-  	  {
-  	  	sprintf(debugMsg, "lock is not 0 s_nSwarmMsgBusPopLock=%d",s_nSwarmMsgBusLock);
-  	  	DEBUG(debugMsg);
-  	  	if(isInterruptCtx)
-  	  		return msg;
-  	  }
-  }
+  	struct SWARM_MSG msg;
+  	msg.swarm_msg_type=eLinkNullMsg; 
+  	unsigned long nTmpTail;
+  	//////critical section start
+  	if(!isInterruptCtx)
+  		cli();
+  
+	char debugMsg[1024];
+	sprintf(debugMsg, "\r\n tail_idx=%ld, head_ix=%ld", s_nTailIdx, s_nHeadIdx);
+	DEBUG(debugMsg);		
+	if(s_nHeadIdx != s_nTailIdx)
+	{
+  		nTmpTail= (s_nTailIdx + 1) & SWARM_MSG_BUS_MASK;
+  		
+  		sprintf(debugMsg, "\r\n old tail idx=%ld, new tail idx=%ld"
+  		",head idx=%ld", 
+  			s_nTailIdx,nTmpTail, s_nHeadIdx);
+  		DEBUG(debugMsg);
+  		
+  		s_nTailIdx=nTmpTail;
+  		return s_queue[nTmpTail];
+	}
+	else
+		DEBUG("\r\npop Q is empty");
+	//else msg remains in it's initialized state i.e null
+	if(!isInterruptCtx)
+		sei();
+	//////critical section end
+	return msg;
 }
