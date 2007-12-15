@@ -29,25 +29,10 @@ static char dummyPop(void)
 
 void dummyHandler(char c, int isError){}
 
-void testSwarmMessageBus(void)
+void testSwarmMessageBusMainloop(void)
 {
-	//debug("testSwarmMessageBus:START");
-	//debug("testSwarmMessageBus:PUSH");
 	struct SWARM_MSG msg;
-	long i;
 	char debugMsg[1024];
-	for(i=0; i < MAX_SWARM_MSG_BUS_SIZE -1; i++)
-	{
-		sprintf(debugMsg, "\r\npushing message=%d", s_MainLoopMsgCounter);
-		//debug(debugMsg);
-		msg.swarm_msg_type=eLinkLoopback; 
-		sprintf(msg.swarm_msg_payload, "from main loop "
-		"MESSAGE NUM=%d", s_MainLoopMsgCounter++);
-		pushSwarmMsgBus(msg, 0);
-	}
-	sprintf(debugMsg, "\r\n last inserted id=%d", (s_MainLoopMsgCounter-1));
-	debug(debugMsg);
-	//debug("testSwarmMessageBus:POP"); 
 	msg = popSwarmMsgBus(0);
 	while(eLinkNullMsg != msg.swarm_msg_type)
 	{
@@ -59,10 +44,17 @@ void testSwarmMessageBus(void)
 	}	
 	//debug("\r\nDone");
 }
-volatile uint16_t m_unitsOf1ms=0;
-volatile uint16_t timecount=0;
+static volatile uint16_t m_unitsOf1ms=0;
+static volatile uint16_t timecount=0;
+static void (*volatile _timerHandler)(void)=0;
 
 ISR(SIG_OVERFLOW0)
+{
+	if(0!= _timerHandler)
+		(*_timerHandler)();
+}
+
+void testAsyncMessageBusIntHandler(void)
 {
   TCNT0=26;
   if(++timecount == m_unitsOf1ms)
@@ -87,10 +79,11 @@ ISR(SIG_OVERFLOW0)
 }
 
 
-void initTimer0(uint16_t units1ms)
+void initTimer0(uint16_t units1ms, void (*intHandler)(void))
 {
   timecount=0;
   m_unitsOf1ms=units1ms;
+  _timerHandler=intHandler;
   TCNT0=26;
   TCCR0B = TCCR0B | ((1<<CS01) | (1<<CS00));
   TIMSK0= TIMSK0 | (1<<TOIE0);
@@ -99,15 +92,15 @@ void initTimer0(uint16_t units1ms)
 void testAnyncMessageBus(void)
 {
 	DDRB = 0xff;
-	initTimer0(500);
+	initTimer0(25,testAsyncMessageBusIntHandler);
 	uart_init(dummyHandler, dummyHandler, dummyHandler, dummyPop, dummyPop);
-	//initSwarmMsgBus(debug);
+	initSwarmQueues(debug);
 	sei();
 	debug("----START");
 	while(1)
 	{
 		//if(timecount == m_unitsOf1ms/2)
-			testSwarmMessageBus();
+			testSwarmMessageBusMainloop();
 		blinkLedPortB7();
 	}
 }
@@ -122,14 +115,64 @@ void testSyncMessageBus(void)
 	debug("----START");
 	while(1)
 	{
-		testSwarmMessageBus();
+		testSwarmMessageBusMainloop();
+	}
+}
+
+void testXbeeQueueInAsyncModeMainloop(void)
+{
+	long i;
+	for(i=0; i < MAX_XBEE_MSG_QUEUE_SIZE - 8; i++)
+	{
+		debug("\r\nPUSHING MSG=hello world");
+		pushXbeeDataQ("hello world", 0/*false*/);
+	}
+}
+
+void testXbeeQueueInAsyncModeIntHandler(void)
+{
+//	debug("testXbeeQueueInAsyncModeIntHandler:START");
+  char debugMsg[1024];
+  TCNT0=26;
+  if(++timecount == m_unitsOf1ms)
+    {
+    	if(1)
+    	{
+			char msg = popXbeeDataQ(1);
+			sprintf(debugMsg, "\r\ngot char=%c", msg);
+			debug(debugMsg);
+			while(0 != msg)
+			{
+				msg =popXbeeDataQ(1); 
+				sprintf(debugMsg, "\r\ngot char=%c", msg);
+				debug(debugMsg);
+			}	
+		}
+		timecount=0;
+    }
+}
+
+void testXbeeQueueInAsyncMode(void)
+{
+	DDRB =0xff;
+	initTimer0(500, testXbeeQueueInAsyncModeIntHandler);
+	uart_init(dummyHandler, dummyHandler, dummyHandler, dummyPop, 
+		dummyPop);
+	initSwarmQueues(debug);
+	startAsyncXBeeTransmit();
+	sei();
+	debug("------START");
+	while(1){
+		testXbeeQueueInAsyncModeMainloop();
+		blinkLedPortB7();
 	}
 }
 
 int main(void)
 {
 	//testSyncMessageBus();
-	testAnyncMessageBus();
+	//testAnyncMessageBus();
+	testXbeeQueueInAsyncMode();
 	return 0;
 }
 

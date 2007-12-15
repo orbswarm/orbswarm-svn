@@ -17,6 +17,7 @@ volatile static unsigned long s_nSwarmMsgBusHeadIdx=0;
 volatile static unsigned long s_nSwarmMsgBusTailIdx=0;
 
 static void (* volatile s_debug)(const char*) =0;
+volatile static long s_nSwarmMsgBusRecordSeqNo =0;
 
 static int isDebug(void)
 {
@@ -88,6 +89,11 @@ char popSpuDataQ(int isInterruptCtx)
   		s_spuDataQueueTailIdx=nTmpTail;
   		retChar=s_spuDataQueue[nTmpTail];
     }
+    else
+    {
+    	if(isDebug())
+    		DEBUG("SPU Q is empty");
+    }
   if(!isInterruptCtx)
    	sei();
   ////////end critical section
@@ -107,7 +113,11 @@ char popXbeeDataQ(int isInterruptCtx)
   		s_xbeeDataQueueTailIdx=nTmpTail;
   		retChar= s_xbeeDataQueue[nTmpTail];
     }
-
+  else
+  {
+   	if(isDebug())
+   		DEBUG("XBEE Q is empty");
+  }
   if(!isInterruptCtx)
    	sei();
   ////////end critical section
@@ -131,6 +141,8 @@ void pushXbeeDataQ(const char* msg, int isInterruptCtx)
       nTmpHead = ( s_xbeeDataQueueHeadIdx + 1) & XBEE_Q_MASK;
       if(nTmpHead == s_xbeeDataQueueTailIdx)
       {
+      	if(isDebug())
+      		DEBUG("XBEE Q is full");
       	//first pop oldest entry
 		unsigned long nTmpTail;
 		nTmpTail= (s_xbeeDataQueueTailIdx + 1) & XBEE_Q_MASK;
@@ -152,12 +164,10 @@ void pushXbeeDataQ(const char* msg, int isInterruptCtx)
 
 }
 
-static volatile int s_nSwarmMsgBusLock=0;
-
 void pushSwarmMsgBus(struct SWARM_MSG msg, int isInterruptCtx)
 {
-	//if(isDebug())
-  	//	DEBUG("pushSwarmMsgBus:START");
+	if(isDebug())
+  		DEBUG("pushSwarmMsgBus:START");
   	unsigned long nTmpHead;
   	char debugMsg[1024];
   	//////critical section start
@@ -189,6 +199,7 @@ void pushSwarmMsgBus(struct SWARM_MSG msg, int isInterruptCtx)
   		s_swarmMsgBus[nTmpHead]=msg;
   		s_nSwarmMsgBusHeadIdx=nTmpHead;
 	}
+	s_nSwarmMsgBusRecordSeqNo++;
   	if(!isInterruptCtx)
 		sei();
 	//////critical section end
@@ -201,41 +212,73 @@ struct SWARM_MSG popSwarmMsgBus(int isInterruptCtx)
 	char debugMsg[1024];
 	if(isDebug())
   		DEBUG("popSwarmMsgBus:START");
-  	struct SWARM_MSG msg;
-  	msg.swarm_msg_type=eLinkNullMsg; 
-  	unsigned long nTmpTail;
-  	//////critical section start
-  	if(!isInterruptCtx)
-  		cli();
-  
-  	if(isDebug())
+  	int nTries=0;
+  	while(1)
   	{
-		sprintf(debugMsg, "\r\n tail_idx=%ld, head_ix=%ld", s_nSwarmMsgBusTailIdx, s_nSwarmMsgBusHeadIdx);
-		DEBUG(debugMsg);
-  	}		
-	if(s_nSwarmMsgBusHeadIdx != s_nSwarmMsgBusTailIdx)
-	{
-  		nTmpTail= (s_nSwarmMsgBusTailIdx + 1) & SWARM_MSG_BUS_MASK;
-  		
-  		if(isDebug())
-  		{
-	  		sprintf(debugMsg, "\r\n old tail idx=%ld, new tail idx=%ld"
-	  		",head idx=%ld", 
-	  			s_nSwarmMsgBusTailIdx,nTmpTail, s_nSwarmMsgBusHeadIdx);
-	  		DEBUG(debugMsg);
-  		}
-  		
-  		s_nSwarmMsgBusTailIdx=nTmpTail;
-  		msg= s_swarmMsgBus[nTmpTail];
-	}
-	else
-	{
-		if(isDebug())
-			DEBUG("\r\npop Q is empty");
-	}
-	//else msg remains in it's initialized state i.e null
-	if(!isInterruptCtx)
-		sei();
-	//////critical section end
-	return msg;
+  		struct SWARM_MSG msg;
+  		msg.swarm_msg_type=eLinkNullMsg; 
+  		unsigned long nTmpTail;
+  	
+	  	//////critical section start
+	  	if(!isInterruptCtx)
+	  		cli();
+	  	long nRecordSeq=s_nSwarmMsgBusRecordSeqNo;
+	  	unsigned long nSwarmMsgBusTailIdx=s_nSwarmMsgBusTailIdx;
+	  	unsigned long nSwarmMsgBusHeadIdx=s_nSwarmMsgBusHeadIdx;
+	  	if(!isInterruptCtx)	
+	  		sei();
+	  	//////critical section end 
+	  	
+	  	nTries++;
+	  	if(isDebug())
+	  	{
+			sprintf(debugMsg, "\r\n tail_idx=%ld, head_ix=%ld", nSwarmMsgBusTailIdx, nSwarmMsgBusHeadIdx);
+			DEBUG(debugMsg);
+	  	}		
+		if(nSwarmMsgBusHeadIdx != nSwarmMsgBusTailIdx)
+		{
+	  		nTmpTail= (nSwarmMsgBusTailIdx + 1) & SWARM_MSG_BUS_MASK;
+	  		
+	  		if(isDebug())
+	  		{
+		  		sprintf(debugMsg, "\r\n old tail idx=%ld, new tail idx=%ld"
+		  		",head idx=%ld", 
+		  			nSwarmMsgBusTailIdx,nTmpTail, nSwarmMsgBusHeadIdx);
+		  		DEBUG(debugMsg);
+	  		}
+	  		
+	  		nSwarmMsgBusTailIdx=nTmpTail;
+	  		msg= s_swarmMsgBus[nTmpTail];
+		}
+		else//else msg remains in it's initialized state i.e null
+		{
+			if(isDebug())
+				DEBUG("\r\npop Q is empty");
+		}
+		
+		//////critical section start
+		if(!isInterruptCtx)
+			cli();
+		if(s_nSwarmMsgBusRecordSeqNo == nRecordSeq)
+		{
+	  		s_nSwarmMsgBusTailIdx=nSwarmMsgBusTailIdx;
+	  		s_nSwarmMsgBusHeadIdx=nSwarmMsgBusHeadIdx;
+			s_nSwarmMsgBusRecordSeqNo++;
+			if(!isInterruptCtx)
+				sei();
+			//////critical section end
+			return msg;
+		}
+		else
+		{
+			if(isDebug())
+			{
+				sprintf(debugMsg, "\r\ndiscarding stale message, try %d", nTries);
+				DEBUG(debugMsg);
+			}
+		} 
+		
+		if(!isInterruptCtx)
+			sei();//and continue to the while loop				
+  	}
 }

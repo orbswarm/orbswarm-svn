@@ -5,8 +5,8 @@ SVN_TRUNK = c:/trunk
 MYSRC = $(SVN_TRUNK)/aggr/src
 MYBIN = $(SVN_TRUNK)/aggr/binaries
 #TARGET=blinky_test
-#TARGET=uart_test
-TARGET=swarm_queues_test
+TARGET=uart_test
+#TARGET=swarm_queues_test
 #TARGET=simple_uart_test
 
 all:  $(MYBIN)/$(TARGET).hex
@@ -35,8 +35,6 @@ AVRDUDE_PROGRAMMER = stk500v2
 AVRDUDE_PORT = COM7
 UPLOAD_RATE = 115200
 AVRDUDE_WRITE_FLASH = -U flash:w:$(MYBIN)/$(TARGET).hex:i
-#AVRDUDE_FLAGS = -v -e -p $(MCU) -b $(UPLOAD_RATE) -P $(AVRDUDE_PORT) \
-#	-c $(AVRDUDE_PROGRAMMER)
 AVRDUDE_FLAGS = -v -p $(MCU) -b $(UPLOAD_RATE) -P $(AVRDUDE_PORT) \
 	-c $(AVRDUDE_PROGRAMMER)
 FORMAT = ihex 		# create a .hex file
@@ -66,9 +64,31 @@ $(MYBIN)/timer0.o $(MYBIN)/swarm_queues.o
 	avr-gcc -funsigned-char -c -g -O3 -Wall -mmcu=$(MCU) $< \
 	-o $@
 
-$(MYBIN)/$(TARGET).elf: $(MYBIN)/$(TARGET).o
-	avr-gcc -funsigned-char $< $(MYBIN)/timer0.o \
-	$(MYBIN)/uart.o $(MYBIN)/swarm_queues.o -Wl,\
+$(MYBIN)/blinky_test.elf: $(MYBIN)/blinky_test.o
+	avr-gcc -funsigned-char $< \
+	$(MYBIN)/uart.o $(MYBIN)/swarm_queues.o \
+	$(MYBIN)/timer0.o -Wl,\
+	-Map=$(MYBIN)/$(TARGET).map,--cref -mmcu=$(MCU) \
+	-o $@
+
+$(MYBIN)/simple_uart_test.elf: $(MYBIN)/simple_uart_test.o
+	avr-gcc -funsigned-char $< \
+	$(MYBIN)/uart.o $(MYBIN)/swarm_queues.o \
+	$(MYBIN)/timer0.o -Wl,\
+	-Map=$(MYBIN)/$(TARGET).map,--cref -mmcu=$(MCU) \
+	-o $@
+
+$(MYBIN)/uart_test.elf: $(MYBIN)/uart_test.o
+	avr-gcc -funsigned-char $< \
+	$(MYBIN)/uart.o $(MYBIN)/swarm_queues.o \
+	$(MYBIN)/timer0.o -Wl,\
+	-Map=$(MYBIN)/$(TARGET).map,--cref -mmcu=$(MCU) \
+	-o $@
+
+$(MYBIN)/swarm_queues_test.elf: $(MYBIN)/swarm_queues_test.o
+	avr-gcc -funsigned-char $< \
+	$(MYBIN)/uart.o $(MYBIN)/swarm_queues.o \
+	-Wl,\
 	-Map=$(MYBIN)/$(TARGET).map,--cref -mmcu=$(MCU) \
 	-o $@
 
