@@ -8,13 +8,13 @@ enum ESpuStraightSerialRxStates {
   eSpuStraightSerialRxPayload
 };
 
-volatile static int spu_rx_state=eSpuStraightSerialRxInit;
-volatile static int spu_rx_is_error=0;
-volatile static unsigned long spu_rx_state_byte_num=0;
-volatile static struct SWARM_MSG spu_rx_packet;
-static void (* volatile _debugCallback)(void)=0;
-static void (* volatile _debug)(const char* debugMsg)=0;
-static void (* volatile _pushSwarmMsgBus)(struct SWARM_MSG msg, 
+volatile static int s_nSpuRxState=eSpuStraightSerialRxInit;
+volatile static int s_isSpuRxError=0;
+volatile static unsigned long s_nSpuRxStateByteNum=0;
+volatile static struct SWARM_MSG s_spuRxPacket;
+static void (* volatile s_debugCallback)(void)=0;
+static void (* volatile s_debug)(const char* debugMsg)=0;
+static void (* volatile s_pushSwarmMsgBus)(struct SWARM_MSG msg, 
 											int isInterruptCtx);
 
 void initSpuModule( void (*pushSwarmMsgBus)(struct SWARM_MSG msg, 
@@ -22,21 +22,21 @@ void initSpuModule( void (*pushSwarmMsgBus)(struct SWARM_MSG msg,
 			void (*debugCallback)(void),
 		    void (*debug)(const char*) )
 {
-  _debugCallback=debugCallback;
-  _debug=debug;
-  _pushSwarmMsgBus=pushSwarmMsgBus;
+  s_debugCallback=debugCallback;
+  s_debug=debug;
+  s_pushSwarmMsgBus=pushSwarmMsgBus;
 }
 
 static void debugCallback(void)
 {
-  if(0 != _debugCallback)
-    (*_debugCallback)();
+  if(0 != s_debugCallback)
+    (*s_debugCallback)();
 }
 
 static void debug(const char* debugMsg)
 {
-  if(0 != _debug)
-    (*_debug)(debugMsg);
+  if(0 != s_debug)
+    (*s_debug)(debugMsg);
 }
 
 /**
@@ -45,17 +45,18 @@ static void debug(const char* debugMsg)
  */
 static void initSpuMsgStart(char c)
 {
-  spu_rx_state=eSpuStraightSerialRxStartMsg;
-  spu_rx_state_byte_num=0;
-  spu_rx_is_error=0;
-  spu_rx_packet.swarm_msg_type=eLinkSpuMsg;
-  spu_rx_packet.swarm_msg_payload[spu_rx_state_byte_num]=c;
+  s_nSpuRxState=eSpuStraightSerialRxStartMsg;
+  s_nSpuRxStateByteNum=0;
+  s_isSpuRxError=0;
+  s_spuRxPacket.swarm_msg_type=eLinkSpuMsg;
+  s_spuRxPacket.swarm_msg_payload[s_nSpuRxStateByteNum]=c;
 }
 
 void handleSpuSerial(char c, int isError)
 {
+	debugCallback();
 	char strDebugMsg[1024];
-	sprintf(strDebugMsg, "\r\nhandleSpuSerial.state=%d", spu_rx_state);
+	sprintf(strDebugMsg, "\r\nhandleSpuSerial.state=%d", s_nSpuRxState);
 	debug(strDebugMsg);
 	sprintf(strDebugMsg, "\r\nhandleSpuSerial.char=%c",c); 
   debug(strDebugMsg);
@@ -64,13 +65,12 @@ void handleSpuSerial(char c, int isError)
 
     debug("error flag set");
 
-    spu_rx_is_error=isError;
+    s_isSpuRxError=isError;
     return;
   }
-  switch(spu_rx_state){
+  switch(s_nSpuRxState){
   case eSpuStraightSerialRxInit:
     if('$'==c){
-      debugCallback();
       initSpuMsgStart(c);
     }
     break;
@@ -80,28 +80,28 @@ void handleSpuSerial(char c, int isError)
       initSpuMsgStart(c);
     }
     else{
-      spu_rx_state=eSpuStraightSerialRxPayload;
-      spu_rx_state_byte_num++;
-      spu_rx_packet.swarm_msg_payload[spu_rx_state_byte_num]=c;
+      s_nSpuRxState=eSpuStraightSerialRxPayload;
+      s_nSpuRxStateByteNum++;
+      s_spuRxPacket.swarm_msg_payload[s_nSpuRxStateByteNum]=c;
     }
     break;
   case eSpuStraightSerialRxPayload:
      if('$'==c)
      {
 		 //if not error first dispatch old message
-	 	if(!spu_rx_is_error){
-	   		spu_rx_packet.swarm_msg_payload[spu_rx_state_byte_num+1]='\0';
+	 	if(!s_isSpuRxError){
+	   		s_spuRxPacket.swarm_msg_payload[s_nSpuRxStateByteNum+1]='\0';
 	   		debug("pushing in Q");
-	   		(*_pushSwarmMsgBus)(spu_rx_packet, 1/*true*/);
+	   		(*s_pushSwarmMsgBus)(s_spuRxPacket, 1/*true*/);
 	 	}
 	 	initSpuMsgStart(c);
      }
      else
      {
 	 	//check for max size
-	 	spu_rx_state_byte_num++;
-	 	if(spu_rx_state_byte_num <= MAX_SWARM_MSG_LENGTH )
-	   		spu_rx_packet.swarm_msg_payload[spu_rx_state_byte_num]=c;
+	 	s_nSpuRxStateByteNum++;
+	 	if(s_nSpuRxStateByteNum <= MAX_SWARM_MSG_LENGTH )
+	   		s_spuRxPacket.swarm_msg_payload[s_nSpuRxStateByteNum]=c;
 	   	else
 	   		debug("maximum size exceeded for message");
 	 	//else ignore till the end
