@@ -6,17 +6,7 @@
 
 enum ELinkPacketType {
   eLinkNullMsg = 0x00,
-  eLinkRTCM,            
-  eLinkMotorControl,
-  eLinkArt,
-  eLinkNMEA,
-  eLinkNavigation,            
-  eLinkCCS,                   
-  eLinkConsole,
-  eLinkCodeDownload,
-  eLinkLoopback,
-  eLinkSonar,
-  eLinkAck,
+  eLinkXbeeMsg,
   eLinkSpuMsg, //poll from the spu for GPS or XBee data
   eLinkLastPacketType
 };

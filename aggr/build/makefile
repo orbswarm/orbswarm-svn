@@ -8,7 +8,8 @@ MYBIN = $(SVN_TRUNK)/aggr/binaries
 #TARGET=uart_test
 #TARGET=swarm_queues_test
 #TARGET=simple_uart_test
-TARGET=spu_test
+#TARGET=spu_test
+TARGET=xbee_test
 
 all:  $(MYBIN)/$(TARGET).hex
 
@@ -64,8 +65,13 @@ $(MYBIN)/spu.o: $(MYSRC)/spu.c $(MYSRC)/include/spu.h
 	avr-gcc -funsigned-char -c -g -O3 -Wall -mmcu=$(MCU) \
 	$< -o $@
 
+$(MYBIN)/xbee.o: $(MYSRC)/xbee.c $(MYSRC)/include/xbee.h
+	avr-gcc -funsigned-char -c -g -O3 -Wall -mmcu=$(MCU) \
+	$< -o $@
+
 $(MYBIN)/$(TARGET).o: $(MYSRC)/$(TARGET).c $(MYBIN)/uart.o \
-$(MYBIN)/timer0.o $(MYBIN)/swarm_queues.o $(MYBIN)/spu.o
+$(MYBIN)/timer0.o $(MYBIN)/swarm_queues.o $(MYBIN)/spu.o \
+$(MYBIN)/xbee.o 
 	avr-gcc -funsigned-char -c -g -O3 -Wall -mmcu=$(MCU) $< \
 	-o $@
 
@@ -101,6 +107,13 @@ $(MYBIN)/spu_test.elf: $(MYBIN)/spu_test.o
 	avr-gcc -funsigned-char $< \
 	$(MYBIN)/uart.o $(MYBIN)/swarm_queues.o \
 	$(MYBIN)/spu.o -Wl,\
+	-Map=$(MYBIN)/$(TARGET).map,--cref -mmcu=$(MCU) \
+	-o $@
+
+$(MYBIN)/xbee_test.elf: $(MYBIN)/xbee_test.o
+	avr-gcc -funsigned-char $< \
+	$(MYBIN)/uart.o $(MYBIN)/swarm_queues.o \
+	$(MYBIN)/xbee.o -Wl,\
 	-Map=$(MYBIN)/$(TARGET).map,--cref -mmcu=$(MCU) \
 	-o $@
 

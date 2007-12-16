@@ -4,7 +4,7 @@
 #include <avr/interrupt.h>
 
 #include "include/swarm_common_defines.h"
-#include "include/spu.h"
+#include "include/xbee.h"
 #include "include/uart.h"
 #include "include/swarm_queues.h"
 
@@ -39,10 +39,10 @@ ISR(SIG_OVERFLOW0)
   TCNT0=26;
   if(++timecount == m_unitsOf1ms)
     {
-		char* msg="$Ag*$";
+		char* msg="{hello world}";
 		while(*msg)
 		{
-			handleSpuSerial(*msg++, 0/*No error*/, 1/*interrupt handler ctx*/);	
+			handleXbeeSerial(*msg++, 0/*No error*/, 1/*interrupt handler ctx*/);	
 		}
 		timecount=0;
     }
@@ -71,7 +71,7 @@ int main(void)
 {
 	DDRB = 0xff;
 	initTimer0(25);
-	initSpuModule(pushSwarmMsgBus, blinkLedPortB7, debug);
+	initXbeeModule(pushSwarmMsgBus, blinkLedPortB7, debug);
 	uart_init(dummyHandler, dummyHandler, dummyHandler, dummyPop, dummyPop);
 	//initSwarmQueues(debug);
 	sei();

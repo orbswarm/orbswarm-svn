@@ -52,7 +52,7 @@ static void initSpuMsgStart(char c)
   s_spuRxPacket.swarm_msg_payload[s_nSpuRxStateByteNum]=c;
 }
 
-void handleSpuSerial(char c, int isError)
+void handleSpuSerial(char c, int isError,int isInterruptCtx)
 {
 	debugCallback();
 	char strDebugMsg[1024];
@@ -92,7 +92,7 @@ void handleSpuSerial(char c, int isError)
 	 	if(!s_isSpuRxError){
 	   		s_spuRxPacket.swarm_msg_payload[s_nSpuRxStateByteNum+1]='\0';
 	   		debug("pushing in Q");
-	   		(*s_pushSwarmMsgBus)(s_spuRxPacket, 1/*true*/);
+	   		(*s_pushSwarmMsgBus)(s_spuRxPacket, isInterruptCtx);
 	 	}
 	 	initSpuMsgStart(c);
      }
