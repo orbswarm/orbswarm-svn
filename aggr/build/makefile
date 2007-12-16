@@ -59,8 +59,12 @@ $(MYBIN)/swarm_queues.o: $(MYSRC)/swarm_queues.c $(MYSRC)/include/swarm_queues.h
 	avr-gcc -funsigned-char -c -g -O3 -Wall -mmcu=$(MCU) \
 	$< -o $@
 
+$(MYBIN)/spu.o: $(MYSRC)/spu.c $(MYSRC)/include/spu.h
+	avr-gcc -funsigned-char -c -g -O3 -Wall -mmcu=$(MCU) \
+	$< -o $@
+
 $(MYBIN)/$(TARGET).o: $(MYSRC)/$(TARGET).c $(MYBIN)/uart.o \
-$(MYBIN)/timer0.o $(MYBIN)/swarm_queues.o
+$(MYBIN)/timer0.o $(MYBIN)/swarm_queues.o $(MYBIN)/spu.o
 	avr-gcc -funsigned-char -c -g -O3 -Wall -mmcu=$(MCU) $< \
 	-o $@
 
