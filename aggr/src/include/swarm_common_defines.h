@@ -3,6 +3,7 @@
 
 #include <avr/io.h>
 #define MAX_SWARM_MSG_LENGTH 96
+#define MAX_GPS_PACKET_LENGTH 100
 
 enum ELinkPacketType {
   eLinkNullMsg = 0x00,
