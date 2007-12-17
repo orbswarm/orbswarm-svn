@@ -12,7 +12,7 @@ static volatile uint16_t timecount=0;
 
 const char *const s_strGpggaMsg="$GPGGA,093702.600,3743.983356,N,"
 			"12222.601505,W,1,9,1.04,1.033,M,-25.322,M,,*64";
-const char *const s_strGpvtgMsg="$GPVTG,0.00,T,,M,0.000,N,0.001,K,A*3C";
+const char *const s_strGpvtgMsg="$GPVTG,0.00,T,,M,0.000,N,0.001,K,A*3";
 
 void blinkLedPortB6(void)
 {
