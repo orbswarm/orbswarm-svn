@@ -147,6 +147,8 @@ void handleGpsSerial(char c, int isError, int isInterruptCtx)
   	char strDebugMsg[1024];
 /*   debug("\n got char:"); */
 /*   debug(dmesgc); */
+	sprintf(strDebugMsg, "\r\n got char=%c", c);
+	debug(strDebugMsg);
 
   if(isError)
     debug("errror flag set");
@@ -288,9 +290,11 @@ void handleGpsSerial(char c, int isError, int isInterruptCtx)
     //debug(dmesgc);
     if('$'==c)
        {
+       	debug("\r\ngot message and storing it");
 	 		//if not error first dispatch old message
 	 		if(!s_isGpsRxIsError){
-	   			s_gpsRx_Packet[s_nGpsRxStateByteNum+1]='\0';
+	   			s_gpsRx_Packet[s_nGpsRxStateByteNum]='\0';/*don't increment the idx here
+	   														because we have already incremented above*/
 
 		   		if(eGpsStraightSerialRxPayloadGPVTGMsg == s_nGpsRxState){
 		     		strcpy(s_strGpsGpvtgMsg, s_gpsRx_Packet);

@@ -12,7 +12,7 @@ static volatile uint16_t timecount=0;
 
 const char *const s_strGpggaMsg="$GPGGA,093702.600,3743.983356,N,"
 			"12222.601505,W,1,9,1.04,1.033,M,-25.322,M,,*64";
-const char *const s_strGpvtgMsg="$GPVTG,0.00,T,,M,0.000,N,0.001,K,A*3";
+const char *const s_strGpvtgMsg="$GPVTG,0.00,T,,M,0.000,N,0.001,K,A*3Cb";
 
 void blinkLedPortB6(void)
 {
@@ -72,7 +72,7 @@ int main(void)
 {
 	DDRB = 0xff;
 	initTimer0(25);
-	initGpsModule(blinkLedPortB7, debug);
+	initGpsModule(blinkLedPortB7, 0);
 	uart_init(dummyHandler, dummyHandler, dummyHandler, dummyPop, dummyPop);
 	//initSwarmQueues(debug);
 	sei();
