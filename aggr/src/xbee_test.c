@@ -58,11 +58,11 @@ void mainLoop(void)
 		{
 			sprintf(strDebugMsg, "\r\n got message, type=%d"
 			" ,payload=%s", msg.swarm_msg_type, msg.swarm_msg_payload);
-			debug(strDebugMsg);
+			debugUART(strDebugMsg);
 		}
 		else
 		{
-			debug("\r\n got null message");
+			debugUART("\r\n got null message");
 		}		
 	}
 }
@@ -71,11 +71,11 @@ int main(void)
 {
 	DDRB = 0xff;
 	initTimer0(25);
-	initXbeeModule(pushSwarmMsgBus, blinkLedPortB7, debug);
+	initXbeeModule(pushSwarmMsgBus, blinkLedPortB7, debugUART);
 	uart_init(dummyHandler, dummyHandler, dummyHandler, dummyPop, dummyPop);
 	//initSwarmQueues(debug);
 	sei();
-	debug("----START");
+	debugUART("----START");
 	while(1)
 	{
 		mainLoop();

@@ -39,7 +39,7 @@ void testSwarmMessageBusMainloop(void)
 		sprintf(debugMsg, "\r\ngot MSG"
 			"\r\n type=%d"
 			"\r\n payload=%s", msg.swarm_msg_type, msg.swarm_msg_payload);
-		debug(debugMsg);
+		debugUART(debugMsg);
 		msg = popSwarmMsgBus(0);
 	}	
 	//debug("\r\nDone");
@@ -94,9 +94,9 @@ void testAnyncMessageBus(void)
 	DDRB = 0xff;
 	initTimer0(25,testAsyncMessageBusIntHandler);
 	uart_init(dummyHandler, dummyHandler, dummyHandler, dummyPop, dummyPop);
-	initSwarmQueues(debug);
+	initSwarmQueues(debugUART);
 	sei();
-	debug("----START");
+	debugUART("----START");
 	while(1)
 	{
 		//if(timecount == m_unitsOf1ms/2)
@@ -110,9 +110,9 @@ void testSyncMessageBus(void)
 	DDRB = 0xff;
 	//initTimer0(5);
 	uart_init(dummyHandler, dummyHandler, dummyHandler, dummyPop, dummyPop);
-	initSwarmQueues(debug);
+	initSwarmQueues(debugUART);
 	sei();
-	debug("----START");
+	debugUART("----START");
 	while(1)
 	{
 		testSwarmMessageBusMainloop();
@@ -124,7 +124,7 @@ void testXbeeQueueInAsyncModeMainloop(void)
 	long i;
 	for(i=0; i < MAX_XBEE_MSG_QUEUE_SIZE - 8; i++)
 	{
-		debug("\r\nPUSHING MSG=hello world");
+		debugUART("\r\nPUSHING MSG=hello world");
 		pushXbeeDataQ("hello world", 0/*false*/);
 	}
 }
@@ -140,12 +140,12 @@ void testXbeeQueueInAsyncModeIntHandler(void)
     	{
 			char msg = popXbeeDataQ(1);
 			sprintf(debugMsg, "\r\ngot char=%c", msg);
-			debug(debugMsg);
+			debugUART(debugMsg);
 			while(0 != msg)
 			{
 				msg =popXbeeDataQ(1); 
 				sprintf(debugMsg, "\r\ngot char=%c", msg);
-				debug(debugMsg);
+				debugUART(debugMsg);
 			}	
 		}
 		timecount=0;
@@ -158,10 +158,10 @@ void testXbeeQueueInAsyncMode(void)
 	initTimer0(500, testXbeeQueueInAsyncModeIntHandler);
 	uart_init(dummyHandler, dummyHandler, dummyHandler, dummyPop, 
 		dummyPop);
-	initSwarmQueues(debug);
+	initSwarmQueues(debugUART);
 	startAsyncXBeeTransmit();
 	sei();
-	debug("------START");
+	debugUART("------START");
 	while(1){
 		testXbeeQueueInAsyncModeMainloop();
 		blinkLedPortB7();

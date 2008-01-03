@@ -110,4 +110,5 @@ void handleSpuSerial(char c, int isError,int isInterruptCtx)
    default:
      break;
   }
+  debug("done");  
 }

@@ -3,12 +3,12 @@
 #include "include/uart.h"
 #include "include/timer0.h"
 
-void lightLedPortB6(void)
+void blinkLedPortB6(void)
 {
   PORTB = PORTB ^ (1<<PB6);
 }
 
-void lightLedPortB7(void)
+void blinkLedPortB7(void)
 {
   PORTB = PORTB ^ (1<<PB7);
 }
@@ -25,7 +25,7 @@ void dummyHandler(char c, int isError){}
 void testHandler(char c, int isError)
 {
 	if(isError){
-		lightLedPortB7();
+		blinkLedPortB7();
 		sendSpuMsg("\r\nerrah");
 	}
 	else if('B' == c){
@@ -49,7 +49,7 @@ int main(void)
     while(1)
       {
 	loopTimer0(1000);
-	lightLedPortB6();
+	blinkLedPortB6();
 /*	stopAsyncSpuTransmit();
 	sendSpuMsg("HELLO");
 	startAsyncSpuTransmit();*/

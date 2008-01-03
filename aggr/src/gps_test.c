@@ -60,23 +60,23 @@ void mainLoop(void)
 		char strMsg[MAX_GPS_PACKET_LENGTH+1];
 		getGpsGpggaMsg(strMsg,0 /*false*/);		
 		sprintf(strDebugMsg, "\r\ngpgga=%s", strMsg);
-		debug(strDebugMsg);
+		debugUART(strDebugMsg);
 		
 		getGpsGpvtgMsg(strMsg, 0 /*interrupt ctx=false*/);
 		sprintf(strDebugMsg, "\r\ngpvtg=%s", strMsg);
-		debug(strDebugMsg);		
+		debugUART(strDebugMsg);		
 	}
 }
 
 int main(void)
 {
 	DDRB = 0xff;
-	initTimer0(25);
+	initTimer0(1);
 	initGpsModule(blinkLedPortB7, 0);
 	uart_init(dummyHandler, dummyHandler, dummyHandler, dummyPop, dummyPop);
 	//initSwarmQueues(debug);
 	sei();
-	debug("----START");
+	debugUART("----START");
 	while(1)
 	{
 		mainLoop();

@@ -3,7 +3,6 @@
 #define UBRR_VAL 23
 #include "include/uart.h"
 
-
 /*  
  * atmega640 UART notes. The 640 has three status and control registers for 
  * each USART. They are -
@@ -45,13 +44,11 @@
  *      #B2,1- UCSZn1:0 : Charcter size. For 8 bits, UCSZn2=0, UCSZn1=1, UCSZn0=1	  
  * 		#B0- UCPOLn
  * */
-static void (*volatile _handleXBeeRecv)(char, int) ;
-static void (*volatile _handleSpuRecv)(char, int) ;
-static void (*volatile _handleGpsARecv)(char, int) ;
-static char (*volatile _getXBeeOutChar)(void);
-static char (*volatile _getSpuOutChar)(void);
-//static char (* _getSpuGpsOutChar)(void);
-//static char (* _currentSpuGetter)(void);
+static void (*volatile _handleXBeeRecv)(char, int, int);
+static void (*volatile _handleSpuRecv)(char, int, int);
+static void (*volatile _handleGpsARecv)(char, int, int) ;
+static char (*volatile _getXBeeOutChar)(int);
+static char (*volatile _getSpuOutChar)(int);
 volatile static int s_isSpuSendInProgress=0;
 volatile static int s_isXbeeSendInProgress=0;
 
@@ -64,7 +61,7 @@ ISR(SIG_USART3_RECV)
      { 
        nErrors=1; 
      }
-  (*_handleXBeeRecv)(UDR3, nErrors);
+  (*_handleXBeeRecv)(UDR3, nErrors, 1 /*true*/);
 }
 
 
@@ -76,26 +73,27 @@ ISR(SIG_USART0_RECV)
      { 
        nErrors=1; 
      }
-  (*_handleSpuRecv)(UDR0, nErrors);
+  (*_handleSpuRecv)(UDR0, nErrors, 1 /*true*/);
 }
 
 ISR(SIG_USART1_RECV)
 {
  
   int nErrors=0;
-  if((UCSR1A & (1<<FE1)) || 
-   (UCSR1A & (1<<DOR1))) 
+  if((UCSR1A & (1<<FE1))  
+//   ||(UCSR1A & (1<<DOR1))
+   ) 
      { 
        nErrors=1; 
      }
-  (*_handleGpsARecv)(UDR1, nErrors);
+  (*_handleGpsARecv)(UDR1, nErrors, 1 /*true*/);
   
 }
 
 ////////////////////UDRIE interrupt handlers
 ISR(SIG_USART3_DATA)
 {
-  char c = (*_getXBeeOutChar)();
+  char c = (*_getXBeeOutChar)(1 /*true*/);
   if(c !=0 ){
     UDR3 = c;
   }
@@ -108,7 +106,7 @@ ISR(SIG_USART3_DATA)
 
 ISR(SIG_USART0_DATA)
 {
-  char c = (*_getSpuOutChar)();
+  char c = (*_getSpuOutChar)(1 /*true*/);
   if(c !=0 ){
     UDR0 = c;
   }
@@ -125,9 +123,9 @@ void sendGPSAMsg(const char *s)
 	//asynch sender for GPSA
   	while(*s)
     {
+      	UDR1 = *s++;
 		while(!(UCSR1A & (1<<UDRE1)))
 			;
-      	UDR1 = *(s++);
     }
 }
 
@@ -135,15 +133,22 @@ void sendSpuMsg(const char *s)
 {
   	while(*s)
     {
-      	UDR0 = *(s++);
+      	UDR0 = *s++;
 		while(!(UCSR0A & (1<<UDRE0)))
 			;
     }
 }
 
-void debug(const char *s)
+void debugUART(const char *s)
 {
-  sendSpuMsg(s);
+	int isAsyncSendInProgress=isSpuSendInProgress();
+	if(isAsyncSendInProgress)
+		stopAsyncSpuTransmit();
+		
+    sendSpuMsg(s);
+    
+    if(isAsyncSendInProgress)
+    	startAsyncSpuTransmit();
 }
 
 void startAsyncXBeeTransmit(void)
@@ -201,11 +206,11 @@ int isXBeeSendInProgress(void)
 }
 
 
-int uart_init( void (*handleXBeeRecv)(char c, int isError),
-	       void (*handleSpuRecv)(char c, int isErrror),
-	       void (*handleGpsARecv)(char c, int isErrror),
-	       char (*getXBeeOutChar)(void),
-	       char (*getSpuOutChar)(void))
+int uart_init(void (*handleXBeeRecv)(char c, int isError, int isInterruptCtx),
+	      void (*handleSpuRecv)(char c, int isErrror, int isInterruptCtx),
+	      void (*handleGpsARecv)(char c, int isErrror, int isInterruptCtx),
+	       char (*getXBeeOutChar)(int isInterruptCtx),
+	       char (*getSpuOutChar)(int isInterruptCtx))
 {
   //Set up XBee on USART3
   //Asynchronous UART, no parity, 1 stop bit, 8 data bits, 38400 baud

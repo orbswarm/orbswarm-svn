@@ -33,6 +33,18 @@ volatile static char s_strGpsPmtkMsg[MAX_GPS_PACKET_LENGTH ];
 static void (*volatile s_debugCallback)(void)=0;
 static void (*volatile s_debug)(const char* debugMsg)=0;
 
+static void debugCallback(void)
+{
+  if(0 != s_debugCallback)
+    (*s_debugCallback)();
+}
+
+static void debug(const char* debugMsg)
+{
+  if(0 != s_debug)
+    (*s_debug)(debugMsg);
+}
+
 static char volatile* strcpy(char volatile*  dst, 
 		     const char volatile*  src)
 {
@@ -62,20 +74,24 @@ void  getGpsGpggaMsg(char* returnBuffer,int isInterruptCtx)
   int isDone=0;
   while(!isDone){
   	//critical section start
-  	if(isInterruptCtx)
+  	if(!isInterruptCtx)
   		cli();
   	int nRecSeq  = s_nGpsGpggaRecordSeq;
-    if(isInterruptCtx)
+    if(!isInterruptCtx)
   		sei();
 	//end critical section  		
     strcpy(returnBuffer, s_strGpsGpggaMsg);
     
     //critical section start
-  	if(isInterruptCtx)
+  	if(!isInterruptCtx)
   		cli();
-  	if(s_nGpsGpggaRecordSeq == nRecSeq)
+  	if(s_nGpsGpggaRecordSeq == nRecSeq){
+  		debug("\r\ngot message");
   		isDone=1;
-  	if(isInterruptCtx)
+  	}
+  	else
+  		debug("\r\n discarding stale message");
+  	if(!isInterruptCtx)
   		sei();
 	//end critical section  		
   }
@@ -92,20 +108,20 @@ void getGpsGpvtgMsg(char* returnBuffer,int isInterruptCtx)
   int isDone=0;
   while(!isDone){
   	//critical section start
-  	if(isInterruptCtx)
+  	if(!isInterruptCtx)
   		cli();
   	int nRecSeq  = s_nGpsGpvtgRecordSeq;
-    if(isInterruptCtx)
+    if(!isInterruptCtx)
   		sei();
 	//end critical section  		
     strcpy(returnBuffer, s_strGpsGpvtgMsg);
     
     //critical section start
-  	if(isInterruptCtx)
+  	if(!isInterruptCtx)
   		cli();
   	if(s_nGpsGpvtgRecordSeq == nRecSeq)
   		isDone=1;
-  	if(isInterruptCtx)
+  	if(!isInterruptCtx)
   		sei();
 	//end critical section  		
   }
@@ -118,18 +134,6 @@ void initGpsModule(void (*debugCallback)(void),
   s_debug=debug;
 }
 
-static void debugCallback(void)
-{
-  if(0 != s_debugCallback)
-    (*s_debugCallback)();
-}
-
-static void debug(const char* debugMsg)
-{
-  if(0 != s_debug)
-    (*s_debug)(debugMsg);
-}
-
 static void initGpsMsgStart(char c)
 {
   s_nGpsRxStateByteNum=0;
@@ -140,14 +144,19 @@ static void initGpsMsgStart(char c)
 
 void handleGpsSerial(char c, int isError, int isInterruptCtx)
 {
+	if(0 == c)
+	{
+		debug("\r\n rejecting null char");
+		return;
+	}
 	//critical section start
-  	if(isInterruptCtx)
+  	if(!isInterruptCtx)
   		cli();
-	(*debugCallback)();
+	debugCallback();
   	char strDebugMsg[1024];
 /*   debug("\n got char:"); */
 /*   debug(dmesgc); */
-	sprintf(strDebugMsg, "\r\n got char=%c", c);
+	sprintf(strDebugMsg, "\r\n got char=%c state=%d", c, s_nGpsRxState);
 	debug(strDebugMsg);
 
   if(isError)
@@ -166,7 +175,7 @@ void handleGpsSerial(char c, int isError, int isInterruptCtx)
     }
     break;
   case eGpsStraightSerialRxInit:
-    //debug("got $");
+    debug("\r\neGpsStraightSerialRxInit");
     if('$'==c){
       initGpsMsgStart(c);
       s_nGpsRxState=eGpsStraightSerialRxPayload;
@@ -318,7 +327,7 @@ void handleGpsSerial(char c, int isError, int isInterruptCtx)
      break;
   }
   //critical section start
-  if(isInterruptCtx)
+  if(!isInterruptCtx)
   		sei();
 }
 

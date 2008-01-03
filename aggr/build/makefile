@@ -10,7 +10,8 @@ MYBIN = $(SVN_TRUNK)/aggr/binaries
 #TARGET=simple_uart_test
 #TARGET=spu_test
 #TARGET=xbee_test
-TARGET=gps_test
+#TARGET=gps_test
+TARGET=main
 
 all:  $(MYBIN)/$(TARGET).hex
 
@@ -30,7 +31,6 @@ arduino_upload: $(MYBIN)/$(TARGET).hex
 
 ########AVRDUDE section for the stk500
 ###programming mode is ISP
-###set up is usb --> keyspan --> stk DB9 
 AVRDUDE=avrdude
 AVRDUDE_PROGRAMMER = stk500v2
 #AVRDUDE_PORT = /dev/tty.USA19H1b1P1.1
@@ -126,6 +126,13 @@ $(MYBIN)/gps_test.elf: $(MYBIN)/gps_test.o
 	avr-gcc -funsigned-char $< \
 	$(MYBIN)/uart.o $(MYBIN)/swarm_queues.o \
 	$(MYBIN)/gps.o -Wl,\
+	-Map=$(MYBIN)/$(TARGET).map,--cref -mmcu=$(MCU) \
+	-o $@
+
+$(MYBIN)/main.elf: $(MYBIN)/main.o
+	avr-gcc -funsigned-char $< \
+	$(MYBIN)/uart.o $(MYBIN)/swarm_queues.o $(MYBIN)/timer0.o \
+	$(MYBIN)/gps.o $(MYBIN)/xbee.o $(MYBIN)/spu.o -Wl,\
 	-Map=$(MYBIN)/$(TARGET).map,--cref -mmcu=$(MCU) \
 	-o $@
 
