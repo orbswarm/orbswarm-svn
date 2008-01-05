@@ -3,6 +3,7 @@
 //#define UBRR_VAL 23
 #define UBRR_VAL 11
 #include "include/uart.h"
+#include "include/swarm_common_defines.h"
 
 /*  
  * atmega640 UART notes. The 640 has three status and control registers for 
@@ -53,6 +54,16 @@ static char (*volatile _getSpuOutChar)(int isInterruptCtx);
 volatile static int s_isSpuSendInProgress=0;
 volatile static int s_isXbeeSendInProgress=0;
 
+void blinkLed6(void)
+{
+  PORTB = PORTB ^ (1<<PB6);
+}
+
+void blinkLed7(void)
+{
+  PORTB = PORTB ^ (1<<PB7);
+}
+
 ////////////////////RXCIE interrupts
 ISR(SIG_USART3_RECV)
 {
@@ -94,6 +105,7 @@ ISR(SIG_USART1_RECV)
 ////////////////////UDRIE interrupt handlers
 ISR(SIG_USART3_DATA)
 {
+	blinkLed6();
   char c = (*_getXBeeOutChar)(1 /*true*/);
   if(c !=0 ){
     UDR3 = c;
@@ -107,6 +119,7 @@ ISR(SIG_USART3_DATA)
 
 ISR(SIG_USART0_DATA)
 {
+	blinkLed7();
   char c = (*_getSpuOutChar)(1 /*true*/);
   if(c !=0 ){
     UDR0 = c;

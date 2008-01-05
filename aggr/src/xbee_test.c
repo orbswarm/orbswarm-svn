@@ -42,7 +42,7 @@ ISR(SIG_OVERFLOW0)
 		char* msg="{hello world}";
 		while(*msg)
 		{
-			handleXbeeSerial(*msg++, 0/*No error*/, 1/*interrupt handler ctx*/);	
+			handleXbeeSerial(*msg++, 0/*No error*/);	
 		}
 		timecount=0;
     }

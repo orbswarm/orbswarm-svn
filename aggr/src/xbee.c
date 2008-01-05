@@ -51,11 +51,11 @@ static void debugCallback(void)
     (*s_debugCallback)();
 }
 
-static void debug(const char* debugMsg)
+/*static void debug(const char* debugMsg)
 {
   if(0 != s_debug)
     (*s_debug)(debugMsg);
-}
+}*/
 
 static void initXbeeMsgStart(char c)
 {
@@ -67,16 +67,16 @@ static void initXbeeMsgStart(char c)
   s_xbeeRxPacket.swarm_msg_payload[s_nXbeeRxStateByteNum]=c;
 }
 
-void handleXbeeSerial(char c, int isError,int  isInterruptCtx)
+void handleXbeeSerial(char c, int isError)
 {
   debugCallback();
-	char strDebugMsg[1024];
+/*	char strDebugMsg[1024];
 	sprintf(strDebugMsg, "\r\nhandleXbeeSerial.state=%d", s_nXbeeRxState);
 	debug(strDebugMsg);
-	sprintf(strDebugMsg, "\r\nhandleXbeeSerial.char=%c",c); 
+	sprintf(strDebugMsg, "\r\nhandleXbeeSerial.char=%c",c);*/ 
   //if it's an error flag and discard till the start of the next message
   if(isError){
-    debug("\nerror flag set");
+    //debug("\nerror flag set");
     s_xbeeRxIsError=isError;
     return;
   }
@@ -108,7 +108,7 @@ void handleXbeeSerial(char c, int isError,int  isInterruptCtx)
 		 //if not error first dispatch old message
 	 	if(!s_xbeeRxIsError){
 	   		s_xbeeRxPacket.swarm_msg_payload[s_nXbeeRxStateByteNum+1]='\0';
-	   		(*s_pushSwarmMsgBus)(s_xbeeRxPacket, isInterruptCtx);
+	   		(*s_pushSwarmMsgBus)(s_xbeeRxPacket, 1);
 	 	}
 	 	s_nXbeeRxState=eXbeeStraightSerialRxInit;
      }
@@ -119,8 +119,8 @@ void handleXbeeSerial(char c, int isError,int  isInterruptCtx)
 	 	if(s_nXbeeRxStateByteNum 
 	    	<= (MAX_SWARM_MSG_LENGTH-1)/*leave 1 byte for the new line */ )
 	   		s_xbeeRxPacket.swarm_msg_payload[s_nXbeeRxStateByteNum]=c;
-	   	else
-	   		debug("maximum size exceeded for message");
+/*	   	else
+	   		debug("maximum size exceeded for message");*/
 	 //else ignore till the end
      }
      break;

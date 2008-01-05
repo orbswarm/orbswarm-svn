@@ -34,11 +34,11 @@ static void debugCallback(void)
     (*s_debugCallback)();
 }
 
-static void debug(const char* debugMsg)
+/*static void debug(const char* debugMsg)
 {
   if(0 != s_debug)
     (*s_debug)(debugMsg);
-}
+}*/
 
 /**
  *  This method is to initialize the state machine and not the whole module.

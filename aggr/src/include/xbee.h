@@ -1,4 +1,4 @@
-void  handleXbeeSerial(char c, int isError, int isInterruptCtx);
+void  handleXbeeSerial(char c, int isError);
 
 void initXbeeModule( void (*pushSwarmMsgBus)(struct SWARM_MSG msg, 
 					int isInterruptCtx),
