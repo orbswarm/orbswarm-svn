@@ -9,9 +9,9 @@
  * 5. Async receives i.e. handle*Recv() are available for all 3 UART
  * peripherals. 
  * */
-int uart_init(void (*handleXBeeRecv)(char c, int isError, int isInterruptCtx),
-	      void (*handleSpuRecv)(char c, int isErrror, int isInterruptCtx),
-	      void (*handleGpsARecv)(char c, int isErrror, int isInterruptCtx),
+int uart_init(void (*handleXBeeRecv)(char c, int isError),
+	      void (*handleSpuRecv)(char c, int isErrror),
+	      void (*handleGpsARecv)(char c, int isErrror),
 	       char (*getXBeeOutChar)(int isInterruptCtx),
 	       char (*getSpuOutChar)(int isInterruptCtx));
 

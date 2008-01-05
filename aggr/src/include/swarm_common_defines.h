@@ -2,7 +2,8 @@
 #define SWARM_COMMON_DEFINES_H_
 
 #include <avr/io.h>
-#define MAX_SWARM_MSG_LENGTH 96
+//#define MAX_SWARM_MSG_LENGTH 96
+#define MAX_SWARM_MSG_LENGTH 62
 #define MAX_GPS_PACKET_LENGTH 100
 
 enum ELinkPacketType {

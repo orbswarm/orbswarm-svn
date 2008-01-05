@@ -8,7 +8,7 @@
 #include "include/uart.h"
 #include "include/swarm_queues.h"
 
-static volatile uint16_t m_unitsOf1ms=0;
+static volatile uint16_t m_unitsOf250mus=0;
 static volatile uint16_t timecount=0;
 
 void blinkLedPortB6(void)
@@ -21,23 +21,23 @@ void blinkLedPortB7(void)
   PORTB = PORTB ^ (1<<PB7);
 }
 
-static char dummyPop(void){return 0;}
+static char dummyPop(int isIntCtx){return 0;}
 
 void dummyHandler(char c, int isError){}
 
-void initTimer0(uint16_t units1ms)
+void initTimer0(uint16_t units250mus)
 {
   timecount=0;
-  m_unitsOf1ms=units1ms;
-  TCNT0=26;
-  TCCR0B = TCCR0B | ((1<<CS01) | (1<<CS00));
+  m_unitsOf250mus=units250mus;
+  TCNT0=6;
+  TCCR0B = TCCR0B | (1<<CS01);
   TIMSK0= TIMSK0 | (1<<TOIE0);
 }
 
 ISR(SIG_OVERFLOW0)
 {
-  TCNT0=26;
-  if(++timecount == m_unitsOf1ms)
+  TCNT0=2;
+  if(++timecount == m_unitsOf250mus)
     {
 		char* msg="{hello world}";
 		while(*msg)
@@ -70,8 +70,8 @@ void mainLoop(void)
 int main(void)
 {
 	DDRB = 0xff;
-	initTimer0(25);
-	initXbeeModule(pushSwarmMsgBus, blinkLedPortB7, debugUART);
+	initTimer0(25*4);
+	initXbeeModule(pushSwarmMsgBus, blinkLedPortB7, 0/*debugUART*/);
 	uart_init(dummyHandler, dummyHandler, dummyHandler, dummyPop, dummyPop);
 	//initSwarmQueues(debug);
 	sei();

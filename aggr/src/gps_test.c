@@ -7,7 +7,7 @@
 #include "include/gps.h"
 #include "include/uart.h"
 
-static volatile uint16_t m_unitsOf1ms=0;
+static volatile uint16_t m_unitsOf250mus=0;
 static volatile uint16_t timecount=0;
 
 const char *const s_strGpggaMsg="$GPGGA,093702.600,3743.983356,N,"
@@ -24,30 +24,30 @@ void blinkLedPortB7(void)
   PORTB = PORTB ^ (1<<PB7);
 }
 
-static char dummyPop(void){return 0;}
+static char dummyPop(int i){return 0;}
 
 void dummyHandler(char c, int isError){}
 
-void initTimer0(uint16_t units1ms)
+void initTimer0(uint16_t units250mus)
 {
   timecount=0;
-  m_unitsOf1ms=units1ms;
-  TCNT0=26;
-  TCCR0B = TCCR0B | ((1<<CS01) | (1<<CS00));
+  m_unitsOf250mus=units250mus;
+  TCNT0=6;
+  TCCR0B = TCCR0B | (1<<CS01);
   TIMSK0= TIMSK0 | (1<<TOIE0);
 }
 
 ISR(SIG_OVERFLOW0)
 {
-  TCNT0=26;
-  if(++timecount == m_unitsOf1ms)
+  TCNT0=6;
+  if(++timecount == m_unitsOf250mus)
     {
 		char const* msg=s_strGpggaMsg;
 		while(*msg)
-			handleGpsSerial(*msg++, 0/*No error*/, 1 /* and interrupt handler ctx*/);
+			handleGpsSerial(*msg++, 0/*No error*/);
 		msg=s_strGpvtgMsg;	
 		while(*msg)
-			handleGpsSerial(*msg++, 0/*No error*/, 1 /* and interrupt handler ctx*/);
+			handleGpsSerial(*msg++, 0/*No error*/);
 		timecount=0;
     }
 }
@@ -71,7 +71,7 @@ void mainLoop(void)
 int main(void)
 {
 	DDRB = 0xff;
-	initTimer0(1);
+	initTimer0(200);
 	initGpsModule(blinkLedPortB7, 0);
 	uart_init(dummyHandler, dummyHandler, dummyHandler, dummyPop, dummyPop);
 	//initSwarmQueues(debug);

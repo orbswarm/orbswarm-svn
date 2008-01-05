@@ -1,6 +1,7 @@
 #include <avr/io.h>		// include I/O definitions (port names, pin names, etc)
 #include <avr/interrupt.h>	// include interrupt support
-#define UBRR_VAL 23
+//#define UBRR_VAL 23
+#define UBRR_VAL 11
 #include "include/uart.h"
 
 /*  
@@ -44,11 +45,11 @@
  *      #B2,1- UCSZn1:0 : Charcter size. For 8 bits, UCSZn2=0, UCSZn1=1, UCSZn0=1	  
  * 		#B0- UCPOLn
  * */
-static void (*volatile _handleXBeeRecv)(char, int, int);
-static void (*volatile _handleSpuRecv)(char, int, int);
-static void (*volatile _handleGpsARecv)(char, int, int) ;
-static char (*volatile _getXBeeOutChar)(int);
-static char (*volatile _getSpuOutChar)(int);
+static void (*volatile _handleXBeeRecv)(char, int);
+static void (*volatile _handleSpuRecv)(char, int);
+static void (*volatile _handleGpsARecv)(char, int) ;
+static char (*volatile _getXBeeOutChar)(int isInterruptCtx);
+static char (*volatile _getSpuOutChar)(int isInterruptCtx);
 volatile static int s_isSpuSendInProgress=0;
 volatile static int s_isXbeeSendInProgress=0;
 
@@ -61,7 +62,7 @@ ISR(SIG_USART3_RECV)
      { 
        nErrors=1; 
      }
-  (*_handleXBeeRecv)(UDR3, nErrors, 1 /*true*/);
+  (*_handleXBeeRecv)(UDR3, nErrors);
 }
 
 
@@ -73,7 +74,7 @@ ISR(SIG_USART0_RECV)
      { 
        nErrors=1; 
      }
-  (*_handleSpuRecv)(UDR0, nErrors, 1 /*true*/);
+  (*_handleSpuRecv)(UDR0, nErrors);
 }
 
 ISR(SIG_USART1_RECV)
@@ -81,12 +82,12 @@ ISR(SIG_USART1_RECV)
  
   int nErrors=0;
   if((UCSR1A & (1<<FE1))  
-//   ||(UCSR1A & (1<<DOR1))
+  ||(UCSR1A & (1<<DOR1))
    ) 
      { 
        nErrors=1; 
      }
-  (*_handleGpsARecv)(UDR1, nErrors, 1 /*true*/);
+  (*_handleGpsARecv)(UDR1, nErrors);
   
 }
 
@@ -206,9 +207,9 @@ int isXBeeSendInProgress(void)
 }
 
 
-int uart_init(void (*handleXBeeRecv)(char c, int isError, int isInterruptCtx),
-	      void (*handleSpuRecv)(char c, int isErrror, int isInterruptCtx),
-	      void (*handleGpsARecv)(char c, int isErrror, int isInterruptCtx),
+int uart_init(void (*handleXBeeRecv)(char c, int isError),
+	      void (*handleSpuRecv)(char c, int isErrror),
+	      void (*handleGpsARecv)(char c, int isErrror),
 	       char (*getXBeeOutChar)(int isInterruptCtx),
 	       char (*getSpuOutChar)(int isInterruptCtx))
 {

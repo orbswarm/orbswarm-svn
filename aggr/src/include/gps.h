@@ -1,4 +1,4 @@
-void  handleGpsSerial(char c, int isError, int isInterruptCtx);
+void  handleGpsSerial(char c, int isError);
 
 void initGpsModule(void (*debugCallback)(void),
 		    void (*debug)(const char*) );

@@ -22,7 +22,7 @@ void blinkLedPortB7(void)
 }
 
 
-static char dummyPop(void)
+static char dummyPop(int isIntCtx)
 {
 	return 'z';
 }
@@ -44,7 +44,7 @@ void testSwarmMessageBusMainloop(void)
 	}	
 	//debug("\r\nDone");
 }
-static volatile uint16_t m_unitsOf1ms=0;
+static volatile uint16_t m_unitsOf250mus=0;
 static volatile uint16_t timecount=0;
 static void (*volatile _timerHandler)(void)=0;
 
@@ -56,8 +56,8 @@ ISR(SIG_OVERFLOW0)
 
 void testAsyncMessageBusIntHandler(void)
 {
-  TCNT0=26;
-  if(++timecount == m_unitsOf1ms)
+  TCNT0=6;
+  if(++timecount == m_unitsOf250mus)
     {
     	if(1)
     	{
@@ -68,7 +68,7 @@ void testAsyncMessageBusIntHandler(void)
 				char debugMsg[1024];
 				sprintf(debugMsg, "\r\nPUSHING MSG=%d", (s_IntMsgCounter +1));
 				//debug(debugMsg);
-				msg.swarm_msg_type=eLinkLoopback; 
+				msg.swarm_msg_type=eLinkSpuMsg; 
 				sprintf(msg.swarm_msg_payload, "from isr "
 				"message num=%d", s_IntMsgCounter++);
 				pushSwarmMsgBus(msg, 1);
@@ -79,20 +79,20 @@ void testAsyncMessageBusIntHandler(void)
 }
 
 
-void initTimer0(uint16_t units1ms, void (*intHandler)(void))
+void initTimer0(uint16_t units250mus, void (*intHandler)(void))
 {
   timecount=0;
-  m_unitsOf1ms=units1ms;
+  m_unitsOf250mus=units250mus;
   _timerHandler=intHandler;
-  TCNT0=26;
-  TCCR0B = TCCR0B | ((1<<CS01) | (1<<CS00));
+  TCNT0=6;
+  TCCR0B = TCCR0B | (1<<CS01);
   TIMSK0= TIMSK0 | (1<<TOIE0);
 }
 
 void testAnyncMessageBus(void)
 {
 	DDRB = 0xff;
-	initTimer0(25,testAsyncMessageBusIntHandler);
+	initTimer0(25*4,testAsyncMessageBusIntHandler);
 	uart_init(dummyHandler, dummyHandler, dummyHandler, dummyPop, dummyPop);
 	initSwarmQueues(debugUART);
 	sei();
@@ -133,8 +133,8 @@ void testXbeeQueueInAsyncModeIntHandler(void)
 {
 //	debug("testXbeeQueueInAsyncModeIntHandler:START");
   char debugMsg[1024];
-  TCNT0=26;
-  if(++timecount == m_unitsOf1ms)
+  TCNT0=6;
+  if(++timecount == m_unitsOf250mus)
     {
     	if(1)
     	{
@@ -155,7 +155,7 @@ void testXbeeQueueInAsyncModeIntHandler(void)
 void testXbeeQueueInAsyncMode(void)
 {
 	DDRB =0xff;
-	initTimer0(500, testXbeeQueueInAsyncModeIntHandler);
+	initTimer0(1000*4, testXbeeQueueInAsyncModeIntHandler);
 	uart_init(dummyHandler, dummyHandler, dummyHandler, dummyPop, 
 		dummyPop);
 	initSwarmQueues(debugUART);

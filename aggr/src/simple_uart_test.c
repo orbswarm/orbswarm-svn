@@ -13,7 +13,7 @@ void blinkLedPortB7(void)
 }
 
 
-int testUart0(void)
+void testUart0(void)
 {
     //Set up SPU on USART0
   //Asynchronous UART, no parity, 1 stop bit, 8 data bits, 38400 baud
@@ -22,7 +22,7 @@ int testUart0(void)
   //
   UCSR0B = (1<<RXCIE0) | (1<<RXEN0) | (1<<TXEN0);
   UCSR0C = (1<<UCSZ01) | (1<< UCSZ00);
-  UBRR0 = 23;
+  UBRR0 = 11;
   //
   loopTimer0(5000);
   while(1)
@@ -33,10 +33,10 @@ int testUart0(void)
 			;
       UDR0 = 'B';
     }
-//
-
 }
 
 int main(){
-  testUart0();
+	sei();
+  	testUart0();
+  	return 0;
 }

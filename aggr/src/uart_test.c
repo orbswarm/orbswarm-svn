@@ -13,7 +13,7 @@ void blinkLedPortB7(void)
   PORTB = PORTB ^ (1<<PB7);
 }
 
-static char dummyPop(void)
+static char dummyPop(int isIntCtx)
 {
 /*	loopTimer0(1000);
 	lightLedPortB7();*/
@@ -25,16 +25,16 @@ void dummyHandler(char c, int isError){}
 void testHandler(char c, int isError)
 {
 	if(isError){
-		blinkLedPortB7();
 		sendSpuMsg("\r\nerrah");
 	}
 	else if('B' == c){
     	
-    	sendSpuMsg("\r\ngot char=");
+    	blinkLedPortB7();
+		/*sendSpuMsg("\r\ngot char=");
     	char msg[2];
     	msg[0]=c;
     	msg[1]=0;
-    	sendSpuMsg(msg);
+    	sendSpuMsg(msg);*/
 	}
 }
 
@@ -48,11 +48,11 @@ int main(void)
   //startAsyncSpuTransmit();
     while(1)
       {
-	loopTimer0(1000);
+	loopTimer0(1);
 	blinkLedPortB6();
-/*	stopAsyncSpuTransmit();
-	sendSpuMsg("HELLO");
-	startAsyncSpuTransmit();*/
+	//stopAsyncSpuTransmit();
+	//sendSpuMsg("HELLO");
+	//startAsyncSpuTransmit();
       }
 
 }

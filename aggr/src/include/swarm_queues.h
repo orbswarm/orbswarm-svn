@@ -6,7 +6,7 @@
      #error SPU queue size not a power of 2
 #endif
 
-#define MAX_XBEE_MSG_QUEUE_SIZE 256
+#define MAX_XBEE_MSG_QUEUE_SIZE 1024
 #define XBEE_Q_MASK (MAX_XBEE_MSG_QUEUE_SIZE -1)
 #if (MAX_XBEE_MSG_QUEUE_SIZE & XBEE_Q_MASK)
      #error XBEE queue size not a power of 2

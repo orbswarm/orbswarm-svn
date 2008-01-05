@@ -1,6 +1,7 @@
 #include <avr/io.h>		// include I/O definitions (port names, pin names, etc)
 #include <avr/interrupt.h>	// include interrupt support
 #include <stdio.h>
+#include <string.h>
 
 #include "include/timer0.h"
 #include "include/swarm_common_defines.h"
@@ -10,7 +11,7 @@
 #include "include/xbee.h"
 #include "include/swarm_queues.h"
 
-//#define DEBUG_MODE
+#define DEBUG_MODE
 
 void debug(const char * s)
 {
@@ -19,10 +20,10 @@ void debug(const char * s)
   #endif	
 }
 
-void unCondDebug(const char * s)
+/*void unCondDebug(const char * s)
 {
   	debugUART(s);
-}
+}*/
 
 void blinkLedPortB6(void)
 {
@@ -39,7 +40,7 @@ void setGpsMode(void)
   char strDebugMsg[1024];
   char ack[MAX_GPS_PACKET_LENGTH];
   char* msg=0;
-  unCondDebug("\r\nReading init params if any");
+  debug("\r\nReading init params if any");
   loopTimer0(1000);
   getPmtkMsg(ack, 0/*false*/);
   sprintf(strDebugMsg, "\r\nack=%s", ack);
@@ -73,7 +74,7 @@ void setGpsMode(void)
 
 char dummyPop(int isInterruptCtx){return 0;}
 
-void dummyHandler(char c,int isError, int isInterruptCtx){}
+void dummyHandler(char c,int isError){}
 
 int main(void)
 {
@@ -87,22 +88,30 @@ int main(void)
   //loopTimer0(2000);
   char strMsg[1024];
   sprintf(strMsg, "\r\n PORTB=%x", PORTB);
-  unCondDebug(strMsg);
+  debug(strMsg);
   
   DDRB = 0xff;
   PORTB = 0xff;
 
   //initXbeeModule(pushSwarmMsgBus,blinkLedPortB7, debug);
-  initGpsModule(blinkLedPortB7, debug);
-  initSpuModule(pushSwarmMsgBus, blinkLedPortB7, debug);
-  unCondDebug("\r\ninit ");
-  loopTimer0(2000);
-  setGpsMode();
-  blinkLedPortB6();
+  initGpsModule(blinkLedPortB7, 0);
+  initSpuModule(pushSwarmMsgBus, blinkLedPortB6, debug);
+  debug("\r\ninit ");
+  //setGpsMode();
   sei();
-  
+  /*
   while(1){
-    //
+  	debug("\r\n sleep start");
+  	loopTimer0(20);
+  	debug("\r\n getting GPGGA msg");
+  	getGpsGpggaMsg(gps_msg_buffer, 0);
+  	sprintf(strMsg, "\r\n GPGGA=%s", gps_msg_buffer);
+  	debug(strMsg);
+  }
+  */
+//
+  while(1){
+  	//debug("\r\n while start");
     struct SWARM_MSG msg = popSwarmMsgBus(0);
     if(msg.swarm_msg_type == eLinkXbeeMsg){
       //queue up for sending to spu when asked for
@@ -114,12 +123,10 @@ int main(void)
       startAsyncSpuTransmit();
     }
     else if(msg.swarm_msg_type == eLinkSpuMsg){
-      //poor man's strcmp
-      if(msg.swarm_msg_payload[0] == '$' &&
-		msg.swarm_msg_payload[1] == 'A' &&
-	 	msg.swarm_msg_payload[2] == 'g' &&
-	 	msg.swarm_msg_payload[3] == '*')
+	 if(0 == strncmp(msg.swarm_msg_payload, 
+	 				 "$Ag*", 4))
 		{
+			debug("\r\n Got request for PS");
 	  		blinkLedPortB7();
 	  		while(isSpuSendInProgress())
 	    		;
@@ -133,17 +140,19 @@ int main(void)
 	  		sendSpuMsg(gps_msg_buffer);
 	  		sendSpuMsg(";!");
 		}
-      else if(msg.swarm_msg_payload[0] == '$' &&
-			msg.swarm_msg_payload[1] == 'A' &&
-	 msg.swarm_msg_payload[2] == 's')
+      else if(0 == strncmp(msg.swarm_msg_payload, 
+	 				 "$As", 3))
 	{
 	  debug("\r\nstreaming data through xbee");
 	  pushXbeeDataQ(msg.swarm_msg_payload+3, 0);
 	  startAsyncXBeeTransmit();
 	} 
    }
-    //
+   else{
+   		//debug("\r\n invalid or null msg type");
+   }
   } 
+  //
   return 0;
 }
  

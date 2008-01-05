@@ -22,9 +22,10 @@ void initSpuModule( void (*pushSwarmMsgBus)(struct SWARM_MSG msg,
 			void (*debugCallback)(void),
 		    void (*debug)(const char*) )
 {
-  s_debugCallback=debugCallback;
-  s_debug=debug;
-  s_pushSwarmMsgBus=pushSwarmMsgBus;
+  debug ("\r\ninitSpuModule");
+  s_debugCallback = debugCallback;
+  s_debug = debug;
+  s_pushSwarmMsgBus = pushSwarmMsgBus;
 }
 
 static void debugCallback(void)
@@ -52,20 +53,19 @@ static void initSpuMsgStart(char c)
   s_spuRxPacket.swarm_msg_payload[s_nSpuRxStateByteNum]=c;
 }
 
-void handleSpuSerial(char c, int isError,int isInterruptCtx)
+/*int isDebug()
 {
-	debugCallback();
-	char strDebugMsg[1024];
-	sprintf(strDebugMsg, "\r\nhandleSpuSerial.state=%d", s_nSpuRxState);
-	debug(strDebugMsg);
-	sprintf(strDebugMsg, "\r\nhandleSpuSerial.char=%c",c); 
-  debug(strDebugMsg);
+	return 0 == s_debug; 
+}*/
+
+void handleSpuSerial(char c, int isError)
+{
+	//char strDebugMsg[1024];
   //if it's an error flag and discard till the start of the next message
+  
   if(isError){
-
-    debug("error flag set");
-
     s_isSpuRxError=isError;
+	debugCallback();    
     return;
   }
   switch(s_nSpuRxState){
@@ -91,8 +91,8 @@ void handleSpuSerial(char c, int isError,int isInterruptCtx)
 		 //if not error first dispatch old message
 	 	if(!s_isSpuRxError){
 	   		s_spuRxPacket.swarm_msg_payload[s_nSpuRxStateByteNum+1]='\0';
-	   		debug("pushing in Q");
-	   		(*s_pushSwarmMsgBus)(s_spuRxPacket, isInterruptCtx);
+//	   		debug("pushing in Q");
+	   		(*s_pushSwarmMsgBus)(s_spuRxPacket, 1);
 	 	}
 	 	initSpuMsgStart(c);
      }
@@ -102,13 +102,12 @@ void handleSpuSerial(char c, int isError,int isInterruptCtx)
 	 	s_nSpuRxStateByteNum++;
 	 	if(s_nSpuRxStateByteNum <= MAX_SWARM_MSG_LENGTH )
 	   		s_spuRxPacket.swarm_msg_payload[s_nSpuRxStateByteNum]=c;
-	   	else
-	   		debug("maximum size exceeded for message");
+//	   	else
+//	   		debug("maximum size exceeded for message");
 	 	//else ignore till the end
      }
      break;
    default:
      break;
-  }
-  debug("done");  
+  }  
 }
