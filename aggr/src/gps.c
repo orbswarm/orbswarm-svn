@@ -175,6 +175,10 @@ void handleGpsSerial (char c, int isError)
 					strcpy((char *)s_strGpsGpvtgMsg, (char *)s_gpsRx_Packet);
 					s_nGpsGpvtgRecordSeq++;
 				}
+				else if(0 == strncmp((char *)s_gpsRx_Packet, "$PMTK", 6)){
+					strcpy((char *)s_strGpsPmtkMsg, (char *)s_gpsRx_Packet);
+					s_nGpsGpvtgRecordSeq++;
+				}
 				//initialize
 				initGpsMsgStart(c);
 				s_nGpsRxState=eGpsStraightSerialRxInit;

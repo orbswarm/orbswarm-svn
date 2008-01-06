@@ -25,7 +25,7 @@ char popSpuDataQ(int isInterruptCtx);
 char popXbeeDataQ(int isInterruptCtx);
 void pushXbeeDataQ(const char* msg, int isInterruptCtx);
 
-void initSwarmQueues(void (*debug)(const char *c));
 void pushSwarmMsgBus(struct SWARM_MSG msg, int isInterruptCtx);
 struct SWARM_MSG popSwarmMsgBus(int isInterruptCtx);
 	
+void initSwarmQueues(void (*debug)(const char *c));

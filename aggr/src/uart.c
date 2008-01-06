@@ -247,7 +247,6 @@ int uart_init(void (*handleXBeeRecv)(char c, int isError),
   UCSR1C = (1<<UCSZ11) | (1<< UCSZ10);
   UBRR1 = UBRR_VAL;
   _handleGpsARecv = handleGpsARecv;
-//  _getSpuGpsOutChar = getSpuGpsOutChar;
 
   return 0;
 }

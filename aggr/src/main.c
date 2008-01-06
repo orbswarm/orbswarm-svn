@@ -11,7 +11,7 @@
 #include "include/xbee.h"
 #include "include/swarm_queues.h"
 
-#define DEBUG_MODE
+//#define DEBUG_MODE
 
 void
 debug (const char *s)
@@ -19,6 +19,12 @@ debug (const char *s)
 #ifdef DEBUG_MODE
   debugUART (s);
 #endif
+}
+
+void
+info (const char *s)
+{
+  debugUART (s);
 }
 
 void
@@ -39,35 +45,35 @@ setGpsMode (void)
   char strDebugMsg[1024];
   char ack[MAX_GPS_PACKET_LENGTH];
   char *msg = 0;
-  debug ("\r\nReading init params if any");
-  loopTimer0 (1000);
+  info ("\r\nReading init params if any");
+  loopTimer0 (2000);
   getPmtkMsg (ack, 0 /*false */ );
   sprintf (strDebugMsg, "\r\nack=%s", ack);
-  debug (strDebugMsg);
+  info (strDebugMsg);
 
-  debug ("\r\nsending 313");
+  info ("\r\nsending 313");
   msg = "$PMTK313,1*2E\r\n";
   sendGPSAMsg (msg);
-  loopTimer0 (1000);
+  loopTimer0 (2000);
   getPmtkMsg (ack, 0 /*false */ );
   sprintf (strDebugMsg, "\r\nack=%s", ack);
-  debug (strDebugMsg);
+  info (strDebugMsg);
 
-  debug ("\r\nsending 301");
+  info ("\r\nsending 301");
   msg = "$PMTK301,2*2D\r\n";
   sendGPSAMsg (msg);
-  loopTimer0 (1000);
+  loopTimer0 (2000);
   getPmtkMsg (ack, 0 /*false */ );
   sprintf (strDebugMsg, "\r\nack=%s", ack);
-  debug (strDebugMsg);
+  info (strDebugMsg);
 
-  debug ("\r\nsending query");
+  info ("\r\nsending query");
   msg = "$PMTK401*37\r\n";
   sendGPSAMsg (msg);
-  loopTimer0 (1000);
+  loopTimer0 (2000);
   getPmtkMsg (ack, 0 /*false */ );
   sprintf (strDebugMsg, "\r\nack=%s", ack);
-  debug (strDebugMsg);
+  info (strDebugMsg);
 
 }
 
@@ -95,14 +101,14 @@ main (void)
   //loopTimer0(2000);
   char strMsg[1024];
   sprintf (strMsg, "\r\n PORTB=%x", PORTB);
-  debug (strMsg);
+  info (strMsg);
 
   initXbeeModule (pushSwarmMsgBus, 0, debug);
   initGpsModule (0, 0);
   initSpuModule (pushSwarmMsgBus, 0, debug);
-  debug ("\r\ninit ");
-  //setGpsMode();
+  info ("\r\ninit ");
   sei ();
+  setGpsMode();
   /*
      while(1){
      debug("\r\n sleep start");
@@ -164,3 +170,4 @@ main (void)
   //
   return 0;
 }
+

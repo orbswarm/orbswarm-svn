@@ -2,26 +2,6 @@
 #include "include/swarm_common_defines.h"
 #include "include/xbee.h"
 
-enum EXbeeApiTxStates {
-  eXbeeApiTxStateStart=0x00,
-  eXbeeApiTxStateLength,
-  eXbeeApiTxStateAPIId,
-  eXbeeApiTxStateDestAddr,
-  eXbeeApiTxStatePayload,
-  eXbeeApiTxStateChksum
-};
-
-enum EXbeeApiRxStates {
-  eXbeeApiRxStateStart=0x00,
-  eXbeeApiRxStateLength,
-  eXbeeApiRxStateAPIId,
-  eXbeeApiRxStateSrcAddr,
-  eXbeeApiRxStateRssi,
-  eXbeeApiRxStateBroadcastOpt,
-  eXbeeApiRxStatePayload,
-  eXbeeApiRxStateChksum
-};
-
 enum EXbeeStraightSerialRxStates {
   eXbeeStraightSerialRxInit,
   eXbeeStraightSerialRxStartMsg,
