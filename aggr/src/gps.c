@@ -177,7 +177,6 @@ void handleGpsSerial (char c, int isError)
 				}
 				else if(0 == strncmp((char *)s_gpsRx_Packet, "$PMTK", 6)){
 					strcpy((char *)s_strGpsPmtkMsg, (char *)s_gpsRx_Packet);
-					s_nGpsGpvtgRecordSeq++;
 				}
 				//initialize
 				initGpsMsgStart(c);
