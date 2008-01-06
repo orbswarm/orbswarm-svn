@@ -1,6 +1,0 @@
-This is where the aggregator depot resides.
-
-1. Set env var SVN_TRUNK to build
-2. Processor for the aggreagtor is atmega640
-3. fuses are : 0xD9 0x6F
-4. arm limits.h file struct XBEE_RX_PACKET parse_packet(unsigned char* raw_packet);
