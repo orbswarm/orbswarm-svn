@@ -13,65 +13,77 @@
 
 #define DEBUG_MODE
 
-void debug(const char * s)
+void
+debug (const char *s)
 {
-  #ifdef DEBUG_MODE
-  	debugUART(s);
-  #endif	
+#ifdef DEBUG_MODE
+  debugUART (s);
+#endif
 }
 
-void blinkLedPortB6(void)
+void
+blinkLedPortB6 (void)
 {
-  PORTB = PORTB ^ (1<<PB6);
+  PORTB = PORTB ^ (1 << PB6);
 }
 
-void blinkLedPortB7(void)
+void
+blinkLedPortB7 (void)
 {
-  PORTB = PORTB ^ (1<<PB7);
+  PORTB = PORTB ^ (1 << PB7);
 }
 
-void setGpsMode(void)
+void
+setGpsMode (void)
 {
   char strDebugMsg[1024];
   char ack[MAX_GPS_PACKET_LENGTH];
-  char* msg=0;
-  debug("\r\nReading init params if any");
-  loopTimer0(1000);
-  getPmtkMsg(ack, 0/*false*/);
-  sprintf(strDebugMsg, "\r\nack=%s", ack);
-  debug(strDebugMsg);
+  char *msg = 0;
+  debug ("\r\nReading init params if any");
+  loopTimer0 (1000);
+  getPmtkMsg (ack, 0 /*false */ );
+  sprintf (strDebugMsg, "\r\nack=%s", ack);
+  debug (strDebugMsg);
 
-  debug("\r\nsending 313");
-  msg="$PMTK313,1*2E\r\n";
-  sendGPSAMsg(msg);
-  loopTimer0(1000);
-  getPmtkMsg(ack, 0/*false*/);
-  sprintf(strDebugMsg, "\r\nack=%s", ack);
-  debug(strDebugMsg);
+  debug ("\r\nsending 313");
+  msg = "$PMTK313,1*2E\r\n";
+  sendGPSAMsg (msg);
+  loopTimer0 (1000);
+  getPmtkMsg (ack, 0 /*false */ );
+  sprintf (strDebugMsg, "\r\nack=%s", ack);
+  debug (strDebugMsg);
 
-  debug("\r\nsending 301");
-  msg="$PMTK301,2*2D\r\n";
-  sendGPSAMsg(msg);
-  loopTimer0(1000);
-  getPmtkMsg(ack, 0/*false*/);
-  sprintf(strDebugMsg, "\r\nack=%s", ack);
-  debug(strDebugMsg);
+  debug ("\r\nsending 301");
+  msg = "$PMTK301,2*2D\r\n";
+  sendGPSAMsg (msg);
+  loopTimer0 (1000);
+  getPmtkMsg (ack, 0 /*false */ );
+  sprintf (strDebugMsg, "\r\nack=%s", ack);
+  debug (strDebugMsg);
 
-  debug("\r\nsending query");
-  msg= "$PMTK401*37\r\n";
-  sendGPSAMsg(msg);
-  loopTimer0(1000);
-  getPmtkMsg(ack, 0/*false*/);
-  sprintf(strDebugMsg, "\r\nack=%s", ack);
-  debug(strDebugMsg);
+  debug ("\r\nsending query");
+  msg = "$PMTK401*37\r\n";
+  sendGPSAMsg (msg);
+  loopTimer0 (1000);
+  getPmtkMsg (ack, 0 /*false */ );
+  sprintf (strDebugMsg, "\r\nack=%s", ack);
+  debug (strDebugMsg);
 
 }
 
-char dummyPop(int isInterruptCtx){return 0;}
+char
+dummyPop (int isInterruptCtx)
+{
+  return 0;
+}
 
-void dummyHandler(char c,int isError){}
+void
+dummyHandler (char c, int isError)
+{
+}
 
-int main(void)
+int
+main (void)
 {
   char gps_msg_buffer[MAX_GPS_PACKET_LENGTH];
 
@@ -84,9 +96,6 @@ int main(void)
   char strMsg[1024];
   sprintf (strMsg, "\r\n PORTB=%x", PORTB);
   debug (strMsg);
-
-  DDRB = 0xff;
-  PORTB = 0xff;
 
   initXbeeModule (pushSwarmMsgBus, 0, debug);
   initGpsModule (0, 0);
@@ -105,6 +114,7 @@ int main(void)
      }
    */
 //
+  DDRB = 0xff;
   while (1)
     {
       //debug("\r\n while start");
@@ -124,7 +134,7 @@ int main(void)
 	  if (0 == strncmp (msg.swarm_msg_payload, "$Ag*", 4))
 	    {
 	      while (isSpuSendInProgress ())
-			;
+		;
 	      debug ("\r\n Got request for PS");
 	      sendSpuMsg ("!");
 	      getGpsGpggaMsg (gps_msg_buffer, 0);
@@ -138,9 +148,10 @@ int main(void)
 	  else if (0 == strncmp (msg.swarm_msg_payload, "$As", 3))
 	    {
 	      while (isSpuSendInProgress ())
-			;
-	      sprintf(strMsg, "\r\nstreaming data through xbee msg=%s", msg.swarm_msg_payload + 3);
-	      debug(strMsg);
+		;
+	      sprintf (strMsg, "\r\nstreaming data through xbee msg=%s",
+		       msg.swarm_msg_payload + 3);
+	      debug (strMsg);
 	      pushXbeeDataQ (msg.swarm_msg_payload + 3, 0);
 	      startAsyncXBeeTransmit ();
 	    }

@@ -69,7 +69,6 @@ static void initXbeeMsgStart(char c)
 
 void handleXbeeSerial(char c, int isError)
 {
-  debugCallback();
 /*	char strDebugMsg[1024];
 	sprintf(strDebugMsg, "\r\nhandleXbeeSerial.state=%d", s_nXbeeRxState);
 	debug(strDebugMsg);
@@ -78,6 +77,7 @@ void handleXbeeSerial(char c, int isError)
   if(isError){
     //debug("\nerror flag set");
     s_xbeeRxIsError=isError;
+    debugCallback();
     return;
   }
   switch(s_nXbeeRxState){

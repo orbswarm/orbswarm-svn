@@ -105,7 +105,7 @@ ISR(SIG_USART1_RECV)
 ////////////////////UDRIE interrupt handlers
 ISR(SIG_USART3_DATA)
 {
-	blinkLed6();
+	//blinkLed6();
   char c = (*_getXBeeOutChar)(1 /*true*/);
   if(c !=0 ){
     UDR3 = c;
@@ -119,7 +119,7 @@ ISR(SIG_USART3_DATA)
 
 ISR(SIG_USART0_DATA)
 {
-	blinkLed7();
+	//blinkLed7();
   char c = (*_getSpuOutChar)(1 /*true*/);
   if(c !=0 ){
     UDR0 = c;
