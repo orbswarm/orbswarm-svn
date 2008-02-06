@@ -49,8 +49,8 @@ public class OrbControlImpl implements OrbControl {
         for(int i=0; i < 6; i++) {
             orbEnabledMap[i] = true;
         }
-        orbEnabledMap[2] = false;
-        orbEnabledMap[3] = false;  // TODO: read this from a file!!!
+        orbEnabledMap[2] = true;
+        orbEnabledMap[3] = true;  // TODO: read this from a file!!!
     }
     public boolean isEnabled(int orbNum) {
         boolean enabled =  (orbNum < orbEnabledMap.length && orbEnabledMap[orbNum]);
