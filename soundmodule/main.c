@@ -38,7 +38,8 @@ int main( void )
   unsigned char cData, CmdStr[BUF_SIZE];
   unsigned char CmdLen = 0;
   unsigned char n=0;
-  
+  unsigned char inCmd = 0; 	/* very simple state machine; equals 1 if in a command (after '<' but before '>') */
+
   DDRD = 0xF2;		/* 0b 1111 0010	   1 indicates Output pin */
   
   UART_Init(11);		// 12 = 38.4k when system clock is 8Mhz (AT Tiny2313) 11 = 38.4K for 7.37MHz xtal 
@@ -59,6 +60,7 @@ int main( void )
       if(cData == '<') { 	/* start of a command. Reset everything */
 	CmdStr[0] = 0;		
 	CmdLen = 0;
+	inCmd = 1;		/* we are in the command state */
       }
       else if (cData == '>'){	/* we got a complete command; process it */
 	n = 0;			/* index of current char in command str */
@@ -73,10 +75,13 @@ int main( void )
 	/* reset everything even if it was not a M command */
 	CmdStr[0] = 0;		
 	CmdLen = 0;
+	inCmd = 0;
       }
-      else {					/* accumulate chars into command buffer */
-	CmdStr[CmdLen] = cData;		  
-	if (CmdLen < BUF_SIZE) CmdLen++;
+      else {
+	if (inCmd) { 					/* accumulate chars into command buffer */
+	  CmdStr[CmdLen] = cData;		  
+	  if (CmdLen < BUF_SIZE) CmdLen++;
+	}
       }
     }
   }    
