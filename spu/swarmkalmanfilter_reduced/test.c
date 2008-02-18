@@ -22,6 +22,7 @@
 #include "kalman.h"
 #include "kalmanswarm.h"
 #include "matmath.h"
+#include "kftime.h"
 
 
 
@@ -80,8 +81,6 @@ int main( int argc, char **argv )
   meas = matrix( 1, num_samples, 1, MEAS_SIZE );
   trajectory = matrix( 1, num_samples, 1, STATE_SIZE );
 
-  printf(" allocated trajectory ");
-
   load_meas( meas_fname, MEAS_SIZE, num_samples, meas );
 
 
@@ -97,8 +96,7 @@ int main( int argc, char **argv )
       /*  For each sample in the test run, perform one estimation and
 	  copy the results into the trajectory history   */
       
-  /*start_clock();	*/
-
+  start_clock();	
       for( time = 1; time <= num_samples; time++ )
 	{
 
@@ -108,7 +106,7 @@ int main( int argc, char **argv )
 	  if( debug )
 	    {
 	      sprintf( dbgstr, "State @ t = %d", time );
-	      print_vector( dbgstr, track, STATE_SIZE );
+	      /*print_vector( dbgstr, track, STATE_SIZE );*/
 	    }
   traj_fptr = trajectory[ time ];
 
@@ -116,7 +114,7 @@ int main( int argc, char **argv )
 	    traj_fptr[ i ] = track[ i ];
 	}
 
-  /*end_clock("All samples processed in this many ticks -");*/
+  end_clock("All samples processed in this many ticks -");
     
   /*  Save the set of estimated parameters into a file  */
   
