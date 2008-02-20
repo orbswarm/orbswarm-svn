@@ -1,6 +1,6 @@
 // ---------------------------------------------------------------------
 // 
-//	swarmfeedback.cc
+//	swarmfeedback.c
 //      SWARM Orb 
 //      feedback PID loop  for SWARM Orb http://www.orbswarm.com
 //
