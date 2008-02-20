@@ -1,14 +1,14 @@
 
 // ---------------------------------------------------------------------
 // 
-//	File: swarmIMUutils.cc
+//	File: imuutils.c
 //      SWARM Orb SPU code http://www.orbswarm.com
 //	Utilities to parse and convert Inertial Measurement Unit (IMU) readings
 //
 //	Written by Dillo & Jon F
 // -----------------------------------------------------------------------
 
-#include "../include/swarmIMUutils.h"
+#include "imuutils.h"
 
 double countsToRPS(int counts);
 

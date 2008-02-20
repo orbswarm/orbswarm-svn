@@ -1,6 +1,6 @@
 // ---------------------------------------------------------------------
 // 
-//	swarmfeedback.c
+//	feedback.c
 //      SWARM Orb 
 //      feedback PID loop  for SWARM Orb http://www.orbswarm.com
 //
@@ -16,9 +16,8 @@
 #include  <sys/time.h>
 #include  <sys/select.h>
 #include  <math.h>
-#include "../include/swarmserial.h"
-#include "../include/swarmdefines.h"
-#include "../include/swarmspuutils.h"
+#include "swarmdefines.h"
+
 
 // Static vars for control
 

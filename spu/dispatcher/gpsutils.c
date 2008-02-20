@@ -1,7 +1,7 @@
 
 // ---------------------------------------------------------------------
 // 
-//	File: swarmGPSutils.cc
+//	File: gpsutils.c
 //      SWARM Orb SPU code http://www.orbswarm.com
 //	GPS parsing utilities written by Matt and Jessie 
 //
@@ -10,7 +10,7 @@
 //
 //	Written by yourname, optional email
 // -----------------------------------------------------------------------
-#include "../include/swarmGPSutils.h"
+#include "gpsutils.h"
 
 int parseGPSSentence(swarmGpsData * gpsdata)
 {

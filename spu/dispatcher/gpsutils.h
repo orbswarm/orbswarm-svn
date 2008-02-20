@@ -1,7 +1,7 @@
 
 // ---------------------------------------------------------------------
 // 
-//	File:  swarmGPSutils.h 
+//	File:  gpsutils.h 
 //      SWARM Orb SPU code http://www.orbswarm.com
 //	: prototypes for GPS parsing routines 
 //
@@ -12,12 +12,18 @@
 // refactored from swarmsputils.c  by Jon Foote (Head Rotor ar rotorbrain.com)
 // -----------------------------------------------------------------------
 
-#include<unistd.h>
-#include<sys/types.h>
-#include<sys/mman.h>
-#include<stdio.h>
-#include<fcntl.h>
-#include<string.h>
+#define SWARM_INVALID_GPS_SENTENCE 100 
+#define SWARM_NMEA_GPS_SENTENCE_TYPE_GPGGA "GPGGA"
+#define SWARM_NMEA_GPS_SENTENCE_TYPE_GPVTG "GPVTG"
+#define SWARM_NMEA_GPS_DATA_DELIM ","
+#define MAX_GPS_SENTENCE_SZ 1024
+
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/mman.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <string.h>
 #include <sys/stat.h>			/* declare the 'stat' structure	*/
 #include <time.h>
 #include <errno.h>

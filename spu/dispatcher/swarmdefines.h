@@ -7,34 +7,7 @@
 #define MAX_BUFF_SZ 1024 //Serial port read/write buffer size
 #define SWARM_SUCCESS 0
 #define SWARM_SERIAL_WRITE_ERR 10 //failed to write data to serial port 
-#define SWARM_OUT_OF_MEMORY_ERROR 11 //failed to malloc some memory 
-#define SWARM_INVALID_GPS_SENTENCE 100 
-#define SWARM_NMEA_GPS_SENTENCE_TYPE_GPGGA "GPGGA"
-#define SWARM_NMEA_GPS_SENTENCE_TYPE_GPVTG "GPVTG"
-#define SWARM_NMEA_GPS_DATA_DELIM ","
-#define MAX_GPS_SENTENCE_SZ 1024 
-#define SWARM_INVALID_AGG_DATA 14
-#define AGGR_MSG_FOOTER_WITHOUT_HEADER_ERROR 15
-#define AGGR_MSG_TO_LARGE_FOR_BUFFER_ERROR 16
-#define AGGR_MSG_INCOMPLETE_OR_INVALID 17
-#define AGGR_MSG_HEADER_WITHOUT_FOOTER_ERROR 18
-#define AGGR_MSG_NO_DELIMS_FOUND_ERROR 19
-
-
-#define AGGR_MSG_TYPE_UNKNOWN 200 
-#define AGGR_MSG_TYPE_MOTHER_SHIP_SPU_POLL 201 
-#define AGGR_MSG_TYPE_TRAJECTORY 202 
-#define AGGR_MSG_TYPE_MOTHER_SHIP_LOC 203 
-#define AGGR_MSG_TYPE_EFFECTS 204 
-#define AGGR_MSG_TYPE_MOTOR_CONTROL 205 
-#define AGGR_MSG_TYPE_MOTHER_SHIP 206 
-
-#define SPU_LED_RED_ON 40  
-#define SPU_LED_GREEN_ON 41 
-#define SPU_LED_BOTH_ON 42 
-#define SPU_LED_BOTH_OFF 43  
-#define SPU_LED_RED_OFF 44   
-#define SPU_LED_GREEN_OFF 45 
+#define SWARM_OUT_OF_MEMORY_ERROR 11 //failed to malloc some memory  
 
 #define MAX_LOG_ENTRY_SZ 1024 
 #define MAX_NUM_LOG_FILES 5      //the maximum number of log files allowed
@@ -48,40 +21,6 @@
 //Constants for converting from lat/lon to UTM
 #define WGS84_EQUATORIAL_RADIUS_METERS 6387137
 #define WGS84_ECCENTRICITY_SQUARED 0.00669438
-
-/*********MOTHER SHIP MESSAGE HEADERS**********************************/
-#define MSG_HEAD_MOTOR_CONTROLER '$'
-#define MSG_END_MOTOR_CONTROLER '*'
-#define MSG_HEAD_LIGHTING '<'   //used to identify lighting/sound messages
-#define MSG_END_LIGHTING '>'    //used to identify lighting/sound messages
-#define MSG_HEAD_MOTHER_SHIP '['//used to supply the orb with info about the mothership
-#define MSG_END_MOTHER_SHIP ']' //used to supply the orb with info about the mothership
-                                //E.G. the location of the mothership in UTM format
-#define MSG_HEAD_AGG_STREAM '{'//used to supply the orb with info about the mothership
-#define MSG_END_AGG_STREAM '}' //used to supply the orb with info about the mothership
-
-#define MOTHER_SHIP_MSG_DELIM " " //blank space for newline
-#define MOTHER_SHIP_MSG_HEAD_STATUS "DUMP_STATUS"
-#define MOTHER_SHIP_MSG_HEAD_MOTOR_STATUS "MOTOR_STATUS"
-#define MOTHER_SHIP_MSG_HEAD_TRAJECTORY "TRAJ"
-#define MOTHER_SHIP_MSG_HEAD_LOCATION "MSLOC"
-#define MOTHER_SHIP_MSG_LOW_VERBOCITY "LOW_VERBOCITY"   //will not echo back random motor controller commands
-#define MOTHER_SHIP_MSG_HIGH_VERBOCITY "HIGH_VERBOCITY" //echos anything that the motor controller echos back to the
-                                                        //mother ship  
-#define AGGR_DATA_XFER_ACK '!'  //found at the end of a data stream from the Agg 
-                                       //Note: a data stream may contain >1 messages
-#define AGGR_MESSAGE_DELIM_END ";" 
-
-#define AGGR_GPS_QUERY_CMD "$Ag*$"
-#define AGGR_ZIGBEE_QUERY_CMD "$Ax*$"
-
-#define MAX_AGG_PACKET_SZ 100   // total packet sz including the header footer 
-#define MAX_AGG_PACKET_PAYLOAD_SZ 91   // This is 100 bytes - headersz + footersz + '\0' 
-#define AGGR_ZIGBEE_STREAM_WRITE_HEADER "$As"
-#define AGGR_ZIGBEE_STREAM_WRITE_END "*$"
-
-#define AGG_GPS_START_DELIM '$'
-#define AGG_GPS_STOP_DELIM '\n'
 
 // defines for use with the AD Converters
 #define SONAR_CHANNEL 2

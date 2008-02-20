@@ -1,6 +1,6 @@
 // ---------------------------------------------------------------------
 // 
-//	swarmfeedback.h
+//	feedback.h
 //      SWARM Orb 
 //      feedback PID loop  for SWARM Orb http://www.orbswarm.com
 //
@@ -10,7 +10,7 @@
 // -----------------------------------------------------------------------
 
 
-#include "../include/swarmdefines.h"
+#include "swarmdefines.h"
 
 
 void swarmFeedbackInit(void);

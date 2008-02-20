@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../include/matmath.h"
+#include "matmath.h"
 
 #define NR_END 1
 #define FREE_ARG char*

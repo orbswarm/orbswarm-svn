@@ -1,6 +1,6 @@
 // ---------------------------------------------------------------------
 // 
-//	File: swarmIMUutils.h
+//	File: imuutils.h
 //      SWARM Orb SPU code http://www.orbswarm.com
 //	Utilities to parse and convert Inertial Measurement Unit (IMU) readings
 //

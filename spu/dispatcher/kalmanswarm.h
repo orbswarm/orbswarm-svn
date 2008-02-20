@@ -1,6 +1,6 @@
 /*  Function Prototypes for kalmanSwarm */
 
-#include "../include/swarmdefines.h"
+#include "swarmdefines.h"
 
 #define RADIUS 0.762
 #define GRAVITY 9.81
