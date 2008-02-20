@@ -14,8 +14,8 @@ NATIVECC = gcc
 # select them here
 # (I'm sure there's a more elegant way to do this...)
 
-CC = $(CYGWINCC)
-#CC = $(LINUXCC)
+#CC = $(CYGWINCC)
+CC = $(LINUXCC)
 #CC = $(NATIVECC)
 #CPP = $(LINUXCPP)
 CFLAGS = -Wall -g -fno-exceptions -O3 -D_REENTRANT 
