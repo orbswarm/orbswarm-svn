@@ -18,6 +18,13 @@
 #define SWARM_NMEA_GPS_DATA_DELIM ","
 #define MAX_GPS_SENTENCE_SZ 1024
 
+/************************Constants**************************************/
+
+#define PI 3.14159265;
+#define FOURTHPI PI / 4.0;
+#define DEG2RAD PI / 180.0;
+#define RAD2DEG 180.0 / PI;
+
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/mman.h>

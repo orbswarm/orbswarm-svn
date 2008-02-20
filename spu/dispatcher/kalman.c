@@ -4,42 +4,35 @@
     extended kalman filter, and an iterated extended kalman filter.
 
     For ready extensibility, the apply_measurement() and apply_system()
-    functions are located in a separate file.
+    functions are located in a separate file: kalman_cam.c is an example.
 
     It uses the matmath functions provided in an accompanying file
     to perform matrix and quaternion manipulation.
-
-
-    J. Watlington, 11/15/95
-
-    Modified:
-    11/30/95  wad  The extended kalman filter section seems to be
-                   working now.
 */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../include/kalman.h"
-#include "../include/kalmanswarm.h"
+#include "kalman.h"
+#include "kalmanswarm.h"
 
 
 
 /*  The following are the global variables of the Kalman filters,
     used to point to data structures used throughout.     */
 
-static m_elem  *state_pre;         /* ptr to apriori state vectors, x(-)     */
-static m_elem  *state_post;        /* ptr to aposteriori state vectors, x(+) */
+static uFloat  *state_pre;         /* ptr to apriori state vectors, x(-)     */
+static uFloat  *state_post;        /* ptr to aposteriori state vectors, x(+) */
 
-static m_elem  **cov_pre;          /* ptr to apriori covariance matrix, P(-) */
-static m_elem  **cov_post;         /* ptr to apriori covariance matrix, P(-) */
-static m_elem  **sys_noise_cov;    /* system noise covariance matrix (Qk)  */
-static m_elem  **mea_noise_cov;    /* measurement noise variance vector (R)  */
+static uFloat  **cov_pre;          /* ptr to apriori covariance matrix, P(-) */
+static uFloat  **cov_post;         /* ptr to apriori covariance matrix, P(-) */
+static uFloat  **sys_noise_cov;    /* system noise covariance matrix (Qk)  */
+static uFloat  **mea_noise_cov;    /* measurement noise variance vector (R)  */
 
-static m_elem  **sys_transfer;     /* system transfer function (Phi)    */
-static m_elem  **mea_transfer;     /* measurement transfer function (H) */
+static uFloat  **sys_transfer;     /* system transfer function (Phi)    */
+static uFloat  **mea_transfer;     /* measurement transfer function (H) */
 
-static m_elem  **kalman_gain;      /* The Kalman Gain matrix (K) */
+static uFloat  **kalman_gain;      /* The Kalman Gain matrix (K) */
 
 int            global_step = 0;    /* the current step number (k) */
 
@@ -47,36 +40,36 @@ int            global_step = 0;    /* the current step number (k) */
 /*  Temporary variables, declared statically to avoid lots of run-time
     memory allocation.      */
 
-static m_elem  *z_estimate;        /* a measurement_size x 1 vector */
-static m_elem  **temp_state_state; /* a state_size x state_size matrix */
-static m_elem  **temp_meas_state;  /* a measurement_size x state_size matrix */
-static m_elem  **temp_state_meas;  /* a measurement_size x state_size matrix */
-static m_elem  **temp_meas_meas;   /* a measurement_size squared matrix */
-static m_elem  **temp_meas_2;      /* another one ! */
+static uFloat  *z_estimate;        /* a measurement_size x 1 vector */
+static uFloat  **temp_state_state; /* a state_size x state_size matrix */
+static uFloat  **temp_meas_state;  /* a measurement_size x state_size matrix */
+static uFloat  **temp_state_meas;  /* a measurement_size x state_size matrix */
+static uFloat  **temp_meas_meas;   /* a measurement_size squared matrix */
+static uFloat  **temp_meas_2;      /* another one ! */
 
 /* variables for Runge-Kutta */
-static m_elem  *k1;        /* a state_size x 1 vector */
-static m_elem  *k2;        /* a state_size x 1 vector */
-static m_elem  *k3;        /* a state_size x 1 vector */
-static m_elem  *k4;        /* a state_size x 1 vector */
+static uFloat  *k1;        /* a state_size x 1 vector */
+static uFloat  *k2;        /* a state_size x 1 vector */
+static uFloat  *k3;        /* a state_size x 1 vector */
+static uFloat  *k4;        /* a state_size x 1 vector */
 
-static m_elem  *tempState;        /* a state_size x 1 vector */
+static uFloat  *tempState;        /* a state_size x 1 vector */
 
 /*  Prototypes of internal functions  */
 
-static void rungeKutta( m_elem *old_state, m_elem *new_state );
+static void rungeKutta( uFloat *old_state, uFloat *new_state );
  
-static void generate_system_transfer( m_elem *state, m_elem **phi );
+static void generate_system_transfer( uFloat *state, uFloat **phi );
 
 static void alloc_globals( int num_state,
 			  int num_measurement );
-static void update_system( m_elem *z, m_elem *x_minus,
-			 m_elem **kalman_gain, m_elem *x_plus );
-static void estimate_prob( m_elem **P_post, m_elem **Phi, m_elem **GQGt,
-			  m_elem **P_pre );
-static void update_prob( m_elem **P_pre, m_elem **R, m_elem **H,
-			m_elem **P_post, m_elem **K );
-static void take_inverse( m_elem **in, m_elem **out, int n );
+static void update_system( uFloat *z, uFloat *x_minus,
+			 uFloat **kalman_gain, uFloat *x_plus );
+static void estimate_prob( uFloat **P_post, uFloat **Phi, uFloat **GQGt,
+			  uFloat **P_pre );
+static void update_prob( uFloat **P_pre, uFloat **R, uFloat **H,
+			uFloat **P_post, uFloat **K );
+static void take_inverse( uFloat **in, uFloat **out, int n );
 
 
 
@@ -89,7 +82,7 @@ static void take_inverse( m_elem **in, m_elem **out, int n );
   This function initializes the extended kalman filter.
 */
 
-void extended_kalman_init( m_elem **P, m_elem *x )
+void extended_kalman_init( uFloat **P, uFloat *x )
 {
 #ifdef PRINT_DEBUG
   printf( "ekf: Initializing filter\n" );
@@ -102,10 +95,10 @@ void extended_kalman_init( m_elem **P, m_elem *x )
 
   /*  Init the global variables using the arguments.  */
 
-  vec_copy( x, state_post, STATE_SIZE );
-  vec_copy( x, state_pre, STATE_SIZE );
-  mat_copy( P, cov_post, STATE_SIZE, STATE_SIZE );
-  mat_copy( P, cov_pre, STATE_SIZE, STATE_SIZE );
+  vecCopy( x, state_post, STATE_SIZE );
+  vecCopy( x, state_pre, STATE_SIZE );
+  matCopy( P, cov_post, STATE_SIZE, STATE_SIZE );
+  matCopy( P, cov_pre, STATE_SIZE, STATE_SIZE );
 
   covarianceSet( sys_noise_cov, mea_noise_cov );	
 
@@ -121,14 +114,14 @@ void extended_kalman_init( m_elem **P, m_elem *x )
     recursion of the extended kalman filter.
 */
 
-void extended_kalman_step( m_elem *z_in )
+void extended_kalman_step( uFloat *z_in )
 {
 #ifdef PRINT_DEBUG
   printf( "ekf: step %d\n", global_step );
 #endif
 
 #ifdef PRINT_DEBUG
-	print_vector( "measurements ", z_in, MEAS_SIZE );
+	printVector( "measurements ", z_in, MEAS_SIZE );
 #endif
   /*****************  Gain Loop  *****************
     First, linearize locally, then do normal gain loop    */
@@ -148,12 +141,12 @@ void extended_kalman_step( m_elem *z_in )
 }
 
 
-m_elem *kalman_get_state( void )
+uFloat *kalman_get_state( void )
 {
   return( state_post );
 }
 
-static void rungeKutta( m_elem *old_state, m_elem *new_state )
+static void rungeKutta( uFloat *old_state, uFloat *new_state )
 {
 
 #ifdef PRINT_DEBUG
@@ -166,30 +159,30 @@ static void rungeKutta( m_elem *old_state, m_elem *new_state )
 
   /* k2 = period * F( old_state + k1 * 0.5) */
   vecScalarMult( k1, 0.5, tempState, STATE_SIZE ); /* tempState = k1 * 0.5 */
-  vec_add( old_state, tempState, tempState, STATE_SIZE );  /* tempState = old_state + k1 * 0.5 */
+  vecAdd( old_state, tempState, tempState, STATE_SIZE );  /* tempState = old_state + k1 * 0.5 */
   systemF( tempState, old_state );
   vecScalarMult( tempState, PERIOD, k2, STATE_SIZE );
 
   /* k3 = period * F( old_state + k2 * 0.5) */
   vecScalarMult( k2, 0.5, tempState, STATE_SIZE ); /* tempState = k2 * 0.5 */
-  vec_add( old_state, tempState, tempState, STATE_SIZE );  /* tempState = old_state + k2 * 0.5 */
+  vecAdd( old_state, tempState, tempState, STATE_SIZE );  /* tempState = old_state + k2 * 0.5 */
   systemF( tempState, old_state );
   vecScalarMult( tempState, PERIOD, k3, STATE_SIZE );
   
   /* k4 = period * F( old_state + k3) */
-  vec_add( old_state, tempState, tempState, STATE_SIZE );  /* tempState = old_state + k3 */
+  vecAdd( old_state, tempState, tempState, STATE_SIZE );  /* tempState = old_state + k3 */
   systemF( tempState, old_state );
   vecScalarMult( tempState, PERIOD, k4, STATE_SIZE );
 
   /*  new_state = old_state + 0.16667 * ( k1 + 2*k2 + 2*k3 + k4 ) */
-  vec_copy( k1, new_state, STATE_SIZE );
+  vecCopy( k1, new_state, STATE_SIZE );
   vecScalarMult( k2, 2.0, tempState, STATE_SIZE );
-  vec_add( new_state, tempState, new_state, STATE_SIZE);
+  vecAdd( new_state, tempState, new_state, STATE_SIZE);
   vecScalarMult( k3, 2.0, tempState, STATE_SIZE );
-  vec_add( new_state, tempState, new_state, STATE_SIZE);
-  vec_add( new_state, k4, new_state, STATE_SIZE);
+  vecAdd( new_state, tempState, new_state, STATE_SIZE);
+  vecAdd( new_state, k4, new_state, STATE_SIZE);
   vecScalarMult( new_state, 0.16667, new_state, STATE_SIZE );
-  vec_add( new_state, old_state, new_state, STATE_SIZE);
+  vecAdd( new_state, old_state, new_state, STATE_SIZE);
 
 }
 
@@ -198,7 +191,7 @@ static void rungeKutta( m_elem *old_state, m_elem *new_state )
     function, representing the first terms of a taylor expansion
     of the actual non-linear system transfer function.     */
 
-void generate_system_transfer( m_elem *state, m_elem **phi )
+void generate_system_transfer( uFloat *state, uFloat **phi )
 {
   int  row, col;
   
@@ -215,10 +208,10 @@ void generate_system_transfer( m_elem *state, m_elem **phi )
 
   systemJacobian( state, temp_state_state );
 
-  mat_mult_scalar( temp_state_state, PERIOD, temp_state_state,
+  matMultScalar( temp_state_state, PERIOD, temp_state_state,
 	      STATE_SIZE, STATE_SIZE );	
 
-  mat_add( phi, temp_state_state, phi, STATE_SIZE, STATE_SIZE );  	
+  matAdd( phi, temp_state_state, phi, STATE_SIZE, STATE_SIZE );  	
 
 
 
@@ -273,35 +266,35 @@ static void alloc_globals( int num_state, int num_measurement )
    This function generates an updated version of the state estimate,
    based on what we know about the measurement system.       */
 
-static void update_system( m_elem *z, m_elem *x_pre,
-			 m_elem **K, m_elem *x_post )
+static void update_system( uFloat *z, uFloat *x_pre,
+			 uFloat **K, uFloat *x_post )
 {
 #ifdef PRINT_DEBUG
   printf( "ekf: updating system\n" );
 #endif
 
   apply_measurement( x_pre, z_estimate ); /* z_estimate = h ( x_pre ) */
-  vec_sub( z, z_estimate, z_estimate, MEAS_SIZE ); /* z_estimate = z - z_estimate */
-  mat_mult_vector( K, z_estimate, x_post, STATE_SIZE, MEAS_SIZE ); /* x_post = K * (z- z_estimate) */
-  vec_add( x_post, x_pre, x_post, STATE_SIZE ); /* x_post + x_pre + K * (z-z_estimate) */
+  vecSub( z, z_estimate, z_estimate, MEAS_SIZE ); /* z_estimate = z - z_estimate */
+  matMultVector( K, z_estimate, x_post, STATE_SIZE, MEAS_SIZE ); /* x_post = K * (z- z_estimate) */
+  vecAdd( x_post, x_pre, x_post, STATE_SIZE ); /* x_post + x_pre + K * (z-z_estimate) */
 }
 
 /* estimate_prob()
    This function estimates the change in the variance of the state
    variables, given the system transfer function.   */
 
-static void estimate_prob( m_elem **P_post, m_elem **Phi, m_elem **Qk,
-			  m_elem **P_pre )
+static void estimate_prob( uFloat **P_post, uFloat **Phi, uFloat **Qk,
+			  uFloat **P_pre )
 {
 #ifdef PRINT_DEBUG
   printf( "ekf: estimating prob\n" );
 #endif
 
-  mat_mult_transpose( P_post, Phi, temp_state_state,
+  matMultTranspose( P_post, Phi, temp_state_state,
 		     STATE_SIZE, STATE_SIZE, STATE_SIZE ); /* temp_state_state = P_post * Phi' */
-  mat_mult( Phi, temp_state_state, P_pre,
+  matMult( Phi, temp_state_state, P_pre,
 		     STATE_SIZE, STATE_SIZE, STATE_SIZE ); /* P_pre = Phi * P_post * Phi' */
-  mat_add( P_pre, Qk, P_pre, STATE_SIZE, STATE_SIZE );   /* P_pre = Qk + Phi * P_post * Phi' */
+  matAdd( P_pre, Qk, P_pre, STATE_SIZE, STATE_SIZE );   /* P_pre = Qk + Phi * P_post * Phi' */
 }
 
 
@@ -316,67 +309,67 @@ static void estimate_prob( m_elem **P_post, m_elem **Phi, m_elem **Qk,
     K     - the Kalman gain matrix ( state x meas )
 */
 
-static void update_prob( m_elem **P_pre, m_elem **R, m_elem **H,
-			m_elem **P_post, m_elem **K )
+static void update_prob( uFloat **P_pre, uFloat **R, uFloat **H,
+			uFloat **P_post, uFloat **K )
 {
 #ifdef PRINT_DEBUG
   printf( "ekf: updating prob\n" );
 #endif
 #ifdef DIV_DEBUG
-  print_matrix( "P", P_pre, STATE_SIZE, STATE_SIZE );
+  printMatrix( "P", P_pre, STATE_SIZE, STATE_SIZE );
 #endif
 
 #ifdef DIV_DEBUG
-  print_matrix( "H", H, MEAS_SIZE, STATE_SIZE );
+  printMatrix( "H", H, MEAS_SIZE, STATE_SIZE );
 #endif
 
 #ifdef DIV_DEBUG
-  print_matrix( "R", R, MEAS_SIZE, MEAS_SIZE );
+  printMatrix( "R", R, MEAS_SIZE, MEAS_SIZE );
 #endif
 
 
-  mat_mult_transpose( P_pre, H, temp_state_meas,
+  matMultTranspose( P_pre, H, temp_state_meas,
 		     STATE_SIZE, STATE_SIZE, MEAS_SIZE ); /* temp_state_meas = P_pre*H' */
-  mat_mult( H, temp_state_meas, temp_meas_meas,
+  matMult( H, temp_state_meas, temp_meas_meas,
 	   MEAS_SIZE, STATE_SIZE, MEAS_SIZE );  /* temp_meas_meas = (H*P_pre)*H' */
 
 
-  mat_add( temp_meas_meas, R, temp_meas_meas,
+  matAdd( temp_meas_meas, R, temp_meas_meas,
 	  MEAS_SIZE, MEAS_SIZE );  
 
   take_inverse( temp_meas_meas, temp_meas_2, MEAS_SIZE ); /* temp_meas_2 = inv( H*P_pre*H' + R) */
 
 #ifdef DIV_DEBUG
-  print_matrix( "1 / (HPH + R)", temp_meas_2,
+  printMatrix( "1 / (HPH + R)", temp_meas_2,
 	       MEAS_SIZE, MEAS_SIZE );
 #endif
 
-  mat_mult( temp_state_meas, temp_meas_2, K,
+  matMult( temp_state_meas, temp_meas_2, K,
 		     STATE_SIZE, MEAS_SIZE, MEAS_SIZE ); /* K = P_pre * H' * (inv( H*P_pre*H' + R))' */
 
 #ifdef DIV_DEBUG
-  print_matrix( "Kalman Gain", K, STATE_SIZE, MEAS_SIZE );
+  printMatrix( "Kalman Gain", K, STATE_SIZE, MEAS_SIZE );
 #endif
 
-  mat_mult( H, P_pre, temp_meas_state,
+  matMult( H, P_pre, temp_meas_state,
 	   MEAS_SIZE, STATE_SIZE, STATE_SIZE );  /* temp_meas_state = H * P_pre  */
 
-  mat_mult( K, temp_meas_state, temp_state_state,
+  matMult( K, temp_meas_state, temp_state_state,
 	   STATE_SIZE, MEAS_SIZE, STATE_SIZE );  /* temp_state_state = K*H*P_pre */
 
 #ifdef PRINT_DEBUG
   printf( "ekf: updating prob 3\n" );
 #endif
-  mat_sub(  P_pre, temp_state_state, P_post, STATE_SIZE, STATE_SIZE ); /* P_post = P_pre - K*H*P_pre */
+  matSub(  P_pre, temp_state_state, P_post, STATE_SIZE, STATE_SIZE ); /* P_post = P_pre - K*H*P_pre */
 
 #ifdef DIV_DEBUG
-  print_matrix( "New P_post", P_post,
+  printMatrix( "New P_post", P_post,
 	       STATE_SIZE, STATE_SIZE );
 #endif
 }
 
 
-static void take_inverse( m_elem **in, m_elem **out, int n )
+static void take_inverse( uFloat **in, uFloat **out, int n )
 {
 #ifdef PRINT_DEBUG
   printf( "ekf: calculating inverse\n" );
@@ -384,8 +377,8 @@ static void take_inverse( m_elem **in, m_elem **out, int n )
   /*  Nothing fancy for now, just a Gauss-Jordan technique,
       with good pivoting (thanks to NR).     */
 
-  gaussj( in, n, out, 0 );  /* out is SCRATCH  */
-  mat_copy( in, out, n, n );
+  gjInverse( in, n, out, 0 );  /* out is SCRATCH  */
+  matCopy( in, out, n, n );
 }
 
 

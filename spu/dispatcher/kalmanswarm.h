@@ -1,6 +1,6 @@
 /*  Function Prototypes for kalmanSwarm */
 
-#include "swarmdefines.h"
+#include "../include/swarmdefines.h"
 
 #define RADIUS 0.762
 #define GRAVITY 9.81
@@ -37,9 +37,9 @@
 #define MEAS_omega   		10
 
 
-int KalmanInit( struct swarmStateEstimate * stateEstimate );
+int kalmanInit( struct swarmStateEstimate * stateEstimate );
 
-int kalmanProcess( struct swarmGpsData * gpsData, struct swarmImuData * imuData, struct swarmMotorData motorData, struct swarmStateEstimate * stateEstimate);
+int kalmanProcess( struct swarmGpsData * gpsData, struct swarmImuData * imuData, struct swarmStateEstimate * stateEstimate);
 
 
 

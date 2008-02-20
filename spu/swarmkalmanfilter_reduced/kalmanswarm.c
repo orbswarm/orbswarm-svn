@@ -4,8 +4,6 @@
     a particular system and measurement model.
 
     In this case, the system being characterized is spherical art robot.
-    
-    J. Watlington, 11/28/95
 
     Rehashed for SWARM (http://www.orbswarm.com) by Michael Prados, 8/10/07
 */
@@ -26,16 +24,16 @@ extern int     debug;
 /*  Temporary variables, declared statically to avoid lots of run-time
     memory allocation.      */
 
-static m_elem  *measurementVec;        /* a measurement_size x 1 vector */
-static m_elem  *stateVec;              /* a state_size x 1 vector */
+static uFloat  *measurementVec;        /* a measurement_size x 1 vector */
+static uFloat  *stateVec;              /* a state_size x 1 vector */
 
 
-int KalmanInit( struct swarmStateEstimate * stateEstimate )
+int kalmanInit( struct swarmStateEstimate * stateEstimate )
 {
    int      row, col; /* various iteration variables   */
 
-   m_elem   **P;     /*  Estimate Covariance        (mxm)   */
-   m_elem   *x;      /*  Starting state             (1xm)   */
+   uFloat   **P;     /*  Estimate Covariance        (mxm)   */
+   uFloat   *x;      /*  Starting state             (1xm)   */
 
    P = matrix( 1, STATE_SIZE, 1, STATE_SIZE );
    x = vector( 1, STATE_SIZE );
@@ -58,8 +56,8 @@ int KalmanInit( struct swarmStateEstimate * stateEstimate )
 
    extended_kalman_init( P, x );
 
-   free_matrix( P, 1, STATE_SIZE, 1, STATE_SIZE );
-   free_vector( x, 1, STATE_SIZE );   	
+   freeMatrix( P, 1, STATE_SIZE, 1, STATE_SIZE );
+   freeVector( x, 1, STATE_SIZE );   	
 
    return SWARM_SUCCESS;
 }
@@ -80,8 +78,8 @@ int kalmanProcess( struct swarmGpsData * gpsData, struct swarmImuData * imuData,
 
    measurementVec[ MEAS_xg ] = gpsData->metFromMshipEast;
    measurementVec[ MEAS_yg ] = gpsData->metFromMshipNorth;
-   measurementVec[ MEAS_psig ] = (m_elem)gpsData->nmea_course;   
-   measurementVec[ MEAS_vg ] = (m_elem)gpsData->speed;
+   measurementVec[ MEAS_psig ] = (uFloat)gpsData->nmea_course;   
+   measurementVec[ MEAS_vg ] = (uFloat)gpsData->speed;
 
    extended_kalman_step( measurementVec );
 
@@ -103,7 +101,7 @@ int kalmanProcess( struct swarmGpsData * gpsData, struct swarmImuData * imuData,
 */
  
 
-void systemF( m_elem *stateDot, m_elem *state )
+void systemF( uFloat *stateDot, uFloat *state )
 {
 	stateDot[ STATE_vdot ] 		= 0.0;
 	stateDot[ STATE_v ] 		= state[ STATE_vdot ];
@@ -123,7 +121,7 @@ void systemF( m_elem *stateDot, m_elem *state )
     function, representing the first terms of a taylor expansion
     of the actual non-linear system transfer function.     */
 
-void systemJacobian( m_elem *state, m_elem **jacobian )
+void systemJacobian( uFloat *state, uFloat **jacobian )
 {
   
 #ifdef PRINT_DEBUG
@@ -213,7 +211,7 @@ void systemJacobian( m_elem *state, m_elem **jacobian )
 
 
 #ifdef PRINT_DEBUG
-	/* print_matrix( "jacobian", jacobian, STATE_SIZE, STATE_SIZE ); */
+	/* printMatrix( "jacobian", jacobian, STATE_SIZE, STATE_SIZE ); */
 #endif
 
 }
@@ -226,7 +224,7 @@ void systemJacobian( m_elem *state, m_elem **jacobian )
   predicted state.  It is an evaluation of the measurement's transfer
   function.                                      */
 
-void apply_measurement( m_elem *newState, m_elem *est_measurement )
+void apply_measurement( uFloat *newState, uFloat *est_measurement )
 {
 
   est_measurement[ MEAS_xa ] = newState[ STATE_vdot ] 
@@ -265,7 +263,7 @@ void apply_measurement( m_elem *newState, m_elem *est_measurement )
     function, representing the first terms of a taylor expansion
     of the actual non-linear measurement transfer function.     */
 
-void generate_measurement_transfer( m_elem *state, m_elem **H )
+void generate_measurement_transfer( uFloat *state, uFloat **H )
 {
 
 
@@ -382,7 +380,7 @@ void generate_measurement_transfer( m_elem *state, m_elem **H )
 
 /* set the covariance */
 
-void covarianceSet( m_elem **Qk, m_elem **R )
+void covarianceSet( uFloat **Qk, uFloat **R )
 {
   int  row, col;
   
@@ -401,7 +399,7 @@ void covarianceSet( m_elem **Qk, m_elem **R )
   Qk[ STATE_x ][ STATE_x ] 		= 0.0;
   Qk[ STATE_y ][ STATE_y ] 		= 0.0;
 
-  mat_mult_scalar( Qk, PERIOD, Qk, STATE_SIZE, STATE_SIZE );
+  matMultScalar( Qk, PERIOD, Qk, STATE_SIZE, STATE_SIZE );
   
 
   for( row = 1; row <= MEAS_SIZE; row++ )

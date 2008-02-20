@@ -200,7 +200,7 @@ int parseGPSVtgSentance(swarmGpsData * gpsdata)
   degrees -= 90;
   if (degrees < 0) { degrees += 360; }
   // convert from degrees to radians
-  gpsdata->nmea_course = deg2rad * degrees * -1;
+  gpsdata->nmea_course = DEG2RAD * degrees * -1;
   // convert from km/h to m/s
   gpsdata->speed = kmph * (1000.0 / (60.0*60.0));
   gpsdata->mode = mode;
@@ -286,8 +286,8 @@ void decimalLatLongtoUTM(const double ref_equ_radius, const double ref_ecc_squar
 //Make sure the longitude is between -180.00 .. 179.9
 	double LongTemp = (Long+180)-int((Long+180)/360)*360-180; // -180.00 .. 179.9;
 
-	double LatRad = Lat*deg2rad;
-	double LongRad = LongTemp*deg2rad;
+	double LatRad = Lat*DEG2RAD;
+	double LongRad = LongTemp*DEG2RAD;
 	double LongOriginRad;
 	int    ZoneNumber;
 
@@ -305,7 +305,7 @@ void decimalLatLongtoUTM(const double ref_equ_radius, const double ref_ecc_squar
 	  else if( LongTemp >= 33.0 && LongTemp < 42.0 ) ZoneNumber = 37;
 	 }
 	LongOrigin = (ZoneNumber - 1)*6 - 180 + 3;  //+3 puts origin in middle of zone
-	LongOriginRad = LongOrigin * deg2rad;
+	LongOriginRad = LongOrigin * DEG2RAD;
 
 	//compute the UTM Zone from the latitude and longitude
 	sprintf(gpsdata->UTMZone, "%d%c", ZoneNumber, UTMLetterDesignator(Lat));

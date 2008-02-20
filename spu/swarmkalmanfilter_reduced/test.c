@@ -1,19 +1,11 @@
 /*  test.c
 
     This file contains the code wrapper for processing data using the
-    Kalman filter routines provided in kalman.c and kalman_camera.c.
+    Kalman filter routines provided in kalman.c and kalmanswarm.c.
 
     Usage:  test <meass_fname> <num_samples>
                   [-o <output_fname>][-debug]
 
-    J. Watlington, 11/27/95
-
-    Modified:
-    12/4/95  Added ekf/iekf and monte_carlo flags, cause I got this sucker
-             to converge !  The measurement linearization was the culprit.
-    12/9/95  Added initial state estimation, using an iterative Levenberg-
-             Marquardt minimization technique applied alternatively to the
-	     camera parameters and the meas point location.
 */
 
 #include <stdio.h>
@@ -23,8 +15,6 @@
 #include "kalmanswarm.h"
 #include "matmath.h"
 #include "kftime.h"
-
-
 
 #define HELLO "SWARM EKF\n"
 
@@ -46,8 +36,8 @@ int   num_samples;
 char  dbgstr[ 64 ];
 
 /*  Prototypes of local functions  */
-void load_meas( char *name, int num_meas, int num_steps, m_elem **meas );
-void save_track( char *name, int num_steps, m_elem **trajectory );
+void load_meas( char *name, int num_meas, int num_steps, uFloat **meas );
+void save_track( char *name, int num_steps, uFloat **trajectory );
 void parse_arguments( int argc, char **argv );
 void usage( char *str );
 
@@ -55,17 +45,17 @@ void usage( char *str );
 int main( int argc, char **argv )
 {
   int      time, i, row, col; /* various iteration variables   */
-  m_elem   *track;        /* ptr to state vector of kalman filter */
+  uFloat   *track;        /* ptr to state vector of kalman filter */
 
-  m_elem   **meas;    /* features being tracked        */
+  uFloat   **meas;    /* features being tracked        */
 
-  m_elem   **trajectory;  /* mean of extracted motion parameters   */
+  uFloat   **trajectory;  /* mean of extracted motion parameters   */
 
-  m_elem   *traj_fptr;    /* ptr to single row of ext. motion parameters   */
+  uFloat   *traj_fptr;    /* ptr to single row of ext. motion parameters   */
 
                     /*  n = meas_size   m = STATE_SIZE  */
-  m_elem   **P;     /*  Estimate Covariance        (mxm)   */
-  m_elem   *x;      /*  Starting state             (1xm)   */
+  uFloat   **P;     /*  Estimate Covariance        (mxm)   */
+  uFloat   *x;      /*  Starting state             (1xm)   */
 
   debug = 1;	
 
@@ -106,7 +96,7 @@ int main( int argc, char **argv )
 	  if( debug )
 	    {
 	      sprintf( dbgstr, "State @ t = %d", time );
-	      /*print_vector( dbgstr, track, STATE_SIZE );*/
+	      /*printVector( dbgstr, track, STATE_SIZE );*/
 	    }
   traj_fptr = trajectory[ time ];
 
@@ -120,22 +110,22 @@ int main( int argc, char **argv )
   
   save_track( output_fname, num_samples, trajectory );
 
-  free_matrix( P, 1, STATE_SIZE, 1, STATE_SIZE );
-  free_vector( x, 1, STATE_SIZE );
-  free_matrix( meas, 1, num_samples, 1, MEAS_SIZE );
-  free_matrix( trajectory, 1, num_samples, 1, STATE_SIZE );
+  freeMatrix( P, 1, STATE_SIZE, 1, STATE_SIZE );
+  freeVector( x, 1, STATE_SIZE );
+  freeMatrix( meas, 1, num_samples, 1, MEAS_SIZE );
+  freeMatrix( trajectory, 1, num_samples, 1, STATE_SIZE );
 
   return(0);
 
 }
 
 void load_meas( char *name, int num_meas, int num_steps,
-		   m_elem **meas )
+		   uFloat **meas )
 {
   FILE    *fptr;
   int     i;
   int     sample;
-  m_elem  data[ MEAS_SIZE + 1 ];
+  uFloat  data[ MEAS_SIZE + 1 ];
 
   if( debug )
     printf( "Loading meas from %s\n", name );
@@ -161,13 +151,13 @@ void load_meas( char *name, int num_meas, int num_steps,
 	  }
 	
 	for ( i = 1; i <= MEAS_SIZE; i++)
-	meas[ sample ][ i ] = (m_elem)data[ i ];
+	meas[ sample ][ i ] = (uFloat)data[ i ];
       }
 
   fclose( fptr );
 }
 
-void save_track( char *name, int num_steps, m_elem **trajectory )
+void save_track( char *name, int num_steps, uFloat **trajectory )
 {
   FILE     *fptr;
   int      sample, state_var;
