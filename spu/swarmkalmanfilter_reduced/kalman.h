@@ -2,6 +2,9 @@
     This is the include file for the kalman filtering functions defined
     in kalman.c.
 
+    This code comes from a mixture of sources, and at this time, may not have clear rights.
+    Redistribute at your own risk.
+
 */
 
 #undef PRINT_DEBUG

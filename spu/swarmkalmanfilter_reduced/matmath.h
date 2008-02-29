@@ -3,6 +3,10 @@
 /*   matmath.h
 
      This is the declaration file for the matmath functions.
+
+    This code comes from a mixture of sources, and at this time, may not have clear rights.
+    Redistribute at your own risk.
+
 */
 
 /*  This is the datatype used for the math and non-type specific ops.  */
