@@ -2,6 +2,10 @@
 
     This is a roughly self-contained code module for matrix
     math.
+
+    This code comes from a mixture of sources, and at this time, may not have clear rights.
+    Redistribute at your own risk.
+   
 */
 
 #include <stdio.h>
