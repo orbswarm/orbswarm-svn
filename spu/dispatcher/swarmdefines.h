@@ -42,7 +42,7 @@ const double deg2rad = PI / 180;
 const double rad2deg = 180.0 / PI;
 */
 /*************************STRUCTURES************************************/
-struct	swarmGpsData
+typedef struct	swarmGpsDataStruct
 {
   char gpsSentenceType[32]; 
   char gpsSentence[MAX_GPS_SENTENCE_SZ];
@@ -64,7 +64,7 @@ struct	swarmGpsData
   float nmea_course; //heading radians respect to due east
   float speed; //meters per second
   char mode;
-};
+} swarmGpsData;
 
 struct	swarmImuData
 {

@@ -17,7 +17,9 @@
 // ----------------------------------------------------------------------- */
 
 
-/* add next char to command string. If start==1, then start new string */
+/* add next char to command string. If start==1, then start new string 
+If token < 0 don't accum token - probably just a signal to just start 
+a new string*/
 void accumCmd(cmdStruct *c, int token, int start){
   if (start){
     c->cmd_len = 0;
@@ -29,8 +31,10 @@ void accumCmd(cmdStruct *c, int token, int start){
       fprintf(stderr,"Buffer overflow in accmuCmd()\n");
     return;
   }
-  c->cmd[c->cmd_len++] = (char)token;
-  c->cmd[c->cmd_len] = '\0';
+  if(token >= 0){
+    c->cmd[c->cmd_len++] = (char)token;
+    c->cmd[c->cmd_len] = '\0';
+  }
   //printf("MCU cmd: %s ",mcu_cmd);
 }
 
@@ -88,8 +92,19 @@ void doScanner(void * pParser(), int inChar) {
     case '>':
       Parse (pParser, LED_END, inChar);
       break;
+    case ',':
     case '.':
+    case '-':
       Parse (pParser, CHAR, inChar);
+      break;
+    case '(':
+      Parse(pParser, GPS_START, inChar);
+      break;
+    case ')':
+      Parse(pParser, GPS_END, inChar);
+      break;
+    case ';':
+      Parse (pParser, GPS_DELIM, inChar);
       break;
     case 10: /* that's a  newline) */
              /* which isblank() on the spu misses? */

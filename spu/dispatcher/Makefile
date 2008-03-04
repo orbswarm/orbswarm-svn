@@ -4,13 +4,14 @@
 LINUXCC = /opt/crosstool/gcc-4.0.1-glibc-2.3.5/arm-unknown-linux-gnu/arm-unknown-linux-gnu/bin/gcc
 CYGWINCC = /opt/crosstool/gcc-3.3.4-glibc-2.3.2/arm-unknown-linux-gnu/arm-unknown-linux-gnu/bin/gcc
 
-NATIVECC = /usr/bin/gcc
+#NATIVECC = /usr/bin/gcc
+NATIVECC = gcc
 
 # select them here
 # (I'm sure there's a more elegant way to do this...)
 
 CC = $(NATIVECC)
-CC = $(CYGWINCC)
+#CC = $(CYGWINCC)
 
 
 # Version
@@ -35,19 +36,22 @@ scan.c: scan.y
 lemon: lemon.c
 	$(NATIVECC) -o $@ $(CFLAGS)  $<
 
+gpsutils.o: gpsutils.c 
+	$(NATIVECC) -c -o $@ $(CFLAGS)  $<
+
 %.o : %.c scan.h
 	$(CC) -c -o $@ $(CFLAGS)  $<
 
-testharness: scanner.o testharness.o scan.h
-	$(CC) $(LFLAGS) -o testharness scanner.o testharness.o
+testharness: scanner.o testharness.o scan.h gpsutils.o
+	$(CC) $(LFLAGS) -o testharness scanner.o testharness.o gpsutils.o
 
-dispatcher: dispatcher.o serial.o spuutils.o scanner.o scan.h serial.h
+dispatcher: dispatcher.o serial.o spuutils.o scanner.o scan.h serial.h 
 	$(CC) $(LFLAGS) -o dispatcher dispatcher.o serial.o spuutils.o scanner.o
 
 install: dispatcher
 	chmod +x $<
 	../transfer.sh $<
 clean:	
-	rm  -f  test *.o scan.c scan.h scan.out dispatcher
+	rm  -f  test *.o scan.c scan.h scan.out dispatcher gpsutils
 
 

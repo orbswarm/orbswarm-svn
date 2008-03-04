@@ -32,6 +32,8 @@ void accumCmd(cmdStruct * c, int token, int start);
 void dispatchMCUCmd(int spuAddr, cmdStruct * c);
 void dispatchLEDCmd(int spuAddr, cmdStruct * c);
 void dispatchSPUCmd(int spuAddr, cmdStruct * c);
+void dispatchGpggaMsg(cmdStruct * c);
+void dispatchGpvtgMsg(cmdStruct * c);
 void accumAddrDigit(int x);
 void resetAddress(void); 
 void doScanner(void * pParser(), int inChar);

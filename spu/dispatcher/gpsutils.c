@@ -25,13 +25,13 @@ int parseGPSSentence(swarmGpsData * gpsdata)
    
   paramptr = strtok_r(gpssentcpy,SWARM_NMEA_GPS_DATA_DELIM,&strtok_r_ptr);
   if(paramptr != NULL){
-     strcpy(gpsdata->gpsSentenceType,&paramptr[1]); //skip the leading $ char 
+     strcpy(gpsdata->gpsSentenceType,paramptr);
      paramcount++; 
   }
-  //fprintf(stderr, "\nstrtok returned **%s** for gps sentence type\n",gpsdata->gpsSentenceType);
+  fprintf(stderr, "\nstrtok returned **%s** for gps sentence type\n",gpsdata->gpsSentenceType);
   if(strcmp(gpsdata->gpsSentenceType,SWARM_NMEA_GPS_SENTENCE_TYPE_GPGGA) == 0)
     { 
-      //fprintf(stderr, "\nparsing rest of gps data\n");
+      fprintf(stderr, "\nparsing rest of gps data\n");
       //Sentence type is correct so go ahead and get the rest of the data 
       while(paramptr != NULL)
 	{
@@ -74,7 +74,7 @@ int parseGPSSentence(swarmGpsData * gpsdata)
 	}
       //fprintf(stderr,"\n RAW GPS DATA %s,%s,%Lf,%c,%Lf,%c \n",gpsdata->gpsSentenceType,gpsdata->nmea_utctime,gpsdata->nmea_latddmm,gpsdata->nmea_latsector,gpsdata->nmea_londdmm,gpsdata->nmea_lonsector);
     } else  {
-      //fprintf(stderr,"\nRETURNING INVALID GPS SENTANCE\n");
+      fprintf(stderr,"\nRETURNING INVALID GPS SENTANCE\n");
     return SWARM_INVALID_GPS_SENTENCE;
     }
   
@@ -198,9 +198,14 @@ int parseGPSVtgSentance(swarmGpsData * gpsdata)
 
   // convert from due north to due east
   degrees -= 90;
-  if (degrees < 0) { degrees += 360; }
+  if (degrees < 0) 
+    { 
+      degrees += 360; 
+    }
   // convert from degrees to radians
-  gpsdata->nmea_course = DEG2RAD * degrees * -1;
+
+  gpsdata->nmea_course = PI /180.0 * (degrees * -1);
+
   // convert from km/h to m/s
   gpsdata->speed = kmph * (1000.0 / (60.0*60.0));
   gpsdata->mode = mode;
@@ -284,14 +289,14 @@ void decimalLatLongtoUTM(const double ref_equ_radius, const double ref_ecc_squar
 	double N, T, C, A, M;
 	
 //Make sure the longitude is between -180.00 .. 179.9
-	double LongTemp = (Long+180)-int((Long+180)/360)*360-180; // -180.00 .. 179.9;
+	double LongTemp = (Long+180) - (int)((Long+180)/360)*360-180; // -180.00 .. 179.9;
 
 	double LatRad = Lat*DEG2RAD;
 	double LongRad = LongTemp*DEG2RAD;
 	double LongOriginRad;
 	int    ZoneNumber;
 
-	ZoneNumber = int((LongTemp + 180)/6) + 1;
+	ZoneNumber = (int)((LongTemp + 180)/6) + 1;
   
 	if( Lat >= 56.0 && Lat < 64.0 && LongTemp >= 3.0 && LongTemp < 12.0 )
 		ZoneNumber = 32;

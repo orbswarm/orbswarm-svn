@@ -20,18 +20,18 @@
 
 /************************Constants**************************************/
 
-#define PI 3.14159265;
-#define FOURTHPI PI / 4.0;
-#define DEG2RAD PI / 180.0;
-#define RAD2DEG 180.0 / PI;
+#define PI 3.14159265
+#define FOURTHPI PI / 4.0
+#define DEG2RAD PI / 180.0
+#define RAD2DEG 180.0 / PI
 
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/mman.h>
+//#include <sys/types.h>
+//#include <sys/mman.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
-#include <sys/stat.h>			/* declare the 'stat' structure	*/
+//#include <sys/stat.h>			/* declare the 'stat' structure	*/
 #include <time.h>
 #include <errno.h>
 #include "swarmdefines.h"
@@ -40,7 +40,8 @@
 
 //Parse an NMEA data sentence into the seperate components needed for conversion
 //Returns SWARM_SUCCESS on a successful parse and  SWARM_INVALID_GPS_SENTENCE if 
-int parseAndConvertGPSData(char* rawGPS, swarmGpsData * gpsdata); 
+int parseAndConvertGPSData(char* rawGPS, swarmGpsData* gpsdata); 
+
 //the input string was garbage or an invalid type.  The parser only accepts NMEA
 //sentences of type GPGGA 
 int parseGPSSentence(swarmGpsData * gpsdata);
