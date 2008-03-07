@@ -11,6 +11,8 @@
 #include "include/xbee.h"
 #include "include/swarm_queues.h"
 
+#define GPS_TIMER_VAL_MILLIS 200
+
 //#define DEBUG_MODE
 
 void
@@ -88,6 +90,17 @@ dummyHandler (char c, int isError)
 {
 }
 
+static void stripChecksum(const char* gpsStr, char* destStr)
+{
+	size_t idx=strlen(gpsStr);
+	for(; idx>=0; idx--)
+	{
+		if(','==gpsStr[idx])
+		break;	
+	}
+	strncpy(destStr, gpsStr, idx-1);
+}
+
 int
 main (void)
 {
@@ -103,9 +116,10 @@ main (void)
   sprintf (strMsg, "\r\n PORTB=%x", PORTB);
   info (strMsg);
 
-  initXbeeModule (pushSwarmMsgBus, 0, debug);
-  initGpsModule (0, 0);
+  initXbeeModule (pushSwarmMsgBus, blinkLedPortB6, debug);
+  initGpsModule (blinkLedPortB7, debug);
   initSpuModule (pushSwarmMsgBus, 0, debug);
+  
   info ("\r\ninit ");
   sei ();
   setGpsMode();
@@ -121,6 +135,7 @@ main (void)
    */
 //
   DDRB = 0xff;
+  setTimerInAsync(GPS_TIMER_VAL_MILLIS);
   while (1)
     {
       //debug("\r\n while start");
@@ -144,11 +159,11 @@ main (void)
 	      debug ("\r\n Got request for PS");
 	      sendSpuMsg ("!");
 	      getGpsGpggaMsg (gps_msg_buffer, 0);
-	      sendSpuMsg (gps_msg_buffer);
+	      sendSpuMsg (gps_msg_buffer+1);
 	      sendSpuMsg (";");
 
 	      getGpsGpvtgMsg (gps_msg_buffer, 0);
-	      sendSpuMsg (gps_msg_buffer);
+	      sendSpuMsg (gps_msg_buffer+1);
 	      sendSpuMsg (";!");
 	    }
 	  else if (0 == strncmp (msg.swarm_msg_payload, "$As", 3))
@@ -166,7 +181,30 @@ main (void)
 	{
 	  //debug("\r\n invalid or null msg type");
 	}
-    }
+	if(isTimedOut())
+	{
+		char sanitizedGpsString[MAX_GPS_PACKET_LENGTH];
+		
+		while (isSpuSendInProgress ())
+		;
+	    debug ("\r\n Got request for PS");
+	   	pushSpuDataQ ("{(", 0);
+	    getGpsGpggaMsg (gps_msg_buffer, 0);
+	    stripChecksum(gps_msg_buffer+1, sanitizedGpsString);
+	    pushSpuDataQ (sanitizedGpsString, 0);
+	    pushSpuDataQ (";", 0);
+	    startAsyncSpuTransmit();
+
+	    getGpsGpvtgMsg (gps_msg_buffer, 0);
+	    stripChecksum(gps_msg_buffer+1, sanitizedGpsString);
+	    pushSpuDataQ (sanitizedGpsString, 0);
+	    pushSpuDataQ (")}", 0);
+	    startAsyncSpuTransmit();
+		setTimerInAsync(GPS_TIMER_VAL_MILLIS);
+	}
+	else
+		debug("GPS has not timed out");
+   }//end while
   //
   return 0;
 }
