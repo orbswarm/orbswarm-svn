@@ -42,8 +42,7 @@ static void initXbeeMsgStart(char c)
   s_nXbeeRxState=eXbeeStraightSerialRxStartMsg;
   s_nXbeeRxStateByteNum=0;
   s_xbeeRxIsError=0;
-  if('{' ==c)
-    s_xbeeRxPacket.swarm_msg_type=eLinkXbeeMsg;
+  s_xbeeRxPacket.swarm_msg_type=eLinkXbeeMsg;
   s_xbeeRxPacket.swarm_msg_payload[s_nXbeeRxStateByteNum]=c;
 }
 
@@ -71,6 +70,16 @@ void handleXbeeSerial(char c, int isError)
       //empty message
       initXbeeMsgStart(c);
     }
+    else if('}'==c)
+    {
+		s_xbeeRxPacket.swarm_msg_payload[++s_nXbeeRxStateByteNum]=c;
+		 //if not error first dispatch old message
+	 	if(!s_xbeeRxIsError){
+	   		s_xbeeRxPacket.swarm_msg_payload[s_nXbeeRxStateByteNum+1]='\0';
+	   		(*s_pushSwarmMsgBus)(s_xbeeRxPacket, 1);
+	 	}
+	 	s_nXbeeRxState=eXbeeStraightSerialRxInit;
+     }
     else{
       s_nXbeeRxState=eXbeeStraightSerialRxPayload;
       s_nXbeeRxStateByteNum++;

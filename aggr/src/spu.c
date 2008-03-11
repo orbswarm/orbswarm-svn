@@ -34,12 +34,6 @@ static void debugCallback(void)
     (*s_debugCallback)();
 }
 
-/*static void debug(const char* debugMsg)
-{
-  if(0 != s_debug)
-    (*s_debug)(debugMsg);
-}*/
-
 /**
  *  This method is to initialize the state machine and not the whole module.
  * To initialize the entire module, at startup, call initSpuModule()
@@ -53,11 +47,6 @@ static void initSpuMsgStart(char c)
   s_spuRxPacket.swarm_msg_payload[s_nSpuRxStateByteNum]=c;
 }
 
-/*int isDebug()
-{
-	return 0 == s_debug; 
-}*/
-
 void handleSpuSerial(char c, int isError)
 {
 	//char strDebugMsg[1024];
@@ -70,14 +59,22 @@ void handleSpuSerial(char c, int isError)
   }
   switch(s_nSpuRxState){
   case eSpuStraightSerialRxInit:
-    if('$'==c){
+    if('{'==c){
       initSpuMsgStart(c);
     }
     break;
   case eSpuStraightSerialRxStartMsg:
-    if('$' ==c){
+    if('{' ==c){
       //empty message
       initSpuMsgStart(c);
+    }
+    else if('}' ==c){
+    	s_spuRxPacket.swarm_msg_payload[++s_nSpuRxStateByteNum]=c;
+    	if(!s_isSpuRxError){
+	   		s_spuRxPacket.swarm_msg_payload[s_nSpuRxStateByteNum+1]='\0';
+	   		(*s_pushSwarmMsgBus)(s_spuRxPacket, 1);
+	 	}
+	 	s_nSpuRxState=eSpuStraightSerialRxInit;
     }
     else{
       s_nSpuRxState=eSpuStraightSerialRxPayload;
@@ -86,15 +83,17 @@ void handleSpuSerial(char c, int isError)
     }
     break;
   case eSpuStraightSerialRxPayload:
-     if('$'==c)
+  	if('{' ==c)
+  		initSpuMsgStart(c);
+     else if('}'==c)
      {
+     	s_spuRxPacket.swarm_msg_payload[++s_nSpuRxStateByteNum]=c;
 		 //if not error first dispatch old message
 	 	if(!s_isSpuRxError){
 	   		s_spuRxPacket.swarm_msg_payload[s_nSpuRxStateByteNum+1]='\0';
-//	   		debug("pushing in Q");
 	   		(*s_pushSwarmMsgBus)(s_spuRxPacket, 1);
 	 	}
-	 	initSpuMsgStart(c);
+	 	s_nSpuRxState=eSpuStraightSerialRxInit;
      }
      else
      {
@@ -111,3 +110,4 @@ void handleSpuSerial(char c, int isError)
      break;
   }  
 }
+	

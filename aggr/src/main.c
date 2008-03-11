@@ -2,6 +2,7 @@
 #include <avr/interrupt.h>	// include interrupt support
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "include/timer0.h"
 #include "include/swarm_common_defines.h"
@@ -92,13 +93,17 @@ dummyHandler (char c, int isError)
 
 static void stripChecksum(const char* gpsStr, char* destStr)
 {
-	size_t idx=strlen(gpsStr);
+	size_t idx;
+	for(idx=0; idx < MAX_GPS_PACKET_LENGTH; idx++)
+		destStr[idx]=0;
+	idx=strlen(gpsStr);
 	for(; idx>=0; idx--)
 	{
-		if(','==gpsStr[idx])
-		break;	
+		if(','==gpsStr[idx]){
+			strncpy(destStr, gpsStr, idx);
+			return;	
+		}
 	}
-	strncpy(destStr, gpsStr, idx-1);
 }
 
 int
@@ -113,6 +118,7 @@ main (void)
 	     popSpuDataQ /* spu pop */ );
   //loopTimer0(2000);
   char strMsg[1024];
+  char sanitizedGpsString[MAX_GPS_PACKET_LENGTH];
   sprintf (strMsg, "\r\n PORTB=%x", PORTB);
   info (strMsg);
 
@@ -123,17 +129,6 @@ main (void)
   info ("\r\ninit ");
   sei ();
   setGpsMode();
-  /*
-     while(1){
-     debug("\r\n sleep start");
-     loopTimer0(20);
-     debug("\r\n getting GPGGA msg");
-     getGpsGpggaMsg(gps_msg_buffer, 0);
-     sprintf(strMsg, "\r\n GPGGA=%s", gps_msg_buffer);
-     debug(strMsg);
-     }
-   */
-//
   DDRB = 0xff;
   setTimerInAsync(GPS_TIMER_VAL_MILLIS);
   while (1)
@@ -152,30 +147,17 @@ main (void)
 	}
       else if (msg.swarm_msg_type == eLinkSpuMsg)
 	{
-	  if (0 == strncmp (msg.swarm_msg_payload, "$Ag*", 4))
-	    {
-	      while (isSpuSendInProgress ())
-		;
-	      debug ("\r\n Got request for PS");
-	      sendSpuMsg ("!");
-	      getGpsGpggaMsg (gps_msg_buffer, 0);
-	      sendSpuMsg (gps_msg_buffer+1);
-	      sendSpuMsg (";");
-
-	      getGpsGpvtgMsg (gps_msg_buffer, 0);
-	      sendSpuMsg (gps_msg_buffer+1);
-	      sendSpuMsg (";!");
-	    }
-	  else if (0 == strncmp (msg.swarm_msg_payload, "$As", 3))
-	    {
-	      while (isSpuSendInProgress ())
-		;
-	      sprintf (strMsg, "\r\nstreaming data through xbee msg=%s",
-		       msg.swarm_msg_payload + 3);
-	      debug (strMsg);
-	      pushXbeeDataQ (msg.swarm_msg_payload + 3, 0);
-	      startAsyncXBeeTransmit ();
-	    }
+		if ('{' == msg.swarm_msg_payload[0] &&
+	  		   '}' == msg.swarm_msg_payload[strlen(msg.swarm_msg_payload) ])
+	  	{
+			while (isSpuSendInProgress ())
+			  ;
+			sprintf (strMsg, "\r\nstreaming data through xbee msg=%s",
+				 msg.swarm_msg_payload + 3);
+			debug (strMsg);
+			pushXbeeDataQ (msg.swarm_msg_payload + 3, 0);
+			startAsyncXBeeTransmit ();
+	  	}
 	}
       else
 	{
@@ -183,8 +165,6 @@ main (void)
 	}
 	if(isTimedOut())
 	{
-		char sanitizedGpsString[MAX_GPS_PACKET_LENGTH];
-		
 		while (isSpuSendInProgress ())
 		;
 	    debug ("\r\n Got request for PS");
@@ -192,12 +172,16 @@ main (void)
 	    getGpsGpggaMsg (gps_msg_buffer, 0);
 	    stripChecksum(gps_msg_buffer+1, sanitizedGpsString);
 	    pushSpuDataQ (sanitizedGpsString, 0);
+	    //pushSpuDataQ(gps_msg_buffer+1, 0);
+	    
 	    pushSpuDataQ (";", 0);
 	    startAsyncSpuTransmit();
 
 	    getGpsGpvtgMsg (gps_msg_buffer, 0);
 	    stripChecksum(gps_msg_buffer+1, sanitizedGpsString);
 	    pushSpuDataQ (sanitizedGpsString, 0);
+	    //pushSpuDataQ(gps_msg_buffer+1, 0);
+	    
 	    pushSpuDataQ (")}", 0);
 	    startAsyncSpuTransmit();
 		setTimerInAsync(GPS_TIMER_VAL_MILLIS);
