@@ -2,7 +2,8 @@
 
 # Crosstools are slightly different versions for cygwin and linux; 
 LINUXCC = /opt/crosstool/gcc-4.0.1-glibc-2.3.5/arm-unknown-linux-gnu/arm-unknown-linux-gnu/bin/gcc
-CYGWINCC = /opt/crosstool/gcc-3.3.4-glibc-2.3.2/arm-unknown-linux-gnu/arm-unknown-linux-gnu/bin/gcc
+CYGWINCC = /opt/crosstool/gcc-3.3.4-glibc-2.3.2/arm-unknown-linux-gnu/arm-unknown-linux-gnu/bin/gcc.exe
+
 
 #NATIVECC = /usr/bin/gcc
 NATIVECC = gcc
@@ -10,8 +11,8 @@ NATIVECC = gcc
 # select them here
 # (I'm sure there's a more elegant way to do this...)
 
-CC = $(NATIVECC)
-#CC = $(CYGWINCC)
+#CC = $(NATIVECC)
+CC = $(CYGWINCC)
 
 
 # Version
@@ -37,7 +38,7 @@ lemon: lemon.c
 	$(NATIVECC) -o $@ $(CFLAGS)  $<
 
 gpsutils.o: gpsutils.c 
-	$(NATIVECC) -c -o $@ $(CFLAGS)  $<
+	$(CC) -c -o $@ $(CFLAGS)  $<
 
 %.o : %.c scan.h
 	$(CC) -c -o $@ $(CFLAGS)  $<
@@ -45,8 +46,8 @@ gpsutils.o: gpsutils.c
 testharness: scanner.o testharness.o scan.h gpsutils.o
 	$(CC) $(LFLAGS) -o testharness scanner.o testharness.o gpsutils.o
 
-dispatcher: dispatcher.o serial.o spuutils.o scanner.o scan.h serial.h 
-	$(CC) $(LFLAGS) -o dispatcher dispatcher.o serial.o spuutils.o scanner.o
+dispatcher: dispatcher.o serial.o spuutils.o scanner.o scan.h serial.h  gpsutils.o
+	$(CC) $(LFLAGS) -o dispatcher dispatcher.o serial.o spuutils.o scanner.o  gpsutils.o
 
 install: dispatcher
 	chmod +x $<

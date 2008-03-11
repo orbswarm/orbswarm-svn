@@ -21,6 +21,7 @@
 #include "serial.h"
 #include "scanner.h"
 #include <getopt.h>
+#include "gpsutils.h"
 
 
 int parseDebug = 1; 		/*  parser uses this for debug output */
@@ -66,6 +67,26 @@ void dispatchSPUCmd(int spuAddr, cmdStruct *c){
 
 }
 
+void dispatchGpggaMsg(cmdStruct * c){
+  printf("got gps gpgga msg: \"%s\"\n",c->cmd);
+  swarmGpsData gpsData;
+  strncpy(gpsData.gpsSentence, c->cmd, c->cmd_len);
+  int status=parseGPSSentence(&gpsData);
+  printf("parseGPSSentence() return=%d\n", status);  
+  printf("\n Parsed line %s \n",gpsData.gpsSentence);
+  status = convertNMEAGpsLatLonDataToDecLatLon(&gpsData);
+  if(status == SWARM_SUCCESS)
+  {
+      printf("\n Decimal lat:%lf lon:%lf utctime:%s \n",gpsData.latdd,gpsData.londd,gpsData.nmea_utctime);
+           
+      decimalLatLongtoUTM(WGS84_EQUATORIAL_RADIUS_METERS, WGS84_ECCENTRICITY_SQUARED, &gpsData);
+      printf("Northing:%f,Easting:%f,UTMZone:%s\n",gpsData.UTMNorthing,gpsData.UTMEasting,gpsData.UTMZone);
+   }
+}
+
+void dispatchGpvtgMsg(cmdStruct * c){
+  printf("got gps gpvtg msg: \"%s\"\n",c->cmd);
+}
 
 int main(int argc, char *argv[]) 
 {
