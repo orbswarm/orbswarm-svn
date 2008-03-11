@@ -22,9 +22,9 @@
 #include "scanner.h"
 #include <getopt.h>
 #include "gpsutils.h"
+//#define LOCAL
 
-
-int parseDebug = 1; 		/*  parser uses this for debug output */
+int parseDebug = 2; 		/*  parser uses this for debug output */
 
 
 int myOrbId =0;    		/* which orb are we?  */
@@ -68,6 +68,7 @@ void dispatchSPUCmd(int spuAddr, cmdStruct *c){
 }
 
 void dispatchGpggaMsg(cmdStruct * c){
+  char resp[96];
   printf("got gps gpgga msg: \"%s\"\n",c->cmd);
   swarmGpsData gpsData;
   strncpy(gpsData.gpsSentence, c->cmd, c->cmd_len);
@@ -82,6 +83,8 @@ void dispatchGpggaMsg(cmdStruct * c){
       decimalLatLongtoUTM(WGS84_EQUATORIAL_RADIUS_METERS, WGS84_ECCENTRICITY_SQUARED, &gpsData);
       printf("Northing:%f,Easting:%f,UTMZone:%s\n",gpsData.UTMNorthing,gpsData.UTMEasting,gpsData.UTMZone);
    }
+  sprintf(resp, "{orb=%d\rnorthing=%f\reasting=%f\rutmzone=%s}", myOrbId,gpsData.UTMNorthing,gpsData.UTMEasting,gpsData.UTMZone);
+  writeCharsToSerialPort(com2, resp, strlen(resp));
 }
 
 void dispatchGpvtgMsg(cmdStruct * c){
