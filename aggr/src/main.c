@@ -13,6 +13,7 @@
 #include "include/swarm_queues.h"
 
 #define GPS_TIMER_VAL_MILLIS 200
+//#define GPS_TIMER_VAL_MILLIS 1000
 
 //#define DEBUG_MODE
 
@@ -117,10 +118,10 @@ main (void)
 	     popXbeeDataQ /*xbee pop */ ,
 	     popSpuDataQ /* spu pop */ );
   //loopTimer0(2000);
-  char strMsg[1024];
+  char strDebugMsg[1024];
   char sanitizedGpsString[MAX_GPS_PACKET_LENGTH];
-  sprintf (strMsg, "\r\n PORTB=%x", PORTB);
-  info (strMsg);
+  sprintf (strDebugMsg, "\r\n PORTB=%x", PORTB);
+  info (strDebugMsg);
 
   initXbeeModule (pushSwarmMsgBus, blinkLedPortB6, debug);
   initGpsModule (blinkLedPortB7, debug);
@@ -147,15 +148,17 @@ main (void)
 	}
       else if (msg.swarm_msg_type == eLinkSpuMsg)
 	{
+		sprintf (strDebugMsg, "\r\ngot message from spu=%s", msg.swarm_msg_payload);
+		debug(strDebugMsg);
 		if ('{' == msg.swarm_msg_payload[0] &&
-	  		   '}' == msg.swarm_msg_payload[strlen(msg.swarm_msg_payload) ])
+	  		   '}' == msg.swarm_msg_payload[strlen(msg.swarm_msg_payload)-1])
 	  	{
 			while (isSpuSendInProgress ())
 			  ;
-			sprintf (strMsg, "\r\nstreaming data through xbee msg=%s",
-				 msg.swarm_msg_payload + 3);
-			debug (strMsg);
-			pushXbeeDataQ (msg.swarm_msg_payload + 3, 0);
+			sprintf (strDebugMsg, "\r\nstreaming data through xbee msg=%s",
+				 msg.swarm_msg_payload);
+			debug (strDebugMsg);
+			pushXbeeDataQ (msg.swarm_msg_payload, 0);
 			startAsyncXBeeTransmit ();
 	  	}
 	}
@@ -186,8 +189,8 @@ main (void)
 	    startAsyncSpuTransmit();
 		setTimerInAsync(GPS_TIMER_VAL_MILLIS);
 	}
-	else
-		debug("GPS has not timed out");
+/*	else
+		debug("GPS has not timed out");*/
    }//end while
   //
   return 0;
