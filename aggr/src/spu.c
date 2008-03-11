@@ -22,7 +22,6 @@ void initSpuModule( void (*pushSwarmMsgBus)(struct SWARM_MSG msg,
 			void (*debugCallback)(void),
 		    void (*debug)(const char*) )
 {
-  debug ("\r\ninitSpuModule");
   s_debugCallback = debugCallback;
   s_debug = debug;
   s_pushSwarmMsgBus = pushSwarmMsgBus;

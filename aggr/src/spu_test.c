@@ -39,7 +39,7 @@ ISR(SIG_OVERFLOW0)
   TCNT0=6;
   if(++timecount == m_unitsOf250mus)
     {
-		char* msg="$Ag*$";
+		char* msg="{hello world}";
 		while(*msg)
 		{
 			handleSpuSerial(*msg++, 0/*No error*/);	
@@ -70,9 +70,9 @@ void mainLoop(void)
 int main(void)
 {
 	DDRB = 0xff;
-	initTimer0(25*4);
 	initSpuModule(pushSwarmMsgBus, blinkLedPortB7, 0/*debugUART*/);
 	uart_init(dummyHandler, dummyHandler, dummyHandler, dummyPop, dummyPop);
+	initTimer0(25*4);
 	//initSwarmQueues(debug);
 	sei();
 	debugUART("----START");
