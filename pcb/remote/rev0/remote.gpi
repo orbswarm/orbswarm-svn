@@ -1,0 +1,44 @@
+Photoplotter Info File: C:/foote/orb/trunk/pcb/remote/remote.gpi
+
+ Date              :  3/11/2008 09:18:29p
+ Plotfile          : C:/foote/orb/trunk/pcb/remote/remote.sts
+ Apertures         : generated: 
+ Device            : Gerber photoplotter with RS-274-X aperture generation
+
+Parameter settings:
+
+ Emulate Apertures : no
+ Emulate Thermal   : no
+ Emulate Annulus   : no
+ Tolerance Draw  + :  0.00 %
+ Tolerance Draw  - :  0.00 %
+ Tolerance Flash + :  0.00 %
+ Tolerance Flash - :  0.00 %
+ Rotate            : no
+ Mirror            : no
+ Optimize          : yes
+ Auto fit          : yes
+ OffsetX           : 0inch
+ OffsetY           : 0inch
+
+Plotfile Info:
+
+ Coordinate Format : 2.4
+ Coordinate Units  : Inch
+ Data Mode         : Absolute
+ Zero Suppression  : None
+ End Of Block      : *
+
+Apertures used:
+
+ Code     Shape     Size                  used
+
+ D10      round     0.0595inch              20
+ D11      round     0.0680inch               3
+ D12      octagon   0.0680inch              25
+ D13      oval      0.1200inch x 0.0640inch     2
+ D14      oval      0.0640inch x 0.1200inch     4
+ D15      oval      0.0680inch x 0.1280inch    12
+ D16      round     0.0640inch               4
+ D17      square    0.0516inch              19
+

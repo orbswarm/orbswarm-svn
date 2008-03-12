@@ -1,0 +1,6 @@
+(define-layer! 4 (cons 'filename "Premote.bor")(cons 'color #(65280 32512 29440)))
+(define-layer! 3 (cons 'filename "Premote.sol")(cons 'color #(29440 29440 56832)))
+(define-layer! 2 (cons 'filename "Premote.cmp")(cons 'color #(49408 0 57344)))
+(define-layer! 1 (cons 'filename "Premote.drd")(cons 'color #(29952 61952 26368)))
+(define-layer! 0 (cons 'filename "Premote.plc")(cons 'color #(61757 62971 62971)))
+(define-layer! -1 (cons 'filename "C:/foote/orb/trunk/pcb/remote/rev0/panelized")(cons 'color #(0 0 0)))

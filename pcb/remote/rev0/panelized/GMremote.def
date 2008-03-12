@@ -1,0 +1,10 @@
+# panelize remote: 1 x 4
+Row {
+  Col {
+  remote
+  remote
+  remote
+  remote
+ }
+}
+
