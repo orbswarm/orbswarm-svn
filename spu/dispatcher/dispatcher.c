@@ -28,7 +28,7 @@
 
 //#define LOCAL
 
-int parseDebug = 2; 		/*  parser uses this for debug output */
+int parseDebug = 1; 		/*  parser uses this for debug output */
 
 int myOrbId =0;    		/* which orb are we?  */
 
@@ -72,15 +72,19 @@ void doChildProcess(void)
       swarmGpsData gpsData;
       strncpy(gpsData.gpsSentence, buffer, MSG_LENGTH);
       int status=parseGPSSentence(&gpsData);
-      printf("parseGPSSentence() return=%d\n", status);
-      printf("\n Parsed line %s \n",gpsData.gpsSentence);
+      if(2==parseDebug){
+	printf("parseGPSSentence() return=%d\n", status);
+	printf("\n Parsed line %s \n",gpsData.gpsSentence);
+      }
       status = convertNMEAGpsLatLonDataToDecLatLon(&gpsData);
       if(status == SWARM_SUCCESS)
 	{
-	  printf("\n Decimal lat:%lf lon:%lf utctime:%s \n",gpsData.latdd,gpsData.londd,gpsData.nmea_utctime);
+	  if(2==parseDebug)
+	    printf("\n Decimal lat:%lf lon:%lf utctime:%s \n",gpsData.latdd,gpsData.londd,gpsData.nmea_utctime);
            
 	  decimalLatLongtoUTM(WGS84_EQUATORIAL_RADIUS_METERS, WGS84_ECCENTRICITY_SQUARED, &gpsData);
-	  printf("Northing:%f,Easting:%f,UTMZone:%s\n",gpsData.UTMNorthing,gpsData.UTMEasting,gpsData.UTMZone);
+	  if(2==parseDebug)
+	    printf("Northing:%f,Easting:%f,UTMZone:%s\n",gpsData.UTMNorthing,gpsData.UTMEasting,gpsData.UTMZone);
 	}
       sprintf(resp, "{orb=%d\rnorthing=%f\reasting=%f\rutmzone=%s}", myOrbId,gpsData.UTMNorthing,gpsData.UTMEasting,gpsData.UTMZone);
       writeCharsToSerialPort(com2, resp, strlen(resp));
@@ -125,15 +129,19 @@ void dispatchSPUCmd(int spuAddr, cmdStruct *c){
 
 void dispatchGpggaMsg(cmdStruct * c){
  
-  printf("got gps gpgga msg: \"%s\"\n",c->cmd);
-  if(push(c->cmd, gpsQueuePtr) && (2==parseDebug))
-    printf("\n successfully pushed GPS msg");
-  else if(2==parseDebug)
+  if(6==parseDebug)
+    printf("got gps gpgga msg: \"%s\"\n",c->cmd);
+  if(push(c->cmd, gpsQueuePtr)){
+    if(6==parseDebug)
+      printf("\n successfully pushed GPS msg");
+  }
+  else if(6==parseDebug)
     printf("\n push failed. Q full");
 }
 
 void dispatchGpvtgMsg(cmdStruct * c){
-  printf("got gps gpvtg msg: \"%s\"\n",c->cmd);
+  if(6==parseDebug)
+    printf("got gps gpvtg msg: \"%s\"\n",c->cmd);
 }
 
 int main(int argc, char *argv[]) 
@@ -247,8 +255,10 @@ printf("debug flags are %d\n",dbgflags);
   max_fd = (com3 > max_fd ? com3 : max_fd) + 1;
   max_fd = (com5 > max_fd ? com5 : max_fd) + 1;
 
-  if(initSharedMem() && (2==parseDebug))
-    printf("\n shared memory initialized successfully");
+  if(initSharedMem()){
+    if (2==parseDebug)
+      printf("\n shared memory initialized successfully");
+  }
   else{
     printf("\n shared memory init UNSUCCESSFUL");
     return(1);
