@@ -102,11 +102,11 @@ int readCharsFromSerialPort(int port_fd, char* buff, int maxBufSz){
 #ifdef LOCAL
   numBytesAvail = 10; 		/* read the next 10 bytes */
 #else
-  ioctl(port_fd, TIOCINQ , &numBytesAvail);
+  //  ioctl(port_fd, TIOCINQ , &numBytesAvail);
 #endif
-  if(numBytesAvail > maxBufSz) {
-    numBytesAvail = maxBufSz;
-  } 
+  //  if(numBytesAvail > maxBufSz) {
+      numBytesAvail = maxBufSz;
+  //} 
   /* read() returns number of bytes read; pass that upstairs */
   return(read(port_fd,buff,numBytesAvail));
 }

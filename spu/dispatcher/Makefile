@@ -40,14 +40,17 @@ lemon: lemon.c
 gpsutils.o: gpsutils.c 
 	$(CC) -c -o $@ $(CFLAGS)  $<
 
+queues.o: queues.c
+	$(CC) -c -o $@ $(CFLAGS)  $<
+
 %.o : %.c scan.h
 	$(CC) -c -o $@ $(CFLAGS)  $<
 
-testharness: scanner.o testharness.o scan.h gpsutils.o
+testharness: scanner.o testharness.o scan.h gpsutils.o queues.o
 	$(CC) $(LFLAGS) -o testharness scanner.o testharness.o gpsutils.o
 
-dispatcher: dispatcher.o serial.o spuutils.o scanner.o scan.h serial.h  gpsutils.o
-	$(CC) $(LFLAGS) -o dispatcher dispatcher.o serial.o spuutils.o scanner.o  gpsutils.o
+dispatcher: dispatcher.o serial.o spuutils.o scanner.o scan.h serial.h  gpsutils.o queues.o
+	$(CC) $(LFLAGS) -o dispatcher dispatcher.o serial.o spuutils.o scanner.o  gpsutils.o queues.o
 
 install: dispatcher
 	chmod +x $<
