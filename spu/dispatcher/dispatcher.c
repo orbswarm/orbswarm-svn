@@ -25,12 +25,10 @@
 #include "queues.h"
 #include <sys/shm.h> 
 #include <sys/stat.h> 
-#include <signal.h>
-#include <stdlib.h>
 
 //#define LOCAL
 
-int parseDebug = 1; 		/*  parser uses this for debug output */
+int parseDebug = 2; 		/*  parser uses this for debug output */
 
 int myOrbId =0;    		/* which orb are we?  */
 
@@ -38,52 +36,29 @@ int myOrbId =0;    		/* which orb are we?  */
 int com1=0; /* File descriptor for the port */
 int com2=0; /* File descriptor for the port */
 int com3=0, com5=0; 	/* ditto */
+
+
 Queue* gpsQueuePtr;
-int gpsQueueSegmentId=-1;
+int gpsQueueSegmentId;
 struct shmid_ds gpsQueueShmidDs; 
-int isParent=1;
 
-
-static void onShutdown(void)
-{
-  if(isParent && -1!=gpsQueueSegmentId)
-    shmctl (gpsQueueSegmentId, IPC_RMID, 0); 
-}
-
-static void signalHandler (int signo)
-{
-  if(SIGTERM==signo ||
-     SIGINT==signo ||
-     SIGQUIT==signo){
-    onShutdown();
-    exit (EXIT_SUCCESS);
-  }
-  else
-    onShutdown();
-    exit (EXIT_FAILURE);
-}
-
-int initSharedMem(void)
+static int initSharedMem(void)
 {
   //Allocate shared memory
   gpsQueueSegmentId = shmget(IPC_PRIVATE, sizeof(Queue), 
                      IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR); 
-  if(-1 == gpsQueueSegmentId)
-    return 0;
   //Attach shared memory
   gpsQueuePtr = (Queue *)shmat(gpsQueueSegmentId, 0, 0); 
-  if(-1 == (int)gpsQueuePtr)
-    return 0;
+
   //read shared memory data structure
-  if(-1 == shmctl(gpsQueueSegmentId, IPC_STAT, &gpsQueueShmidDs))
-    return 0;
+  shmctl(gpsQueueSegmentId, IPC_STAT, &gpsQueueShmidDs);
   if(2==parseDebug)
     printf("\nsegment size=%d", gpsQueueShmidDs.shm_segsz);
 
-  return 1;
+  return 1;//TO DO: error handling
 }
 
-void doChildProcess(void)
+static void doChildProcess(void)
 {
   if(2==parseDebug)
     printf("\ndoChildProcess():START");
@@ -171,27 +146,6 @@ void dispatchGpvtgMsg(cmdStruct * c){
 
 int main(int argc, char *argv[]) 
 {
-  /* handle SIGINT, but only if it isn't ignored */
-  if (signal (SIGINT, SIG_IGN) != SIG_IGN) {
-    if (signal (SIGINT,  signalHandler) == SIG_ERR){
-      fprintf (stderr, "\nFailed to handle SIGINT!\n");
-      exit (EXIT_FAILURE);
-    }
-  }
-
-  /* handle SIGQUIT, but only if it isn't ignored */
-  if (signal (SIGQUIT, SIG_IGN) != SIG_IGN) {
-    if (signal (SIGQUIT, signalHandler) == SIG_ERR){
-      fprintf (stderr, "\nFailed to handle SIGQUIT!\n");
-      exit (EXIT_FAILURE);
-    }
-  }
-
-  /*handle SIGTERM*/
-  if(signal (SIGTERM, signalHandler) == SIG_ERR){
-    fprintf(stderr, "\nFailed to handle SIGTERM");
-    exit(EXIT_FAILURE);
-  }
 
   /* increment this counter every time through 10 hz timeout loop */
   int tenHzticks = 0;
@@ -306,20 +260,17 @@ printf("debug flags are %d\n",dbgflags);
       printf("\n shared memory initialized successfully");
   }
   else{
-    fprintf(stderr,"\n shared memory init UNSUCCESSFUL");
+    printf("\n shared memory init UNSUCCESSFUL");
     return(1);
   }
   //fork now 
   pid_t pid;
   if((pid = fork())<0){
-    fprintf(stderr,"\n fork() unsuccessful");
-    onShutdown();
+    printf("\n fork() unsuccessful");
     return(2);
   }
-  else if(pid ==0){
-    isParent=0;
+  else if(pid ==0)
     doChildProcess();
-  }
   else{//parent
     while(1){
     
@@ -377,10 +328,9 @@ printf("debug flags are %d\n",dbgflags);
 	    }
 	  }
 	  else if(bytesRead < 0)
-	    fprintf(stderr,"\nGot error from read");
+	    printf("\nGot error from read");
 #ifdef LOCAL
 	  else { /* no bytes read means EOF */
-	    onShutdown();
 	    return(0);
 	  }
 #endif
@@ -388,7 +338,6 @@ printf("debug flags are %d\n",dbgflags);
       }
     }// end while(1)
   }
-  onShutdown();
   return(0); 			// keep the compiler happy
 }
 //END main() 
