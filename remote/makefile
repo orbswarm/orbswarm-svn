@@ -57,10 +57,10 @@ install:
 	${BIN}avrdude -P ${COM} -c ${PGMR}  -C  ${BIN}avrdude.conf  -p ${TARGET} -U flash:w:remote.hex
 # set the fuses  for 7.32Mhz atmega8
 lfuse:
-	${BIN}avrdude.exe -v -P ${COM}  -c stk500v2  -p m8  -C  c:\WinAVR\bin\avrdude.conf  -U lfuse:w:0xEF:m
+	${BIN}avrdude.exe -v -P ${COM}  -c stk500v2  -p m8  -C  ${BIN}avrdude.conf  -U lfuse:w:0xEF:m
 
 hfuse:
-	${BIN}avrdude.exe -v -P ${COM}  -c stk500v2  -p m8  -C  c:\WinAVR\bin\avrdude.conf  -U hfuse:w:0xD9:m
+	${BIN}avrdude.exe -v -P ${COM}  -c stk500v2  -p m8  -C  ${BIN}avrdude.conf  -U hfuse:w:0xD9:m
 
 # command to clean up junk (not source files) (invoked by "make clean")
 clean:

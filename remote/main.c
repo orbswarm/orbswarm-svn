@@ -15,7 +15,6 @@ Project: ORB Portable Transmitter using ATMega8L chip
 
 #include <avr/io.h>
 #include <stdlib.h>
-#include <avr/signal.h>
 #include <avr/interrupt.h>
 
 #include "global.h"
@@ -28,13 +27,38 @@ Project: ORB Portable Transmitter using ATMega8L chip
 #define ON	1
 #define OFF 0
 
-// Use port B:0 on hand wired proto-board
-// Use port C:5 on Olimex board
 
-#define LED_PORT	PORTC
-#define LED_PIN		5
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+/* define port and pin assignments for buttons, joysticks, and LEDs */
+
+/* LED outputs are on PORTD*/
+
+#define LED_PORT PORTD
+#define BATT_LED 2
+#define STAT_LED 3
+
+/* ADC inputs on PORTC  */
+#define VREF  3
+#define JOYLX 4
+#define JOYLY 5
+#define JOYRX 6
+#define JOYRY 7
+
+/* PORTB needs pullups set */
+/* Trigger buttons on PORTB */
+
+#define TRIGR1 0
+#define TRIGR2 1
+#define TRIGL1 2
+#define TRIGL2 3
+
+/* Joystick buttons on PORTB */
+#define JOYBR 4
+#define JOYBL 5
+
 // Prototypes
 
 void Init_Chip(void);
@@ -45,12 +69,13 @@ unsigned char build_up_command_string(unsigned char c);
 void process_command_string(void);
 short command_data(unsigned char firstChr);
 
-void turn_LED(unsigned char LED_Num, unsigned char On_Off);
+void setLED(unsigned char LED_Num, unsigned char On_Off);
 void check_heart_beat(unsigned char *state);
 void pause(void);
+void pauseMS(unsigned short mS);
 void num_to_Str( short v, char *str);
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 // Static variable definitions
 
 #define CMD_STR_SIZE 12
@@ -63,6 +88,8 @@ extern volatile unsigned char Timer0_10hz_Flag;
 
 volatile uint8_t Debug_Output;
 
+static unsigned char addr;
+
 
 // Init hardware
 // This stuff is very chip dependant
@@ -70,11 +97,19 @@ volatile uint8_t Debug_Output;
 
 void Init_Chip(void)
 {
+  char theStr[10];
+  unsigned char i;
+
   /* Initialize port dir bits -- a '1' bit indicates an output pin*/
-  DDRB = 0xFF;			/* PortB1:2 is PWM output */
+  DDRB = 0xC0;			/* All bits are button inputs except PB6, PB7 */
+  PORTB = 0x3F;			/* All input bits have pullups enabled */
+
+  /* PORTC: A/D inputs on  */
   DDRC = 0xF0;			/* PortC - A/D inputs on pins 0:1; LED output on pin 4:5 b 1111 0000 */
-  DDRD = 0xF2;			/* D0 is RS-232 Rx, D1 is Tx, D4:7 are Dir Pins for Motors -- 0b 1111 0010 */
-  
+
+  DDRD = 0x0E;			/* D0 is RS-232 Rx, D1 is Tx, D2, D3 are LED outputs, D4:7 are address */
+  PORTD = 0xF0;			/* High order bits have pullups enabled */
+
 
   
   UART_Init(UART_384000);	/* defined in UART.h and global.h */
@@ -88,14 +123,31 @@ void Init_Chip(void)
 
   putstr("\r\n--- remote v1.0 ---\r\n");
 
-  turn_LED(LED_PIN,OFF);	// Have to explicitly turn them OFF.
+  /* first read address from upper 4 bits of PORTD (ROTDIP) */
+  /* (shift right by 4 to get actual value) */
+  addr = (PIND & 0xF0) >> 4;
+
+  putstr("Got addr: " );
+  num_to_Str((short)addr, theStr );
+  putstr( theStr );
+  putstr("\r\n");
+
+  /* and blink battery LED that many times */
+  for (i=0; i<addr; i++) {
+    setLED(BATT_LED, ON);
+    pauseMS(120);  
+    setLED(BATT_LED, OFF);
+    pauseMS(120);  
+  }
+
+
+
+
+  setLED(BATT_LED,OFF);	// Have to explicitly turn them OFF.
+  setLED(STAT_LED,OFF);	// Have to explicitly turn them OFF.
   Debug_Output = OFF;	
 }
 
-// -----------------------------------
-// Loop forever doing the various tasks.
-// Nothing requires wait states - everything cycles freely.
-// At 8.0 Mhz, the main loop cycles 16,800+ times every 100ms (10hz loop) = 168,000 cps
 
 int main (void)
 {
@@ -110,14 +162,14 @@ int main (void)
   Init_Chip();
   read_eeprom_settings();
   
-  /* first read address from lower 4 bits of PORTB */
 
-  /* and blink status LED appropriately */
-  for (t=0; t<50; t++) 
-	{	// warm up ADC for 1 second
-	  for (n=0; n<8000; n++)
-		A2D_poll_adc();
-	}
+
+  // warm up ADC for 1 second and learn zero points
+  for (t=0; t<50; t++) {
+    for (n=0; n<8000; n++)
+      A2D_poll_adc();
+  }
+
 
   putstr("\r\n--- READY ---\r\n");
   
@@ -289,11 +341,11 @@ short command_data(unsigned char firstChr)
 	return accum;
 }
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 // for debugging - use PortB 4:5 output pins to control LEDs on STK500 board.
 //				 - use PortC 5 for LED on Olimex board
 
-void turn_LED(unsigned char LED_Num, unsigned char On_Off)
+void setLED(unsigned char LED_Num, unsigned char On_Off)
 {
 	if (On_Off == ON) {
 		LED_PORT &= ~(1 << LED_Num); // clear pin turns LED on
@@ -304,37 +356,35 @@ void turn_LED(unsigned char LED_Num, unsigned char On_Off)
 		}
 }
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// Blink Heart-Beat LED
+
+// Blink Heartbeat LED
 // let's me know I'm alive - and resets Timer0
 // Toggle the LED once per second
 // Send Idle Command to orb to keep it alive.
 
 void check_heart_beat(unsigned char *state)
 {
-//	short theData;
 	
 //	if (Timer0_ticks > 1023) {	//  1024 tics per second - heart-beat LED
-	if (Timer0_ticks > 511) {	//  512 tics per second - heart-beat LED
-		Timer0_reset();
-		
-		putstr( "$i*\r\n" );	// send idle command - 
-//		putstr("...Testing 1234\r\n...");
-		
-		
-		if (*state == 0) {
-			turn_LED(LED_PIN,ON);
-			*state = 1;
-			}
-		else {
-			turn_LED(LED_PIN,OFF);
-			*state = 0;
-			}
-		
-		}
+  if (Timer0_ticks > 511) {	//  512 tics per second - heart-beat LED
+    Timer0_reset();
+    
+    putstr( "$i*\r\n" );	// send idle command - 
+    //		putstr("...Testing 1234\r\n...");
+    
+    
+    if (*state == 0) {
+      setLED(STAT_LED,ON);
+      *state = 1;
+    }
+    else {
+      setLED(STAT_LED,OFF);
+      *state = 0;
+    }
+  }
 }
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 // pause for 1 second.
 
 void pause(void)
@@ -344,7 +394,16 @@ void pause(void)
 	Timer0_reset();
 }
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// pause for 100 ms second.
+
+void pauseMS(unsigned short mS){
+  Timer0_reset();
+  while (Timer0_ticks < mS) ;
+  Timer0_reset();
+}
+
+
 // special version - output 10 bit number into formatted string
 // string enters with pre-amble: "$s..."
 // add trailing "*" chr to end of string: $s-100*
@@ -381,9 +440,8 @@ void num_to_Str( short v, char *str)
 	str[n] = 0;
 }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
-// These read and write 8-bit values from eeprom.
 
+// These read and write 8-bit values from eeprom.
 void save_eeprom_settings(void)
 {
 	uint8_t checksum;
@@ -396,7 +454,6 @@ void save_eeprom_settings(void)
 	eeprom_Write( EEPROM_START+4, checksum );
 }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 void read_eeprom_settings(void)
 {
@@ -425,5 +482,3 @@ void read_eeprom_settings(void)
 		}
 }
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// End of File
