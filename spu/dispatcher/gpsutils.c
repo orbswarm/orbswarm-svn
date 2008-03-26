@@ -11,6 +11,9 @@
 //	Written by yourname, optional email
 // -----------------------------------------------------------------------
 #include "gpsutils.h"
+#include "scanner.h"
+
+//extern int parseDebug;
 
 int parseGPSSentence(swarmGpsData * gpsdata)
 {
@@ -28,10 +31,10 @@ int parseGPSSentence(swarmGpsData * gpsdata)
      strcpy(gpsdata->gpsSentenceType,paramptr);
      paramcount++; 
   }
-  fprintf(stderr, "\nstrtok returned **%s** for gps sentence type\n",gpsdata->gpsSentenceType);
+  logit(eGpsLog, eLogDebug,  "\nstrtok returned **%s** for gps sentence type\n",gpsdata->gpsSentenceType);
   if(strcmp(gpsdata->gpsSentenceType,SWARM_NMEA_GPS_SENTENCE_TYPE_GPGGA) == 0)
     { 
-      fprintf(stderr, "\nparsing rest of gps data\n");
+      logit(eGpsLog, eLogDebug,  "\nparsing rest of gps data\n");
       //Sentence type is correct so go ahead and get the rest of the data 
       while(paramptr != NULL)
 	{
@@ -74,9 +77,9 @@ int parseGPSSentence(swarmGpsData * gpsdata)
 	}
       //fprintf(stderr,"\n RAW GPS DATA %s,%s,%Lf,%c,%Lf,%c \n",gpsdata->gpsSentenceType,gpsdata->nmea_utctime,gpsdata->nmea_latddmm,gpsdata->nmea_latsector,gpsdata->nmea_londdmm,gpsdata->nmea_lonsector);
     } else  {
-      fprintf(stderr,"\nRETURNING INVALID GPS SENTANCE\n");
+    fprintf(stderr,"\nRETURNING INVALID GPS SENTANCE\n");
     return SWARM_INVALID_GPS_SENTENCE;
-    }
+  }
   
   return status;
 }
@@ -98,7 +101,7 @@ int parseGPSVtgSentance(swarmGpsData * gpsdata)
   //fprintf(stderr, "\nstrtok returned **%s** for gps sentence type\n",paramptr);
   
   if (paramptr == NULL) {
-    //fprintf(stderr,"\nRETURNING INVALID GPS SENTANCE PARAM PTR NULL\n");
+    fprintf(stderr,"\nRETURNING INVALID GPS SENTANCE PARAM PTR NULL\n");
     return SWARM_INVALID_GPS_SENTENCE;
   }
   
@@ -370,28 +373,25 @@ int parseAndConvertGPSData(char* rawGPS, swarmGpsData * gpsdata)
   status = parseGPSSentence(gpsdata);
   if(status == SWARM_SUCCESS)
   { 
-    if(VERBOSE)
-    printf("\n Parsed line %s \n",gpsdata->gpsSentence);
+    logit(eGpsLog, eLogDebug,  "\n Parsed line %s \n",gpsdata->gpsSentence);
     status = convertNMEAGpsLatLonDataToDecLatLon(gpsdata);
     if(status == SWARM_SUCCESS)
     {
-      if(VERBOSE)
-      printf("\n Decimal lat:%lf lon:%lf utctime:%s \n",gpsdata->latdd,gpsdata->londd,gpsdata->nmea_utctime);
+      logit(eGpsLog, eLogDebug,  "\n Decimal lat:%lf lon:%lf utctime:%s \n",gpsdata->latdd,gpsdata->londd,gpsdata->nmea_utctime);
            
       decimalLatLongtoUTM(WGS84_EQUATORIAL_RADIUS_METERS, WGS84_ECCENTRICITY_SQUARED, gpsdata);
-      if(VERBOSE)
-        printf("Northing:%f,Easting:%f,UTMZone:%s\n",gpsdata->UTMNorthing,gpsdata->UTMEasting,gpsdata->UTMZone);
-      }
+      logit(eGpsLog, eLogDebug,  "Northing:%f,Easting:%f,UTMZone:%s\n",gpsdata->UTMNorthing,gpsdata->UTMEasting,gpsdata->UTMZone);
+    }
   }
   else
   {
-    if(VERBOSE)
-      printf("\n Failed GPS parse status=%i", status);
+    logit(eGpsLog, eLogError,  "\n Failed GPS parse status=%i", status);
   }
   status = SWARM_SUCCESS;
   status = parseGPSVtgSentance(gpsdata);
-  if(status != SWARM_SUCCESS)
-      printf("\n Failed GPS VTG parse status=%i", status);
+  if(status != SWARM_SUCCESS){
+    logit(eGpsLog, eLogDebug,  "\n Failed GPS VTG parse status=%i", status);
+  }
   return status;
 }
 

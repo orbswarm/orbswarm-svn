@@ -25,73 +25,176 @@
 #include "queues.h"
 #include <sys/shm.h> 
 #include <sys/stat.h> 
+#include <signal.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <stdarg.h>
+
 
 //#define LOCAL
-
-int parseDebug = 2; 		/*  parser uses this for debug output */
+int parseDebug = eGpsLog; 		/*  parser uses this for debug output */
+int parseLevel = eLogInfo;
 
 int myOrbId =0;    		/* which orb are we?  */
-
 
 int com1=0; /* File descriptor for the port */
 int com2=0; /* File descriptor for the port */
 int com3=0, com5=0; 	/* ditto */
 
-
 Queue* gpsQueuePtr;
-int gpsQueueSegmentId;
+int gpsQueueSegmentId=-1;
 struct shmid_ds gpsQueueShmidDs; 
 
-static int initSharedMem(void)
+int isParent=1;
+static int  pfd1[2], pfd2[2];
+
+	
+void logit(int nLogArea, int nLogLevel, 
+	 char* strFormattedSring, ...)
+{
+  va_list fmtargs;
+  char buffer[1024];
+  va_start(fmtargs, strFormattedSring);
+  vsnprintf(buffer,sizeof(buffer)-1, strFormattedSring, fmtargs);
+  va_end(fmtargs);  
+  if(eLogError == nLogLevel){
+    fprintf(stderr, "%s", buffer);
+    fprintf(stderr, "%s", buffer);
+  }
+  else if(nLogLevel >= parseLevel && 
+	  nLogArea == parseDebug)
+    fprintf(stdout, "%s", buffer);
+}
+
+static void
+TELL_WAIT(void)
+{
+  if (pipe(pfd1) < 0 || pipe(pfd2) < 0){
+      fprintf(stderr, "pipe error");
+      exit (EXIT_FAILURE);
+  }
+}
+
+/* static void */
+/* TELL_PARENT() */
+/* { */
+/*   if (write(pfd2[1], "c", 1) != 1) */
+/*     fprintf(stderr, "write error"); */
+/* } */
+
+static void
+WAIT_PARENT(void)
+{
+    char    c;
+
+    if (read(pfd1[0], &c, 1) != 1)
+      fprintf(stderr,"read error");
+
+    if (c != 'p'){
+      fprintf(stderr, "WAIT_PARENT: incorrect data");
+    }
+}
+
+static void
+TELL_CHILD()
+{
+    if (write(pfd1[1], "p", 1) != 1)
+      fprintf(stderr,"write error");
+}
+
+/* static void */
+/* WAIT_CHILD(void) */
+/* { */
+/*     char    c; */
+
+/*     if (read(pfd2[0], &c, 1) != 1) */
+/*       fprintf(stderr,"read error"); */
+
+/*     if (c != 'c'){ */
+/*       fprintf(stderr,"WAIT_CHILD: incorrect data"); */
+/*     } */
+/* } */
+
+
+
+static void onShutdown(void)
+{
+  /*if(2 == parseDebug)
+    printf("\ncleaning shared mem");*/
+  if(isParent && -1!=gpsQueueSegmentId){
+    shmctl (gpsQueueSegmentId, IPC_RMID, 0); 
+    fprintf(stderr, "\n cleaned shared mem");
+  }
+}
+
+static void signalHandler (int signo)
+{
+  if(SIGTERM==signo ||
+     SIGINT==signo ||
+     SIGQUIT==signo){
+    onShutdown();
+    exit (EXIT_SUCCESS);
+  }
+  else
+    onShutdown();
+    exit (EXIT_FAILURE);
+}
+
+int initSharedMem(void)
 {
   //Allocate shared memory
   gpsQueueSegmentId = shmget(IPC_PRIVATE, sizeof(Queue), 
                      IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR); 
+  if(-1 == gpsQueueSegmentId)
+    return 0;
   //Attach shared memory
   gpsQueuePtr = (Queue *)shmat(gpsQueueSegmentId, 0, 0); 
-
+  if(-1 == (int)gpsQueuePtr)
+    return 0;
   //read shared memory data structure
-  shmctl(gpsQueueSegmentId, IPC_STAT, &gpsQueueShmidDs);
+  if(-1 == shmctl(gpsQueueSegmentId, IPC_STAT, &gpsQueueShmidDs))
+    return 0;
   if(2==parseDebug)
     printf("\nsegment size=%d", gpsQueueShmidDs.shm_segsz);
 
-  return 1;//TO DO: error handling
+  return 1;
 }
 
-static void doChildProcess(void)
+void doChildProcess(void)
 {
-  if(2==parseDebug)
-    printf("\ndoChildProcess():START");
+  logit(eGpsLog, eLogDebug,  "\ndoChildProcess():START");
   while(1){
     char buffer[MSG_LENGTH];
+    WAIT_PARENT();
     if(pop(buffer, gpsQueuePtr)){
       //we have some thing
-      if(2==parseDebug)
-	printf("\ngot GPS message=%s", buffer);
+      logit(eGpsLog, eLogDebug,  "\ngot GPS message=%s", buffer);
       char resp[96];
       swarmGpsData gpsData;
       strncpy(gpsData.gpsSentence, buffer, MSG_LENGTH);
       int status=parseGPSSentence(&gpsData);
-      if(2==parseDebug){
-	printf("parseGPSSentence() return=%d\n", status);
-	printf("\n Parsed line %s \n",gpsData.gpsSentence);
-      }
+      logit(eGpsLog, eLogDebug,  "parseGPSSentence() return=%d\n", status);
+      logit(eGpsLog, eLogDebug,  "\n Parsed line %s \n",gpsData.gpsSentence);
       status = convertNMEAGpsLatLonDataToDecLatLon(&gpsData);
       if(status == SWARM_SUCCESS)
 	{
-	  if(2==parseDebug)
-	    printf("\n Decimal lat:%lf lon:%lf utctime:%s \n",gpsData.latdd,gpsData.londd,gpsData.nmea_utctime);
+	  logit(eGpsLog, eLogDebug,  "\n Decimal lat:%lf lon:%lf utctime:%s \n",gpsData.latdd,gpsData.londd,gpsData.nmea_utctime);
            
 	  decimalLatLongtoUTM(WGS84_EQUATORIAL_RADIUS_METERS, WGS84_ECCENTRICITY_SQUARED, &gpsData);
-	  if(2==parseDebug)
-	    printf("Northing:%f,Easting:%f,UTMZone:%s\n",gpsData.UTMNorthing,gpsData.UTMEasting,gpsData.UTMZone);
+	  logit(eGpsLog, eLogDebug,  "Northing:%f,Easting:%f,UTMZone:%s\n",gpsData.UTMNorthing,gpsData.UTMEasting,gpsData.UTMZone);
 	}
-      sprintf(resp, "{orb=%d\rnorthing=%f\reasting=%f\rutmzone=%s}", myOrbId,gpsData.UTMNorthing,gpsData.UTMEasting,gpsData.UTMZone);
+      else{
+	logit(eGpsLog, eLogError,  "\ncouldn't convertNMEAGpsLatLonDataToDecLatLon status="
+		 "%d", status);
+      }
+      sprintf(resp, "{orb=%d\nnorthing=%f\neasting=%f\nutmzone=%s}", myOrbId,gpsData.UTMNorthing,gpsData.UTMEasting,gpsData.UTMZone);
+      logit(eGpsLog, eLogInfo, "\n sending msg to spu=%s", resp);
       writeCharsToSerialPort(com2, resp, strlen(resp));
 
     }
-    else if(2== parseDebug)
-      printf("\npop returned nothing");
+    else {
+      logit(eGpsLog, eLogError,  "\npop returned nothing. shouldn't be here"); 
+    }
   }
 }
 
@@ -129,23 +232,45 @@ void dispatchSPUCmd(int spuAddr, cmdStruct *c){
 
 void dispatchGpggaMsg(cmdStruct * c){
  
-  if(6==parseDebug)
-    printf("got gps gpgga msg: \"%s\"\n",c->cmd);
+  logit(eGpsLog, eLogDebug,  "got gps gpgga msg: \"%s\"\n",c->cmd);
+
   if(push(c->cmd, gpsQueuePtr)){
-    if(6==parseDebug)
-      printf("\n successfully pushed GPS msg");
+    logit(eGpsLog, eLogDebug,  "\n successfully pushed GPS msg");
+    TELL_CHILD();
   }
-  else if(6==parseDebug)
-    printf("\n push failed. Q full");
+  else {
+    logit(eGpsLog, eLogWarn,  "\n push failed. Q full");
+  }
+
 }
 
 void dispatchGpvtgMsg(cmdStruct * c){
-  if(6==parseDebug)
-    printf("got gps gpvtg msg: \"%s\"\n",c->cmd);
+  logit(eGpsLog, eLogDebug,  "got gps gpvtg msg: \"%s\"\n",c->cmd);
 }
 
 int main(int argc, char *argv[]) 
 {
+  /* handle SIGINT, but only if it isn't ignored */
+  if (signal (SIGINT, SIG_IGN) != SIG_IGN) {
+    if (signal (SIGINT,  signalHandler) == SIG_ERR){
+      fprintf (stderr, "\nFailed to handle SIGINT!\n");
+      exit (EXIT_FAILURE);
+    }
+  }
+
+  /* handle SIGQUIT, but only if it isn't ignored */
+  if (signal (SIGQUIT, SIG_IGN) != SIG_IGN) {
+    if (signal (SIGQUIT, signalHandler) == SIG_ERR){
+      fprintf (stderr, "\nFailed to handle SIGQUIT!\n");
+      exit (EXIT_FAILURE);
+    }
+  }
+
+  /*handle SIGTERM*/
+  if(signal (SIGTERM, signalHandler) == SIG_ERR){
+    fprintf(stderr, "\nFailed to handle SIGTERM");
+    exit(EXIT_FAILURE);
+  }
 
   /* increment this counter every time through 10 hz timeout loop */
   int tenHzticks = 0;
@@ -255,23 +380,30 @@ printf("debug flags are %d\n",dbgflags);
   max_fd = (com3 > max_fd ? com3 : max_fd) + 1;
   max_fd = (com5 > max_fd ? com5 : max_fd) + 1;
 
+
   if(initSharedMem()){
     if (2==parseDebug)
       printf("\n shared memory initialized successfully");
   }
   else{
-    printf("\n shared memory init UNSUCCESSFUL");
+    fprintf(stderr,"\n shared memory init UNSUCCESSFUL");
     return(1);
   }
-  //fork now 
+  //set up pipes and fork now 
+  TELL_WAIT();
   pid_t pid;
   if((pid = fork())<0){
-    printf("\n fork() unsuccessful");
+    fprintf(stderr,"\n fork() unsuccessful");
+    onShutdown();
     return(2);
   }
-  else if(pid ==0)
+  else if(pid ==0){
+    isParent=0;
     doChildProcess();
-  else{//parent
+  }
+  else
+
+  {//parent
     while(1){
     
     
@@ -319,7 +451,7 @@ printf("debug flags are %d\n",dbgflags);
 	    setSpuLed(SPU_LED_RED_ON);  
 	    if(parseDebug == 2){
 	      printf("\nReceived \"%s\" from  com2\n",buff);
-	      fflush(stdout);
+/* 	      fflush(stdout); */
 	    }
 	    /* send bytes down to the parser. When it gets a command it
 	       will call the dispatch*() functions */				
@@ -328,9 +460,10 @@ printf("debug flags are %d\n",dbgflags);
 	    }
 	  }
 	  else if(bytesRead < 0)
-	    printf("\nGot error from read");
+	    fprintf(stderr,"\nGot error from read");
 #ifdef LOCAL
 	  else { /* no bytes read means EOF */
+	    onShutdown();
 	    return(0);
 	  }
 #endif
@@ -338,6 +471,7 @@ printf("debug flags are %d\n",dbgflags);
       }
     }// end while(1)
   }
+  onShutdown();
   return(0); 			// keep the compiler happy
 }
 //END main() 

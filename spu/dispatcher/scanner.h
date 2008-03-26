@@ -1,3 +1,6 @@
+#ifndef SCANNER_H_
+#define SCANNER_H_
+
 #define BUFLENGTH 100
 /*flags for command-line debug options to dispatcher.c */ 
 /*Dillo Added 9/25/07 				       */
@@ -38,8 +41,25 @@ void accumAddrDigit(int x);
 void resetAddress(void); 
 void doScanner(void * pParser(), int inChar);
 
+enum EDebugArea{
+  eNoLog =0,
+  eDefaultLog,
+  eDispatcherLog,
+  eLedLog,
+  eSpuLog,
+  eMcuLog,
+  eGpsLog
+};
+
+enum EDebugLevel{
+  eLogDebug =0,
+  eLogInfo,
+  eLogWarn,
+  eLogError
+};
+
+void logit(int nLogArea, int nLogLevel,  
+	 char* strFormattedSring, ...);
 
 
-
-
-
+#endif /*SCANNER_H_*/

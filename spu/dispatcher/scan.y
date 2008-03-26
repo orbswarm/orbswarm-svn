@@ -48,6 +48,7 @@ int spuAddr = 0;
 %parse_failure {
   if(parseDebug)
     printf("LEMON parser failure\n");
+  //fprintf(stderr, "LEMON parser failure\n");
 }
 %stack_overflow {
   if(parseDebug)
@@ -110,16 +111,16 @@ spu_cmd ::= spu_str SPU_END(A).   {
 } 
 
 /* GPS  message*/
-gps_str ::= GPS_START(A).   { accumCmd(&gpsCmd,-1, 1);}
+gps_str ::= GPS_START.   { accumCmd(&gpsCmd,-1, 1);}
 gps_str ::= gps_str CHAR(A). { accumCmd(&gpsCmd,A, 0);}
 gps_str ::= gps_str DIGIT(A). { accumCmd(&gpsCmd,A, 0);}
 gps_str ::= gps_str WS(A). { accumCmd(&gpsCmd,A, 0);}
-gps_str ::= gps_str GPS_DELIM(A). {
+gps_str ::= gps_str GPS_DELIM. {
     //dispatch GPGGA message
   dispatchGpggaMsg(&gpsCmd);
   accumCmd(&gpsCmd,-1, 1);
 }
-gps_cmd ::= gps_str GPS_END(A). {
+gps_cmd ::= gps_str GPS_END. {
   //dispatch GPVTG message
   dispatchGpvtgMsg(&gpsCmd);
 }
