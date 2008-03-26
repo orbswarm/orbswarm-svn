@@ -53,72 +53,79 @@ void resetAddress() {
 /* lexical analyzer for LEMON parser. Determines character type for
    each input char, then passes it to the lemon parser */
 
-void doScanner(void * pParser(), int inChar) {
-  /* lexical analyzer for parser */
-  if (islower(inChar)  || isupper(inChar)) {
-    Parse (pParser, CHAR, inChar); /* got chars [a-zA-Z] */
-  }
-  else if(isdigit(inChar)) { /* got digits [0-9] */
-    Parse (pParser, DIGIT, inChar);
-  }
-  else if (isblank(inChar)) { /* got whitespace */
-    Parse (pParser, WS, inChar);
-  }
-  else { /* got special chars */
-    switch(inChar) {
-    case '{':
-      Parse (pParser, CMD_START, inChar);
-      break;
+void doScanner(void * pParser(), char* str) 
+{
+  while(*str)
+  {
+    char inChar=*str++;
+    /* lexical analyzer for parser */
+    if (islower(inChar)  || isupper(inChar)) {
+      Parse (pParser, CHAR, inChar); /* got chars [a-zA-Z] */
+    }
+    else if(isdigit(inChar)) { /* got digits [0-9] */
+      Parse (pParser, DIGIT, inChar);
+    }
+    else if (isblank(inChar)) { /* got whitespace */
+      Parse (pParser, WS, inChar);
+    }
+    else { /* got special chars */
+      switch(inChar) {
+      case '{':
+	Parse (pParser, CMD_START, inChar);
+	break;
       case '}':
 	Parse (pParser, CMD_END, inChar);
 	Parse (pParser, 0, 0);
 	resetAddress();
 	break;
-    case '$':
-      Parse (pParser, MCU_START, inChar);
-      break;
-    case '*':
-      Parse (pParser, MCU_END, inChar);
-      break;
-    case '[':
-      Parse (pParser, SPU_START, inChar);
-      break;
-    case ']':
-      Parse (pParser, SPU_END, inChar);
-      break;
-    case '<':
-      Parse (pParser, LED_START, inChar);
-      break;
-    case '>':
-      Parse (pParser, LED_END, inChar);
-      break;
-    case ',':
-    case '.':
-    case '-':
-      Parse (pParser, CHAR, inChar);
-      break;
-    case '(':
-      Parse(pParser, GPS_START, inChar);
-      break;
-    case ')':
-      Parse(pParser, GPS_END, inChar);
-      break;
-    case ';':
-      Parse (pParser, GPS_DELIM, inChar);
-      break;
-    case 10: /* that's a  newline) */
-             /* which isblank() on the spu misses? */
-      Parse (pParser, WS, inChar);
-      break;
-    case 13: /* that's a <CR>, likely  from windows somewhere. Ignore it. */
-      break;	
-    case 0:  /* that's a null which means end of input */
-      return;
-    default:
-      if (parseDebug)
-	printf("Unexpected char \"%c\" (%x) in input\n", (char)inChar, inChar);
-      break;
+      case '$':
+	Parse (pParser, MCU_START, inChar);
+	break;
+      case '*':
+	Parse (pParser, MCU_END, inChar);
+	break;
+      case '[':
+	Parse (pParser, SPU_START, inChar);
+	break;
+      case ']':
+	Parse (pParser, SPU_END, inChar);
+	break;
+      case '<':
+	Parse (pParser, LED_START, inChar);
+	break;
+      case '>':
+	Parse (pParser, LED_END, inChar);
+	break;
+      case ',':
+      case '.':
+      case '-':
+	Parse (pParser, CHAR, inChar);
+	break;
+      case '(':
+	Parse(pParser, GPS_START, inChar);
+	break;
+      case ')':
+	Parse(pParser, GPS_END, inChar);
+	break;
+      case ';':
+	Parse (pParser, GPS_DELIM, inChar);
+	break;
+      case 10: /* that's a  newline) */
+	/* which isblank() on the spu misses? */
+	Parse (pParser, WS, inChar);
+	break;
+      case 13: /* that's a <CR>, likely  from windows somewhere. Ignore it. */
+	break;	
+      case 0:  /* that's a null which means end of input */
+	return;
+      default:
+	if (parseDebug)
+	  printf("Unexpected char \"%c\" (%x) in input\n", (char)inChar, inChar);
+	break;
+      }
     }
+    //  if(isError)
+    //    logit(eDefaultLog, eLogError, "%c", inChar);
   }
 }
 

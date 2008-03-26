@@ -32,7 +32,7 @@
 
 
 //#define LOCAL
-int parseDebug = eGpsLog; 		/*  parser uses this for debug output */
+int parseDebug = eDispatcherLog; 		/*  parser uses this for debug output */
 int parseLevel = eLogInfo;
 
 int myOrbId =0;    		/* which orb are we?  */
@@ -59,7 +59,7 @@ void logit(int nLogArea, int nLogLevel,
   va_end(fmtargs);  
   if(eLogError == nLogLevel){
     fprintf(stderr, "%s", buffer);
-    fprintf(stderr, "%s", buffer);
+    fprintf(stdout, "%s", buffer);
   }
   else if(nLogLevel >= parseLevel && 
 	  nLogArea == parseDebug)
@@ -154,8 +154,7 @@ int initSharedMem(void)
   //read shared memory data structure
   if(-1 == shmctl(gpsQueueSegmentId, IPC_STAT, &gpsQueueShmidDs))
     return 0;
-  if(2==parseDebug)
-    printf("\nsegment size=%d", gpsQueueShmidDs.shm_segsz);
+  logit(eDispatcherLog, eLogDebug, "\nsegment size=%d", gpsQueueShmidDs.shm_segsz);
 
   return 1;
 }
@@ -277,7 +276,7 @@ int main(int argc, char *argv[])
 
   /* init lemon parser here */
   void* pParser = ParseAlloc (malloc);
-  int i = 0; 	
+  //  int i = 0; 	
   int seconds = 0; 		/* seconds we've been running */
 
   int optchar=0;
@@ -350,7 +349,7 @@ int main(int argc, char *argv[])
              }
      }
 
-printf("debug flags are %d\n",dbgflags);
+   printf("debug flags are %d\n",dbgflags);
 
   if(parseDebug) {
     fprintf(stderr,"Dispatcher running for Orb ID: %d\n",myOrbId);
@@ -382,8 +381,7 @@ printf("debug flags are %d\n",dbgflags);
 
 
   if(initSharedMem()){
-    if (2==parseDebug)
-      printf("\n shared memory initialized successfully");
+    logit(eGpsLog, eLogDebug,  "\n shared memory initialized successfully");
   }
   else{
     fprintf(stderr,"\n shared memory init UNSUCCESSFUL");
@@ -449,15 +447,15 @@ printf("debug flags are %d\n",dbgflags);
 	    buff[bytesRead] = 0; 	 /* null-term buffer if not done already */
 	    /* got some input so flash red LED for indication */
 	    setSpuLed(SPU_LED_RED_ON);  
-	    if(parseDebug == 2){
-	      printf("\nReceived \"%s\" from  com2\n",buff);
+/* 	    if(parseDebug == 2){ */
+/* 	      printf("\nReceived \"%s\" from  com2\n",buff); */
 /* 	      fflush(stdout); */
-	    }
+/* 	    } */
+	    logit(eDispatcherLog, eLogInfo,  
+		  "\nReceived \"%s\" from  com2\n",buff);
 	    /* send bytes down to the parser. When it gets a command it
 	       will call the dispatch*() functions */				
-	    for(i=0;i<bytesRead;i++){
-	      doScanner(pParser,(int)buff[i]);
-	    }
+	    doScanner(pParser, buff);
 	  }
 	  else if(bytesRead < 0)
 	    fprintf(stderr,"\nGot error from read");

@@ -27,6 +27,7 @@ int initSerialPort(const char* port, int baud)
   speed_t brate = baud; /* let you override switch below if needed */
 
   fd = open(port, O_RDWR | O_NOCTTY | O_NDELAY);
+  //fd = open(port, O_RDWR | O_NOCTTY);
   if(fd == -1){
     fprintf(stderr,"failed to open serial port%s\n",port);
   }
@@ -102,11 +103,11 @@ int readCharsFromSerialPort(int port_fd, char* buff, int maxBufSz){
 #ifdef LOCAL
   numBytesAvail = 10; 		/* read the next 10 bytes */
 #else
-  //  ioctl(port_fd, TIOCINQ , &numBytesAvail);
+    ioctl(port_fd, TIOCINQ , &numBytesAvail);
 #endif
-  //  if(numBytesAvail > maxBufSz) {
+    if(numBytesAvail > maxBufSz) {
       numBytesAvail = maxBufSz;
-  //} 
+  } 
   /* read() returns number of bytes read; pass that upstairs */
   return(read(port_fd,buff,numBytesAvail));
 }
