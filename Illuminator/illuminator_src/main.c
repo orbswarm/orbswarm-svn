@@ -38,6 +38,8 @@ volatile illuminatorStruct illum;
 volatile int pwm=0;
 
 
+char debug_out = 0;			/* set this to output debug info */
+
 void doFade(illuminatorStruct *illum){
   int diff;
 
@@ -124,7 +126,6 @@ int main( void ){
 
  
   /* init data structure */
-  illum.Addr = 0; 		/* set this from program */
   illum.H=0;
   illum.S=0;
   illum.V=0;

@@ -15,10 +15,10 @@
 #define ADDRESS_EEPROM 1
 
 /* save current address to eeprom */
-void writeAddressEEPROM(unsigned char addr){
+void writeAddressEEPROM(unsigned char data){
   while(EECR & (1 << EEWE));
-  EEAR = ADDRESS_EEPROM;
-  EEDR = addr;
+  EEAR = (uint16_t)ADDRESS_EEPROM;
+  EEDR = data;
   cli();			// turn OFF interrupts
   EECR |= (1 << EEMWE);	// setup to write to eeprom
   EECR |= (1 << EEWE);	// must follow within 4 cycles--therefore cli()
@@ -28,7 +28,7 @@ void writeAddressEEPROM(unsigned char addr){
 /* read address from eeprom */
 unsigned char readAddressEEPROM(void){
   while(EECR & (1 << EEWE));
-  EEAR = ADDRESS_EEPROM;
+  EEAR = (uint16_t)ADDRESS_EEPROM;
   EECR |= (1<<EERE);
   return( (unsigned char) EEDR);
 }

@@ -27,6 +27,8 @@
 	#error TX buffer size is not a power of 2
 #endif
 
+extern char debug_out; 		/* send debug output to serial port */
+
 
 /* Static Variables -- Tx & Rx Ring Buffers */
 static unsigned char UART_RxBuf[UART_RX_BUFFER_SIZE];
@@ -131,6 +133,9 @@ unsigned char UART_ring_buf_byte( void )
 void UART_send_byte( unsigned char data )
 {
 	unsigned char tmphead;
+
+	if(!debug_out) return;
+
 	/* Calculate buffer index */
 	tmphead = ( UART_TxHead + 1 ) & UART_TX_BUFFER_MASK; /* Wait for free space in buffer */
 	while ( tmphead == UART_TxTail );

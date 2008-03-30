@@ -17,6 +17,7 @@
 #include "UART.h"
 
 extern illuminatorStruct illum;
+extern char debug_out;
 unsigned char commandStr[MAX_COMMAND_LENGTH];
 unsigned char commandLen = 0;
 
