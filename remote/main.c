@@ -24,8 +24,8 @@ Project: ORB Portable Transmitter using ATMega8L chip
 #include "timer.h"
 #include "a2d.h"
 
-#define ON	1
-#define OFF 0
+#define LED_ON 0
+#define LED_OFF 1
 
 
 
@@ -35,17 +35,16 @@ Project: ORB Portable Transmitter using ATMega8L chip
 /* define port and pin assignments for buttons, joysticks, and LEDs */
 
 /* LED outputs are on PORTD*/
-
 #define LED_PORT PORTD
-#define BATT_LED 2
-#define STAT_LED 3
+#define BATT_LED 3
+#define STAT_LED 2
 
 /* ADC inputs on PORTC  */
 #define VREF  3
-#define JOYLX 4
-#define JOYLY 5
-#define JOYRX 6
-#define JOYRY 7
+#define JOYRY 4
+#define JOYRX 5
+#define JOYLX 6
+#define JOYLY 7
 
 /* PORTB needs pullups set */
 /* Trigger buttons on PORTB */
@@ -59,6 +58,10 @@ Project: ORB Portable Transmitter using ATMega8L chip
 #define JOYBR 4
 #define JOYBL 5
 
+
+
+
+
 // Prototypes
 
 void Init_Chip(void);
@@ -71,9 +74,10 @@ short command_data(unsigned char firstChr);
 
 void setLED(unsigned char LED_Num, unsigned char On_Off);
 void check_heart_beat(unsigned char *state);
-void pause(void);
+short linearize(short input,short scale);
 void pauseMS(unsigned short mS);
 void num_to_Str( short v, char *str);
+
 
 
 // Static variable definitions
@@ -86,9 +90,29 @@ static short maxLeft, maxRight, centerPos, maxPWM;
 extern volatile unsigned short Timer0_ticks;
 extern volatile unsigned char Timer0_10hz_Flag;
 
-volatile uint8_t Debug_Output;
+volatile uint8_t debug_out;
 
 static unsigned char addr;
+
+static unsigned short zero[8];
+
+
+// Misc. numerical constants
+
+short steer_max=100;
+short drive_max=40;
+short drive_turbo=60;
+
+/* joysticks are nonlinear. Have more extension in neg direction */
+short negmax = 530;
+short posmax = 300;
+
+
+short mindiff = 5; 		/* minumum delta. Don't send if changes less than this */
+
+/* previous values for calculating delta */
+int oldsteer = -100;
+int olddrive = -100;
 
 
 // Init hardware
@@ -104,8 +128,8 @@ void Init_Chip(void)
   DDRB = 0xC0;			/* All bits are button inputs except PB6, PB7 */
   PORTB = 0x3F;			/* All input bits have pullups enabled */
 
-  /* PORTC: A/D inputs on  */
-  DDRC = 0xF0;			/* PortC - A/D inputs on pins 0:1; LED output on pin 4:5 b 1111 0000 */
+
+  DDRC = 0x00;			/* PortC - A/D inputs on pins 0:7 */
 
   DDRD = 0x0E;			/* D0 is RS-232 Rx, D1 is Tx, D2, D3 are LED outputs, D4:7 are address */
   PORTD = 0xF0;			/* High order bits have pullups enabled */
@@ -118,34 +142,29 @@ void Init_Chip(void)
   
   Timer0_Init();		/* Init Tick Timer */
   
-  sei();				/* Enable interrupts */
-
+  sei();			/* Enable interrupts */
 
   putstr("\r\n--- remote v1.0 ---\r\n");
 
   /* first read address from upper 4 bits of PORTD (ROTDIP) */
-  /* (shift right by 4 to get actual value) */
-  addr = (PIND & 0xF0) >> 4;
-
+  /* complement for active low, then shift right by 4 to get actual value) */
+  addr = (~PIND & 0xF0) >> 4;
+  addr = addr & 0x0F;
   putstr("Got addr: " );
-  num_to_Str((short)addr, theStr );
-  putstr( theStr );
+  putU8(addr);
   putstr("\r\n");
 
-  /* and blink battery LED that many times */
+  /* and blink status LED that many times */
   for (i=0; i<addr; i++) {
-    setLED(BATT_LED, ON);
+    setLED(BATT_LED, LED_ON);
     pauseMS(120);  
-    setLED(BATT_LED, OFF);
+    setLED(BATT_LED, LED_OFF);
     pauseMS(120);  
   }
 
 
-
-
-  setLED(BATT_LED,OFF);	// Have to explicitly turn them OFF.
-  setLED(STAT_LED,OFF);	// Have to explicitly turn them OFF.
-  Debug_Output = OFF;	
+  setLED(BATT_LED,LED_OFF);	// Have to explicitly turn them OFF.
+  setLED(STAT_LED,LED_OFF);	// Have to explicitly turn them OFF.
 }
 
 
@@ -153,11 +172,8 @@ int main (void)
 {
   unsigned char theData;
   unsigned char state = 0;
-  short n, t, ch1, ch2;
-  short prevSpeed, prevSteer;
-  short SpeedValue, SteerValue;
+  short i, n, t, ch1, ch2;
   char theStr[10];
-  float fSpeed, fSteer;
   
   Init_Chip();
   read_eeprom_settings();
@@ -165,67 +181,62 @@ int main (void)
 
 
   // warm up ADC for 1 second and learn zero points
-  for (t=0; t<50; t++) {
-    for (n=0; n<8000; n++)
-      A2D_poll_adc();
-  }
+  for(i =0; i<8;i++) 
+    zero[i] = 0;
 
+  for (t=0; t<8; t++) {
+    for(i=0; i<8; i++) {
+      for (n=0; n<8000; n++)
+	A2D_poll_adc();
+      zero[i] += A2D_read_channel(i);
+    }  
+  }
+  for(i =0; i<8;i++) {
+    zero[i] = zero[i] >> 3;
+    putS16(zero[i]);
+    putstr(" ");
+  }
 
   putstr("\r\n--- READY ---\r\n");
   
-  prevSpeed = 0;
-  prevSteer = 0;
   
   for (;;) {	// loop forever
-
-	A2D_poll_adc();					// see if A/D conversion done & re-trigger 
-	check_heart_beat( &state );		// Heart-beat is fore-ground -- true indication prog is alive.
-
+    
+    A2D_poll_adc();					// see if A/D conversion done & re-trigger 
+    check_heart_beat( &state );		// Heart-beat is fore-ground -- true indication prog is alive.
+    
+    
+    if (UART_data_in_ring_buf()) {			// check for waiting UART data
+      theData = UART_ring_buf_byte();		// pull 1 chr from ring buffer
+      if (build_up_command_string(theData)) 
+	process_command_string();		// execute commands
+    }
 	
-	if (UART_data_in_ring_buf()) {			// check for waiting UART data
-		theData = UART_ring_buf_byte();		// pull 1 chr from ring buffer
-		if (build_up_command_string(theData)) 
-			process_command_string();		// execute commands
-		}
-	
-	if (Timer0_10hz_Flag) {		// do these tasks only 10 times per second
-		Timer0_10hz_Flag = 0;
-	
-		ch1 = A2D_read_channel(SPEED_CONTROL_CHANNEL);
-		SpeedValue = (ch1 - 485);					// returns values -140..0..140  (485)
+    if (Timer0_10hz_Flag) {		// do these tasks only 10 times per second
+      Timer0_10hz_Flag = 0;
 
-		if (abs(SpeedValue) < 5) SpeedValue = 0;	// dead band - prevent chatter
-		fSpeed = SpeedValue / 140.0;
-		SpeedValue = (fSpeed * maxPWM);
-		
-		ch2 = A2D_read_channel(STEERING_CONTROL_CHANNEL);
-		SteerValue = (380 - ch2) + (centerPos * 2);		// returns values -140..0..140  (380)
+      ch1 = A2D_read_channel(JOYRX) - zero[JOYRX];
+      if(abs(ch1 - oldsteer) > mindiff) {
+	putstr("{6");
+	UART_send_byte(addr + '0');
+	putstr(" $s");
+	putS16(linearize(ch1,steer_max)); 
+	putstr("*}\n\r ");
+	oldsteer = ch1;
+      }
 
-		fSteer = SteerValue / 140.0;
-		if (fSteer < 0)
-			SteerValue = (fSteer * maxLeft);
-		else
-			SteerValue = (fSteer * maxRight);
-		
-		if (SpeedValue != prevSpeed) {
-			theStr[0] = '$';
-			theStr[1] = 'p';
-			num_to_Str( SpeedValue, theStr );
-			putstr( theStr );
-			putstr("\r\n");
-			}
-		
-		if (SteerValue != prevSteer) {
-			theStr[0] = '$';
-			theStr[1] = 's';
-			num_to_Str( SteerValue, theStr );
-			putstr( theStr );
-			putstr("\r\n");
-			}
-		
-		prevSpeed = SpeedValue;
-		prevSteer = SteerValue;
-		}
+      ch1 = A2D_read_channel(JOYRY) - zero[JOYRY];
+      if(abs(ch1 - olddrive) > mindiff) {
+	putstr("{6");
+	UART_send_byte(addr + '0');
+	putstr(" $p");
+	putS16(linearize(ch1,-drive_max)); 
+	putstr("*}\n\r ");
+	olddrive = ch1;
+      }
+      
+    }
+      
 		
   } // forever loop
 
@@ -241,23 +252,23 @@ int main (void)
 
 unsigned char build_up_command_string(unsigned char c)
 {
-	if (c == START_CHAR) {		// this will catch re-starts and stalls as well as valid commands.
-		CmdStrLen = 0;
-		Command_String[CmdStrLen++] = c;
-		return 0;
-		}
-	
-	if (CmdStrLen != 0)		// string has already started
-		{
-		if (CmdStrLen < CMD_STR_SIZE) 
-			Command_String[CmdStrLen++] = c;
-		return (c == END_CHAR);
-		}
-		
-	return 0;
+  if (c == START_CHAR) {		// this will catch re-starts and stalls as well as valid commands.
+    CmdStrLen = 0;
+    Command_String[CmdStrLen++] = c;
+    return 0;
+  }
+  
+  if (CmdStrLen != 0)		// string has already started
+    {
+      if (CmdStrLen < CMD_STR_SIZE) 
+	Command_String[CmdStrLen++] = c;
+      return (c == END_CHAR);
+    }
+  
+  return 0;
 }
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------
 // We have a complete command string - execute the command.
 
 void process_command_string(void)
@@ -347,7 +358,7 @@ short command_data(unsigned char firstChr)
 
 void setLED(unsigned char LED_Num, unsigned char On_Off)
 {
-	if (On_Off == ON) {
+	if (On_Off == LED_ON) {
 		LED_PORT &= ~(1 << LED_Num); // clear pin turns LED on
 		}
 	else
@@ -364,34 +375,57 @@ void setLED(unsigned char LED_Num, unsigned char On_Off)
 
 void check_heart_beat(unsigned char *state)
 {
-	
-//	if (Timer0_ticks > 1023) {	//  1024 tics per second - heart-beat LED
+  short  ch1, ch2;
+  
+  //	if (Timer0_ticks > 1023) {	//  1024 tics per second - heart-beat LED
   if (Timer0_ticks > 511) {	//  512 tics per second - heart-beat LED
     Timer0_reset();
     
-    putstr( "$i*\r\n" );	// send idle command - 
-    //		putstr("...Testing 1234\r\n...");
+    if(debug_out) {
+      putstr("\r\n JOYRX, JOYRY =");
+      ch1 = A2D_read_channel(JOYRX) - zero[JOYRX];
+      putS16(linearize(ch1,256)); 
+      ch2 = A2D_read_channel(JOYRY)  - zero[JOYRY];
+      putS16(linearize(ch2,256));
+      putstr("|| JOYLX, JOYLY =");
+      ch1 = A2D_read_channel(JOYLX) -   zero[JOYLX];
+      putS16(ch1); 
+      ch2 = A2D_read_channel(JOYLY)  - zero[JOYLY];
+      putS16(ch2);
+      putstr(" PINB");
+      putU8(PINB);
     
+    }
     
     if (*state == 0) {
-      setLED(STAT_LED,ON);
+      setLED(STAT_LED,LED_ON);
       *state = 1;
     }
     else {
-      setLED(STAT_LED,OFF);
+      setLED(STAT_LED,LED_OFF);
       *state = 0;
     }
   }
 }
 
 
-// pause for 1 second.
+/* linearize joystick value */
 
-void pause(void)
+short linearize(short input, short scale)
 {
-	Timer0_reset();
-	while (Timer0_ticks < 512) ;
-	Timer0_reset();
+  float value;
+  if(input > posmax) input = posmax;
+  if(input < -negmax) value = -negmax;
+
+  value = (float)input;
+
+  if (input > 0)
+    value = value / (float)posmax;
+  else
+    value = (value / (float)negmax);
+
+      
+  return((short)(value*scale));
 }
 
 
@@ -402,6 +436,8 @@ void pauseMS(unsigned short mS){
   while (Timer0_ticks < mS) ;
   Timer0_reset();
 }
+
+
 
 
 // special version - output 10 bit number into formatted string
@@ -436,7 +472,6 @@ void num_to_Str( short v, char *str)
 		}
 
 	str[n++] = v + '0';
-	str[n++] = '*';
 	str[n] = 0;
 }
 

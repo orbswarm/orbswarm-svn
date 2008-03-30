@@ -54,6 +54,12 @@ void putU8(unsigned char number)
 void putint(int number)
 {
   char value[6]={0,0,0,0,0,0};
+  char neg = 0;
+
+  if (number  < 0) {
+    neg = -1;
+    number = abs(number);
+  }
 
    while((number - 10000)>=0)
   {
@@ -86,7 +92,10 @@ void putint(int number)
   value[1] = number + '0';
   value[0] = '\0';
 
-  UART_send_byte(32);	// space
+  if (neg)
+    UART_send_byte('-');	// space
+  else
+    UART_send_byte(32);	// space
   UART_send_byte(value[5]);
   UART_send_byte(value[4]);
   UART_send_byte(value[3]);
@@ -140,10 +149,10 @@ void putS16(short number)
 
   value[0] = number + '0';
 
-  UART_send_byte(32);	// space
+  //UART_send_byte(32);	// space
   UART_send_byte(value[5]);
-  UART_send_byte(value[4]);
-  UART_send_byte(value[3]);
+  //UART_send_byte(value[4]);
+  //UART_send_byte(value[3]);
   UART_send_byte(value[2]);
   UART_send_byte(value[1]);
   UART_send_byte(value[0]);
