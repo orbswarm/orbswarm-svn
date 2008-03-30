@@ -1,7 +1,7 @@
 #ifndef SCANNER_H_
 #define SCANNER_H_
 
-#define BUFLENGTH 255
+#define BUFLENGTH 256
 /*flags for command-line debug options to dispatcher.c */ 
 /*Dillo Added 9/25/07 				       */
 #define DEBUG_GPS 0x01
@@ -62,6 +62,8 @@ enum EDebugLevel{
 
 void logit(int nLogArea, int nLogLevel,  
 	 char* strFormattedSring, ...);
+
+int isLogging(int nLogArea, int nLogLevel);
 
 
 #endif /*SCANNER_H_*/

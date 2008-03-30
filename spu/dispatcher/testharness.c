@@ -14,11 +14,41 @@
 #include <stdlib.h>
 #include <ctype.h>  /* for isupper, etc. */
 #include <string.h>
+#include <stdarg.h>
 #include "scan.h"  /* created by lemon */
 #include "scanner.h"
 #include "gpsutils.h"
 
-int parseDebug = 1;
+//int parseDebug = 1;
+int parseDebug = eDispatcherLog; 		/*  parser uses this for debug output */
+int parseLevel = eLogInfo;
+
+int isLogging(int nLogArea, int nLogLevel)
+{
+    if (eLogError == nLogLevel
+        || (nLogLevel >= parseLevel && nLogArea == parseDebug))
+        return 1;
+    else
+        return 0;
+}
+
+
+void logit(int nLogArea, int nLogLevel, 
+	 char* strFormattedSring, ...)
+{
+  va_list fmtargs;
+  char buffer[1024];
+  va_start(fmtargs, strFormattedSring);
+  vsnprintf(buffer,sizeof(buffer)-1, strFormattedSring, fmtargs);
+  va_end(fmtargs);  
+  if(eLogError == nLogLevel){
+    fprintf(stderr, "%s", buffer);
+    fprintf(stdout, "%s", buffer);
+  }
+  else if(nLogLevel >= parseLevel && 
+	  nLogArea == parseDebug)
+    fprintf(stdout, "%s", buffer);
+}
 
 /* Parser calls this when there is a complete MCU command */
 void dispatchMCUCmd(int spuAddr, cmdStruct *c){
@@ -56,24 +86,24 @@ void dispatchGpvtgMsg(cmdStruct * c){
   printf("got gps gpvtg msg: \"%s\"\n",c->cmd);
 }
 
-int main()
+int
+main ()
 {
-  void* pParser = ParseAlloc (malloc);
-  int nextchar = 1;
+  char buff[BUFLENGTH + 1];
+  void *pParser = ParseAlloc (malloc);
+  printf ("At main\n");
+  while (gets(buff) > 0)
+    {
 
-  printf("At main\n");
+      //nextchar = (int) getc (stdin);
 
-
-  while (nextchar > 0) {
-
-    nextchar = (int)getc(stdin);
-    //printf("Got char \"%c\"\n",(char)nextchar);
-
-    doScanner(pParser, nextchar);
-    
-  }    
-  ParseFree(pParser, free );
-  return(1);
+      //printf("Got char \"%c\"\n",(char)nextchar);
+      doScanner (pParser, buff);
+    }
+  ParseFree (pParser, free);
+  return (1);
 }
+
+
 
 
