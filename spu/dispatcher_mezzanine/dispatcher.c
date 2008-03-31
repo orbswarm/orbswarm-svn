@@ -99,8 +99,6 @@ static void TELL_CHILD()
 
 static void onShutdown(void)
 {
-    /*if(2 == parseDebug)
-       printf("\ncleaning shared mem"); */
     if (isParent && -1 != gpsQueueSegmentId) {
         shmctl(gpsQueueSegmentId, IPC_RMID, 0);
         fprintf(stderr, "\n cleaned shared mem");
