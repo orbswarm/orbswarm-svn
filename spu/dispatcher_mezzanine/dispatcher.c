@@ -449,7 +449,7 @@ int main(int argc, char *argv[])
 #endif
                 }
             }
-        }                       // end while(1)
+        }                       // end while(1) 
     }
     onShutdown();
     return (0);                 // keep the compiler happy
