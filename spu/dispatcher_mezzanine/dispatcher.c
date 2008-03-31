@@ -79,7 +79,7 @@ static void TELL_WAIT(void)
     }
 }
 
-                                                                                                                                                                                                                                                        /* static void *//* TELL_PARENT() *//* { *//*   if (write(pfd2[1], "c", 1) != 1) *//*     fprintf(stderr, "write error"); *//* } */
+
 static void WAIT_PARENT(void)
 {
     char c;
@@ -96,21 +96,6 @@ static void TELL_CHILD()
     if (write(pfd1[1], "p", 1) != 1)
         fprintf(stderr, "write error");
 }
-
-/* static void */
-/* WAIT_CHILD(void) */
-/* { */
-/*     char    c; */
-
-/*     if (read(pfd2[0], &c, 1) != 1) */
-/*       fprintf(stderr,"read error"); */
-
-/*     if (c != 'c'){ */
-/*       fprintf(stderr,"WAIT_CHILD: incorrect data"); */
-/*     } */
-/* } */
-
-
 
 static void onShutdown(void)
 {
@@ -209,7 +194,8 @@ void dispatchMCUCmd(int spuAddr, cmdStruct * c)
     writeCharsToSerialPort(com5, c->cmd, c->cmd_len);
 }
 
-                                                                                                                        /* Parser calls this when there is a complete LED command *//* if the addr matches our IP, send the command str out COM3 */
+/* Parser calls this when there is a complete LED command 
+ if the addr matches our IP, send the command str out COM3 */
 void dispatchLEDCmd(int spuAddr, cmdStruct * c)
 {
     if (spuAddr != myOrbId)
@@ -219,7 +205,8 @@ void dispatchLEDCmd(int spuAddr, cmdStruct * c)
     writeCharsToSerialPort(com3, c->cmd, c->cmd_len);
 }
 
-                                                                                                                        /* Parser calls this when there is a complete SPU command *//* if the addr matches our IP, handle it */
+/* Parser calls this when there is a complete SPU command 
+if the addr matches our IP, handle it */
 void dispatchSPUCmd(int spuAddr, cmdStruct * c)
 {
     if (spuAddr != myOrbId)
