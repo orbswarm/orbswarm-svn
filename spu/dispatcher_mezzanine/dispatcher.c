@@ -97,21 +97,6 @@ static void TELL_CHILD()
         fprintf(stderr, "write error");
 }
 
-/* static void */
-/* WAIT_CHILD(void) */
-/* { */
-/*     char    c; */
-
-/*     if (read(pfd2[0], &c, 1) != 1) */
-/*       fprintf(stderr,"read error"); */
-
-/*     if (c != 'c'){ */
-/*       fprintf(stderr,"WAIT_CHILD: incorrect data"); */
-/*     } */
-/* } */
-
-
-
 static void onShutdown(void)
 {
     /*if(2 == parseDebug)
