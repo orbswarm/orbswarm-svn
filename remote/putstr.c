@@ -115,7 +115,7 @@ void putS16(short number)
   }
   else
   {
-    value[5]='-';
+    UART_send_byte('-');
     number *= -1;
   }
 
@@ -150,7 +150,7 @@ void putS16(short number)
   value[0] = number + '0';
 
   //UART_send_byte(32);	// space
-  UART_send_byte(value[5]);
+  //
   //UART_send_byte(value[4]);
   //UART_send_byte(value[3]);
   UART_send_byte(value[2]);
