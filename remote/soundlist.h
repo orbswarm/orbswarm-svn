@@ -1,6 +1,20 @@
-int nfiles = 29;
+int nfiles = 43;
 char *soundlist[] =
 {
+"00208072", 			/* low bell */
+"00681727",			/* high bell */
+"02355482",		/* robot fx */
+"05126045", 			/* robot fx */
+"06973087",
+"13534851",
+"3755858",		/* musical interlude */
+"11909292",			/* FM musical interlude */
+"07863621",			/* vintage fx */
+"08857788",
+"09939968",
+"19986384",
+"13534851",	/* electric buzz */
+"19986384",	/* eek */
 "00808229", /*/orbsounds/FX/chimes/clock-bong.aiff*/
 "07152985", /*/orbsounds/FX/chimes/clock-cuckoo.aiff*/
 "41455851", /*/orbsounds/FX/chimes/DC_b3.aif*/
@@ -30,5 +44,4 @@ char *soundlist[] =
 "44149708", /*/orbsounds/Markafiles/Xandoru_Wavs_to_Convert/Tuvan/tuvan_19040_djgriffin_kumi1_04.aif*/
 "15115014", /*/orbsounds/MultiChannelSongs/Pythagorus/Pythagorus_4Dff.aif*/
 "88849171", /*/orbsounds/MultiChannelSongs/Pythagorus/Pythagorus_3Bells.aif*/
-
   "\0"};

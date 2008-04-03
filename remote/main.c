@@ -2,7 +2,7 @@
 SWARM Orb dedicated Zigbee remote control transmitter code
 http://www.orbswarm.com
 
-2Adapted by Jonathan Foote (Head Rotor at rotorbrain.com)
+Adapted by Jonathan Foote (Head Rotor at rotorbrain.com)
 in 2008 from code orginally written by Petey the Programmer '07
 
 Version 1.0
@@ -31,7 +31,7 @@ Project: ORB Portable Transmitter using ATMega8L chip
 #define LED_OFF 1
 
 /* special byte value flag */
-#define XVAL ((char)0xFF)
+#define XVAL ((unsigned char)0xFF)
 
 /* define port and pin assignments for buttons, joysticks, and LEDs */
 
@@ -75,12 +75,13 @@ void setLED(unsigned char LED_Num, unsigned char On_Off);
 void do_heartbeat(unsigned char *state);
 short linearize(short input,short scale);
 void pauseMS(unsigned short mS);
-void send_color(char addr, char pod, char r, char g, char b);
-void send_index_color(char addr, char pod, char index);
-void send_light_cmd(char addr, char pod, char cmd, char val);
+void send_hue(char addr, unsigned char pod, short hue, unsigned char val);
+void send_index_color(char addr, unsigned char pod, unsigned char index);
+void send_light_cmd(char addr, unsigned char pod, char cmd, unsigned char val);
 void send_sound(char addr, char* soundname);
 void do_keys(unsigned char keys, unsigned char oldkeys);
 
+void hue2rgb(short hue, unsigned char val, unsigned char *red, unsigned char *grn, unsigned char *blu);
 
 // Static variable definitions
 
@@ -88,7 +89,6 @@ void do_keys(unsigned char keys, unsigned char oldkeys);
 static unsigned char Command_String[CMD_STR_SIZE];
 static unsigned char CmdStrLen = 0;
 
-static short maxLeft, maxRight, centerPos, maxPWM;
 extern volatile unsigned short Timer0_ticks;
 extern volatile unsigned char Timer0_10hz_Flag;
 
@@ -119,6 +119,8 @@ short mindiff = 5; /* minumum delta. Don't send if changes less than this */
 /* previous values for calculating delta */
 int oldsteer = -100;
 int olddrive = -100;
+short oldhue = -100;
+short oldval = -100;
 unsigned char oldkeys  = 0xFF;
 
 /* mode bits */
@@ -168,10 +170,12 @@ void Init_Chip(void)
   addr = addr & 0x0F;
 
   if(debug_out){
-    putstr("Remote v1.0 at addr: " );
+    putstr("Remote v1.1 at addr: " );
     putU8(addr);
     putstr("\r\n");
   }
+  else 
+    putstr("Remote v1.1\r\n" );
 
   /* and blink status LED that many times */
   for (i=0; i<addr; i++) {
@@ -192,10 +196,10 @@ int main (void)
   unsigned char theData;
   unsigned char state = 0;
   short i, n, t, ch1, ch2;
-  char theStr[10];
   unsigned char keys; 		/* PINB key pad (triggers, etc) */
   unsigned char sws;		/* PINC switces */
-  
+  short hue, val;
+
   Init_Chip();
   
 
@@ -212,8 +216,8 @@ int main (void)
   }
   for(i =0; i<8;i++) {
     zero[i] = zero[i] >> 3;
-    putS16(zero[i]);
-    putstr(" ");
+    //putS16(zero[i]);
+    //putstr(" ");
   }
   
   for (;;) {	// loop forever
@@ -222,11 +226,11 @@ int main (void)
     do_heartbeat( &state );		// Heart-beat is fore-ground -- true indication prog is alive.
     
     
-    if (UART_data_in_ring_buf()) {			// check for waiting UART data
-      theData = UART_ring_buf_byte();		// pull 1 chr from ring buffer
-      if (build_up_command_string(theData)) 
-	process_command_string();		// execute commands
-    }
+    //    if (UART_data_in_ring_buf()) {			// check for waiting UART data
+    //  theData = UART_ring_buf_byte();		// pull 1 chr from ring buffer
+    //  if (build_up_command_string(theData)) 
+    //	process_command_string();		// execute commands
+    //}
 	
     if (Timer0_10hz_Flag) {		// do these tasks only 10 times per second
       Timer0_10hz_Flag = 0;
@@ -241,14 +245,40 @@ int main (void)
 	oldsteer = ch1;
       }
 
-      ch1 = A2D_read_channel(JOYRY) - zero[JOYRY];
-      if(abs(ch1 - olddrive) > mindiff) {
+      ch2 = A2D_read_channel(JOYRY) - zero[JOYRY];
+      if(abs(ch2 - olddrive) > mindiff) {
 	putstr("{6");
 	UART_send_byte(addr + '0');
 	putstr(" $p");
-	putS16(linearize(ch1,-drive_max)); 
+	putS16(linearize(ch2,-drive_max)); 
 	putstr("*}\n\r ");
-	olddrive = ch1;
+	olddrive = ch2;
+      }
+
+      /* left joystick controls color */
+      hue = A2D_read_channel(JOYLY) - zero[JOYLY];
+      val = A2D_read_channel(JOYLX) - zero[JOYLX];
+      if((abs(hue - oldhue) > mindiff) | 
+	 (abs(val - oldval) > mindiff) ){
+
+	oldhue = hue;
+	oldval = val;
+
+	hue = linearize(hue,180) + 180; 
+	val = linearize(val,127) + 127; 
+
+
+	if(debug_out) {
+	  putstr("\r\n hue: ");
+	  putS16(hue); 
+	  putstr(" val: ");
+	  putS16(val); 
+	}
+	
+	send_hue(addr, XVAL, hue, (unsigned char)val);
+
+
+
       }
 
       /* detect button presses and do appropriate action */
@@ -269,126 +299,31 @@ int main (void)
   return 0;	// make compiler happy
 } 
 
-// ----------------------------------------------------------------------------------------------------
-// process incoming chars - commands start with '>' and end with '<'
-// return 1 if command string is complete - else return zero
 
-#define START_CHAR	'>'
-#define END_CHAR	'<'
-
-unsigned char build_up_command_string(unsigned char c)
-{
-  if (c == START_CHAR) {		// this will catch re-starts and stalls as well as valid commands.
-    CmdStrLen = 0;
-    Command_String[CmdStrLen++] = c;
-    return 0;
-  }
-  
-  if (CmdStrLen != 0)		// string has already started
-    {
-      if (CmdStrLen < CMD_STR_SIZE) 
-	Command_String[CmdStrLen++] = c;
-      return (c == END_CHAR);
-    }
-  
-  return 0;
-}
-
-// --------------------------------------------------------------------
-// We have a complete command string - execute the command.
-
-void process_command_string(void)
-{
-  short theData;
-  unsigned char cVal;
-  unsigned char dataPos = 2; // position of data within Command_String
-  
-  if (Command_String[dataPos] == ' ') dataPos++;	// skip space
-  theData = command_data(dataPos);
-  
-  switch (Command_String[1]) {
-    
-  case 'a': // Set steering max Left value
-    //maxLeft = theData;
-    //putstr("Set Steering Left-Max ");
-    //putS16(theData);
-    //putstr("\r\n");
-    break;
-
-  case 'b':	// Set steering max Right value
-    //maxRight = theData;
-    //putstr("Set Steering Right-Max ");
-    //putS16(theData);
-    //putstr("\r\n");
-    break;
-
-  case 'c':	// Set steering center value
-    //centerPos = theData;
-    //putstr("Set Steering Center ");
-    //putS16(theData);
-    //putstr("\r\n");
-    break;
-
-  case 'd':	// Set PWM max value
-    //maxPWM = theData;
-    // putstr("Set Max PWM");
-    //putS16(theData);
-    //putstr("\r\n");
-    //		break;
-    
-  case 'w':	// write values to eeprom
-    //putstr("Save to EEPROM\r\n");
-    //save_eeprom_settings();
-    break;
-    
-  case 'X':	// Set OSCAL value
-    //cVal = (unsigned char)theData;
-    //	putstr("Set OSCAL ");
-    //putS16(theData);
-    //	putstr("\r\n");
-    //OSCCAL = theData;
-    break;
-    
-  }	
-  CmdStrLen = 0;			// clear len, start building next command
-}
-
-// -------------------------------------------------------------------------
-// scan the command string just after the command byte, 
-// convert Ascii signed number to short word. (16-Bit)
-
-short command_data(unsigned char firstChr)
-{
-  short accum = 0;
-  unsigned char sign = 0;
-  unsigned char cPos = firstChr;
-  
-  if (Command_String[firstChr] == '-') {
-    sign = 1;
-    cPos++;
-  }
-  
-  do {
-    accum = (accum * 10) + (Command_String[cPos++] - '0');
-  } while (Command_String[cPos] != END_CHAR);
-  
-  if (sign)
-    accum = -accum;
-  
-  return accum;
-}
 
 /* generate a light control command */
-void send_index_color(char addr, char pod, char index){
+void send_index_color(char addr, unsigned char pod, unsigned char index){
   send_light_cmd(addr, pod, 'R', ccr[(int)index]); 
   send_light_cmd(addr, pod, 'G', ccg[(int)index]); 
   send_light_cmd(addr, pod, 'B', ccb[(int)index]); 
   send_light_cmd(addr, pod, 'F', XVAL); 
 }
 
+/* generate a light control command */
+void send_hue(char addr, unsigned char pod, short hue, unsigned char val) {
+  unsigned char r, g, b;
+  if (val == XVAL) val = 254;	/* 0xff = XVAL, oops! */
+  hue2rgb(hue,val,&r,&g,&b);
+  send_light_cmd(addr, pod, 'R', r); 
+  send_light_cmd(addr, pod, 'G', g); 
+  send_light_cmd(addr, pod, 'B', b); 
+  send_light_cmd(addr, pod, 'F', XVAL); 
+}
+
+
 
 /* "XVAL" pod means supress pod addr (all pods), "XVAL" val means suppress numerical val (for LF commands) */
-void send_light_cmd(char addr, char pod, char cmd, char val){
+void send_light_cmd(char addr, unsigned char pod, char cmd, unsigned char val){
   putstr("{6");
   UART_send_byte(addr + '0');
   putstr(" <L");
@@ -403,11 +338,13 @@ void send_sound(char addr, char* soundname){
   putstr("{6");
   UART_send_byte(addr + '0');
   putstr(" <M ");
-  if(soundname != NULL)
+  if(soundname != NULL) {
+    putstr("VPF ");
     putstr(soundname);
+    putstr(".mp3>}");
+  }
   else
-    putstr("VPF");
-  putstr(".mp3>}");
+   putstr("VST>}");
 }
 
 void do_keys(unsigned char keys, unsigned char oldkeys){
@@ -481,12 +418,13 @@ void setLED(unsigned char LED_Num, unsigned char On_Off)
 
 void do_heartbeat(unsigned char *state)
 {
-  short  ch1, ch2;
+  //  short  ch1, ch2;
   
   //	if (Timer0_ticks > 1023) {	//  1024 tics per second - heart-beat LED
   if (Timer0_ticks > 511) {	//  512 tics per second - heart-beat LED
     Timer0_reset();
     
+#ifdef FOO
     if(debug_out & 0) {
       putstr("\r\n JOYRX, JOYRY =");
       ch1 = A2D_read_channel(JOYRX) - zero[JOYRX];
@@ -502,6 +440,7 @@ void do_heartbeat(unsigned char *state)
       putB8(PINB);
     
    }
+#endif
     
     if (*state == 0) {
       setLED(STAT_LED,LED_ON);
@@ -559,6 +498,68 @@ void pauseMS(unsigned short mS){
   Timer0_reset();
 }
 
+void hue2rgb(short inthue, unsigned char charval, unsigned char *red, unsigned char *grn, unsigned char *blu) {
+  float p,n,hue;
+  float r,g,b;
+  unsigned char k;
+
+  while(inthue > 360)
+    inthue -= 360;
+
+  hue = (float) inthue;
+  /* Get principal component of angle */
+  //hue -= 360*(float)floor(hue/360);
+
+  /* Get section */
+  hue /= 60;
+  //k = (int)floor(hue);
+  k = (unsigned char)(hue);
+  if (k == 6) {
+    k = 5;
+  } else if (k > 6) {
+    k = 0;
+  }
+  p = hue - k;
+  n = 1 - p;
+
+  /* Get RGB values based on section */
+  switch (k) {
+  case 0:
+    r = 1; g = p; b = 0;
+    break;
+  case 1:
+    r = n; g = 1;  b = 0;
+    break;
+  case 2:  r = 0; g = 1; b = p;
+    break;
+  case 3:
+    r = 0;
+    g = n;
+    b = 1;
+    break;
+  case 4:
+    r = p;
+    g = 0;
+    b = 1;
+    break;
+  case 5:
+    r = 1;
+    g = 0;
+    b = n;
+    break;
+  default:
+    r = 1;
+    g = 1;
+    b = 1;
+    break;
+  }
+
+  *red = (unsigned char)(r * charval);
+  *grn = (unsigned char)(g * charval);
+  *blu = (unsigned char)(b * charval);
+
+  return;
+}
 
 #ifdef FOO
 
@@ -601,5 +602,6 @@ void read_eeprom_settings(void)
     maxPWM = 60;		
   }
 }
+
 
 #endif

@@ -7,15 +7,14 @@
 
 /* Includes */
 #include <avr/io.h>
-#include <avr/signal.h>
 #include <avr/interrupt.h>
 
 #include "UART.h"
 
 
 /* UART Buffer Defines */
-#define UART_RX_BUFFER_SIZE 32     /* 2,4,8,16,32,64,128 or 256 bytes */
-#define UART_TX_BUFFER_SIZE 32
+#define UART_RX_BUFFER_SIZE 2     /* 2,4,8,16,32,64,128 or 256 bytes */
+#define UART_TX_BUFFER_SIZE 64
 
 
 #define UART_RX_BUFFER_MASK ( UART_RX_BUFFER_SIZE - 1 )

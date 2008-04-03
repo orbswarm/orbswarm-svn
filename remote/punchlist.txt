@@ -1,0 +1,10 @@
+
+To add to remote code:
+
++ Emergency stop/identify
++ sound and light fade across orbs
++ Low battery detect
++ Store/play colors
++ Characteristic address hues
++ transmit LED
++ recalibrate zero?

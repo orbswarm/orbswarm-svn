@@ -12,7 +12,7 @@ PGMR = stk500v2
 # set avrdude COM port here
 
 COM = COM5
-
+GCCFLAGS = -c -Os
 
 BIN = C:\\WinAVR\\bin\\
 
@@ -21,27 +21,27 @@ all: remote.hex
 
 # compile eprom.c into eprom.o
 eprom.o: eprom.c eprom.h
-	${BIN}avr-gcc -c -g -O3 -Wall -mmcu=atmega8 -I. eprom.c -o eprom.o
+	${BIN}avr-gcc ${GCCFLAGS} -Wall -mmcu=atmega8 -I. eprom.c -o eprom.o
 
 # compile UART.c into UART.o
 UART.o: UART.c UART.h
-	${BIN}avr-gcc -c -g -O3 -Wall -mmcu=atmega8 -I. UART.c -o UART.o
+	${BIN}avr-gcc ${GCCFLAGS} -Wall -mmcu=atmega8 -I. UART.c -o UART.o
 
 # compile putstr.c into putstr.o
 putstr.o: putstr.c UART.h putstr.h
-	${BIN}avr-gcc -c -g -O3 -Wall -mmcu=atmega8 -I. putstr.c -o putstr.o
+	${BIN}avr-gcc ${GCCFLAGS} -Wall -mmcu=atmega8 -I. putstr.c -o putstr.o
 
 # compile timer.c into timer.o
 timer.o: timer.c timer.h
-	${BIN}avr-gcc -c -g -O3 -Wall -mmcu=atmega8 -I. timer.c -o timer.o
+	${BIN}avr-gcc ${GCCFLAGS} -Wall -mmcu=atmega8 -I. timer.c -o timer.o
 
 # compile a2d.c into a2d.o
 a2d.o: a2d.c a2d.h
-	${BIN}avr-gcc -c -g -O3 -Wall -mmcu=atmega8 -I. a2d.c -o a2d.o
+	${BIN}avr-gcc ${GCCFLAGS} -Wall -mmcu=atmega8 -I. a2d.c -o a2d.o
 
 # compile main.c into main.o
 main.o: main.c eprom.h a2d.h putstr.h timer.h
-	${BIN}avr-gcc -c -g -O3 -Wall -mmcu=atmega8 -I. main.c -o main.o
+	${BIN}avr-gcc ${GCCFLAGS} -Wall -mmcu=atmega8 -I. main.c -o main.o
 
 # link up obj files into remote.elf
 remote.elf: UART.o putstr.o timer.o eprom.o a2d.o main.o
@@ -49,7 +49,8 @@ remote.elf: UART.o putstr.o timer.o eprom.o a2d.o main.o
 
 # copy ROM (FLASH) object out of remote.elf into remote.rom
 remote.hex: remote.elf
-	${BIN}avr-objcopy -O ihex remote.elf remote.hex
+	${BIN}avr-objcopy -O ihex remote.elf remote.hex 
+	${BIN}avr-size remote.elf
 
 # command to program chip 
 install:
