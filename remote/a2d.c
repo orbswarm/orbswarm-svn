@@ -24,8 +24,8 @@ void A2D_Init(void)
 		
   ADCSRA = (1<<ADPS1) | (1<<ADPS2);		// Prescale 64 .. @8Mhz ADC clock = 125kHz
   
-  ADMUX = (1<<REFS0);				// AVCC voltage ref, ch 0.
-  
+  ADMUX = (1<<REFS0) | (0x03);	/* start with ADC3 */
+
   ADCSRA |= (1<<ADEN);	// Enable the ADC
   ADCSRA |= (1<<ADSC);	// Start conversions
 }
@@ -51,6 +51,7 @@ void A2D_poll_adc(void)
       
       ADValue[chanNum] = ((ADValue[chanNum] * 3) + ADC) / 4;	// Average measured value
       chanNum++;
+      if(chanNum > 0x07) chanNum = 0x03; /* only use high-order pins (pinc0-pinc2 are digital inputs) */
       
       //      ADMUX = (1<<REFS0) | (chanNum & 0x01);	// Use AVCC voltage ref, channel num 0..1
       ADMUX = (1<<REFS0) | (chanNum & 0x07);	// Use AVCC voltage ref, channel num 0..1

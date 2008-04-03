@@ -92,7 +92,7 @@ static short maxLeft, maxRight, centerPos, maxPWM;
 extern volatile unsigned short Timer0_ticks;
 extern volatile unsigned char Timer0_10hz_Flag;
 
-volatile uint8_t debug_out = 1;
+volatile uint8_t debug_out = 0;
 static char addr;
 static unsigned short zero[8];
 
@@ -145,6 +145,7 @@ void Init_Chip(void)
 
 
   DDRC = 0x00;			/* PortC - A/D inputs on pins 0:7 */
+  PORTC = 0x03;
 
   DDRD = 0x0E;			/* D0 is RS-232 Rx, D1 is Tx, D2, D3 are LED outputs, D4:7 are address */
   PORTD = 0xF0;			/* High order bits have pullups enabled */
@@ -192,7 +193,8 @@ int main (void)
   unsigned char state = 0;
   short i, n, t, ch1, ch2;
   char theStr[10];
-  unsigned char keys;
+  unsigned char keys; 		/* PINB key pad (triggers, etc) */
+  unsigned char sws;		/* PINC switces */
   
   Init_Chip();
   
@@ -254,15 +256,20 @@ int main (void)
       if (keys != oldkeys)
 	do_keys(keys,oldkeys);
       oldkeys = keys;
+
+      sws = (unsigned char) PINC & 0x03;
+      if(debug_out & 0) {
+	putstr("\r\n Switches:");
+	putB8(sws);
+      }
+
     }
-      
-		
   } // forever loop
 
-	return 0;	// make compiler happy
+  return 0;	// make compiler happy
 } 
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------
 // process incoming chars - commands start with '>' and end with '<'
 // return 1 if command string is complete - else return zero
 
@@ -415,7 +422,7 @@ void do_keys(unsigned char keys, unsigned char oldkeys){
   /* find key up transitions new key will be high, old key will be low*/
   keyup =  ~oldkeys & keys;
 
-  if(debug_out & 0){
+  if(debug_out ){
     putstr("\n\r kup: ");
     putB8(keyup);
     putstr(" kdwn: ");
