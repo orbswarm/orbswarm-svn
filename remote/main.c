@@ -44,14 +44,14 @@ Project: ORB Portable Transmitter using ATMega8L chip
 #define VREF  3
 #define JOYRY 4
 #define JOYRX 5
-#define JOYLX 6
-#define JOYLY 7
+#define JOYLY 6
+#define JOYLX 7
 
 /* PORTB needs pullups set */
 /* Trigger buttons on PORTB */
 
-#define TRIGR1 0x01		/* pin 0 */
-#define TRIGR2 0x02		/* pin 1 */
+#define TRIGR2 0x01		/* pin 0 */
+#define TRIGR1 0x02		/* pin 1 */
 #define TRIGL1 0x04		/* pin 2 */
 #define TRIGL2 0x08		/* pin 3 */
 
@@ -167,15 +167,42 @@ void Init_Chip(void)
   /* first read address from upper 4 bits of PORTD (ROTDIP) */
   /* complement for active low, then shift right by 4 to get actual value) */
   addr = (~PIND & 0xF0) >> 4;
-  addr = addr & 0x0F;
+  addr = addr & (char)0x0F;
 
   if(debug_out){
     putstr("Remote v1.1 at addr: " );
     putU8(addr);
     putstr("\r\n");
   }
-  else 
+  else {
     putstr("Remote v1.1\r\n" );
+  }
+
+  send_light_cmd(addr, XVAL, 'R', (unsigned char) 253); 
+  send_light_cmd(addr, XVAL, 'G', (unsigned char) 253); 
+  send_light_cmd(addr, XVAL, 'B', (unsigned char) 253); 
+  send_light_cmd(addr, XVAL, 'F',XVAL); 
+  
+
+  /* holding down R1 trigger on power up sends out debug test strings  */
+  if (~PINB & TRIGL1) {
+    /* send white to all */
+    send_light_cmd(addr, XVAL, 'R', (unsigned char) 252); 
+    send_light_cmd(addr, XVAL, 'G', (unsigned char) 252); 
+    send_light_cmd(addr, XVAL, 'B', (unsigned char) 252); 
+    send_light_cmd(addr, XVAL, 'F',XVAL); 
+    pauseMS(120);
+
+    /* send colors to individual addrs */
+    send_light_cmd(addr, 0, 'B', 0); /* red to 0 */
+    send_light_cmd(addr, 0, 'G', 0); 
+    send_light_cmd(addr, 1, 'R', 0); /* grn to 1 */
+    send_light_cmd(addr, 1, 'B', 0); /* grn to 1 */
+    send_light_cmd(addr, 2, 'R', 0); /* blu to 2 */
+    send_light_cmd(addr, 2, 'G', 0); 
+    send_light_cmd(addr, 3, 'G', 0); /* red/blu to 3 */
+    send_light_cmd(addr, XVAL, 'F',XVAL); 
+  } 
 
   /* and blink status LED that many times */
   for (i=0; i<addr; i++) {
@@ -303,6 +330,7 @@ int main (void)
 
 /* generate a light control command */
 void send_index_color(char addr, unsigned char pod, unsigned char index){
+  send_light_cmd(addr, pod, 'T', 50); 
   send_light_cmd(addr, pod, 'R', ccr[(int)index]); 
   send_light_cmd(addr, pod, 'G', ccg[(int)index]); 
   send_light_cmd(addr, pod, 'B', ccb[(int)index]); 
@@ -323,7 +351,7 @@ void send_hue(char addr, unsigned char pod, short hue, unsigned char val) {
 
 
 /* "XVAL" pod means supress pod addr (all pods), "XVAL" val means suppress numerical val (for LF commands) */
-void send_light_cmd(char addr, unsigned char pod, char cmd, unsigned char val){
+void send_light_cmd(char addr, unsigned char pod,  char cmd, unsigned char val){
   putstr("{6");
   UART_send_byte(addr + '0');
   putstr(" <L");
