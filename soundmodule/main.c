@@ -16,6 +16,8 @@
 *
 * modified by Jonathan Foote (headrotor at rotorbrain.com)
 *
+* VERSION 2 the VALENTINE's DAY VERSION
+*
 *  (Tiny2313 has a total of 2000 bytes available.)
 *
 ****************************************************************************/
