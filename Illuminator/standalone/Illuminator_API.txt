@@ -1,0 +1,62 @@
+Illuminator_API.txt  Version 1.0 9/07
+
+Written by Jonathan Foote (Head Rotor at rotorbrain.com) 
+This supersedes the crippled API used on the playa (!)
+ 
+
+The Iluminator board listens to the serial port for commands of the form
+
+"<"-"L"-optionalAddress-commandChar-optIntData-">"
+
+All commands are prefixed with <L and suffixed with > to indicate end of data.
+There is no whitespace allowed inside a command. All characters are uppercase. 
+
+optionalAddress is a 1-char integer between 0 and 9. If this is
+specified, only boards with that address will respond. If not
+specified, all boards will respond.
+
+optIntData is unsigned short or unsigned char integer data in one or
+more ascii characters. Not every command has data.
+
+CommandChar is one of the following:
+
+
+'F' -- smoothly fade from current color to target color
+    over the duration specified by the 'T' command. 
+    Example <L0F> -- execute fade on board at address zero. 
+
+
+'A' -- set board address to N and save it in eeprom. 
+    Example: <L1A5> Changes any boards at address 1 to address 5. 
+    NOTE: At boot time, the board reads its address from eeprom. 
+    This is undefined if the board has never seen an 'A' command.
+    Use the address-less version of the command to ensure a new board
+    has its address set correctly, e.g. <LA0> changes the address
+    of all boards to 0. Make sure you don't overwrite other boards. 
+
+The remaining commands take an integer argument N (but nothing will
+happen until the fade command 'F' is called.)
+
+'R' -- set target red value to N, 0 <= N <= 255
+    Example: <LR64> -- set red target to 64 on all boards
+
+'G' -- set target blue value to N. 0 <= N <= 255
+    Example: <L2B255> -- set blue target to 255 on boards at address 2.
+
+'B' -- set target green value to N. 0 <= N <= 255
+    Example: <LG0> -- set green target to 0 on all boards
+
+'T' -- set fade duration to N. N=180 is one second. N=0 is immediate (at the
+    next fade command). 
+    Example: <LT360> -- set program time to 2 second on all boards
+
+
+Commands are cumulative: to turn all illuminators off immediately,
+send a value of zero to all, then execute a fade with a zero time
+value, in other words send the string "<LR0><LG0><LB0><LT0><LF>"
+
+To fade between blue and red over one second, first set all blue immediate:
+<LR0><LB255><LG0><LT0><LF>
+Then send target color, time duration, then the fade command:
+<LB0><LR255><LT180><LF>
+(there's no need to set R because it hasn't changed.)
