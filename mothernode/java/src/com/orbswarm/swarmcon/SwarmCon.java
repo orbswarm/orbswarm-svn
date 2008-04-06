@@ -32,10 +32,12 @@ import java.text.*;
 
 import org.trebor.pid.*;
 import org.trebor.util.JarTools;
+import org.trebor.util.Debug;
 
 import com.orbswarm.choreography.Specialist;
 import com.orbswarm.choreography.OrbControl;
 
+import com.orbswarm.choreography.timeline.Region;
 import com.orbswarm.choreography.timeline.Timeline;
 import com.orbswarm.choreography.timeline.TimelineDisplay;
 
@@ -362,6 +364,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       /** selected objects */
 
       Mobjects selected = new Mobjects();
+
 
       /** phantom objects */
 
@@ -881,7 +884,8 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
             swarm.updateOrbDistances();
             broadcastOrbState();
-
+            updateTimelineRegions();
+            
             // repaint the screen
 
             arena.repaint();
@@ -906,7 +910,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
          specialists.remove(sp);
       }
 
-      // broadcast OrbState messages to all the Specialists\
+      // broadcast OrbState messages to all the Specialists
       public void broadcastOrbState()
       {
          synchronized (specialists)
@@ -919,6 +923,26 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
          }
       }
 
+      public void updateTimelineRegions() {
+          if (timeline != null) {
+              // loop through orbs
+              for (Mobject mobject: swarm) {
+                  if (mobject instanceof Orb) {
+                      Orb orb = (Orb)mobject;
+                      int orbId = orb.getId();
+                      // note:: orb distances are in meters.
+                      double orbx = orb.getX();
+                      double orby = orb.getY();
+                      for (Iterator it = timeline.getRegions().iterator(); it.hasNext(); ) {
+                          Region region = (Region)it.next();
+                          region.testOrbIntersection(orbId, orbx, orby);
+                      }
+                  }
+              }
+          }
+      }
+
+    
       public JLabel createBigLabel(String text, Color color)
       {
          JLabel label = new JLabel(text);
@@ -939,6 +963,9 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
          for (JoystickManager.StickInfo si: jm)
          {
+             System.out.println("mark: creating joystick for: " +jm);
+             Debug.Mark();
+             
             // create a panel for this joystick
             
             final JPanel stickPanel = new JPanel();
@@ -1327,6 +1354,27 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
          g.translate(0, height);
          g.scale(PIXELS_PER_METER, -PIXELS_PER_METER);
 
+         // draw timeline regions
+         if (timeline != null)
+         {
+             boolean first = true;
+             for (Iterator it = timeline.getRegions().iterator(); it.hasNext(); )
+             {
+                 Region region = (Region)it.next();
+                 region.paint(g);
+                 /*
+                 if (first) {
+                     // debugging stuffs
+                     Orb o0 = (Orb)swarm.getOrb(0);
+                     double o0x = o0.getX();
+                     double o0y = o0.getY();
+                     //System.out.println("R " + region.getName() + "<" + region.x1 + ", " + region.y1 + ">-<" + region.x2 + ", " + region.y2 + "> orb0: (" + o0x + ", " + o0y + ")");
+                     first = false;
+                 }
+                 */
+             }
+         }
+         
          // draw mobjects
 
          if (swarm != null)
@@ -1907,7 +1955,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
          if (timelineDisplay != null)
          {
-             timelineDisplay.joystickAxis(orbNum, axis, value);
+             //timelineDisplay.joystickAxis(orbNum, axis, value);
          }
 
          // record steering and power values

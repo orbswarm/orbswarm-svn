@@ -65,7 +65,7 @@ public final class TokenReader {
         lastTokenRead = null;
         clearTokenStack();
     }
-    
+
     public void open(String filename) {
         if (filename.startsWith("http://")) {
             openHttp(filename);
@@ -95,7 +95,7 @@ public final class TokenReader {
             ex.printStackTrace();
         }
     }
-    
+
     public void close() {
         if (canClose) {
             try {
@@ -106,11 +106,11 @@ public final class TokenReader {
             }
         }
     }
-    
+
     public boolean atEol() {
         return atEol;
     }
-    
+
     // whitespace-separated string. 
     public String  readToken()   throws IOException  {
         if (!tokenStackEmpty()) {
@@ -245,7 +245,7 @@ public final class TokenReader {
         String t = readToken();
         return Integer.parseInt(t);
     }
-    
+
     public float   readFloat()   throws IOException, NumberFormatException  { 
         String t = readToken();
         return Float.parseFloat(t);
@@ -277,10 +277,10 @@ public final class TokenReader {
     // return rest of input as string
     /*
       public String readAll() {
-      if (!scanner.hasNextLine()) return null;
+          if (!scanner.hasNextLine()) return null;
 
-      // reference: http://weblogs.java.net/blog/pat/archive/2004/10/stupid_scanner_1.html
-      return scanner.useDelimiter("\\A").next();
+          // reference: http://weblogs.java.net/blog/pat/archive/2004/10/stupid_scanner_1.html
+          return scanner.useDelimiter("\\A").next();
       }
     */
 
@@ -317,12 +317,12 @@ public final class TokenReader {
         }
         tokenStack.add(plate);
     }
-    
+
     private boolean tokenStackEmpty() {
         return tokenStack == null || tokenStack.size() > 0;
     }
-    
-    
+
+
 
 
     // This method is just here to test the class
@@ -341,13 +341,13 @@ public final class TokenReader {
                     }
                 }
             } else {
-            
+
                 System.out.println("Type a token: ");
                 TokenReader in = new TokenReader(System.in);
                 String s = in.readToken();
                 System.out.println("Your token was: " + s);
                 System.out.println();
-                
+
                 System.out.println("Type an int: ");
                 int a = in.readInt();
                 System.out.println("Your int was: " + a);

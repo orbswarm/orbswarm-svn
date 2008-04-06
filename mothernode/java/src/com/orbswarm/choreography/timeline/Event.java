@@ -60,6 +60,7 @@ public class Event extends Temporal {
     protected boolean isTrigger         = false;
     protected int     triggerAction     = TRIGGER_ACTION_ADD;  // REPLACE, ADD, CLEAR
     protected String  triggerLocation   = null;
+    protected String  triggerType       = null;  // For region-triggered events. 
 
     ///
     /// Ephemeral items used when running the timeline
@@ -205,14 +206,31 @@ public class Event extends Temporal {
         orbs[0] = orb;
         setOrbs(orbs);
     }
+
+    public void setAllOrbs() {
+        setOrbs(ALL_ORBS);
+    }
     
     public void setOrbs(int[] orbs) {
         this.orbs = orbs;
     }
+    
     public int[] getOrbs() {
         return this.orbs;
     }
 
+    /**
+     * return true if the given orbId matches this event's orb list.
+     */
+    public boolean orbMatches(int orbId) {
+        for(int i=0; i < orbs.length; i++) {
+            if (orbs[i] == orbId) {
+                return true;
+            }
+        }
+        return false;
+    }
+        
     public void setOrbsFromStrings(List orbstrings) {
         int[] orbs = new int[orbstrings.size()];
         int i=0;

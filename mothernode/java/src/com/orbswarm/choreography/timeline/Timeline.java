@@ -21,6 +21,12 @@ public class Timeline extends Temporal {
 
     protected float arena = NO_SIZE;
     protected static HashMap specialistRegistry;
+    protected ArrayList regions = new ArrayList();
+    public TimelineDisplay timelineDisplay = null;
+
+    public void setTimelineDisplay(TimelineDisplay val) {
+        this.timelineDisplay = val;
+    }
 
     public void setArena(float val) {
         this.arena = val;
@@ -32,6 +38,7 @@ public class Timeline extends Temporal {
     
 
     public static Timeline readTimeline(String timelinePath) throws IOException {
+        System.out.println("ReadTimeline. " + timelinePath);
         TokenReader reader = new TokenReader(
            JarTools.getResourceAsStream(timelinePath));
         return readTimeline(reader);
@@ -41,7 +48,7 @@ public class Timeline extends Temporal {
         Timeline timeline = new Timeline();
         String token = reader.readUntilToken(TIMELINE);
         while (token != null && !token.equalsIgnoreCase(END_TIMELINE)) {
-            //System.out.println("ReadTimeline: " + token);
+            System.out.println("ReadTimeline: " + token);
             if (token.equalsIgnoreCase(NAME)) {
                 String name = reader.readLine();
                 timeline.setName(name);
@@ -66,11 +73,21 @@ public class Timeline extends Temporal {
             } else if (token.equalsIgnoreCase(SEQUENCE)) {
                 Sequence seq = readSequence(reader, timeline, null, END_SEQUENCE);
                 timeline.addEvent(seq);
+            } else if (token.equalsIgnoreCase(REGION)) {
+                Region region = readRegion(reader, timeline, END_REGION);
+                timeline.addRegion(region);
             }
             token = reader.readToken(); 
         }
+        timeline.postProcess();
         return timeline;
     }
+
+    private void postProcess() {
+        annealRegions();
+    }
+
+    
 
     // assumption: have already read the start event token.
     // Note: works for events and sub events.
@@ -158,7 +175,11 @@ public class Timeline extends Temporal {
             } 
             token = reader.readToken();
         }
-        //System.out.println("Finished ReadEvent: " + token);
+        System.out.println("Finished ReadEvent: " + token + " testing if ALL_ORBS needs to be set");
+        if (event.getOrbs() == null) {
+            System.out.println("Event " + event.getName() + ": setting ALL_ORBS");
+            event.setAllOrbs();
+        }
 
         return event;
     }
@@ -211,6 +232,67 @@ public class Timeline extends Temporal {
         //System.out.println("Finished ReadSequence: " + token);
 
         return seq;
+    }
+
+    private void annealRegions() {
+        int numRegions = regions.size();
+        int i=0;
+        for(Iterator it = regions.iterator(); it.hasNext(); ) {
+            Region region = (Region)it.next();
+            region.setBaseHue(i, numRegions);
+            i++;
+        }
+    }
+    
+    public static Region readRegion(TokenReader reader,
+                                    Timeline timeline,
+                                    String endToken)  throws IOException {
+        int numOrbs = 6;  // (where do we really get this??)
+        Region region = new Region(numOrbs, timeline);
+        String token = reader.readToken();
+        double x1 = 0., y1 = 0., x2 = 0., y2 = 0.;
+        System.out.println("Reading REgion. ");
+        while (token != null && !token.equalsIgnoreCase(endToken)) {
+            if (token.equalsIgnoreCase(NAME)) {
+                String name = reader.readLine();
+                System.out.println(" region name: " + name);
+                region.setName(name);
+
+            } else if (token.equalsIgnoreCase(X)) {
+                x1 = reader.readDouble();
+                x2 = reader.readDouble();
+                System.out.println(" region X coords: " + x1 + " " + x2);
+
+            } else if (token.equalsIgnoreCase(Y)) {
+                y1 = reader.readDouble();
+                y2 = reader.readDouble();
+                System.out.println(" region Y coords: " + y1 + " " + y2);
+
+            // Events need to be children of a region,
+            // with a trigger type: ENTER, EXIT, INSIDE
+            } else if (token.equalsIgnoreCase(EVENT)) {
+                System.out.println("  region:  reading event...");
+
+                Event event = readEvent(reader, timeline, null, END_EVENT);
+                region.addEvent(event);
+
+            } else if (token.equalsIgnoreCase(SEQUENCE)) {
+                Sequence subseq = readSequence(reader, timeline, null, END_SEQUENCE);
+                region.addEvent(subseq);
+
+                /* do we need these for regions?
+            } else if (token.equalsIgnoreCase(PROPERTIES)) {
+                Properties properties = readProperties(reader);
+                region.setProperties(properties);
+                */
+            } 
+            token = reader.readToken();
+        }
+        region.setBounds(x1, y1, x2, y2);
+
+        System.out.println("Finished ReadRegion: " + token);
+
+        return region;
     }
 
     public static Properties readProperties(TokenReader reader) throws IOException {
@@ -288,9 +370,38 @@ public class Timeline extends Temporal {
     }
 
     //
-    // We need a facility for triggering events or sequences when various conditions happen.
-    // The first use of this will be to create identificatory leitmotifs for the orbs so that
-    // the people driving them with joysticks will be able to find out which ones are theirs.
+    // Regions
+    //
+    public void addRegion(Region region) {
+        regions.add(region);
+    }
+
+    public ArrayList getRegions() {
+        return regions;
+    }
+
+    /**
+     * @return a list of regions that contain the point (x, y)
+     *
+     */
+    public ArrayList intersectingRegions(double x, double y) {
+        ArrayList hits = new ArrayList();
+        for(Iterator it = regions.iterator(); it.hasNext(); ) {
+            Region region = (Region)it.next();
+            if (region.intersects(x, y)) {
+                hits.add(region);
+            }
+        }
+        return hits;
+    }
+    
+    //
+    // Leitmotifs
+    // We need a facility for triggering events or
+    // sequences when various conditions happen.  The first use of
+    // this will be to create identificatory leitmotifs for the orbs
+    // so that the people driving them with joysticks will be able to
+    // find out which ones are theirs.
     //
     // Ideally what would be triggered would be a sequence of events that could be specified
     // in the timeline. 

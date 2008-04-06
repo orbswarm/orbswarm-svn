@@ -14,6 +14,15 @@
  *
  *************************************************************************/
 
+/***************************************************
+ * Copyright 2007 by Simran Gleason,               *
+ *                   Robert Sedgewick, Kevin Wayne *
+ * This program is distributed under the terms     *
+ * of the GNU General Public License.              *
+ * See kepler.Kepler.LICENSE_TEXT or               *
+ * http://www.gnu.org/licenses/gpl.txt             *
+ ***************************************************/
+
 package com.orbswarm.swarmcomposer.util;
 
 import java.io.*;
@@ -68,13 +77,12 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 
     // boundary of drawing canvas, 5% border
     private static final double BORDER = 0.01;
-    //private static final double BORDER = 0.0;
     private static final double DEFAULT_XMIN = 0.0;
     private static final double DEFAULT_XMAX = 1.0;
     private static final double DEFAULT_YMIN = 0.0;
     private static final double DEFAULT_YMAX = 1.0;
 
-    private  double xmin, ymin, xmax, ymax;
+    private double xmin, ymin, xmax, ymax;
     private double text_point_x;
     private double text_point_y;
 
@@ -102,7 +110,6 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 
     // keyboard state
     private  char lastKeyTyped = (char)-1;
-
 
     public StdDraw(int canvasSize) {
         if (canvasSize != 0) {
@@ -657,7 +664,8 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
         double hs = factorY(h);
         if (ws <= 1 && hs <= 1) pixel(x, y);
         else {
-            offscreen.drawImage(image, (int) Math.round(xs - ws/2.0),
+            offscreen.drawImage(image,
+                                (int) Math.round(xs - ws/2.0),
                                 (int) Math.round(ys - hs/2.0),
                                 (int) Math.round(ws),
                                 (int) Math.round(hs), null);
@@ -693,7 +701,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
         FontMetrics metrics = offscreen.getFontMetrics();
         double xs = scaleX(x);
         double ys = scaleY(y);
-        int ws = metrics.stringWidth(s);
+        //int ws = metrics.stringWidth(s);
         int hs = metrics.getDescent();
         offscreen.drawString(s, (float) xs, (float) (ys + hs));
         show();
@@ -729,7 +737,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
         FontMetrics metrics = offscreen.getFontMetrics();
         double xs = scaleX(x);
         double ys = scaleY(y);
-        int ws = metrics.stringWidth(s);
+        //int ws = metrics.stringWidth(s);
         int hs = metrics.getDescent();
         background.drawString(s, (float) xs, (float) (ys + hs));
         show();

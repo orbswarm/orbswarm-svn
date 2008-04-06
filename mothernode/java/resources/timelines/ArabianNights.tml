@@ -103,7 +103,7 @@
       <properties>
          basecolor RGB 120 180 45
          spread 5
-         meander 60
+         meander 30
       </properties>
   </event>
 
@@ -113,7 +113,7 @@
       startTime: 75
       <properties>
          spread 45
-         meander 60
+         meander 40
       </properties>
   </event>
 

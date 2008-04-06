@@ -1,0 +1,109 @@
+<timeline>
+  name: Region Test
+  arena: 200.
+  duration: 180.
+
+  <region>
+     name: 51
+     x: 15 22
+     y: 5 15
+      <event>
+        name: A51_exit
+        trigger: exit
+        specialist: SimpleSound
+        <properties>
+            soundfile /orbsounds/FX/chimes/DC_g2.aif
+        </properties>
+      </event>
+
+      <event>
+        name: A51_inside
+        trigger: inside
+        specialist: SimpleColor
+        color: RGB 255 255 255
+        fadeTime: 20
+      </event>
+  </region>
+
+  <region>
+     name: TopColors
+     x: 10 35
+     y: 17 22
+     <event>
+        name: A51_enter
+        trigger: enter
+        specialist: SimpleSound
+        <properties>
+            soundfile /orbsounds/FX/chimes/DC_b3.aif
+        </properties>
+      </event>
+
+     <event>
+        name: orb123Red
+        trigger: enter
+        <orbs> 1 2 3 </orbs>
+        specialist: SimpleColor
+        fadeTime: 4
+        <color> RGB 255 0 0 </color>
+      </event>
+
+     <event>
+        name: orb045Blue
+        trigger: enter
+        <orbs> 0 4 5  </orbs>
+        specialist: SimpleColor
+        fadeTime: 8
+        <color> RGB 0 0 255 </color>
+      </event>
+
+     <event>
+        name: backInBlack
+        trigger: exit
+        specialist: SimpleColor
+        fadeTime: .2
+        <color> RGB 0 0 0 </color>
+      </event>
+
+  </region>
+
+  <region>
+     name: Bees
+     x: 0 8
+     y: 10 15
+    
+    <event>
+        name: bees1a
+        trigger: inside
+        specialist: SimpleSound
+        <properties>      
+           soundfile /orbsounds/FX/animals/bee-swarm.aiff
+        </properties>
+    </event>
+  </region>
+
+  <event>
+     name: curtains
+     specialist: SimpleColor
+     startTime: 0.1
+     fadeTime: 4
+     <color> RGB 0 0 0 </color>
+  </event>
+
+  <event>
+     name: fadeIn
+     specialist: SimpleColor
+     startTime: 4
+     fadeTime: 15
+     <color> RGB 80 200 80 </color>
+  </event>
+     
+  <event>
+      name: fadeout
+      specialist: SimpleColor
+      startTime: 160
+      fadeTime: 20
+      color: RGB 0 0 0 
+  </event>
+
+
+</timeline>

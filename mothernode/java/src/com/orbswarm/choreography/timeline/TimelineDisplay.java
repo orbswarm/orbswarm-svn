@@ -105,6 +105,7 @@ public class TimelineDisplay  {
     
     public void setTimeline(Timeline val) {
         this.timeline = val;
+        this.timeline.setTimelineDisplay(this);
         timelineDuration = this.timeline.getDuration();
         calculateDimensions(true);
         setupTimelineRunner(this.timeline);
@@ -1123,18 +1124,28 @@ public class TimelineDisplay  {
         }
     }
 
-    public void startTriggeredEvent(int orbNum, Event event) {
+    /**
+     * Start a triggered event, by first making a copy of the given event,
+     * resetting the start time to now,
+     * turning off its trigger bit (in case this is a region-triggered event),
+     * @returning the triggered copy, so that the caller can stop it later if need be.
+     * (e.g. a region will need to stop INSIDE-triggered events when the orb leaves
+     * the region).
+     */
+    public Event startTriggeredEvent(int orbNum, Event event) {
         // Not sure if we need to clone the event or something..
         // Also: probably need to reset the startTime to now, & the endTime
         //       based on the duration.
         //System.out.println("startTriggeredEvent. event: " + event);
         Event triggeredEvent = event.copy();
+        triggeredEvent.setTrigger(false);
         triggeredEvent.resetStartTime(cycleTimeNow);
         triggeredEvent.setSingleOrb(orbNum);
         triggeredEvent.setupSpecialist(orbControl);
         //System.out.println("    after copy: " + triggeredEvent);
         //System.out.println("    after reset start time: " + triggeredEvent);
         startEvent(triggeredEvent);
+        return triggeredEvent;
     }
     
     public static final int   HUE_AXIS = 2;
@@ -1218,7 +1229,5 @@ public class TimelineDisplay  {
         orbColor.setSat(sat);
         orbControl.orbColor(orbNum, orbColor, 0);
     }
-
-        
     
 }

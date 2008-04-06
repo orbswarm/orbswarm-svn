@@ -23,7 +23,7 @@
          colorscheme Analogous
          basecolor RGB 124 200 60
          spread 12
-         meander 100
+         meander 45
      </properties>
   </event>
 

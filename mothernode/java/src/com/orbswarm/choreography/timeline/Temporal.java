@@ -17,6 +17,8 @@ public class Temporal {
     public static final String END_SUBEVENT = "</subevent>";
     public static final String SEQUENCE     = "<sequence>";
     public static final String END_SEQUENCE = "</sequence>";
+    public static final String REGION       = "<region>";
+    public static final String END_REGION   = "</region>";
     public static final String PROPERTIES   = "<properties>";
     public static final String END_PROPERTIES = "</properties>";
 
@@ -24,6 +26,10 @@ public class Temporal {
     public static final String DURATION     = "duration:";
     public static final String ARENA        = "arena:";
     public static final String NAME         = "name:";
+    public static final String X            = "x:";
+    public static final String Y            = "y:";
+    public static final String R            = "r:";
+    public static final String THETA        = "theta:";
     public static final String TARGET       = "target:";
     public static final String TRIGGER      = "trigger:";
     public static final String TRIGGER_ACTION  = "triggerAction:";
@@ -33,6 +39,9 @@ public class Temporal {
     public static final int    TRIGGER_ACTION_REPLACE = 0;
     public static final int    TRIGGER_ACTION_ADD     = 1;
     public static final int    TRIGGER_ACTION_CLEAR   = 2;
+    public static final String TRIGGER_ENTER = "enter";
+    public static final String TRIGGER_EXIT  = "exit";
+    public static final String TRIGGER_INSIDE  = "inside";
     
     public static final String SPECIALIST   = "specialist:";
     public static final String NOTES        = "<notes>";
