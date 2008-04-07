@@ -152,9 +152,16 @@ void parseCommand(){
       pauseMS(100);
       PORTB = 0x00;
       if(debug_out) putstr("\r\nchk blink on  ");
-      pauseMS(200);
+      pauseMS(100);
     }
-    PORTB = 0x00;
+    /* just turn on white permanently  */
+    if(illum.Addr == 0){
+      PORTB = 0x0F; 
+      illum.tR=250;
+      illum.tG=250;
+      illum.tB=250;
+    }
+
     break;
     
 
@@ -216,12 +223,11 @@ void parseCommand(){
     
 
   case 'A':	// set the address
-  case 'a':	// set the address
     if(debug_out) {
       putstr("\r\nGot address: ");
       putS16( intData );
     }
-    illum.Addr = (unsigned char) intData;
+    //illum.Addr = (unsigned char) intData;
     writeAddressEEPROM(illum.Addr);
     break;
     

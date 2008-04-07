@@ -48,7 +48,7 @@ extern volatile unsigned short Timer0_ticks;
 extern volatile unsigned char Timer0_10hz_Flag;
 
 
-char debug_out = 1;			/* set this to output debug info */
+char debug_out = 0;			/* set this to output debug info */
 
 
 /* color index tables */
@@ -88,7 +88,7 @@ void doFade(illuminatorStruct *illum){
 
     illum->rCount = diff==0? 0 : (int) (256/diff);
     illum->rCount *= illum->Time;
-    putS16(illum->rCount );
+    if(debug_out) putS16(illum->rCount );
 
 
     diff = illum->tG - illum->G;
@@ -142,10 +142,10 @@ int main( void ){
   DDRB |= _BV(PB3); /*  PB3 is BLU output */
   
   
+  illum.Addr = getAddress() & 0x0F;
   if(debug_out){
     putstr("\r\n...Illuminator @ addr ");
     //illum.Addr = readAddressEEPROM();
-    illum.Addr = getAddress() & 0x0F;
     putS16((short)illum.Addr );
     putstr(" says hello...\r\n");
   }
@@ -180,6 +180,7 @@ int main( void ){
     // Main parser loop starts here. To save space, not modularized 
     if (UART_data_in_ring_buf()) { // check for waiting UART data from SPU
       cData = UART_ring_buf_byte(); // get next char from ring buffer... 
+      if(0) UART_send_byte(cData);   /* echo char to serial out for debug if req. */
       if(accumulateCommandString(cData)){ // ... and add to command string
 	// if we are here we have a complete command; parse it
 	parseCommand(); // parse and execute commands
