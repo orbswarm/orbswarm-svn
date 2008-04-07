@@ -40,6 +40,7 @@ void parseCommand(){
   unsigned short intData=0;     /* holds numerical value of parsed data */
   unsigned char charPos=1;	/* start with first char past the "<" */
   unsigned char c;		/* next char to parse */
+  int i;			/* loop variable */
 
   /* if command does not start with L then they ain't talking to us */
   if(commandStr[charPos++] != 'L') {
@@ -144,7 +145,16 @@ void parseCommand(){
       putS16( (short) illum.Addr );
     }
     /* do check (self-test) mode: blink address number of times */
-    illum.check = intData;
+    illum.Time = 0;
+    for(i=0;i<(illum.Addr &0x0F);i++){
+      PORTB = 0x0F;
+      if(debug_out) putstr("\r\nchk blink off  ");
+      pauseMS(100);
+      PORTB = 0x00;
+      if(debug_out) putstr("\r\nchk blink on  ");
+      pauseMS(200);
+    }
+    PORTB = 0x00;
     break;
     
 
@@ -167,7 +177,7 @@ void parseCommand(){
     illum.blinkCounter = intData;
     break;
 
-  case 'W':	//  write alternate color for blink mode
+  case 'X':	//  write alternate color for blink mode
     if(debug_out){
       putstr("\r\nW alt val: ");
       putS16( intData );
@@ -178,7 +188,7 @@ void parseCommand(){
     illum.bB = illum.tB;
     break;
 
-  case 'X':	//  write color to index 
+  case 'W':	//  write color to index 
     if(debug_out){
       putstr("\r\nwrite color index ");
       putS16( intData );
@@ -191,7 +201,7 @@ void parseCommand(){
     cib[intData] = illum.tB;
     break;
     
-  case 'I':	//  read color from index
+  case 'L':	//  load color from index
     if(debug_out){
       putstr("\r\reading index: ");
       putS16( intData );

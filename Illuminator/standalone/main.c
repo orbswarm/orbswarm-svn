@@ -21,6 +21,9 @@
 #include "timer.h"
 
 
+/* hardwired address hack because eeprom was flaky */
+unsigned char getAddress(void);
+
 // =======================================================
 
 // Set this for testing when a high output pin turns off the LEDs
@@ -51,11 +54,10 @@ char debug_out = 1;			/* set this to output debug info */
 /* color index tables */
 /* red, green, blue, magenta, yellow, cyan, white,black */
 /* color indexes 0 and 1  alternate for blink */
-unsigned char maxIndex = 7;
-unsigned char cir[] = {0xFE,0x00,0x00,0xFE, 0xFE,0x00,0xFE,0x00};
-unsigned char cig[] = {0x00,0xFE,0x00,0x00, 0xFE,0xFE,0xFE,0x00};
-unsigned char cib[] = {0x00,0x00,0xFE,0xFE, 0x00,0xFE,0xFE,0x00};
-
+unsigned char maxIndex = 15;
+unsigned char cir[] = {0xFE,0x00,0x00,0xFE, 0xFE,0x00,0xFE,0x00, 0xFE, 0x00,0x00,0xFE, 0xFE,0x00,0xFE,0x00};
+unsigned char cig[] = {0x00,0xFE,0x00,0x00, 0xFE,0xFE,0xFE,0x00, 0x00, 0xFE,0x00,0x00, 0xFE,0xFE,0xFE,0x00};
+unsigned char cib[] = {0x00,0x00,0xFE,0xFE, 0x00,0xFE,0xFE,0x00, 0x00, 0x00,0xFE,0xFE, 0x00,0xFE,0xFE,0x00};
 
 
 void doFade(illuminatorStruct *illum){
@@ -120,33 +122,34 @@ int main( void ){
   unsigned int rdelay=0;
   unsigned int gdelay=0;
   unsigned int bdelay=0;
-
+  
   /* set up DDRD for serial IO */
   DDRD = 0xF2;		/* 0b 1111 0010	   1 indicates Output pin */
   //	led_port = 0xF0;	// turn OFF leds
   
-   UART_Init(11); // 12 = 38.4k when system clock is 8Mhz (AT Tiny2313) 
+  UART_Init(11); // 12 = 38.4k when system clock is 8Mhz (AT Tiny2313) 
   //11 = 38.4K for 7.37MHz xtal 
   // 51 = 9600 baud when system clock is 8Mhz
-
-   Timer0_Init();		/* Init Tick Timer */
-
-
-   sei();
-
+  
+  Timer0_Init();		/* Init Tick Timer */
+  
+  
+  sei();
+  
   DDRB |= _BV(PB0); /*  PB0 is spare debug  */
   DDRB |= _BV(PB1); /*  PB1 is RED output */
   DDRB |= _BV(PB2); /*  PB2 is GRN output */
   DDRB |= _BV(PB3); /*  PB3 is BLU output */
-
-
+  
+  
   if(debug_out){
     putstr("\r\n...Illuminator @ addr ");
-    illum.Addr = readAddressEEPROM();
+    //illum.Addr = readAddressEEPROM();
+    illum.Addr = getAddress() & 0x0F;
     putS16((short)illum.Addr );
     putstr(" says hello...\r\n");
   }
-
+  
   /* init data structure */
   illum.H=0;
   illum.S=0;
@@ -172,7 +175,6 @@ int main( void ){
 
   // =======================================================
   
-
   while(1)    {
     
     // Main parser loop starts here. To save space, not modularized 
@@ -183,8 +185,8 @@ int main( void ){
 	parseCommand(); // parse and execute commands
       }
     }
-
-
+    
+    
     if (Timer0_10hz_Flag) {		// do these tasks only 10 times per second
       Timer0_10hz_Flag = 0;
       if(illum.blink) {
@@ -210,9 +212,9 @@ int main( void ){
 	++illum.blinkCounter;
       }
     }
-
+    
 #ifdef  INVERT  
-  /* main PWM loop is free-running here INVERTED VERSION */
+    /* main PWM loop is free-running here INVERTED VERSION */
     PORTB=0x00; 		/* turn on all LEDs */
     for(pwm=0;pwm<255;pwm++){
       if(pwm >= gtab[illum.R]) /* if we've reached red value turn off R bit */
@@ -233,6 +235,7 @@ int main( void ){
 	PORTB &=~_BV(PB3);     /* if we've reached blu value turn off G bit */
 #endif
 
+      /* put these computations in the loop to slow it down a bit */
       /* IF we are fading, AND we're not there, AND we've waited enough... */
       if (illum.rInc && (illum.R != illum.tR) && (rdelay++ >= illum.rCount)) {
 	rdelay = 0;
@@ -240,7 +243,6 @@ int main( void ){
 	if (illum.R == illum.tR){ 
 	  illum.rInc = 0;	/* we've reached our target, stop increment */
 	}
-
       }
 
       if (illum.gInc && (illum.G != illum.tG) && (gdelay++ >= illum.gCount)) {
@@ -261,6 +263,11 @@ int main( void ){
   }
 }
 
+void pauseMS(unsigned short mS){
+  Timer0_reset();
+  while (Timer0_ticks < mS) ;
+  Timer0_reset();
+}
 
 void hue2rgb(short inthue, unsigned char charval, unsigned char *red, unsigned char *grn, unsigned char *blu) {
   float p,n,hue;

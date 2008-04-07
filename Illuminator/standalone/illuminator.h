@@ -39,6 +39,8 @@ typedef struct {
 
 void doFade(illuminatorStruct *illum);
 void hue2rgb(short inthue, unsigned char charval, unsigned char *red, unsigned char *grn, unsigned char *blu);
+void whoami(char blinknum);
 void writeAddressEEPROM(unsigned char address);
 unsigned char readAddressEEPROM(void);
+void pauseMS(unsigned short mS);
 
