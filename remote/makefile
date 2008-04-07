@@ -43,25 +43,39 @@ a2d.o: a2d.c a2d.h
 main.o: main.c eprom.h a2d.h putstr.h timer.h
 	${BIN}avr-gcc ${GCCFLAGS} -Wall -mmcu=atmega8 -I. main.c -o main.o
 
-# link up obj files into remote.elf
-remote.elf: UART.o putstr.o timer.o eprom.o a2d.o main.o
-	${BIN}avr-gcc UART.o putstr.o timer.o eprom.o a2d.o main.o -Wl,-Map=remote.map,--cref -mmcu=atmega8 -o remote.elf
+# compile main.c into main.o
+standalone.o: standalone.c eprom.h a2d.h putstr.h timer.h
+	${BIN}avr-gcc ${GCCFLAGS} -Wall -mmcu=atmega8 -I. standalone.c -o standalone.o
 
-# copy ROM (FLASH) object out of remote.elf into remote.rom
-remote.hex: remote.elf
-	${BIN}avr-objcopy -O ihex remote.elf remote.hex 
+# link up obj files into remote.elf
+remote.hex: UART.o putstr.o timer.o eprom.o a2d.o main.o
+	${BIN}avr-gcc UART.o putstr.o timer.o eprom.o a2d.o main.o -Wl,-Map=remote.map,--cref -mmcu=atmega8 -o remote.elf
 	${BIN}avr-size remote.elf
+	${BIN}avr-objcopy -O ihex remote.elf remote.hex 
+
+controller.hex: UART.o putstr.o timer.o eprom.o a2d.o standalone.o
+	${BIN}avr-gcc UART.o putstr.o timer.o eprom.o a2d.o standalone.o -Wl,-Map=remote.map,--cref -mmcu=atmega8 -o controller.elf
+	${BIN}avr-size controller.elf
+	${BIN}avr-objcopy -O ihex controller.elf controller.hex
 
 # command to program chip 
 install:
+	${BIN}avrdude -v -P ${COM} -c ${PGMR}  -C  ${BIN}avrdude.conf  -p ${TARGET} -U flash:w:remote.hex
 
-	${BIN}avrdude -P ${COM} -c ${PGMR}  -C  ${BIN}avrdude.conf  -p ${TARGET} -U flash:w:remote.hex
+#code for standalone controller. 
+control: 
+	${BIN}avrdude -v -P ${COM} -c ${PGMR}  -C  ${BIN}avrdude.conf  -p ${TARGET} -U flash:w:controller.hex
+
 # set the fuses  for 7.32Mhz atmega8
 lfuse:
 	${BIN}avrdude.exe -v -P ${COM}  -c stk500v2  -p m8  -C  ${BIN}avrdude.conf  -U lfuse:w:0xEF:m
 
 hfuse:
 	${BIN}avrdude.exe -v -P ${COM}  -c stk500v2  -p m8  -C  ${BIN}avrdude.conf  -U hfuse:w:0xD9:m
+
+interactive:  # to fix sck: sck 5
+	${BIN}avrdude.exe -v -P ${COM}  -c stk500v2  -p m8  -C  ${BIN}avrdude.conf -t
+
 
 # command to clean up junk (not source files) (invoked by "make clean")
 clean:

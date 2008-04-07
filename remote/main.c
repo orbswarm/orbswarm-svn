@@ -349,7 +349,6 @@ void send_hue(char addr, unsigned char pod, short hue, unsigned char val) {
 }
 
 
-
 /* "XVAL" pod means supress pod addr (all pods), "XVAL" val means suppress numerical val (for LF commands) */
 void send_light_cmd(char addr, unsigned char pod,  char cmd, unsigned char val){
   putstr("{6");

@@ -14,10 +14,9 @@ volatile unsigned char Timer0_10hz_Flag;
 
 SIGNAL(SIG_OVERFLOW0)
 {
-	Timer0_ticks++;						// increment slow counter
-	if ((Timer0_ticks % 51) == 0)		// flag on 510, not on zero
-//	if ((Timer0_ticks % 102) == 0)		// flag on 510, not on zero
-		Timer0_10hz_Flag = 1;			// set flag for 10 Hz sample rates
+  Timer0_ticks++;		
+  if ((Timer0_ticks % 200) == 0)	
+    Timer0_10hz_Flag = 1;		// set flag for approx. 20 Hz sample rates
 }
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------
