@@ -87,4 +87,8 @@ public class HSV {
     public String toString() {
         return "HSV[" + hue + ", " + sat + ", " + val + "]";
     }
+
+    public String rgbString() {
+        return "HSV[R" + getRed() + ", G" + getGreen() + ", B" + getBlue() + "]";
+    }
 }

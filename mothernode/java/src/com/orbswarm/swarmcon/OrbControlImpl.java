@@ -258,7 +258,7 @@ public class OrbControlImpl implements OrbControl {
 
     // only one Light control method implemented
     public void orbColor(int orbNum, HSV hsvColor, int timeMS) {
-       //System.out.println("SwarmCon:OrbControlImpl orbColor(orb: " + orbNum + "HSV: " + hsvColor + " time:" + timeMS + ")");
+        //System.out.println("SwarmCon:OrbControlImpl orbColor(orb: " + orbNum + " HSV: " + hsvColor.rgbString() + " time:" + timeMS + ")");
 
         if (simulateColors) {
             final Orb orb = (Orb)swarmCon.swarm.getOrb(orbNum);
@@ -328,7 +328,7 @@ public class OrbControlImpl implements OrbControl {
 
     // simulate the color fading behaviour on an orb. 
     public void fadeColor(int orbNum, Orb orb, HSV prev, HSV target, int timeMS, int slewMS, boolean sendFadesToOrbs) {
-        //System.out.println(" fade color. target: " + target + " timeMS: " + timeMS);
+        //System.out.println(" fade color. o" + orbNum + " target: " + target.rgbString() + " timeMS: " + timeMS);
         int steps = timeMS / slewMS;
         int timeTics = timeMS * 180 / 1000; 
         if (steps == 0) {
@@ -346,12 +346,12 @@ public class OrbControlImpl implements OrbControl {
             float v1 = val + i * valDelta;
             HSV stepColorHSV = new HSV(h1, s1, v1);
             orbColors[orbNum] = stepColorHSV;
+            //System.out.println("      o" + orbNum + "    FadeColor step: " + stepColorHSV.rgbString());
                 
             Color stepColor = stepColorHSV.toColor();
             if (sendFadesToOrbs && orbIo != null && isEnabled(orbNum)) {
                 String boardAddress = ""; // TODO: refactor this.
                 sendLightCommand(orbNum, boardAddress, stepColorHSV, 0);
-                //System.out.println("        FadeColor step: " + stepColorHSV);
 
             }
             orb.setOrbColor(stepColor);
@@ -366,6 +366,8 @@ public class OrbControlImpl implements OrbControl {
             String boardAddress = ""; // TODO: refactor this.
             sendLightCommand(orbNum, boardAddress, target, 0);
         }
+        //System.out.println(" FADE color. o" + orbNum + " FINAL target: " + target.rgbString() );
+        orbColors[orbNum] = target;
         orb.setOrbColor(target.toColor());
         swarmCon.repaint(); // todo: only if swarmcon not running?
     }

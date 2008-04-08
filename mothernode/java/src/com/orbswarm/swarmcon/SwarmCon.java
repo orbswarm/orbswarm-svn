@@ -2202,6 +2202,8 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       {
          String chpkg = "com.orbswarm.choreography";
          Timeline.registerSpecialist("SimpleColor",  chpkg + "." + "SingleColorSpecialist");
+         Timeline.registerSpecialist("TemporaryColor",  chpkg + "." + "TemporaryColorSpecialist");
+         Timeline.registerSpecialist("TempColor",  chpkg + "." + "TemporaryColorSpecialist");
          Timeline.registerSpecialist("ColorScheme",  "com.orbswarm.swarmcomposer.color.ColorSchemeSpecialist");
          Timeline.registerSpecialist("ColorSchemer", "com.orbswarm.swarmcomposer.color.ColorSchemeSpecialist");
          Timeline.registerSpecialist("RandomSongPlayer", "com.orbswarm.swarmcomposer.composer.RandomSongSpecialist");

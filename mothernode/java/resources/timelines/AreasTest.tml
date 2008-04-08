@@ -19,9 +19,12 @@
       <event>
         name: A51_inside
         trigger: inside
-        specialist: SimpleColor
+        specialist: TemporaryColor
         color: RGB 255 255 255
-        fadeTime: 20
+        fadeTime: 4
+        <properties>
+           fadeOutTime 5
+        </properties>
       </event>
   </region>
 
