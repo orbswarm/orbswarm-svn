@@ -16,6 +16,9 @@
 #include "putstr.h"	
 #include "UART.h"
 
+#define BLUE_PWM(x) (OCR2 = (unsigned char)(x))
+#define RED_PWM(x) OCR1AH=0; (OCR1AL=(unsigned char)(x))
+#define GREEN_PWM(x) OCR1BH=0; (OCR1BL=(unsigned char)(x))
 
 void hue2rgb(short inthue, unsigned char charval, unsigned char *red, unsigned char *grn, unsigned char *blu);
 
@@ -145,21 +148,24 @@ void parseCommand(){
       putS16( (short) illum.Addr );
     }
     /* do check (self-test) mode: blink address number of times */
-    illum.Time = 0;
     for(i=0;i<(illum.Addr &0x0F);i++){
-      PORTB = 0x0F;
+      BLUE_PWM(0);
+      RED_PWM(0);
+      GREEN_PWM(0);
       if(debug_out) putstr("\r\nchk blink off  ");
-      pauseMS(100);
-      PORTB = 0x00;
+      pauseMS(150);
       if(debug_out) putstr("\r\nchk blink on  ");
-      pauseMS(100);
+      BLUE_PWM(255);
+      RED_PWM(255);
+      GREEN_PWM(255);
+      pauseMS(150);
     }
-    /* just turn on white permanently  */
+    /* for addr 0 just turn on white permanently  */
     if(illum.Addr == 0){
-      PORTB = 0x0F; 
-      illum.tR=250;
-      illum.tG=250;
-      illum.tB=250;
+      BLUE_PWM(255);
+      RED_PWM(255);
+      GREEN_PWM(255);
+      pauseMS(500);
     }
 
     break;
@@ -172,27 +178,6 @@ void parseCommand(){
     }
     illum.blink = intData;
     illum.blinkCounter = intData;
-    break;
-
-  case 'P':	//  the blink period
-    if(debug_out){
-      putstr("\r\nBlink val: ");
-      putS16( intData );
-    }
-    /* do check (self-test) mode: blink address number of times */
-    illum.blink = intData;
-    illum.blinkCounter = intData;
-    break;
-
-  case 'X':	//  write alternate color for blink mode
-    if(debug_out){
-      putstr("\r\nW alt val: ");
-      putS16( intData );
-    }
-    /* do check (self-test) mode: blink address number of times */
-    illum.bR = illum.tR;
-    illum.bG = illum.tG;
-    illum.bB = illum.tB;
     break;
 
   case 'W':	//  write color to index 
@@ -213,7 +198,6 @@ void parseCommand(){
       putstr("\r\reading index: ");
       putS16( intData );
     }
-    /* do check (self-test) mode: blink address number of times */
     if(intData > maxIndex) intData = maxIndex;
     if(intData < 0) intData = 0;
     illum.tR = cir[intData]; 
@@ -222,7 +206,7 @@ void parseCommand(){
     break;
     
 
-  case 'A':	// set the address
+  case 'A':	// set the address (DOESN'T WORK!)
     if(debug_out) {
       putstr("\r\nGot address: ");
       putS16( intData );

@@ -60,3 +60,38 @@ To fade between blue and red over one second, first set all blue immediate:
 Then send target color, time duration, then the fade command:
 <LB0><LR255><LT180><LF>
 (there's no need to set R because it hasn't changed.)
+
+
+
+NEW COMMANDS IN VERSION 2:
+
+HN - set hue to N. 0<=N<=360  0 = red, 120 = green, 240 = blue, 360 = red
+VN - set value to N (0<=N<=255) Value of 0 is dark (black) value of 255 is max
+
+example: to set cyan at half brightness: <LH180><LV127><LF>
+
+H and V commands overwite any R, G, or B commands sent without a corresponding F command. R, G, B commands after a H or V command will overwrite that channel, so may not do what you expect. 
+
+WN - Write current color to index N (0<=N<=15);
+LN - Load index N color to current color (0<=N<=15);
+
+Index colors are preset to:
+
+0=white
+1=red
+2=green
+3=blue
+4=cyan
+5=magenta
+6=yellow
+7=black
+
+(repeats for 8-15). At powerup, the color corresponding to the address is shown at reduced brightness. 
+
+W and L commands are independent of F commands. You always need to issue a F command to actually display a color. But you can preload colors without displaying them by not issuing F commands between them. 
+
+Example: to write blue to index 5 without displaying it, <LR0><LG0><LB255><LW5>
+
+KN - blink with period N x 0.1 seconds (0<=N<=255). Blinks between index colors 0 and index color 1, so if you don't like white and red then load different colors with the W command.
+
+C -- self-test Check. Blinks white the number of times corresponding to the address. Address 0 blinks white for a long period. 

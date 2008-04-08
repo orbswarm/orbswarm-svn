@@ -20,6 +20,11 @@
 #include "gamma.h"  	   /* contains gamma lookup table */
 #include "timer.h"
 
+/* macros for writing PWM */
+
+#define BLUE_PWM(x) (OCR2 = (unsigned char)(x))
+#define RED_PWM(x) OCR1AH=0; (OCR1AL=(unsigned char)(x))
+#define GREEN_PWM(x) OCR1BH=0; (OCR1BL=(unsigned char)(x))
 
 /* hardwired address hack because eeprom was flaky */
 unsigned char getAddress(void);
@@ -28,6 +33,8 @@ unsigned char getAddress(void);
 
 // Set this for testing when a high output pin turns off the LEDs
 //#define INVERT inverted
+char debug_out = 0;			/* set this to output debug info */
+
 
 /* This version uses putstr.c for debugging. To save memory,
    you can remove all instances of putstr and other debug code by
@@ -48,16 +55,15 @@ extern volatile unsigned short Timer0_ticks;
 extern volatile unsigned char Timer0_10hz_Flag;
 
 
-char debug_out = 0;			/* set this to output debug info */
 
 
 /* color index tables */
 /* red, green, blue, magenta, yellow, cyan, white,black */
 /* color indexes 0 and 1  alternate for blink */
 unsigned char maxIndex = 15;
-unsigned char cir[] = {0xFE,0x00,0x00,0xFE, 0xFE,0x00,0xFE,0x00, 0xFE, 0x00,0x00,0xFE, 0xFE,0x00,0xFE,0x00};
-unsigned char cig[] = {0x00,0xFE,0x00,0x00, 0xFE,0xFE,0xFE,0x00, 0x00, 0xFE,0x00,0x00, 0xFE,0xFE,0xFE,0x00};
-unsigned char cib[] = {0x00,0x00,0xFE,0xFE, 0x00,0xFE,0xFE,0x00, 0x00, 0x00,0xFE,0xFE, 0x00,0xFE,0xFE,0x00};
+unsigned char cir[] = {0xFE,0xFE,0x00,0x00,0xFE, 0xFE,0x00,0xFE,0x00, 0xFE, 0x00,0x00,0xFE, 0xFE,0x00,0xFE,0x00};
+unsigned char cig[] = {0xFE,0x00,0xFE,0x00,0x00, 0xFE,0xFE,0xFE,0x00, 0x00, 0xFE,0x00,0x00, 0xFE,0xFE,0xFE,0x00};
+unsigned char cib[] = {0xFE,0x00,0x00,0xFE,0xFE, 0x00,0xFE,0xFE,0x00, 0x00, 0x00,0xFE,0xFE, 0x00,0xFE,0xFE,0x00};
 
 
 void doFade(illuminatorStruct *illum){
@@ -136,13 +142,13 @@ int main( void ){
   
   sei();
   
-  DDRB |= _BV(PB0); /*  PB0 is spare debug  */
   DDRB |= _BV(PB1); /*  PB1 is RED output */
   DDRB |= _BV(PB2); /*  PB2 is GRN output */
   DDRB |= _BV(PB3); /*  PB3 is BLU output */
   
   
   illum.Addr = getAddress() & 0x0F;
+
   if(debug_out){
     putstr("\r\n...Illuminator @ addr ");
     //illum.Addr = readAddressEEPROM();
@@ -154,12 +160,13 @@ int main( void ){
   illum.H=0;
   illum.S=0;
   illum.V=0;
-  illum.R=0; 			/* raw RGB output vales */
-  illum.G=0;
-  illum.B=0;
-  illum.tR=0; 			/* target RGB values */
+  illum.tR=0; 			/* raw RGB output vales */
   illum.tG=0;
   illum.tB=0;
+  /* start up with address-related colors at 25% brightness */
+  illum.R=(cir[illum.Addr] >> 5); 
+  illum.G=(cig[illum.Addr] >> 5); 
+  illum.B=(cib[illum.Addr] >> 5); 
   illum.rCount=0; 			/* fade delay counts */
   illum.gCount=0; 			
   illum.bCount=0; 			
@@ -172,6 +179,7 @@ int main( void ){
   illum.blink=0;	       /* set with number of times to blink */
   illum.blinkCounter=0;	 /* count of remaining ticks until we blink */
   illum.blinkToggle=0;		/* which phase of blink are we in?  */
+
 
   // =======================================================
   
@@ -190,6 +198,8 @@ int main( void ){
     
     if (Timer0_10hz_Flag) {		// do these tasks only 10 times per second
       Timer0_10hz_Flag = 0;
+      
+      /* do the blink thing */
       if(illum.blink) {
 	if(illum.blinkCounter == illum.blink){
 	  if(illum.blinkToggle){
@@ -214,54 +224,45 @@ int main( void ){
       }
     }
     
-#ifdef  INVERT  
-    /* main PWM loop is free-running here INVERTED VERSION */
-    PORTB=0x00; 		/* turn on all LEDs */
-    for(pwm=0;pwm<255;pwm++){
-      if(pwm >= gtab[illum.R]) /* if we've reached red value turn off R bit */
-	PORTB |= _BV(PB1);	
-      if(pwm >= gtab[illum.G])       
-	PORTB |= _BV(PB2);     /* if we've reached grn value turn off B bit */
-      if(pwm >= gtab[illum.B])
-	PORTB |= _BV(PB3);     /* if we've reached blu value turn off G bit */
-#else
-  /* main PWM loop is free-running here */
-    PORTB=0x0F; 		/* turn on all LEDs */
-    for(pwm=0;pwm<255;pwm++){
-      if(pwm >= gtab[illum.R])  /* if we've reached red value turn off R bit */
-	PORTB &=~_BV(PB1);	
-      if(pwm >= gtab[illum.G])       
-	PORTB &=~_BV(PB2);     /* if we've reached grn value turn off B bit */
-      if(pwm >= gtab[illum.B])
-	PORTB &=~_BV(PB3);     /* if we've reached blu value turn off G bit */
-#endif
-
-      /* put these computations in the loop to slow it down a bit */
-      /* IF we are fading, AND we're not there, AND we've waited enough... */
-      if (illum.rInc && (illum.R != illum.tR) && (rdelay++ >= illum.rCount)) {
-	rdelay = 0;
-	illum.R += illum.rInc;	/* increment towards target */
-	if (illum.R == illum.tR){ 
-	  illum.rInc = 0;	/* we've reached our target, stop increment */
-	}
-      }
-
-      if (illum.gInc && (illum.G != illum.tG) && (gdelay++ >= illum.gCount)) {
-	gdelay = 0;
-	illum.G += illum.gInc;	/* increment towards target */
-	if (illum.G == illum.tG) { 
-	  illum.gInc = 0;	/* we've reached our target, stop increment */
-	}
-      }
-
-      if (illum.bInc && (illum.B != illum.tB) && (bdelay++ >= illum.bCount)) {
-	bdelay = 0;
-	illum.B += illum.bInc;	/* increment towards target */
-	if (illum.B == illum.tB) 
-	  illum.bInc = 0;	/* we've reached our target, stop increment */
+    
+    /* calculate next fade values */
+    /* IF we are fading, AND we're not there, AND we've waited enough... */
+    if (illum.rInc && (illum.R != illum.tR) && (rdelay++ >= illum.rCount)) {
+      rdelay = 0;
+      illum.R += illum.rInc;	/* increment towards target */
+      if (illum.R == illum.tR){ 
+	illum.rInc = 0;	/* we've reached our target, stop increment */
       }
     }
+
+    /* if we are not yet at target green */
+    if (illum.gInc && (illum.G != illum.tG) && (gdelay++ >= illum.gCount)) {
+      gdelay = 0;
+      illum.G += illum.gInc;	/* increment towards target */
+      if (illum.G == illum.tG) { 
+	illum.gInc = 0;	/* we've reached our target, stop increment */
+      }
+    }
+
+    if (illum.bInc && (illum.B != illum.tB) && (bdelay++ >= illum.bCount)) {
+      bdelay = 0;
+      illum.B += illum.bInc;	/* increment towards target */
+      if (illum.B == illum.tB) 
+	illum.bInc = 0;	/* we've reached our target, stop increment */
+    }
+
+#ifdef INVERT
+    /* actually set the PWM values here */
+    BLUE_PWM(gtab[255-illum.B]);
+    RED_PWM(gtab[255-illum.R]);
+    GREEN_PWM(gtab[255-illum.G]);
+#else
+    BLUE_PWM(gtab[illum.B]);
+    RED_PWM(gtab[illum.R]);
+    GREEN_PWM(gtab[illum.G]);
+#endif
   }
+
 }
 
 void pauseMS(unsigned short mS){
