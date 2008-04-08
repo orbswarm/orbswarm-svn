@@ -81,16 +81,18 @@ Index colors are preset to:
 1=red
 2=green
 3=blue
-4=cyan
-5=magenta
-6=yellow
-7=black
+4=magenta
+5=yellow
+6=cyan
+7=black (all off)
 
-(repeats for 8-15). At powerup, the color corresponding to the address is shown at reduced brightness. 
+Repeats for 8-15. 
 
 W and L commands are independent of F commands. You always need to issue a F command to actually display a color. But you can preload colors without displaying them by not issuing F commands between them. 
 
+Example: to display cyan from color index 6: <LL6><LF>
 Example: to write blue to index 5 without displaying it, <LR0><LG0><LB255><LW5>
+
 
 KN - blink with period N x 0.1 seconds (0<=N<=255). Blinks between index colors 0 and index color 1, so if you don't like white and red then load different colors with the W command.
 
