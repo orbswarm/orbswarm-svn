@@ -43,6 +43,9 @@ a2d.o: a2d.c a2d.h
 main.o: main.c eprom.h a2d.h putstr.h timer.h
 	${BIN}avr-gcc ${GCCFLAGS} -Wall -mmcu=atmega8 -I. main.c -o main.o
 
+debug.o: main.c eprom.h a2d.h putstr.h timer.h
+	${BIN}avr-gcc -DDEBUG ${GCCFLAGS} -Wall -mmcu=atmega8 -I. main.c -o debug.o
+
 # compile main.c into main.o
 standalone.o: standalone.c eprom.h a2d.h putstr.h timer.h
 	${BIN}avr-gcc ${GCCFLAGS} -Wall -mmcu=atmega8 -I. standalone.c -o standalone.o
@@ -53,6 +56,11 @@ remote.hex: UART.o putstr.o timer.o eprom.o a2d.o main.o
 	${BIN}avr-size remote.elf
 	${BIN}avr-objcopy -O ihex remote.elf remote.hex 
 
+debug.hex: UART.o putstr.o timer.o eprom.o a2d.o debug.o
+	${BIN}avr-gcc UART.o putstr.o timer.o eprom.o a2d.o debug.o -Wl,-Map=remote.map,--cref -mmcu=atmega8 -o debug.elf
+	${BIN}avr-size debug.elf
+	${BIN}avr-objcopy -O ihex debug.elf debug.hex 
+
 controller.hex: UART.o putstr.o timer.o eprom.o a2d.o standalone.o
 	${BIN}avr-gcc UART.o putstr.o timer.o eprom.o a2d.o standalone.o -Wl,-Map=remote.map,--cref -mmcu=atmega8 -o controller.elf
 	${BIN}avr-size controller.elf
@@ -61,6 +69,9 @@ controller.hex: UART.o putstr.o timer.o eprom.o a2d.o standalone.o
 # command to program chip 
 install:
 	${BIN}avrdude -v -P ${COM} -c ${PGMR}  -C  ${BIN}avrdude.conf  -p ${TARGET} -U flash:w:remote.hex
+
+debug:
+	${BIN}avrdude -v -P ${COM} -c ${PGMR}  -C  ${BIN}avrdude.conf  -p ${TARGET} -U flash:w:debug.hex
 
 #code for standalone controller. 
 control: 

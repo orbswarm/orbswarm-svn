@@ -97,7 +97,14 @@ void do_joy_color(short joyx, short joyy);
 extern volatile unsigned short Timer0_ticks;
 extern volatile unsigned char Timer0_10hz_Flag;
 
+#ifdef DEBUG
 volatile uint8_t debug_out = 1;
+#warning DEBUG MODE SET
+#else
+volatile uint8_t debug_out = 0;
+#endif
+
+
 static char addr;
 static unsigned short zero[8];
 
@@ -126,8 +133,8 @@ short charhue = 0; /* characteristic hue of this orb, derived from addr */
 
 
 /* previous values for calculating delta */
-int oldsteer = -100;
-int olddrive = -100;
+short oldsteer = -100;
+short olddrive = -100;
 short oldhue = -100;
 short oldval = -100;
 unsigned char oldkeys  = 0xFF;
@@ -244,20 +251,14 @@ int main (void)
     do_heartbeat( &state );		// Heart-beat is fore-ground -- true indication prog is alive.
     
     
-    //    if (UART_data_in_ring_buf()) {			// check for waiting UART data
-    //  theData = UART_ring_buf_byte();		// pull 1 chr from ring buffer
-    //  if (build_up_command_string(theData)) 
-    //	process_command_string();		// execute commands
-    //}
-	
     if (Timer0_10hz_Flag) {		// do these tasks only 10 times per second
       Timer0_10hz_Flag = 0;
 
       ch1 = A2D_read_channel(JOYRX) - zero[JOYRX];
-      if((ABS(ch1) - oldsteer) > mindiff) {
+      if((abs(ch1) - oldsteer) > mindiff) {
 	send_addr(addr);
 	putstr("$s");
-	if(ABS(ch1) < deadband) 
+	if(abs(ch1) < deadband) 
 	  UART_send_byte('0');
 	else 
 	  putS16(linearize(ch1,steer_max)); 
@@ -267,7 +268,8 @@ int main (void)
       }
 
       ch2 = A2D_read_channel(JOYRY) - zero[JOYRY];
-      if((abs(ch2) - olddrive) > mindiff) {
+      if((abs(ch2) - olddrive) > 10) {
+	olddrive = ch2;
 	send_addr(addr);
 	putstr("$p");
 	if(ABS(ch2) < deadband) 
@@ -279,7 +281,7 @@ int main (void)
 	    putS16(linearize(ch2,-drive_max)); 
 	}
 	putstr("*}\n\r ");
-	olddrive = ch2;
+
       }
 
       /* left joystick controls color */
@@ -332,8 +334,8 @@ void send_hue(char addr, unsigned char pod, short hue, unsigned char val) {
   putstr("<L");
   if(pod != XVAL) UART_send_byte(pod + '0');
   UART_send_byte('H');
-  if(hue != XVAL ) putS16(hue);
-  UART_send_byte('}');
+  putS16(hue);
+  putstr(">}");
   send_light_cmd(addr, pod, 'V', val); 
   send_light_cmd(addr, pod, 'F', XVAL); 
 }
@@ -428,15 +430,19 @@ void do_keys(unsigned char keys, unsigned char oldkeys){
 
 
 void do_joy_color(short val, short hue) {
-  
-  if (~PINB & TRIGL1) {
-    putstr("special command ");
-    
+  unsigned char  a;
+
+  hue = linearize(hue,180) + 180 + charhue; 
+  if(hue > 360) hue -= 360;
+  val = linearize(val,-127) + 127; 
+
+  if (~PINC & MACRO) {
+    if(debug_out) putstr("special command ");
+    for(a=0;a<6;a++){
+      send_hue(a, XVAL, hue, (unsigned char)val);
+    }
   }
   else {
-    hue = linearize(hue,180) + 180 + charhue; 
-    if(hue > 360) hue -= 360;
-    val = linearize(val,-127) + 127; 
     
     if(debug_out & 0) {
       putstr("\r\n hue: ");
