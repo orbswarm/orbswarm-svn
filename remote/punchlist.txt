@@ -8,3 +8,4 @@ To add to remote code:
 + Characteristic address hues
 + transmit LED
 + recalibrate zero?
++ deadband

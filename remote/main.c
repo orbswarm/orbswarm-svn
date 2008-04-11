@@ -5,7 +5,10 @@ http://www.orbswarm.com
 Adapted by Jonathan Foote (Head Rotor at rotorbrain.com)
 in 2008 from code orginally written by Petey the Programmer '07
 
-Version 1.0
+Version 1.2
+
+* added deadband
+* changed from RGB to HSV
 
 -- main.c --
 
@@ -30,6 +33,8 @@ Project: ORB Portable Transmitter using ATMega8L chip
 #define LED_ON 0
 #define LED_OFF 1
 
+#define ABS(x) ((x<0)?(-x):(x))
+
 /* special byte value flag */
 #define XVAL ((unsigned char)0xFF)
 
@@ -48,18 +53,21 @@ Project: ORB Portable Transmitter using ATMega8L chip
 #define JOYLX 7
 
 /* PORTB needs pullups set */
-/* Trigger buttons on PORTB */
+/* Trigger buttons on PINB */
 
 #define TRIGR2 0x01		/* pin 0 */
 #define TRIGR1 0x02		/* pin 1 */
 #define TRIGL1 0x04		/* pin 2 */
 #define TRIGL2 0x08		/* pin 3 */
 
-/* Joystick buttons on PORTB */
+/* Joystick buttons on PINB */
 #define JOYBR 0x10		/* pin 4 */
 #define JOYBL 0x20		/* pin 5 */
 
-
+/* switches on PINC */
+#define VIB_MIN 0x03
+#define VIB_MAX 0x02
+#define MACRO   0x01
 
 // Prototypes
 
@@ -75,24 +83,21 @@ void setLED(unsigned char LED_Num, unsigned char On_Off);
 void do_heartbeat(unsigned char *state);
 short linearize(short input,short scale);
 void pauseMS(unsigned short mS);
+#define SEND_ADDR(x) putstr("{6");UART_send_byte((unsigned char)(x) + '0');
+void send_addr(unsigned char addr);
 void send_hue(char addr, unsigned char pod, short hue, unsigned char val);
 void send_index_color(char addr, unsigned char pod, unsigned char index);
 void send_light_cmd(char addr, unsigned char pod, char cmd, unsigned char val);
 void send_sound(char addr, char* soundname);
 void do_keys(unsigned char keys, unsigned char oldkeys);
-
-void hue2rgb(short hue, unsigned char val, unsigned char *red, unsigned char *grn, unsigned char *blu);
+void do_joy_color(short joyx, short joyy);
 
 // Static variable definitions
-
-#define CMD_STR_SIZE 12
-static unsigned char Command_String[CMD_STR_SIZE];
-static unsigned char CmdStrLen = 0;
 
 extern volatile unsigned short Timer0_ticks;
 extern volatile unsigned char Timer0_10hz_Flag;
 
-volatile uint8_t debug_out = 0;
+volatile uint8_t debug_out = 1;
 static char addr;
 static unsigned short zero[8];
 
@@ -108,13 +113,17 @@ char ccb[] = {0x00,0x00,0xFE,0xFE, 0x00,0xFE,0xFE,0x00};
 
 short steer_max=100;
 short drive_max=40;
-short drive_turbo=60;
+short drive_turbo=50;
 
 /* joysticks are nonlinear. Have more extension in neg direction */
 short negmax = 530;
 short posmax = 300;
 
-short mindiff = 5; /* minumum delta. Don't send if changes less than this */
+short mindiff  = 0; /* minumum delta. Don't send if changes less than this */
+short deadband = 3; /* send zero if +/- deadband away from zero */
+
+short charhue = 0; /* characteristic hue of this orb, derived from addr */
+
 
 /* previous values for calculating delta */
 int oldsteer = -100;
@@ -146,8 +155,8 @@ void Init_Chip(void)
   PORTB = 0x3F;			/* All input bits have pullups enabled */
 
 
-  DDRC = 0x00;			/* PortC - A/D inputs on pins 0:7 */
-  PORTC = 0x03;
+  DDRC = 0x00;			/* PortC - A/D inputs on pins 4:7 */
+  PORTC = 0x07;			/* switches on 0-3 */
 
   DDRD = 0x0E;			/* D0 is RS-232 Rx, D1 is Tx, D2, D3 are LED outputs, D4:7 are address */
   PORTD = 0xF0;			/* High order bits have pullups enabled */
@@ -169,47 +178,30 @@ void Init_Chip(void)
   addr = (~PIND & 0xF0) >> 4;
   addr = addr & (char)0x0F;
 
+  /* characteristic hue of this orb */
+  charhue = addr*60 + 20;
+
   if(debug_out){
-    putstr("Remote v1.1 at addr: " );
+    putstr("Remote v1.2 at addr: " );
     putU8(addr);
     putstr("\r\n");
   }
-  else {
-    putstr("Remote v1.1\r\n" );
+  else { 			/* wake up Zigbee */
+    putstr("Remote v1.2\r\n" );
   }
 
-  send_light_cmd(addr, XVAL, 'R', (unsigned char) 253); 
-  send_light_cmd(addr, XVAL, 'G', (unsigned char) 253); 
-  send_light_cmd(addr, XVAL, 'B', (unsigned char) 253); 
+  send_light_cmd(addr, XVAL, 'H', charhue); 
+  send_light_cmd(addr, XVAL, 'V', (unsigned char) 253); 
   send_light_cmd(addr, XVAL, 'F',XVAL); 
   
 
-  /* holding down R1 trigger on power up sends out debug test strings  */
-  if (~PINB & TRIGL1) {
-    /* send white to all */
-    send_light_cmd(addr, XVAL, 'R', (unsigned char) 252); 
-    send_light_cmd(addr, XVAL, 'G', (unsigned char) 252); 
-    send_light_cmd(addr, XVAL, 'B', (unsigned char) 252); 
-    send_light_cmd(addr, XVAL, 'F',XVAL); 
-    pauseMS(120);
-
-    /* send colors to individual addrs */
-    send_light_cmd(addr, 0, 'B', 0); /* red to 0 */
-    send_light_cmd(addr, 0, 'G', 0); 
-    send_light_cmd(addr, 1, 'R', 0); /* grn to 1 */
-    send_light_cmd(addr, 1, 'B', 0); /* grn to 1 */
-    send_light_cmd(addr, 2, 'R', 0); /* blu to 2 */
-    send_light_cmd(addr, 2, 'G', 0); 
-    send_light_cmd(addr, 3, 'G', 0); /* red/blu to 3 */
-    send_light_cmd(addr, XVAL, 'F',XVAL); 
-  } 
 
   /* and blink status LED that many times */
   for (i=0; i<addr; i++) {
     setLED(BATT_LED, LED_ON);
-    pauseMS(120);  
+    pauseMS(100);  
     setLED(BATT_LED, LED_OFF);
-    pauseMS(120);  
+    pauseMS(100);  
   }
 
 
@@ -220,7 +212,6 @@ void Init_Chip(void)
 
 int main (void)
 {
-  unsigned char theData;
   unsigned char state = 0;
   short i, n, t, ch1, ch2;
   unsigned char keys; 		/* PINB key pad (triggers, etc) */
@@ -263,21 +254,30 @@ int main (void)
       Timer0_10hz_Flag = 0;
 
       ch1 = A2D_read_channel(JOYRX) - zero[JOYRX];
-      if(abs(ch1 - oldsteer) > mindiff) {
-	putstr("{6");
-	UART_send_byte(addr + '0');
-	putstr(" $s");
-	putS16(linearize(ch1,steer_max)); 
+      if((ABS(ch1) - oldsteer) > mindiff) {
+	send_addr(addr);
+	putstr("$s");
+	if(ABS(ch1) < deadband) 
+	  UART_send_byte('0');
+	else 
+	  putS16(linearize(ch1,steer_max)); 
+	  
 	putstr("*}\n\r ");
 	oldsteer = ch1;
       }
 
       ch2 = A2D_read_channel(JOYRY) - zero[JOYRY];
-      if(abs(ch2 - olddrive) > mindiff) {
-	putstr("{6");
-	UART_send_byte(addr + '0');
-	putstr(" $p");
-	putS16(linearize(ch2,-drive_max)); 
+      if((abs(ch2) - olddrive) > mindiff) {
+	send_addr(addr);
+	putstr("$p");
+	if(ABS(ch2) < deadband) 
+	  UART_send_byte('0');
+	else {
+	  if(~PINC & VIB_MAX)
+	    putS16(linearize(ch2,-drive_turbo)); 
+	  else
+	    putS16(linearize(ch2,-drive_max)); 
+	}
 	putstr("*}\n\r ");
 	olddrive = ch2;
       }
@@ -291,20 +291,7 @@ int main (void)
 	oldhue = hue;
 	oldval = val;
 
-	hue = linearize(hue,180) + 180; 
-	val = linearize(val,127) + 127; 
-
-
-	if(debug_out) {
-	  putstr("\r\n hue: ");
-	  putS16(hue); 
-	  putstr(" val: ");
-	  putS16(val); 
-	}
-	
-	send_hue(addr, XVAL, hue, (unsigned char)val);
-
-
+	do_joy_color(val,hue);
 
       }
 
@@ -314,14 +301,15 @@ int main (void)
 	do_keys(keys,oldkeys);
       oldkeys = keys;
 
-      sws = (unsigned char) PINC & 0x03;
+      /* detect switches and do appropriate action */
+      sws = (unsigned char) ~PINC & 0x07;
       if(debug_out & 0) {
 	putstr("\r\n Switches:");
 	putB8(sws);
       }
 
     }
-  } // forever loop
+  } // loop forever 
 
   return 0;	// make compiler happy
 } 
@@ -339,21 +327,22 @@ void send_index_color(char addr, unsigned char pod, unsigned char index){
 
 /* generate a light control command */
 void send_hue(char addr, unsigned char pod, short hue, unsigned char val) {
-  unsigned char r, g, b;
   if (val == XVAL) val = 254;	/* 0xff = XVAL, oops! */
-  hue2rgb(hue,val,&r,&g,&b);
-  send_light_cmd(addr, pod, 'R', r); 
-  send_light_cmd(addr, pod, 'G', g); 
-  send_light_cmd(addr, pod, 'B', b); 
+  send_addr(addr);
+  putstr("<L");
+  if(pod != XVAL) UART_send_byte(pod + '0');
+  UART_send_byte('H');
+  if(hue != XVAL ) putS16(hue);
+  UART_send_byte('}');
+  send_light_cmd(addr, pod, 'V', val); 
   send_light_cmd(addr, pod, 'F', XVAL); 
 }
 
 
 /* "XVAL" pod means supress pod addr (all pods), "XVAL" val means suppress numerical val (for LF commands) */
 void send_light_cmd(char addr, unsigned char pod,  char cmd, unsigned char val){
-  putstr("{6");
-  UART_send_byte(addr + '0');
-  putstr(" <L");
+  send_addr(addr);
+  putstr("<L");
   if(pod != XVAL) UART_send_byte(pod + '0');
   UART_send_byte(cmd);
   if(val != XVAL ) putU8(val);
@@ -362,9 +351,8 @@ void send_light_cmd(char addr, unsigned char pod,  char cmd, unsigned char val){
 
 /* generate a sound command (null soundname sends "stop") */
 void send_sound(char addr, char* soundname){
-  putstr("{6");
-  UART_send_byte(addr + '0');
-  putstr(" <M ");
+  send_addr(addr);
+  putstr("<M ");
   if(soundname != NULL) {
     putstr("VPF ");
     putstr(soundname);
@@ -397,10 +385,11 @@ void do_keys(unsigned char keys, unsigned char oldkeys){
     send_sound(addr,soundlist[sound++]);
     if (sound >= nfiles)
       sound = 0;
-    identify=0;
   }
   if(keydown & TRIGR2) {      /* R2 trigger button down */
-    send_sound(addr,NULL);
+    send_sound(addr,soundlist[sound--]);
+    if (sound >= nfiles)		/* wrap around */
+      sound = nfiles-1;
     identify=0;
   }
 
@@ -410,19 +399,55 @@ void do_keys(unsigned char keys, unsigned char oldkeys){
       color=0;
     identify=0;
   }
+  /* turn off lights and sounds with TL2 */
   if(keydown & TRIGL2) {      /* L2 trigger button down */
-    send_index_color(addr,XVAL,7); /* send black */
+    send_light_cmd(addr, XVAL, 'V', 0); 
+    send_light_cmd(addr, XVAL, 'F', XVAL); 
+    send_sound(addr,NULL);	   /* turn off sounds */
   }
 
-  if(keydown & JOYBR) {		/* the stop button (joyr) was pressed */
-    identify=1;
+  if(keydown & JOYBL) {		/* the stop button (joyr) was pressed */
+    send_addr(addr);
+    putstr("$p00*}");
+    send_addr(addr);
+    putstr("$s00*}");
   }
-  if(keydown & JOYBL) {		/* the color hold button was pressed */
-    identify=0;
+  if(keydown & JOYBR) {		/* Do identification flash */
+    send_light_cmd(addr, XVAL, 'C', XVAL);
+    send_light_cmd(addr, 0, 'H', 0); /* red to back */
+    send_light_cmd(addr, 0, 'V', 254);
+    send_light_cmd(addr, 1, 'H', 0); /* red to back */
+    send_light_cmd(addr, 1, 'V', 254);
+    send_light_cmd(addr, 2, 'H', 240); /* cyan to front */
+    send_light_cmd(addr, 2, 'V', 254);
+    send_light_cmd(addr, 3, 'H', 240); /* cyan to front */
+    send_light_cmd(addr, 3, 'V', 254);
+    send_light_cmd(addr, XVAL, 'F', XVAL);
   }
-
-
 }
+
+
+void do_joy_color(short val, short hue) {
+  
+  if (~PINB & TRIGL1) {
+    putstr("special command ");
+    
+  }
+  else {
+    hue = linearize(hue,180) + 180 + charhue; 
+    if(hue > 360) hue -= 360;
+    val = linearize(val,-127) + 127; 
+    
+    if(debug_out & 0) {
+      putstr("\r\n hue: ");
+      putS16(hue); 
+      putstr(" val: ");
+      putS16(val); 
+    }
+    send_hue(addr, XVAL, hue, (unsigned char)val);
+  }
+}
+
 
 // for debugging - use PortB 4:5 output pins to control LEDs on STK500 board.
 //				 - use PortC 5 for LED on Olimex board
@@ -448,9 +473,8 @@ void do_heartbeat(unsigned char *state)
   //  short  ch1, ch2;
   
   //	if (Timer0_ticks > 1023) {	//  1024 tics per second - heart-beat LED
-  if (Timer0_ticks > 511) {	//  512 tics per second - heart-beat LED
+  if (Timer0_ticks > 250) {	//  512 tics per second - heart-beat LED
     Timer0_reset();
-    
 #ifdef FOO
     if(debug_out & 0) {
       putstr("\r\n JOYRX, JOYRY =");
@@ -472,27 +496,15 @@ void do_heartbeat(unsigned char *state)
     if (*state == 0) {
       setLED(STAT_LED,LED_ON);
       *state = 1;
+      //if(debug_out)putstr("hb 1");
     }
     else {
       setLED(STAT_LED,LED_OFF);
       *state = 0;
+      //if(debug_out) putstr("hb 0");
     }
+    
 
-    if(identify) {		/* we're in identify mode: blink LED pods */
-
-      if(*state){
-	send_index_color(addr,(char)0,7);
-	send_index_color(addr,(char)1,addr);
-	send_index_color(addr,(char)2,7);
-	send_index_color(addr,(char)3,addr);
-      }
-
-      else{}
-	send_index_color(addr,(char)0,addr);
-	send_index_color(addr,(char)1,(char)7);
-	send_index_color(addr,(char)2,addr);
-	send_index_color(addr,(char)3,(char)7);
-    }
   }
 }
 
@@ -516,8 +528,13 @@ short linearize(short input, short scale)
   return((short)(value*scale));
 }
 
+void send_addr(unsigned char addr){
+  putstr("{6");
+  UART_send_byte(addr + '0');
+  UART_send_byte(' ');
+}
 
-// pause for 100 ms second.
+// pause for mS milliseconds
 
 void pauseMS(unsigned short mS){
   Timer0_reset();
@@ -525,110 +542,3 @@ void pauseMS(unsigned short mS){
   Timer0_reset();
 }
 
-void hue2rgb(short inthue, unsigned char charval, unsigned char *red, unsigned char *grn, unsigned char *blu) {
-  float p,n,hue;
-  float r,g,b;
-  unsigned char k;
-
-  while(inthue > 360)
-    inthue -= 360;
-
-  hue = (float) inthue;
-  /* Get principal component of angle */
-  //hue -= 360*(float)floor(hue/360);
-
-  /* Get section */
-  hue /= 60;
-  //k = (int)floor(hue);
-  k = (unsigned char)(hue);
-  if (k == 6) {
-    k = 5;
-  } else if (k > 6) {
-    k = 0;
-  }
-  p = hue - k;
-  n = 1 - p;
-
-  /* Get RGB values based on section */
-  switch (k) {
-  case 0:
-    r = 1; g = p; b = 0;
-    break;
-  case 1:
-    r = n; g = 1;  b = 0;
-    break;
-  case 2:  r = 0; g = 1; b = p;
-    break;
-  case 3:
-    r = 0;
-    g = n;
-    b = 1;
-    break;
-  case 4:
-    r = p;
-    g = 0;
-    b = 1;
-    break;
-  case 5:
-    r = 1;
-    g = 0;
-    b = n;
-    break;
-  default:
-    r = 1;
-    g = 1;
-    b = 1;
-    break;
-  }
-
-  *red = (unsigned char)(r * charval);
-  *grn = (unsigned char)(g * charval);
-  *blu = (unsigned char)(b * charval);
-
-  return;
-}
-
-#ifdef FOO
-
-// These read and write 8-bit values from eeprom.
-void save_eeprom_settings(void)
-{
-  uint8_t checksum;
-  checksum = (maxLeft + maxRight + centerPos + maxPWM);
-	
-  eeprom_Write( EEPROM_START, maxLeft );
-  eeprom_Write( EEPROM_START+1, maxRight );
-  eeprom_Write( EEPROM_START+2, centerPos );
-  eeprom_Write( EEPROM_START+3, maxPWM );
-  eeprom_Write( EEPROM_START+4, checksum );
-}
-
-
-void read_eeprom_settings(void)
-{
-  uint8_t v1,v2,v3,v4,checksum;
-  
-  v1 = eeprom_Read( EEPROM_START );
-  v2 = eeprom_Read( EEPROM_START+1 );
-  v3 = eeprom_Read( EEPROM_START+2 );
-  v4 = eeprom_Read( EEPROM_START+3 );
-  checksum = eeprom_Read( EEPROM_START+4 );
-  
-  if ((v1 + v2 + v3 + v4) == checksum)  {
-    // checksum is OK - load values into motor control block
-    maxLeft = v1;
-    maxRight = v2;
-    centerPos = v3;
-    maxPWM = v4;
-  }
-  else {
-    putstr("Initialize EEPROM Values\r\n");
-    maxLeft = 120;
-    maxRight = 120;
-    centerPos = 0;
-    maxPWM = 60;		
-  }
-}
-
-
-#endif
