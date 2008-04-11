@@ -223,7 +223,7 @@ int main (void)
   short i, n, t, ch1, ch2;
   unsigned char keys; 		/* PINB key pad (triggers, etc) */
   unsigned char sws;		/* PINC switces */
-  short hue, val;
+  short hue, val, diff;
 
   Init_Chip();
   
@@ -255,7 +255,10 @@ int main (void)
       Timer0_10hz_Flag = 0;
 
       ch1 = A2D_read_channel(JOYRX) - zero[JOYRX];
-      if((abs(ch1) - oldsteer) > mindiff) {
+      diff = ch1 - oldsteer;
+      if (diff < 0) diff = -diff; /* abs value */
+      
+      if(diff > mindiff) {
 	send_addr(addr);
 	putstr("$s");
 	if(abs(ch1) < deadband) 
@@ -264,12 +267,19 @@ int main (void)
 	  putS16(linearize(ch1,steer_max)); 
 	  
 	putstr("*}\n\r ");
-	oldsteer = ch1;
       }
+      oldsteer = ch1;
 
       ch2 = A2D_read_channel(JOYRY) - zero[JOYRY];
-      if((abs(ch2) - olddrive) > 10) {
-	olddrive = ch2;
+      diff = ch2 - olddrive;
+      if (diff < 0) diff = -diff;
+      if(debug_out & 0) {
+	putstr("\r\n ch2:");
+	putS16(ch2);
+	putstr(" diff: ");
+	putS16(diff);
+      }
+      if(diff > 1) {
 	send_addr(addr);
 	putstr("$p");
 	if(ABS(ch2) < deadband) 
@@ -281,21 +291,19 @@ int main (void)
 	    putS16(linearize(ch2,-drive_max)); 
 	}
 	putstr("*}\n\r ");
-
       }
+      olddrive = ch2;
 
       /* left joystick controls color */
       hue = A2D_read_channel(JOYLY) - zero[JOYLY];
       val = A2D_read_channel(JOYLX) - zero[JOYLX];
       if((abs(hue - oldhue) > mindiff) | 
 	 (abs(val - oldval) > mindiff) ){
-
-	oldhue = hue;
-	oldval = val;
-
 	do_joy_color(val,hue);
 
       }
+      oldhue = hue;
+      oldval = val;
 
       /* detect button presses and do appropriate action */
       keys = (unsigned char) PINB;
@@ -415,16 +423,11 @@ void do_keys(unsigned char keys, unsigned char oldkeys){
     putstr("$s00*}");
   }
   if(keydown & JOYBR) {		/* Do identification flash */
+    send_hue(addr, 0, 0, (unsigned char) 254);
+    send_hue(addr, 1, 0, (unsigned char) 254);
+    send_hue(addr, 2, 240, (unsigned char) 254);
+    send_hue(addr, 3, 240, (unsigned char) 254);
     send_light_cmd(addr, XVAL, 'C', XVAL);
-    send_light_cmd(addr, 0, 'H', 0); /* red to back */
-    send_light_cmd(addr, 0, 'V', 254);
-    send_light_cmd(addr, 1, 'H', 0); /* red to back */
-    send_light_cmd(addr, 1, 'V', 254);
-    send_light_cmd(addr, 2, 'H', 240); /* cyan to front */
-    send_light_cmd(addr, 2, 'V', 254);
-    send_light_cmd(addr, 3, 'H', 240); /* cyan to front */
-    send_light_cmd(addr, 3, 'V', 254);
-    send_light_cmd(addr, XVAL, 'F', XVAL);
   }
 }
 
@@ -437,7 +440,6 @@ void do_joy_color(short val, short hue) {
   val = linearize(val,-127) + 127; 
 
   if (~PINC & MACRO) {
-    if(debug_out) putstr("special command ");
     for(a=0;a<6;a++){
       send_hue(a, XVAL, hue, (unsigned char)val);
     }
