@@ -1,11 +1,16 @@
 
+
+For remotes:
+
+Test macro button on all remotes
+Test turbo switch and code
+
 To add to remote code:
 
-+ Emergency stop/identify
-+ sound and light fade across orbs
+
 + Low battery detect
-+ Store/play colors
-+ Characteristic address hues
++ Left joystick is incremental rather than absolute
++ new light modes: hue bloom and brightness modulate (spin)
++ multiple orb sound and light commands
 + transmit LED
-+ recalibrate zero?
-+ deadband
++ set max speed and other modes serially over Zigbee?
