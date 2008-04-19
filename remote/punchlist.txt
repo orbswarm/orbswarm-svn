@@ -8,9 +8,6 @@ Test turbo switch and code
 To add to remote code:
 
 
-+ Low battery detect
-+ Left joystick is incremental rather than absolute
 + new light modes: hue bloom and brightness modulate (spin)
-+ multiple orb sound and light commands
 + transmit LED
 + set max speed and other modes serially over Zigbee?

@@ -45,6 +45,14 @@ Project: ORB Portable Transmitter using ATMega8L chip
 #define BATT_LED 3
 #define STAT_LED 2
 
+/* increasing voltage means smaller VREF value */
+#define _2V58 992 		/* voltage ref values */
+#define _2V70 984 		/* voltage ref values */
+#define _2V80 976 		/* voltage ref values */
+#define _2V90 968 		/* voltage ref values */
+#define _3V00 960 		/* voltage ref values */
+
+
 /* ADC inputs on PORTC  */
 #define VREF  3
 #define JOYRY 4
@@ -65,7 +73,7 @@ Project: ORB Portable Transmitter using ATMega8L chip
 #define JOYBL 0x20		/* pin 5 */
 
 /* switches on PINC */
-#define VIB_MIN 0x03
+#define VIB_MIN 0x04
 #define VIB_MAX 0x02
 #define MACRO   0x01
 
@@ -120,17 +128,19 @@ char ccb[] = {0x00,0x00,0xFE,0xFE, 0x00,0xFE,0xFE,0x00};
 
 short steer_max=100;
 short drive_max=40;
-short drive_turbo=50;
+short drive_turbo=60;
 
 /* joysticks are nonlinear. Have more extension in neg direction */
 short negmax = 530;
 short posmax = 300;
 
-short mindiff  = 0; /* minumum delta. Don't send if changes less than this */
+#define MINRDIFF ((short) 0x00) /* minimum diff for right (power) joyst */
+#define MINLDIFF ((short) 0x05) /* minimum diff for left  (illum) joyst */
+
 short deadband = 3; /* send zero if +/- deadband away from zero */
 
-short charhue = 0; /* characteristic hue of this orb, derived from addr */
-
+short thishue = 0; /* current hue */
+short thisval = 0; /* current value */
 
 /* previous values for calculating delta */
 short oldsteer = -100;
@@ -142,6 +152,7 @@ unsigned char oldkeys  = 0xFF;
 /* mode bits */
 char color_hold=0; 		/* 1 to set color */
 char identify=0;		/* 1 if stop button hit; flash ID colors */
+char low_batt=0;		/* set if battery low condition)
 
 
 /* indexes */
@@ -186,7 +197,8 @@ void Init_Chip(void)
   addr = addr & (char)0x0F;
 
   /* characteristic hue of this orb */
-  charhue = addr*60 + 20;
+  thishue = addr*60 + 20;
+  thisval = 127;
 
   if(debug_out){
     putstr("Remote v1.2 at addr: " );
@@ -197,8 +209,8 @@ void Init_Chip(void)
     putstr("Remote v1.2\r\n" );
   }
 
-  send_light_cmd(addr, XVAL, 'H', charhue); 
-  send_light_cmd(addr, XVAL, 'V', (unsigned char) 253); 
+  send_light_cmd(addr, XVAL, 'H', thishue); 
+  send_light_cmd(addr, XVAL, 'V', (unsigned char) thisval); 
   send_light_cmd(addr, XVAL, 'F',XVAL); 
   
 
@@ -254,11 +266,23 @@ int main (void)
     if (Timer0_10hz_Flag) {		// do these tasks only 10 times per second
       Timer0_10hz_Flag = 0;
 
+      /* check voltage ref: are we below thresh?*/
+      ch1 = A2D_read_channel(VREF);
+      if(debug_out & 1) {
+	putstr("\r\n VREF:");
+	putS16(ch1);
+      }
+      if(ch1 > _2V70){ 		/* increasing VREF val means decreasing bat V */
+	low_batt = 1;
+      }
+      else
+	low_batt = 0;
+
       ch1 = A2D_read_channel(JOYRX) - zero[JOYRX];
       diff = ch1 - oldsteer;
       if (diff < 0) diff = -diff; /* abs value */
       
-      if(diff > mindiff) {
+      if(diff > MINRDIFF) {
 	send_addr(addr);
 	putstr("$s");
 	if(abs(ch1) < deadband) 
@@ -279,7 +303,7 @@ int main (void)
 	putstr(" diff: ");
 	putS16(diff);
       }
-      if(diff > 1) {
+      if(diff > MINRDIFF) {
 	send_addr(addr);
 	putstr("$p");
 	if(ABS(ch2) < deadband) 
@@ -297,8 +321,8 @@ int main (void)
       /* left joystick controls color */
       hue = A2D_read_channel(JOYLY) - zero[JOYLY];
       val = A2D_read_channel(JOYLX) - zero[JOYLX];
-      if((abs(hue - oldhue) > mindiff) | 
-	 (abs(val - oldval) > mindiff) ){
+      if((abs(hue - oldhue) > MINLDIFF) | 
+	 (abs(val - oldval) > MINLDIFF) ){
 	do_joy_color(val,hue);
 
       }
@@ -361,15 +385,31 @@ void send_light_cmd(char addr, unsigned char pod,  char cmd, unsigned char val){
 
 /* generate a sound command (null soundname sends "stop") */
 void send_sound(char addr, char* soundname){
-  send_addr(addr);
-  putstr("<M ");
-  if(soundname != NULL) {
-    putstr("VPF ");
-    putstr(soundname);
-    putstr(".mp3>}");
+
+  if (~PINC & MACRO) {
+    for(addr=0;addr<6;addr++){
+      send_addr(addr);
+      putstr("<M ");
+      if(soundname != NULL) {
+	putstr("VPF ");
+	putstr(soundname);
+	putstr(".mp3>}");
+      }
+      else
+	putstr("VST>}");
+    }
   }
-  else
-   putstr("VST>}");
+  else {
+    send_addr(addr);
+    putstr("<M ");
+    if(soundname != NULL) {
+      putstr("VPF ");
+      putstr(soundname);
+      putstr(".mp3>}");
+    }
+    else
+      putstr("VST>}");  
+  }
 }
 
 void do_keys(unsigned char keys, unsigned char oldkeys){
@@ -433,6 +473,39 @@ void do_keys(unsigned char keys, unsigned char oldkeys){
 
 
 void do_joy_color(short val, short hue) {
+
+  hue = linearize(hue,20); 
+  thishue += hue;
+  if(hue > 360) hue -= 360;
+  if(hue < 0 ) hue += 360;
+
+  val = linearize(val,-10); 
+
+  thisval += val;
+  if((short)val < 0) 
+    val = 0;
+  else if((short)val >=255) 
+    val = 255;
+
+  if (~PINC & MACRO) {
+    for(addr=0;addr<6;addr++){
+      send_hue(addr, XVAL, thishue, (unsigned char)thisval);
+    }
+  }
+  else {
+    
+    if(debug_out & 0) {
+      putstr("\r\n hue: ");
+      putS16(thishue); 
+      putstr(" val: ");
+      putS16(thisval); 
+    }
+    send_hue(addr, XVAL, thishue, (unsigned char)thisval);
+  }
+}
+
+#ifdef FOO
+void do_joy_abs_color(short val, short hue) {
   unsigned char  a;
 
   hue = linearize(hue,180) + 180 + charhue; 
@@ -455,7 +528,7 @@ void do_joy_color(short val, short hue) {
     send_hue(addr, XVAL, hue, (unsigned char)val);
   }
 }
-
+#endif
 
 // for debugging - use PortB 4:5 output pins to control LEDs on STK500 board.
 //				 - use PortC 5 for LED on Olimex board
@@ -505,9 +578,13 @@ void do_heartbeat(unsigned char *state)
       setLED(STAT_LED,LED_ON);
       *state = 1;
       //if(debug_out)putstr("hb 1");
+      setLED(BATT_LED,LED_OFF); /* always turn off so we don't get stuck */
+
     }
     else {
       setLED(STAT_LED,LED_OFF);
+      if(low_batt)
+	setLED(BATT_LED,LED_ON);
       *state = 0;
       //if(debug_out) putstr("hb 0");
     }
