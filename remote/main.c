@@ -554,25 +554,9 @@ void do_heartbeat(unsigned char *state)
   //  short  ch1, ch2;
   
   //	if (Timer0_ticks > 1023) {	//  1024 tics per second - heart-beat LED
-  if (Timer0_ticks > 250) {	//  512 tics per second - heart-beat LED
+  if (Timer0_ticks > ((~PINC&VIB_MAX)?100:250)) {	//  512 tics per second - heart-beat LED
     Timer0_reset();
-#ifdef FOO
-    if(debug_out & 0) {
-      putstr("\r\n JOYRX, JOYRY =");
-      ch1 = A2D_read_channel(JOYRX) - zero[JOYRX];
-      putS16(linearize(ch1,256)); 
-      ch2 = A2D_read_channel(JOYRY) - zero[JOYRY];
-      putS16(linearize(ch2,256));
-      putstr("|| JOYLX, JOYLY =");
-      ch1 = A2D_read_channel(JOYLX) - zero[JOYLX];
-      putS16(ch1); 
-      ch2 = A2D_read_channel(JOYLY) - zero[JOYLY];
-      putS16(ch2);
-      putstr(" PINB");
-      putB8(PINB);
-    
-   }
-#endif
+
     
     if (*state == 0) {
       setLED(STAT_LED,LED_ON);
