@@ -11,7 +11,7 @@ PGMR = stk500v2
 
 # set avrdude COM port here
 
-COM = COM5
+COM = COM6
 GCCFLAGS = -c -Os
 
 BIN = C:\\WinAVR\\bin\\

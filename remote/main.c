@@ -152,7 +152,7 @@ unsigned char oldkeys  = 0xFF;
 /* mode bits */
 char color_hold=0; 		/* 1 to set color */
 char identify=0;		/* 1 if stop button hit; flash ID colors */
-char low_batt=0;		/* set if battery low condition)
+char low_batt=0;		/* set if battery low condition) */
 
 
 /* indexes */
@@ -321,13 +321,13 @@ int main (void)
       /* left joystick controls color */
       hue = A2D_read_channel(JOYLY) - zero[JOYLY];
       val = A2D_read_channel(JOYLX) - zero[JOYLX];
-      if((abs(hue - oldhue) > MINLDIFF) | 
-	 (abs(val - oldval) > MINLDIFF) ){
+      if((ABS(hue) > MINLDIFF) | 
+	 (ABS(val) > MINLDIFF) ){
 	do_joy_color(val,hue);
 
       }
-      oldhue = hue;
-      oldval = val;
+      //oldhue = hue;
+      //oldval = val;
 
       /* detect button presses and do appropriate action */
       keys = (unsigned char) PINB;
@@ -476,16 +476,16 @@ void do_joy_color(short val, short hue) {
 
   hue = linearize(hue,20); 
   thishue += hue;
-  if(hue > 360) hue -= 360;
-  if(hue < 0 ) hue += 360;
+  if(thishue > 360) thishue -= 360;
+  if(thishue < 0 ) thishue += 360;
 
   val = linearize(val,-10); 
 
   thisval += val;
-  if((short)val < 0) 
-    val = 0;
-  else if((short)val >=255) 
-    val = 255;
+  if((short)thisval >=254) 
+    thisval = 254;
+  if((short)thisval <=1) 
+    thisval = 1;
 
   if (~PINC & MACRO) {
     for(addr=0;addr<6;addr++){
