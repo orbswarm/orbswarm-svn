@@ -1,0 +1,46 @@
+
+SWARM business cards HOWTO
+
+
+We've had good success with psprint.com. They do great work provided you follow their prepress instructions
+
+I made a template that has most of the tricky stuff done already (CMYK
+mode, special black, extra space for grippers, etc). It's in Adobe
+Illustrator format because it has layers and because that's a
+preferred upload format for psprint. (If you don't have Illustrator,
+let me know and I can customize a file for you -- jon)
+
+The generic (unpersonalized) business card is SWARM_buisinesscard.ai.
+It has info@orbswarm under the SWARM title.
+
+The personalized version has the SWARM website instead of the email,
+and templates for your name and contact info.
+
+To order your own, first customize the personal card
+template SWARM_personalcard.ai, then upload as follows:
+
+1. Customize or delete the personal text. (Though it's fun to make up
+   job titles, let's not.)  If you want to add more info (phone, etc.)
+   go ahead but preserve as much white space as possible. Don't change
+   fonts or you risk upsetting the font snobs.
+
+2. Delete all layes with an "(X)" in front. Yes, even the die template. 
+
+3. "flatten layers" and save as a different filename
+
+4. Start the order process at
+http://www.psprint.com/printing_products/die_cut_business_card_printing.asp
+   Upload the flattened file you just made
+
+5. Strangely enough, there's no way to select the die in the order 
+   process. Do it in the production notes. Towards the end of the order
+   there's a box that says "Need to change part of your order? Simply
+   post a note here"
+
+   This is what I put there and it seemed to work:
+
+   "Please use die entitled "3.5x2 Business Card Circle Edge" on p. 12
+   of your die gallery
+   http://www.psprint.com/print_services/creative/downloads/die_gallery.asp?page=12
+   THANK YOU! 
+
