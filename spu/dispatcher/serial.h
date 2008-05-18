@@ -21,12 +21,12 @@
 #ifndef SWARM_SERIAL_H 
 #define SWARM_SERIAL_H 
 
-/* defines for TS-7260 serial ports */
-#define COM1 "/dev/ttyAM0"
-#define COM2 "/dev/ttyAM1"
-#define COM3 "/dev/ttyTS0"
-#define COM4 "/dev/ttyTS1"
-#define COM5 "/dev/ttyTS2"
+/* defines for TS-7800 serial ports */
+#define COM1 "/dev/ttyS0"
+#define COM2 "/dev/ttyS1"
+#define COM3 "/dev/ttts4"
+#define COM4 "/dev/ttts5"
+#define COM5 "/dev/ttts6"
 
 
 int initSerialPort(const char* port, int baud);

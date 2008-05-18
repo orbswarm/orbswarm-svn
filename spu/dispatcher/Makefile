@@ -12,7 +12,8 @@ NATIVECC = gcc
 # (I'm sure there's a more elegant way to do this...)
 
 #CC = $(NATIVECC)
-CC = $(CYGWINCC)
+#CC = $(CYGWINCC)
+CC = $(LINUXCC)
 
 
 # Version
