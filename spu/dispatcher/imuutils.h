@@ -24,3 +24,4 @@ int parseImuMsg(char *imuBuf, struct swarmImuData *imuData);
 int parseSteerMsg(char *steerBuf, struct swarmMotorData *motData);
 int parseDriveMsg(char *driveBuf, struct swarmMotorData *motData);
 void dumpMotorData(struct swarmMotorData *motData);
+void logImuDataString(struct swarmImuData *imuData, char *imuDataString);

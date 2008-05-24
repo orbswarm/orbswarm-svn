@@ -35,7 +35,7 @@
 int parseDebug = eDispatcherLog;        /*  parser uses this for debug output */
 int parseLevel = eLogInfo;
 
-int myOrbId = 0;                /* which orb are we?  */
+int myOrbId = 60;                /* which orb are we?  */
 
 int com1 = 0;                   /* File descriptor for the port */
 int com2 = 0;                   /* File descriptor for the port */

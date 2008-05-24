@@ -9,6 +9,8 @@
 #define SWARM_SERIAL_WRITE_ERR 10 //failed to write data to serial port 
 #define SWARM_OUT_OF_MEMORY_ERROR 11 //failed to malloc some memory  
 
+#define MAX_GPS_SENTENCE_SZ  256
+
 #define MAX_LOG_ENTRY_SZ 1024 
 #define MAX_NUM_LOG_FILES 5      //the maximum number of log files allowed
 #define MAX_LOG_FILE_SZ 262144

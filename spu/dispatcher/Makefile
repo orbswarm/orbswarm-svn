@@ -50,8 +50,8 @@ queues.o: queues.c
 testharness: scanner.o testharness.o scan.h gpsutils.o queues.o
 	$(CC) $(LFLAGS) -o testharness scanner.o testharness.o gpsutils.o
 
-dispatcher: dispatcher.o serial.o spuutils.o scanner.o scan.h serial.h  gpsutils.o queues.o
-	$(CC) $(LFLAGS) -o dispatcher dispatcher.o serial.o spuutils.o scanner.o  gpsutils.o queues.o
+dispatcher: dispatcher.o serial.o spuutils.o scanner.o scan.h serial.h  gpsutils.o queues.o imuutils.h imuutils.o
+	$(CC) $(LFLAGS) -o dispatcher dispatcher.o serial.o spuutils.o scanner.o  gpsutils.o queues.o imuutils.o
 
 install: dispatcher
 	chmod +x $<
