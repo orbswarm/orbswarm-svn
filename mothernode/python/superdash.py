@@ -348,7 +348,8 @@ class Dashboard(wx.Frame):
 	aux = self.aux.GetValue()
 	for o in self.orb:
 	    if(o.enabled):    
-	        cmd =  "{%d <L B%d>}" % (o.orbID,int(2.5*(aux+100)))
+	        cmd =  "{%d <LB%d>}" % (o.orbID,int(2.5*(aux+100)))
+	        cmd +=  "{%d <LF>}" % o.orbID
 	        print cmd
 		self.ser.write(cmd);
 
@@ -360,9 +361,10 @@ class Dashboard(wx.Frame):
 		if button == 0:    
 		    cmd =  "{%d <M1 VPA>}" % o.orbID
 		elif  button == 1:       
-		    cmd =  "{%d <L R%d>}\n" %   (o.orbID,0)
-		    cmd =  "{%d <L G%d>}\n" %   (o.orbID,0)
-		    cmd =  "{%d <L B%d>}\n" %   (o.orbID,0)
+		    cmd =  "{%d <LR%d>}" %   (o.orbID,0)
+		    cmd +=  "{%d <LG%d>}" %   (o.orbID,0)
+		    cmd +=  "{%d <LB%d>}" %   (o.orbID,0)
+		    cmd +=  "{%d <LF>}\n" % o.orbID
 		elif  button == 2:
 		    cmd =  "{%d <M1 VPF 49443526.mp3>}\n" % o.orbID
 		elif  button == 3:       
@@ -370,10 +372,11 @@ class Dashboard(wx.Frame):
 		elif  button == 4:
 		    cmd =  "{%d <M1 VPF 58720567.mp3>}" % o.orbID
 		elif  button == 6:
-		    cmd =  "{%d <L R%d>}\n" %   (o.orbID,255)
-		    cmd =  "{%d <L G%d>}\n" %   (o.orbID,0)
-		    cmd =  "{%d <L B%d>}\n" %   (o.orbID,0)
-		    cmd =  "{%d <M1 VPF 58720567.mp3>}" % o.orbID
+		    cmd =  "{%d <LR%d>}" %   (o.orbID,255)
+		    cmd +=  "{%d <LG%d>}" %   (o.orbID,0)
+		    cmd +=  "{%d <LB%d>}" %   (o.orbID,0)
+		    cmd +=  "{%d <LF>}\n" % o.orbID
+		    cmd +=  "{%d <M1 VPF 58720567.mp3>}" % o.orbID
 		print cmd
 		self.ser.write(cmd);
 

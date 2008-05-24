@@ -1,5 +1,5 @@
 #----------------------------------------------------------------------
-# superdashboard.py:
+# choreograpy.py:
 #               SWARM Python dashboard to connect with Orb SPU
 #               Send commands and receive/display telemetry and status info
 #               super version supports multiple joysticks using pyGame
@@ -27,12 +27,12 @@ baudrate = 38400
 logFileName = 'dash-log.txt'
 
 # User settings: max/min steering and drive values. OK to edit!
-driveMax = 20
-driveMin = -20
+#driveMax = 20
+#driveMin = -20
 
 #use 40 for PID speed control 
-#driveMax = 40
-#driveMin = -40
+driveMax = 100
+driveMin = -100
 
 steerMax = 100
 steerMin = -100
@@ -381,11 +381,11 @@ class Dashboard(wx.Frame):
 
     def DoSteerEvt(self):
 	steer = self.steer.GetValue()
-#	for o in self.orb:
-#	    if(o.enabled):    
-#	        cmd =  "{%d $s%d*}" % (o.orbID,steer)
-#	        print cmd
-#		self.ser.write(cmd);
+	for o in self.orb:
+	    if(o.enabled):    
+	        cmd =  "{%d $s%d*}" % (o.orbID,steer)
+	        print cmd
+		self.ser.write(cmd);
 		
     def DoAuxEvt(self):
 	aux = self.aux.GetValue()
@@ -408,17 +408,30 @@ class Dashboard(wx.Frame):
 	print 'This is joystick %d' % joy
 	cmd = ""
 	for o in self.myJoy.joy[joy].orblist:
+	    for ID in range(60,65):	
 		if(btn == 0):
-			cmd +=  "{%d <M VPF 49443526.mp3>}\n" % o.orbID
+			cmd +=  "{%d <M VPF 49443526.mp3>}" % ID
 		elif(btn == 1):
-			cmd +=  "{%d <M VPF 55061608.mp3>}" % o.orbID
+			cmd +=  "{%d <M VPF 55061608.mp3>}" % ID
 		elif(btn == 2):
-		       	cmd +=  "{%d <M VPF 58720567.mp3>}" % o.orbID
+		       	cmd +=  "{%d <M VPF 58720567.mp3>}" % ID
 		elif(btn == 3):
-			cmd +=  "{%d <M VPF 58720567.mp3>}" % o.orbID
+			cmd +=  "{%d <M VST>}" % ID
+		elif(btn == 4):
+			cmd +=  "{%d <M VPA>}" % ID	
+		elif(btn == 5):
+			cmd +=  "{%d <LT100>}" % ID
+		elif(btn == 6):
+			cmd +=  "{%d <LT0>}" % ID
+		elif(btn == 7):
+			cmd +=  "{%d <LR0>}" % ID
+			cmd +=  "{%d <LG0>}" % ID
+			cmd +=  "{%d <LB0>}" % ID
+			cmd +=  "{%d <LF>}" % ID
 		else:    
-			print 'btn x'
+			print 'unrecognized button %d?' % btn
         print cmd
+	self.ser.write(cmd)
 
     # this is called regularly by the timer.    
     def OnTimerEvt(self,evt):
@@ -664,7 +677,7 @@ class Dashboard(wx.Frame):
 
 class DashboardApp(wx.App):
     def OnInit(self):
-        frame = Dashboard(None, "SWARM Dashboard v1.0")
+        frame = Dashboard(None, "SWARM Choreographer v1.0")
         self.SetTopWindow(frame)
         frame.Show(True)
         return True
