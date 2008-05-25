@@ -12,8 +12,8 @@ NATIVECC = gcc
 # (I'm sure there's a more elegant way to do this...)
 
 #CC = $(NATIVECC)
-#CC = $(CYGWINCC)
-CC = $(LINUXCC)
+CC = $(CYGWINCC)
+#CC = $(LINUXCC)
 
 
 # Version
@@ -44,14 +44,17 @@ gpsutils.o: gpsutils.c
 queues.o: queues.c
 	$(CC) -c -o $@ $(CFLAGS)  $<
 
+gronkulator.o: gronkulator.c
+	$(CC) -c -o $@ $(CFLAGS)  $<
+
 %.o : %.c scan.h
 	$(CC) -c -o $@ $(CFLAGS)  $<
 
 testharness: scanner.o testharness.o scan.h gpsutils.o queues.o
 	$(CC) $(LFLAGS) -o testharness scanner.o testharness.o gpsutils.o
 
-dispatcher: dispatcher.o serial.o spuutils.o scanner.o scan.h serial.h  gpsutils.o queues.o imuutils.h imuutils.o
-	$(CC) $(LFLAGS) -o dispatcher dispatcher.o serial.o spuutils.o scanner.o  gpsutils.o queues.o imuutils.o
+dispatcher: dispatcher.o serial.o spuutils.o scanner.o scan.h serial.h  gpsutils.o queues.o imuutils.h imuutils.o 
+	$(CC) $(LFLAGS) -o dispatcher dispatcher.o serial.o spuutils.o scanner.o  gpsutils.o queues.o imuutils.o 
 
 install: dispatcher
 	chmod +x $<

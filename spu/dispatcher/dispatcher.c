@@ -23,16 +23,18 @@
 #include <getopt.h>
 #include "gpsutils.h"
 #include "queues.h"
+//#include "gronkulator.h"
 #include <sys/shm.h>
 #include <sys/stat.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <stdarg.h>
+#include "imuutils.h"
 
 
 //#define LOCAL
-int parseDebug = eDispatcherLog;        /*  parser uses this for debug output */
+int parseDebug = eGronkulatorLog;        /*  parser uses this for debug output */
 int parseLevel = eLogInfo;
 
 int myOrbId = 60;                /* which orb are we?  */
@@ -42,11 +44,21 @@ int com2 = 0;                   /* File descriptor for the port */
 int com3 = 0, com5 = 0;         /* ditto */
 
 Queue *gpsQueuePtr;
+Queue *mcuQueuePtr;
+swarmGpsData *latestGpsCordinates;
+
 int gpsQueueSegmentId = -1;
 struct shmid_ds gpsQueueShmidDs;
+int mcuQueueSegmentId = -1;
+struct shmid_ds mcuQueueShmidDs;
+int latestGpsCordinatesSegmentId = -1;
+struct shmid_ds latestGpsCordinatesShmidDs;
 
 int isParent = 1;
-static int pfd1[2], pfd2[2];
+enum ECommandPipe{
+	eGpsCommandPipeId=1,
+	eMcuCommandPipeId};
+static int pfd1[2]/*Gps*/, pfd2[2]/*mcu*/;
 
 int isLogging(int nLogArea, int nLogLevel)
 {
@@ -71,6 +83,9 @@ void logit(int nLogArea, int nLogLevel, char *strFormattedSring, ...)
         fprintf(stdout, "%s", buffer);
 }
 
+/*
+ * Sets up the pipes to communicate between parent and children
+ */
 static void TELL_WAIT(void)
 {
     if (pipe(pfd1) < 0 || pipe(pfd2) < 0) {
@@ -80,28 +95,50 @@ static void TELL_WAIT(void)
 }
 
                                                                                                                                                                                                                                                         /* static void *//* TELL_PARENT() *//* { *//*   if (write(pfd2[1], "c", 1) != 1) *//*     fprintf(stderr, "write error"); *//* } */
-static void WAIT_PARENT(void)
+static void WAIT_PARENT(int nCommandPipeId)
 {
     char c;
-
-    if (read(pfd1[0], &c, 1) != 1)
-        fprintf(stderr, "read error");
-
-    if (c != 'p') {
-        fprintf(stderr, "WAIT_PARENT: incorrect data");
-    }
+	if(eGpsCommandPipeId == nCommandPipeId){
+	    if (read(pfd1[0], &c, 1) != 1)
+	        fprintf(stderr, "read error");
+	
+	    if (c != 'g') 
+	        fprintf(stderr, "WAIT_PARENT: incorrect data");
+	}
+	else if(eMcuCommandPipeId == nCommandPipeId){
+	    if (read(pfd2[0], &c, 1) != 1)
+	        fprintf(stderr, "read error");
+	
+	    if (c != 'm')
+	        fprintf(stderr, "WAIT_PARENT: incorrect data");
+	} 
 }
-static void TELL_CHILD()
+
+static void TELL_CHILD(int nCommandPipeId)
 {
-    if (write(pfd1[1], "p", 1) != 1)
-        fprintf(stderr, "write error");
+	if(eGpsCommandPipeId == nCommandPipeId){	
+		if (write (pfd1[1], "g", 1) != 1)
+  		fprintf (stderr, "shm write error");
+	}
+	else if(eMcuCommandPipeId == nCommandPipeId){	
+		if (write (pfd2[1], "m", 1) != 1)
+  		fprintf (stderr, "shm write error");
+	}
 }
 
 static void onShutdown(void)
 {
     if (isParent && -1 != gpsQueueSegmentId) {
         shmctl(gpsQueueSegmentId, IPC_RMID, 0);
-        fprintf(stderr, "\n cleaned shared mem");
+        fprintf(stderr, "\n cleaned shared mem for gps message queue");
+    }
+    if (isParent && -1 != mcuQueueSegmentId) {
+        shmctl(mcuQueueSegmentId, IPC_RMID, 0);
+        fprintf(stderr, "\n cleaned shared mem for mcu message queue");
+    }
+    if (isParent && -1 != latestGpsCordinatesSegmentId) {
+        shmctl(latestGpsCordinatesSegmentId, IPC_RMID, 0);
+        fprintf(stderr, "\n cleaned shared mem for latest gps co-ord data struct");
     }
 }
 static void signalHandler(int signo)
@@ -116,7 +153,22 @@ static void signalHandler(int signo)
 
 int initSharedMem(void)
 {
-    //Allocate shared memory
+	//Allocate shared memory for GPS struct that represents latest co-ordintaes
+	latestGpsCordinatesSegmentId = shmget(IPC_PRIVATE, sizeof(swarmGpsData),
+                               IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR);
+	if(-1 == latestGpsCordinatesSegmentId)
+		return 0;
+	//Attach
+	latestGpsCordinates = (swarmGpsData *)shmat( latestGpsCordinatesSegmentId, 0, 0);
+	if(-1 == (int)latestGpsCordinates)
+		return 0;                 
+    //read shared memory data structure
+    if (-1 == shmctl(latestGpsCordinatesSegmentId, IPC_STAT, &latestGpsCordinatesShmidDs))
+        return 0;
+    logit(eDispatcherLog, eLogDebug, "\nsegment size for latest gps co-ord data struct=%d",
+          gpsQueueShmidDs.shm_segsz);
+          	
+    //Allocate shared memory for GPS data from the aggregator
     gpsQueueSegmentId = shmget(IPC_PRIVATE, sizeof(Queue),
                                IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR);
     if (-1 == gpsQueueSegmentId)
@@ -128,49 +180,137 @@ int initSharedMem(void)
     //read shared memory data structure
     if (-1 == shmctl(gpsQueueSegmentId, IPC_STAT, &gpsQueueShmidDs))
         return 0;
-    logit(eDispatcherLog, eLogDebug, "\nsegment size=%d",
+    logit(eDispatcherLog, eLogDebug, "\nsegment size for gps msg queue=%d",
           gpsQueueShmidDs.shm_segsz);
+    
+    //Allocate shared memory for mcu commands coming from the aggregator 
+    mcuQueueSegmentId = shmget(IPC_PRIVATE, sizeof(Queue),
+                               IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR);
+    if (-1 == mcuQueueSegmentId)
+        return 0;
+    //Attach shared memory 
+    mcuQueuePtr = (Queue *) shmat(mcuQueueSegmentId, 0, 0);
+    if (-1 == (int) mcuQueuePtr)
+        return 0;
+    //read shared memory data structure
+    if (-1 == shmctl(mcuQueueSegmentId, IPC_STAT, &mcuQueueShmidDs))
+        return 0;
+    logit(eDispatcherLog, eLogDebug, "\nsegment size for spu msg queue=%d",
+          mcuQueueShmidDs.shm_segsz);
 
     return 1;
 }
 
-void doChildProcess(void)
+void doChildProcessToGronk(void)
 {
-    logit(eGpsLog, eLogDebug, "\ndoChildProcess():START");
+	struct timeval lastGronkTime;
+	gettimeofday(&lastGronkTime, NULL);
+	struct timeval nowGronkTime;
+	struct timeval timeout; 
+	char buffer[MSG_LENGTH+1];
+	int bytesRead = 0;	
+	fd_set blockSet;
+	struct swarmImuData imuData;
+	while(1){
+		gettimeofday(&nowGronkTime, NULL);
+		time_t deltaSecs = nowGronkTime.tv_sec - lastGronkTime.tv_sec;
+		long deltaMillis = (nowGronkTime.tv_usec - lastGronkTime.tv_usec)/1000;
+		if(deltaMillis < 0){
+			deltaMillis += 1000;
+			deltaSecs--;
+		}
+		if((deltaSecs*1000 + deltaMillis) > GRONKULATOR_FREQ_IN_MILLIS){
+			//Time up. Query daughterboard for IMU data, gather GPS data and
+			//call the Kalman Filter
+			logit(eMcuLog, eLogInfo, "\n Time to gronk");
+			writeCharsToSerialPort(com5,"$QI*", 4);
+			bytesRead =  readCharsFromSerialPort(com5, buffer, MSG_LENGTH);
+			logit(eMcuLog, eLogInfo, "\n IMU data=%s", buffer);
+			buffer[bytesRead] = 0;
+			char parsedAndFormattedGpsCoordinates[96];
+			sprintf(parsedAndFormattedGpsCoordinates, "{orb=%d northing=%f easting=%f utmzone=%s}",
+                    myOrbId, latestGpsCordinates->UTMNorthing, latestGpsCordinates->UTMEasting,
+                    latestGpsCordinates->UTMZone);
+            logit(eMcuLog, eLogInfo, "\nLogging GPS data=%s", parsedAndFormattedGpsCoordinates);
+            //log gronkulator params
+            parseImuMsg(buffer, &imuData);
+            logImuDataString(&imuData, buffer);
+            logit(eGronkulatorLog, eLogInfo, "\n%u:%u:imu:%s", nowGronkTime.tv_sec,
+            	nowGronkTime.tv_usec, buffer);
+            logit(eGronkulatorLog, eLogInfo, "\n%u:%u:gps:%s", nowGronkTime.tv_sec,
+            	nowGronkTime.tv_usec, parsedAndFormattedGpsCoordinates);
+			//reset timer and start over 
+			lastGronkTime=nowGronkTime;
+		}
+		else{
+			//Not time to gronk yet. Process mcu commands
+			//WAIT_PARENT(eMcuCommandPipeId);
+			FD_ZERO(&blockSet);
+			FD_SET(pfd2[0], &blockSet);
+			timeout.tv_sec = 0;
+            timeout.tv_usec = 10000;//10 milli secs is the smallest we can safely set..I think
+            //int nSelectResult =select(pfd2[0], &blockSet, NULL, NULL, &timeout);
+            int nSelectResult=1;
+            if(nSelectResult < 0) 
+            	logit(eMcuLog, eLogError, "\nError in select on mcu pipe");
+            else if(0 == nSelectResult)
+            	logit(eMcuLog, eLogInfo, "\nSelect timed out with no data in mcu pipe");
+            else {
+            	if(/*FD_ISSET(pfd2[0], &blockSet)*/ 1){
+            		WAIT_PARENT(eMcuCommandPipeId);//guranteed to not block
+            		if (pop(buffer, mcuQueuePtr)) {
+            			logit(eMcuLog, eLogDebug, "\ngot mcu message from parent=%s",
+            				buffer);
+            			writeCharsToSerialPort(com5, buffer, strlen(buffer)+1);
+            		}
+            		else {
+					       logit(eMcuLog, eLogError,
+					       	     "\npop returned nothing. shouldn't be here");
+					}
+            	}
+            	else
+            		logit(eMcuLog, eLogDebug, "\n selected data no longer available");
+            }
+		}
+	}
+}
+
+void doChildProcessToProcessGpsMsg(void)
+{
+    logit(eGpsLog, eLogDebug, "\ndoChildProcessToProcessGpsMsg():START");
     while (1) {
         char buffer[MSG_LENGTH];
-        WAIT_PARENT();
+        WAIT_PARENT(eGpsCommandPipeId);
         if (pop(buffer, gpsQueuePtr)) {
             //we have some thing
             logit(eGpsLog, eLogDebug, "\ngot GPS message=%s", buffer);
             char resp[96];
-            swarmGpsData gpsData;
-            strncpy(gpsData.gpsSentence, buffer, MSG_LENGTH);
-            int status = parseGPSSentence(&gpsData);
+            strncpy(latestGpsCordinates->gpsSentence, buffer, MSG_LENGTH);
+            int status = parseGPSSentence(latestGpsCordinates);
             logit(eGpsLog, eLogDebug, "parseGPSSentence() return=%d\n",
                   status);
             logit(eGpsLog, eLogDebug, "\n Parsed line %s \n",
-                  gpsData.gpsSentence);
-            status = convertNMEAGpsLatLonDataToDecLatLon(&gpsData);
+                  latestGpsCordinates->gpsSentence);
+            status = convertNMEAGpsLatLonDataToDecLatLon(latestGpsCordinates);
             if (status == SWARM_SUCCESS) {
                 logit(eGpsLog, eLogDebug,
                       "\n Decimal lat:%lf lon:%lf utctime:%s \n",
-                      gpsData.latdd, gpsData.londd, gpsData.nmea_utctime);
+                      latestGpsCordinates->latdd, latestGpsCordinates->londd, latestGpsCordinates->nmea_utctime);
 
                 decimalLatLongtoUTM(WGS84_EQUATORIAL_RADIUS_METERS,
-                                    WGS84_ECCENTRICITY_SQUARED, &gpsData);
+                                    WGS84_ECCENTRICITY_SQUARED, latestGpsCordinates);
                 logit(eGpsLog, eLogDebug,
                       "Northing:%f,Easting:%f,UTMZone:%s\n",
-                      gpsData.UTMNorthing, gpsData.UTMEasting,
-                      gpsData.UTMZone);
+                      latestGpsCordinates->UTMNorthing, latestGpsCordinates->UTMEasting,
+                      latestGpsCordinates->UTMZone);
             } else {
                 logit(eGpsLog, eLogError,
                       "\ncouldn't convertNMEAGpsLatLonDataToDecLatLon status="
                       "%d", status);
             }
             sprintf(resp, "{orb=%d\nnorthing=%f\neasting=%f\nutmzone=%s}",
-                    myOrbId, gpsData.UTMNorthing, gpsData.UTMEasting,
-                    gpsData.UTMZone);
+                    myOrbId, latestGpsCordinates->UTMNorthing, latestGpsCordinates->UTMEasting,
+                    latestGpsCordinates->UTMZone);
             logit(eGpsLog, eLogInfo, "\n sending msg to spu=%s", resp);
             writeCharsToSerialPort(com2, resp, strlen(resp));
 
@@ -189,7 +329,13 @@ void dispatchMCUCmd(int spuAddr, cmdStruct * c)
         return;
     if (parseDebug == 5)
         printf("Orb %d Got MCU command: \"%s\"\n", spuAddr, c->cmd);
-    writeCharsToSerialPort(com5, c->cmd, c->cmd_len);
+//    writeCharsToSerialPort(com5, c->cmd, c->cmd_len);
+    if (push(c->cmd, mcuQueuePtr)) {
+        logit(eMcuLog, eLogDebug, "\n successfully pushed mcu msg");
+        TELL_CHILD(eMcuCommandPipeId);
+    } else {
+        logit(eMcuLog, eLogWarn, "\n push failed. mcu Q full");
+    }	
 }
 
                                                                                                                         /* Parser calls this when there is a complete LED command *//* if the addr matches our IP, send the command str out COM3 */
@@ -211,21 +357,18 @@ void dispatchSPUCmd(int spuAddr, cmdStruct * c)
     if (parseDebug == 4)
         printf("Orb %d Got SPU command: \"%s\"\n", spuAddr, c->cmd);
     /* handle the command here */
-
 }
 
 void dispatchGpggaMsg(cmdStruct * c)
 {
-
     logit(eGpsLog, eLogDebug, "got gps gpgga msg: \"%s\"\n", c->cmd);
 
     if (push(c->cmd, gpsQueuePtr)) {
         logit(eGpsLog, eLogDebug, "\n successfully pushed GPS msg");
-        TELL_CHILD();
+        TELL_CHILD(eGpsCommandPipeId);
     } else {
-        logit(eGpsLog, eLogWarn, "\n push failed. Q full");
+        logit(eGpsLog, eLogWarn, "\n push failed. gps Q full");
     }
-
 }
 
 void dispatchGpvtgMsg(cmdStruct * c)
@@ -269,7 +412,6 @@ int main(int argc, char *argv[])
     int dbgflags = 0;
 
     /* vars for the select() call */
-    int max_fd;
     fd_set input;
     struct timeval tv;          /* store select() timeout here */
     int selectResult;
@@ -360,6 +502,7 @@ int main(int argc, char *argv[])
 
 
     /* find maximum fd for the select() */
+    int max_fd;
     max_fd = (com2 > com1 ? com2 : com1) + 1;
     max_fd = (com3 > max_fd ? com3 : max_fd) + 1;
     max_fd = (com5 > max_fd ? com5 : max_fd) + 1;
@@ -372,20 +515,39 @@ int main(int argc, char *argv[])
         fprintf(stderr, "\n shared memory init UNSUCCESSFUL");
         return (1);
     }
-    //set up pipes and fork now 
+    //set up pipes 
     TELL_WAIT();
     pid_t pid;
+    //First fork doChildProcessToProcessGpsMsg()
     if ((pid = fork()) < 0) {
         fprintf(stderr, "\n fork() unsuccessful");
         onShutdown();
         return (2);
     } else if (pid == 0) {
         isParent = 0;
-        doChildProcess();
-    } else {                    //parent
+        doChildProcessToProcessGpsMsg();
+    } 
+#if LOCAL
+	//
+    else {//We don't run the gronkulator in LOCAL mode
+#else
+	else {                    //parent
+    	//Now fork gronkulator if not running in LOCAL mode
+    	//The gronkulator writes queries to the daughterboard/mcu com port and 
+    	//expects to get reuslts back. This is not easy to simulate in the test
+    	//mode. TBD
+		if((pid = fork()) < 0){
+			fprintf(stderr, "\ngronkulator fork() unsuccessful");
+        	onShutdown();
+        	return (2);
+		}	
+		else if(pid == 0){
+			isParent=0;
+			doChildProcessToGronk();
+		}
+		else {//still the parent
+#endif    	
         while (1) {
-
-
             /* Initialize the input set for select() */
             FD_ZERO(&input);
             FD_SET(com2, &input);
@@ -393,10 +555,10 @@ int main(int argc, char *argv[])
 
             /* set select timout value */
             tv.tv_sec = 0;
-            tv.tv_usec = 100000;        // 100 ms or 10 hz
+            tv.tv_usec = 100000;        // 100 ms or 10 Hz
 
             /* Do the select */
-            selectResult = select(max_fd, &input, NULL, NULL, &tv);
+            selectResult = select(max_fd , &input, NULL, NULL, &tv);
 
             /* See if there was an error */
             if (selectResult < 0) {
@@ -447,6 +609,9 @@ int main(int argc, char *argv[])
             }
         }                       // end while(1)
     }
+#ifndef LOCAL
+	}
+#endif    
     onShutdown();
     return (0);                 // keep the compiler happy
 }

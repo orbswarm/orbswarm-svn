@@ -50,7 +50,8 @@ enum EDebugArea{
   eLedLog,
   eSpuLog,
   eMcuLog,
-  eGpsLog
+  eGpsLog,
+  eGronkulatorLog,
 };
 
 enum EDebugLevel{

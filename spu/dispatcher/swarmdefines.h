@@ -36,6 +36,8 @@
 #define BATTERY_CHANNEL 3
 #define BATTERY_MAX_VOLTAGE 26
 
+#define GRONKULATOR_FREQ_IN_MILLIS 100 //10 Hz
+
 /************************Constants**************************************/
 /*
 const double PI = 3.14159265;
@@ -191,5 +193,7 @@ struct spuADConverterStatus {
 	double sonar; // this is in inches
 	double battery_voltage;
 };
+
+extern swarmGpsData *latestGpsCordinates;
 
 #endif

@@ -70,8 +70,8 @@ double imuYawToSI(int imuYawInt, double bias) {
 
 void logImuDataString(struct swarmImuData *imuData, char *imuDataString) {
 
-	sprintf("%f %f %f %f %f %f", swarmImuData->si_ratex, swarmImuData->si_ratey , 
-		swarmImuData->si_accx , swarmImuData->si_accy , swarmImuData->si_accz );	
+  sprintf(imuDataString, "%f %f %f %f %f", imuData->si_ratex, imuData->si_ratey , 
+		imuData->si_accx , imuData->si_accy , imuData->si_accz );	
 }
 
 // print out IMU struct for debug
@@ -199,7 +199,7 @@ int parseImuMsg(char *imuBuf, struct swarmImuData *imuData)
   }
   else return(-1);
 
-  imuIntToSI(*imuData);
+  imuIntToSI(imuData);
 
   return(0);
 

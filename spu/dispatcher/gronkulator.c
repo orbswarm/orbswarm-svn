@@ -18,21 +18,12 @@
 #include <sys/time.h>
 #include <sys/select.h>
 #include "spuutils.h"
-#include "serial.h""
+#include "serial.h"
 #include <getopt.h>
+#include "swarmdefines.h"
 
-
-int parseDebug = 1; 		/*  parser uses this for debug output */
-
-
-
-
-int main(int argc, char *argv[]) 
+void doChildProcessToGronk(void)
 {
 
- 
-  return(0); 			// keep the compiler happy
 }
-//END main() 
-
 

@@ -16,7 +16,6 @@
 #define SWARM_NMEA_GPS_SENTENCE_TYPE_GPGGA "GPGGA"
 #define SWARM_NMEA_GPS_SENTENCE_TYPE_GPVTG "GPVTG"
 #define SWARM_NMEA_GPS_DATA_DELIM ","
-#define MAX_GPS_SENTENCE_SZ 1024
 
 /************************Constants**************************************/
 
