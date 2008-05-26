@@ -199,6 +199,8 @@ int parseImuMsg(char *imuBuf, struct swarmImuData *imuData)
   }
   else return(-1);
 
+  calculateImuBias(imuData);
+
   imuIntToSI(imuData);
 
   return(0);
