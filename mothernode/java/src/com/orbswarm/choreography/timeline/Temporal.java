@@ -19,8 +19,17 @@ public class Temporal {
     public static final String END_SEQUENCE = "</sequence>";
     public static final String REGION       = "<region>";
     public static final String END_REGION   = "</region>";
-    public static final String PROPERTIES   = "<properties>";
+    public static final String PROPERTIES     = "<properties>";
     public static final String END_PROPERTIES = "</properties>";
+
+    public static final String PROXIMITY            = "<proximity>";
+    public static final String END_PROXIMITY        = "</proximity>";
+    public static final String LOCUS_ORBS           = "<locusorbs>";
+    public static final String END_LOCUS_ORBS       = "</locusorbs>";
+    public static final String ENCROACHING_ORBS     = "<encroachingorbs>";
+    public static final String END_ENCROACHING_ORBS = "</encroachingorbs>";
+    public static final String TRIGGER_DISTANCE     = "triggerdistance:";
+    public static final String RESET_DISTANCE       = "resetdistance:";
 
     public static final String END          = "end";
     public static final String DURATION     = "duration:";

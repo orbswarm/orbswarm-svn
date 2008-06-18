@@ -2,6 +2,8 @@ package com.orbswarm.choreography.timeline;
 
 import com.orbswarm.swarmcomposer.util.TokenReader;
 import com.orbswarm.swarmcomposer.color.HSV;
+import com.orbswarm.swarmcon.Swarm;
+import com.orbswarm.choreography.Orb;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,6 +13,10 @@ import java.util.List;
 import java.util.Properties;
 
 import org.trebor.util.JarTools;
+
+// for debugging:
+import com.orbswarm.swarmcomposer.composer.BotVisualizer;
+
 
 
 /**
@@ -22,7 +28,8 @@ public class Timeline extends Temporal {
     protected float arena = NO_SIZE;
     protected static HashMap specialistRegistry;
     protected ArrayList regions = new ArrayList();
-    public TimelineDisplay timelineDisplay = null;
+    public    TimelineDisplay timelineDisplay = null;
+    protected ArrayList proximityTriggers = new ArrayList();
 
     public void setTimelineDisplay(TimelineDisplay val) {
         this.timelineDisplay = val;
@@ -76,6 +83,8 @@ public class Timeline extends Temporal {
             } else if (token.equalsIgnoreCase(REGION)) {
                 Region region = readRegion(reader, timeline, END_REGION);
                 timeline.addRegion(region);
+            } else if (token.equalsIgnoreCase(PROXIMITY)) {
+                readProximityEvent(reader, timeline, END_PROXIMITY);
             }
             token = reader.readToken(); 
         }
@@ -295,6 +304,71 @@ public class Timeline extends Temporal {
         return region;
     }
 
+    public static void readProximityEvent(TokenReader reader,
+                                          Timeline timeline,
+                                          String endToken)  throws IOException {
+        String token = reader.readToken();
+        System.out.println("Reading Proximity. ");
+        List locusOrbs = new ArrayList();
+        List encroachingOrbs = new ArrayList();
+        double triggerDistance = 1.;
+        double resetDistance = 2.;
+        Event triggeringEvent = null;
+        
+        while (token != null && !token.equalsIgnoreCase(endToken)) {
+            if (token.equalsIgnoreCase(LOCUS_ORBS)) {
+                locusOrbs = reader.gatherTokensUntilToken(END_LOCUS_ORBS, false);
+            } else if (token.equalsIgnoreCase(ENCROACHING_ORBS)) {
+                encroachingOrbs = reader.gatherTokensUntilToken(END_ENCROACHING_ORBS, false);
+            } else if (token.equalsIgnoreCase(TRIGGER_DISTANCE)) {
+                triggerDistance = reader.readDouble();
+            } else if (token.equalsIgnoreCase(RESET_DISTANCE)) {
+                resetDistance = reader.readDouble();
+            } else if (token.equalsIgnoreCase(EVENT)) {
+                Event event = readEvent(reader, timeline, null, END_EVENT);
+                triggeringEvent = event;
+            } else if (token.equalsIgnoreCase(SEQUENCE)) {
+                Sequence subseq = readSequence(reader, timeline, null, END_SEQUENCE);
+                triggeringEvent = subseq;
+            }
+            token = reader.readToken();
+        }
+
+        Event parentEvent = null; // can a proximity event even have a parent?
+        // Note: this is a cross product of the locusOrbs and the encroaching orbs:
+        //       fill out the entire mXn, one ProximityEvent per combination
+        if (encroachingOrbs.size() == 0) {
+            // TODO: get correct number of orbs
+            for(int i=0; i < 6; i++) {
+                encroachingOrbs.add("" + i);
+            }
+        }
+        
+        if (triggeringEvent != null) {
+            for(Iterator it = locusOrbs.iterator(); it.hasNext(); ) {
+                String orbStr = (String)it.next();
+                int locusOrb = Integer.parseInt(orbStr);
+                for(Iterator enc = encroachingOrbs.iterator(); enc.hasNext(); ) {
+                    String encStr = (String)enc.next();
+                    int encroachingOrb = Integer.parseInt(encStr);
+                    if (locusOrb != encroachingOrb) {
+                        ProximityEvent prox = new ProximityEvent(timeline,
+                                                                 parentEvent,
+                                                                 locusOrb,
+                                                                 encroachingOrb,
+                                                                 triggeringEvent);
+                        timeline.addProximityTrigger(prox);
+                    }
+                }
+            }
+        }
+        System.out.println("Finished ReadProximity: " + locusOrbs.size() + " X " + encroachingOrbs.size() + " = " + (locusOrbs.size() * encroachingOrbs.size()) );
+    }
+
+    public void addProximityTrigger(ProximityEvent prox) {
+        proximityTriggers.add(prox);
+    }
+
     public static Properties readProperties(TokenReader reader) throws IOException {
         Properties properties = new Properties();
         String token = reader.readToken();
@@ -423,9 +497,81 @@ public class Timeline extends Temporal {
         toColor.setSpecialistName("SimpleColor");
         //toColor.setColor(leitMotifColor[orbNum]); // not yet?
         toColor.setFadeTime(.5f);
-        // problem: in this scheme we can't make the color go back to where it was before we triggered the leitmotif.
+        // problem: in this scheme we can't make the color go back
+        // to where it was before we triggered the leitmotif.
         seq.appendEvent(toColor);
         return seq;
+    }
+
+    public void orbState(Swarm swarm) {
+        // if the timeline has any proximity-triggered events,
+        // then we calculate the distances matrix and see if any got triggered
+        if (proximityTriggers.size() > 0) {
+            double [][]distanceMatrix =
+                assembleDistanceMatrix(swarm);
+            /* dbg
+            StringBuffer buf = new StringBuffer(128);
+            BotVisualizer.printDistances(buf, distanceMatrix);
+            System.out.println(buf.toString());
+            */
+            for(Iterator it = proximityTriggers.iterator(); it.hasNext(); ) {
+                ProximityEvent pe = (ProximityEvent)it.next();
+                // idea: one proximity trigger event per (orb, orb) combination
+                //       with the cross product done at readtime rather than
+                //       each cycle. That will also make it easier to determine
+                //       which ones are running for start/stop potential.
+                //       This also means each proximityEvent will have at most
+                //       one triggeredEvent at a time, so we can store the
+                //       triggered copy of the event on the pe itself.
+
+                // A proximityEvent is triggered when it gets in range,
+                // and untriggered when it gets out of range (beyond the reset distance).
+                //  (there can be an optional reset range that will only
+                //   allow an orb to re-trigger if it goes outside the reset range)
+                // This is orthogonal to whether the event is still playing.
+                // Even if the event stops early, it won't get re-triggered
+                // unless it leaves the locusOrb's personal space and
+                // re-enters.
+                int locusOrb = pe.getLocusOrb();
+                int encroachingOrb = pe.getEncroachingOrb();
+                //System.out.print("loc: " + locusOrb + " enc: " + encroachingOrb);
+                double distance = distanceMatrix[locusOrb][encroachingOrb];
+                //System.out.println("  => dist: " + distance);
+                if (pe.isTriggered()) {
+                    if (distance > pe.getResetDistance()) {
+                        System.out.println("UNTRIGGER. " + pe.getLocusOrb() + " <=> " + pe.getEncroachingOrb());
+                        pe.setTriggered(false);
+                        Event triggeredEvent = pe.getTriggeredEvent();
+                        if (triggeredEvent != null) {
+                            timelineDisplay.stopEvent(triggeredEvent);
+                            pe.setTriggeredEvent(null);
+                        }
+                    }
+                } else {
+                    if (distance <= pe.getPersonalSpaceRadius()) {
+                        System.out.println("Triggering prox event: " + pe.getName() + " locus: " + locusOrb + " enc: " + encroachingOrb);
+                        pe.setTriggered(true);
+                        Event triggeredEvent =
+                            timelineDisplay.startTriggeredEvent(locusOrb, pe);
+                        pe.setTriggeredEvent(triggeredEvent);
+                    }
+                }
+            }
+        }
+    }
+
+    public static double[][] assembleDistanceMatrix(Swarm orbSwarm) {
+        int n = 6; // TODO: find a better way to get this number
+        double[][] distances = new double[n][n];
+        for(int i=0; i < n; i++) {
+            Orb orb = orbSwarm.getOrb(i);
+            // note:: orb distances are in meters.
+            double orbDistances[] = orb.getDistances();
+            for(int j=0; j < n; j++) {
+                distances[i][j] = orbDistances[j];  
+            }
+        }
+        return distances;
     }
 }
 

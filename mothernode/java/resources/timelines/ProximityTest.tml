@@ -1,0 +1,71 @@
+<timeline>
+  name: Region Test
+  arena: 200.
+  duration: 180.
+
+  <proximity>
+     <locusorbs> 0 1 </locusorbs>
+     <encroachingorbs> 2 3 4 </encroachingorbs>
+     triggerdistance: 1
+     resetdistance: 2
+     <event>
+        name: orb01=red
+        specialist: TemporaryColor
+        color: RGB 255 0 0
+        fadeTime: 4
+        <properties>
+           fadeOutTime 5
+        </properties>
+      </event>
+  </proximity>
+
+
+  <proximity>
+     <locusorbs> 0 1 </locusorbs>
+     <encroachingorbs> 5 </encroachingorbs>
+     triggerdistance: 1
+     resetdistance: 2
+     <event>
+        name: orb01=green
+        specialist: TemporaryColor
+        color: RGB 0 255 0
+        fadeTime: 4
+        <properties>
+           fadeOutTime 5
+        </properties>
+      </event>
+  </proximity>
+
+  <proximity>
+     <locusorbs> 2 3 4 </locusorbs>
+     triggerdistance: 1
+     resetdistance: 2
+     <event>
+        name: orb234=blue
+        specialist: TemporaryColor
+        color: RGB 0 0 255
+        fadeTime: 4
+        <properties>
+           fadeOutTime 5
+        </properties>
+      </event>
+  </proximity>
+
+  <event>
+     name: fadeIn
+     specialist: SimpleColor
+     startTime: 4
+     fadeTime: 15
+     <color> RGB 80 200 80 </color>
+  </event>
+     
+  <event>
+      name: fadeout
+      specialist: SimpleColor
+      startTime: 160
+      fadeTime: 20
+      color: RGB 0 0 0 
+  </event>
+
+
+</timeline>

@@ -885,7 +885,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
             swarm.updateOrbDistances();
             broadcastOrbState();
             updateTimelineRegions();
-            
+            timeline.orbState(swarm);
             // repaint the screen
 
             arena.repaint();
@@ -910,13 +910,14 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
          specialists.remove(sp);
       }
 
-      // broadcast OrbState messages to all the Specialists
+      // broadcast OrbState messages to the timeline and all the Specialists
       public void broadcastOrbState()
       {
          synchronized (specialists)
          {
             for (Iterator it = specialists.iterator(); it.hasNext(); )
             {
+               timeline.orbState(swarm);
                Specialist specialist = (Specialist)it.next();
                specialist.orbState(swarm);
             }

@@ -176,9 +176,26 @@ public class OrbControlImpl implements OrbControl {
     public  Sound lookupSound(String soundFilePath) {
         return staticLookupSound(soundFilePath);
     }
-    // OUCHY! Hacque hacque HACQUE!!!
+
+    //
+    // Right now we use a static catalog to find the sound files.
+    // In the future, perhaps we can read a directory full of sound files
+    // to figure out what's there.
+    //
+    // A plus for the catalog: the lengths and locations of the sound files are
+    // known -- i.e. figured out offline.
+    // A minus is that the catalog creation needs to be done before we cna do anything).
+    // (see com.orbswarm.swarmcomposer.composer.SongCompiler)
+    //
     public static Sound staticLookupSound(String soundFilePath) {
-        return (Sound)soundCatalog.get(soundFilePath);
+        Sound sound = (Sound)soundCatalog.get(soundFilePath);
+        if (sound == null) {
+            // return a sound that just gives back the soundFilePath.
+            // This is an optimization that allows us to simply put a sound file
+            // on the usb key and address it by name in the timeline.
+            sound = new Sound(soundFilePath, 0.f, soundFilePath, soundFilePath);
+        }
+        return sound;
     }
 
     boolean sendStopFile = true;

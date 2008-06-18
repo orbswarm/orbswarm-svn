@@ -3,6 +3,22 @@
   arena: 200.
   duration: 180.
 
+  <proximity>
+     <locusorbs> 1 </locusorbs>
+     <encroachingorbs> 2 3 4 5 6 </encroachingorbs>
+     triggerdistance: 1
+     resetdistance: 2
+     <event>
+        name: orb1=red
+        specialist: TemporaryColor
+        color: RGB 255 0 0
+        fadeTime: 4
+        <properties>
+           fadeOutTime 5
+        </properties>
+      </event>
+  </proximity>
+
   <region>
      name: 51
      x: 15 22
