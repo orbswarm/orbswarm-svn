@@ -5,7 +5,7 @@
 
   <proximity>
      <locusorbs> 1 </locusorbs>
-     <encroachingorbs> 2 3 4 5 6 </encroachingorbs>
+     <encroachingorbs> 2 3 4 5 0 </encroachingorbs>
      triggerdistance: 1
      resetdistance: 2
      <event>
