@@ -65,7 +65,7 @@ void doScanner(void * pParser(), char* str)
     else if(isdigit(inChar)) { /* got digits [0-9] */
       Parse (pParser, DIGIT, inChar);
     }
-    else if (isblank(inChar)) { /* got whitespace */
+    else if (isspace(inChar)) { /* got whitespace */
       Parse (pParser, WS, inChar);
     }
     else { /* got special chars */

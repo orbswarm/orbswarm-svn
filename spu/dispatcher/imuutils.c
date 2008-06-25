@@ -70,7 +70,7 @@ double imuYawToSI(int imuYawInt, double bias) {
 
 void logImuDataString(struct swarmImuData *imuData, char *imuDataString) {
 
-  sprintf(imuDataString, "%f %f %f %f %f", imuData->si_ratex, imuData->si_ratey , 
+  sprintf(imuDataString, "%f,%f,%f,%f,%f", imuData->si_ratex, imuData->si_ratey , 
 		imuData->si_accx , imuData->si_accy , imuData->si_accz );	
 }
 

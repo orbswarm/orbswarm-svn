@@ -43,12 +43,12 @@ int parseAndConvertGPSData(char* rawGPS, swarmGpsData* gpsdata);
 
 //the input string was garbage or an invalid type.  The parser only accepts NMEA
 //sentences of type GPGGA 
-int parseGPSSentence(swarmGpsData * gpsdata);
+int parseGPSGGASentence(swarmGpsData * gpsdata);
 
 //converts the raw NMEA gps lat long data into decimal lat long data
 int convertNMEAGpsLatLonDataToDecLatLon(swarmGpsData * gpsdata);
 
-int parseGPSVtgSentance(swarmGpsData * gpsdata);
+int parseGPSVTGSentance(swarmGpsData * gpsdata);
 
 int parseRawAggregatorGPSData(char* rawGPS, swarmGpsData * gpsdata); 
 

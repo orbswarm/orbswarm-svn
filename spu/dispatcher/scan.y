@@ -41,18 +41,14 @@ int spuAddr = 0;
 }  
    
 %syntax_error {  
-  if(parseDebug)
-    printf("Lemon syntax error\n");
+  logit(eDispatcherLog, eLogInfo, "Lemon syntax error\n");
 }   
 
 %parse_failure {
-  if(parseDebug)
-    printf("LEMON parser failure\n");
-  //fprintf(stderr, "LEMON parser failure\n");
+    logit(eDispatcherLog, eLogInfo, "LEMON parser failure\n");
 }
 %stack_overflow {
-  if(parseDebug)
-    printf("LEMON parser stack overflow\n");
+    logit(eDispatcherLog, eLogInfo, "LEMON parser stack overflow\n");
 }
 
 %right DIGIT.

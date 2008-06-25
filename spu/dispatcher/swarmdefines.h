@@ -36,7 +36,7 @@
 #define BATTERY_CHANNEL 3
 #define BATTERY_MAX_VOLTAGE 26
 
-#define GRONKULATOR_FREQ_IN_MILLIS 100 //10 Hz
+#define GRONKULATOR_FREQ_IN_MILLIS 90 //10 Hz
 
 /************************Constants**************************************/
 /*

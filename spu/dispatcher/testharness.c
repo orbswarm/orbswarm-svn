@@ -69,7 +69,7 @@ void dispatchGpggaMsg(cmdStruct * c){
   printf("got gps gpgga msg: \"%s\"\n",c->cmd);
   swarmGpsData gpsData;
   strncpy(gpsData.gpsSentence, c->cmd, c->cmd_len);
-  int status=parseGPSSentence(&gpsData);
+  int status=parseGPSGGASentence(&gpsData);
   printf("parseGPSSentence() return=%d\n", status);  
   printf("\n Parsed line %s \n",gpsData.gpsSentence);
   status = convertNMEAGpsLatLonDataToDecLatLon(&gpsData);

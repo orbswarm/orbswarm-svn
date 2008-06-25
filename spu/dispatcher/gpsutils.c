@@ -15,7 +15,7 @@
 
 //extern int parseDebug;
 
-int parseGPSSentence(swarmGpsData * gpsdata)
+int parseGPSGGASentence(swarmGpsData * gpsdata)
 {
   int status = SWARM_SUCCESS; 
 
@@ -77,19 +77,19 @@ int parseGPSSentence(swarmGpsData * gpsdata)
 	}
       //fprintf(stderr,"\n RAW GPS DATA %s,%s,%Lf,%c,%Lf,%c \n",gpsdata->gpsSentenceType,gpsdata->nmea_utctime,gpsdata->nmea_latddmm,gpsdata->nmea_latsector,gpsdata->nmea_londdmm,gpsdata->nmea_lonsector);
     } else  {
-    fprintf(stderr,"\nRETURNING INVALID GPS SENTANCE\n");
+    logit(eGpsLog, eLogError, "\nRETURNING INVALID GPS GGA SENTENCE\n");
     return SWARM_INVALID_GPS_SENTENCE;
   }
   
   return status;
 }
 
-int parseGPSVtgSentance(swarmGpsData * gpsdata)
+int parseGPSVTGSentance(swarmGpsData * gpsdata)
 {
   int status = SWARM_SUCCESS; 
 
   char* paramptr = NULL;
-  int paramcount = 0;
+  //int paramcount = 0;
   char gpssentcpy[MAX_GPS_SENTENCE_SZ];
   char* strtok_r_ptr = NULL;
 
@@ -101,7 +101,7 @@ int parseGPSVtgSentance(swarmGpsData * gpsdata)
   //fprintf(stderr, "\nstrtok returned **%s** for gps sentence type\n",paramptr);
   
   if (paramptr == NULL) {
-    fprintf(stderr,"\nRETURNING INVALID GPS SENTANCE PARAM PTR NULL\n");
+    logit(eGpsLog, eLogInfo,"\nRETURNING INVALID GPS VTG SENTANCE PARAM PTR NULL\n");
     return SWARM_INVALID_GPS_SENTENCE;
   }
   
@@ -370,7 +370,7 @@ int parseAndConvertGPSData(char* rawGPS, swarmGpsData * gpsdata)
 {
   int status = SWARM_SUCCESS;
 
-  status = parseGPSSentence(gpsdata);
+  status = parseGPSGGASentence(gpsdata);
   if(status == SWARM_SUCCESS)
   { 
     logit(eGpsLog, eLogDebug,  "\n Parsed line %s \n",gpsdata->gpsSentence);
@@ -388,7 +388,7 @@ int parseAndConvertGPSData(char* rawGPS, swarmGpsData * gpsdata)
     logit(eGpsLog, eLogError,  "\n Failed GPS parse status=%i", status);
   }
   status = SWARM_SUCCESS;
-  status = parseGPSVtgSentance(gpsdata);
+  status = parseGPSVTGSentance(gpsdata);
   if(status != SWARM_SUCCESS){
     logit(eGpsLog, eLogDebug,  "\n Failed GPS VTG parse status=%i", status);
   }
