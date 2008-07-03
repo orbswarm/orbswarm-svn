@@ -74,6 +74,15 @@ void logImuDataString(struct swarmImuData *imuData, char *imuDataString) {
 		imuData->si_accx , imuData->si_accy , imuData->si_accz );	
 }
 
+void logDriveDataString(struct swarmMotorData *motorData, char *motorDataString) {
+	sprintf(motorDataString, "%d,%d,%d,%d,%d,%f",motorData->driveTarget,motorData->driveActual,motorData->drivePWM,motorData->odometer,motorData->rawCurrent,motorData->speedRPS);
+
+}
+
+void logSteerDataString(struct swarmMotorData *motorData, char *motorDataString) {
+	sprintf(motorDataString, "%d,%d,%d", motorData->steerTarget, motorData->steerActual, motorData->steerPWM);
+
+}
 // print out IMU struct for debug
 void dumpImuData(struct swarmImuData *imuData) {
   
@@ -243,9 +252,8 @@ int parseSteerMsg(char *steerBuf, struct swarmMotorData *motData)
     strncpy(motData->steerPWM_str,msg_type,10);
     steerBuf += advance + 1;
   }
-  else 
-  	return(-3);
-  return 0;
+  else return(-3);
+
 }
 
 /* Parse steering motor data returned from daughterboard motor controller. */
@@ -304,9 +312,8 @@ int parseDriveMsg(char *driveBuf, struct swarmMotorData *motData)
     strncpy(motData->rawCurrent_str,msg_type,10);
     driveBuf += advance + 1;
   }
-  else 
-  	return(-5);
-  return 0;
+  else return(-5);
+
 }
 
 // calculate speed in radians per second given encoder counts

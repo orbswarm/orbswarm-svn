@@ -35,7 +35,7 @@
 	
 	//#define LOCAL
 	int parseDebug = eGpsLog;        /*  parser uses this for debug output */
-	int parseLevel = eLogDebug;
+	int parseLevel = eLogError;
 	
 	int myOrbId = 60;                /* which orb are we?  */
 	
@@ -208,9 +208,15 @@
 		struct timeval nowGronkTime;
 		struct timeval timeout; 
 		char buffer[MSG_LENGTH+1];
-		int bytesRead = 0;	
+		char steer_buffer[MSG_LENGTH+1];
+		char drive_buffer[MSG_LENGTH+1];
+		int i_bytesRead = 0;	
+		int md_bytesRead = 0;
+		int ms_bytesRead = 0;
 		fd_set blockSet;
 		struct swarmImuData imuData;
+		struct swarmMotorData motorData;
+
 		while(1){
 			gettimeofday(&nowGronkTime, NULL);
 			time_t deltaSecs = nowGronkTime.tv_sec - lastGronkTime.tv_sec;
@@ -220,28 +226,73 @@
 				deltaSecs--;
 			}
 			if((deltaSecs*1000 + deltaMillis) > GRONKULATOR_FREQ_IN_MILLIS){
-				//Time up. Query daughterboard for IMU data, gather GPS data and
-				//call the Kalman Filter
+			//Time up. Query daughterboard for IMU data, gather GPS data and
+			//call the Kalman Filter
 				logit(eGronkulatorLog, eLogDebug, "\n Time to gronk");
+
+		        //First get the IMU data and stuff it into a buffer
 				writeCharsToSerialPort(com5,"$QI*", 4);
-				bytesRead =  readCharsFromSerialPort(com5, buffer, MSG_LENGTH);
+				i_bytesRead =  readCharsFromSerialPort(com5, buffer, MSG_LENGTH);
+
+			//Then get the Motor data as soon after the IMU data poll
+			//First the drive data
+
+				writeCharsToSerialPort(com5,"$QD*", 4);
+				md_bytesRead =  readCharsFromSerialPort(com5,drive_buffer, MSG_LENGTH);
+
+			//Then steering...
+				writeCharsToSerialPort(com5,"$QS*",4);
+				ms_bytesRead = readCharsFromSerialPort(com5,steer_buffer,MSG_LENGTH);
+
+			//process the IMU buffer 
+			
 				logit(eMcuLog, eLogInfo, "\n IMU data=%s", buffer);
-				buffer[bytesRead] = 0;
+				buffer[i_bytesRead] = 0;
 				char parsedAndFormattedGpsCoordinates[96];
 				sprintf(parsedAndFormattedGpsCoordinates, "{orb=%d northing=%f easting=%f utmzone=%s}",
 	                    myOrbId, latestGpsCordinates->UTMNorthing, latestGpsCordinates->UTMEasting,
 	                    latestGpsCordinates->UTMZone);
-	            logit(eMcuLog, eLogInfo, "\nLogging GPS data=%s", parsedAndFormattedGpsCoordinates);
-	            //log gronkulator params
-	            parseImuMsg(buffer, &imuData);
-	            logImuDataString(&imuData, buffer);
-	            printf("\n%u,%u,%s,%f,%f,%s,%f,%f,%c ", 
-	            	(unsigned int)nowGronkTime.tv_sec,
-	            	(unsigned int)nowGronkTime.tv_usec/1000, buffer,
-	            	latestGpsCordinates->UTMNorthing, latestGpsCordinates->UTMEasting,
-                    latestGpsCordinates->UTMZone,
-                    latestGpsCordinates->nmea_course, latestGpsCordinates->speed,
-                    latestGpsCordinates->mode);
+
+	               //log gronkulator params 
+	                    logit(eMcuLog, eLogInfo, "\nLogging GPS data=%s", parsedAndFormattedGpsCoordinates);
+
+		       //parse buffer. This is where the buffer we read off com5 gets stuffed into the imuData struct
+	                    parseImuMsg(buffer, &imuData);
+	                    logImuDataString(&imuData, buffer);
+
+	//            logit(eGronkulatorLog, eLogInfo, "\n%u,%u,%s,%d,%d,%s ", 
+	//            	nowGronkTime.tv_sec,
+	//            	nowGronkTime.tv_usec/1000, buffer,
+	//            	latestGpsCordinates->UTMNorthing, latestGpsCordinates->UTMEasting,
+	//                    latestGpsCordinates->UTMZone);
+
+	                printf("\n%u,%u,%s,%f,%f,%s,%f,%f,%c ", 
+	                	(unsigned int)nowGronkTime.tv_sec,
+	                	(unsigned int)nowGronkTime.tv_usec/1000, buffer,
+	                	latestGpsCordinates->UTMNorthing, latestGpsCordinates->UTMEasting,
+                                latestGpsCordinates->UTMZone,
+                                latestGpsCordinates->nmea_course, latestGpsCordinates->speed,
+                                latestGpsCordinates->mode);
+
+
+		    //Now we do the same for the Motor Encoder
+		    //"Third verse, same as the first!!"
+
+				logit(eMcuLog, eLogInfo, "\n Motor data(drive)=%s", drive_buffer);
+				logit(eMcuLog, eLogInfo, "\n Motor data(steer)=%s",steer_buffer);
+
+		    //Parse moto_buffer into the motorData
+				parseDriveMsg(drive_buffer,&motorData);
+				parseSteerMsg(steer_buffer,&motorData);
+
+				logSteerDataString(&motorData,drive_buffer);
+				logDriveDataString(&motorData,steer_buffer);
+
+				drive_buffer[md_bytesRead] = 0;
+				steer_buffer[md_bytesRead] = 0;
+
+//				char parsedAndFormattedMotoData[96];
+//				sprintf(parsedAndFormattedMotoData,"{orb=%d dTarget=%d Dcurrent=%d curPWM=%d Isense=%d}",myOrbId, motorData->driveTarget,motorData->driveActual,motorData->drivePWM,motorData->rawCurrent );
 				//reset timer and start over 
 				lastGronkTime=nowGronkTime;
 			}
@@ -287,13 +338,13 @@
 		            //we have some thing
 		            logit(eGpsLog, eLogDebug, "\ngot GPS message=%s", buffer);
 		            char resp[96];
-		            if(strncmp(buffer, "$GPGGA", 6)){
-			        	strncpy(latestGpsCordinates->ggaSentence, buffer, MSG_LENGTH);
-		                int status = parseGPSGGASentence(latestGpsCordinates);
+		            strncpy(latestGpsCordinates->gpsSentence, buffer, MSG_LENGTH);
+		            if(strncmp(latestGpsCordinates->gpsSentence, "$GPGGA", 6)){
+			            int status = parseGPSGGASentence(latestGpsCordinates);
 			            logit(eGpsLog, eLogDebug, "parseGPSSentence() return=%d\n",
 			                  status);
 			            logit(eGpsLog, eLogDebug, "\n Parsed line %s \n",
-			                  latestGpsCordinates->ggaSentence);
+			                  latestGpsCordinates->gpsSentence);
 			            status = convertNMEAGpsLatLonDataToDecLatLon(latestGpsCordinates);
 			            if (status == SWARM_SUCCESS) {
 			                logit(eGpsLog, eLogDebug,
@@ -317,15 +368,14 @@
 			            logit(eGpsLog, eLogInfo, "\n sending msg to spu=%s", resp);
 			            writeCharsToSerialPort(com2, resp, strlen(resp));
 		            }//end if GPGGA
-		            else if(strncmp(buffer, "$GPVTG", 6)){
-		            	strncpy(latestGpsCordinates->vtgSentence, buffer, MSG_LENGTH);
+		            else if(strncmp(latestGpsCordinates->gpsSentence, "$GPVTG", 6)){
 		            	int nStatus = parseGPSVTGSentance(latestGpsCordinates);
 		            	logit(eGpsLog, eLogDebug, "\n parsed vtg sentence=%s \nreturn=%d",
-		            		latestGpsCordinates->ggaSentence, nStatus);
+		            		latestGpsCordinates->gpsSentence, nStatus);
 		            }
 		            else
 		            	logit(eGpsLog, eLogError,
-	                  "\n unknown gps message type, msg=%s", latestGpsCordinates->ggaSentence);
+	                  "\n unknown gps message type, msg=%s", latestGpsCordinates->gpsSentence);
 	        } else {
 	            logit(eGpsLog, eLogError,
 	                  "\npop returned nothing. shouldn't be here");
@@ -341,6 +391,7 @@
 	        return;
 	    if (parseDebug == 5)
 	        printf("Orb %d Got MCU command: \"%s\"\n", spuAddr, c->cmd);
+	//    writeCharsToSerialPort(com5, c->cmd, c->cmd_len);
 	    if (push(c->cmd, mcuQueuePtr)) {
 	        logit(eMcuLog, eLogDebug, "\n successfully pushed mcu msg");
 	        TELL_CHILD(eMcuCommandPipeId);
@@ -367,6 +418,7 @@
 	
 	    if (parseDebug == 4)
 	        printf("Orb %d Got SPU command: \"%s\"\n", spuAddr, c->cmd);
+	    /* handle the command here */
 	}
 	
 	void dispatchGpggaMsg(cmdStruct * c)
@@ -441,6 +493,8 @@
 	    getIP("eth0", myIP);
 	
 	    printf("\ndispatcher gotIP\n");
+	    //if(enableDebug)
+	    //fprintf(stderr,"\nMY IP ADDRESS: %s\n",myIP);
 	    char *orbAddStart = rindex(myIP, '.');
 	    myOrbId = atoi(&orbAddStart[1]);
 	
@@ -542,7 +596,7 @@
 	        isParent = 0;
 	        doChildProcessToProcessGpsMsg();
 	    } 
-	#ifdef LOCAL
+	#if LOCAL
 		//
 	    else {//We don't run the gronkulator in LOCAL mode
 	#else
@@ -566,6 +620,7 @@
 	            /* Initialize the input set for select() */
 	            FD_ZERO(&input);
 	            FD_SET(com2, &input);
+	            //FD_SET(com5, &input);
 	
 	            /* set select timout value */
 	            tv.tv_sec = 0;
