@@ -49,7 +49,7 @@ const double rad2deg = 180.0 / PI;
 typedef struct	swarmGpsDataStruct
 {
   char gpsSentenceType[32]; 
-  char gpsSentence[MAX_GPS_SENTENCE_SZ];
+  char ggaSentence[MAX_GPS_SENTENCE_SZ];
   char vtgSentence[MAX_GPS_SENTENCE_SZ];
   char nmea_utctime[64];
   double nmea_latddmm;

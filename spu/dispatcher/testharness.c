@@ -20,8 +20,8 @@
 #include "gpsutils.h"
 
 //int parseDebug = 1;
-int parseDebug = eDispatcherLog; 		/*  parser uses this for debug output */
-int parseLevel = eLogInfo;
+int parseDebug = eGpsLog; 		/*  parser uses this for debug output */
+int parseLevel = eLogDebug;
 
 int isLogging(int nLogArea, int nLogLevel)
 {
@@ -68,10 +68,10 @@ void dispatchSPUCmd(int spuAddr, cmdStruct *c){
 void dispatchGpggaMsg(cmdStruct * c){
   printf("got gps gpgga msg: \"%s\"\n",c->cmd);
   swarmGpsData gpsData;
-  strncpy(gpsData.gpsSentence, c->cmd, c->cmd_len);
+  strncpy(gpsData.ggaSentence, c->cmd, c->cmd_len);
   int status=parseGPSGGASentence(&gpsData);
   printf("parseGPSSentence() return=%d\n", status);  
-  printf("\n Parsed line %s \n",gpsData.gpsSentence);
+  printf("\n Parsed line %s \n",gpsData.ggaSentence);
   status = convertNMEAGpsLatLonDataToDecLatLon(&gpsData);
   if(status == SWARM_SUCCESS)
   {
@@ -82,8 +82,14 @@ void dispatchGpggaMsg(cmdStruct * c){
    }
 }
 
-void dispatchGpvtgMsg(cmdStruct * c){
+void dispatchGpvtgMsg(cmdStruct * c)
+{
   printf("got gps gpvtg msg: \"%s\"\n",c->cmd);
+  swarmGpsData gpsData;
+  strncpy(gpsData.vtgSentence, c->cmd, c->cmd_len);
+  int nStatus = parseGPSVTGSentance(&gpsData);
+  printf("\n parsed vtg sentence=%s \nreturn=%d speed in km=%f heading in radians=%f",
+	         		gpsData.vtgSentence, nStatus, gpsData.speed, gpsData.nmea_course);	         		
 }
 
 int

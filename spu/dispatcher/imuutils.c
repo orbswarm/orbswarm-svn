@@ -243,8 +243,9 @@ int parseSteerMsg(char *steerBuf, struct swarmMotorData *motData)
     strncpy(motData->steerPWM_str,msg_type,10);
     steerBuf += advance + 1;
   }
-  else return(-3);
-
+  else 
+  	return(-3);
+  return 0;
 }
 
 /* Parse steering motor data returned from daughterboard motor controller. */
@@ -303,8 +304,9 @@ int parseDriveMsg(char *driveBuf, struct swarmMotorData *motData)
     strncpy(motData->rawCurrent_str,msg_type,10);
     driveBuf += advance + 1;
   }
-  else return(-5);
-
+  else 
+  	return(-5);
+  return 0;
 }
 
 // calculate speed in radians per second given encoder counts

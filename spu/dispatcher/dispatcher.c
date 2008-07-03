@@ -35,7 +35,7 @@
 	
 	//#define LOCAL
 	int parseDebug = eGpsLog;        /*  parser uses this for debug output */
-	int parseLevel = eLogError;
+	int parseLevel = eLogDebug;
 	
 	int myOrbId = 60;                /* which orb are we?  */
 	
@@ -235,11 +235,6 @@
 	            //log gronkulator params
 	            parseImuMsg(buffer, &imuData);
 	            logImuDataString(&imuData, buffer);
-	//            logit(eGronkulatorLog, eLogInfo, "\n%u,%u,%s,%d,%d,%s ", 
-	//            	nowGronkTime.tv_sec,
-	//            	nowGronkTime.tv_usec/1000, buffer,
-	//            	latestGpsCordinates->UTMNorthing, latestGpsCordinates->UTMEasting,
-	//                    latestGpsCordinates->UTMZone);
 	            printf("\n%u,%u,%s,%f,%f,%s,%f,%f,%c ", 
 	            	(unsigned int)nowGronkTime.tv_sec,
 	            	(unsigned int)nowGronkTime.tv_usec/1000, buffer,
@@ -292,13 +287,13 @@
 		            //we have some thing
 		            logit(eGpsLog, eLogDebug, "\ngot GPS message=%s", buffer);
 		            char resp[96];
-		            strncpy(latestGpsCordinates->gpsSentence, buffer, MSG_LENGTH);
-		            if(strncmp(latestGpsCordinates->gpsSentence, "$GPGGA", 6)){
-			            int status = parseGPSGGASentence(latestGpsCordinates);
+		            if(strncmp(buffer, "$GPGGA", 6)){
+			        	strncpy(latestGpsCordinates->ggaSentence, buffer, MSG_LENGTH);
+		                int status = parseGPSGGASentence(latestGpsCordinates);
 			            logit(eGpsLog, eLogDebug, "parseGPSSentence() return=%d\n",
 			                  status);
 			            logit(eGpsLog, eLogDebug, "\n Parsed line %s \n",
-			                  latestGpsCordinates->gpsSentence);
+			                  latestGpsCordinates->ggaSentence);
 			            status = convertNMEAGpsLatLonDataToDecLatLon(latestGpsCordinates);
 			            if (status == SWARM_SUCCESS) {
 			                logit(eGpsLog, eLogDebug,
@@ -322,14 +317,15 @@
 			            logit(eGpsLog, eLogInfo, "\n sending msg to spu=%s", resp);
 			            writeCharsToSerialPort(com2, resp, strlen(resp));
 		            }//end if GPGGA
-		            else if(strncmp(latestGpsCordinates->gpsSentence, "$GPVTG", 6)){
+		            else if(strncmp(buffer, "$GPVTG", 6)){
+		            	strncpy(latestGpsCordinates->vtgSentence, buffer, MSG_LENGTH);
 		            	int nStatus = parseGPSVTGSentance(latestGpsCordinates);
 		            	logit(eGpsLog, eLogDebug, "\n parsed vtg sentence=%s \nreturn=%d",
-		            		latestGpsCordinates->gpsSentence, nStatus);
+		            		latestGpsCordinates->ggaSentence, nStatus);
 		            }
 		            else
 		            	logit(eGpsLog, eLogError,
-	                  "\n unknown gps message type, msg=%s", latestGpsCordinates->gpsSentence);
+	                  "\n unknown gps message type, msg=%s", latestGpsCordinates->ggaSentence);
 	        } else {
 	            logit(eGpsLog, eLogError,
 	                  "\npop returned nothing. shouldn't be here");
@@ -345,7 +341,6 @@
 	        return;
 	    if (parseDebug == 5)
 	        printf("Orb %d Got MCU command: \"%s\"\n", spuAddr, c->cmd);
-	//    writeCharsToSerialPort(com5, c->cmd, c->cmd_len);
 	    if (push(c->cmd, mcuQueuePtr)) {
 	        logit(eMcuLog, eLogDebug, "\n successfully pushed mcu msg");
 	        TELL_CHILD(eMcuCommandPipeId);
@@ -372,7 +367,6 @@
 	
 	    if (parseDebug == 4)
 	        printf("Orb %d Got SPU command: \"%s\"\n", spuAddr, c->cmd);
-	    /* handle the command here */
 	}
 	
 	void dispatchGpggaMsg(cmdStruct * c)
@@ -447,8 +441,6 @@
 	    getIP("eth0", myIP);
 	
 	    printf("\ndispatcher gotIP\n");
-	    //if(enableDebug)
-	    //fprintf(stderr,"\nMY IP ADDRESS: %s\n",myIP);
 	    char *orbAddStart = rindex(myIP, '.');
 	    myOrbId = atoi(&orbAddStart[1]);
 	
@@ -550,7 +542,7 @@
 	        isParent = 0;
 	        doChildProcessToProcessGpsMsg();
 	    } 
-	#if LOCAL
+	#ifdef LOCAL
 		//
 	    else {//We don't run the gronkulator in LOCAL mode
 	#else
@@ -574,7 +566,6 @@
 	            /* Initialize the input set for select() */
 	            FD_ZERO(&input);
 	            FD_SET(com2, &input);
-	            //FD_SET(com5, &input);
 	
 	            /* set select timout value */
 	            tv.tv_sec = 0;
