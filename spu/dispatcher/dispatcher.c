@@ -304,14 +304,22 @@ doChildProcessToGronk (void)
           //              latestGpsCordinates->UTMNorthing, latestGpsCordinates->UTMEasting,
           //                    latestGpsCordinates->UTMZone);
 
-          printf ("\n%u,%u,%s,%f,%f,%s,%f,%f,%c ",
+          printf ("\n%u,%u,%s,%f,%f,%s,%f,%f,%c, %d, %d, %d, %d, %d, %d, %d",
                   (unsigned int) nowGronkTime.tv_sec,
                   (unsigned int) nowGronkTime.tv_usec / 1000, buffer,
                   latestGpsCordinates->UTMNorthing,
                   latestGpsCordinates->UTMEasting,
                   latestGpsCordinates->UTMZone,
                   latestGpsCordinates->nmea_course,
-                  latestGpsCordinates->speed, latestGpsCordinates->mode);
+                  latestGpsCordinates->speed, 
+                  latestGpsCordinates->mode,
+                  motorData.driveTarget,
+                  motorData.driveActual,
+                  motorData.drivePWM,
+                  motorData.steerTarget,
+                  motorData.steerActual,
+                  motorData.steerPWM,
+                  motorData.rawCurrent );
  
 
           //Now we do the same for the Motor Encoder
