@@ -34,8 +34,8 @@
 
 
 //#define LOCAL
-int parseDebug = eGpsLog;       /*  parser uses this for debug output */
-int parseLevel = eLogError;
+int parseDebug = eMcuLog;       /*  parser uses this for debug output */
+int parseLevel = eLogDebug;
 
 int myOrbId = 60;               /* which orb are we?  */
 
@@ -93,7 +93,7 @@ logit (int nLogArea, int nLogLevel, char *strFormattedSring, ...)
  * Sets up the pipes to communicate between parent and children
  */
 static void
-TELL_WAIT (void)
+tellWait (void)
 {
   if (pipe (pfd1) < 0 || pipe (pfd2) < 0)
     {
@@ -104,7 +104,7 @@ TELL_WAIT (void)
 
 /* static void *//* TELL_PARENT() *//* { *//*   if (write(pfd2[1], "c", 1) != 1) *//*     fprintf(stderr, "write error"); *//* } */
 static void
-WAIT_PARENT (int nCommandPipeId)
+waitParent (int nCommandPipeId)
 {
   char c;
   if (eGpsCommandPipeId == nCommandPipeId)
@@ -126,7 +126,7 @@ WAIT_PARENT (int nCommandPipeId)
 }
 
 static void
-TELL_CHILD (int nCommandPipeId)
+tellChild (int nCommandPipeId)
 {
   if (eGpsCommandPipeId == nCommandPipeId)
     {
@@ -241,7 +241,7 @@ doChildProcessToGronk (void)
   char drive_buffer[MSG_LENGTH + 1];
   int i_bytesRead = 0;
   int md_bytesRead = 0;
-  int ms_bytesRead = 0;
+  //int ms_bytesRead = 0;
   fd_set blockSet;
   struct swarmImuData imuData;
   struct swarmMotorData motorData;
@@ -265,19 +265,30 @@ doChildProcessToGronk (void)
 
           //First get the IMU data and stuff it into a buffer
           writeCharsToSerialPort (com5, "$QI*", 4);
-          i_bytesRead = readCharsFromSerialPort (com5, buffer, MSG_LENGTH);
+          i_bytesRead = readCharsFromSerialPortBlkd (com5, buffer, 115);
+          buffer[i_bytesRead]=0;
+          writeCharsToSerialPort (com5, "$QD*", 4);
+          
+          logit (eMcuLog, eLogInfo, "\n IMU data=%s bytes read=%d",  buffer, i_bytesRead); 
+          //parse buffer. This is where the buffer we read off com5 gets stuffed into the imuData struct
+          parseImuMsg (buffer, &imuData);
+          logImuDataString (&imuData, buffer);
 
           //Then get the Motor data as soon after the IMU data poll
           //First the drive data
 
-          writeCharsToSerialPort (com5, "$QD*", 4);
           md_bytesRead =
-            readCharsFromSerialPort (com5, drive_buffer, MSG_LENGTH);
+            readCharsFromSerialPortBlkd (com5, drive_buffer, 84);
 
+
+          drive_buffer[md_bytesRead] = 0;
+          logit (eMcuLog, eLogInfo, "\n Motor data(drive)=%s bytes read=%d", 
+          drive_buffer, md_bytesRead);
+          
           //Then steering...
-          writeCharsToSerialPort (com5, "$QS*", 4);
-          ms_bytesRead =
-            readCharsFromSerialPort (com5, steer_buffer, MSG_LENGTH);
+//          writeCharsToSerialPort (com5, "$QS*", 4);
+//          ms_bytesRead =
+//            readCharsFromSerialPort (com5, steer_buffer, MSG_LENGTH);
 
           //process the IMU buffer 
 
@@ -291,18 +302,21 @@ doChildProcessToGronk (void)
                    latestGpsCordinates->UTMZone);
 
           //log gronkulator params 
-          logit (eMcuLog, eLogInfo, "\nLogging GPS data=%s",
-                 parsedAndFormattedGpsCoordinates);
+//          logit (eMcuLog, eLogInfo, "\nLogging GPS data=%s",
+//                 parsedAndFormattedGpsCoordinates);
 
-          //parse buffer. This is where the buffer we read off com5 gets stuffed into the imuData struct
-          parseImuMsg (buffer, &imuData);
-          logImuDataString (&imuData, buffer);
 
-          //            logit(eGronkulatorLog, eLogInfo, "\n%u,%u,%s,%d,%d,%s ", 
-          //              nowGronkTime.tv_sec,
-          //              nowGronkTime.tv_usec/1000, buffer,
-          //              latestGpsCordinates->UTMNorthing, latestGpsCordinates->UTMEasting,
-          //                    latestGpsCordinates->UTMZone);
+          //Parse moto_buffer into the motorData
+          drive_buffer[md_bytesRead] = 0;
+//          steer_buffer[ms_bytesRead] = 0;
+
+//          logit (eMcuLog, eLogInfo, "\n Motor data(steer)=%s", steer_buffer);
+
+          logSteerDataString (&motorData, steer_buffer);
+          logDriveDataString (&motorData, drive_buffer);
+
+          parseDriveMsg (drive_buffer, &motorData);
+          parseSteerMsg (steer_buffer, &motorData);
 
           printf ("\n%u,%u,%s,%f,%f,%s,%f,%f,%c, %d, %d, %d, %d, %d, %d, %d",
                   (unsigned int) nowGronkTime.tv_sec,
@@ -324,22 +338,8 @@ doChildProcessToGronk (void)
 
           //Now we do the same for the Motor Encoder
           //"Third verse, same as the first!!"
-
-          logit (eMcuLog, eLogInfo, "\n Motor data(drive)=%s", drive_buffer);
-          logit (eMcuLog, eLogInfo, "\n Motor data(steer)=%s", steer_buffer);
-
-          //Parse moto_buffer into the motorData
-          parseDriveMsg (drive_buffer, &motorData);
-          parseSteerMsg (steer_buffer, &motorData);
-
-          logSteerDataString (&motorData, drive_buffer);
-          logDriveDataString (&motorData, steer_buffer);
-
-          drive_buffer[md_bytesRead] = 0;
-          steer_buffer[md_bytesRead] = 0;
-
-          //                              char parsedAndFormattedMotoData[96];
-          //                              sprintf(parsedAndFormattedMotoData,"{orb=%d dTarget=%d Dcurrent=%d curPWM=%d Isense=%d}",myOrbId, motorData->driveTarget,motorData->driveActual,motorData->drivePWM,motorData->rawCurrent );
+ //                              char parsedAndFormattedMotoData[96];
+ //                              sprintf(parsedAndFormattedMotoData,"{orb=%d dTarget=%d Dcurrent=%d curPWM=%d Isense=%d}",myOrbId, motorData->driveTarget,motorData->driveActual,motorData->drivePWM,motorData->rawCurrent );
 
           //reset timer and start over 
           lastGronkTime = nowGronkTime;
@@ -357,13 +357,14 @@ doChildProcessToGronk (void)
           if (nSelectResult < 0)
             logit (eMcuLog, eLogError, "\nError in select on mcu pipe");
           else if (0 == nSelectResult)
-            logit (eMcuLog, eLogInfo,
-                   "\nSelect timed out with no data in mcu pipe");
+          ;
+//	            logit (eMcuLog, eLogInfo,
+//	                   "\nSelect timed out with no data in mcu pipe");
           else
             {
               if (FD_ISSET (pfd2[0], &blockSet) /*1 */ )
                 {
-                  WAIT_PARENT (eMcuCommandPipeId);      //guranteed to not block
+                  waitParent (eMcuCommandPipeId);      //guranteed to not block
                   if (pop (buffer, mcuQueuePtr))
                     {
                       logit (eMcuLog, eLogDebug,
@@ -391,7 +392,7 @@ doChildProcessToProcessGpsMsg (void)
   while (1)
     {
       char buffer[MSG_LENGTH];
-      WAIT_PARENT (eGpsCommandPipeId);
+      waitParent (eGpsCommandPipeId);
       if (pop (buffer, gpsQueuePtr))
         {
           //we have some thing
@@ -472,7 +473,7 @@ dispatchMCUCmd (int spuAddr, cmdStruct * c)
   if (push (c->cmd, mcuQueuePtr))
     {
       logit (eMcuLog, eLogDebug, "\n successfully pushed mcu msg");
-      TELL_CHILD (eMcuCommandPipeId);
+      tellChild (eMcuCommandPipeId);
     }
   else
     {
@@ -511,7 +512,7 @@ dispatchGpggaMsg (cmdStruct * c)
   if (push (c->cmd, gpsQueuePtr))
     {
       //logit(eGpsLog, eLogDebug, "\n successfully pushed GPS msg");
-      TELL_CHILD (eGpsCommandPipeId);
+      tellChild (eGpsCommandPipeId);
     }
   else
     {
@@ -526,7 +527,7 @@ dispatchGpvtgMsg (cmdStruct * c)
   if (push (c->cmd, gpsQueuePtr))
     {
       //logit(eGpsLog, eLogDebug, "\n successfully pushed GPS msg");
-      TELL_CHILD (eGpsCommandPipeId);
+      tellChild (eGpsCommandPipeId);
     }
   else
     {
@@ -665,7 +666,8 @@ main (int argc, char *argv[])
   com3 = initSerialPort (COM3, 38400);
 
   /* Motor Control commands go to and from COM5 */
-  com5 = initSerialPort (COM5, 38400);
+  //com5 = initSerialPort (COM5, 38400);
+  com5 = initSerialPortBlocking(COM5, 38400);
 #endif
 
 
@@ -687,7 +689,7 @@ main (int argc, char *argv[])
       return (1);
     }
   //set up pipes 
-  TELL_WAIT ();
+  tellWait ();
   pid_t pid;
   //First fork doChildProcessToProcessGpsMsg()
   if ((pid = fork ()) < 0)

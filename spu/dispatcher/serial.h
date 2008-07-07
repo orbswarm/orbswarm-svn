@@ -39,6 +39,10 @@
 
 int initSerialPort(const char* port, int baud);
 
+int initSerialPortBlocking(const char* port, int baud);
+
+int readCharsFromSerialPortBlkd(int port_fd, char* buff, int maxBufSz);
+
 int readCharsFromSerialPort(int port_fd, char* buff, int maxBufSz);
 
 int writeCharsToSerialPort(int port_fd, char* buff,
