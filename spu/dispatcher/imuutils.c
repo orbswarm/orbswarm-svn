@@ -349,3 +349,163 @@ void dumpMotorData(struct swarmMotorData *motData) {
 	 motData->odometer_str,
 	 motData->odometer);
 }
+
+
+int parseQueryMsg(char *queryBuf, struct swarmMotorData *motData, struct swarmImuData *imuData )
+{
+  char msg_type[10];		// temp storage for scanned string
+  int msg_data=0;		// temp storage for scanned int data
+  int success=0;		// how many fields have we read from sscanf
+  int advance=0; 		// advance this many chars after each sscanf
+
+  // first value is drive target speed
+  success=sscanf(queryBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    motData->driveTarget=msg_data;
+    strncpy(motData->driveTarget_str,msg_type,10);
+    queryBuf += advance + 1;
+  }
+  else return(-1);
+
+  // second value is drive actual speed
+  success=sscanf(queryBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    motData->driveActual=msg_data;
+    motData->speedRPS = countsToRPS(motData->driveActual);
+    strncpy(motData->driveActual_str,msg_type,10);
+
+    queryBuf += advance + 1;
+  }
+  else return(-2);
+
+  // third val is raw pwm out
+  success=sscanf(queryBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    motData->drivePWM=msg_data;
+    strncpy(motData->drivePWM_str,msg_type,10);
+    queryBuf += advance + 1;
+  }
+  else return(-3);
+
+  // fourth val is odometer
+  success=sscanf(queryBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    motData->odometer=msg_data;
+    strncpy(motData->odometer_str,msg_type,10);
+    queryBuf += advance + 1;
+  }
+  else return(-4);
+
+  // fifth val is raw current sense ADC value
+  success=sscanf(queryBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    motData->rawCurrent=msg_data;
+    strncpy(motData->rawCurrent_str,msg_type,10);
+    queryBuf += advance + 1;
+  }
+  else return(-5);
+
+  // first value is steer target
+  success=sscanf(queryBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    motData->steerTarget=msg_data;
+    strncpy(motData->steerTarget_str,msg_type,10);
+    queryBuf += advance + 1;
+  }
+  else return(-6);
+
+  // second value is steer actual
+  success=sscanf(queryBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    motData->steerActual=msg_data;
+    strncpy(motData->steerActual_str,msg_type,10);
+    queryBuf += advance + 1;
+  }
+  else return(-7);
+
+  // third val is raw pwm out
+  success=sscanf(queryBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    motData->steerPWM=msg_data;
+    strncpy(motData->steerPWM_str,msg_type,10);
+    queryBuf += advance + 1;
+  }
+  else return(-8);
+
+  // FIRST Value is ADC0
+  success=sscanf(queryBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    imuData->int_adc0=msg_data;
+    strncpy(imuData->adc0_str,msg_type,10);
+    queryBuf += advance + 1;
+  } 
+  else return(-9);
+
+
+  // Second Value is ADC1
+  success=sscanf(queryBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    imuData->int_adc1=msg_data;
+    strncpy(imuData->adc1_str,msg_type,10);
+    queryBuf += advance + 1;
+  }
+  else return(-10);
+
+  // Third Value is RateX
+  success=sscanf(queryBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    imuData->int_ratex=msg_data;
+    strncpy(imuData->ratex_str,msg_type,10);
+    queryBuf += advance + 1;
+  } 
+  else return(-11);
+
+  // Fourth Value is RateY
+  success=sscanf(queryBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    imuData->int_ratey=msg_data;
+    strncpy(imuData->ratey_str,msg_type,10);
+    queryBuf += advance + 1;
+  }
+  else return(-12);
+
+  /* Fifth value is AccZ */
+  success=sscanf(queryBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    imuData->int_accz=msg_data;
+    strncpy(imuData->accz_str,msg_type,10);
+    queryBuf += advance + 1;
+  }
+  else return(-13);
+
+  // Sixth value is AccX
+  success=sscanf(queryBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    imuData->int_accx=msg_data;
+    strncpy(imuData->accx_str,msg_type,10);
+    queryBuf += advance + 1;
+  }
+  else return(-14);
+
+  // Seventh value is vref (SPARE)
+  success=sscanf(queryBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    imuData->int_vref=msg_data;
+    strncpy(imuData->vref_str,msg_type,10);
+    queryBuf += advance + 1;
+  }
+  else return(-15);
+
+  // last (eighth) value is AccY
+  success=sscanf(queryBuf,"%s%d",msg_type,&msg_data);
+  if (success ==2) {
+    imuData->int_accy=msg_data;
+    strncpy(imuData->accy_str,msg_type,10);
+  }
+  else return(-16);
+
+  calculateImuBias(imuData);
+
+  imuIntToSI(imuData);
+
+}
