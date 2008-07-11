@@ -65,7 +65,7 @@ void dispatchSPUCmd(int spuAddr, cmdStruct *c){
   printf("Orb %d Got SPU command: \"%s\"\n",spuAddr, c->cmd);
 }
 
-void dispatchGpggaMsg(cmdStruct * c){
+void dispatchGpsLocationMsg(cmdStruct * c){
   printf("got gps gpgga msg: \"%s\"\n",c->cmd);
   swarmGpsData gpsData;
   strncpy(gpsData.ggaSentence, c->cmd, c->cmd_len);
@@ -82,7 +82,7 @@ void dispatchGpggaMsg(cmdStruct * c){
    }
 }
 
-void dispatchGpvtgMsg(cmdStruct * c)
+void dispatchGpsVelocityMsg(cmdStruct * c)
 {
   printf("got gps gpvtg msg: \"%s\"\n",c->cmd);
   swarmGpsData gpsData;

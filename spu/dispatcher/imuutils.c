@@ -253,7 +253,8 @@ int parseSteerMsg(char *steerBuf, struct swarmMotorData *motData)
     steerBuf += advance + 1;
   }
   else return(-3);
-
+//dummy return
+  return 0;
 }
 
 /* Parse steering motor data returned from daughterboard motor controller. */
@@ -313,7 +314,8 @@ int parseDriveMsg(char *driveBuf, struct swarmMotorData *motData)
     driveBuf += advance + 1;
   }
   else return(-5);
-
+  //dummy return to please compiler
+  return 0;
 }
 
 // calculate speed in radians per second given encoder counts
@@ -507,5 +509,6 @@ int parseQueryMsg(char *queryBuf, struct swarmMotorData *motData, struct swarmIm
   calculateImuBias(imuData);
 
   imuIntToSI(imuData);
-
+  //dummy return to please compiler
+  return 0;
 }

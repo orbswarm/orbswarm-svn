@@ -4,47 +4,47 @@
  *      SWARM Orb SPU code http://www.orbswarm.com
  *      prototypes and #defs for swarm serial com routines
  *
- *      main loop here. 
+ *      main loop here.
  *      read input data from COM2. Parse it and dispatch parsed commands
  *      written by Jonathan Foote (Head Rotor at rotorbrain.com)
  *      based on lots of code by Matt, Dillo, Niladri, Rick,
- * 
+ *
  * How it works? - niladri.bora@gmail.com
  * The dispatcher is actually 3 processes -
- * 1. The main dispatcher process : 
+ * 1. The main dispatcher process :
  * 			The main process that listens for messages coming on COM2 (via a timed
  * 	  select). Each message is tokenized by the tokenizer in doScanner() which
- * 	  in turn calls the lemon genrated parser with the tokens. The grammar is 
+ * 	  in turn calls the lemon genrated parser with the tokens. The grammar is
  * 	  defined in scan.y. On sucessful parsing of each message type the corresponding
  * 	  dispatch*()(dispatchMCUCmd(), dispatchLEDCmd(), dispatchSPUCmd(), dispatchGpsVelocityMsg()
  * 	  and dispatchGpsLocationMsg()) function is called from the action rule.
- * 
+ *
  * 2. Gps message processor:
  * 			This(()) is a child process that reads messages from the gps data queue.
- * 	  The main dispatcher process writes all gps location and velocity messages 
- *    (see  dispatchGpsVelocityMsg() and dispatchGpsLocationMsg()) into this queue. 
- * 	  The queue is implemented using a circular buffer in shared memory. Additionally 
- * 	  this process and the main dispatcher process synchronize the reading and writing to this 
- * 	  queue via an IPC implemented using pipes. After pushing a message in the queue the 
- *    main dispatcher process writes a character into the pipe. The gps message processor does a blocked read 
+ * 	  The main dispatcher process writes all gps location and velocity messages
+ *    (see  dispatchGpsVelocityMsg() and dispatchGpsLocationMsg()) into this queue.
+ * 	  The queue is implemented using a circular buffer in shared memory. Additionally
+ * 	  this process and the main dispatcher process synchronize the reading and writing to this
+ * 	  queue via an IPC implemented using pipes. After pushing a message in the queue the
+ *    main dispatcher process writes a character into the pipe. The gps message processor does a blocked read
  *    on the pipe and whenever it gets something it knows there is a corresponding message in the shared memory
- * 	  queue(see tellChild() and waitParent()). Each GPS location or velocity message 
- * 	  is passed through the parsing routines in gpsutils.c. And the latest velocity and location 
- *    data points are extracted and stored in 'latestGpsCordinates' which is a shared memory 
+ * 	  queue(see tellChild() and waitParent()). Each GPS location or velocity message
+ * 	  is passed through the parsing routines in gpsutils.c. And the latest velocity and location
+ *    data points are extracted and stored in 'latestGpsCordinates' which is a shared memory
  *    data structure for the gronkulator to use.
- * 
+ *
  * 3. Gronkulator:
- * 			This child process(started by startChildProcessToGronk() in gronkulator.c) 
- *    runs the 10 Hz loop that will eventually call the Kalman Filter to 
+ * 			This child process(started by startChildProcessToGronk())
+ *    runs the 10 Hz loop that will eventually call the Kalman Filter to
  * 	  do the estimated corrections. When the timer overflows every 100 ms(not accurate) or so
  *    it queries the daughterboard on COM5 to get the drive and steering measurements and outputs
  *    that alongwith the most current gps location and velocity values from the variable 'latestGpsCordinates'
- * 	  in shared memory. The gronkulator also recieves MCU commands(sent from the remotes or the 
- * 	  mothership via the aggregator) from the main dispatcher process through a shared memory queue. 
+ * 	  in shared memory. The gronkulator also recieves MCU commands(sent from the remotes or the
+ * 	  mothership via the aggregator) from the main dispatcher process through a shared memory queue.
  *    The communication and synchronization for this queue is done in a manner similar to that between
- *    the main dispatcher process and the gps message processor(see gps message processor above). 
- *    All this happens every 10 ms tick of the timer.  
- * */  
+ *    the main dispatcher process and the gps message processor(see gps message processor above).
+ *    All this happens every 10 ms tick of the timer.
+ * */
 
 
 #include <stdio.h>              /* Standard input/output definitions */
@@ -246,12 +246,12 @@ initSharedMem (void)
   logit (eDispatcherLog, eLogDebug, "\nsegment size for gps msg queue=%d",
          gpsQueueShmidDs.shm_segsz);
 
-  //Allocate shared memory for mcu commands coming from the aggregator 
+  //Allocate shared memory for mcu commands coming from the aggregator
   mcuQueueSegmentId = shmget (IPC_PRIVATE, sizeof (Queue),
                               IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR);
   if (-1 == mcuQueueSegmentId)
     return 0;
-  //Attach shared memory 
+  //Attach shared memory
   mcuQueuePtr = (Queue *) shmat (mcuQueueSegmentId, 0, 0);
   if (-1 == (int) mcuQueuePtr)
     return 0;
@@ -265,141 +265,164 @@ initSharedMem (void)
 }
 
 void
-doChildProcessToGronk (void)
+startChildProcessToGronk (void)
 {
+	logit(eMcuLog, eLogDebug, "\n STARTING GRONK()");
   struct timeval lastGronkTime;
   gettimeofday (&lastGronkTime, NULL);
   struct timeval nowGronkTime;
   struct timeval timeout;
   char buffer[MSG_LENGTH + 1];
-  char steer_buffer[MSG_LENGTH + 1];
   char drive_buffer[MSG_LENGTH + 1];
   int i_bytesRead = 0;
   int md_bytesRead = 0;
-  fd_set blockSet;
+  fd_set readSet;
+  fd_set writeSet;
   struct swarmImuData imuData;
   struct swarmMotorData motorData;
-  
-  int kalmanDataFileFD = open("kalman.data", O_RDWR |  O_CREAT | O_NDELAY ,0x777 );
+  char dataFileBuffer[1024];
+
+  int kalmanDataFileFD = open("kalman.data", O_RDWR |  O_CREAT | O_NONBLOCK | O_TRUNC
+                              ,0x777 );
   if(kalmanDataFileFD < 0)
+	perror("Failed to open kalman.data");
+  else
+    while (1)
+      {
+      	logit(eMcuLog, eLogDebug, "\n running while loop");
+        gettimeofday (&nowGronkTime, NULL);
+        time_t deltaSecs = nowGronkTime.tv_sec - lastGronkTime.tv_sec;
+        long deltaMillis =
+          (nowGronkTime.tv_usec - lastGronkTime.tv_usec) / 1000;
+        if (deltaMillis < 0)
+          {
+            deltaMillis += 1000;
+            deltaSecs--;
+          }
+        if ((deltaSecs * 1000 + deltaMillis) > GRONKULATOR_FREQ_IN_MILLIS)
+          {
+            //Time up. Query daughterboard for IMU data, gather GPS data and
+            //call the Kalman Filter
 
-  while (1)
-    {
-      gettimeofday (&nowGronkTime, NULL);
-      time_t deltaSecs = nowGronkTime.tv_sec - lastGronkTime.tv_sec;
-      long deltaMillis =
-        (nowGronkTime.tv_usec - lastGronkTime.tv_usec) / 1000;
-      if (deltaMillis < 0)
-        {
-          deltaMillis += 1000;
-          deltaSecs--;
-        }
-      if ((deltaSecs * 1000 + deltaMillis) > GRONKULATOR_FREQ_IN_MILLIS)
-        {
-          //Time up. Query daughterboard for IMU data, gather GPS data and
-          //call the Kalman Filter
+            //First get the IMU data and stuff it into a buffer
+//            writeCharsToSerialPort (com5, "$QI*", 4);
+//            i_bytesRead = readCharsFromSerialPortBlkd (com5, buffer, 115);
+            buffer[i_bytesRead]=0;
+            writeCharsToSerialPort (com5, "$QD*", 4);
 
-          //First get the IMU data and stuff it into a buffer
-          writeCharsToSerialPort (com5, "$QI*", 4);
-          i_bytesRead = readCharsFromSerialPortBlkd (com5, buffer, 115);
-          buffer[i_bytesRead]=0;
-          writeCharsToSerialPort (com5, "$QD*", 4);
-          
-          logit (eMcuLog, eLogInfo, "\n IMU data=%s bytes read=%d",  buffer, i_bytesRead); 
-          //parse buffer. This is where the buffer we read off com5 gets stuffed into the imuData struct
-          parseImuMsg (buffer, &imuData);
-          logImuDataString (&imuData, buffer);
+            logit (eMcuLog, eLogInfo, "\n IMU data=%s bytes read=%d",  buffer, i_bytesRead);
+            //parse buffer. This is where the buffer we read off com5 gets stuffed into the imuData struct
+//            parseImuMsg (buffer, &imuData);
+//            logImuDataString (&imuData, buffer);
 
-          //Then get the Motor data as soon after the IMU data poll
-          //First the drive data
-          md_bytesRead =
-            readCharsFromSerialPortBlkd (com5, drive_buffer, 84);
+            //Then get the Motor data as soon after the IMU data poll
+            //First the drive data
+            md_bytesRead =
+              readCharsFromSerialPortBlkd (com5, drive_buffer, 84);
 
-          drive_buffer[md_bytesRead] = 0;
-          logit (eMcuLog, eLogInfo, "\n Motor data(drive)=%s bytes read=%d", 
-          drive_buffer, md_bytesRead);
-          
-          buffer[i_bytesRead] = 0;
-          char parsedAndFormattedGpsCoordinates[96];
-          sprintf (parsedAndFormattedGpsCoordinates,
-                   "{orb=%d northing=%f easting=%f utmzone=%s}", myOrbId,
-                   latestGpsCordinates->UTMNorthing,
-                   latestGpsCordinates->UTMEasting,
-                   latestGpsCordinates->UTMZone);
+            drive_buffer[md_bytesRead] = 0;
+            logit (eMcuLog, eLogInfo, "\n Motor data(drive)=%s bytes read=%d",
+                   drive_buffer, md_bytesRead);
 
-          //Parse moto_buffer into the motorData
-          drive_buffer[md_bytesRead] = 0;
-          parseDriveMsg (drive_buffer, &motorData);
-          logDriveDataString (&motorData, drive_buffer);
-          logit(eMcuLog, eLogDebug, "\nformatted drive response from db=%s",
-          			drive_buffer);
+            buffer[i_bytesRead] = 0;
+            char parsedAndFormattedGpsCoordinates[96];
+            sprintf (parsedAndFormattedGpsCoordinates,
+                     "{orb=%d northing=%f easting=%f utmzone=%s}", myOrbId,
+                     latestGpsCordinates->UTMNorthing,
+                     latestGpsCordinates->UTMEasting,
+                     latestGpsCordinates->UTMZone);
 
-		  char dataFileBuffer[1024];		
-          sprintf (dataFileBuffer, "\n%u,%u,%s,%f,%f,%s,%f,%f,%f",
-                  (unsigned int) nowGronkTime.tv_sec,
-                  (unsigned int) nowGronkTime.tv_usec / 1000, 
-                  buffer,/*formatted IMU data*/
-                  latestGpsCordinates->UTMNorthing,
-                  latestGpsCordinates->UTMEasting,
-                  latestGpsCordinates->UTMZone,
-                  latestGpsCordinates->nmea_course,
-                  latestGpsCordinates->speed, 
-                  motorData.speedRPS
-			);
- 			int bytesWritten = 0;
- 			logit(eMcuLog, eLogDebug, "\nwriting to file=%s", dataFileBuffer); 
-   			bytesWritten = write(kalmanDataFileFD, dataFileBuffer, 
-   				strlen(dataFileBuffer));
-   			if (bytesWritten < 0){
-     			fprintf(stderr,"write() of %d bytes failed!\n", strlen((const char*)kalmanDataFileFD));
-   			}
+            //Parse moto_buffer into the motorData
+            drive_buffer[md_bytesRead] = 0;
+            parseDriveMsg (drive_buffer, &motorData);
+            logDriveDataString (&motorData, drive_buffer);
+            logit(eMcuLog, eLogDebug, "\nformatted drive response from db=%s",
+                  drive_buffer);
 
-          //reset timer and start over 
-          lastGronkTime = nowGronkTime;
-        }
-      else
-        {
-          //Not time to gronk yet. Process mcu commands
-          FD_ZERO (&blockSet);
-          FD_SET (pfd2[0], &blockSet);
-          timeout.tv_sec = 0;
-          timeout.tv_usec = 10000;      //10 milli secs is the smallest we can safely set..I think
-          int nSelectResult =
-            select (pfd2[0] + 1, &blockSet, NULL, NULL, &timeout);
-          //int nSelectResult=1;
-          if (nSelectResult < 0)
-            logit (eMcuLog, eLogError, "\nError in select on mcu pipe");
-          else if (0 == nSelectResult)
-          ;
-//	            logit (eMcuLog, eLogInfo,
-//	                   "\nSelect timed out with no data in mcu pipe");
-          else
-            {
-              if (FD_ISSET (pfd2[0], &blockSet) /*1 */ )
-                {
-                  waitParent (eMcuCommandPipeId);      //guranteed to not block
-                  if (pop (buffer, mcuQueuePtr))
-                    {
-                      logit (eMcuLog, eLogDebug,
-                             "\ngot mcu message from parent=%s", buffer);
-                      writeCharsToSerialPort (com5, buffer,
-                                              strlen (buffer) + 1);
-                    }
-                  else
-                    {
-                      logit (eMcuLog, eLogError,
-                             "\npop returned nothing. shouldn't be here");
-                    }
-                }
-              else
-                logit(eMcuLog, eLogDebug, "\n selected data no longer available");
+            sprintf (dataFileBuffer, "\n%u,%u,%s,%f,%f,%s,%f,%f,%f",
+                     (unsigned int) nowGronkTime.tv_sec,
+                     (unsigned int) nowGronkTime.tv_usec / 1000,
+                     buffer,/*formatted IMU data*/
+                     latestGpsCordinates->UTMNorthing,
+                     latestGpsCordinates->UTMEasting,
+                     latestGpsCordinates->UTMZone,
+                     latestGpsCordinates->nmea_course,
+                     latestGpsCordinates->speed,
+                     motorData.speedRPS
+                     );
+            logit(eMcuLog, eLogDebug, dataFileBuffer);
+            //reset timer and start over
+            lastGronkTime = nowGronkTime;
+          }
+        else
+          {
+            //Not time to gronk yet. Process mcu commands
+            //and write any buffered output to data file
+            int nMaxFd=0;
+            FD_ZERO (&readSet);
+            FD_ZERO (&writeSet);
+            FD_SET (pfd2[0], &readSet);
+            nMaxFd=pfd2[0];
+            if(dataFileBuffer[0] != 0){
+              FD_SET (kalmanDataFileFD, &writeSet);
+              if(kalmanDataFileFD > nMaxFd)
+                nMaxFd=kalmanDataFileFD;
             }
-        }
-    }
+            nMaxFd++;
+            timeout.tv_sec = 0;
+            timeout.tv_usec = 10000;      //10 milli secs is the smallest we can safely set..I think
+            int nSelectResult =
+              select (nMaxFd, &readSet, &writeSet, NULL, &timeout);
+            if (nSelectResult < 0)
+              logit (eMcuLog, eLogError, "\nError in select on mcu pipe");
+            else if (0 == nSelectResult)
+              logit (eMcuLog, eLogDebug, "\nselect() from gronkulator returned nothing");
+            else
+              {
+                if (FD_ISSET (pfd2[0], &readSet) /*1 */ )
+                  {
+                    waitParent (eMcuCommandPipeId);      //guranteed to not block
+                    if (pop (buffer, mcuQueuePtr))
+                      {
+                        logit (eMcuLog, eLogDebug,
+                               "\ngot mcu message from parent=%s", buffer);
+                        writeCharsToSerialPort (com5, buffer,
+                                                strlen (buffer) + 1);
+                      }
+                    else
+                      {
+                        logit (eMcuLog, eLogError,
+                               "\npop returned nothing. shouldn't be here");
+                      }
+                  }
+                else
+                  logit(eMcuLog, eLogDebug, "\n selected data no longer available");
+
+                if (FD_ISSET (kalmanDataFileFD, &writeSet)){
+                  //the fact that we are here means that we have something to write
+                  logit(eMcuLog, eLogDebug, "\nwriting to file=%s", dataFileBuffer);
+                  char *ptr=dataFileBuffer;
+                  int nToWrite=strlen(ptr);
+                  while(nToWrite >0){
+                    int nWritten;
+                    if((nWritten = write(kalmanDataFileFD, ptr, nToWrite))<0)
+                      perror("error in writing to kalman.data");
+                    else if(nWritten > 0){
+                      ptr += nWritten;
+                      nToWrite -= nWritten;
+                    }
+                  }
+
+                  //now set buffer to "\0" to indicate it has been written to file
+                  dataFileBuffer[0]=0;
+                }//end if
+              }
+          }
+      }
 }
 
 void
-doChildProcessToProcessGpsMsg (void)
+startChildProcessToProcessGpsMsg (void)
 {
   logit (eGpsLog, eLogDebug, "\ndoChildProcessToProcessGpsMsg():START");
   while (1)
@@ -444,10 +467,10 @@ doChildProcessToProcessGpsMsg (void)
                          "\ncouldn't convertNMEAGpsLatLonDataToDecLatLon status="
                          "%d", status);
                 }
-//              sprintf (resp, "{orb=%d\nnorthing=%f\neasting=%f\nutmzone=%s}",
-//                       myOrbId, latestGpsCordinates->UTMNorthing,
-//                       latestGpsCordinates->UTMEasting,
-//                       latestGpsCordinates->UTMZone);
+              //              sprintf (resp, "{orb=%d\nnorthing=%f\neasting=%f\nutmzone=%s}",
+              //                       myOrbId, latestGpsCordinates->UTMNorthing,
+              //                       latestGpsCordinates->UTMEasting,
+              //                       latestGpsCordinates->UTMZone);
               logit (eGpsLog, eLogInfo, "\n sending msg to spu=%s", resp);
               writeCharsToSerialPort (com2, resp, strlen (resp));
             }                   //end if GPGGA
@@ -518,7 +541,7 @@ dispatchSPUCmd (int spuAddr, cmdStruct * c)
 }
 
 void
-dispatchGpggaMsg (cmdStruct * c)
+dispatchGpsLocationMsg (cmdStruct * c)
 {
   //logit(eGpsLog, eLogDebug, "got gps gpgga msg: \"%s\"\n", c->cmd);
 
@@ -534,7 +557,7 @@ dispatchGpggaMsg (cmdStruct * c)
 }
 
 void
-dispatchGpvtgMsg (cmdStruct * c)
+dispatchGpsVelocityMsg (cmdStruct * c)
 {
   //logit(eGpsLog, eLogDebug, "got gps gpvtg msg: \"%s\"\n", c->cmd);
   if (push (c->cmd, gpsQueuePtr))
@@ -583,7 +606,7 @@ main (int argc, char *argv[])
 
   /* init lemon parser here */
   void *pParser = ParseAlloc (malloc);
-  //  int i = 0;        
+  //  int i = 0;
   //int seconds = 0;            /* seconds we've been running */
 
   int optchar = 0;
@@ -701,10 +724,10 @@ main (int argc, char *argv[])
       fprintf (stderr, "\n shared memory init UNSUCCESSFUL");
       return (1);
     }
-  //set up pipes 
+  //set up pipes
   tellWait ();
   pid_t pid;
-  //First fork doChildProcessToProcessGpsMsg()
+  //First fork startChildProcessToProcessGpsMsg()
   if ((pid = fork ()) < 0)
     {
       fprintf (stderr, "\n fork() unsuccessful");
@@ -714,7 +737,7 @@ main (int argc, char *argv[])
   else if (pid == 0)
     {
       isParent = 0;
-      doChildProcessToProcessGpsMsg ();
+      startChildProcessToProcessGpsMsg ();
     }
 #if LOCAL
   //
@@ -724,7 +747,7 @@ main (int argc, char *argv[])
   else
     {                           //parent
       //Now fork gronkulator if not running in LOCAL mode
-      //The gronkulator writes queries to the daughterboard/mcu com port and 
+      //The gronkulator writes queries to the daughterboard/mcu com port and
       //expects to get reuslts back. This is not easy to simulate in the test
       //mode. TBD
       if ((pid = fork ()) < 0)
@@ -736,7 +759,7 @@ main (int argc, char *argv[])
       else if (pid == 0)
         {
           isParent = 0;
-          doChildProcessToGronk ();
+          startChildProcessToGronk ();
         }
       else
         {                       //still the parent
@@ -821,4 +844,4 @@ main (int argc, char *argv[])
   return (0);                   // keep the compiler happy
     }
 
-  //END main() 
+  //END main()

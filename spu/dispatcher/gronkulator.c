@@ -22,7 +22,7 @@
 #include <getopt.h>
 #include "swarmdefines.h"
 
-void doChildProcessToGronk(void)
+void startChildProcessToGronk(void)
 {
 
 }

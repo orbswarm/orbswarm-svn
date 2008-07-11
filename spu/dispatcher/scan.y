@@ -113,10 +113,10 @@ gps_str ::= gps_str DIGIT(A). { accumCmd(&gpsCmd,A, 0);}
 gps_str ::= gps_str WS(A). { accumCmd(&gpsCmd,A, 0);}
 gps_str ::= gps_str GPS_DELIM. {
     //dispatch GPGGA message
-  dispatchGpggaMsg(&gpsCmd);
+  dispatchGpsLocationMsg(&gpsCmd);
   accumCmd(&gpsCmd,-1, 1);
 }
 gps_cmd ::= gps_str GPS_END. {
   //dispatch GPVTG message
-  dispatchGpvtgMsg(&gpsCmd);
+  dispatchGpsVelocityMsg(&gpsCmd);
 }

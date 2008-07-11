@@ -1,4 +1,4 @@
 #ifndef GRONKULATOR_H_
 #define GRONKULATOR_H_
-void doChildProcessToGronk(void);
+void startChildProcessToGronk(void);
 #endif /*GRONKULATOR_H_*/
