@@ -292,8 +292,8 @@ void process_command_string(void)
     break;
     
   case 'p':	// set drive motor PWM directly
-    putstr("Set_PWM: ");
-    putS16( theData );
+    //putstr("Set_PWM: ");
+    //putS16( theData );
     doing_Speed_control = OFF;	// control motor directly, don't use PID
     
     if (theData < 0) {
@@ -308,8 +308,8 @@ void process_command_string(void)
     break;
 
   case 'r':	// set steer  motor PWM directly ONLY FOR TEST
-    putstr("!!!steerPWM: ");
-    putS16( theData );
+    //putstr("!!!steerPWM: ");
+    //putS16( theData );
     
     if (theData < 0) {
       theData = -theData;
@@ -321,9 +321,9 @@ void process_command_string(void)
     break;
     
   case 's':	// set steering  -512 .. 0 .. 512 --- change to 0-100% ???
-    putstr("Steer: ");
-    putS16( theData );
-    putstr("\r\n");
+    //putstr("Steer: ");
+    //putS16( theData );
+    //putstr("\r\n");
     Steering_set_integrator(0);
     Steering_Set_Target_Pos(theData);
     break;
@@ -332,7 +332,7 @@ void process_command_string(void)
   case '!':	// Stop -> All Stop
     Set_Motor1_PWM( 0, FORWARD );
     doing_Speed_control = OFF;
-    putstr("STOP\r\n");
+    //putstr("STOP\r\n");
     break;
     
   case '?':	// Send back motor, speed, & steering info

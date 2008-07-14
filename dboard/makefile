@@ -17,8 +17,8 @@ TARGET=atmega8
 GCCFLAGS = -c -g -O3
 
 #set programmer here
-PGMR = stk500v2 
-
+#PGMR = stk500v2 
+PGMR = usbtiny
 
 # default target when "make" is run w/o arguments
 all: dboard.hex
