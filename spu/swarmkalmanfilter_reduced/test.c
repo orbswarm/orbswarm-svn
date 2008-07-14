@@ -81,6 +81,12 @@ int main( int argc, char **argv )
   for( row = 1; row <= STATE_SIZE; row++ )
       x[ row ] = 0.0;
 
+  x[ STATE_xab ] = 0.4;
+  x[ STATE_zab ] = 10.0;
+  x[ STATE_xrb ] = -0.37;
+  x[ STATE_zrb ] = -3.1;
+
+
   extended_kalman_init( P, x );
     
       /*  For each sample in the test run, perform one estimation and

@@ -1,13 +1,14 @@
-/*  Function Prototypes for kalmanSwarm */
 
-#include "../include/swarmdefines.h"
 
-#define RADIUS 0.762
+#include "../dispatcher/swarmdefines.h"
+
+#define RADIUS 0.38
 #define GRAVITY 9.81
+#define PI 3.14159265359
 
 #define PERIOD  0.10
 
-#define STATE_SIZE         	8
+#define STATE_SIZE         	13
 
 /*  These are the components of the state vector   */
 
@@ -19,7 +20,11 @@
 #define STATE_psi              	6
 #define STATE_x    		7
 #define STATE_y    		8
-
+#define STATE_xab    		9
+#define STATE_yab   		10
+#define STATE_zab    		11
+#define STATE_xrb   		12
+#define STATE_zrb   		13
 
 #define MEAS_SIZE         	10
 
@@ -36,10 +41,8 @@
 #define MEAS_vg    		9
 #define MEAS_omega   		10
 
-
+/*  Function Prototypes for kalmanSwarm */
 int kalmanInit( struct swarmStateEstimate * stateEstimate );
 
-int kalmanProcess( struct swarmGpsData * gpsData, struct swarmImuData * imuData, struct swarmStateEstimate * stateEstimate);
-
-
+int kalmanProcess( struct swarmGpsDataStruct * gpsData, struct swarmImuData * imuData, struct swarmStateEstimate * stateEstimate);
 

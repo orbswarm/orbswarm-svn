@@ -4,7 +4,7 @@
 #
 
 OBJS   = matmath.o kalman.o kalmanswarm.o kftime.o
-TEST_OBJS   = test.o  $(OBJS))
+TEST_OBJS   = test.o  $(OBJS)
 LIBS   = -lm
 CCOPTS =
 
@@ -16,7 +16,7 @@ all: test
 clean:
 	/bin/rm -f *.o *~ test core
 
-${TEST_OBJS}: Makefile kalman.h matmath.h kalmanswarm.h kftime.h ../include/swarmdefines.h
+${TEST_OBJS}: Makefile kalman.h matmath.h kalmanswarm.h kftime.h ../dispatcher/swarmdefines.h
 
 .c.o:
 	cc -c $(CCOPTS) $(INCLUDES) -o $@ $<
