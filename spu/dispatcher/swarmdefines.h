@@ -165,6 +165,11 @@ struct  swarmStateEstimate
   double theta;
   double x;
   double y;
+  double xab;
+  double yab;
+  double zab;
+  double xrb;
+  double zrb;
 };
 
 struct swarmFeedback
