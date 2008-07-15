@@ -21,6 +21,7 @@
 extern int     debug;
 
 
+
 /*  Temporary variables, declared statically to avoid lots of run-time
     memory allocation.      */
 
