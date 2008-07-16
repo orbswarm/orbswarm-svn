@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// 
+//
 //	File: swarmserial.h
 //      SWARM Orb SPU code http://www.orbswarm.com
 //      prototypes and #defs for swarm serial com routines
@@ -8,7 +8,7 @@
 
 
 #include <stdio.h>    /* Standard input/output definitions */
-#include <stdlib.h> 
+#include <stdlib.h>
 #include <stdint.h>   /* Standard types */
 #include <string.h>   /* String function definitions */
 #include <unistd.h>   /* UNIX standard function definitions */
@@ -18,8 +18,8 @@
 #include <sys/ioctl.h>
 
 
-#ifndef SWARM_SERIAL_H 
-#define SWARM_SERIAL_H 
+#ifndef SWARM_SERIAL_H
+#define SWARM_SERIAL_H
 
 /* defines for TS-7800 serial ports */
 
@@ -41,15 +41,15 @@ int initSerialPort(const char* port, int baud);
 
 int initSerialPortBlocking(const char* port, int baud);
 
-int readCharsFromSerialPortBlkd(int port_fd, char* buff, int maxBufSz);
+int readCharsFromSerialPortBlkd(int port_fd, char* buff, int maxBufSz, int timeoutInMillis);
 
 int readCharsFromSerialPort(int port_fd, char* buff, int maxBufSz);
 
 int writeCharsToSerialPort(int port_fd, char* buff,
                                         int numBytesToWrite);
-
 void flushSerialPort(int port_fd);
 
+void drainSerialPort(int port_fd);
 
 #endif
 

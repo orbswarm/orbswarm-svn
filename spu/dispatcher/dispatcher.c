@@ -14,8 +14,8 @@
  * 1. The main dispatcher process :
  * 			The main process that listens for messages coming on COM2 (via a timed
  * 	  select). Each message is tokenized by the tokenizer in doScanner() which
- * 	  in turn calls the lemon genrated parser with the tokens. The grammar is
- * 	  defined in scan.y. On sucessful parsing of each message type the corresponding
+ * 	  in turn calls the lemon generated parser with the tokens. The grammar is
+ * 	  defined in scan.y. On successful parsing of each message type the corresponding
  * 	  dispatch*()(dispatchMCUCmd(), dispatchLEDCmd(), dispatchSPUCmd(), dispatchGpsVelocityMsg()
  * 	  and dispatchGpsLocationMsg()) function is called from the action rule.
  *
@@ -116,9 +116,9 @@ logit (int nLogArea, int nLogLevel, char *strFormattedSring, ...)
   vsnprintf (buffer, sizeof (buffer) - 1, strFormattedSring, fmtargs);
   va_end (fmtargs);
   if (eLogError == nLogLevel)
-    {
-      fprintf (stderr, "%s", buffer);
-      fprintf (stdout, "%s", buffer);
+  {
+	  fprintf (stderr, "%s", buffer);
+	  fprintf (stdout, "%s", buffer);
     }
   else if (nLogLevel >= parseLevel && nLogArea == parseDebug)
     fprintf (stdout, "%s", buffer);
@@ -304,27 +304,25 @@ startChildProcessToGronk (void)
             //Time up. Query daughterboard for IMU data, gather GPS data and
             //call the Kalman Filter
 
-            //First get the IMU data and stuff it into a buffer
-//            writeCharsToSerialPort (com5, "$QI*", 4);
-//            i_bytesRead = readCharsFromSerialPortBlkd (com5, buffer, 115);
-            buffer[i_bytesRead]=0;
+            flushSerialPort(com5);
+            //Read shaft encoder
             writeCharsToSerialPort (com5, "$QD*", 4);
-
-            logit (eMcuLog, eLogInfo, "\n IMU data=%s bytes read=%d",  buffer, i_bytesRead);
-            //parse buffer. This is where the buffer we read off com5 gets stuffed into the imuData struct
-//            parseImuMsg (buffer, &imuData);
-//            logImuDataString (&imuData, buffer);
-
-            //Then get the Motor data as soon after the IMU data poll
-            //First the drive data
+            drainSerialPort(com5);
+            logit(eMcuLog, eLogInfo, "\nread resp to $QD*:START");
             md_bytesRead =
-              readCharsFromSerialPortBlkd (com5, drive_buffer, 84);
-
-            drive_buffer[md_bytesRead] = 0;
+                readCharsFromSerialPortBlkd (com5, drive_buffer, 84, 40);
+            logit(eMcuLog, eLogInfo, "\nread resp to $QD*:END");
             logit (eMcuLog, eLogInfo, "\n Motor data(drive)=%s bytes read=%d",
                    drive_buffer, md_bytesRead);
 
-            buffer[i_bytesRead] = 0;
+            //read IMU
+            writeCharsToSerialPort (com5, "$QI*", 4);
+            drainSerialPort(com5);
+            logit(eMcuLog, eLogInfo, "\nread resp to $QI*:START");
+            i_bytesRead = readCharsFromSerialPortBlkd (com5, buffer, 115, 40);
+            logit(eMcuLog, eLogInfo, "\nread resp to $QI*:END");
+            logit (eMcuLog, eLogInfo, "\n IMU data=%s bytes read=%d",  buffer, i_bytesRead);
+
             char parsedAndFormattedGpsCoordinates[96];
             sprintf (parsedAndFormattedGpsCoordinates,
                      "{orb=%d northing=%f easting=%f utmzone=%s}", myOrbId,
@@ -332,10 +330,11 @@ startChildProcessToGronk (void)
                      latestGpsCordinates->UTMEasting,
                      latestGpsCordinates->UTMZone);
 
-            //Parse moto_buffer into the motorData
-            drive_buffer[md_bytesRead] = 0;
+            //Parse IMU and shaft encoder responses
             parseDriveMsg (drive_buffer, &motorData);
             logDriveDataString (&motorData, drive_buffer);
+            parseImuMsg (buffer, &imuData);
+                        logImuDataString (&imuData, buffer);
             logit(eMcuLog, eLogDebug, "\nformatted drive response from db=%s",
                   drive_buffer);
 
@@ -376,7 +375,7 @@ startChildProcessToGronk (void)
             if (nSelectResult < 0)
               logit (eMcuLog, eLogError, "\nError in select on mcu pipe");
             else if (0 == nSelectResult)
-              logit (eMcuLog, eLogDebug, "\nselect() from gronkulator returned nothing");
+              ;//logit (eMcuLog, eLogDebug, "\nselect() from gronkulator returned nothing");
             else
               {
                 if (FD_ISSET (pfd2[0], &readSet) /*1 */ )
@@ -388,6 +387,7 @@ startChildProcessToGronk (void)
                                "\ngot mcu message from parent=%s", buffer);
                         writeCharsToSerialPort (com5, buffer,
                                                 strlen (buffer) + 1);
+                        drainSerialPort(com5);
                       }
                     else
                       {

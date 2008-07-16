@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// 
+//
 //	File: swarmserial.c
 //      SWARM Orb SPU code http://www.orbswarm.com
 //	serial com routines for TS-7260
@@ -8,14 +8,14 @@
 // -----------------------------------------------------------------------
 
 #include "serial.h"
-
+#include <sys/time.h>
 
 int initSerialPort(const char* port, int baud)
 {
 
 #ifdef LOCAL
 #warning "compiling serial.h for LOCAL use (not SPU)"
- 
+
  int fd; /* File descriptor for the file */
   fd = open(port, O_RDWR |  O_CREAT ,0x777 );
   fprintf(stderr,"Creating I/O file %s\n",port);
@@ -40,7 +40,7 @@ int initSerialPort(const char* port, int baud)
   /*
    * Set the baud rates to 115200...
    */
-  switch(baud) 
+  switch(baud)
     {
     case 4800:   brate=B4800;   break;
     case 9600:   brate=B9600;   break;
@@ -55,7 +55,7 @@ int initSerialPort(const char* port, int baud)
     case 38400:  brate=B38400;  break;
     case 57600:  brate=B57600;  break;
     case 115200: brate=B115200; break;
-    default:	 
+    default:
       fprintf(stderr,"\n unsupported bit rate %d\n",baud);
     }
 
@@ -107,14 +107,33 @@ int readCharsFromSerialPort(int port_fd, char* buff, int maxBufSz){
 #endif
     if(numBytesAvail > maxBufSz) {
       numBytesAvail = maxBufSz;
-  } 
+  }
   /* read() returns number of bytes read; pass that upstairs */
   return(read(port_fd,buff,numBytesAvail));
 }
 
 
-int readCharsFromSerialPortBlkd(int port_fd, char* buff, int maxBufSz){
-  return(read(port_fd,buff,maxBufSz));
+int readCharsFromSerialPortBlkd(int port_fd, char* buff, int nCharsToRead, 
+	int timeoutInMillis){
+    struct timeval startTime,nowTime;
+    gettimeofday (&startTime, NULL);
+    int nTotalBytesToRead=nCharsToRead, nTotalBytesRead=0;
+    char* readPtr=buff;
+    while(nTotalBytesToRead> 0){
+        int bytesRead =
+            readCharsFromSerialPort (port_fd, readPtr, nTotalBytesToRead);
+        nTotalBytesToRead-=bytesRead;
+        nTotalBytesRead+=bytesRead;
+        readPtr+=bytesRead;
+        gettimeofday (&nowTime, NULL);
+        time_t deltaSecs = nowTime.tv_sec - startTime.tv_sec;
+        long deltaMillis =
+            (nowTime.tv_usec - startTime.tv_usec) / 1000;
+        if ((deltaSecs * 1000 + deltaMillis) > timeoutInMillis)
+            break;
+    }
+    buff[nTotalBytesRead]='\0';
+    return nTotalBytesRead;
 }
 
 int writeCharsToSerialPort(int port_fd, char* buff, int numBytesToWrite)
@@ -136,6 +155,13 @@ void flushSerialPort(int port_fd)
 {
 #ifndef LOCAL
    tcflush(port_fd, TCIFLUSH);
+   //tcdrain(port_fd);
+#endif
+}
+
+void drainSerialPort(int port_fd)
+{
+#ifndef LOCAL
    tcdrain(port_fd);
 #endif
 }
@@ -145,7 +171,7 @@ int initSerialPortBlocking(const char* port, int baud)
 
 #ifdef LOCAL
 #warning "compiling serial.h for LOCAL use (not SPU)"
- 
+
  int fd; /* File descriptor for the file */
   fd = open(port, O_RDWR |  O_CREAT ,0x777 );
   fprintf(stderr,"Creating I/O file %s\n",port);
@@ -170,7 +196,7 @@ int initSerialPortBlocking(const char* port, int baud)
   /*
    * Set the baud rates to 115200...
    */
-  switch(baud) 
+  switch(baud)
     {
     case 4800:   brate=B4800;   break;
     case 9600:   brate=B9600;   break;
@@ -185,7 +211,7 @@ int initSerialPortBlocking(const char* port, int baud)
     case 38400:  brate=B38400;  break;
     case 57600:  brate=B57600;  break;
     case 115200: brate=B115200; break;
-    default:	 
+    default:
       fprintf(stderr,"\n unsupported bit rate %d\n",baud);
     }
 
