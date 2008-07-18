@@ -13,19 +13,22 @@
 #include "motor.h"
 #include "IMU.h"   
 
+extern volatile short encoder1_speed;
+
 void calc_check_sum( char *checkSum, char *str);
 void check_sum_to_HexStr( char checkSum, char *str);
 void num_to_Str( short v, char *str);
 
+
 // associate signal names with adc channels
-static char *sigName[] = {"ADC0",  /* ADC0, PC0, pin 23,  */
-			  "ADC1",  /* ADC1, PC1, pin 24,  */
-			  "RATEX", /* ADC2, PC2, pin 25, IMU header 13  gyro X*/
-			  "RATEY", /* ADC3, PC3, pin 26, IMU header 11  gyro Y*/
-			  "ACCZ",  /* ADC4, PC4, pin 27, IMU header 9   accel Z */
-			  "ACCX",  /* ADC5, PC5, pin 28, IMU header 7   accel X */
-			  "SPARE", /* ADC6, TQFP pin 19, IMU header 5   unused */
-			  "ACCY"}; /* ADC7, TQFP pin 22, IMU header 3,  accel Y*/
+//static char *sigName[] = {"ADC0",  /* ADC0, PC0, pin 23,  */
+//			  "ADC1",  /* ADC1, PC1, pin 24,  */
+//			  "RATEX", /* ADC2, PC2, pin 25, IMU header 13  gyro X*/
+//			  "RATEY", /* ADC3, PC3, pin 26, IMU header 11  gyro Y*/
+//			  "ACCZ",  /* ADC4, PC4, pin 27, IMU header 9   accel Z */
+//			  "ACCX",  /* ADC5, PC5, pin 28, IMU header 7   accel X */
+//			  "SPARE", /* ADC6, TQFP pin 19, IMU header 5   unused */
+//			  "ACCY"}; /* ADC7, TQFP pin 22, IMU header 3,  accel Y*/
 
 
 // ------------------------------------------------------------------------
@@ -52,18 +55,49 @@ static char *sigName[] = {"ADC0",  /* ADC0, PC0, pin 23,  */
 // New, easier-to-parse version by JTF. No checksum, etc. 
 void Get_IMU_Data(void)
 {
-  unsigned char n;
-  short v;
+//  unsigned char n;
+//  short v;
   
   //putstr("ADC\n");
   
-  for (n = 0; n <= 7; n++){
+/*  for (n = 0; n <= 7; n++){
     v = A2D_read_channel(n);
     putstr(sigName[n]);
     putstr("=");
     putS16(v);
     putstr("\r\n");
-  }
+  }*/
+    
+	// RATEX = +(IMU RATEY) = ADC6
+    	putstr("RATEX=");
+    	putS16((short)A2D_read_channel(6));
+    	putstr("\r\n");
+
+	// RATEZ = -(IMU RATEX) = 1023-ADC7
+    	putstr("RATEZ=");
+    	putS16(1023-(short)A2D_read_channel(7));
+    	putstr("\r\n");	
+
+	// ACCX = -(IMU RATEY) = 1023-ADC3
+    	putstr("ACCX=");
+    	putS16(1023-(short)A2D_read_channel(3));
+    	putstr("\r\n");	
+
+	// ACCY = -(IMU RATEZ) = 1023-ADC4
+    	putstr("ACCY=");
+    	putS16(1023-(short)A2D_read_channel(4));
+    	putstr("\r\n");	
+
+	// ACCZ = +(IMU RATEX) = ADC2
+    	putstr("ACCZ=");
+    	putS16((short)A2D_read_channel(2));
+    	putstr("\r\n");
+	
+	// ENCODER SPEED
+    	putstr("ENC_SPEED=");
+	putstr(encoder1_speed);
+    	putstr("\r\n");
+
 }
 
 void IMU_output_data_string(void)
