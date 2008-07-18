@@ -306,6 +306,7 @@ startChildProcessToGronk (void)
 
             flushSerialPort(com5);
             //Read shaft encoder
+		/*
             writeCharsToSerialPort (com5, "$QD*", 4);
             drainSerialPort(com5);
             logit(eMcuLog, eLogInfo, "\nread resp to $QD*:START");
@@ -314,6 +315,7 @@ startChildProcessToGronk (void)
             logit(eMcuLog, eLogInfo, "\nread resp to $QD*:END");
             logit (eMcuLog, eLogInfo, "\n Motor data(drive)=%s bytes read=%d",
                    drive_buffer, md_bytesRead);
+		*/
 
             //read IMU
             writeCharsToSerialPort (com5, "$QI*", 4);
@@ -331,12 +333,13 @@ startChildProcessToGronk (void)
                      latestGpsCordinates->UTMZone);
 
             //Parse IMU and shaft encoder responses
-            parseDriveMsg (drive_buffer, &motorData);
-            logDriveDataString (&motorData, drive_buffer);
+            // parseDriveMsg (drive_buffer, &motorData);
+            // logDriveDataString (&motorData, drive_buffer);
             parseImuMsg (buffer, &imuData);
-                        logImuDataString (&imuData, buffer);
-            logit(eMcuLog, eLogDebug, "\nformatted drive response from db=%s",
-                  drive_buffer);
+            
+	    logImuDataString (&imuData, buffer);
+            //logit(eMcuLog, eLogDebug, "\nformatted drive response from db=%s",
+            //      drive_buffer);
 
             sprintf (dataFileBuffer, "\n%u,%u,%s,%f,%f,%s,%f,%f,%f",
                      (unsigned int) nowGronkTime.tv_sec,
@@ -347,7 +350,7 @@ startChildProcessToGronk (void)
                      latestGpsCordinates->UTMZone,
                      latestGpsCordinates->nmea_course,
                      latestGpsCordinates->speed,
-                     motorData.speedRPS
+                     imuData.omega
                      );
             logit(eMcuLog, eLogDebug, dataFileBuffer);
             //reset timer and start over
