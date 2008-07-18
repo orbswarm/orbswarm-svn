@@ -74,14 +74,16 @@ struct	swarmImuData
 {
   /* IMU data converted to SI units */
   double si_ratex;
-  double si_ratey;
+  double si_ratez;
   double si_accx;
   double si_accy;
   double si_accz;
+	
+  double omega;
 
   /* raw data from IMU */
   int int_ratex;
-  int int_ratey;
+  int int_ratez;
   int int_accx;
   int int_accy;
   int int_accz;
@@ -94,7 +96,7 @@ struct	swarmImuData
   /* subtract these values from the raw int vals to get a zero-mean value*/
   /* [even though these are doubles, their units are still raw (NOT SI!)] */
   double ratex_bias;
-  double ratey_bias;
+  double ratez_bias;
   double accx_bias;
   double accy_bias;
   double accz_bias;
@@ -107,7 +109,7 @@ struct	swarmImuData
   char adc0_str[10];
   char adc1_str[10];
   char ratex_str[10];
-  char ratey_str[10];
+  char ratez_str[10];
   char accx_str[10];
   char accy_str[10];
   char accz_str[10];

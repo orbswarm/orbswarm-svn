@@ -19,7 +19,7 @@ void calculateImuBias(struct swarmImuData *imuData) {
   int i=0;
 
   imuData->ratex_bias = 512.0;
-  imuData->ratey_bias = 512.0;
+  imuData->ratez_bias = 512.0;
   imuData->accx_bias = 512.0;
   imuData->accy_bias = 512.0;
   imuData->accz_bias = 512.0;
@@ -35,7 +35,7 @@ void imuIntToSI(struct swarmImuData *imuData)
 {
 
   imuData->si_ratex = imuYawToSI(imuData->int_ratex,imuData->ratex_bias);
-  imuData->si_ratey = imuYawToSI(imuData->int_ratey,imuData->ratey_bias);
+  imuData->si_ratez = imuYawToSI(imuData->int_ratez,imuData->ratez_bias);
   imuData->si_accx = imuAccelToSI(imuData->int_accx,imuData->accx_bias);
   imuData->si_accy = imuAccelToSI(imuData->int_accy,imuData->accy_bias);
   imuData->si_accz = imuAccelToSI(imuData->int_accz,imuData->accz_bias);
@@ -45,7 +45,7 @@ void imuIntToSI(struct swarmImuData *imuData)
 //These convert voltage values from the IMU into m/sec^2
 //These are actually condensed from the full formulae which are:
 // For millivolts to acceleration in m/sec^2:
-// (N-bias)/1024 * 3.3V * (9.8 m/s^2)/(0.300 V/g)
+// (N-bias)/1024 * 3.3V * (9.81 m/s^2)/(0.300 V/g)
 // For millivolts to yaw in m/sec^2:
 // (N-bias)/1024 * 3.3V * (1 deg/s)/.002V * (Pi radians)/(180 deg)
 // bias can be estimated as 512 in the absence of a measurement
@@ -54,7 +54,7 @@ void imuIntToSI(struct swarmImuData *imuData)
 double imuAccelToSI(int imuAccelInt, double bias)
 {
   double accel_f;
-  double msec=10.780000;
+  double msec=107.9;
   
   accel_f = (double)(imuAccelInt) - bias;
   return (accel_f/1024)*msec;
@@ -70,7 +70,7 @@ double imuYawToSI(int imuYawInt, double bias) {
 
 void logImuDataString(struct swarmImuData *imuData, char *imuDataString) {
 
-  sprintf(imuDataString, "%f,%f,%f,%f,%f", imuData->si_ratex, imuData->si_ratey , 
+  sprintf(imuDataString, "%f,%f,%f,%f,%f", imuData->si_ratex, imuData->si_ratez , 
 		imuData->si_accx , imuData->si_accy , imuData->si_accz );	
 }
 
@@ -91,11 +91,11 @@ void dumpImuData(struct swarmImuData *imuData) {
 	 imuData->int_ratex,
 	 imuData->si_ratex,
 	 imuData->ratex_bias);
-  printf("Ratey raw: %s%d SI: %f bias: %f\n",
-	 imuData->ratey_str,
-	 imuData->int_ratey,
-	 imuData->si_ratey,
-	 imuData->ratey_bias);
+  printf("RateZ raw: %s%d SI: %f bias: %f\n",
+	 imuData->ratez_str,
+	 imuData->int_ratez,
+	 imuData->si_ratez,
+	 imuData->ratez_bias);
   printf("Accx raw: %s%d SI: %f bias: %f\n",
 	 imuData->accx_str,
 	 imuData->int_accx,
@@ -135,27 +135,7 @@ int parseImuMsg(char *imuBuf, struct swarmImuData *imuData)
   int advance=0; 		// advance this many chars after each sscanf
 
 
-
-  // FIRST Value is ADC0
-  success=sscanf(imuBuf,"%s%d%n",msg_type,&msg_data,&advance);
-  if (success ==2) {
-    imuData->int_adc0=msg_data;
-    strncpy(imuData->adc0_str,msg_type,10);
-    imuBuf += advance + 1;
-  } 
-  else return(-1);
-
-
-  // Second Value is ADC1
-  success=sscanf(imuBuf,"%s%d%n",msg_type,&msg_data,&advance);
-  if (success ==2) {
-    imuData->int_adc1=msg_data;
-    strncpy(imuData->adc1_str,msg_type,10);
-    imuBuf += advance + 1;
-  }
-  else return(-1);
-
-  // Third Value is RateX
+  // First Value is RateX
   success=sscanf(imuBuf,"%s%d%n",msg_type,&msg_data,&advance);
   if (success ==2) {
     imuData->int_ratex=msg_data;
@@ -164,11 +144,29 @@ int parseImuMsg(char *imuBuf, struct swarmImuData *imuData)
   } 
   else return(-1);
 
-  // Fourth Value is RateY
+  // Second Value is RateZ
   success=sscanf(imuBuf,"%s%d%n",msg_type,&msg_data,&advance);
   if (success ==2) {
-    imuData->int_ratey=msg_data;
-    strncpy(imuData->ratey_str,msg_type,10);
+    imuData->int_ratez=msg_data;
+    strncpy(imuData->ratez_str,msg_type,10);
+    imuBuf += advance + 1;
+  }
+  else return(-1);
+
+  // Third value is AccX
+  success=sscanf(imuBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    imuData->int_accx=msg_data;
+    strncpy(imuData->accx_str,msg_type,10);
+    imuBuf += advance + 1;
+  }
+  else return(-1);
+
+  // Fourth value is AccY
+  success=sscanf(imuBuf,"%s%d%n",msg_type,&msg_data,&advance);
+  if (success ==2) {
+    imuData->int_accy=msg_data;
+    strncpy(imuData->accy_str,msg_type,10);
     imuBuf += advance + 1;
   }
   else return(-1);
@@ -182,38 +180,18 @@ int parseImuMsg(char *imuBuf, struct swarmImuData *imuData)
   }
   else return(-1);
 
-  // Sixth value is AccX
-  success=sscanf(imuBuf,"%s%d%n",msg_type,&msg_data,&advance);
-  if (success ==2) {
-    imuData->int_accx=msg_data;
-    strncpy(imuData->accx_str,msg_type,10);
-    imuBuf += advance + 1;
-  }
-  else return(-1);
-
-  // Seventh value is vref (SPARE)
-  success=sscanf(imuBuf,"%s%d%n",msg_type,&msg_data,&advance);
-  if (success ==2) {
-    imuData->int_vref=msg_data;
-    strncpy(imuData->vref_str,msg_type,10);
-    imuBuf += advance + 1;
-  }
-  else return(-1);
-
-  // last (eighth) value is AccY
+  // sixth value is drive actual speed
   success=sscanf(imuBuf,"%s%d",msg_type,&msg_data);
-  if (success ==2) {
-    imuData->int_accy=msg_data;
-    strncpy(imuData->accy_str,msg_type,10);
+  if (success ==2) {;
+    imuData->omega = countsToRPS(msg_data);
   }
-  else return(-1);
+  else return(-2);
 
   calculateImuBias(imuData);
 
   imuIntToSI(imuData);
 
   return(0);
-
 }
 
 /* Parse steering motor data returned from daughterboard motor controller. */
@@ -462,11 +440,11 @@ int parseQueryMsg(char *queryBuf, struct swarmMotorData *motData, struct swarmIm
   } 
   else return(-11);
 
-  // Fourth Value is RateY
+  // Fourth Value is ratez
   success=sscanf(queryBuf,"%s%d%n",msg_type,&msg_data,&advance);
   if (success ==2) {
-    imuData->int_ratey=msg_data;
-    strncpy(imuData->ratey_str,msg_type,10);
+    imuData->int_ratez=msg_data;
+    strncpy(imuData->ratez_str,msg_type,10);
     queryBuf += advance + 1;
   }
   else return(-12);

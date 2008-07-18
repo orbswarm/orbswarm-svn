@@ -319,7 +319,7 @@ startChildProcessToGronk (void)
             writeCharsToSerialPort (com5, "$QI*", 4);
             drainSerialPort(com5);
             logit(eMcuLog, eLogInfo, "\nread resp to $QI*:START");
-            i_bytesRead = readCharsFromSerialPortBlkd (com5, buffer, 115, 40);
+            i_bytesRead = readCharsFromSerialPortBlkd (com5, buffer, 91, 40); // new=91 old=115
             logit(eMcuLog, eLogInfo, "\nread resp to $QI*:END");
             logit (eMcuLog, eLogInfo, "\n IMU data=%s bytes read=%d",  buffer, i_bytesRead);
 
