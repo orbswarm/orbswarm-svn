@@ -17,8 +17,8 @@ TARGET=atmega8
 GCCFLAGS = -c -g -O3
 
 #set programmer here
-#PGMR = stk500v2 
-PGMR = usbtiny
+PGMR = stk500v2 
+#PGMR = usbtiny
 
 # default target when "make" is run w/o arguments
 all: dboard.hex
@@ -67,6 +67,7 @@ main.o: main.c a2d.h putstr.h motor.h steering.h encoder.h timer.h eprom.h IMU.h
 # link up obj files into dboard.elf
 dboard.elf: eprom.o UART.o putstr.o timer.o encoder.o motor.o steering.o a2d.o IMU.o main.o
 	${AVRPATH}avr-gcc eprom.o UART.o putstr.o timer.o encoder.o motor.o steering.o a2d.o IMU.o main.o -Wl,-Map=dboard.map,--cref -mmcu=$(TARGET) -o dboard.elf
+	${AVRPATH}avr-size dboard.elf
 
 # copy ROM (FLASH) object out of dboard.elf into dboard.rom
 dboard.hex: dboard.elf

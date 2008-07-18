@@ -95,7 +95,7 @@ void Get_IMU_Data(void)
 	
 	// ENCODER SPEED
     	putstr("ENC_SPEED=");
-	putstr(encoder1_speed);
+	putS16(encoder1_speed);
     	putstr("\r\n");
 
 }
