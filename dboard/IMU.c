@@ -68,9 +68,9 @@ void Get_IMU_Data(void)
     putstr("\r\n");
   }*/
     
-	// RATEX = +(IMU RATEY) = ADC6
+	// RATEX = -(IMU RATEY) = 1023-ADC6
     	putstr("RATEX=");
-    	putS16((short)A2D_read_channel(6));
+    	putS16(1023-(short)A2D_read_channel(6));
     	putstr("\r\n");
 
 	// RATEZ = -(IMU RATEX) = 1023-ADC7
@@ -78,14 +78,14 @@ void Get_IMU_Data(void)
     	putS16(1023-(short)A2D_read_channel(7));
     	putstr("\r\n");	
 
-	// ACCX = -(IMU RATEY) = 1023-ADC3
+	// ACCX = (IMU RATEY) = ADC3
     	putstr("ACCX=");
-    	putS16(1023-(short)A2D_read_channel(3));
+    	putS16((short)A2D_read_channel(3));
     	putstr("\r\n");	
 
-	// ACCY = -(IMU RATEZ) = 1023-ADC4
+	// ACCY = (IMU RATEZ) = ADC4
     	putstr("ACCY=");
-    	putS16(1023-(short)A2D_read_channel(4));
+    	putS16((short)A2D_read_channel(4));
     	putstr("\r\n");	
 
 	// ACCZ = +(IMU RATEX) = ADC2
