@@ -4,19 +4,21 @@
 #
 
 OBJS   = matmath.o kalman.o kalmanswarm.o kftime.o
-TEST_OBJS   = test.o  $(OBJS)
+KALMANTEST_OBJS   = kalmantest.o  $(OBJS)
 LIBS   = -lm
 CCOPTS =
 
-test:    $(TEST_OBJS) $(OBJS)
-	cc ${CCOPTS} $(TEST_OBJS) -o test $(LIBS)
 
-all: test
+
+kalmantest:    $(KALMANTEST_OBJS) $(OBJS)
+	cc ${CCOPTS} $(KALMANTEST_OBJS) -o kalmantest $(LIBS)
+
+all: kalmantest
 
 clean:
-	/bin/rm -f *.o *~ test core
+	/bin/rm -f *.o *~ kalmantest core
 
-${TEST_OBJS}: Makefile kalman.h matmath.h kalmanswarm.h kftime.h ../dispatcher/swarmdefines.h
+${KALMANTEST_OBJS}: Makefile kalman.h matmath.h kalmanswarm.h kftime.h ../dispatcher/swarmdefines.h
 
 .c.o:
 	cc -c $(CCOPTS) $(INCLUDES) -o $@ $<

@@ -72,15 +72,13 @@ int kalmanInit( struct swarmStateEstimate * stateEstimate )
 int kalmanProcess( struct swarmGpsDataStruct * gpsData, struct swarmImuData * imuData, struct swarmStateEstimate * stateEstimate)
 {
 
-   measurementVec[ MEAS_xa ] = imuData->si_accy;
-   measurementVec[ MEAS_ya ] = imuData->si_accz;
-   measurementVec[ MEAS_za ] = imuData->si_accx;
-   measurementVec[ MEAS_xr ] = -(imuData->si_ratey);
-   measurementVec[ MEAS_zr ] = imuData->si_ratex;
+   measurementVec[ MEAS_xa ] = imuData->si_accx;
+   measurementVec[ MEAS_ya ] = imuData->si_accy;
+   measurementVec[ MEAS_za ] = imuData->si_accz;
+   measurementVec[ MEAS_xr ] = imuData->si_ratex;
+   measurementVec[ MEAS_zr ] = imuData->si_ratez;
 
-/*
-   measurementVec[ MEAS_omega ] = swarmImuData.omega;
-*/
+   measurementVec[ MEAS_omega ] = imuData->omega;
 
    measurementVec[ MEAS_xg ] = gpsData->metFromMshipEast;
    measurementVec[ MEAS_yg ] = gpsData->metFromMshipNorth;
@@ -109,6 +107,23 @@ int kalmanProcess( struct swarmGpsDataStruct * gpsData, struct swarmImuData * im
 }
 
 
+void zeroStateEstimates( struct swarmStateEstimate * stateEstimate )
+{
+  stateEstimate->vdot 	= 0.0;	// acceleration
+  stateEstimate->v 	= 0.0;  // velocity
+  stateEstimate->phidot = 0.0;	// roll angle rate 	 
+  stateEstimate->phi 	= 0.0;  // roll angle  
+  stateEstimate->psi 	= 0.0; 	// heading / yaw 	
+  stateEstimate->theta 	= 0.0;  // frontward pitch
+  stateEstimate->x 	= 0.0;  // meters North
+  stateEstimate->y 	= 0.0;	// meters South
+  stateEstimate->xab	= 0.0;	// x accelerometer bias
+  stateEstimate->yab	= 0.0;	// y accelerometer bias
+  stateEstimate->zab	= 0.0;	// z accelerometer bias
+  stateEstimate->xrb	= 0.0;	// x rate gyro bias
+  stateEstimate->zrb	= 0.0;	// z rate gyro bias
+}
+
 
 /****************  System Model Manifestations   **************
 */
@@ -121,7 +136,7 @@ void systemF( uFloat *stateDot, uFloat *state )
 	stateDot[ STATE_phidot ] 	= 0.0;
 	stateDot[ STATE_phi ] 		= state[ STATE_phidot ];
 	stateDot[ STATE_theta ] 	= -state[ STATE_theta ] * 1.0;
-	stateDot[ STATE_psi ] 		= state[ STATE_v ] * tan( state[ STATE_phi ] ) / RADIUS;
+	stateDot[ STATE_psi ] 		= -state[ STATE_v ] * tan( state[ STATE_phi ] ) / RADIUS;  
 	stateDot[ STATE_x ] 		= state[ STATE_v ] * cos( state[ STATE_psi ] );
 	stateDot[ STATE_y ] 		= state[ STATE_v ] * sin( state[ STATE_psi ] );
 	stateDot[ STATE_xab ] 		= 0.0;
@@ -216,9 +231,9 @@ void systemJacobian( uFloat *state, uFloat **jacobian )
 	jacobian[ STATE_theta ][ STATE_zrb ] 	= 0.0;
 
 	jacobian[ STATE_psi ][ STATE_vdot ] 	= 0.0;
-	jacobian[ STATE_psi ][ STATE_v ] 	= tan( state[ STATE_phi ] ) / RADIUS;
+	jacobian[ STATE_psi ][ STATE_v ] 	= -tan( state[ STATE_phi ] ) / RADIUS;
 	jacobian[ STATE_psi ][ STATE_phidot ] 	= 0.0;
-	jacobian[ STATE_psi ][ STATE_phi ] 	= state[ STATE_v ] / (cos( state[ STATE_phi ] ) 
+	jacobian[ STATE_psi ][ STATE_phi ] 	= -state[ STATE_v ] / (cos( state[ STATE_phi ] ) 
 							* cos( state[ STATE_phi ] ) * RADIUS);
 	jacobian[ STATE_psi ][ STATE_theta ] 	= 0.0;
 	jacobian[ STATE_psi ][ STATE_psi ] 	= 0.0;
@@ -346,24 +361,24 @@ void apply_measurement( uFloat *newState, uFloat *est_measurement )
 {
 
   est_measurement[ MEAS_xa ] = newState[ STATE_vdot ] 
-	- newState[ STATE_v ] * newState[ STATE_v ] * newState[ STATE_phi ] 
+	+ newState[ STATE_v ] * newState[ STATE_v ] * newState[ STATE_phi ] 
 	* newState[ STATE_phi ] * newState[ STATE_theta ] / RADIUS
 	- newState[ STATE_theta ] * GRAVITY + newState[ STATE_xab ];
 
-  est_measurement[ MEAS_ya ] = newState[ STATE_v ] * newState[ STATE_v ] * newState[ STATE_phi ] / RADIUS
+  est_measurement[ MEAS_ya ] = -newState[ STATE_v ] * newState[ STATE_v ] * newState[ STATE_phi ] / RADIUS
 	- newState[ STATE_phi ] * GRAVITY + newState[ STATE_yab ];
 	
-  est_measurement[ MEAS_za ] = newState[ STATE_theta ] * newState[ STATE_vdot ] 
+  est_measurement[ MEAS_za ] = -newState[ STATE_theta ] * newState[ STATE_vdot ] 
 	+ newState[ STATE_phi ] * newState[ STATE_phi ] * newState[ STATE_v ] 
 	* newState[ STATE_v ] / RADIUS
 	- GRAVITY + newState[ STATE_zab ];
 
-  est_measurement[ MEAS_xr ] = newState [ STATE_phidot ] 
+  est_measurement[ MEAS_xr ] = -newState [ STATE_phidot ] 
 	- newState[ STATE_theta ] * newState[ STATE_v ] * newState[ STATE_phi ] / RADIUS
 	+ newState[ STATE_xrb ];
 
   est_measurement[ MEAS_zr ] = newState [ STATE_theta ] * newState [ STATE_phidot ] 
-	+ newState[ STATE_v ] * newState[ STATE_phi ] / RADIUS
+	- newState[ STATE_v ] * newState[ STATE_phi ] / RADIUS
 	+ newState[ STATE_zrb ];
 
   est_measurement[ MEAS_xg ] = newState[ STATE_x ]; 
@@ -387,12 +402,12 @@ void generate_measurement_transfer( uFloat *state, uFloat **H )
 {
 
   H[ MEAS_xa ][ STATE_vdot ] 	= 1.0;
-  H[ MEAS_xa ][ STATE_v ] 	= -2.0 * state[ STATE_v ] * state[ STATE_phi ] * state[ STATE_phi ] 
+  H[ MEAS_xa ][ STATE_v ] 	= 2.0 * state[ STATE_v ] * state[ STATE_phi ] * state[ STATE_phi ] 
 					* state[ STATE_theta ] / RADIUS;
   H[ MEAS_xa ][ STATE_phidot ] 	= 0.0;
-  H[ MEAS_xa ][ STATE_phi ] 	= -2.0 * state[ STATE_v ] * state[ STATE_v ] * state[ STATE_phi ] 
+  H[ MEAS_xa ][ STATE_phi ] 	= 2.0 * state[ STATE_v ] * state[ STATE_v ] * state[ STATE_phi ] 
 					* state[ STATE_theta ] / RADIUS;
-  H[ MEAS_xa ][ STATE_theta ] 	= -state[ STATE_v ] * state[ STATE_v ] * state[ STATE_phi ] 
+  H[ MEAS_xa ][ STATE_theta ] 	= state[ STATE_v ] * state[ STATE_v ] * state[ STATE_phi ] 
 					* state[ STATE_phi ] / RADIUS - GRAVITY;
   H[ MEAS_xa ][ STATE_psi ] 	= 0.0;
   H[ MEAS_xa ][ STATE_x ] 	= 0.0;
@@ -404,9 +419,9 @@ void generate_measurement_transfer( uFloat *state, uFloat **H )
   H[ MEAS_xa ][ STATE_zrb ] 	= 0.0;
 
   H[ MEAS_ya ][ STATE_vdot ] 	= 0.0;
-  H[ MEAS_ya ][ STATE_v ] 	= 2.0 * state[ STATE_v ] * state[ STATE_phi ] / RADIUS;
+  H[ MEAS_ya ][ STATE_v ] 	= -2.0 * state[ STATE_v ] * state[ STATE_phi ] / RADIUS;
   H[ MEAS_ya ][ STATE_phidot ] 	= 0.0;
-  H[ MEAS_ya ][ STATE_phi ] 	= state[ STATE_v ] * state[ STATE_v ] / RADIUS - GRAVITY;
+  H[ MEAS_ya ][ STATE_phi ] 	= -state[ STATE_v ] * state[ STATE_v ] / RADIUS - GRAVITY;
   H[ MEAS_ya ][ STATE_theta ] 	= 0.0;
   H[ MEAS_ya ][ STATE_psi ] 	= 0.0;
   H[ MEAS_ya ][ STATE_x ] 	= 0.0;
@@ -417,11 +432,11 @@ void generate_measurement_transfer( uFloat *state, uFloat **H )
   H[ MEAS_ya ][ STATE_xrb ] 	= 0.0; 
   H[ MEAS_ya ][ STATE_zrb ] 	= 0.0;
 
-  H[ MEAS_za ][ STATE_vdot ] 	= state[ STATE_theta ];
+  H[ MEAS_za ][ STATE_vdot ] 	= -state[ STATE_theta ];
   H[ MEAS_za ][ STATE_v ] 	= 2.0 * state[ STATE_v ] * state[ STATE_phi ] * state[ STATE_phi ] / RADIUS;
   H[ MEAS_za ][ STATE_phidot ] 	= 0.0;
   H[ MEAS_za ][ STATE_phi ] 	= 2.0 * state[ STATE_v ] * state[ STATE_v ] * state[ STATE_phi ] / RADIUS;
-  H[ MEAS_za ][ STATE_theta ] 	= state[ STATE_vdot ];
+  H[ MEAS_za ][ STATE_theta ] 	= -state[ STATE_vdot ];
   H[ MEAS_za ][ STATE_psi ] 	= 0.0;
   H[ MEAS_za ][ STATE_x ] 	= 0.0;
   H[ MEAS_za ][ STATE_y ] 	= 0.0;
@@ -433,7 +448,7 @@ void generate_measurement_transfer( uFloat *state, uFloat **H )
 
   H[ MEAS_xr ][ STATE_vdot ] 	= 0.0;
   H[ MEAS_xr ][ STATE_v ] 	= -state[ STATE_theta ] * state[ STATE_phi ] / RADIUS;
-  H[ MEAS_xr ][ STATE_phidot ] 	= 1.0;
+  H[ MEAS_xr ][ STATE_phidot ] 	= -1.0;
   H[ MEAS_xr ][ STATE_phi ] 	= -state[ STATE_v ] * state[ STATE_theta ] / RADIUS;
   H[ MEAS_xr ][ STATE_theta ] 	= -state[ STATE_v ] * state[ STATE_phi ] / RADIUS;
   H[ MEAS_xr ][ STATE_psi ] 	= 0.0;
@@ -446,9 +461,9 @@ void generate_measurement_transfer( uFloat *state, uFloat **H )
   H[ MEAS_xr ][ STATE_zrb ] 	= 0.0;
 
   H[ MEAS_zr ][ STATE_vdot ] 	= 0.0;
-  H[ MEAS_zr ][ STATE_v ] 	= state[ STATE_phi ] / RADIUS;
+  H[ MEAS_zr ][ STATE_v ] 	= -state[ STATE_phi ] / RADIUS;
   H[ MEAS_zr ][ STATE_phidot ] 	= state[ STATE_theta ];
-  H[ MEAS_zr ][ STATE_phi ] 	= state[ STATE_v ] / RADIUS;
+  H[ MEAS_zr ][ STATE_phi ] 	= -state[ STATE_v ] / RADIUS;
   H[ MEAS_zr ][ STATE_theta ] 	= state[ STATE_phidot ];
   H[ MEAS_zr ][ STATE_psi ] 	= 0.0;
   H[ MEAS_zr ][ STATE_x ] 	= 0.0;
@@ -519,7 +534,7 @@ void generate_measurement_transfer( uFloat *state, uFloat **H )
   H[ MEAS_omega ][ STATE_v ] 	  = 1.0 / ( RADIUS * cos(state[ STATE_phi ]) );
   H[ MEAS_omega ][ STATE_phidot ] = 0.0;
   H[ MEAS_omega ][ STATE_phi ]    = state[ STATE_v ]* sin(state[ STATE_phi ]) / (RADIUS * cos(state[ STATE_phi ]) 
-					* cos(state[ STATE_phi ]) );
+					* cos(state[ STATE_phi ]) ); 
   H[ MEAS_omega ][ STATE_theta ]  = 0.0;
   H[ MEAS_omega ][ STATE_psi ]    = 0.0;
   H[ MEAS_omega ][ STATE_x ] 	  = 0.0;

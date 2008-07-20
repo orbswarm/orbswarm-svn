@@ -20,7 +20,6 @@
 #include "kalmanswarm.h"
 
 
-
 /*  The following are the global variables of the Kalman filters,
     used to point to data structures used throughout.     */
 

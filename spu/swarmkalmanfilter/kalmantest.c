@@ -58,19 +58,16 @@ int main( int argc, char **argv )
   uFloat   **P;     /*  Estimate Covariance        (mxm)   */
   uFloat   *x;      /*  Starting state             (1xm)   */
 
-  swarmStateEstimate stateEstimate;
+  struct swarmStateEstimate stateEstimate;
 
-  stateEstimate.vdot 	= 0.0;	// acceleration
-  stateEstimate.v 	= 0.0;  // velocity
-  stateEstimate.phidot 	= 0.0;	// roll angle rate 	 
-  stateEstimate.phi 	= 0.0;  // roll angle  
-  stateEstimate.psi 	= 0.0; 	// heading / yaw 	
-  stateEstimate.theta 	= 0.0;  // frontward pitch
-  stateEstimate.x 	= 0.0;  // meters North
-  stateEstimate.y 	= 0.0;	// meters South
+  struct swarmImuData imuData;
 
-  swarmImuData imuData;	
-	
+  struct swarmGpsDataStruct gpsData;
+
+  struct swarmMotorData motorData;
+
+  zeroStateEstimates( &stateEstimate );	
+
   debug = 1;	
 
   parse_arguments( argc, argv );   /*  Parse the command line arguments  */
@@ -85,15 +82,7 @@ int main( int argc, char **argv )
 
   load_meas( meas_fname, MEAS_SIZE, num_samples, meas );
 
-
-  for( row = 1; row <= STATE_SIZE; row++ )
-    for( col = 1; col <= STATE_SIZE; col++ )
-      P[ row ][ col ] = 0.0;
-
-  for( row = 1; row <= STATE_SIZE; row++ )
-      x[ row ] = 0.0;
-
-	kalmanInit( stateEstimate );
+  kalmanInit( &stateEstimate );
     
       /*  For each sample in the test run, perform one estimation and
 	  copy the results into the trajectory history   */
@@ -101,16 +90,31 @@ int main( int argc, char **argv )
   start_clock();	
       for( time = 1; time <= num_samples; time++ )
 	{
+  		imuData.si_ratex 	= meas[time][MEAS_xr];
+  		imuData.si_ratez 	= meas[time][MEAS_zr];
+  		imuData.si_accx  	= meas[time][MEAS_xa];
+  		imuData.si_accy  	= meas[time][MEAS_ya];
+  		imuData.si_accz  	= meas[time][MEAS_za];
+/*
+  		imuData.si_ratex 	= 0.0;
+  		imuData.si_ratez 	= 0.0;
+  		imuData.si_accx  	= 0.0;
+  		imuData.si_accy  	= 0.0;
+  		imuData.si_accz  	= 0.0;*/
+		
+		// motorData.speedRPS 	= meas[time][MEAS_omega];
 
-	  extended_kalman_step( &meas[ time ][0] );
+		imuData.omega		= meas[time][MEAS_omega];
 
-  		imuData.si_ratex = meas[time][MEAS_xr-1];
-  		imuData.si_ratey = meas[time][MEAS_zr-1];
-  		imuData.si_accx  = meas[time][MEAS_xa-1];
-  		imuData.si_accy  = meas[time][MEAS_ya-1];
-  		imuData.si_accz  = meas[time][MEAS_za-1];
+		gpsData.metFromMshipNorth= meas[time][MEAS_yg];
+		gpsData.metFromMshipEast= meas[time][MEAS_xg];
+		gpsData.nmea_course 	= meas[time][MEAS_psig];
+		gpsData.speed 		= meas[time][MEAS_vg];
+
+		kalmanProcess( &gpsData, &imuData, &stateEstimate);
 
 	  track = kalman_get_state();
+
 	  if( debug )
 	    {
 	      sprintf( dbgstr, "State @ t = %d", time );
