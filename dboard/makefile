@@ -9,16 +9,14 @@ COM = COM5
 #set avr executable path here
 AVRPATH = C:\\WinAVR\\bin\\
 
-
-#TARGET=attiny2313
 TARGET=atmega8
 
 # compile flags
 GCCFLAGS = -c -g -O3
 
 #set programmer here
-PGMR = stk500v2 
-#PGMR = usbtiny
+#PGMR = stk500v2 
+PGMR = usbtiny
 
 # default target when "make" is run w/o arguments
 all: dboard.hex

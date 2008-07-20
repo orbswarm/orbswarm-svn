@@ -78,14 +78,14 @@ void Get_IMU_Data(void)
     	putS16(1023-(short)A2D_read_channel(7));
     	putstr("\r\n");	
 
-	// ACCX = -(IMU ACCY) = 1023-ADC3
+	// ACCX = +(IMU ACCY) = ADC3
     	putstr("ACCX=");
-    	putS16(1023-(short)A2D_read_channel(3));
+    	putS16((short)A2D_read_channel(3));
     	putstr("\r\n");	
 
-	// ACCY = +(IMU ACCZ) = ADC4
+	// ACCY = -(IMU ACCZ) = 1023-ADC4
     	putstr("ACCY=");
-    	putS16((short)A2D_read_channel(4));
+    	putS16(1023-(short)A2D_read_channel(4));
     	putstr("\r\n");	
 
 	// ACCZ = +(IMU ACCX) = ADC2

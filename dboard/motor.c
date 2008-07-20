@@ -69,12 +69,8 @@ extern volatile unsigned short encoder1_dir;
 static motor_control_block drive;
 
 
-#define CZERO 785
-
 /* Prototype */
 void Motor_clear_mcb( motor_control_block *m );
-
-
 
 
 // main feedback loop for speed control
@@ -192,7 +188,7 @@ void Drive_Servo_Task(void)
 
   
 // ----------------------------------------------------------------------
-// Init Pulse Width Modulation hardware for Speed Controlers.
+// Init Pulse Width Modulation hardware for Speed Controllers.
 // Output 2 channels of PWM on PortB Pins 1&2
 // Ouput 2 sets of control lines (Fwd/Rev) on Port D 4:5 & 6:7
 // Main Drive motor is setup as PID controlled continous rotation (drive)
@@ -223,7 +219,7 @@ void Motor_PWM_Init(void)
   Set_Motor2_PWM(0, FORWARD);
 }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------
 // Initialize the motor control blocks
 
 void Motor_clear_mcb( motor_control_block *m )
@@ -264,7 +260,7 @@ void write_steerPWM( unsigned char value )
 }
 
 
-// Setup torque control - turn on PID
+// Setup speed control PID
 // This is also used to setup velocity control
 
 void Set_Drive_Speed(short t)
@@ -313,8 +309,6 @@ void Set_Motor1_PWM(unsigned char pwm, signed char direction)
 	}
       MOTOR1_ENABLE();
     }
-  
-
 }
 
 // ----------------------------------------------------------------------

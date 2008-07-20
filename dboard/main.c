@@ -32,23 +32,8 @@ debug is PORTD,3
 	ESC	PortD 6:7	Motor2 Dir/Disable Pins - outputs 
 	PWM	PortB 1:2	Motor 1&2 PWM Outputs  DIP 15:16
 	ADC	PortC 0:7	A/D converter inputs 0..+3.3 volts	
-	LED	PortB 0		Heartbeat LED on Olimex Board
+	LED	PortB 0		Heartbeat LED 
 	
-
-a2d assignments from a2d.h:
-
-        CURRENT_SENSE_CHANNEL	0 PC0 DIP 23
-        STEERING_FEEDBACK_POT	1 PC1 DIP 24
-
-  
-IMU assignments from IMU.h
-
-        IMU_Gyro_X_CHANNEL	2 
-        IMU_Gyro_Y_CHANNEL	3
-        IMU_VREF_CHANNEL	4
-        IMU_Accel_Z_CHANNEL	5
-        IMU_Accel_Y_CHANNEL	6
-        IMU_Accel_X_CHANNEL	7
 
 ************************************************/
 
@@ -154,20 +139,17 @@ void Init_Chip(void)
   
   Timer0_Init();		/* Init Tick Timer */
 
-  //Timer2_Init();		/* Init T2 for encoder timing */
-  
   Steering_Init();		/* Steering Servo */
   
   Encoder_Init();		/* Wheel / Shaft Encoders */
  
-
   sei();			/* Enable interrupts */
 
 // ---
 
 
 
-  putstr("\r\n--- Orb daughterboard MCU ");
+  putstr("\r\nSWARM  dboard MCU ");
   putstr(VERSIONSTR);
   putstr("\r\n");
   pause();
@@ -213,7 +195,7 @@ int main (void)
     
     if (Timer0_100hz_Flag) { // do these tasks at a 100hz rate 
       Timer0_reset();
-      check_heart_beat( &state ); // Heart-beat is fore-ground -- true indication prog is alive.
+      check_heart_beat( &state ); // Heart-beat is foreground -- true indication prog is alive.
       Timer0_100hz_Flag = 0;
 
       //      putS16(encoder1_speed);
@@ -283,9 +265,9 @@ void process_command_string(void)
   switch (Command_String[1]) {
     
   case 't':	// set drive speed (PID version) 
-    putstr("Set_Torque: ");
-    putS16( theData );
-    putstr("\r\n");			
+    //putstr("Set_Torque: ");
+    //putS16( theData );
+    //putstr("\r\n");			
     Drive_set_integrator(0);
     Set_Drive_Speed(theData );
     doing_Speed_control = ON;	// use PID for motor control
@@ -308,9 +290,6 @@ void process_command_string(void)
     break;
 
   case 'r':	// set steer  motor PWM directly ONLY FOR TEST
-    //putstr("!!!steerPWM: ");
-    //putS16( theData );
-    
     if (theData < 0) {
       theData = -theData;
       Set_Motor2_PWM((unsigned char)theData, REVERSE );
@@ -321,9 +300,6 @@ void process_command_string(void)
     break;
     
   case 's':	// set steering  -512 .. 0 .. 512 --- change to 0-100% ???
-    //putstr("Steer: ");
-    //putS16( theData );
-    //putstr("\r\n");
     Steering_set_integrator(0);
     Steering_Set_Target_Pos(theData);
     break;
@@ -424,7 +400,7 @@ void process_command_string(void)
     }
     break;
     
-  case 'F':	// Fail Safe ON / OFF -- default is ON
+  case 'F':			/* turn failsafe watchdog on or off */
     if (theData == 1) {
       Fail_Safe = ON;
       putstr("Fail Safe ON\r\n");
@@ -437,8 +413,8 @@ void process_command_string(void)
     
     // ---
     
-    Fail_Safe_Counter = 0;	// com is alive - clear counter
-    CmdStrLen = 0;	     // clear len, start building next command
+    Fail_Safe_Counter = 0;   /* we got a command; clear counter */
+    CmdStrLen = 0;	     /* clear len, start building next command */
   }
 }
 // ---------------------------------------------------------------------------
@@ -486,9 +462,7 @@ void turn_LED(unsigned char LED_Num, unsigned char On_Off)
 
 // --------------------------------------------------------------------------
 // this is called at a 100hz rate from the main timing loop
-// Blink Heart-Beat LED
-// let's me know I'm alive
-// Toggle the LED once per second
+// Blink heartbeat LED once per second
 // Check Fail Safe counter - if com port looks dead - stop the orb
 
 void check_heart_beat(unsigned char *state)
