@@ -314,7 +314,6 @@ void process_command_string(void)
   case '?':	// Send back motor, speed, & steering info
     Motor_dump_data();
     Steering_dump_data();
-    //IMU_output_data_string();	
     break;
     
   case 'Q':	// Send back motor, speed, & steering info
