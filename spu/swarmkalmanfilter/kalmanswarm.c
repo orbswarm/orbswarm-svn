@@ -80,11 +80,15 @@ int kalmanProcess( struct swarmGpsDataStruct * gpsData, struct swarmImuData * im
 
    measurementVec[ MEAS_omega ] = imuData->omega;
 
-   measurementVec[ MEAS_xg ] = gpsData->metFromMshipEast;
-   measurementVec[ MEAS_yg ] = gpsData->metFromMshipNorth;
-   measurementVec[ MEAS_psig ] = (uFloat)gpsData->nmea_course;   
-   measurementVec[ MEAS_vg ] = (uFloat)gpsData->speed;
-
+   measurementVec[ MEAS_xg ]   = gpsData->metFromMshipEast;
+   measurementVec[ MEAS_yg ]   = gpsData->metFromMshipNorth;
+   
+   measurementVec[ MEAS_vg ]   = (uFloat)gpsData->speed;
+	
+   // psig is heading between -pi and pi. bring it to the same range as the current psi.	
+   measurementVec[ MEAS_psig ] = (uFloat)gpsData->nmea_course;
+   measurementVec[ MEAS_psig ] += rint((stateVec[ STATE_psi ]-measurementVec[ MEAS_psig ])/(2*PI))*2*PI;	
+   
    extended_kalman_step( measurementVec );
 
    stateVec = kalman_get_state();
@@ -113,15 +117,15 @@ void zeroStateEstimates( struct swarmStateEstimate * stateEstimate )
   stateEstimate->v 	= 0.0;  // velocity
   stateEstimate->phidot = 0.0;	// roll angle rate 	 
   stateEstimate->phi 	= 0.0;  // roll angle  
-  stateEstimate->psi 	= 0.0; 	// heading / yaw 	
+  stateEstimate->psi 	= PI-PI/4; 	// heading / yaw 	
   stateEstimate->theta 	= 0.0;  // frontward pitch
   stateEstimate->x 	= 0.0;  // meters North
   stateEstimate->y 	= 0.0;	// meters South
-  stateEstimate->xab	= 0.0;	// x accelerometer bias
-  stateEstimate->yab	= 0.0;	// y accelerometer bias
-  stateEstimate->zab	= 0.0;	// z accelerometer bias
-  stateEstimate->xrb	= 0.0;	// x rate gyro bias
-  stateEstimate->zrb	= 0.0;	// z rate gyro bias
+  stateEstimate->xab	= 1.0;	// x accelerometer bias
+  stateEstimate->yab	= 1.0;	// y accelerometer bias
+  stateEstimate->zab	= -1.7;	// z accelerometer bias
+  stateEstimate->xrb	= -0.4;	// x rate gyro bias
+  stateEstimate->zrb	= 2.5;	// z rate gyro bias
 }
 
 
@@ -360,36 +364,37 @@ void systemJacobian( uFloat *state, uFloat **jacobian )
 void apply_measurement( uFloat *newState, uFloat *est_measurement )
 {
 
-  est_measurement[ MEAS_xa ] = newState[ STATE_vdot ] 
-	+ newState[ STATE_v ] * newState[ STATE_v ] * newState[ STATE_phi ] 
-	* newState[ STATE_phi ] * newState[ STATE_theta ] / RADIUS
-	- newState[ STATE_theta ] * GRAVITY + newState[ STATE_xab ];
+  est_measurement[ MEAS_xa ] = newState[ STATE_vdot ] + newState[ STATE_theta ] * GRAVITY + newState[ STATE_xab ];
+	// + newState[ STATE_v ] * newState[ STATE_v ] * newState[ STATE_phi ] 
+	// * newState[ STATE_phi ] * newState[ STATE_theta ] / RADIUS;
+	
 
   est_measurement[ MEAS_ya ] = -newState[ STATE_v ] * newState[ STATE_v ] * newState[ STATE_phi ] / RADIUS
 	- newState[ STATE_phi ] * GRAVITY + newState[ STATE_yab ];
 	
-  est_measurement[ MEAS_za ] = -newState[ STATE_theta ] * newState[ STATE_vdot ] 
-	+ newState[ STATE_phi ] * newState[ STATE_phi ] * newState[ STATE_v ] 
-	* newState[ STATE_v ] / RADIUS
+  est_measurement[ MEAS_za ] = newState[ STATE_theta ] * newState[ STATE_vdot ] 
 	- GRAVITY + newState[ STATE_zab ];
+	// + newState[ STATE_phi ] * newState[ STATE_phi ] * newState[ STATE_v ] 
+	// * newState[ STATE_v ] / RADIUS;
 
-  est_measurement[ MEAS_xr ] = -newState [ STATE_phidot ] 
-	- newState[ STATE_theta ] * newState[ STATE_v ] * newState[ STATE_phi ] / RADIUS
-	+ newState[ STATE_xrb ];
 
-  est_measurement[ MEAS_zr ] = newState [ STATE_theta ] * newState [ STATE_phidot ] 
-	- newState[ STATE_v ] * newState[ STATE_phi ] / RADIUS
+  est_measurement[ MEAS_xr ] = -newState [ STATE_phidot ] + newState[ STATE_xrb ];
+	// - newState[ STATE_theta ] * newState[ STATE_v ] * newState[ STATE_phi ] / RADIUS;
+	
+
+  est_measurement[ MEAS_zr ] = - newState[ STATE_v ] * newState[ STATE_phi ] / RADIUS
 	+ newState[ STATE_zrb ];
+	// newState [ STATE_theta ] * newState [ STATE_phidot ];
 
   est_measurement[ MEAS_xg ] = newState[ STATE_x ]; 
 
   est_measurement[ MEAS_yg ] = newState[ STATE_y ];
 
-  est_measurement[ MEAS_psig ] = newState[ STATE_psi ];
+  est_measurement[ MEAS_psig ] = newState[ STATE_psi ];	
 
   est_measurement[ MEAS_vg ] = newState[ STATE_v ];
 
-  est_measurement[ MEAS_omega ] = newState[ STATE_v ] / (RADIUS * cos( newState[ STATE_phi ] ));
+  est_measurement[ MEAS_omega ] = newState[ STATE_v ] / RADIUS; // * cos( newState[ STATE_phi ] ));
 
 }
 
@@ -402,13 +407,13 @@ void generate_measurement_transfer( uFloat *state, uFloat **H )
 {
 
   H[ MEAS_xa ][ STATE_vdot ] 	= 1.0;
-  H[ MEAS_xa ][ STATE_v ] 	= 2.0 * state[ STATE_v ] * state[ STATE_phi ] * state[ STATE_phi ] 
-					* state[ STATE_theta ] / RADIUS;
+  H[ MEAS_xa ][ STATE_v ] 	= 0.0; // 2.0 * state[ STATE_v ] * state[ STATE_phi ] * state[ STATE_phi ] 
+					// * state[ STATE_theta ] / RADIUS;
   H[ MEAS_xa ][ STATE_phidot ] 	= 0.0;
-  H[ MEAS_xa ][ STATE_phi ] 	= 2.0 * state[ STATE_v ] * state[ STATE_v ] * state[ STATE_phi ] 
-					* state[ STATE_theta ] / RADIUS;
-  H[ MEAS_xa ][ STATE_theta ] 	= state[ STATE_v ] * state[ STATE_v ] * state[ STATE_phi ] 
-					* state[ STATE_phi ] / RADIUS - GRAVITY;
+  H[ MEAS_xa ][ STATE_phi ] 	= 0.0; //2.0 * state[ STATE_v ] * state[ STATE_v ] * state[ STATE_phi ] 
+					//* state[ STATE_theta ] / RADIUS;
+  H[ MEAS_xa ][ STATE_theta ] 	= GRAVITY; // state[ STATE_v ] * state[ STATE_v ] * state[ STATE_phi ] 
+					// * state[ STATE_phi ] / RADIUS - GRAVITY;
   H[ MEAS_xa ][ STATE_psi ] 	= 0.0;
   H[ MEAS_xa ][ STATE_x ] 	= 0.0;
   H[ MEAS_xa ][ STATE_y ] 	= 0.0;
@@ -432,10 +437,10 @@ void generate_measurement_transfer( uFloat *state, uFloat **H )
   H[ MEAS_ya ][ STATE_xrb ] 	= 0.0; 
   H[ MEAS_ya ][ STATE_zrb ] 	= 0.0;
 
-  H[ MEAS_za ][ STATE_vdot ] 	= -state[ STATE_theta ];
-  H[ MEAS_za ][ STATE_v ] 	= 2.0 * state[ STATE_v ] * state[ STATE_phi ] * state[ STATE_phi ] / RADIUS;
+  H[ MEAS_za ][ STATE_vdot ] 	= state[ STATE_theta ];
+  H[ MEAS_za ][ STATE_v ] 	= 0.0; //2.0 * state[ STATE_v ] * state[ STATE_phi ] * state[ STATE_phi ] / RADIUS;
   H[ MEAS_za ][ STATE_phidot ] 	= 0.0;
-  H[ MEAS_za ][ STATE_phi ] 	= 2.0 * state[ STATE_v ] * state[ STATE_v ] * state[ STATE_phi ] / RADIUS;
+  H[ MEAS_za ][ STATE_phi ] 	= 0.0; //2.0 * state[ STATE_v ] * state[ STATE_v ] * state[ STATE_phi ] / RADIUS;
   H[ MEAS_za ][ STATE_theta ] 	= -state[ STATE_vdot ];
   H[ MEAS_za ][ STATE_psi ] 	= 0.0;
   H[ MEAS_za ][ STATE_x ] 	= 0.0;
@@ -447,10 +452,10 @@ void generate_measurement_transfer( uFloat *state, uFloat **H )
   H[ MEAS_za ][ STATE_zrb ] 	= 0.0;
 
   H[ MEAS_xr ][ STATE_vdot ] 	= 0.0;
-  H[ MEAS_xr ][ STATE_v ] 	= -state[ STATE_theta ] * state[ STATE_phi ] / RADIUS;
-  H[ MEAS_xr ][ STATE_phidot ] 	= -1.0;
-  H[ MEAS_xr ][ STATE_phi ] 	= -state[ STATE_v ] * state[ STATE_theta ] / RADIUS;
-  H[ MEAS_xr ][ STATE_theta ] 	= -state[ STATE_v ] * state[ STATE_phi ] / RADIUS;
+  H[ MEAS_xr ][ STATE_v ] 	= 0.0;//-state[ STATE_theta ] * state[ STATE_phi ] / RADIUS;
+  H[ MEAS_xr ][ STATE_phidot ] 	= 1.0;
+  H[ MEAS_xr ][ STATE_phi ] 	= 0.0;// -state[ STATE_v ] * state[ STATE_theta ] / RADIUS;
+  H[ MEAS_xr ][ STATE_theta ] 	= 0.0;//-state[ STATE_v ] * state[ STATE_phi ] / RADIUS;
   H[ MEAS_xr ][ STATE_psi ] 	= 0.0;
   H[ MEAS_xr ][ STATE_x ] 	= 0.0;
   H[ MEAS_xr ][ STATE_y ] 	= 0.0;
@@ -462,9 +467,9 @@ void generate_measurement_transfer( uFloat *state, uFloat **H )
 
   H[ MEAS_zr ][ STATE_vdot ] 	= 0.0;
   H[ MEAS_zr ][ STATE_v ] 	= -state[ STATE_phi ] / RADIUS;
-  H[ MEAS_zr ][ STATE_phidot ] 	= state[ STATE_theta ];
+  H[ MEAS_zr ][ STATE_phidot ] 	= 0.0; //state[ STATE_theta ];
   H[ MEAS_zr ][ STATE_phi ] 	= -state[ STATE_v ] / RADIUS;
-  H[ MEAS_zr ][ STATE_theta ] 	= state[ STATE_phidot ];
+  H[ MEAS_zr ][ STATE_theta ] 	= 0.0; //state[ STATE_phidot ];
   H[ MEAS_zr ][ STATE_psi ] 	= 0.0;
   H[ MEAS_zr ][ STATE_x ] 	= 0.0;
   H[ MEAS_zr ][ STATE_y ] 	= 0.0;
@@ -531,10 +536,10 @@ void generate_measurement_transfer( uFloat *state, uFloat **H )
   H[ MEAS_vg ][ STATE_zrb ] 	= 0.0;
 
   H[ MEAS_omega ][ STATE_vdot ]   = 0.0;
-  H[ MEAS_omega ][ STATE_v ] 	  = 1.0 / ( RADIUS * cos(state[ STATE_phi ]) );
+  H[ MEAS_omega ][ STATE_v ] 	  = 1.0 / ( RADIUS ); // * cos(state[ STATE_phi ]) );
   H[ MEAS_omega ][ STATE_phidot ] = 0.0;
-  H[ MEAS_omega ][ STATE_phi ]    = state[ STATE_v ]* sin(state[ STATE_phi ]) / (RADIUS * cos(state[ STATE_phi ]) 
-					* cos(state[ STATE_phi ]) ); 
+  H[ MEAS_omega ][ STATE_phi ]    = 0.0; //state[ STATE_v ]* sin(state[ STATE_phi ]) / (RADIUS * cos(state[ STATE_phi ]) 
+					// * cos(state[ STATE_phi ]) ); 
   H[ MEAS_omega ][ STATE_theta ]  = 0.0;
   H[ MEAS_omega ][ STATE_psi ]    = 0.0;
   H[ MEAS_omega ][ STATE_x ] 	  = 0.0;
@@ -561,19 +566,19 @@ void covarianceSet( uFloat **Qk, uFloat **R )
 
   /* These values actually define Qc, then we multiply by PERIOD to get Qk */
 
-  Qk[ STATE_vdot ][ STATE_vdot ] 	= 0.02;
+  Qk[ STATE_vdot ][ STATE_vdot ] 	= 0.00001;
   Qk[ STATE_v ][ STATE_v ] 		= 0.0;
-  Qk[ STATE_phidot ][ STATE_phidot ]	= 0.01;
+  Qk[ STATE_phidot ][ STATE_phidot ]	= 0.0000000000001;
   Qk[ STATE_phi ][ STATE_phi ] 		= 0.0;
-  Qk[ STATE_theta ][ STATE_theta ] 	= 0.01;
-  Qk[ STATE_psi ][ STATE_psi ] 		= 0.01;
+  Qk[ STATE_theta ][ STATE_theta ] 	= 0.001;
+  Qk[ STATE_psi ][ STATE_psi ] 		= 0.0001;
   Qk[ STATE_x ][ STATE_x ] 		= 0.0;
   Qk[ STATE_y ][ STATE_y ] 		= 0.0;
-  Qk[ STATE_xab ][ STATE_xab ] 		= 0.00001;
-  Qk[ STATE_yab ][ STATE_yab ] 		= 0.000001;
-  Qk[ STATE_zab ][ STATE_zab ] 		= 0.00001;
-  Qk[ STATE_xrb ][ STATE_xrb ] 		= 0.00005; 
-  Qk[ STATE_zrb ][ STATE_zrb ]  	= 0.00005;
+  Qk[ STATE_xab ][ STATE_xab ] 		= 0.000002;
+  Qk[ STATE_yab ][ STATE_yab ] 		= 0.0000005;
+  Qk[ STATE_zab ][ STATE_zab ] 		= 0.000001;
+  Qk[ STATE_xrb ][ STATE_xrb ] 		= 0.0000005; 
+  Qk[ STATE_zrb ][ STATE_zrb ]  	= 0.0000001;
 
   matMultScalar( Qk, PERIOD, Qk, STATE_SIZE, STATE_SIZE );
   
@@ -582,16 +587,16 @@ void covarianceSet( uFloat **Qk, uFloat **R )
     for( col = 1; col <= MEAS_SIZE; col++ )
       R[ row ][ col ] = 0.0;
 
-  R[ MEAS_xa ][ MEAS_xa ] 	= 0.1;
-  R[ MEAS_ya ][ MEAS_ya ] 	= 0.1;
-  R[ MEAS_za ][ MEAS_za ] 	= 0.1;
-  R[ MEAS_xr ][ MEAS_xr ] 	= 0.3;
-  R[ MEAS_zr ][ MEAS_zr ] 	= 0.3;
-  R[ MEAS_xg ][ MEAS_xg ] 	= 0.5;
-  R[ MEAS_yg ][ MEAS_yg ] 	= 0.5;
-  R[ MEAS_psig ][ MEAS_psig ] 	= 1000.0;
-  R[ MEAS_vg ][ MEAS_vg ] 	= 0.2;
-  R[ MEAS_omega ][ MEAS_omega ] = 0.05;
+  R[ MEAS_xa ][ MEAS_xa ] 	= 2.0;
+  R[ MEAS_ya ][ MEAS_ya ] 	= 2.0;
+  R[ MEAS_za ][ MEAS_za ] 	= 2.0;
+  R[ MEAS_xr ][ MEAS_xr ] 	= 1.0;
+  R[ MEAS_zr ][ MEAS_zr ] 	= 0.5;
+  R[ MEAS_xg ][ MEAS_xg ] 	= 3.0;
+  R[ MEAS_yg ][ MEAS_yg ] 	= 3.0;
+  R[ MEAS_psig ][ MEAS_psig ] 	= PI/2;
+  R[ MEAS_vg ][ MEAS_vg ] 	= 1.0;
+  R[ MEAS_omega ][ MEAS_omega ] = 0.1;
 
 }
 

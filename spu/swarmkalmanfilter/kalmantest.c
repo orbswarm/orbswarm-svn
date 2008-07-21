@@ -90,26 +90,27 @@ int main( int argc, char **argv )
   start_clock();	
       for( time = 1; time <= num_samples; time++ )
 	{
+/*
   		imuData.si_ratex 	= meas[time][MEAS_xr];
   		imuData.si_ratez 	= meas[time][MEAS_zr];
   		imuData.si_accx  	= meas[time][MEAS_xa];
   		imuData.si_accy  	= meas[time][MEAS_ya];
-  		imuData.si_accz  	= meas[time][MEAS_za];
-/*
-  		imuData.si_ratex 	= 0.0;
-  		imuData.si_ratez 	= 0.0;
-  		imuData.si_accx  	= 0.0;
-  		imuData.si_accy  	= 0.0;
-  		imuData.si_accz  	= 0.0;*/
+  		imuData.si_accz  	= meas[time][MEAS_za];*/
+
+  		imuData.si_ratex 	= meas[time][MEAS_xr];
+  		imuData.si_ratez 	= meas[time][MEAS_zr];
+  		imuData.si_accx  	= meas[time][MEAS_xa];
+  		imuData.si_accy  	= meas[time][MEAS_ya];
+  		imuData.si_accz  	= 0.0;
 		
 		// motorData.speedRPS 	= meas[time][MEAS_omega];
 
 		imuData.omega		= meas[time][MEAS_omega];
 
-		gpsData.metFromMshipNorth= meas[time][MEAS_yg];
-		gpsData.metFromMshipEast= meas[time][MEAS_xg];
-		gpsData.nmea_course 	= meas[time][MEAS_psig];
-		gpsData.speed 		= meas[time][MEAS_vg];
+		gpsData.metFromMshipNorth = meas[time][MEAS_yg];
+		gpsData.metFromMshipEast  = meas[time][MEAS_xg];
+		gpsData.nmea_course 	  = meas[time][MEAS_psig];
+		gpsData.speed 		  = meas[time][MEAS_vg];
 
 		kalmanProcess( &gpsData, &imuData, &stateEstimate);
 
