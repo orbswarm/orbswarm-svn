@@ -1,0 +1,222 @@
+Swarm Orb Motor Control Unit API
+http://www.orbswarm.com
+Version 17.0
+
+Jon Foote based on original by Petey the Programmer
+
+
+
+The commands to the Motor Control Unit (MCU) all start with a dollar
+sign '$' and end with an asterisk '*'.  Only chars between these two
+delimiters will be processed - anything else is ignored.  (which means
+you can add CR-LF after the * so they are read-able on a terminal for
+debugging, and the MCU will ignore them.)
+
+Most commands consist of a single ascii chr, followed by a numeric
+value.  An example is Set_Drive_Torque, the Cmd is the letter 't'.
+To set the torque (requested speed) to 50 The chars sent to the MCU
+will be: $t50*
+
+The MCU has an internal buffer of 32 bytes, and processes chars very
+quickly, but if more than 32 chars are sent at once (I don't know why
+you would) it may over run the buffer. (I've never over run it) All
+chars are processed within 0.1ms of being received. (160,000 chars per
+second) Commands execute as soon as the * char is received.
+
+The only commands needed to operate the Orb are Stop, Set_Drive_PWM,
+Set_Drive_Torque and Set_Steering_Position.
+
+All of the "Set Gain" and "PID" commands are for testing, debug, and tuning.
+
+---
+
+The 5DOF IMU (5 degrees of freedom, Inertial Measurement Unit - from
+Spark Fun Electronics) consists of 2 rate gyros, and 3 accelerometers.
+The output from this device is read by the A2D converters, formated
+just like the GPS data, and output 10 times per second.
+
+
+ALL_STOP
+	Immediately turns off the drive motor and stops the
+	drive speed control loop.
+	Cmd = "!"
+	Example:  $!* 
+
+Set_Drive_PWM
+	Set the Duty Cycle of the H-Bridge directly. Turns OFF PID control.
+	Cmd = 'p'
+	Values are -255 to +255  Zero = stop.
+	Positive values are forward direction, negative values are reverse.
+	Example:  $p33*   sets the PWM to 33% forward.  $p-50* sets 50% reverse.
+
+Set_Drive_Torque
+	Set required speed to the drive speed control  Turns ON PID control.
+	Cmd = 't'
+	Values inside dead band are considered zero, and set PWM to zero and
+	turn off PID. 
+	Values are -255 to +255 in "arbitrary speed units" which are 
+	counts of the 500 CPR shaft encoder in the last .1 second. 
+	If speed is 50, this means 1 RPM of motor sprocket. 
+
+	Positive values are forward, negative values are reverse.  Zero = stop.
+	Example: $t50* will set the torque to 50 speed units.
+	"forward" is defined as towards the steering pulley,
+	"backwards" is towards SPU dome. 
+	In practice, July testing used a min/max of t = +/-40
+
+	
+Set_Steering_Position
+	Set the steering servo's position.
+	Cmd = 's'
+	Values are -512 to 512   Zero is center.
+	Negative values steer towards the left, positive to the right.
+	Example: $s0* centers the steering.
+	Min/max is +/- 100
+
+Query Status commands:
+      Returns motor controller and IMU data in parseable keyword/value pairs. 
+      Cmd = 'Q' -- return all 3 kinds of status below   
+      Cmd = 'QI' -- return IMU status
+      Cmd = 'QD' -- return drive motor status
+      Cmd = 'QS' -- return steering motor status
+
+Example output: '$QI*' 
+ADC1:  +00019
+RATEX:  +00019
+RATEY:  +00013
+ACCZ:  +00018
+ACCX:  +00017
+SPARE:  +00021
+ACCY:  +00021
+
+Values are signed short ints. ADC1 is current sensor. Others are IMU
+values. "SPARE" is unused. Values are raw ADC output, 0 < x <
+1024. Zero for all is around half value (512).
+
+Example output for '$QD'
+DTarget:  +00000
+Dcurrent: +00000
+curPWM  +00000
+Dir  +00001
+Isense: +00013
+
+Values are short ints. Dtarget and Dcurrent is drive target and actual
+speed, curPWM is actual PWM value to motor, direction is +/- 1
+(forward positive) (though target and actual speed will be pos/neg
+accordingly( Isense is current sensor -- zero reading is 1024 -
+(2.5/3.3)*1024 = about 740.
+
+Example output for '$QS'
+SteerTarget:  +000528 
+SteerActual:  +0020 
+PWM  -0025 
+int  -00024 
+ADC0:  +00016
+
+Values are short signed ints. PWM is actual pwm value to steering
+motor control.int is current integrator value. ADC is raw ADC value
+(SteerActual - 512).
+
+------------------------------
+Dump status commands:
+      Returns drive and steering data in concise readable format. 
+      Cmd = '?'
+Example output:
+
+Drive: (targ cur PWM)  +00000 +00000 +00000 Dir  +00000  PID: +00010 +00000 +00000  ISense:  -00499
+       dead minP maxP delA +00005 +00010 +00100 +00015
+Steer: target current +00000 +00501 Gain: Kp Kd Ki  +00008 +00000 +00000 mindr maxdr maxa dead:  +00060 +00200 +00255 +00020
+
+----------------------------------------------------------------
+
+Setting the Motor Control PID Gain Factors (for testing & tuning)
+
+This requires some understanding of the actual code...
+Motor_Drive = (P_Factor * Kp) + (D_Factor * Kd) + (I_Factor * Ki)
+Actual values depend on which PID function is being used.
+
+
+Kp, Kd, and Ki CAN be adjusted while the orb is in motion.
+
+	
+Set_Drive_Kp
+	Sets the proportional drive gain.  Short int.
+	Reasonable values are 0 to 50
+	Cmd: 'Kp'
+	Example:  $Kp12*  sets the Kp gain factor to 12
+	
+Set_Drive_Kd
+	Sets the derivative drive gain.  Short int.
+	Reasonable values are 0 to 50 (depends on PID and motor used)
+	Cmd: 'Kd'
+	Example:  $Kd 5*  sets the Kp gain factor to 5.
+	
+Set_Drive_Ki
+	Sets the integral drive gain.  Short int.
+	Reasonable values are 0 to 50 (depends on PID and motor used)
+	Cmd: 'Ki'
+	Example:  $Ki 5*  sets the Kp gain factor to 5.
+	
+---------
+
+
+	
+Set_Steer_Kp
+	Sets the proportional steer gain.  Short int.
+	Reasonable values are 0 to 20
+	Cmd: 'Sp'
+	Example:  $Sp12*  sets the Kp gain factor to 12
+	
+Set_Steer_Kd
+	Sets the derivative steer gain.  Short int.
+	Reasonable values are 0 to 50 (depends on PID and motor used)
+	Cmd: 'Sd'
+	Example:  $Sd 5*  sets the Kp gain factor to 5.
+	
+Set_Steer_Ki
+	Sets the integral steer gain.  Short int.
+	Reasonable values are 0 to 50 (depends on PID and motor used)
+	Cmd: 'Si'
+	Example:  $Si 5*  sets the Kp gain factor to 5.
+
+
+Set_Steering_Dead_Band
+	Sets size of dead-band area around the set point.
+	if ( abs(crntPos - targetPos) < dead_band) then don't move servo.
+	Cmd: 'Sb'
+	Values: 0 to 255
+
+	
+---------------
+
+Write_EEPROM
+	Saves Steering or Motor PID gain factors to EEPROM
+	Cmd: W 
+	Values: D or S for Drive / Steering
+	Example: WD saves Motor PID data
+		 WS saves Steering PID data
+			 
+---------------
+
+Fail_Safe
+	Turn On / Off Fail Safe function. 
+	When Fail Safe is ON, Orb will STOP if no cmds received within 1 second.
+	Default is OFF.
+	Cmd: 'F1' or 'F0' for On / Off
+	
+---------------
+
+
+Log_Data
+	Turn On / Off debug output of PID loop.
+	Argument is 2 bit binary code, set bit
+	0 to turn on drive debug, set bit 1 for steering
+	Cmd: 'L0' no logging
+	Cmd: 'L1' log drive
+	Cmd: 'L2' log steering
+	Cmd: 'L3' log both
+
+---------------
+
+End of Doc.
+
