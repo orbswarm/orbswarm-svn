@@ -11,7 +11,7 @@ CCOPTS =
 
 
 kalmantest:    $(KALMANTEST_OBJS) $(OBJS)
-	cc ${CCOPTS} $(KALMANTEST_OBJS) -o kalmantest $(LIBS)
+	gcc ${CCOPTS} $(KALMANTEST_OBJS) -o kalmantest $(LIBS)
 
 all: kalmantest
 
@@ -21,4 +21,4 @@ clean:
 ${KALMANTEST_OBJS}: Makefile kalman.h matmath.h kalmanswarm.h kftime.h ../dispatcher/swarmdefines.h
 
 .c.o:
-	cc -c $(CCOPTS) $(INCLUDES) -o $@ $<
+	gcc -c $(CCOPTS) $(INCLUDES) -o $@ $<
