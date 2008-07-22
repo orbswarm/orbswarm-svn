@@ -280,7 +280,11 @@ startChildProcessToGronk (void)
   fd_set writeSet;
   struct swarmImuData imuData;
   struct swarmMotorData motorData;
+  struct swarmStateEstimate stateEstimate;
   char dataFileBuffer[1024];
+
+  zeroStateEstimates( &stateEstimate );
+  kalmanInit( &stateEstimate );
 
   int kalmanDataFileFD = open("kalman.data", O_RDWR |  O_CREAT | O_NONBLOCK | O_TRUNC
                               ,0x777 );
@@ -340,6 +344,8 @@ startChildProcessToGronk (void)
 	    logImuDataString (&imuData, buffer);
             //logit(eMcuLog, eLogDebug, "\nformatted drive response from db=%s",
             //      drive_buffer);
+
+	    kalmanProcess( latestGpsCordinates, &imuData, &stateEstimate);
 
             sprintf (dataFileBuffer, "\n%u,%u,%s,%f,%f,%s,%f,%f,%f",
                      (unsigned int) nowGronkTime.tv_sec,
