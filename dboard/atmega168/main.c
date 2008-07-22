@@ -133,7 +133,7 @@ void Init_Chip(void)
 						
 
 
-  //Motor_PWM_Init();  /* Setup PWM using PortB1:2 on ATMega8 for output */
+  Motor_PWM_Init();  /* Setup PWM using PortB1:2 on ATMega8 for output */
   
   //A2D_Init();			/* Init A/D converters */
   

@@ -208,10 +208,13 @@ void Motor_PWM_Init(void)
   TCCR1A |= (_BV(COM1A0) | _BV(COM1A1));	// Set OC1A on compare match
   TCCR1A |= (_BV(COM1B0) | _BV(COM1B1));	// Set OC1B on compare match
   
-  TCCR1A |= _BV(WGM10);		// Fast PWM Mode 5 ==> 8 Bit
-  TCCR1B |= _BV(WGM12);		// both channels use same PWM mode
+  // TCCR1A |= _BV(WGM10);		// Fast PWM Mode 5 ==> 8 Bit
+  //TCCR1B |= _BV(WGM12);		// both channels use same PWM mode
+
+  TCCR1A |= _BV(WGM10);		// Fast PWM Mode 2 ==> 8 Bit phase correct
+
   
-  TCCR1B |= _BV(CS10);		// 1 prescale = 31.25K Hz PWM @ 8 MHz
+  TCCR1B |= _BV(CS10);		// 1 prescale = 28.9 kHz PWM @ 14.7 MHz
   
   // Make sure motors are stopped
   Set_Motor1_PWM(0, FORWARD);
