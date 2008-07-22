@@ -194,7 +194,7 @@ int parseGPSVTGSentance(swarmGpsData * gpsdata) {
     if (degrees < 0) {
         degrees += 360;
     }
-    // convert from degrees to radians
+    // convert from degrees to radians, and from clockwise to counterclockwise
 
     gpsdata->nmea_course = PI / 180.0 * (degrees * -1);
 

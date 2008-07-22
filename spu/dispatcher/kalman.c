@@ -20,7 +20,6 @@
 #include "kalmanswarm.h"
 
 
-
 /*  The following are the global variables of the Kalman filters,
     used to point to data structures used throughout.     */
 
@@ -156,8 +155,8 @@ static void rungeKutta( uFloat *old_state, uFloat *new_state )
   printf( "ekf: rungeKutta\n" );
 #endif
 
+  /* k1 = period * F( old_state ) */	
   systemF( tempState, old_state );
-
   vecScalarMult( tempState, PERIOD, k1, STATE_SIZE );
 
   /* k2 = period * F( old_state + k1 * 0.5) */
