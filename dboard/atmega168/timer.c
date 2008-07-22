@@ -37,21 +37,24 @@ extern volatile unsigned short encoder1_dir;
 
 SIGNAL(TIMER0_OVF_vect)
 {
-  Timer0_ticks++;		// increment slow counter
+  Timer0_ticks++;		// increment fast counter
   
   // use PB0 (LED) as debug output: toggle at timer rate
-  // should see 1800 hz square wave on PB0
+  // to see 1/2 rate square wave
+  /* with 14.7 mHz clock and 64 prescale */
+  // should see 450 hz square wave on PB0
   //if(Timer0_ticks & 0x01) // extract bit 1
-  //  PORTB |= 0x01; // set bit 1;
+  //PORTB |= 0x01; // set bit 1;
   //else
-  //  PORTB &= 0xFE; // clear bit 1
+  //PORTB &= 0xFE; // clear bit 1
 
-  if (Timer0_ticks >= 36){  // count 36 overflows of 7.37mHz/(8*256) = 3600hz
+  //if (Timer0_ticks >= 36){  // count 36 overflows of 7.37mHz/(8*256) = 3600hz
+  if (Timer0_ticks >= 9){  // count 9 overflows of 14.3 mHz/(64*256) = 900 hz
     Timer0_100hz_Flag = 1; // set flag for 100 Hz sample rates
   }
 
   Timer2_ticks++;		// increment slow counter
-  if (Timer2_ticks > 360){ // 10 hz interrupt
+  if (Timer2_ticks > 90){ // 10 hz interrupt
     
     encoder1_speed = encoder1_count;
     if(encoder1_dir)
@@ -63,9 +66,9 @@ SIGNAL(TIMER0_OVF_vect)
 
 
 // --------------------------------------------------------------------------
-// Init Timer0 with CLK/8 prescale. Thus 8 bit counter overflows
-// at a rate of CLK/(8*256) = 7.37 Mhz/1024 = 3600 Hz. 
-// So to get 100 hz interrupt rate, count 36 overflows
+// Init Timer0 with CLK/64 prescale. Thus 8 bit counter overflows
+// at a rate of CLK/(64*256) = 14745000/(64*256) = 900 hz
+// So to get 100 hz interrupt rate, count 9 overflows
 
 void Timer0_Init(void)
 {
@@ -73,9 +76,8 @@ void Timer0_Init(void)
   Timer2_ticks = 0;
   Timer0_100hz_Flag = 0;
   
-  //TCCR0 |= (_BV(CS01) | _BV(CS00)); /* Pre-scaler = 64 */
   TCCR0A = 0;          		/* Normal op; no output pins */
-  TCCR0B |= (_BV(CS01));	/* Pre-scaler = 8 */
+  TCCR0B |= (_BV(CS01)|_BV(CS00));	/* Pre-scaler = 64 */
   TCNT0 = 0;			/* reset TCNT0 */
   TIMSK0 |= _BV(TOIE0);		/* enable Timer0 interrupts */
   /* debug */

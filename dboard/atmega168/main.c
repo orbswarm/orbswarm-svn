@@ -128,7 +128,8 @@ void Init_Chip(void)
 
 
   
-  UART_Init(UART_384000);	// defines from global.h and uart.h
+  //  UART_Init(UART_38400);	// defines from global.h and uart.h
+  UART_Init(UART_115200);	// defines from global.h and uart.h
 						
 
 
