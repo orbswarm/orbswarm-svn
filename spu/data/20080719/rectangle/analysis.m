@@ -42,10 +42,10 @@ plot(rolling(:,1), [rolling(:,8) rolling(:,9)]);
 
 sqrt(mean(still(:,3:9).^2))
 
-my_data = [-rolling(:,6) rolling(:,7) -9.81-rolling(:,5) -rolling(:,4) -rolling(:,3) rolling(:,9) rolling(:,8) rolling(:,11) rolling(:,12) rolling(:,13)];
+my_data = [rolling(:,5) rolling(:,6) rolling(:,7) rolling(:,3) rolling(:,4) rolling(:,9) rolling(:,8) rolling(:,11) rolling(:,12) rolling(:,13)];
 
 save -text test_data my_data
 
-my_data = [-cleandata(:,6) cleandata(:,7) cleandata(:,5) -cleandata(:,4) -cleandata(:,3) cleandata(:,9)-cleandata(1,9) cleandata(:,8)-cleandata(1,8) cleandata(:,11) cleandata(:,12) cleandata(:,13)];
+my_data = [cleandata(:,5) cleandata(:,6) cleandata(:,7) cleandata(:,3) cleandata(:,4) cleandata(:,9)-cleandata(1,9) cleandata(:,8)-cleandata(1,8) cleandata(:,11) cleandata(:,12) cleandata(:,13)];
 
 save -text full_data my_data

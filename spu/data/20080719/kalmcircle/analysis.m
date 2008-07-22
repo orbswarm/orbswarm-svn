@@ -25,8 +25,8 @@ for idx = 1:max(size(cleandata))
 endfor
 
 
-rolling = cleandata(500:2000,:);
-still = cleandata(3500:4500,:);
+rolling = cleandata(300:1200,:);
+still = cleandata(1500:2000,:);
 
 bias = mean(still)
 
