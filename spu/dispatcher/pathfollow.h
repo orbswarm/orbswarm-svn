@@ -7,6 +7,8 @@
 //	MAP, 7/23/08
 // -----------------------------------------------------------------------
 
+#include "swarmdefines.h"
+
 struct	swarmCoord
 {
 
@@ -15,22 +17,22 @@ struct	swarmCoord
   double y;
   double psi;
   double v;
-}
+};
 
 struct swarmCircle
 {
-  struct swarmCoord circleCenter;
-  struct swarmCoord circleCurrent;
+  struct swarmCoord center;
+  struct swarmCoord current;
   double radius;
   double direction;
   double carrotDistance;
-}
+};
 
 double headingError(struct swarmStateEstimate * stateEstimate, struct swarmCoord * carrot);
 
-void circleInit( struct swarmStateEstimate * stateEstimate, struct circle * thisCircle );
+void circleInit( struct swarmStateEstimate * stateEstimate, struct swarmCircle * circle );
 
-void circlePath( struct circle * thisCircle, struct swarmStateEstimate * stateEstimate, 
+void circlePath( struct swarmCircle * circle, struct swarmStateEstimate * stateEstimate, 
 		 struct swarmCoord * carrot );
 
 

@@ -66,6 +66,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include "imuutils.h"
+#include "pathfollow.h"
 
 
 //#define LOCAL
