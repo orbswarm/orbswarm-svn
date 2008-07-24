@@ -43,6 +43,10 @@
 #define MEAS_omega   		10
 
 /*  Function Prototypes for kalmanSwarm */
+
+void kalmanInitialBias( struct swarmGpsDataStruct * gpsData, struct swarmImuData * imuData, 
+						struct swarmStateEstimate * stateEstimate );
+
 int kalmanInit( struct swarmStateEstimate * stateEstimate );
 
 int kalmanProcess( struct swarmGpsDataStruct * gpsData, struct swarmImuData * imuData, struct swarmStateEstimate * stateEstimate);

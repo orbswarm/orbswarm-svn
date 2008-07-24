@@ -28,6 +28,19 @@ extern int     debug;
 static uFloat  *measurementVec;        /* a measurement_size x 1 vector */
 static uFloat  *stateVec;              /* a state_size x 1 vector */
 
+void kalmanInitialBias( struct swarmGpsDataStruct * gpsData, struct swarmImuData * imuData, 
+						struct swarmStateEstimate * stateEstimate )
+{
+	stateEstimate->x 	= 0.01 * gpsData->metFromMshipEast  + 0.99 * stateEstimate->x;	
+	stateEstimate->y 	= 0.01 * gpsData->metFromMshipNorth + 0.99 * stateEstimate->y;
+	
+	stateEstimate->xab 	= 0.01 * imuData->si_accx + 0.99 * stateEstimate->xab;
+	stateEstimate->yab 	= 0.01 * imuData->si_accy + 0.99 * stateEstimate->yab;		
+	stateEstimate->zab 	= 0.01 * imuData->si_accz + 0.99 * stateEstimate->zab;
+	
+	stateEstimate->xrb 	= 0.01 * imuData->ratex + 0.99 * stateEstimate->xrb;
+	stateEstimate->zrb 	= 0.01 * imuData->ratez + 0.99 * stateEstimate->zrb;		
+}
 
 int kalmanInit( struct swarmStateEstimate * stateEstimate )
 {
