@@ -4,7 +4,6 @@
 
 #define RADIUS 0.38
 #define GRAVITY 9.81
-#define PI 3.14159265359
 
 #define PERIOD  0.10
 
@@ -44,7 +43,7 @@
 
 /*  Function Prototypes for kalmanSwarm */
 
-void kalmanInitialBias( struct swarmGpsDataStruct * gpsData, struct swarmImuData * imuData, 
+void kalmanInitialBias( struct swarmGpsDataStruct * gpsData, struct swarmImuData * imuData,
 						struct swarmStateEstimate * stateEstimate );
 
 int kalmanInit( struct swarmStateEstimate * stateEstimate );

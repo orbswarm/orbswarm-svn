@@ -5,7 +5,7 @@
 
     This code comes from a mixture of sources, and at this time, may not have clear rights.
     Redistribute at your own risk.
-   
+
 */
 
 #include <stdio.h>
@@ -134,7 +134,7 @@ void matMult( uFloat **a, uFloat **b, uFloat **c,
 	  {
 	    if ((a_ptr[k] != 0.0) && (b[k][j] != 0.0))
 	    	temp = temp + (a_ptr[k] * b[k][j]);
-	  } 
+	  }
 	  c[i][j] = temp;
 	}
     }
@@ -159,7 +159,7 @@ void matMultVector( uFloat **a, uFloat *b, uFloat *c,
 
       for( k = 1; k <= a_cols; k++ )
       {
-        if ((a_ptr[ k ] != 0.0) && (*b_ptr != 0.0))	
+        if ((a_ptr[ k ] != 0.0) && (*b_ptr != 0.0))
 	   temp += a_ptr[ k ] * *b_ptr++;
 	else
            b_ptr++;
@@ -214,8 +214,8 @@ void matMultTranspose( uFloat **a, uFloat **b, uFloat **c,
 	  {
 	    if ((a_ptr[k] != 0.0) && (*b_ptr != 0.0))
 	    	temp += a_ptr[ k ] * *b_ptr++;
-	    else b_ptr++;	
-	  }	
+	    else b_ptr++;
+	  }
 	  c[i][j] = temp;
 	}
     }
@@ -272,7 +272,7 @@ void matCopy( uFloat **src, uFloat **dst, int num_rows, int num_cols )
 void gjInverse(uFloat **a, int n, uFloat **b, int m)
 {
   int *indxc,*indxr,*ipiv;
-  int i,icol,irow,j,k,l,ll;
+  int i,icol=0,irow=0,j,k,l,ll;
   uFloat big,dum,pivinv,temp;
 
   indxc=ivector(1,n);
@@ -302,10 +302,10 @@ void gjInverse(uFloat **a, int n, uFloat **b, int m)
     if (a[icol][icol] == 0.0) fprintf(stderr,"gjInverse: Singular Matrix\n");
     pivinv=1.0/a[icol][icol];
     a[icol][icol]=1.0;
-    for (l=1;l<=n;l++) 
+    for (l=1;l<=n;l++)
 	if (a[icol][l] != 0)
 		a[icol][l] *= pivinv;
-    for (l=1;l<=m;l++) 
+    for (l=1;l<=m;l++)
 	if (b[icol][l] != 0)
 		b[icol][l] *= pivinv;
     for (ll=1;ll<=n;ll++)
@@ -371,7 +371,7 @@ uFloat **matrix(long nrl, long nrh, long ncl, long nch)
 	m -= nrl;
 
 	/* allocate rows and set pointers to them */
-	m[nrl]=(uFloat *)malloc((size_t)((nrow*ncol+NR_END) 
+	m[nrl]=(uFloat *)malloc((size_t)((nrow*ncol+NR_END)
 					       *sizeof(uFloat)));
 	if (!m[nrl]) fprintf(stderr,"Allocation failure in matrix()\n");
 	m[nrl] += NR_END;

@@ -3,19 +3,20 @@
 #define SWARM_DEFINES_H 1
 
 #define VERBOSE 1 //set to 1 for increased debugging messages
+#define PI 3.14159265359
 
 #define MAX_BUFF_SZ 1024 //Serial port read/write buffer size
 #define SWARM_SUCCESS 0
-#define SWARM_SERIAL_WRITE_ERR 10 //failed to write data to serial port 
-#define SWARM_OUT_OF_MEMORY_ERROR 11 //failed to malloc some memory  
+#define SWARM_SERIAL_WRITE_ERR 10 //failed to write data to serial port
+#define SWARM_OUT_OF_MEMORY_ERROR 11 //failed to malloc some memory
 
 #define MAX_GPS_SENTENCE_SZ  256
 
-#define MAX_LOG_ENTRY_SZ 1024 
+#define MAX_LOG_ENTRY_SZ 1024
 #define MAX_NUM_LOG_FILES 5      //the maximum number of log files allowed
 #define MAX_LOG_FILE_SZ 262144
 
-#define MAX_LOG_FILE_NAME_SZ 512 
+#define MAX_LOG_FILE_NAME_SZ 512
 
 #define LOG_FILE_BASE_NAME "swarm_log_"
 #define DEFAULT_LOG_PATH "./logs"
@@ -48,7 +49,7 @@ const double rad2deg = 180.0 / PI;
 /*************************STRUCTURES************************************/
 typedef struct	swarmGpsDataStruct
 {
-  char gpsSentenceType[32]; 
+  char gpsSentenceType[32];
   char ggaSentence[MAX_GPS_SENTENCE_SZ];
   char vtgSentence[MAX_GPS_SENTENCE_SZ];
   char nmea_utctime[64];
@@ -78,7 +79,7 @@ struct	swarmImuData
   double si_accx;
   double si_accy;
   double si_accz;
-	
+
   double omega;
 
   /* raw data from IMU */

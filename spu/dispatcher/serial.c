@@ -113,7 +113,7 @@ int readCharsFromSerialPort(int port_fd, char* buff, int maxBufSz){
 }
 
 
-int readCharsFromSerialPortBlkd(int port_fd, char* buff, int nCharsToRead, 
+int readCharsFromSerialPortBlkd(int port_fd, char* buff, int nCharsToRead,
 	int timeoutInMillis){
     struct timeval startTime,nowTime;
     gettimeofday (&startTime, NULL);
@@ -145,9 +145,6 @@ int writeCharsToSerialPort(int port_fd, char* buff, int numBytesToWrite)
      fprintf(stderr,"write() of %d bytes failed!\n", numBytesToWrite);
      status = 0;
    }
-   // I took these out because they caused data loss (!) -- jtf
-   //tcflush(port_fd, TCOFLUSH);
-   //tcdrain(port_fd);
    return bytesWritten;
 }
 
@@ -155,7 +152,6 @@ void flushSerialPort(int port_fd)
 {
 #ifndef LOCAL
    tcflush(port_fd, TCIFLUSH);
-   //tcdrain(port_fd);
 #endif
 }
 

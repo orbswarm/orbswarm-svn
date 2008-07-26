@@ -236,13 +236,10 @@ void startChildProcessToGronk(void) {
 	struct timeval nowGronkTime;
 	struct timeval timeout;
 	char buffer[MSG_LENGTH + 1];
-	char drive_buffer[MSG_LENGTH + 1];
 	int i_bytesRead = 0;
-	int md_bytesRead = 0;
 	fd_set readSet;
 	fd_set writeSet;
 	struct swarmImuData imuData;
-	struct swarmMotorData motorData;
 	struct swarmStateEstimate stateEstimate;
 	char dataFileBuffer[1024];
 	char outputFileBuffer[1024];
@@ -312,7 +309,7 @@ void startChildProcessToGronk(void) {
 			logit(eMcuLog, eLogDebug, dataFileBuffer);
 			sprintf(outputFileBuffer, "\n%u,%u,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f",
 					(unsigned int) nowGronkTime.tv_sec,
-					(unsigned int) nowGronkTime.tv_usec / 1000, 
+					(unsigned int) nowGronkTime.tv_usec / 1000,
 					stateEstimate.vdot,
 					stateEstimate.v,
 					stateEstimate.phidot,
