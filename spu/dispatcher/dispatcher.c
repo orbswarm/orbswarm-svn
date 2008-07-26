@@ -65,6 +65,7 @@
 #include <stdarg.h>
 #include "imuutils.h"
 #include "pathfollow.h"
+#include "kalmanswarm.h"
 
 //#define LOCAL
 int parseDebug = eMcuLog; /*  parser uses this for debug output */
@@ -255,7 +256,7 @@ void startChildProcessToGronk(void) {
 		perror("Failed to open kalman.data");
 	int kalmanResulstFileFD = open("kalman.output", O_RDWR | O_CREAT
 			| O_NONBLOCK | O_TRUNC, 0x777);
-	if (kalmanResulstFileFD, 0)
+	if (kalmanResulstFileFD < 0)
 		perror("Failed to open kalman.output");
 	while (1) {
 		logit(eMcuLog, eLogDebug, "\n running while loop");
@@ -311,7 +312,7 @@ void startChildProcessToGronk(void) {
 			logit(eMcuLog, eLogDebug, dataFileBuffer);
 			sprintf(outputFileBuffer, "\n%u,%u,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f",
 					(unsigned int) nowGronkTime.tv_sec,
-					(unsigned int) nowGronkTime.tv_usec / 1000, buffer,/*formatted IMU data*/
+					(unsigned int) nowGronkTime.tv_usec / 1000, 
 					stateEstimate.vdot,
 					stateEstimate.v,
 					stateEstimate.phidot,
