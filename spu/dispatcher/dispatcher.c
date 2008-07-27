@@ -335,7 +335,8 @@ void startChildProcessToGronk(void) {
 					latestGpsCoordinates->metFromMshipEast,
 					latestGpsCoordinates->UTMZone,
 					latestGpsCoordinates->nmea_course,
-					latestGpsCoordinates->speed, imuData.omega);
+					latestGpsCoordinates->speed,
+					imuData.omega);
 				logit(eMcuLog, eLogDebug, dataFileBuffer);
 				sprintf(outputFileBuffer, "\n%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f",
 					(double)nowGronkTime.tv_sec + (double)nowGronkTime.tv_usec / 1000000,

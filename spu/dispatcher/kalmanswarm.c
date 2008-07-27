@@ -142,7 +142,7 @@ void zeroStateEstimates( struct swarmStateEstimate * stateEstimate )
   stateEstimate->v 		= 0.0;  // velocity
   stateEstimate->phidot = 0.0;	// roll angle rate
   stateEstimate->phi 	= 0.0;  // roll angle
-  stateEstimate->psi 	= PI-PI/4; 	// heading / yaw
+  stateEstimate->psi 	= PI/4; 	// heading / yaw
   stateEstimate->theta 	= 0.0;  // frontward pitch
   stateEstimate->x 		= 554235;  // meters East
   stateEstimate->y 		= 4182955;	// meters North
