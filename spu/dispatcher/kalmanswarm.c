@@ -34,15 +34,15 @@ void kalmanInitialBias( struct swarmGpsDataStruct * gpsData, struct swarmImuData
 {
 	if (strncmp(gpsData->UTMZone, "31Z",3) != 0)
 	{
-		stateEstimate->x 	= 0.01 * gpsData->UTMEasting  + 0.99 * stateEstimate->x;
-		stateEstimate->y 	= 0.01 * gpsData->UTMNorthing + 0.99 * stateEstimate->y;
+		stateEstimate->x 	= 0.05 * gpsData->UTMEasting  + 0.95 * stateEstimate->x;
+		stateEstimate->y 	= 0.05 * gpsData->UTMNorthing + 0.95 * stateEstimate->y;
 	}
-	stateEstimate->xab 	= 0.01 * imuData->si_accx + 0.99 * stateEstimate->xab;
-	stateEstimate->yab 	= 0.01 * imuData->si_accy + 0.99 * stateEstimate->yab;
-	stateEstimate->zab 	= 0.01 * imuData->si_accz + 0.99 * stateEstimate->zab;
+	stateEstimate->xab 	= 0.05 * imuData->si_accx + 0.95 * stateEstimate->xab;
+	stateEstimate->yab 	= 0.05 * imuData->si_accy + 0.95 * stateEstimate->yab;
+	stateEstimate->zab 	= 0.05 * (imuData->si_accz + GRAVITY) + 0.95 * stateEstimate->zab;
 
-	stateEstimate->xrb 	= 0.01 * imuData->si_ratex + 0.99 * stateEstimate->xrb;
-	stateEstimate->zrb 	= 0.01 * imuData->si_ratez + 0.99 * stateEstimate->zrb;
+	stateEstimate->xrb 	= 0.05 * imuData->si_ratex + 0.95 * stateEstimate->xrb;
+	stateEstimate->zrb 	= 0.05 * imuData->si_ratez + 0.95 * stateEstimate->zrb;
 }
 
 int kalmanInit( struct swarmStateEstimate * stateEstimate )
@@ -144,8 +144,8 @@ void zeroStateEstimates( struct swarmStateEstimate * stateEstimate )
   stateEstimate->phi 	= 0.0;  // roll angle
   stateEstimate->psi 	= PI-PI/4; 	// heading / yaw
   stateEstimate->theta 	= 0.0;  // frontward pitch
-  stateEstimate->x 		= 0.0;  // meters North
-  stateEstimate->y 		= 0.0;	// meters South
+  stateEstimate->x 		= 554235;  // meters East
+  stateEstimate->y 		= 4182955;	// meters North
   stateEstimate->xab	= 1.0;	// x accelerometer bias
   stateEstimate->yab	= 1.0;	// y accelerometer bias
   stateEstimate->zab	= -1.7;	// z accelerometer bias

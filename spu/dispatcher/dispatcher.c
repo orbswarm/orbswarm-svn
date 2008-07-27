@@ -308,12 +308,22 @@ void startChildProcessToGronk(void) {
 					initFlag = 1;
 			} else if (initFlag == 1)
 			{
-				kalmanInit( &stateEstimate );
-				// stand in until we get real mship data
-				// all GPS positions will be relative to starting point
-				latestGpsCoordinates->mshipNorth = stateEstimate.y;
-				latestGpsCoordinates->mshipEast  = stateEstimate.x;
-				initFlag = 2;
+				if (initCounter > 100)
+				{
+					initCounter = 0;
+				}
+				if (initCounter > 20)
+				{
+					// stand in until we get real mship data
+					// all GPS positions will be relative to starting point
+					latestGpsCoordinates->mshipNorth = stateEstimate.y;
+					latestGpsCoordinates->mshipEast  = stateEstimate.x;
+					stateEstimate.y = 0;
+					stateEstimate.x = 0;
+					kalmanInit( &stateEstimate );
+					initFlag = 2;
+				}
+				initCounter++;
 			} else
 			{
 				kalmanProcess(latestGpsCoordinates, &imuData, &stateEstimate);
@@ -333,8 +343,8 @@ void startChildProcessToGronk(void) {
 					stateEstimate.v,
 					stateEstimate.phidot,
 					stateEstimate.phi,
-					stateEstimate.psi,
 					stateEstimate.theta,
+					stateEstimate.psi,
 					stateEstimate.x,
 					stateEstimate.y,
 					stateEstimate.xab,
