@@ -29,7 +29,7 @@
  *    on the pipe and whenever it gets something it knows there is a corresponding message in the shared memory
  * 	  queue(see tellChild() and waitParent()). Each GPS location or velocity message
  * 	  is passed through the parsing routines in gpsutils.c. And the latest velocity and location
- *    data points are extracted and stored in 'latestGpsCordinates' which is a shared memory
+ *    data points are extracted and stored in 'latestGpsCoordinates' which is a shared memory
  *    data structure for the gronkulator to use.
  *
  * 3. Gronkulator:
@@ -37,7 +37,7 @@
  *    runs the 10 Hz loop that will eventually call the Kalman Filter to
  * 	  do the estimated corrections. When the timer overflows every 100 ms(not accurate) or so
  *    it queries the daughterboard on COM5 to get the drive and steering measurements and outputs
- *    that alongwith the most current gps location and velocity values from the variable 'latestGpsCordinates'
+ *    that along with the most current gps location and velocity values from the variable 'latestGpsCoordinates'
  * 	  in shared memory. The gronkulator also recieves MCU commands(sent from the remotes or the
  * 	  mothership via the aggregator) from the main dispatcher process through a shared memory queue.
  *    The communication and synchronization for this queue is done in a manner similar to that between
@@ -79,14 +79,14 @@ int com3 = 0, com5 = 0; /* ditto */
 
 Queue *gpsQueuePtr;
 Queue *mcuQueuePtr;
-swarmGpsData *latestGpsCordinates;
+swarmGpsData *latestGpsCoordinates;
 
 int gpsQueueSegmentId = -1;
 struct shmid_ds gpsQueueShmidDs;
 int mcuQueueSegmentId = -1;
 struct shmid_ds mcuQueueShmidDs;
-int latestGpsCordinatesSegmentId = -1;
-struct shmid_ds latestGpsCordinatesShmidDs;
+int latestGpsCoordinatesSegmentId = -1;
+struct shmid_ds latestGpsCoordinatesShmidDs;
 
 int isParent = 1;
 enum ECommandPipe {
@@ -162,8 +162,8 @@ static void onShutdown(void) {
 		shmctl(mcuQueueSegmentId, IPC_RMID, 0);
 		fprintf(stderr, "\n cleaned shared mem for mcu message queue");
 	}
-	if (isParent && -1 != latestGpsCordinatesSegmentId) {
-		shmctl(latestGpsCordinatesSegmentId, IPC_RMID, 0);
+	if (isParent && -1 != latestGpsCoordinatesSegmentId) {
+		shmctl(latestGpsCoordinatesSegmentId, IPC_RMID, 0);
 		fprintf(stderr,
 				"\n cleaned shared mem for latest gps co-ord data struct");
 	}
@@ -179,18 +179,18 @@ static void signalHandler(int signo) {
 
 int initSharedMem(void) {
 	//Allocate shared memory for GPS struct that represents latest co-ordintaes
-	latestGpsCordinatesSegmentId = shmget(IPC_PRIVATE, sizeof(swarmGpsData),
+	latestGpsCoordinatesSegmentId = shmget(IPC_PRIVATE, sizeof(swarmGpsData),
 			IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR);
-	if (-1 == latestGpsCordinatesSegmentId)
+	if (-1 == latestGpsCoordinatesSegmentId)
 		return 0;
 	//Attach
-	latestGpsCordinates = (swarmGpsData *) shmat(latestGpsCordinatesSegmentId,
+	latestGpsCoordinates = (swarmGpsData *) shmat(latestGpsCoordinatesSegmentId,
 			0, 0);
-	if (-1 == (int) latestGpsCordinates)
+	if (-1 == (int) latestGpsCoordinates)
 		return 0;
 	//read shared memory data structure
-	if (-1 == shmctl(latestGpsCordinatesSegmentId, IPC_STAT,
-			&latestGpsCordinatesShmidDs))
+	if (-1 == shmctl(latestGpsCoordinatesSegmentId, IPC_STAT,
+			&latestGpsCoordinatesShmidDs))
 		return 0;
 	logit(eDispatcherLog, eLogDebug,
 			"\nsegment size for latest gps co-ord data struct=%d",
@@ -243,9 +243,13 @@ void startChildProcessToGronk(void) {
 	struct swarmStateEstimate stateEstimate;
 	char dataFileBuffer[1024];
 	char outputFileBuffer[1024];
+	int initCounter = 0;
+	int initFlag = 0; // 3 states - 0. initializing bias 1. initializing kf 2. running
 
 	zeroStateEstimates(&stateEstimate);
-	kalmanInit(&stateEstimate);
+	latestGpsCoordinates->mshipNorth 	= 0.0; //until we get real data
+	latestGpsCoordinates->mshipEast 	= 0.0; //until we get real data
+
 
 	int kalmanDataFileFD = open("kalman.data", O_RDWR | O_CREAT | O_NONBLOCK
 			| O_TRUNC, 0x777);
@@ -255,6 +259,7 @@ void startChildProcessToGronk(void) {
 			| O_NONBLOCK | O_TRUNC, 0x777);
 	if (kalmanResulstFileFD < 0)
 		perror("Failed to open kalman.output");
+
 	while (1) {
 		logit(eMcuLog, eLogDebug, "\n running while loop");
 		gettimeofday(&nowGronkTime, NULL);
@@ -283,33 +288,47 @@ void startChildProcessToGronk(void) {
 			char parsedAndFormattedGpsCoordinates[96];
 			sprintf(parsedAndFormattedGpsCoordinates,
 					"{orb=%d northing=%f easting=%f utmzone=%s}", myOrbId,
-					latestGpsCordinates->UTMNorthing,
-					latestGpsCordinates->UTMEasting,
-					latestGpsCordinates->UTMZone);
+					latestGpsCoordinates->UTMNorthing,
+					latestGpsCoordinates->UTMEasting,
+					latestGpsCoordinates->UTMZone);
 
-			//Parse IMU and shaft encoder responses
-			// parseDriveMsg (drive_buffer, &motorData);
-			// logDriveDataString (&motorData, drive_buffer);
 			parseImuMsg(buffer, &imuData);
 
 			logImuDataString(&imuData, buffer);
-			//logit(eMcuLog, eLogDebug, "\nformatted drive response from db=%s",
-			//      drive_buffer);
 
-			kalmanProcess(latestGpsCordinates, &imuData, &stateEstimate);
+			if (initFlag == 0)
+			{
+				kalmanInitialBias(latestGpsCoordinates, &imuData, &stateEstimate);
+				initCounter++;
+				if (initCounter > 599)
+				{
+					if (strncmp(latestGpsCoordinates->UTMZone, "31Z",3) != 0)
+							initFlag = 1;
+				} else if (initCounter > 1800)
+					initFlag = 1;
+			} else if (initFlag == 1)
+			{
+				kalmanInit( &stateEstimate );
+				// stand in until we get real mship data
+				// all GPS positions will be relative to starting point
+				latestGpsCoordinates->mshipNorth = stateEstimate.y;
+				latestGpsCoordinates->mshipEast  = stateEstimate.x;
+				initFlag = 2;
+			} else
+			{
+				kalmanProcess(latestGpsCoordinates, &imuData, &stateEstimate);
 
-			sprintf(dataFileBuffer, "\n%u,%u,%s,%f,%f,%s,%f,%f,%f",
-					(unsigned int) nowGronkTime.tv_sec,
-					(unsigned int) nowGronkTime.tv_usec / 1000, buffer,/*formatted IMU data*/
-					latestGpsCordinates->UTMNorthing,
-					latestGpsCordinates->UTMEasting,
-					latestGpsCordinates->UTMZone,
-					latestGpsCordinates->nmea_course,
-					latestGpsCordinates->speed, imuData.omega);
-			logit(eMcuLog, eLogDebug, dataFileBuffer);
-			sprintf(outputFileBuffer, "\n%u,%u,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f",
-					(unsigned int) nowGronkTime.tv_sec,
-					(unsigned int) nowGronkTime.tv_usec / 1000,
+				sprintf(dataFileBuffer, "\n%f,%s,%f,%f,%s,%f,%f,%f",
+					(double)nowGronkTime.tv_sec + (double)nowGronkTime.tv_usec / 1000000,
+					buffer,		/*formatted IMU data*/
+					latestGpsCoordinates->metFromMshipNorth,
+					latestGpsCoordinates->metFromMshipEast,
+					latestGpsCoordinates->UTMZone,
+					latestGpsCoordinates->nmea_course,
+					latestGpsCoordinates->speed, imuData.omega);
+				logit(eMcuLog, eLogDebug, dataFileBuffer);
+				sprintf(outputFileBuffer, "\n%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f",
+					(double)nowGronkTime.tv_sec + (double)nowGronkTime.tv_usec / 1000000,
 					stateEstimate.vdot,
 					stateEstimate.v,
 					stateEstimate.phidot,
@@ -323,7 +342,8 @@ void startChildProcessToGronk(void) {
 					stateEstimate.zab,
 					stateEstimate.xrb,
 					stateEstimate.zrb);
-			logit(eMcuLog, eLogDebug, outputFileBuffer);
+				logit(eMcuLog, eLogDebug, outputFileBuffer);
+			}
 			//reset timer and start over
 			lastGronkTime = nowGronkTime;
 		} else {
@@ -425,50 +445,52 @@ void startChildProcessToProcessGpsMsg(void) {
 			char resp[96];
 			if (0 == strncmp(buffer, "GPGGA", 5)) {
 				logit(eGpsLog, eLogDebug, "\n+++++++got GGA message+++++++");
-				strncpy(latestGpsCordinates->ggaSentence, buffer, MSG_LENGTH);
-				int status = parseGPSGGASentence(latestGpsCordinates);
+				strncpy(latestGpsCoordinates->ggaSentence, buffer, MSG_LENGTH);
+				int status = parseGPSGGASentence(latestGpsCoordinates);
 
 				logit(eGpsLog, eLogDebug, "parseGPSSentence() return=%d\n",
 						status);
 				status = convertNMEAGpsLatLonDataToDecLatLon(
-						latestGpsCordinates);
+						latestGpsCoordinates);
 				if (status == SWARM_SUCCESS) {
 					logit(eGpsLog, eLogDebug,
 							"\n Decimal lat:%lf lon:%lf utctime:%s \n",
-							latestGpsCordinates->latdd,
-							latestGpsCordinates->londd,
-							latestGpsCordinates->nmea_utctime);
+							latestGpsCoordinates->latdd,
+							latestGpsCoordinates->londd,
+							latestGpsCoordinates->nmea_utctime);
 
 					decimalLatLongtoUTM(WGS84_EQUATORIAL_RADIUS_METERS,
-							WGS84_ECCENTRICITY_SQUARED, latestGpsCordinates);
+							WGS84_ECCENTRICITY_SQUARED, latestGpsCoordinates);
+					latestGpsCoordinates->metFromMshipNorth = latestGpsCoordinates->UTMNorthing - latestGpsCoordinates->mshipNorth;
+					latestGpsCoordinates->metFromMshipEast  = latestGpsCoordinates->UTMEasting  - latestGpsCoordinates->mshipEast;
 					logit(eGpsLog, eLogDebug,
 							"Northing:%f,Easting:%f,UTMZone:%s\n",
-							latestGpsCordinates->UTMNorthing,
-							latestGpsCordinates->UTMEasting,
-							latestGpsCordinates->UTMZone);
+							latestGpsCoordinates->UTMNorthing,
+							latestGpsCoordinates->UTMEasting,
+							latestGpsCoordinates->UTMZone);
 				} else {
 					logit(eGpsLog, eLogError,
 							"\ncouldn't convertNMEAGpsLatLonDataToDecLatLon status="
 								"%d", status);
 				}
 				//              sprintf (resp, "{orb=%d\nnorthing=%f\neasting=%f\nutmzone=%s}",
-				//                       myOrbId, latestGpsCordinates->UTMNorthing,
-				//                       latestGpsCordinates->UTMEasting,
-				//                       latestGpsCordinates->UTMZone);
+				//                       myOrbId, latestGpsCoordinates->UTMNorthing,
+				//                       latestGpsCoordinates->UTMEasting,
+				//                       latestGpsCoordinates->UTMZone);
 				logit(eGpsLog, eLogInfo, "\n sending msg to spu=%s", resp);
 				writeCharsToSerialPort(com2, resp, strlen(resp));
 			} //end if GPGGA
 			else if (0 == strncmp(buffer, "GPVTG", 5)) {
 				logit(eGpsLog, eLogDebug, "\n+++++++got VTG message+++++++");
-				strncpy(latestGpsCordinates->vtgSentence, buffer, MSG_LENGTH);
-				int nStatus = parseGPSVTGSentance(latestGpsCordinates);
+				strncpy(latestGpsCoordinates->vtgSentence, buffer, MSG_LENGTH);
+				int nStatus = parseGPSVTGSentance(latestGpsCoordinates);
 				logit(eGpsLog, eLogDebug,
 						"\n parsed vtg sentence=%s \nreturn=%d",
-						latestGpsCordinates->vtgSentence, nStatus);
+						latestGpsCoordinates->vtgSentence, nStatus);
 			} else
 				logit(eGpsLog, eLogError,
 						"\n+++++++got unknown message+++++++, msg=%s",
-						latestGpsCordinates->ggaSentence);
+						latestGpsCoordinates->ggaSentence);
 		} else {
 			logit(eGpsLog, eLogError,
 					"\npop returned nothing. shouldn't be here");

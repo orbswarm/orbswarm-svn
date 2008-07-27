@@ -275,6 +275,9 @@ void gjInverse(uFloat **a, int n, uFloat **b, int m)
   int i,icol=0,irow=0,j,k,l,ll;
   uFloat big,dum,pivinv,temp;
 
+  icol = 0; // mostly to get rid of an extraneous warning
+  irow = 0; // mostly to get rid of an extraneous warning
+
   indxc=ivector(1,n);
   indxr=ivector(1,n);
   ipiv=ivector(1,n);

@@ -12,13 +12,14 @@
 // refactored from swarmsputils.c  by Jon Foote (Head Rotor ar rotorbrain.com)
 // -----------------------------------------------------------------------
 
+#include "swarmdefines.h"
 #define SWARM_INVALID_GPS_SENTENCE 100
+
 #define SWARM_NMEA_GPS_SENTENCE_TYPE_GPGGA "GPGGA"
 #define SWARM_NMEA_GPS_SENTENCE_TYPE_GPVTG "GPVTG"
 #define SWARM_NMEA_GPS_DATA_DELIM ","
 
 /************************Constants**************************************/
-
 #define FOURTHPI PI / 4.0
 #define DEG2RAD PI / 180.0
 #define RAD2DEG 180.0 / PI
@@ -32,7 +33,6 @@
 //#include <sys/stat.h>			/* declare the 'stat' structure	*/
 #include <time.h>
 #include <errno.h>
-#include "swarmdefines.h"
 #include <stdlib.h>
 #include <math.h>
 

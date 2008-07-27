@@ -20,9 +20,8 @@
 
 
 // Static vars for control
-
-static swarmPID lateralPID;
-static swarmPID velocityPID;
+static struct swarmPID lateralPID;
+static struct swarmPID velocityPID;
 
 double limit( double *v, double minVal, double maxVal);
 

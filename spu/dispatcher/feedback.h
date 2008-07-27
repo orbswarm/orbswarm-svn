@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------
-// 
+//
 //	feedback.h
-//      SWARM Orb 
+//      SWARM Orb
 //      feedback PID loop  for SWARM Orb http://www.orbswarm.com
 //
 //	Reapplied to heading control by Michael michaelprados.com
@@ -15,5 +15,5 @@
 
 void swarmFeedbackInit(void);
 
-swarmFeedbackProcess(struct swarmStateEstimate * stateEstimate, struct swarmGPSData * target, struct swarmFeedback * feedback );
+void swarmFeedbackProcess(struct swarmStateEstimate * stateEstimate, struct swarmGPSData * target, struct swarmFeedback * feedback );
 

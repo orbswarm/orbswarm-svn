@@ -40,12 +40,9 @@
 #define GRONKULATOR_FREQ_IN_MILLIS 90 //10 Hz
 
 /************************Constants**************************************/
-/*
-const double PI = 3.14159265;
-const double FOURTHPI = PI / 4;
-const double deg2rad = PI / 180;
-const double rad2deg = 180.0 / PI;
-*/
+#define PI 3.14159265359
+
+
 /*************************STRUCTURES************************************/
 typedef struct	swarmGpsDataStruct
 {
@@ -60,6 +57,8 @@ typedef struct	swarmGpsDataStruct
   double latdd;
   double londd;
   double utcTime;
+  double mshipNorth;
+  double mshipEast;
   double metFromMshipNorth;
   double metFromMshipEast;
   double utcTimeMship;
