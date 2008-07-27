@@ -163,8 +163,8 @@ struct  swarmStateEstimate
   double v;
   double phidot;
   double phi;
-  double psi;
   double theta;
+  double psi;
   double x;
   double y;
   double xab;
@@ -200,6 +200,26 @@ struct spuADConverterStatus {
 	double sonar; // this is in inches
 	double battery_voltage;
 };
+
+struct	swarmCoord
+{
+  // an x,y coordinate and some related attributes
+
+  double x;		// x position (meters East)
+  double y;		// y position (meters North)
+  double psi;		// heading (radians counterclockwise from East)
+  double v;		// velocity
+};
+
+struct swarmCircle
+{
+  struct swarmCoord center;	// location of circle center
+  struct swarmCoord current;	// current position along circle circumference
+  double radius;
+  double direction;		// right hand rule: +1 for counterclockwise, -1 for clockwise
+  double carrotDistance;	// length to place carrot in front of current
+};
+
 
 extern swarmGpsData *latestGpsCordinates;
 

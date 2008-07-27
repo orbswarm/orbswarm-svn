@@ -66,6 +66,7 @@
 #include "imuutils.h"
 #include "pathfollow.h"
 #include "kalmanswarm.h"
+#include "feedback.h"
 
 //#define LOCAL
 int parseDebug = eMcuLog; /*  parser uses this for debug output */
@@ -245,11 +246,14 @@ void startChildProcessToGronk(void) {
 	char outputFileBuffer[1024];
 	int initCounter = 0;
 	int initFlag = 0; // 3 states - 0. initializing bias 1. initializing kf 2. running
+	struct swarmCoord carrot;
+	struct swarmFeedback feedback;
 
 	zeroStateEstimates(&stateEstimate);
 	latestGpsCoordinates->mshipNorth 	= 0.0; //until we get real data
 	latestGpsCoordinates->mshipEast 	= 0.0; //until we get real data
 
+	swarmFeedbackInit();
 
 	int kalmanDataFileFD = open("kalman.data", O_RDWR | O_CREAT | O_NONBLOCK
 			| O_TRUNC, 0x777);
@@ -311,9 +315,6 @@ void startChildProcessToGronk(void) {
 				if (initCounter > 100)
 				{
 					initCounter = 0;
-				}
-				if (initCounter > 20)
-				{
 					// stand in until we get real mship data
 					// all GPS positions will be relative to starting point
 					latestGpsCoordinates->mshipNorth = stateEstimate.y;
@@ -321,8 +322,12 @@ void startChildProcessToGronk(void) {
 					stateEstimate.y = 0;
 					stateEstimate.x = 0;
 					kalmanInit( &stateEstimate );
-					initFlag = 2;
+					carrot.x = 20 * cos(stateEstimate.psi);
+					carrot.y = 20 * sin(stateEstimate.psi);
 				}
+				if (initCounter > 10)
+					initFlag = 2;
+
 				initCounter++;
 			} else
 			{
@@ -354,6 +359,8 @@ void startChildProcessToGronk(void) {
 					stateEstimate.xrb,
 					stateEstimate.zrb);
 				logit(eMcuLog, eLogDebug, outputFileBuffer);
+
+				swarmFeedbackProcess(&stateEstimate, &carrot, &feedback );
 			}
 			//reset timer and start over
 			lastGronkTime = nowGronkTime;

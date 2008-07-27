@@ -17,6 +17,7 @@
 #include  <sys/select.h>
 #include  <math.h>
 #include "swarmdefines.h"
+#include "pathfollow.h"
 
 
 // Static vars for control
@@ -24,6 +25,7 @@ static struct swarmPID lateralPID;
 static struct swarmPID velocityPID;
 
 double limit( double *v, double minVal, double maxVal);
+double processPID( struct swarmPID * PID );
 
 // ------------------------------------------------------------------------
 
@@ -52,19 +54,13 @@ void swarmFeedbackInit(void)
 }
 
 void swarmFeedbackProcess(struct swarmStateEstimate * stateEstimate,
-		struct swarmGPSData * target, struct swarmFeedback * feedback )
+		struct swarmCoord * carrot, struct swarmFeedback * feedback )
 {
-   double xError;
-   double yError;
+   lateralPID.error  =  headingError(stateEstimate, carrot);
+   // velocityPID.error = -xError * sin( target->nmea_course ) + yError * cos( target->nmea_course );
 
-   xError = stateEstimate->x - target->metFromMshipNorth;
-   yError = stateEstimate->y - target->metFromMshipEast;
-
-   lateralPID.error  =  xError * cos( target->nmea_course ) + yError * sin( target->nmea_course );
-   velocityPID.error = -xError * sin( target->nmea_course ) + yError * cos( target->nmea_course );
-
-   swarmFeedback->deltaDes     = processPID( &lateralPID );
-   swarmFeedback->vDes = processPID( &velocityPID ) + target->speed;
+   feedback->deltaDes     = processPID( &lateralPID );
+   // swarmFeedback->vDes = processPID( &velocityPID ) + target->speed;
 
 }
 
@@ -80,8 +76,8 @@ void swarmFeedbackProcess(struct swarmStateEstimate * stateEstimate,
 double processPID( struct swarmPID * PID )
 {
   double output;
-  double p_term, d_term, i_term;
-  char debugBuffer[MAX_BUFF_SZ + 1];
+  double pTerm, dTerm, iTerm;
+  // char debugBuffer[MAX_BUFF_SZ + 1];
 
   // dead band
   if (fabs(PID->error) < PID->deadBand) {	// we are where we want to be - no motion required
@@ -90,27 +86,27 @@ double processPID( struct swarmPID * PID )
   }
 
   // calculate p term
-  p_term = PID->error * PID->Kp;
+  pTerm = PID->error * PID->Kp;
 
   // calculate d term
-  d_term = PID->Kd * (PID->lastError - PID->error);
+  dTerm = PID->Kd * (PID->lastError - PID->error);
   PID->lastError = PID->error;
 
   // sum to integrate error and limit runaway
   PID->iSum += PID->error;
-  limit(&(PID->iSum),-iLimit, iLimit);
+  limit(&(PID->iSum),-PID->iLimit, PID->iLimit);
 
-  i_term = PID->Ki * PID->iSum;
-  output = (p_term + d_term + i_term);
+  iTerm = PID->Ki * PID->iSum;
+  output = (pTerm + dTerm + iTerm);
 
   // If Debug Log is turned on, output PID data until position is stable
-  if ((PID->debugOutput == 1) && debugFileDescriptor != 0) {
-    sprintf(debugBuffer, "PID error: %g %g Drive: %g \n\r STEER P,I,D: %g, %g, %g Integrator: %g \n\r",
-	PID->error, output, p_term, i_term, d_term, PID->iSum );
+  //if ((PID->debugOutput == 1) && debugFileDescriptor != 0) {
+  //  sprintf(debugBuffer, "PID error: %g %g Drive: %g \n\r STEER P,I,D: %g, %g, %g Integrator: %g \n\r",
+  //	PID->error, output, p_term, i_term, d_term, PID->iSum );
 
-    writeCharsToSerialPort(debugFileDescriptor, debugBuffer, strlen(debugBuffer));
+  //  writeCharsToSerialPort(debugFileDescriptor, debugBuffer, strlen(debugBuffer));
 
-  }
+  // }
 
   return(output);
 
