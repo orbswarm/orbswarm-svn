@@ -144,8 +144,8 @@ void zeroStateEstimates( struct swarmStateEstimate * stateEstimate )
   stateEstimate->phi 	= 0.0;  // roll angle
   stateEstimate->psi 	= -PI/6; 	// heading / yaw
   stateEstimate->theta 	= 0.0;  // frontward pitch
-  stateEstimate->x 		= 554235;  // meters East
-  stateEstimate->y 		= 4182955;	// meters North
+  stateEstimate->x 		= 554159.9;  // meters East
+  stateEstimate->y 		= 4177058.3;	// meters North
   stateEstimate->xab	= 1.0;	// x accelerometer bias
   stateEstimate->yab	= 1.0;	// y accelerometer bias
   stateEstimate->zab	= -1.7;	// z accelerometer bias
