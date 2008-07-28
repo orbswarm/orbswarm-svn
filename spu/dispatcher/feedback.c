@@ -60,7 +60,7 @@ void swarmFeedbackProcess(struct swarmStateEstimate * stateEstimate,
    lateralPID.error  =  headingError(stateEstimate, carrot);
    // velocityPID.error = -xError * sin( target->nmea_course ) + yError * cos( target->nmea_course );
 
-   feedback->deltaDes     = -processPID( &lateralPID );
+   feedback->deltaDes     = processPID( &lateralPID );
    // swarmFeedback->vDes = processPID( &velocityPID ) + target->speed;
 
    debugPID( &lateralPID, stdout );

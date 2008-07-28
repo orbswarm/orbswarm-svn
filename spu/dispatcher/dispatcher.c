@@ -235,7 +235,7 @@ void startChildProcessToGronk(void) {
 						releaseCom3Lock();
 					}
 
-					sprintf(buffer, "$t10*");
+					sprintf(buffer, "$p60*");
 					writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
 					sprintf(buffer, "$s0*");
 					writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
