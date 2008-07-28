@@ -153,7 +153,7 @@ void startChildProcessToGronk(void) {
 		perror("Failed to open kalman.output");
 
 	while (1) {
-		logit(eMcuLog, eLogDebug, "\n running while loop");
+		//logit(eMcuLog, eLogDebug, "\n running while loop");
 		gettimeofday(&nowGronkTime, NULL);
 		time_t deltaSecs = nowGronkTime.tv_sec - lastGronkTime.tv_sec;
 		long deltaMillis = (nowGronkTime.tv_usec - lastGronkTime.tv_usec)
@@ -191,7 +191,9 @@ void startChildProcessToGronk(void) {
 			if (initFlag == 0)
 			{
 				if(initCounter==0  && acquireCom3Lock()){
-					writeCharsToSerialPort(com3, "<LR255>", 7);
+					logit(eMcuLog, eLogDebug, "\ninit state=0");
+					char* msg="<LB0><LR255><LG0><LT0><LF>";
+					writeCharsToSerialPort(com3, msg, strlen(msg));
 					releaseCom3Lock();
 				}
 
@@ -220,12 +222,14 @@ void startChildProcessToGronk(void) {
 					carrot.y = 20 * sin(stateEstimate.psi);
 				}
 				if (initCounter > 10){
+					initFlag = 2;
+					logit(eMcuLog, eLogDebug, "\ninit state=2");
 					if(acquireCom3Lock()){
-						writeCharsToSerialPort(com3, "<LG255>", 7);
+						char* msg="<LB0><LR0><LG255><LT0><LF>";
+						writeCharsToSerialPort(com3, msg, strlen(msg));
 						releaseCom3Lock();
 					}
 
-					initFlag = 2;
 				}
 
 				initCounter++;
@@ -603,7 +607,7 @@ int main(int argc, char *argv[]) {
 	if (initSwarmIpc()) {
 		logit(eGpsLog, eLogDebug, "\n shared memory initialized successfully");
 	} else {
-		fprintf(stderr, "\n shared memory init UNSUCCESSFUL");
+		fprintf(stderr, "\n swarm IPC init UNSUCCESSFUL");
 		return (1);
 	}
 	//set up pipes

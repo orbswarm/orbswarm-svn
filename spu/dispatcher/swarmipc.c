@@ -39,11 +39,11 @@ int pfd1[2] /*Gps */, pfd2[2] /*mcu */;
 
 int acquireCom3Lock(void){
 	struct sembuf getLockOps[1];
-	getLockOps[0].sem_num =1;
+	getLockOps[0].sem_num =0;
 	getLockOps[0].sem_op = -1;
 	getLockOps[0].sem_flg = 0;
-	int nStatus =semop(com3SemId, getLockOps, 1);
-	if(EIDRM == nStatus || EINTR == nStatus){
+	//int nStatus =semop(com3SemId, getLockOps, 1);
+	if(semop(com3SemId, getLockOps, 1) < 0){
 		perror("\n com5 sem acquire failed");
 		return 0;
 	}
@@ -53,7 +53,7 @@ int acquireCom3Lock(void){
 
 void releaseCom3Lock(void){
 	struct sembuf releaseLockOps[1];
-	releaseLockOps[0].sem_num =1;
+	releaseLockOps[0].sem_num =0;
 	releaseLockOps[0].sem_op = +1;
 	releaseLockOps[0].sem_flg = 0;
 	if(semop(com3SemId, releaseLockOps, 1) < 0)
@@ -69,6 +69,10 @@ void releaseCom3Lock(void){
 int initSwarmIpc() {
 	//Create semaphore for COM5
 	com3SemId = semget(IPC_PRIVATE, 1, S_IRUSR | S_IWUSR);
+	if(com3SemId < 0){
+		perror("Failed to get com3 semaphore");
+		return 0;
+	}
 	union {
 	    int              val;    /* Value for SETVAL */
 	    struct semid_ds *buf;    /* Buffer for IPC_STAT, IPC_SET */
@@ -76,7 +80,13 @@ int initSwarmIpc() {
 	    struct seminfo  *__buf;  /* Buffer for IPC_INFO
 	                                (Linux specific) */
 	}  arg;
-    semctl(com3SemId, 1, SETVAL, arg);//init semaphore to 1(available)
+	arg.val=1;
+//	struct semid_ds mysemds;
+//	arg.buf=&mysemds;
+    if(semctl(com3SemId, 0, SETVAL, arg)<0){
+    	perror("Failed to init com3 semaphore");
+    	return 0;
+    }
 
 	//Allocate shared memory for GPS struct that represents latest co-ordintaes
 	latestGpsCoordinatesSegmentId = shmget(IPC_PRIVATE, sizeof(swarmGpsData),
