@@ -203,7 +203,8 @@ void startChildProcessToGronk(void) {
 				{
 					if (strncmp(latestGpsCoordinates->UTMZone, "31Z",3) != 0)
 						initFlag = 1;
-				} else if (initCounter > 1800)
+				}
+				if (initCounter > 1800)
 					initFlag = 1;
 			} else if (initFlag == 1)
 			{
