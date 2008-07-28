@@ -31,9 +31,10 @@ double headingError(struct swarmStateEstimate * stateEstimate, struct swarmCoord
 {
   double errorValue;
 
-  errorValue = atan2( (carrot->x - stateEstimate->x),(carrot->y - stateEstimate->y) ); // errorValue = desired heading
+  errorValue = atan2( (carrot->y - stateEstimate->y),(carrot->x - stateEstimate->x) ); // errorValue = desired heading
   errorValue = stateEstimate->psi - errorValue; // errorValue = heading - desired heading
   errorValue -= 2*PI*rint(errorValue/(2*PI)); 	// unwrap phase of errorValue
+  fprintf(stdout, "\nerrorValue=%f", errorValue );
   return(errorValue);
 }
 

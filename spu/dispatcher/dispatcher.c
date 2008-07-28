@@ -208,7 +208,7 @@ void startChildProcessToGronk(void) {
 					if (strncmp(latestGpsCoordinates->UTMZone, "31Z",3) != 0)
 						gronkMode = 1;
 				}
-				if (initCounter > 1800)
+				if (initCounter > 599)
 					gronkMode = 1;
 			break;
 
@@ -236,6 +236,8 @@ void startChildProcessToGronk(void) {
 					}
 
 					sprintf(buffer, "$t10*");
+					writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
+					sprintf(buffer, "$s0*");
 					writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
 					drainSerialPort(com5);
 
@@ -278,6 +280,11 @@ void startChildProcessToGronk(void) {
 
 				swarmFeedbackProcess(&stateEstimate, &carrot, &feedback );
 				thisSteeringValue = (int)rint(feedback.deltaDes * 190.0);
+				if(thisSteeringValue > 100)
+					thisSteeringValue = 100;
+				if(thisSteeringValue < -100)
+					thisSteeringValue = -100;
+
 				sprintf(buffer, "$s%d*", thisSteeringValue );
 				logit(eMcuLog, eLogDebug, buffer);
 				if (1)
