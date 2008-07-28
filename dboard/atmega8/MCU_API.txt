@@ -72,6 +72,9 @@ Set_Steering_Position
 	Negative values steer towards the left, positive to the right.
 	Example: $s0* centers the steering.
 	Min/max is +/- 100
+	Magnitude of angle is 30 degrees for 100 units (so, e.g. 50 units gets a 15 degree tilt)
+
+
 
 Query Status commands:
       Returns motor controller and IMU data in parseable keyword/value pairs. 
