@@ -26,19 +26,20 @@ static struct swarmPID velocityPID;
 
 double limit( double *v, double minVal, double maxVal);
 double processPID( struct swarmPID * PID );
+void debugPID( struct swarmPID * PID, FILE * fD);
 
 // ------------------------------------------------------------------------
 
 void swarmFeedbackInit(void)
 {
-	lateralPID.Kp 		= 8.0;
+	lateralPID.Kp 		= 0.02;
 	lateralPID.Ki 		= 0.0;
 	lateralPID.Kd 		= 0.0;
-	lateralPID.deadBand 	= 10.0;	// Set high to stop chatter, decrease for precision
+	lateralPID.deadBand 	= 0.025;	// Set high to stop chatter, decrease for precision
 	lateralPID.minDrive 	= 60.0;
 	lateralPID.maxDrive 	= 200.0;
 	lateralPID.iSum 	= 0.0;
-	lateralPID.iLimit 	= 500.0;
+	lateralPID.iLimit 	= 1.0;
 	lateralPID.lastError 	= 0.0;
 
 	velocityPID.Kp 		= 8.0;
@@ -59,9 +60,10 @@ void swarmFeedbackProcess(struct swarmStateEstimate * stateEstimate,
    lateralPID.error  =  headingError(stateEstimate, carrot);
    // velocityPID.error = -xError * sin( target->nmea_course ) + yError * cos( target->nmea_course );
 
-   feedback->deltaDes     = processPID( &lateralPID );
+   feedback->deltaDes     = -processPID( &lateralPID );
    // swarmFeedback->vDes = processPID( &velocityPID ) + target->speed;
 
+   debugPID( &lateralPID, stdout );
 }
 
 
@@ -76,7 +78,6 @@ void swarmFeedbackProcess(struct swarmStateEstimate * stateEstimate,
 double processPID( struct swarmPID * PID )
 {
   double output;
-  double pTerm, dTerm, iTerm;
   // char debugBuffer[MAX_BUFF_SZ + 1];
 
   // dead band
@@ -86,31 +87,23 @@ double processPID( struct swarmPID * PID )
   }
 
   // calculate p term
-  pTerm = PID->error * PID->Kp;
+  PID->pTerm = PID->error * PID->Kp;
 
   // calculate d term
-  dTerm = PID->Kd * (PID->lastError - PID->error);
+  PID->dTerm = PID->Kd * (PID->lastError - PID->error);
   PID->lastError = PID->error;
 
   // sum to integrate error and limit runaway
   PID->iSum += PID->error;
   limit(&(PID->iSum),-PID->iLimit, PID->iLimit);
 
-  iTerm = PID->Ki * PID->iSum;
-  output = (pTerm + dTerm + iTerm);
-
-  // If Debug Log is turned on, output PID data until position is stable
-  //if ((PID->debugOutput == 1) && debugFileDescriptor != 0) {
-  //  sprintf(debugBuffer, "PID error: %g %g Drive: %g \n\r STEER P,I,D: %g, %g, %g Integrator: %g \n\r",
-  //	PID->error, output, p_term, i_term, d_term, PID->iSum );
-
-  //  writeCharsToSerialPort(debugFileDescriptor, debugBuffer, strlen(debugBuffer));
-
-  // }
+  PID->iTerm = PID->Ki * PID->iSum;
+  output = (PID->pTerm + PID->dTerm + PID->iTerm);
 
   return(output);
 
 }
+
 
 // make sure minVal < maxVal (!)
 double limit( double *v, double minVal, double maxVal)
@@ -120,6 +113,10 @@ double limit( double *v, double minVal, double maxVal)
 	return *v;
 }
 
+void debugPID( struct swarmPID * PID, FILE * fD)
+{
+	fprintf( fD, "\n error:%f pTerm:%f iTerm:%f dTerm:%f iSum:%f",PID->error, PID->pTerm, PID->iTerm, PID->dTerm, PID->iSum);
+}
 
 
 

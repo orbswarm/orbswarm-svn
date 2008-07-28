@@ -35,6 +35,8 @@ void circleInit( struct swarmStateEstimate * stateEstimate, struct swarmCircle *
 void circlePath( struct swarmCircle * circle, struct swarmStateEstimate * stateEstimate,
 		 struct swarmCoord * carrot );
 
+double distanceToCoord( struct swarmStateEstimate * stateEstimate, struct swarmCoord * thisCoord );
+
 
 
 

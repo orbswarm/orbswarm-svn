@@ -31,8 +31,9 @@ double headingError(struct swarmStateEstimate * stateEstimate, struct swarmCoord
 {
   double errorValue;
 
-  errorValue = atan2( (carrot->x - stateEstimate->x),(carrot->y - stateEstimate->y) );
-  errorValue -= 2*PI*rint(errorValue/(2*PI));
+  errorValue = atan2( (carrot->x - stateEstimate->x),(carrot->y - stateEstimate->y) ); // errorValue = desired heading
+  errorValue = stateEstimate->psi - errorValue; // errorValue = heading - desired heading
+  errorValue -= 2*PI*rint(errorValue/(2*PI)); 	// unwrap phase of errorValue
   return(errorValue);
 }
 
@@ -68,6 +69,15 @@ void circlePath( struct swarmCircle * circle, struct swarmStateEstimate * stateE
 
   carrot->x = circle->current.x + circle->carrotDistance * cos(circle->current.psi);
   carrot->y = circle->current.y + circle->carrotDistance * sin(circle->current.psi);
+}
+
+double distanceToCoord( struct swarmStateEstimate * stateEstimate, struct swarmCoord * thisCoord )
+{
+	double distance;
+	distance = (stateEstimate->x - thisCoord->x) * (stateEstimate->x - thisCoord->x);
+	distance += (stateEstimate->y - thisCoord->y) * (stateEstimate->y - thisCoord->y);
+	distance = sqrt( distance );
+	return(distance);
 }
 
 

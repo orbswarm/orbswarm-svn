@@ -193,6 +193,9 @@ struct swarmPID
   double iSum;
   double iLimit;
   double debugOutput; // flag for outputing PID tuning info
+  double pTerm;
+  double iTerm;
+  double dTerm;
 };
 
 struct spuADConverterStatus {

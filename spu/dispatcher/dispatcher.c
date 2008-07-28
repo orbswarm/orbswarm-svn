@@ -133,9 +133,11 @@ void startChildProcessToGronk(void) {
 	char dataFileBuffer[1024];
 	char outputFileBuffer[1024];
 	int initCounter = 0;
-	int initFlag = 0; // 3 states - 0. initializing bias 1. initializing kf 2. running
+	int gronkMode = 0; // 4 states - 0. initializing bias 1. initializing kf 2. running 3. found goal
 	struct swarmCoord carrot;
 	struct swarmFeedback feedback;
+	int thisSteeringValue;
+	double distanceToCarrot;
 
 	zeroStateEstimates(&stateEstimate);
 	latestGpsCoordinates->mshipNorth 	= 0.0; //until we get real data
@@ -188,8 +190,10 @@ void startChildProcessToGronk(void) {
 
 			logImuDataString(&imuData, buffer);
 
-			if (initFlag == 0)
+			switch (gronkMode)
 			{
+			case 0:  //initialize bias
+
 				if(initCounter==0  && acquireCom3Lock()){
 					logit(eMcuLog, eLogDebug, "\ninit state=0");
 					char* msg="<LB0><LR255><LG0><LT0><LF>";
@@ -202,12 +206,13 @@ void startChildProcessToGronk(void) {
 				if (initCounter > 599)
 				{
 					if (strncmp(latestGpsCoordinates->UTMZone, "31Z",3) != 0)
-						initFlag = 1;
+						gronkMode = 1;
 				}
 				if (initCounter > 1800)
-					initFlag = 1;
-			} else if (initFlag == 1)
-			{
+					gronkMode = 1;
+			break;
+
+			case 1: // found biases, now initialize kalman filter
 
 				if (initCounter > 100)
 				{
@@ -223,7 +228,6 @@ void startChildProcessToGronk(void) {
 					carrot.y = 20 * sin(stateEstimate.psi);
 				}
 				if (initCounter > 10){
-					initFlag = 2;
 					logit(eMcuLog, eLogDebug, "\ninit state=2");
 					if(acquireCom3Lock()){
 						char* msg="<LB0><LR0><LG255><LT0><LF>";
@@ -231,11 +235,17 @@ void startChildProcessToGronk(void) {
 						releaseCom3Lock();
 					}
 
+					sprintf(buffer, "$t10*");
+					writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
+					drainSerialPort(com5);
+
+					gronkMode = 2;
 				}
 
 				initCounter++;
-			} else
-			{
+			break;
+
+			case 2: // normal running mode
 
 				kalmanProcess(latestGpsCoordinates, &imuData, &stateEstimate);
 
@@ -267,6 +277,33 @@ void startChildProcessToGronk(void) {
 				logit(eMcuLog, eLogDebug, outputFileBuffer);
 
 				swarmFeedbackProcess(&stateEstimate, &carrot, &feedback );
+				thisSteeringValue = (int)rint(feedback.deltaDes * 190.0);
+				sprintf(buffer, "$s%d*", thisSteeringValue );
+				logit(eMcuLog, eLogDebug, buffer);
+				if (1)
+				{
+					writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
+					drainSerialPort(com5);
+				}
+				distanceToCarrot = distanceToCoord( &stateEstimate, &carrot);
+				sprintf(buffer, "\n distanceToCarrot: %f", distanceToCarrot);
+				logit(eMcuLog, eLogDebug, buffer);
+				if (distanceToCarrot < 5)
+					gronkMode = 3;
+			break;
+
+			case 3: // made it to goal
+				// stop drive
+				sprintf(buffer, "$p0*");
+				writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
+
+				// set steering to 0
+				sprintf(buffer, "$s0*");
+				writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
+
+				drainSerialPort(com5);
+
+			break;
 			}
 			//reset timer and start over
 			lastGronkTime = nowGronkTime;
