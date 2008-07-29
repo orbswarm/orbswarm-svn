@@ -145,14 +145,14 @@ void startChildProcessToGronk(void) {
 
 	swarmFeedbackInit();
 
-	int kalmanDataFileFD = open("kalman.data", O_RDWR | O_CREAT | O_NONBLOCK
+	int kalmanDataFileFD = open("sensordata", O_RDWR | O_CREAT | O_NONBLOCK
 			| O_TRUNC, 0x777);
 	if (kalmanDataFileFD < 0)
-		perror("Failed to open kalman.data");
-	int kalmanResulstFileFD = open("kalman.output", O_RDWR | O_CREAT
+		perror("Failed to open sensordata");
+	int kalmanResulstFileFD = open("kalmanoutput", O_RDWR | O_CREAT
 			| O_NONBLOCK | O_TRUNC, 0x777);
 	if (kalmanResulstFileFD < 0)
-		perror("Failed to open kalman.output");
+		perror("Failed to open kalmanoutput");
 
 	while (1) {
 		//logit(eMcuLog, eLogDebug, "\n running while loop");
@@ -208,7 +208,7 @@ void startChildProcessToGronk(void) {
 					if (strncmp(latestGpsCoordinates->UTMZone, "31Z",3) != 0)
 						gronkMode = 1;
 				}
-				if (initCounter > 599)
+				if (initCounter > 1800)
 					gronkMode = 1;
 			break;
 
@@ -224,8 +224,8 @@ void startChildProcessToGronk(void) {
 					stateEstimate.y = 0;
 					stateEstimate.x = 0;
 					kalmanInit( &stateEstimate );
-					carrot.x = 20 * cos(stateEstimate.psi);
-					carrot.y = 20 * sin(stateEstimate.psi);
+					carrot.x = 20 * cos(stateEstimate.psi + PI/6);
+					carrot.y = 20 * sin(stateEstimate.psi + PI/6);
 				}
 				if (initCounter > 10){
 					logit(eMcuLog, eLogDebug, "\ninit state=2");
@@ -251,15 +251,15 @@ void startChildProcessToGronk(void) {
 
 				kalmanProcess(latestGpsCoordinates, &imuData, &stateEstimate);
 
-				sprintf(dataFileBuffer, "\n%f,%s,%f,%f,%s,%f,%f,%f",
+				sprintf(dataFileBuffer, "\n%f,%s,%f,%f,%f,%f,%f,%s",
 						(double)nowGronkTime.tv_sec + (double)nowGronkTime.tv_usec / 1000000,
 						buffer,		/*formatted IMU data*/
-						latestGpsCoordinates->metFromMshipNorth,
 						latestGpsCoordinates->metFromMshipEast,
-						latestGpsCoordinates->UTMZone,
+						latestGpsCoordinates->metFromMshipNorth,
 						latestGpsCoordinates->nmea_course,
 						latestGpsCoordinates->speed,
-						imuData.omega);
+						imuData.omega,
+						latestGpsCoordinates->UTMZone);
 				logit(eMcuLog, eLogDebug, dataFileBuffer);
 				sprintf(outputFileBuffer, "\n%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f",
 						(double)nowGronkTime.tv_sec + (double)nowGronkTime.tv_usec / 1000000,

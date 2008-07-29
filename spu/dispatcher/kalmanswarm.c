@@ -589,7 +589,7 @@ void covarianceSet( uFloat **Qk, uFloat **R )
 
   /* These values actually define Qc, then we multiply by PERIOD to get Qk */
 
-  Qk[ STATE_vdot ][ STATE_vdot ] 	= 0.00001;
+  Qk[ STATE_vdot ][ STATE_vdot ] 	= 0.00002;
   Qk[ STATE_v ][ STATE_v ] 		= 0.0;
   Qk[ STATE_phidot ][ STATE_phidot ]	= 0.00000000001;
   Qk[ STATE_phi ][ STATE_phi ] 		= 0.0;
@@ -618,6 +618,6 @@ void covarianceSet( uFloat **Qk, uFloat **R )
   R[ MEAS_yg ][ MEAS_yg ] 	= 5.0;
   R[ MEAS_psig ][ MEAS_psig ] 	= 2*PI;
   R[ MEAS_vg ][ MEAS_vg ] 	= 1.0;
-  R[ MEAS_omega ][ MEAS_omega ] = 0.1;
+  R[ MEAS_omega ][ MEAS_omega ] = 0.05;
 }
 
