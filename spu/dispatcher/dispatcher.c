@@ -34,7 +34,7 @@
  *
  * 3. Gronkulator:
  * 			This child process(started by startChildProcessToGronk())
- *    runs the 10 Hz loop that will eventually call the Kalman Filter to
+ *    runs the 10 Hz loop that calls the Kalman Filter to
  * 	  do the estimated corrections. When the timer overflows every 100 ms(not accurate) or so
  *    it queries the daughterboard on COM5 to get the drive and steering measurements and outputs
  *    that along with the most current gps location and velocity values from the variable 'latestGpsCoordinates'
@@ -190,29 +190,45 @@ void startChildProcessToGronk(void) {
 
 			logImuDataString(&imuData, buffer);
 
+			enum {GRONK_WAITFORFIX, GRONK_BIAS, GRONK_KALMANINIT, GRONK_RUN, GRONK_COMPLETE};
+
 			switch (gronkMode)
 			{
-			case 0:  //initialize bias
+			case GRONK_WAITFORFIX:
+				// set to purple
+				if(initCounter==0  && acquireCom3Lock()){
+					logit(eMcuLog, eLogDebug, "\ninit state=0");
+					char* msg="<LB255><LR255><LG0><LT0><LF>";
+					writeCharsToSerialPort(com3, msg, strlen(msg));
+					releaseCom3Lock();
+				}
 
+				if ((strncmp(latestGpsCoordinates->UTMZone, "31Z",3) != 0) || (initCounter > 1199))
+				{
+					gronkMode = GRONK_BIAS;
+					initCounter = 0;
+				} else {
+					initCounter++;
+				}
+			break;
+
+			case GRONK_BIAS:  //initialize bias
+				//set to red, and initialize stateEstimate
 				if(initCounter==0  && acquireCom3Lock()){
 					logit(eMcuLog, eLogDebug, "\ninit state=0");
 					char* msg="<LB0><LR255><LG0><LT0><LF>";
 					writeCharsToSerialPort(com3, msg, strlen(msg));
 					releaseCom3Lock();
+					initStateEstimates(latestGpsCoordinates, &imuData, &stateEstimate);
 				}
 
 				kalmanInitialBias(latestGpsCoordinates, &imuData, &stateEstimate);
 				initCounter++;
 				if (initCounter > 599)
-				{
-					if (strncmp(latestGpsCoordinates->UTMZone, "31Z",3) != 0)
-						gronkMode = 1;
-				}
-				if (initCounter > 1800)
-					gronkMode = 1;
+					gronkMode = GRONK_KALMANINIT;
 			break;
 
-			case 1: // found biases, now initialize kalman filter
+			case GRONK_KALMANINIT: // found biases, now initialize kalman filter
 
 				if (initCounter > 100)
 				{
@@ -221,14 +237,15 @@ void startChildProcessToGronk(void) {
 					// all GPS positions will be relative to starting point
 					latestGpsCoordinates->mshipNorth = stateEstimate.y;
 					latestGpsCoordinates->mshipEast  = stateEstimate.x;
-					stateEstimate.y = 0;
 					stateEstimate.x = 0;
+					stateEstimate.y = 0;
 					kalmanInit( &stateEstimate );
 					carrot.x = 20 * cos(stateEstimate.psi + PI/6);
 					carrot.y = 20 * sin(stateEstimate.psi + PI/6);
 				}
 				if (initCounter > 10){
 					logit(eMcuLog, eLogDebug, "\ninit state=2");
+					// set to green = go!
 					if(acquireCom3Lock()){
 						char* msg="<LB0><LR0><LG255><LT0><LF>";
 						writeCharsToSerialPort(com3, msg, strlen(msg));
@@ -241,13 +258,13 @@ void startChildProcessToGronk(void) {
 					writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
 					drainSerialPort(com5);
 
-					gronkMode = 2;
+					gronkMode = GRONK_RUN;
 				}
 
 				initCounter++;
 			break;
 
-			case 2: // normal running mode
+			case GRONK_RUN: // normal running mode
 
 				kalmanProcess(latestGpsCoordinates, &imuData, &stateEstimate);
 
@@ -295,20 +312,24 @@ void startChildProcessToGronk(void) {
 				distanceToCarrot = distanceToCoord( &stateEstimate, &carrot);
 				sprintf(buffer, "\n distanceToCarrot: %f", distanceToCarrot);
 				logit(eMcuLog, eLogDebug, buffer);
-				if (distanceToCarrot < 5)
-					gronkMode = 3;
+				if (distanceToCarrot < 5.0)
+					gronkMode = GRONK_COMPLETE;
 			break;
 
-			case 3: // made it to goal
+			case GRONK_COMPLETE: // made it to goal
 				// stop drive
 				sprintf(buffer, "$p0*");
 				writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
-
 				// set steering to 0
 				sprintf(buffer, "$s0*");
 				writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
-
 				drainSerialPort(com5);
+
+				if(acquireCom3Lock()){
+					char* msg="<LB255><LR255><LG255><LT0><LF>";
+					writeCharsToSerialPort(com3, msg, strlen(msg));
+					releaseCom3Lock();
+				}
 
 			break;
 			}

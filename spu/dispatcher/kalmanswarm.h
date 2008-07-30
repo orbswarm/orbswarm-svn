@@ -52,3 +52,6 @@ int kalmanProcess( struct swarmGpsDataStruct * gpsData, struct swarmImuData * im
 
 void zeroStateEstimates( struct swarmStateEstimate * stateEstimate );
 
+void initStateEstimates(struct swarmGpsDataStruct * gpsData, struct swarmImuData * imuData,
+		struct swarmStateEstimate * stateEstimate );
+

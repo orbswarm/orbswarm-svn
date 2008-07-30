@@ -32,11 +32,10 @@ static uFloat  *stateVec;              /* a state_size x 1 vector */
 void kalmanInitialBias( struct swarmGpsDataStruct * gpsData, struct swarmImuData * imuData,
 						struct swarmStateEstimate * stateEstimate )
 {
-	//if (strncmp(gpsData->UTMZone, "31Z",3) != 0)
-	//{
-		stateEstimate->x 	= 0.05 * gpsData->UTMEasting  + 0.95 * stateEstimate->x;
-		stateEstimate->y 	= 0.05 * gpsData->UTMNorthing + 0.95 * stateEstimate->y;
-	//}
+
+	stateEstimate->x 	= 0.05 * gpsData->UTMEasting  + 0.95 * stateEstimate->x;
+	stateEstimate->y 	= 0.05 * gpsData->UTMNorthing + 0.95 * stateEstimate->y;
+
 	stateEstimate->xab 	= 0.05 * imuData->si_accx + 0.95 * stateEstimate->xab;
 	stateEstimate->yab 	= 0.05 * imuData->si_accy + 0.95 * stateEstimate->yab;
 	stateEstimate->zab 	= 0.05 * (imuData->si_accz + GRAVITY) + 0.95 * stateEstimate->zab;
@@ -142,17 +141,30 @@ void zeroStateEstimates( struct swarmStateEstimate * stateEstimate )
   stateEstimate->v 		= 0.0;  // velocity
   stateEstimate->phidot = 0.0;	// roll angle rate
   stateEstimate->phi 	= 0.0;  // roll angle
-  stateEstimate->psi 	= -PI/6; 	// heading / yaw
+  stateEstimate->psi 	= -PI/5; 	// heading / yaw
   stateEstimate->theta 	= 0.0;  // frontward pitch
   stateEstimate->x 		= 554159.9;  // meters East
   stateEstimate->y 		= 4177058.3;	// meters North
-  stateEstimate->xab	= 1.0;	// x accelerometer bias
-  stateEstimate->yab	= 1.0;	// y accelerometer bias
-  stateEstimate->zab	= -1.7;	// z accelerometer bias
-  stateEstimate->xrb	= -0.4;	// x rate gyro bias
-  stateEstimate->zrb	= 2.5;	// z rate gyro bias
+  stateEstimate->xab	= 0.86;	// x accelerometer bias
+  stateEstimate->yab	= 1.52;	// y accelerometer bias
+  stateEstimate->zab	= -1.87;	// z accelerometer bias
+  stateEstimate->xrb	= -0.26;	// x rate gyro bias
+  stateEstimate->zrb	= 2.316;	// z rate gyro bias
 }
 
+void initStateEstimates(struct swarmGpsDataStruct * gpsData, struct swarmImuData * imuData,
+		struct swarmStateEstimate * stateEstimate )
+{
+	stateEstimate->x 	= gpsData->UTMEasting;
+	stateEstimate->y 	= gpsData->UTMNorthing;
+
+	stateEstimate->xab 	= imuData->si_accx;
+	stateEstimate->yab 	= imuData->si_accy;
+	stateEstimate->zab 	= (imuData->si_accz + GRAVITY);
+
+	stateEstimate->xrb 	= imuData->si_ratex;
+	stateEstimate->zrb 	= imuData->si_ratez;
+}
 
 /****************  System Model Manifestations   **************
 */
@@ -589,19 +601,19 @@ void covarianceSet( uFloat **Qk, uFloat **R )
 
   /* These values actually define Qc, then we multiply by PERIOD to get Qk */
 
-  Qk[ STATE_vdot ][ STATE_vdot ] 	= 0.00002;
-  Qk[ STATE_v ][ STATE_v ] 		= 0.0;
-  Qk[ STATE_phidot ][ STATE_phidot ]	= 0.00000000001;
+  Qk[ STATE_vdot ][ STATE_vdot ] 	= 0.00001;
+  Qk[ STATE_v ][ STATE_v ] 			= 0.0;
+  Qk[ STATE_phidot ][ STATE_phidot ]= 0.0000001;
   Qk[ STATE_phi ][ STATE_phi ] 		= 0.0;
   Qk[ STATE_theta ][ STATE_theta ] 	= 0.001;
   Qk[ STATE_psi ][ STATE_psi ] 		= 0.00005;
-  Qk[ STATE_x ][ STATE_x ] 		= 0.0;
-  Qk[ STATE_y ][ STATE_y ] 		= 0.0;
-  Qk[ STATE_xab ][ STATE_xab ] 		= 0.000002;
+  Qk[ STATE_x ][ STATE_x ] 			= 0.0;
+  Qk[ STATE_y ][ STATE_y ] 			= 0.0;
+  Qk[ STATE_xab ][ STATE_xab ] 		= 0.000001;
   Qk[ STATE_yab ][ STATE_yab ] 		= 0.000001;
   Qk[ STATE_zab ][ STATE_zab ] 		= 0.000001;
-  Qk[ STATE_xrb ][ STATE_xrb ] 		= 0.000001;
-  Qk[ STATE_zrb ][ STATE_zrb ]  	= 0.000001;
+  Qk[ STATE_xrb ][ STATE_xrb ] 		= 0.0000005;
+  Qk[ STATE_zrb ][ STATE_zrb ]  	= 0.0000005;
 
   matMultScalar( Qk, PERIOD, Qk, STATE_SIZE, STATE_SIZE );
 
@@ -609,15 +621,15 @@ void covarianceSet( uFloat **Qk, uFloat **R )
     for( col = 1; col <= MEAS_SIZE; col++ )
       R[ row ][ col ] = 0.0;
 
-  R[ MEAS_xa ][ MEAS_xa ] 	= 0.5;
-  R[ MEAS_ya ][ MEAS_ya ] 	= 0.1;
-  R[ MEAS_za ][ MEAS_za ] 	= 0.5;
-  R[ MEAS_xr ][ MEAS_xr ] 	= 0.5;
-  R[ MEAS_zr ][ MEAS_zr ] 	= 0.05;
-  R[ MEAS_xg ][ MEAS_xg ] 	= 5.0;
-  R[ MEAS_yg ][ MEAS_yg ] 	= 5.0;
+  R[ MEAS_xa ][ MEAS_xa ] 		= 0.5;
+  R[ MEAS_ya ][ MEAS_ya ] 		= 0.05;
+  R[ MEAS_za ][ MEAS_za ] 		= 0.5;
+  R[ MEAS_xr ][ MEAS_xr ] 		= 0.5;
+  R[ MEAS_zr ][ MEAS_zr ] 		= 0.01;
+  R[ MEAS_xg ][ MEAS_xg ] 		= 5.0;
+  R[ MEAS_yg ][ MEAS_yg ] 		= 5.0;
   R[ MEAS_psig ][ MEAS_psig ] 	= 2*PI;
-  R[ MEAS_vg ][ MEAS_vg ] 	= 1.0;
-  R[ MEAS_omega ][ MEAS_omega ] = 0.05;
+  R[ MEAS_vg ][ MEAS_vg ] 		= 2.0;
+  R[ MEAS_omega ][ MEAS_omega ] = 0.01;
 }
 
