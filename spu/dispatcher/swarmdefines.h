@@ -223,7 +223,4 @@ struct swarmCircle
   double carrotDistance;	// length to place carrot in front of current
 };
 
-
-extern swarmGpsData *latestGpsCordinates;
-
 #endif

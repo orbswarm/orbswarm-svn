@@ -29,6 +29,7 @@
 #define COM4 "/dev/ttts5"
 #define COM5 "/dev/ttts6"
 
+
 /*define 7260 serial ports */
 
 //#define COM1 "/dev/ttyAM0"
