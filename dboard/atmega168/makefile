@@ -10,8 +10,10 @@ COM = COM5
 AVRPATH = C:\\WinAVR\\bin\\
 
 # NOTE NEW TARGET! Not a atmega8 like old daughterboard
-TARGET=atmega88
-DUDETARGET=m88
+TARGET=atmega168
+DUDETARGET=m168
+#DUDETARGET=m88
+#DUDETARGET=m88
 
 # compile flags
 GCCFLAGS = -c -g -O3
