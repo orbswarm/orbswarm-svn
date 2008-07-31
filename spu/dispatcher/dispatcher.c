@@ -71,20 +71,29 @@
 #include "gronkulator.h"
 
 //#define LOCAL
+
+//IMPORTANT: I think it makes life easier for everyone to have
+//all externs in one file i.e. dispatcher.c or testharness.c
+//                      --niladri.bora@gmail.com
+//////////////////////////////////////////////////////////////////////////
 int parseDebug = eMcuLog; /*  parser uses this for debug output */
 int parseLevel = eLogDebug;
-swarmGpsData *latestGpsCordinates;
 int myOrbId = 60; /* which orb are we?  */
 int com1 = 0; /* File descriptor for the port */
 int com2 = 0; /* File descriptor for the port */
 int com3 = 0, com5 = 0; /* ditto */
 int isParent = 1;
 
-extern Queue *gpsQueuePtr;
-extern Queue *mcuQueuePtr;
-extern swarmGpsData *latestGpsCoordinates;
-extern int pfd1[2] /*Gps */, pfd2[2] /*mcu */;
-
+int gpsQueueSegmentId = -1;
+struct shmid_ds gpsQueueShmidDs;
+int mcuQueueSegmentId = -1;
+struct shmid_ds mcuQueueShmidDs;
+int latestGpsCoordinatesSegmentId = -1;
+struct shmid_ds latestGpsCoordinatesShmidDs;
+swarmGpsData *latestGpsCoordinates;
+Queue *gpsQueuePtr;
+Queue *mcuQueuePtr;
+int pfd1[2] /*Gps */, pfd2[2] /*mcu */;
 
 int isLogging(int nLogArea, int nLogLevel) {
 	if (eLogError == nLogLevel || (nLogLevel >= parseLevel && nLogArea
@@ -126,56 +135,64 @@ void startChildProcessToProcessGpsMsg(void) {
 		if (pop(buffer, gpsQueuePtr)) {
 			//we have some thing
 			logit(eGpsLog, eLogDebug, "\ngot GPS message=%s", buffer);
-			char resp[96];
 			if (0 == strncmp(buffer, "GPGGA", 5)) {
 				logit(eGpsLog, eLogDebug, "\n+++++++got GGA message+++++++");
-				strncpy(latestGpsCoordinates->ggaSentence, buffer, MSG_LENGTH);
-				int status = parseGPSGGASentence(latestGpsCoordinates);
+				//Acquire GPS data struct lock. Be careful as to not return without
+				//releasing the lock
+				//IMPORTANT: You shouldn't do any IO inside the critical section
+				//Turn down logging if possible
+				if(acquireGpsStructLock()){
+					strncpy(latestGpsCoordinates->ggaSentence, buffer, MSG_LENGTH);
+					int status = parseGPSGGASentence(latestGpsCoordinates);
 
-				logit(eGpsLog, eLogDebug, "parseGPSSentence() return=%d\n",
-						status);
-				status = convertNMEAGpsLatLonDataToDecLatLon(
-						latestGpsCoordinates);
-				if (status == SWARM_SUCCESS) {
-					logit(eGpsLog, eLogDebug,
-							"\n Decimal lat:%lf lon:%lf utctime:%s \n",
-							latestGpsCoordinates->latdd,
-							latestGpsCoordinates->londd,
-							latestGpsCoordinates->nmea_utctime);
+//					logit(eGpsLog, eLogDebug, "parseGPSSentence() return=%d\n",
+//							status);
+					status = convertNMEAGpsLatLonDataToDecLatLon(
+							latestGpsCoordinates);
+					if (status == SWARM_SUCCESS) {
+//						logit(eGpsLog, eLogDebug,
+//								"\n Decimal lat:%lf lon:%lf utctime:%s \n",
+//								latestGpsCoordinates->latdd,
+//								latestGpsCoordinates->londd,
+//								latestGpsCoordinates->nmea_utctime);
 
-					decimalLatLongtoUTM(WGS84_EQUATORIAL_RADIUS_METERS,
-							WGS84_ECCENTRICITY_SQUARED, latestGpsCoordinates);
-					latestGpsCoordinates->metFromMshipNorth = latestGpsCoordinates->UTMNorthing - latestGpsCoordinates->mshipNorth;
-					latestGpsCoordinates->metFromMshipEast  = latestGpsCoordinates->UTMEasting  - latestGpsCoordinates->mshipEast;
-					logit(eGpsLog, eLogDebug,
-							"Northing:%f,Easting:%f,UTMZone:%s\n",
-							latestGpsCoordinates->UTMNorthing,
-							latestGpsCoordinates->UTMEasting,
-							latestGpsCoordinates->UTMZone);
-				} else {
-					logit(eGpsLog, eLogError,
-							"\ncouldn't convertNMEAGpsLatLonDataToDecLatLon status="
-								"%d", status);
+						decimalLatLongtoUTM(WGS84_EQUATORIAL_RADIUS_METERS,
+								WGS84_ECCENTRICITY_SQUARED, latestGpsCoordinates);
+						latestGpsCoordinates->metFromMshipNorth = latestGpsCoordinates->UTMNorthing - latestGpsCoordinates->mshipNorth;
+						latestGpsCoordinates->metFromMshipEast  = latestGpsCoordinates->UTMEasting  - latestGpsCoordinates->mshipEast;
+//						logit(eGpsLog, eLogDebug,
+//								"Northing:%f,Easting:%f,UTMZone:%s\n",
+//								latestGpsCoordinates->UTMNorthing,
+//								latestGpsCoordinates->UTMEasting,
+//								latestGpsCoordinates->UTMZone);
+					} else {
+//						logit(eGpsLog, eLogError,
+//								"\ncouldn't convertNMEAGpsLatLonDataToDecLatLon status="
+//								"%d", status);
+					}
+					releaseGpsStructLock();
 				}
-				//              sprintf (resp, "{orb=%d\nnorthing=%f\neasting=%f\nutmzone=%s}",
-				//                       myOrbId, latestGpsCoordinates->UTMNorthing,
-				//                       latestGpsCoordinates->UTMEasting,
-				//                       latestGpsCoordinates->UTMZone);
-				logit(eGpsLog, eLogInfo, "\n sending msg to spu=%s", resp);
-				writeCharsToSerialPort(com2, resp, strlen(resp));
 			} //end if GPGGA
 			else if (0 == strncmp(buffer, "GPVTG", 5)) {
 				logit(eGpsLog, eLogDebug, "\n+++++++got VTG message+++++++");
-				strncpy(latestGpsCoordinates->vtgSentence, buffer, MSG_LENGTH);
-				int nStatus = parseGPSVTGSentance(latestGpsCoordinates);
-				logit(eGpsLog, eLogDebug,
-						"\n parsed vtg sentence=%s \nreturn=%d",
-						latestGpsCoordinates->vtgSentence, nStatus);
-			} else
-				logit(eGpsLog, eLogError,
-						"\n+++++++got unknown message+++++++, msg=%s",
-						latestGpsCoordinates->ggaSentence);
-		} else {
+				if(acquireGpsStructLock()){
+					strncpy(latestGpsCoordinates->vtgSentence, buffer, MSG_LENGTH);
+					parseGPSVTGSentance(latestGpsCoordinates);
+//					logit(eGpsLog, eLogDebug,
+//							"\n parsed vtg sentence=%s \nreturn=%d",
+//							latestGpsCoordinates->vtgSentence, nStatus);
+					releaseGpsStructLock();
+				}
+			} else{
+//				if(acquireGpsStructLock()){
+//					logit(eGpsLog, eLogError,
+//							"\n+++++++got unknown message+++++++, msg=%s",
+//							latestGpsCoordinates->ggaSentence);
+//					releaseGpsStructLock();
+//				}
+			}
+		}
+			else {
 			logit(eGpsLog, eLogError,
 					"\npop returned nothing. shouldn't be here");
 		}
@@ -212,12 +229,27 @@ void dispatchLEDCmd(int spuAddr, cmdStruct * c) {
 
 /* Parser calls this when there is a complete SPU command *//* if the addr matches our IP, handle it */
 void dispatchSPUCmd(int spuAddr, cmdStruct * c) {
+	char resp[96];
+
 	if (spuAddr != myOrbId)
 		return;
 
 	if (parseDebug == 4)
 		printf("Orb %d Got SPU command: \"%s\"\n", spuAddr, c->cmd);
 	/* handle the command here */
+	if(strncmp(c->cmd, "p?", 2)){
+		if(acquireGpsStructLock()){
+			sprintf (resp, "{@%d p e=%f\nn=%f}\n",
+					myOrbId, latestGpsCoordinates->UTMNorthing,
+					latestGpsCoordinates->UTMEasting);
+			releaseGpsStructLock();
+		}
+		logit(eGpsLog, eLogInfo, "\n sending msg to spu=%s", resp);
+		writeCharsToSerialPort(com2, resp, strlen(resp));
+	}
+	else if(strncmp(c->cmd, "i?", 2)){
+
+	}
 }
 
 void dispatchGpsLocationMsg(cmdStruct * c) {
@@ -372,7 +404,6 @@ int main(int argc, char *argv[]) {
 		return (1);
 	}
 	//set up pipes
-	tellWait();
 	pid_t pid;
 	//First fork startChildProcessToProcessGpsMsg()
 	if ((pid = fork()) < 0) {
@@ -456,7 +487,7 @@ int main(int argc, char *argv[]) {
 #ifdef LOCAL
 						else
 						{ /* no bytes read means EOF */
-							cleanupIPCStructs ();
+							cleanupIPCStructs (isParent);
 							return (0);
 						}
 #endif

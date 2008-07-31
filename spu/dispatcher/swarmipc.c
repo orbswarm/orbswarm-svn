@@ -25,17 +25,45 @@
 #include "scanner.h"
 #include "queues.h"
 
-int gpsQueueSegmentId = -1;
-struct shmid_ds gpsQueueShmidDs;
-int mcuQueueSegmentId = -1;
-struct shmid_ds mcuQueueShmidDs;
-int latestGpsCoordinatesSegmentId = -1;
-struct shmid_ds latestGpsCoordinatesShmidDs;
+//define in the dispatcher
+extern int gpsQueueSegmentId;
+extern struct shmid_ds gpsQueueShmidDs;
+extern int mcuQueueSegmentId;
+extern struct shmid_ds mcuQueueShmidDs;
+extern int latestGpsCoordinatesSegmentId;
+extern struct shmid_ds latestGpsCoordinatesShmidDs;
+extern swarmGpsData *latestGpsCoordinates;
+extern Queue *gpsQueuePtr;
+extern Queue *mcuQueuePtr;
+extern int pfd1[2] /*Gps */, pfd2[2] /*mcu */;
+
 static int com3SemId;
-swarmGpsData *latestGpsCoordinates;
-Queue *gpsQueuePtr;
-Queue *mcuQueuePtr;
-int pfd1[2] /*Gps */, pfd2[2] /*mcu */;
+static int gpsStructSemId;
+
+
+int acquireGpsStructLock(void){
+	struct sembuf getLockOps[1];
+	getLockOps[0].sem_num =0;
+	getLockOps[0].sem_op = -1;
+	getLockOps[0].sem_flg = 0;
+	//int nStatus =semop(com3SemId, getLockOps, 1);
+	if(semop(gpsStructSemId, getLockOps, 1) < 0){
+		perror("\n gps struct sem acquire failed");
+		return 0;
+	}
+	else
+		return 1;
+}
+
+void releaseGpsStructLock(void){
+	struct sembuf releaseLockOps[1];
+	releaseLockOps[0].sem_num =0;
+	releaseLockOps[0].sem_op = +1;
+	releaseLockOps[0].sem_flg = 0;
+	if(semop(gpsStructSemId, releaseLockOps, 1) < 0)
+		perror("\n com5 sem release failed");
+}
+
 
 int acquireCom3Lock(void){
 	struct sembuf getLockOps[1];
@@ -61,6 +89,17 @@ void releaseCom3Lock(void){
 }
 
 /*
+ * Sets up the pipes to communicate between parent and children
+ */
+void tellWait(void) {
+	if (pipe(pfd1) < 0 || pipe(pfd2) < 0) {
+		fprintf(stderr, "pipe error");
+		exit(EXIT_FAILURE);
+	}
+}
+
+
+/*
  * This function initialises all the shared memory structures viz
  * 1. The shared memory queues to pass data between the parent process and the child process
  * 2. The shared memory variable to hold the most current GPS position
@@ -68,8 +107,8 @@ void releaseCom3Lock(void){
  */
 int initSwarmIpc() {
 	//Create semaphore for COM5
-	com3SemId = semget(IPC_PRIVATE, 1, S_IRUSR | S_IWUSR);
-	if(com3SemId < 0){
+	gpsStructSemId = semget(IPC_PRIVATE, 1, S_IRUSR | S_IWUSR);
+	if(gpsStructSemId < 0){
 		perror("Failed to get com3 semaphore");
 		return 0;
 	}
@@ -81,14 +120,24 @@ int initSwarmIpc() {
 	                                (Linux specific) */
 	}  arg;
 	arg.val=1;
-//	struct semid_ds mysemds;
-//	arg.buf=&mysemds;
-    if(semctl(com3SemId, 0, SETVAL, arg)<0){
+    if(semctl(gpsStructSemId, 0, SETVAL, arg)<0){
     	perror("Failed to init com3 semaphore");
     	return 0;
     }
 
-	//Allocate shared memory for GPS struct that represents latest co-ordintaes
+	//Create semaphore for shared memory GPS struct
+	gpsStructSemId = semget(IPC_PRIVATE, 1, S_IRUSR | S_IWUSR);
+	if(gpsStructSemId < 0){
+		perror("Failed to get com3 semaphore");
+		return 0;
+	}
+	arg.val=1;//available
+    if(semctl(gpsStructSemId, 0, SETVAL, arg)<0){
+    	perror("Failed to init com3 semaphore");
+    	return 0;
+    }
+
+    //Allocate shared memory for GPS struct that represents latest co-ordintaes
 	latestGpsCoordinatesSegmentId = shmget(IPC_PRIVATE, sizeof(swarmGpsData),
 			IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR);
 	if (-1 == latestGpsCoordinatesSegmentId)
@@ -135,18 +184,8 @@ int initSwarmIpc() {
 		return 0;
 	logit(eDispatcherLog, eLogDebug, "\nsegment size for spu msg queue=%d",
 			mcuQueueShmidDs.shm_segsz);
-
+	tellWait();//init IPC pipes
 	return 1;
-}
-
-/*
- * Sets up the pipes to communicate between parent and children
- */
-void tellWait(void) {
-	if (pipe(pfd1) < 0 || pipe(pfd2) < 0) {
-		fprintf(stderr, "pipe error");
-		exit(EXIT_FAILURE);
-	}
 }
 
 void waitParent(int nCommandPipeId) {

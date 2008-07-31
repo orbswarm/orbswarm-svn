@@ -44,6 +44,11 @@
 
 
 /*************************STRUCTURES************************************/
+/*
+ * IMPORTANT PLEASE READ:
+ * If you modify this struct please modify the method safeCopyGpsStruct()
+ * in gronkulator.c
+ */
 typedef struct	swarmGpsDataStruct
 {
   char gpsSentenceType[32];

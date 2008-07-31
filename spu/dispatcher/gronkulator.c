@@ -32,11 +32,46 @@
 extern Queue *mcuQueuePtr;
 extern swarmGpsData *latestGpsCoordinates;
 extern int pfd2[2] /*mcu */;
-extern swarmGpsData *latestGpsCordinates;
 extern int myOrbId; /* which orb are we?  */
 extern int com1; /* File descriptor for the port */
 extern int com2; /* File descriptor for the port */
 extern int com3, com5; /* ditto */
+
+static swarmGpsData *latestGpsCoordinatesInternalCopy=0;
+
+
+/*
+ * Deep copies the values of src struct to dest in a safe
+ * manner - acquires lock on semaphore first
+ */
+static void safeCopyGpsStruct(swarmGpsData * dest,swarmGpsData * src)
+{
+	if(acquireGpsStructLock()){
+		strcpy(dest->gpsSentenceType, src->gpsSentenceType);
+		strcpy(dest->ggaSentence, src->ggaSentence);
+		strcpy(dest->vtgSentence, src->vtgSentence);
+		strcpy(dest->nmea_utctime, src->nmea_utctime);
+		dest->nmea_latddmm=src->nmea_latddmm;
+		dest->nmea_londdmm=src->nmea_londdmm;
+		dest->nmea_latsector=src->nmea_latsector;
+		dest->nmea_lonsector=src->nmea_lonsector;
+		dest->latdd=src->latdd;
+		dest->londd=src->londd;
+		dest->utcTime=src->utcTime;
+		dest->mshipNorth=src->mshipNorth;
+		dest->mshipEast=src->mshipEast;
+		dest->metFromMshipNorth=src->metFromMshipNorth;
+		dest->metFromMshipEast=src->metFromMshipEast;
+		dest->utcTimeMship=src->utcTimeMship;
+		dest->UTMNorthing=src->UTMNorthing;
+		dest->UTMEasting=src->UTMEasting;
+		strcpy(dest->UTMZone, src->UTMZone);
+		dest->nmea_course=src->nmea_course;
+		dest->speed=src->speed;
+		dest->mode=src->mode;
+		acquireGpsStructLock();
+	}
+}
 
 void startChildProcessToGronk(void) {
 	logit(eMcuLog, eLogDebug, "\n STARTING GRONK()");
@@ -60,8 +95,12 @@ void startChildProcessToGronk(void) {
 	double distanceToCarrot;
 
 	zeroStateEstimates(&stateEstimate);
-	latestGpsCoordinates->mshipNorth 	= 0.0; //until we get real data
-	latestGpsCoordinates->mshipEast 	= 0.0; //until we get real data
+
+	if(acquireGpsStructLock()){
+		latestGpsCoordinates->mshipNorth 	= 0.0; //until we get real data
+		latestGpsCoordinates->mshipEast 	= 0.0; //until we get real data
+		releaseGpsStructLock();
+	}
 
 	swarmFeedbackInit();
 
@@ -98,13 +137,14 @@ void startChildProcessToGronk(void) {
 			logit(eMcuLog, eLogInfo, "\nread resp to $QI*:END");
 			logit(eMcuLog, eLogInfo, "\n IMU data=%s bytes read=%d", buffer,
 					i_bytesRead);
+			safeCopyGpsStruct(latestGpsCoordinatesInternalCopy, latestGpsCoordinates);
 
 			char parsedAndFormattedGpsCoordinates[96];
 			sprintf(parsedAndFormattedGpsCoordinates,
 					"{orb=%d northing=%f easting=%f utmzone=%s}", myOrbId,
-					latestGpsCoordinates->UTMNorthing,
-					latestGpsCoordinates->UTMEasting,
-					latestGpsCoordinates->UTMZone);
+					latestGpsCoordinatesInternalCopy->UTMNorthing,
+					latestGpsCoordinatesInternalCopy->UTMEasting,
+					latestGpsCoordinatesInternalCopy->UTMZone);
 
 			parseImuMsg(buffer, &imuData);
 
@@ -123,7 +163,7 @@ void startChildProcessToGronk(void) {
 					releaseCom3Lock();
 				}
 
-				if ((strncmp(latestGpsCoordinates->UTMZone, "31Z",3) != 0) || (initCounter > 1199))
+				if ((strncmp(latestGpsCoordinatesInternalCopy->UTMZone, "31Z",3) != 0) || (initCounter > 1199))
 				{
 					gronkMode = GRONK_BIAS;
 					initCounter = 0;
@@ -139,10 +179,10 @@ void startChildProcessToGronk(void) {
 					char* msg="<LB0><LR255><LG0><LT0><LF>";
 					writeCharsToSerialPort(com3, msg, strlen(msg));
 					releaseCom3Lock();
-					initStateEstimates(latestGpsCoordinates, &imuData, &stateEstimate);
+					initStateEstimates(latestGpsCoordinatesInternalCopy, &imuData, &stateEstimate);
 				}
 
-				kalmanInitialBias(latestGpsCoordinates, &imuData, &stateEstimate);
+				kalmanInitialBias(latestGpsCoordinatesInternalCopy, &imuData, &stateEstimate);
 				initCounter++;
 				if (initCounter > 599)
 					gronkMode = GRONK_KALMANINIT;
@@ -155,8 +195,15 @@ void startChildProcessToGronk(void) {
 					initCounter = 0;
 					// stand in until we get real mship data
 					// all GPS positions will be relative to starting point
-					latestGpsCoordinates->mshipNorth = stateEstimate.y;
-					latestGpsCoordinates->mshipEast  = stateEstimate.x;
+					if(acquireGpsStructLock()){
+						latestGpsCoordinates->mshipNorth =
+							latestGpsCoordinatesInternalCopy->mshipNorth=
+								stateEstimate.y;
+						latestGpsCoordinates->mshipEast  =
+							latestGpsCoordinatesInternalCopy->mshipEast  =
+								stateEstimate.x;
+						releaseGpsStructLock();
+					}
 					stateEstimate.x = 0;
 					stateEstimate.y = 0;
 					kalmanInit( &stateEstimate );
@@ -186,17 +233,17 @@ void startChildProcessToGronk(void) {
 
 			case GRONK_RUN: // normal running mode
 
-				kalmanProcess(latestGpsCoordinates, &imuData, &stateEstimate);
+				kalmanProcess(latestGpsCoordinatesInternalCopy, &imuData, &stateEstimate);
 
 				sprintf(dataFileBuffer, "\n%f,%s,%f,%f,%f,%f,%f,%s",
 						(double)nowGronkTime.tv_sec + (double)nowGronkTime.tv_usec / 1000000,
 						buffer,		/*formatted IMU data*/
-						latestGpsCoordinates->metFromMshipEast,
-						latestGpsCoordinates->metFromMshipNorth,
-						latestGpsCoordinates->nmea_course,
-						latestGpsCoordinates->speed,
+						latestGpsCoordinatesInternalCopy->metFromMshipEast,
+						latestGpsCoordinatesInternalCopy->metFromMshipNorth,
+						latestGpsCoordinatesInternalCopy->nmea_course,
+						latestGpsCoordinatesInternalCopy->speed,
 						imuData.omega,
-						latestGpsCoordinates->UTMZone);
+						latestGpsCoordinatesInternalCopy->UTMZone);
 				logit(eMcuLog, eLogDebug, dataFileBuffer);
 				sprintf(outputFileBuffer, "\n%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f",
 						(double)nowGronkTime.tv_sec + (double)nowGronkTime.tv_usec / 1000000,
