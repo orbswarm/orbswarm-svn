@@ -36,14 +36,23 @@ gps_speed = sqrt(diff(x').^2+diff(y').^2)*10;
 plot([gps_speed(1:1700) .38*sensordata(1:1700,11)]);
 title('GPS Speed vs Encoder Speed (m/s)');
 
-figure;
-plot(sensordata(:,7),sensordata(:,8),"r");
-hold;
-plot(kalmanoutput(:,8),kalmanoutput(:,9),"b");
-title('Overhead - GPS in Read, Kalman in Blue');
+center_x = 9 * cos(0.3*pi);
+center_y = 9 * sin(0.3*pi);
+theta = linspace(0,2*pi);
+circle_x = 9*cos(theta) + center_x;
+circle_y = 9*sin(theta) + center_y;
 
 figure;
-plot(kalmanoutput(1:1700,1), [kalmanoutput(1:1700,3) .38*sensordata(1:1700,11) sensordata(1:1700,10)]);
+plot(sensordata(:,7),sensordata(:,8),"r");
+hold on;
+%plot(kalmanoutput(:,8),kalmanoutput(:,9),"b");
+plot(circle_x,circle_y,"g");
+title('Overhead - GPS in Red, Kalman in Blue, Circle in Green');
+grid on;
+hold off;
+
+figure;
+plot(kalmanoutput(1:1700,1)-kalmanoutput(1,1), [kalmanoutput(1:1700,3) .38*sensordata(1:1700,11) sensordata(1:1700,10)]);
 title('Velocity (m/s)');
 
 figure;
