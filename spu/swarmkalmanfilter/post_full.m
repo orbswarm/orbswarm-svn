@@ -44,8 +44,8 @@ title('Velocity (m/s)');
 grid;
 
 figure;
-plot([-.125*(full_data(1:2000,2)-full_data_out(1:2000,10)) -(full_data(1:2000,5)-full_data_out(1:2000,13)) full_data_out(1:2000,4)]);
-title('Y acc, Z rate, Phi');
+plot([-.125*(full_data(:,2)-full_data_out(:,10)) -(full_data(:,5)-full_data_out(:,13)) full_data_out(:,4)]);
+title('Y acc (blue), Z rate (green), Phi (red)');
 
 figure;
 plot([full_data(:,8) + round((full_data_out(:,6)-full_data(:,8))/(2*pi))*2*pi full_data_out(:,6)]);

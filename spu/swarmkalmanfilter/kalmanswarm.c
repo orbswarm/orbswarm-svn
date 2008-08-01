@@ -11,12 +11,13 @@
 
 #define ARBITRARY_SCALE        1
 
-
 #include <stdio.h>
 #include <math.h>
 #include "kalman.h"
 #include "kalmanswarm.h"
 #include "matmath.h"
+
+#define PHICENTER 0.05
 
 extern int     debug;
 
@@ -127,15 +128,15 @@ void zeroStateEstimates( struct swarmStateEstimate * stateEstimate )
   stateEstimate->v 		= 0.0;  // velocity
   stateEstimate->phidot = 0.0;	// roll angle rate
   stateEstimate->phi 	= 0.0;  // roll angle
-  stateEstimate->psi 	= -PI/6; 	// heading / yaw
+  stateEstimate->psi 	= -PI/5; 	// heading / yaw
   stateEstimate->theta 	= 0.0;  // frontward pitch
   stateEstimate->x 		= 0;  // meters East
   stateEstimate->y 		= 0;	// meters North
-  stateEstimate->xab	= 0.825;	// x accelerometer bias
-  stateEstimate->yab	= 0.402;	// y accelerometer bias
-  stateEstimate->zab	= -1.945;	// z accelerometer bias
-  stateEstimate->xrb	= -0.135;	// x rate gyro bias
-  stateEstimate->zrb	= 2.282;	// z rate gyro bias
+  stateEstimate->xab	= 0.699;	// x accelerometer bias
+  stateEstimate->yab	= 0.018;	// y accelerometer bias
+  stateEstimate->zab	= -2.035;	// z accelerometer bias
+  stateEstimate->xrb	= -0.097;	// x rate gyro bias
+  stateEstimate->zrb	= 2.355;	// z rate gyro bias
 }
 
 
@@ -147,8 +148,8 @@ void systemF( uFloat *stateDot, uFloat *state )
 {
 	stateDot[ STATE_vdot ] 		= 0.0;
 	stateDot[ STATE_v ] 		= state[ STATE_vdot ];
-	stateDot[ STATE_phidot ] 	= - state[ STATE_phi ] * 0.5;
-	stateDot[ STATE_phi ] 		= state[ STATE_phidot ];
+	stateDot[ STATE_phidot ] 	= 0.0;
+	stateDot[ STATE_phi ] 		= state[ STATE_phidot ] - PHICENTER * state[ STATE_phi ];
 	stateDot[ STATE_theta ] 	= -state[ STATE_theta ] * 1.0;
 	stateDot[ STATE_psi ] 		= -state[ STATE_v ] * tan( state[ STATE_phi ] ) / RADIUS;
 	stateDot[ STATE_x ] 		= state[ STATE_v ] * cos( state[ STATE_psi ] );
@@ -205,7 +206,7 @@ void systemJacobian( uFloat *state, uFloat **jacobian )
 	jacobian[ STATE_phidot ][ STATE_vdot ] 	= 0.0;
 	jacobian[ STATE_phidot ][ STATE_v ] 	= 0.0;
 	jacobian[ STATE_phidot ][ STATE_phidot ]= 0.0;
-	jacobian[ STATE_phidot ][ STATE_phi ] 	= -0.5;
+	jacobian[ STATE_phidot ][ STATE_phi ] 	= 0.0;
 	jacobian[ STATE_phidot ][ STATE_theta ] = 0.0;
 	jacobian[ STATE_phidot ][ STATE_psi ] 	= 0.0;
 	jacobian[ STATE_phidot ][ STATE_x ] 	= 0.0;
@@ -219,7 +220,7 @@ void systemJacobian( uFloat *state, uFloat **jacobian )
 	jacobian[ STATE_phi ][ STATE_vdot ] 	= 0.0;
 	jacobian[ STATE_phi ][ STATE_v ] 	= 0.0;
 	jacobian[ STATE_phi ][ STATE_phidot ] 	= 1.0;
-	jacobian[ STATE_phi ][ STATE_phi ] 	= 0.0;
+	jacobian[ STATE_phi ][ STATE_phi ] 	= -PHICENTER;
 	jacobian[ STATE_phi ][ STATE_theta ] 	= 0.0;
 	jacobian[ STATE_phi ][ STATE_psi ] 	= 0.0;
 	jacobian[ STATE_phi ][ STATE_x ] 	= 0.0;
@@ -388,7 +389,7 @@ void apply_measurement( uFloat *newState, uFloat *est_measurement )
 	// * newState[ STATE_v ] / RADIUS;
 
 
-  est_measurement[ MEAS_xr ] = -newState [ STATE_phidot ] + newState[ STATE_xrb ];
+  est_measurement[ MEAS_xr ] = -newState [ STATE_phidot ] + PHICENTER * newState[ STATE_phi ] + newState[ STATE_xrb ];
 	// - newState[ STATE_theta ] * newState[ STATE_v ] * newState[ STATE_phi ] / RADIUS;
 
 
@@ -464,7 +465,7 @@ void generate_measurement_transfer( uFloat *state, uFloat **H )
   H[ MEAS_xr ][ STATE_vdot ] 	= 0.0;
   H[ MEAS_xr ][ STATE_v ] 		= 0.0;//-state[ STATE_theta ] * state[ STATE_phi ] / RADIUS;
   H[ MEAS_xr ][ STATE_phidot ] 	= 1.0;
-  H[ MEAS_xr ][ STATE_phi ] 	= 0.0;// -state[ STATE_v ] * state[ STATE_theta ] / RADIUS;
+  H[ MEAS_xr ][ STATE_phi ] 	= PHICENTER;// -state[ STATE_v ] * state[ STATE_theta ] / RADIUS;
   H[ MEAS_xr ][ STATE_theta ] 	= 0.0;//-state[ STATE_v ] * state[ STATE_phi ] / RADIUS;
   H[ MEAS_xr ][ STATE_psi ] 	= 0.0;
   H[ MEAS_xr ][ STATE_x ] 		= 0.0;
@@ -576,17 +577,17 @@ void covarianceSet( uFloat **Qk, uFloat **R )
 
   Qk[ STATE_vdot ][ STATE_vdot ] 	= 0.0001;
   Qk[ STATE_v ][ STATE_v ] 			= 0.0;
-  Qk[ STATE_phidot ][ STATE_phidot ]= 0.00001;
+  Qk[ STATE_phidot ][ STATE_phidot ]= 0.001;
   Qk[ STATE_phi ][ STATE_phi ] 		= 0.0;
   Qk[ STATE_theta ][ STATE_theta ] 	= 0.0002;
-  Qk[ STATE_psi ][ STATE_psi ] 		= 0.000005;
+  Qk[ STATE_psi ][ STATE_psi ] 		= 0.0000001;
   Qk[ STATE_x ][ STATE_x ] 			= 0.0;
   Qk[ STATE_y ][ STATE_y ] 			= 0.0;
   Qk[ STATE_xab ][ STATE_xab ] 		= 0.000005;
-  Qk[ STATE_yab ][ STATE_yab ] 		= 0.0001;
+  Qk[ STATE_yab ][ STATE_yab ] 		= 0.00001;
   Qk[ STATE_zab ][ STATE_zab ] 		= 0.000005;
-  Qk[ STATE_xrb ][ STATE_xrb ] 		= 0.000005;
-  Qk[ STATE_zrb ][ STATE_zrb ]  	= 0.000005;
+  Qk[ STATE_xrb ][ STATE_xrb ] 		= 0.0001;
+  Qk[ STATE_zrb ][ STATE_zrb ]  	= 0.00001;
 
   matMultScalar( Qk, PERIOD, Qk, STATE_SIZE, STATE_SIZE );
 
@@ -594,13 +595,13 @@ void covarianceSet( uFloat **Qk, uFloat **R )
     for( col = 1; col <= MEAS_SIZE; col++ )
       R[ row ][ col ] = 0.0;
 
-  R[ MEAS_xa ][ MEAS_xa ] 		= 0.3;
-  R[ MEAS_ya ][ MEAS_ya ] 		= 0.3;
-  R[ MEAS_za ][ MEAS_za ] 		= 0.3;
+  R[ MEAS_xa ][ MEAS_xa ] 		= 1.0;
+  R[ MEAS_ya ][ MEAS_ya ] 		= 1.0;
+  R[ MEAS_za ][ MEAS_za ] 		= 1.0;
   R[ MEAS_xr ][ MEAS_xr ] 		= 0.1;
-  R[ MEAS_zr ][ MEAS_zr ] 		= 0.1;
-  R[ MEAS_xg ][ MEAS_xg ] 		= 5.0;
-  R[ MEAS_yg ][ MEAS_yg ] 		= 5.0;
+  R[ MEAS_zr ][ MEAS_zr ] 		= 0.005;
+  R[ MEAS_xg ][ MEAS_xg ] 		= 4.0;
+  R[ MEAS_yg ][ MEAS_yg ] 		= 4.0;
   R[ MEAS_psig ][ MEAS_psig ] 	= 4*PI;
   R[ MEAS_vg ][ MEAS_vg ] 		= 5.0;
   R[ MEAS_omega ][ MEAS_omega ] = 0.1;
