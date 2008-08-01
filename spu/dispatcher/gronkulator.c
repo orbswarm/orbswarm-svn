@@ -29,6 +29,8 @@
 #include "swarmipc.h"
 #include "pathfollow.h"
 
+#define JOYSTICK
+
 extern Queue *mcuQueuePtr;
 extern swarmGpsData *latestGpsCoordinates;
 extern int pfd2[2] /*mcu */;
@@ -226,12 +228,13 @@ void startChildProcessToGronk(void) {
 						releaseCom3Lock();
 					}
 
+#ifndef JOYSTICK
 					sprintf(buffer, "$p60*");
 					writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
 					sprintf(buffer, "$s0*");
 					writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
 					drainSerialPort(com5);
-
+#endif
 					gronkMode = GRONK_RUN;
 				}
 
@@ -275,7 +278,7 @@ void startChildProcessToGronk(void) {
 					thisSteeringValue = 100;
 				if(thisSteeringValue < -100)
 					thisSteeringValue = -100;
-
+#ifndef JOYSTICK
 				sprintf(buffer, "$s%d*", thisSteeringValue );
 				logit(eMcuLog, eLogDebug, buffer);
 				if (1)
@@ -283,6 +286,7 @@ void startChildProcessToGronk(void) {
 					writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
 					drainSerialPort(com5);
 				}
+#endif
 				distanceToCarrot = distanceToCoord( &stateEstimate, &carrot);
 				sprintf(buffer, "\n distanceToCarrot: %f", distanceToCarrot);
 				logit(eMcuLog, eLogDebug, buffer);
@@ -291,6 +295,7 @@ void startChildProcessToGronk(void) {
 			break;
 
 			case GRONK_COMPLETE: // made it to goal
+#ifndef JOYSTICK
 				// stop drive
 				sprintf(buffer, "$p0*");
 				writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
@@ -298,7 +303,7 @@ void startChildProcessToGronk(void) {
 				sprintf(buffer, "$s0*");
 				writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
 				drainSerialPort(com5);
-
+#endif
 				if(acquireCom3Lock()){
 					char* msg="<LB255><LR255><LG255><LT0><LF>";
 					writeCharsToSerialPort(com3, msg, strlen(msg));
