@@ -27,9 +27,9 @@ int acquireCom3Lock(void);
  * error condition.
  */
 void releaseCom3Lock(void);
+
 //Same as above to read and write from the shared memory GPS structs
 int acquireGpsStructLock(void);
-
 void releaseGpsStructLock(void);
 //////////////////////////////////////////////////////////
 

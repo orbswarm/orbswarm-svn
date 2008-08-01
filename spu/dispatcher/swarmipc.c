@@ -24,8 +24,9 @@
 #include "swarmdefines.h"
 #include "scanner.h"
 #include "queues.h"
+#include "scanner.h"
 
-//define in the dispatcher
+//defined in the dispatcher
 extern int gpsQueueSegmentId;
 extern struct shmid_ds gpsQueueShmidDs;
 extern int mcuQueueSegmentId;
@@ -42,6 +43,7 @@ static int gpsStructSemId;
 
 
 int acquireGpsStructLock(void){
+	fprintf(stderr,  "\nacquireGpsStructLock():START");
 	struct sembuf getLockOps[1];
 	getLockOps[0].sem_num =0;
 	getLockOps[0].sem_op = -1;
@@ -49,19 +51,24 @@ int acquireGpsStructLock(void){
 	//int nStatus =semop(com3SemId, getLockOps, 1);
 	if(semop(gpsStructSemId, getLockOps, 1) < 0){
 		perror("\n gps struct sem acquire failed");
+		fprintf(stderr,  "\nacquireGpsStructLock():END");
 		return 0;
 	}
-	else
+	else{
+		fprintf(stderr,  "\nacquireGpsStructLock():END");
 		return 1;
+	}
 }
 
 void releaseGpsStructLock(void){
+	fprintf(stderr, "\nreleaseGpsStructLock():START");
 	struct sembuf releaseLockOps[1];
 	releaseLockOps[0].sem_num =0;
 	releaseLockOps[0].sem_op = +1;
 	releaseLockOps[0].sem_flg = 0;
 	if(semop(gpsStructSemId, releaseLockOps, 1) < 0)
-		perror("\n com5 sem release failed");
+		perror("\n gps struct sem release failed");
+	fprintf(stderr, "\nreleaseGpsStructLock():END");
 }
 
 
@@ -112,18 +119,20 @@ int initSwarmIpc() {
 		perror("Failed to get com3 semaphore");
 		return 0;
 	}
-	union {
-	    int              val;    /* Value for SETVAL */
-	    struct semid_ds *buf;    /* Buffer for IPC_STAT, IPC_SET */
-	    unsigned short  *array;  /* Array for GETALL, SETALL */
-	    struct seminfo  *__buf;  /* Buffer for IPC_INFO
+	else{
+		union {
+			int              val;    /* Value for SETVAL */
+			struct semid_ds *buf;    /* Buffer for IPC_STAT, IPC_SET */
+			unsigned short  *array;  /* Array for GETALL, SETALL */
+			struct seminfo  *__buf;  /* Buffer for IPC_INFO
 	                                (Linux specific) */
-	}  arg;
-	arg.val=1;
-    if(semctl(gpsStructSemId, 0, SETVAL, arg)<0){
-    	perror("Failed to init com3 semaphore");
-    	return 0;
-    }
+		}  arg;
+		arg.val=1;
+		if(semctl(gpsStructSemId, 0, SETVAL, arg)<0){
+			perror("Failed to init com3 semaphore");
+			return 0;
+		}
+	}
 
 	//Create semaphore for shared memory GPS struct
 	gpsStructSemId = semget(IPC_PRIVATE, 1, S_IRUSR | S_IWUSR);
@@ -131,11 +140,20 @@ int initSwarmIpc() {
 		perror("Failed to get com3 semaphore");
 		return 0;
 	}
-	arg.val=1;//available
-    if(semctl(gpsStructSemId, 0, SETVAL, arg)<0){
-    	perror("Failed to init com3 semaphore");
-    	return 0;
-    }
+	else{
+		union {
+			int              val;    /* Value for SETVAL */
+			struct semid_ds *buf;    /* Buffer for IPC_STAT, IPC_SET */
+			unsigned short  *array;  /* Array for GETALL, SETALL */
+			struct seminfo  *__buf;  /* Buffer for IPC_INFO
+	                                (Linux specific) */
+		}  arg;
+		arg.val=1;//available
+		if(semctl(gpsStructSemId, 0, SETVAL, arg)<0){
+			perror("Failed to init com3 semaphore");
+			return 0;
+		}
+	}
 
     //Allocate shared memory for GPS struct that represents latest co-ordintaes
 	latestGpsCoordinatesSegmentId = shmget(IPC_PRIVATE, sizeof(swarmGpsData),

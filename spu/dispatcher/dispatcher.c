@@ -141,6 +141,7 @@ void startChildProcessToProcessGpsMsg(void) {
 				//releasing the lock
 				//IMPORTANT: You shouldn't do any IO inside the critical section
 				//Turn down logging if possible
+				fprintf(stderr, "\nabout to lock gps struct because I got a new gps message");
 				if(acquireGpsStructLock()){
 					strncpy(latestGpsCoordinates->ggaSentence, buffer, MSG_LENGTH);
 					int status = parseGPSGGASentence(latestGpsCoordinates);
@@ -238,8 +239,9 @@ void dispatchSPUCmd(int spuAddr, cmdStruct * c) {
 		printf("Orb %d Got SPU command: \"%s\"\n", spuAddr, c->cmd);
 	/* handle the command here */
 	if(strncmp(c->cmd, "p?", 2)){
+		fprintf(stderr, "\n about to acquire lock on gps struct before reading it for query");
 		if(acquireGpsStructLock()){
-			sprintf (resp, "{@%d p e=%f\nn=%f}\n",
+			sprintf (resp, "{\n@%d p e=%f n=%f\n}",
 					myOrbId, latestGpsCoordinates->UTMNorthing,
 					latestGpsCoordinates->UTMEasting);
 			releaseGpsStructLock();
