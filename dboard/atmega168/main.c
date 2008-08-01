@@ -139,9 +139,9 @@ void Init_Chip(void)
   
   Timer0_Init();		/* Init Tick Timer */
 
-  //Steering_Init();		/* Steering Servo */
+  Steering_Init();		/* Steering Servo */
   
-  //Encoder_Init();		/* Wheel / Shaft Encoders */
+  Encoder_Init();		/* Wheel / Shaft Encoders */
  
   sei();			/* Enable interrupts */
 
