@@ -62,4 +62,7 @@ figure;
 plot( [sensordata(:,9) + round((kalmanoutput(:,7)-sensordata(:,9))/(2*pi))*2*pi kalmanoutput(:,7)]);
 title('Heading (rad ccw vs East)');
 
+my_data = [sensordata(:,4) sensordata(:,5) sensordata(:,6) sensordata(:,2) sensordata(:,3) sensordata(:,7) sensordata(:,8) sensordata(:,9) sensordata(:,10) sensordata(:,11)];
+
+save -text full_data my_data
 
