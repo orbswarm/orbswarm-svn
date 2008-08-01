@@ -1,7 +1,7 @@
 package com.orbswarm.choreography.timeline;
 
+import com.orbswarm.swarmcon.IOrbControl;
 import com.orbswarm.choreography.ColorSpecialist;
-import com.orbswarm.choreography.OrbControl;
 import com.orbswarm.choreography.Specialist;
 import com.orbswarm.swarmcomposer.util.TokenReader;
 import com.orbswarm.swarmcomposer.color.HSV;
@@ -15,9 +15,10 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- *  Representation of an event that is triggered when an orb gets in proximity. 
+ *  Representation of an event that is triggered when an orb gets in proximity.
  */
-public class ProximityEvent extends Event {
+public class ProximityEvent extends Event
+{
     /** minimum distance to trigger the event **/
     private double triggerDistance = 1.0;
 
@@ -26,84 +27,99 @@ public class ProximityEvent extends Event {
 
     /** the event that actually got triggered (a copy of the original) **/
     private Event triggeredEvent = null;
-    
+
     private boolean triggered = false;
     private int locusOrb = -1;
     private int encroachingOrb = -1;
-    
+
     public ProximityEvent(Timeline timeline,
-                          Event parent,
-                          int locusOrb,
-                          int encroachingOrb,
-                          Event triggeringEvent) {
-        super(timeline, parent);
-        this.locusOrb = locusOrb;
-        this.encroachingOrb = encroachingOrb;
-        if (triggeringEvent != null) {
-            triggeringEvent.copyAttributes(this);
-        }
+    Event parent,
+    int locusOrb,
+    int encroachingOrb,
+    Event triggeringEvent)
+    {
+      super(timeline, parent);
+      this.locusOrb = locusOrb;
+      this.encroachingOrb = encroachingOrb;
+      if (triggeringEvent != null)
+      {
+        triggeringEvent.copyAttributes(this);
+      }
     }
 
-    public boolean isTriggered() {
-        return this.triggered;
+    public boolean isTriggered()
+    {
+      return this.triggered;
     }
 
-    public void setTriggered(boolean val) {
-        this.triggered = val;
-    }
-    
-    public void setTriggerDistance(double val) {
-        this.triggerDistance = val;
+    public void setTriggered(boolean val)
+    {
+      this.triggered = val;
     }
 
-    public double getTriggerDistance() {
-        return this.triggerDistance;
+    public void setTriggerDistance(double val)
+    {
+      this.triggerDistance = val;
     }
 
-    public double getPersonalSpaceRadius() {
-        return getTriggerDistance();
-    }
-    
-    public void setResetDistance(double val) {
-        this.resetDistance = val;
+    public double getTriggerDistance()
+    {
+      return this.triggerDistance;
     }
 
-    public double getResetDistance() {
-        return this.resetDistance;
-    }
-    
-    public ProximityEvent copy() {
-        ProximityEvent copy = new ProximityEvent(timeline, parent, locusOrb, encroachingOrb, null);
-        copyAttributes(copy);
-        return copy;
+    public double getPersonalSpaceRadius()
+    {
+      return getTriggerDistance();
     }
 
-    protected void copyAttributes(ProximityEvent copy) {
-        super.copyAttributes(copy);
-        copy.triggerDistance = this.triggerDistance;
-        copy.resetDistance = this.resetDistance;
-    }        
-
-    public int getLocusOrb() {
-        return this.locusOrb;
+    public void setResetDistance(double val)
+    {
+      this.resetDistance = val;
     }
 
-    public int getEncroachingOrb() {
-        return this.encroachingOrb;
-    }
-    
-    public void setTriggeredEvent(Event val) {
-        this.triggeredEvent = val;
+    public double getResetDistance()
+    {
+      return this.resetDistance;
     }
 
-    public Event getTriggeredEvent() {
-        return this.triggeredEvent;
+    public ProximityEvent copy()
+    {
+      ProximityEvent copy = new ProximityEvent(timeline, parent, locusOrb, encroachingOrb, null);
+      copyAttributes(copy);
+      return copy;
     }
-    
-    public String toString() {
-        return "PROX{ o" + locusOrb + " -> o" + encroachingOrb + "}"; 
+
+    protected void copyAttributes(ProximityEvent copy)
+    {
+      super.copyAttributes(copy);
+      copy.triggerDistance = this.triggerDistance;
+      copy.resetDistance = this.resetDistance;
+    }
+
+    public int getLocusOrb()
+    {
+      return this.locusOrb;
+    }
+
+    public int getEncroachingOrb()
+    {
+      return this.encroachingOrb;
+    }
+
+    public void setTriggeredEvent(Event val)
+    {
+      this.triggeredEvent = val;
+    }
+
+    public Event getTriggeredEvent()
+    {
+      return this.triggeredEvent;
+    }
+
+    public String toString()
+    {
+      return "PROX{ o" + locusOrb + " -> o" + encroachingOrb + "}";
     }
 
 }
 
-    

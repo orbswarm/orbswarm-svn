@@ -1,5 +1,7 @@
 package com.orbswarm.choreography;
 
+import com.orbswarm.swarmcon.IOrbControl;
+
 import com.orbswarm.swarmcomposer.color.HSV;
 
 import java.util.Properties;
@@ -9,7 +11,7 @@ public class SingleColorSpecialist extends AbstractSpecialist implements ColorSp
     private HSV color = null;
     private int fadeTimeMS;
     
-    public void setup(OrbControl orbControl, Properties initialProperties, int[] orbs) {
+    public void setup(IOrbControl orbControl, Properties initialProperties, int[] orbs) {
         super.setup(orbControl, initialProperties, orbs);
     }
 

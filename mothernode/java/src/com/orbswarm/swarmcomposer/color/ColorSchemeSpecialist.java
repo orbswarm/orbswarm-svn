@@ -1,13 +1,13 @@
 package com.orbswarm.swarmcomposer.color;
 
 import com.orbswarm.choreography.Orb;
-import com.orbswarm.choreography.OrbControl;
+import com.orbswarm.swarmcon.IOrbControl;
 import com.orbswarm.choreography.Specialist;
 import com.orbswarm.choreography.AbstractSpecialist;
 import com.orbswarm.choreography.Swarm;
 import com.orbswarm.choreography.timeline.Timeline;
 
-import com.orbswarm.swarmcon.OrbControlImpl;
+import com.orbswarm.swarmcon.OrbControl;
 import com.orbswarm.swarmcon.SwarmCon;
 
 import com.orbswarm.swarmcomposer.composer.BotControllerColor; // this needs to move!
@@ -23,10 +23,10 @@ public  class ColorSchemeSpecialist extends AbstractSpecialist implements ColorS
     private ColorSchemer schemer;
     private SwarmCon swarmCon;
 
-    public void setup(OrbControl orbControl, Properties initialProperties, int[] orbs) {
+    public void setup(IOrbControl orbControl, Properties initialProperties, int[] orbs) {
         super.setup(orbControl, initialProperties, orbs);
         // HACQUE ALERT! this is too tightly coupled, but we're late in the game, and OUCH!
-        OrbControlImpl oci = (OrbControlImpl)orbControl; // bad simran! bad simran!!
+        OrbControl oci = (OrbControl)orbControl; // bad simran! bad simran!!
         swarmCon = oci.getSwarmCon();
         schemer = swarmCon.colorSchemer;
         this.addBotColorListener(schemer);

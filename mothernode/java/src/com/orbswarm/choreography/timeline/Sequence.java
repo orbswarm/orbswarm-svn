@@ -1,7 +1,7 @@
 package com.orbswarm.choreography.timeline;
 
+import com.orbswarm.swarmcon.IOrbControl;
 import com.orbswarm.choreography.ColorSpecialist;
-import com.orbswarm.choreography.OrbControl;
 import com.orbswarm.choreography.Specialist;
 import com.orbswarm.swarmcomposer.util.TokenReader;
 import com.orbswarm.swarmcomposer.color.HSV;
@@ -15,160 +15,200 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- *  Representation of a sequence of timeline events. 
+ *  Representation of a sequence of timeline events.
  *  which can have duration.
  */
-public class Sequence extends Event {
+public class Sequence extends Event
+{
     // a sequence is an event, possibly with a following event, which may be null.
 
     private Event first = null;
     private Sequence next = null;
     private Sequence prev = null;
-    
-    public Sequence(Timeline timeline, Event parent) {
-        super(timeline, parent);
-        this.first = null;
-        this.next = null;
+
+    public Sequence(Timeline timeline, Event parent)
+    {
+      super(timeline, parent);
+      this.first = null;
+      this.next = null;
     }
 
-    public Sequence copy() {
-        Sequence copy = new Sequence(timeline, parent);
-        copyAttributes(copy);
-        return copy;
+    public Sequence copy()
+    {
+      Sequence copy = new Sequence(timeline, parent);
+      copyAttributes(copy);
+      return copy;
     }
 
-    protected void copyAttributes(Sequence copy) {
-        super.copyAttributes(copy);
-        // loop through events in the sequence and add copies to the copy sequence.
-        Sequence n = this;
-        while (n != null) {
-            Event event = n.getFirst();
-            if (event != null) {
-                copy.appendEvent(event.copy());
-            }
-            n = n.getNext();
+    protected void copyAttributes(Sequence copy)
+    {
+      super.copyAttributes(copy);
+      // loop through events in the sequence and add copies to the copy sequence.
+      Sequence n = this;
+      while (n != null)
+      {
+        Event event = n.getFirst();
+        if (event != null)
+        {
+          copy.appendEvent(event.copy());
         }
-    }        
-
-    public Event getFirst() {
-        return this.first;
+        n = n.getNext();
+      }
     }
 
-    public boolean hasNext() {
-        return this.next != null;
+    public Event getFirst()
+    {
+      return this.first;
     }
-    
-    public Sequence getNext() {
-        return this.next;
+
+    public boolean hasNext()
+    {
+      return this.next != null;
     }
-    
+
+    public Sequence getNext()
+    {
+      return this.next;
+    }
+
     /**
      * Append event to end of sequence -- no matter how far down this is.
      * Take into account that this might be an initially empty sequence, in which
-     * case, add the first item. 
+     * case, add the first item.
      */
-    public void appendEvent(Event event) {
-        if (first == null) {
-            first = event;
-            event.setParent(this);
-        } else {
-            if (next == null) {
-                next = new Sequence(timeline, parent);
-            } 
-            next.appendEvent(event);
+    public void appendEvent(Event event)
+    {
+      if (first == null)
+      {
+        first = event;
+        event.setParent(this);
+      }
+      else
+      {
+        if (next == null)
+        {
+          next = new Sequence(timeline, parent);
         }
+        next.appendEvent(event);
+      }
     }
 
-    public Specialist setupSpecialist(OrbControl orbControl) {
-        System.out.println("SEQUENCE.setupSpecialist()");
-        Specialist sp = null;
-        if (first != null) {
-            sp = first.setupSpecialist(orbControl);
-        }
-        if (next != null) {
-            next.setupSpecialist(orbControl);
-        }
-        return sp;
+    public Specialist setupSpecialist(IOrbControl orbControl)
+    {
+      System.out.println("SEQUENCE.setupSpecialist()");
+      Specialist sp = null;
+      if (first != null)
+      {
+        sp = first.setupSpecialist(orbControl);
+      }
+      if (next != null)
+      {
+        next.setupSpecialist(orbControl);
+      }
+      return sp;
     }
 
-    public String toString() {
-        StringBuffer buf = new StringBuffer();
-        buf.append("SEQ{" + startTime + ", " + endTime + "=" + duration + "}[");
-        Sequence n = this;
-        while (n != null) {
-            if (n.getFirst() == null) {
-                buf.append("<>");
-            } else {
-                buf.append(n.getFirst().toString());
-            }
-            n = n.getNext();
-            if (n != null) {
-                buf.append(", ");
-            }
+    public String toString()
+    {
+      StringBuffer buf = new StringBuffer();
+      buf.append("SEQ{" + startTime + ", " + endTime + "=" + duration + "}[");
+      Sequence n = this;
+      while (n != null)
+      {
+        if (n.getFirst() == null)
+        {
+          buf.append("<>");
         }
-        buf.append("]");
-        return buf.toString();
+        else
+        {
+          buf.append(n.getFirst().toString());
+        }
+        n = n.getNext();
+        if (n != null)
+        {
+          buf.append(", ");
+        }
+      }
+      buf.append("]");
+      return buf.toString();
     }
 
-    public float calculateDuration() {
-        if (duration == NO_TIME) {
-            duration = getFullDuration();
-        }
-        return duration;
-    }
-    
-    private float getFullDuration() {
-        System.out.print("Seq: fullDuration(): [");
-        float fd = 0;
-        Sequence n = this;
-        while (n != null) {
-            if (n.getFirst() == null) {
-
-            } else {
-                float dur = n.getFirst().calculateDuration();
-                System.out.print(dur + ", ");
-                if (dur != NO_TIME) {
-                    fd += dur;
-                }
-            }
-            n = n.getNext();
-        }
-        System.out.println("]: " + fd);
-        return fd;
+    public float calculateDuration()
+    {
+      if (duration == NO_TIME)
+      {
+        duration = getFullDuration();
+      }
+      return duration;
     }
 
-    public void adjustEventTimes() {
-        float runningStart = this.startTime;
-        Sequence n = this;
-        while (n != null) {
-            Event event = n.getFirst();
-            if (event == null) {
+    private float getFullDuration()
+    {
+      System.out.print("Seq: fullDuration(): [");
+      float fd = 0;
+      Sequence n = this;
+      while (n != null)
+      {
+        if (n.getFirst() == null)
+        {
 
-            } else {
-                float dur = event.calculateDuration();
-                if (dur == NO_TIME) {
-                    dur = .1f;  // a minimum?
-                }
-                event.setStartTime(runningStart);
-                event.setEndTime(runningStart + dur);
-                runningStart += dur;
-            }
-            n = n.getNext();
         }
+        else
+        {
+          float dur = n.getFirst().calculateDuration();
+          System.out.print(dur + ", ");
+          if (dur != NO_TIME)
+          {
+            fd += dur;
+          }
+        }
+        n = n.getNext();
+      }
+      System.out.println("]: " + fd);
+      return fd;
+    }
+
+    public void adjustEventTimes()
+    {
+      float runningStart = this.startTime;
+      Sequence n = this;
+      while (n != null)
+      {
+        Event event = n.getFirst();
+        if (event == null)
+        {
+
+        }
+        else
+        {
+          float dur = event.calculateDuration();
+          if (dur == NO_TIME)
+          {
+            dur = .1f;  // a minimum?
+          }
+          event.setStartTime(runningStart);
+          event.setEndTime(runningStart + dur);
+          runningStart += dur;
+        }
+        n = n.getNext();
+      }
     }
 
 
-    public float getEndTime() {
-        if (this.endTime != NO_TIME) {
-            return this.endTime;
-        }
-        float st = startTime;
-        if (st == NO_TIME) {
-            st = 0.f;
-        }
-        return st + calculateDuration();
+    public float getEndTime()
+    {
+      if (this.endTime != NO_TIME)
+      {
+        return this.endTime;
+      }
+      float st = startTime;
+      if (st == NO_TIME)
+      {
+        st = 0.f;
+      }
+      return st + calculateDuration();
     }
 
 }
 
-    
+

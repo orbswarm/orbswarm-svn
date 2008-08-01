@@ -2,6 +2,9 @@ package com.orbswarm.choreography;
 
 import java.util.Properties;
 
+import com.orbswarm.swarmcon.IOrbControl;
+
+
 public interface Specialist {
     public static final float NO_TIME = -1.f;
 
@@ -9,7 +12,7 @@ public interface Specialist {
         Implemented in AbstractSpecialist superclass.
         Most implementations will call super.setup(...)
     */
-    public void setup(OrbControl orbControl, Properties initialProperties, int[] orbs);
+    public void setup(IOrbControl orbControl, Properties initialProperties, int[] orbs);
 
     /**
      * If orbs is specified as null, then it usually means all orbs.

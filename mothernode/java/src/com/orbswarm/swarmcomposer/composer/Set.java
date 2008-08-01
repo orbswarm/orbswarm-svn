@@ -1,6 +1,6 @@
 package com.orbswarm.swarmcomposer.composer;
 
-import com.orbswarm.swarmcon.OrbControlImpl;
+import com.orbswarm.swarmcon.OrbControl;
 
 import java.io.File;
 import java.io.IOException;
@@ -114,7 +114,7 @@ public class Set {
         for(int i=0; i < soundFiles.length; i++) {
             File soundFile = soundFiles[i];
             if (soundFileIsValid(soundFile)) {
-                Sound sound = OrbControlImpl.staticLookupSound(soundFile.getAbsolutePath());
+                Sound sound = OrbControl.staticLookupSound(soundFile.getAbsolutePath());
                 if (sound == null) {
                     sound = new Sound(this, soundFile.getName());
                 }

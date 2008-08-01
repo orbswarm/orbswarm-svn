@@ -1,13 +1,15 @@
 package com.orbswarm.choreography;
 
 import com.orbswarm.swarmcomposer.composer.Sound;
+import com.orbswarm.swarmcon.IOrbControl;
+
 import java.util.Enumeration;
 import java.util.Properties;
 
 public class MultitrackSongSpecialist extends AbstractSpecialist {
     private boolean enabled = true;
     private Sound[] tracks;
-    public void setup(OrbControl orbControl, Properties initialProperties, int[] orbs) {
+    public void setup(IOrbControl orbControl, Properties initialProperties, int[] orbs) {
         super.setup(orbControl, initialProperties, orbs);
         setupTracks();
     }

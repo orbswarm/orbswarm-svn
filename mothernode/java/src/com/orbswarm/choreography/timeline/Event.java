@@ -1,10 +1,10 @@
 package com.orbswarm.choreography.timeline;
 
 import com.orbswarm.choreography.ColorSpecialist;
-import com.orbswarm.choreography.OrbControl;
 import com.orbswarm.choreography.Specialist;
 import com.orbswarm.swarmcomposer.util.TokenReader;
 import com.orbswarm.swarmcomposer.color.HSV;
+import com.orbswarm.swarmcon.IOrbControl;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -398,7 +398,7 @@ public class Event extends Temporal {
     //
     // Set up this event's specialist.
     //
-    public Specialist setupSpecialist(OrbControl orbControl) {
+    public Specialist setupSpecialist(IOrbControl orbControl) {
         if (specialistName == null) {
             return null;
         }
@@ -437,7 +437,7 @@ public class Event extends Temporal {
     //
     // Start up this event's specialist.
     //
-    public Specialist startSpecialist(OrbControl orbControl) {
+    public Specialist startSpecialist(IOrbControl orbControl) {
         //System.out.println("Event(" + getName() + ") startSpecialist:" + specialist);
         try {
             if (specialist == null) {
@@ -453,7 +453,7 @@ public class Event extends Temporal {
     }
 
     
-    public void stopSpecialist(OrbControl orbControl) {
+    public void stopSpecialist(IOrbControl orbControl) {
         if (specialist ==  null) {
             return;
         }

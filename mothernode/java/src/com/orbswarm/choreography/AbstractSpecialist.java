@@ -5,14 +5,16 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Properties;
 
+import com.orbswarm.swarmcon.IOrbControl;
+
 public abstract class AbstractSpecialist implements Specialist {
-    protected OrbControl orbControl;
+    protected IOrbControl orbControl;
     protected Properties properties;
     protected ArrayList commandListeners = null;
     protected int []orbs;
     protected float duration = NO_TIME;
 
-    public void setup(OrbControl orbControl, Properties initialProperties, int[] orbs) {
+    public void setup(IOrbControl orbControl, Properties initialProperties, int[] orbs) {
         this.orbControl = orbControl;
         this.properties = new Properties();
         this.orbs = orbs;

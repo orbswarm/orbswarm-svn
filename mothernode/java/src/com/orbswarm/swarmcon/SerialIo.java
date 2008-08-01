@@ -14,7 +14,10 @@ import java.io.InputStreamReader;
 import java.lang.Thread;
 import org.trebor.util.JarTools;
 
+import com.orbswarm.swarmcon.Message;
+
 import static java.lang.System.*;
+
 
 /** SerialIo provids serial I/O between this software and devices on
  * serial ports. */
@@ -198,7 +201,7 @@ public class SerialIo
       
       public static void main(String[] args)
       {
-         SerialIo sio = new SerialIo(args[0]);
+         SerialIo sio = new SerialIo("/dev/tty.PL2303-0000201A");
          for (String port: sio.listSerialPorts())
             System.out.println("port: " + port);
 
@@ -207,13 +210,15 @@ public class SerialIo
             {
                   public void lineEvent(String line)
                   {
-                     System.out.println("got: " + line);
+                    System.out.println("got1: " + line);
+                    Message m = new Message(line);
+                    System.out.println("got2: " + m);
                   }
             };
 
          sio.registerLineListener(ll);
          
-         String test = "this is a test\n";
+         String test = "@61 p e=123.45 n=345.67\n";
          
          while (true)
          {
@@ -324,6 +329,7 @@ public class SerialIo
                      while(true)
                      {
                         String line = lnr.readLine();
+                        System.out.println("go line: " + line);
                         debugIo(line, false);
                         for (LineListener l: lineListeners)
                            l.lineEvent(line);

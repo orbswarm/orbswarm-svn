@@ -1,10 +1,11 @@
-package com.orbswarm.choreography;
+package com.orbswarm.swarmcon;
 
 import java.util.List;
 import com.orbswarm.swarmcomposer.color.HSV;
 import com.orbswarm.swarmcomposer.composer.Sound;
 
-public interface OrbControl {
+public interface IOrbControl
+{
     //
     // Sound control methods
     //
@@ -26,26 +27,27 @@ public interface OrbControl {
     // Light control methods
     //
     public void orbColor(int orbNum, HSV color, int fadeTimeMS);
-    public void orbColorFade(int orbNum,
-                             HSV color1,
-                             HSV color2,
-                             int fadeTimeMS);
+    public void orbColorFade(int orbNum, HSV color1, HSV color2, int fadeTimeMS);
+
     /**
      * @return the last color this orb was set to.
      *  Note: if it is during a fade, can return either the color as it's
      *        fading, or the target color that it is supposed to fade to.
      */
+
     public HSV getOrbColor(int orbNum);
 
     //
     // Motion methods
     //
-    public void followPath(Point[] wayPoints);
+
+    public void followPath(com.orbswarm.choreography.Point[] wayPoints);
     public void stopOrb(int orb);
-    
+
     //
     // SoundFile -> sound hash mapping.
     //
+
     public void   addSoundFileMapping(String soundFilePath, String soundFileHash);
     public String getSoundFileHash(String soundFilePath);
     public List   getSoundFileMappingKeys();

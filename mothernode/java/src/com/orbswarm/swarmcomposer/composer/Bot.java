@@ -1,6 +1,6 @@
 package com.orbswarm.swarmcomposer.composer;
 
-import com.orbswarm.choreography.OrbControl;
+import com.orbswarm.swarmcon.IOrbControl;
 
 import com.orbswarm.swarmcomposer.util.TokenReader;
 import java.io.IOException;
@@ -51,7 +51,7 @@ public class Bot implements NeighborListener {
     protected ArrayList songs;
 
     protected PlayerThread playerThread = null;
-    protected OrbControl orbControl;
+    protected IOrbControl orbControl;
 
     //
     // current selections
@@ -78,7 +78,7 @@ public class Bot implements NeighborListener {
     // TODO: multichannel player
     // TOOO: test strategy reading. 
 
-    public Bot(int num, String name, String basePath, OrbControl orbControl) {
+    public Bot(int num, String name, String basePath, IOrbControl orbControl) {
         this.botnum = num;
         this.name = name;
         this.basePath = basePath;
