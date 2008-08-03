@@ -1,6 +1,6 @@
 MCU = atmega640
 F_CPU = 14700000
-SVN_TRUNK = c:/trunk
+SVN_TRUNK = /home/niladrib/trunk
 
 MYSRC = $(SVN_TRUNK)/aggr/src
 MYBIN = $(SVN_TRUNK)/aggr/binaries
@@ -32,10 +32,12 @@ arduino_upload: $(MYBIN)/$(TARGET).hex
 ########AVRDUDE section for the stk500
 ###programming mode is ISP
 AVRDUDE=avrdude
-AVRDUDE_PROGRAMMER = stk500v2
+#AVRDUDE_PROGRAMMER = stk500v2
+AVRDUDE_PROGRAMMER = stk500
 #AVRDUDE_PORT = /dev/tty.USA19H1b1P1.1
 #AVRDUDE_PORT = /dev/tty.usbserial-ftDDKSD7
-AVRDUDE_PORT = COM7
+AVRDUDE_PORT = /dev/ttyUSB0
+#AVRDUDE_PORT = COM7
 UPLOAD_RATE = 115200
 AVRDUDE_WRITE_FLASH = -U flash:w:$(MYBIN)/$(TARGET).hex:i
 AVRDUDE_FLAGS = -v -p $(MCU) -b $(UPLOAD_RATE) -P $(AVRDUDE_PORT) \

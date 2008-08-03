@@ -1,0 +1,759 @@
+Archive member included because of file (symbol)
+
+/usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_exit.o)
+                              /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o (exit)
+/usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_copy_data.o)
+                              /home/niladrib/trunk/aggr/binaries/main.o (__do_copy_data)
+/usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_clear_bss.o)
+                              /home/niladrib/trunk/aggr/binaries/main.o (__do_clear_bss)
+/usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strcpy.o)
+                              /home/niladrib/trunk/aggr/binaries/gps.o (strcpy)
+/usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strncmp.o)
+                              /home/niladrib/trunk/aggr/binaries/gps.o (strncmp)
+/usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strncpy.o)
+                              /home/niladrib/trunk/aggr/binaries/main.o (strncpy)
+/usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(sprintf.o)
+                              /home/niladrib/trunk/aggr/binaries/main.o (sprintf)
+/usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+                              /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(sprintf.o) (vfprintf)
+/usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strlen_P.o)
+                              /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(vfprintf_std.o) (strlen_P)
+/usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strnlen_P.o)
+                              /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(vfprintf_std.o) (strnlen_P)
+/usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strnlen.o)
+                              /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(vfprintf_std.o) (strnlen)
+/usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(fputc.o)
+                              /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(vfprintf_std.o) (fputc)
+/usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_udivmodsi4.o)
+                              /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(vfprintf_std.o) (__udivmodsi4)
+/usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_prologue.o)
+                              /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(sprintf.o) (__prologue_saves__)
+/usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_epilogue.o)
+                              /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(sprintf.o) (__epilogue_restores__)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+text             0x00000000         0x00020000         xr
+data             0x00800060         0x0000ffa0         rw !x
+eeprom           0x00810000         0x00010000         rw !x
+fuse             0x00820000         0x00000400         rw !x
+lock             0x00830000         0x00000400         rw !x
+signature        0x00840000         0x00000400         rw !x
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+Address of section .data set to 0x800200
+LOAD /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+LOAD /home/niladrib/trunk/aggr/binaries/main.o
+LOAD /home/niladrib/trunk/aggr/binaries/uart.o
+LOAD /home/niladrib/trunk/aggr/binaries/swarm_queues.o
+LOAD /home/niladrib/trunk/aggr/binaries/timer0.o
+LOAD /home/niladrib/trunk/aggr/binaries/gps.o
+LOAD /home/niladrib/trunk/aggr/binaries/xbee.o
+LOAD /home/niladrib/trunk/aggr/binaries/spu.o
+LOAD /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a
+LOAD /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a
+LOAD /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a
+
+.hash
+ *(.hash)
+
+.dynsym
+ *(.dynsym)
+
+.dynstr
+ *(.dynstr)
+
+.gnu.version
+ *(.gnu.version)
+
+.gnu.version_d
+ *(.gnu.version_d)
+
+.gnu.version_r
+ *(.gnu.version_r)
+
+.rel.init
+ *(.rel.init)
+
+.rela.init
+ *(.rela.init)
+
+.rel.text
+ *(.rel.text)
+ *(.rel.text.*)
+ *(.rel.gnu.linkonce.t*)
+
+.rela.text
+ *(.rela.text)
+ *(.rela.text.*)
+ *(.rela.gnu.linkonce.t*)
+
+.rel.fini
+ *(.rel.fini)
+
+.rela.fini
+ *(.rela.fini)
+
+.rel.rodata
+ *(.rel.rodata)
+ *(.rel.rodata.*)
+ *(.rel.gnu.linkonce.r*)
+
+.rela.rodata
+ *(.rela.rodata)
+ *(.rela.rodata.*)
+ *(.rela.gnu.linkonce.r*)
+
+.rel.data
+ *(.rel.data)
+ *(.rel.data.*)
+ *(.rel.gnu.linkonce.d*)
+
+.rela.data
+ *(.rela.data)
+ *(.rela.data.*)
+ *(.rela.gnu.linkonce.d*)
+
+.rel.ctors
+ *(.rel.ctors)
+
+.rela.ctors
+ *(.rela.ctors)
+
+.rel.dtors
+ *(.rel.dtors)
+
+.rela.dtors
+ *(.rela.dtors)
+
+.rel.got
+ *(.rel.got)
+
+.rela.got
+ *(.rela.got)
+
+.rel.bss
+ *(.rel.bss)
+
+.rela.bss
+ *(.rela.bss)
+
+.rel.plt
+ *(.rel.plt)
+
+.rela.plt
+ *(.rela.plt)
+
+.text           0x00000000     0x27d8
+ *(.vectors)
+ .vectors       0x00000000       0xe4 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+                0x00000000                __vectors
+                0x00000000                __vector_default
+ *(.vectors)
+ *(.progmem.gcc*)
+ *(.progmem*)
+                0x000000e4                . = ALIGN (0x2)
+                0x000000e4                __trampolines_start = .
+ *(.trampolines)
+ .trampolines   0x000000e4        0x0 linker stubs
+ *(.trampolines*)
+                0x000000e4                __trampolines_end = .
+ *(.jumptables)
+ *(.jumptables*)
+ *(.lowtext)
+ *(.lowtext*)
+                0x000000e4                __ctors_start = .
+ *(.ctors)
+                0x000000e4                __ctors_end = .
+                0x000000e4                __dtors_start = .
+ *(.dtors)
+                0x000000e4                __dtors_end = .
+ SORT(*)(.ctors)
+ SORT(*)(.dtors)
+ *(.init0)
+ .init0         0x000000e4        0x0 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+                0x000000e4                __init
+ *(.init0)
+ *(.init1)
+ *(.init1)
+ *(.init2)
+ .init2         0x000000e4        0xc /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+ *(.init2)
+ *(.init3)
+ *(.init3)
+ *(.init4)
+ .init4         0x000000f0       0x16 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_copy_data.o)
+                0x000000f0                __do_copy_data
+ .init4         0x00000106       0x10 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_clear_bss.o)
+                0x00000106                __do_clear_bss
+ *(.init4)
+ *(.init5)
+ *(.init5)
+ *(.init6)
+ *(.init6)
+ *(.init7)
+ *(.init7)
+ *(.init8)
+ *(.init8)
+ *(.init9)
+ .init9         0x00000116        0x8 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+ *(.init9)
+ *(.text)
+ .text          0x0000011e        0x4 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+                0x0000011e                __vector_38
+                0x0000011e                __vector_22
+                0x0000011e                __vector_28
+                0x0000011e                __vector_1
+                0x0000011e                __vector_32
+                0x0000011e                __vector_34
+                0x0000011e                __vector_24
+                0x0000011e                __vector_12
+                0x0000011e                __vector_46
+                0x0000011e                __bad_interrupt
+                0x0000011e                __vector_6
+                0x0000011e                __vector_31
+                0x0000011e                __vector_35
+                0x0000011e                __vector_39
+                0x0000011e                __vector_3
+                0x0000011e                __vector_30
+                0x0000011e                __vector_45
+                0x0000011e                __vector_11
+                0x0000011e                __vector_13
+                0x0000011e                __vector_17
+                0x0000011e                __vector_19
+                0x0000011e                __vector_56
+                0x0000011e                __vector_7
+                0x0000011e                __vector_49
+                0x0000011e                __vector_41
+                0x0000011e                __vector_43
+                0x0000011e                __vector_27
+                0x0000011e                __vector_5
+                0x0000011e                __vector_33
+                0x0000011e                __vector_47
+                0x0000011e                __vector_52
+                0x0000011e                __vector_37
+                0x0000011e                __vector_4
+                0x0000011e                __vector_44
+                0x0000011e                __vector_51
+                0x0000011e                __vector_9
+                0x0000011e                __vector_2
+                0x0000011e                __vector_21
+                0x0000011e                __vector_15
+                0x0000011e                __vector_29
+                0x0000011e                __vector_40
+                0x0000011e                __vector_8
+                0x0000011e                __vector_48
+                0x0000011e                __vector_14
+                0x0000011e                __vector_53
+                0x0000011e                __vector_10
+                0x0000011e                __vector_50
+                0x0000011e                __vector_16
+                0x0000011e                __vector_18
+                0x0000011e                __vector_20
+                0x0000011e                __vector_42
+ .text          0x00000122      0x5e4 /home/niladrib/trunk/aggr/binaries/main.o
+                0x00000176                info
+                0x0000013c                dummyHandler
+                0x0000012e                blinkLedPortB7
+                0x00000122                debug
+                0x0000013e                calculateCheckSum
+                0x00000136                dummyPop
+                0x00000124                blinkLedPortB6
+                0x0000017c                setGpsMode
+                0x00000470                main
+ .text          0x00000706      0x436 /home/niladrib/trunk/aggr/binaries/uart.o
+                0x00000880                __vector_55
+                0x00000a42                isXBeeSendInProgress
+                0x00000790                __vector_25
+                0x00000976                sendSpuMsg
+                0x00000718                __vector_54
+                0x00000a10                stopAsyncSpuTransmit
+                0x00000a4c                uart_init
+                0x00000706                blinkLed6
+                0x000009bc                stopAsyncXbeeTransmit
+                0x00000808                __vector_36
+                0x000009e4                startAsyncSpuTransmit
+                0x00000710                blinkLed7
+                0x000008ee                __vector_26
+                0x00000a38                isSpuSendInProgress
+                0x0000095c                sendGPSAMsg
+                0x00000990                startAsyncXBeeTransmit
+                0x00000aba                debugUART
+ .text          0x00000b3c      0xa94 /home/niladrib/trunk/aggr/binaries/swarm_queues.o
+                0x00000e84                popXbeeDataQ
+                0x00000fdc                popSwarmMsgBus
+                0x000013a2                pushSwarmMsgBus
+                0x00000b46                pushSpuDataQ
+                0x00000b3c                initSwarmQueues
+                0x00000c8e                pushXbeeDataQ
+                0x00000f30                popSpuDataQ
+ .text          0x000015d0      0x126 /home/niladrib/trunk/aggr/binaries/timer0.o
+                0x0000165e                isTimedOut
+                0x000016a4                loopTimer0
+                0x000015d0                __vector_23
+                0x00001668                setTimerInAsync
+ .text          0x000016f6      0x41c /home/niladrib/trunk/aggr/binaries/gps.o
+                0x000016f6                initGpsModule
+                0x00001708                getGpsGpvtgMsg
+                0x00001776                getPmtkMsg
+                0x000019f4                getGpsGpggaMsg
+                0x000017a4                handleGpsSerial
+ .text          0x00001b12      0x2dc /home/niladrib/trunk/aggr/binaries/xbee.o
+                0x00001b2c                handleXbeeSerial
+                0x00001b12                initXbeeModule
+ .text          0x00001dee      0x2dc /home/niladrib/trunk/aggr/binaries/spu.o
+                0x00001dee                initSpuModule
+                0x00001e08                handleSpuSerial
+ .text          0x000020ca        0x0 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_exit.o)
+ .text          0x000020ca        0x0 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_copy_data.o)
+ .text          0x000020ca        0x0 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_clear_bss.o)
+ .text          0x000020ca        0xe /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strcpy.o)
+                0x000020ca                strcpy
+ .text          0x000020d8       0x1c /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strncmp.o)
+                0x000020d8                strncmp
+ .text          0x000020f4       0x1e /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strncpy.o)
+                0x000020f4                strncpy
+ .text          0x00002112       0x4a /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(sprintf.o)
+                0x00002112                sprintf
+ .text          0x0000215c      0x530 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+                0x0000215c                vfprintf
+ .text          0x0000268c       0x12 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strlen_P.o)
+                0x0000268c                strlen_P
+ .text          0x0000269e       0x16 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strnlen_P.o)
+                0x0000269e                strnlen_P
+ .text          0x000026b4       0x16 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strnlen.o)
+                0x000026b4                strnlen
+ .text          0x000026ca       0x5a /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(fputc.o)
+                0x000026ca                fputc
+ .text          0x00002724        0x0 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_udivmodsi4.o)
+ .text          0x00002724        0x0 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_prologue.o)
+ .text          0x00002724        0x0 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_epilogue.o)
+                0x00002724                . = ALIGN (0x2)
+ *(.text.*)
+ .text.libgcc   0x00002724        0x0 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_exit.o)
+ .text.libgcc   0x00002724        0x0 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_copy_data.o)
+ .text.libgcc   0x00002724        0x0 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_clear_bss.o)
+ .text.libgcc   0x00002724       0x44 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_udivmodsi4.o)
+                0x00002724                __udivmodsi4
+ .text.libgcc   0x00002768       0x38 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_prologue.o)
+                0x00002768                __prologue_saves__
+ .text.libgcc   0x000027a0       0x36 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_epilogue.o)
+                0x000027a0                __epilogue_restores__
+                0x000027d6                . = ALIGN (0x2)
+ *(.fini9)
+ .fini9         0x000027d6        0x0 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_exit.o)
+                0x000027d6                exit
+                0x000027d6                _exit
+ *(.fini9)
+ *(.fini8)
+ *(.fini8)
+ *(.fini7)
+ *(.fini7)
+ *(.fini6)
+ *(.fini6)
+ *(.fini5)
+ *(.fini5)
+ *(.fini4)
+ *(.fini4)
+ *(.fini3)
+ *(.fini3)
+ *(.fini2)
+ *(.fini2)
+ *(.fini1)
+ *(.fini1)
+ *(.fini0)
+ .fini0         0x000027d6        0x2 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_exit.o)
+ *(.fini0)
+                0x000027d8                _etext = .
+
+.data           0x00800200      0x252 load address 0x000027d8
+                0x00800200                PROVIDE (__data_start, .)
+ *(.data)
+ .data          0x00800200        0x0 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+ .data          0x00800200       0xf4 /home/niladrib/trunk/aggr/binaries/main.o
+ .data          0x008002f4        0x0 /home/niladrib/trunk/aggr/binaries/uart.o
+ .data          0x008002f4      0x120 /home/niladrib/trunk/aggr/binaries/swarm_queues.o
+ .data          0x00800414        0x0 /home/niladrib/trunk/aggr/binaries/timer0.o
+ .data          0x00800414       0x3e /home/niladrib/trunk/aggr/binaries/gps.o
+ .data          0x00800452        0x0 /home/niladrib/trunk/aggr/binaries/xbee.o
+ .data          0x00800452        0x0 /home/niladrib/trunk/aggr/binaries/spu.o
+ .data          0x00800452        0x0 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_exit.o)
+ .data          0x00800452        0x0 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_copy_data.o)
+ .data          0x00800452        0x0 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_clear_bss.o)
+ .data          0x00800452        0x0 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strcpy.o)
+ .data          0x00800452        0x0 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strncmp.o)
+ .data          0x00800452        0x0 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strncpy.o)
+ .data          0x00800452        0x0 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(sprintf.o)
+ .data          0x00800452        0x0 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+ .data          0x00800452        0x0 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strlen_P.o)
+ .data          0x00800452        0x0 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strnlen_P.o)
+ .data          0x00800452        0x0 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strnlen.o)
+ .data          0x00800452        0x0 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(fputc.o)
+ .data          0x00800452        0x0 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_udivmodsi4.o)
+ .data          0x00800452        0x0 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_prologue.o)
+ .data          0x00800452        0x0 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_epilogue.o)
+ *(.data*)
+ *(.rodata)
+ *(.rodata*)
+ *(.gnu.linkonce.d*)
+                0x00800452                . = ALIGN (0x2)
+                0x00800452                _edata = .
+                0x00800452                PROVIDE (__data_end, .)
+
+.bss            0x00800452     0x10e4 load address 0x00002a2a
+                0x00800452                PROVIDE (__bss_start, .)
+ *(.bss)
+ .bss           0x00800452        0x0 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+ .bss           0x00800452        0x0 /home/niladrib/trunk/aggr/binaries/main.o
+ .bss           0x00800452        0xe /home/niladrib/trunk/aggr/binaries/uart.o
+ .bss           0x00800460      0xe4e /home/niladrib/trunk/aggr/binaries/swarm_queues.o
+ .bss           0x008012ae        0x8 /home/niladrib/trunk/aggr/binaries/timer0.o
+                0x008012b0                m_nTimecount
+                0x008012ae                m_unitsOf1ms
+                0x008012b2                m_nQuarterTick
+                0x008012b4                m_nTimerOverFlag
+ .bss           0x008012b6      0x19e /home/niladrib/trunk/aggr/binaries/gps.o
+ .bss           0x00801454       0x71 /home/niladrib/trunk/aggr/binaries/xbee.o
+ .bss           0x008014c5       0x71 /home/niladrib/trunk/aggr/binaries/spu.o
+ .bss           0x00801536        0x0 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_exit.o)
+ .bss           0x00801536        0x0 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_copy_data.o)
+ .bss           0x00801536        0x0 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_clear_bss.o)
+ .bss           0x00801536        0x0 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strcpy.o)
+ .bss           0x00801536        0x0 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strncmp.o)
+ .bss           0x00801536        0x0 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strncpy.o)
+ .bss           0x00801536        0x0 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(sprintf.o)
+ .bss           0x00801536        0x0 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+ .bss           0x00801536        0x0 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strlen_P.o)
+ .bss           0x00801536        0x0 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strnlen_P.o)
+ .bss           0x00801536        0x0 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strnlen.o)
+ .bss           0x00801536        0x0 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(fputc.o)
+ .bss           0x00801536        0x0 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_udivmodsi4.o)
+ .bss           0x00801536        0x0 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_prologue.o)
+ .bss           0x00801536        0x0 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_epilogue.o)
+ *(.bss*)
+ *(COMMON)
+                0x00801536                PROVIDE (__bss_end, .)
+                0x000027d8                __data_load_start = LOADADDR (.data)
+                0x00002a2a                __data_load_end = (__data_load_start + SIZEOF (.data))
+
+.noinit         0x00801536        0x0
+                0x00801536                PROVIDE (__noinit_start, .)
+ *(.noinit*)
+                0x00801536                PROVIDE (__noinit_end, .)
+                0x00801536                _end = .
+                0x00801536                PROVIDE (__heap_start, .)
+
+.eeprom         0x00810000        0x0
+ *(.eeprom*)
+                0x00810000                __eeprom_end = .
+
+.fuse
+ *(.fuse)
+ *(.lfuse)
+ *(.hfuse)
+ *(.efuse)
+
+.lock
+ *(.lock*)
+
+.signature
+ *(.signature*)
+
+.stab           0x00000000     0x4ca4
+ *(.stab)
+ .stab          0x00000000      0x378 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+ .stab          0x00000378      0xe4c /home/niladrib/trunk/aggr/binaries/main.o
+                                0xe58 (size before relaxing)
+ .stab          0x000011c4      0xa50 /home/niladrib/trunk/aggr/binaries/uart.o
+                                0xc18 (size before relaxing)
+ .stab          0x00001c14      0xcb4 /home/niladrib/trunk/aggr/binaries/swarm_queues.o
+                                0xeb8 (size before relaxing)
+ .stab          0x000028c8      0x360 /home/niladrib/trunk/aggr/binaries/timer0.o
+                                0x504 (size before relaxing)
+ .stab          0x00002c28      0x7d4 /home/niladrib/trunk/aggr/binaries/gps.o
+                                0x9d8 (size before relaxing)
+ .stab          0x000033fc      0x3d8 /home/niladrib/trunk/aggr/binaries/xbee.o
+                                0x5dc (size before relaxing)
+ .stab          0x000037d4      0x3f0 /home/niladrib/trunk/aggr/binaries/spu.o
+                                0x60c (size before relaxing)
+ .stab          0x00003bc4       0x6c /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strcpy.o)
+                                 0x78 (size before relaxing)
+ .stab          0x00003c30       0xc0 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strncmp.o)
+                                 0xcc (size before relaxing)
+ .stab          0x00003cf0       0xcc /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strncpy.o)
+                                 0xd8 (size before relaxing)
+ .stab          0x00003dbc      0x390 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(sprintf.o)
+                                0x3d8 (size before relaxing)
+ .stab          0x0000414c      0x7c8 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+                                0x9c0 (size before relaxing)
+ .stab          0x00004914       0x84 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strlen_P.o)
+                                 0x90 (size before relaxing)
+ .stab          0x00004998       0x9c /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strnlen_P.o)
+                                 0xa8 (size before relaxing)
+ .stab          0x00004a34       0x9c /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strnlen.o)
+                                 0xa8 (size before relaxing)
+ .stab          0x00004ad0      0x1d4 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(fputc.o)
+                                0x3b4 (size before relaxing)
+
+.stabstr        0x00000000     0x2224
+ *(.stabstr)
+ .stabstr       0x00000000     0x2224 /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+
+.stab.excl
+ *(.stab.excl)
+
+.stab.exclstr
+ *(.stab.exclstr)
+
+.stab.index
+ *(.stab.index)
+
+.stab.indexstr
+ *(.stab.indexstr)
+
+.comment
+ *(.comment)
+
+.debug
+ *(.debug)
+
+.line
+ *(.line)
+
+.debug_srcinfo
+ *(.debug_srcinfo)
+
+.debug_sfnames
+ *(.debug_sfnames)
+
+.debug_aranges
+ *(.debug_aranges)
+
+.debug_pubnames
+ *(.debug_pubnames)
+
+.debug_info
+ *(.debug_info)
+ *(.gnu.linkonce.wi.*)
+
+.debug_abbrev
+ *(.debug_abbrev)
+
+.debug_line
+ *(.debug_line)
+
+.debug_frame
+ *(.debug_frame)
+
+.debug_str
+ *(.debug_str)
+
+.debug_loc
+ *(.debug_loc)
+
+.debug_macinfo
+ *(.debug_macinfo)
+OUTPUT(/home/niladrib/trunk/aggr/binaries/main.elf elf32-avr)
+LOAD linker stubs
+
+Cross Reference Table
+
+Symbol                                            File
+__bad_interrupt                                   /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__bss_end                                         /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_clear_bss.o)
+__bss_start                                       /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_clear_bss.o)
+__data_end                                        /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_copy_data.o)
+__data_load_start                                 /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_copy_data.o)
+__data_start                                      /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_copy_data.o)
+__do_clear_bss                                    /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_clear_bss.o)
+                                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(fputc.o)
+                                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+                                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(sprintf.o)
+                                                  /home/niladrib/trunk/aggr/binaries/spu.o
+                                                  /home/niladrib/trunk/aggr/binaries/xbee.o
+                                                  /home/niladrib/trunk/aggr/binaries/gps.o
+                                                  /home/niladrib/trunk/aggr/binaries/timer0.o
+                                                  /home/niladrib/trunk/aggr/binaries/swarm_queues.o
+                                                  /home/niladrib/trunk/aggr/binaries/uart.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+__do_copy_data                                    /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_copy_data.o)
+                                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(fputc.o)
+                                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+                                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(sprintf.o)
+                                                  /home/niladrib/trunk/aggr/binaries/spu.o
+                                                  /home/niladrib/trunk/aggr/binaries/xbee.o
+                                                  /home/niladrib/trunk/aggr/binaries/gps.o
+                                                  /home/niladrib/trunk/aggr/binaries/timer0.o
+                                                  /home/niladrib/trunk/aggr/binaries/swarm_queues.o
+                                                  /home/niladrib/trunk/aggr/binaries/uart.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+__epilogue_restores__                             /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_epilogue.o)
+                                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+                                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(sprintf.o)
+__heap_end                                        /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__init                                            /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__prologue_saves__                                /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_prologue.o)
+                                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+                                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(sprintf.o)
+__stack                                           /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+__udivmodsi4                                      /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_udivmodsi4.o)
+                                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+__vector_1                                        /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_10                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_11                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_12                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_13                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_14                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_15                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_16                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_17                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_18                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_19                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_2                                        /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_20                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_21                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_22                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_23                                       /home/niladrib/trunk/aggr/binaries/timer0.o
+                                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_24                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_25                                       /home/niladrib/trunk/aggr/binaries/uart.o
+                                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_26                                       /home/niladrib/trunk/aggr/binaries/uart.o
+                                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_27                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_28                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_29                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_3                                        /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_30                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_31                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_32                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_33                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_34                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_35                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_36                                       /home/niladrib/trunk/aggr/binaries/uart.o
+                                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_37                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_38                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_39                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_4                                        /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_40                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_41                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_42                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_43                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_44                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_45                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_46                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_47                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_48                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_49                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_5                                        /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_50                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_51                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_52                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_53                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_54                                       /home/niladrib/trunk/aggr/binaries/uart.o
+                                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_55                                       /home/niladrib/trunk/aggr/binaries/uart.o
+                                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_56                                       /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_6                                        /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_7                                        /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_8                                        /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_9                                        /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vector_default                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+__vectors                                         /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+_exit                                             /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_exit.o)
+blinkLed6                                         /home/niladrib/trunk/aggr/binaries/uart.o
+blinkLed7                                         /home/niladrib/trunk/aggr/binaries/uart.o
+blinkLedPortB6                                    /home/niladrib/trunk/aggr/binaries/main.o
+blinkLedPortB7                                    /home/niladrib/trunk/aggr/binaries/main.o
+calculateCheckSum                                 /home/niladrib/trunk/aggr/binaries/main.o
+debug                                             /home/niladrib/trunk/aggr/binaries/main.o
+debugUART                                         /home/niladrib/trunk/aggr/binaries/uart.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+dummyHandler                                      /home/niladrib/trunk/aggr/binaries/main.o
+dummyPop                                          /home/niladrib/trunk/aggr/binaries/main.o
+exit                                              /usr/lib/gcc/avr/4.2.2/avr5/libgcc.a(_exit.o)
+                                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+fputc                                             /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(fputc.o)
+                                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+getGpsGpggaMsg                                    /home/niladrib/trunk/aggr/binaries/gps.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+getGpsGpvtgMsg                                    /home/niladrib/trunk/aggr/binaries/gps.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+getPmtkMsg                                        /home/niladrib/trunk/aggr/binaries/gps.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+handleGpsSerial                                   /home/niladrib/trunk/aggr/binaries/gps.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+handleSpuSerial                                   /home/niladrib/trunk/aggr/binaries/spu.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+handleXbeeSerial                                  /home/niladrib/trunk/aggr/binaries/xbee.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+info                                              /home/niladrib/trunk/aggr/binaries/main.o
+initGpsModule                                     /home/niladrib/trunk/aggr/binaries/gps.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+initSpuModule                                     /home/niladrib/trunk/aggr/binaries/spu.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+initSwarmQueues                                   /home/niladrib/trunk/aggr/binaries/swarm_queues.o
+initXbeeModule                                    /home/niladrib/trunk/aggr/binaries/xbee.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+isSpuSendInProgress                               /home/niladrib/trunk/aggr/binaries/uart.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+isTimedOut                                        /home/niladrib/trunk/aggr/binaries/timer0.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+isXBeeSendInProgress                              /home/niladrib/trunk/aggr/binaries/uart.o
+loopTimer0                                        /home/niladrib/trunk/aggr/binaries/timer0.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+m_nQuarterTick                                    /home/niladrib/trunk/aggr/binaries/timer0.o
+m_nTimecount                                      /home/niladrib/trunk/aggr/binaries/timer0.o
+m_nTimerOverFlag                                  /home/niladrib/trunk/aggr/binaries/timer0.o
+m_unitsOf1ms                                      /home/niladrib/trunk/aggr/binaries/timer0.o
+main                                              /home/niladrib/trunk/aggr/binaries/main.o
+                                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/crtm640.o
+popSpuDataQ                                       /home/niladrib/trunk/aggr/binaries/swarm_queues.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+popSwarmMsgBus                                    /home/niladrib/trunk/aggr/binaries/swarm_queues.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+popXbeeDataQ                                      /home/niladrib/trunk/aggr/binaries/swarm_queues.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+pushSpuDataQ                                      /home/niladrib/trunk/aggr/binaries/swarm_queues.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+pushSwarmMsgBus                                   /home/niladrib/trunk/aggr/binaries/swarm_queues.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+pushXbeeDataQ                                     /home/niladrib/trunk/aggr/binaries/swarm_queues.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+sendGPSAMsg                                       /home/niladrib/trunk/aggr/binaries/uart.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+sendSpuMsg                                        /home/niladrib/trunk/aggr/binaries/uart.o
+setGpsMode                                        /home/niladrib/trunk/aggr/binaries/main.o
+setTimerInAsync                                   /home/niladrib/trunk/aggr/binaries/timer0.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+sprintf                                           /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(sprintf.o)
+                                                  /home/niladrib/trunk/aggr/binaries/swarm_queues.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+startAsyncSpuTransmit                             /home/niladrib/trunk/aggr/binaries/uart.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+startAsyncXBeeTransmit                            /home/niladrib/trunk/aggr/binaries/uart.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+stopAsyncSpuTransmit                              /home/niladrib/trunk/aggr/binaries/uart.o
+stopAsyncXbeeTransmit                             /home/niladrib/trunk/aggr/binaries/uart.o
+strcpy                                            /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strcpy.o)
+                                                  /home/niladrib/trunk/aggr/binaries/gps.o
+strlen_P                                          /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strlen_P.o)
+                                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+strncmp                                           /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strncmp.o)
+                                                  /home/niladrib/trunk/aggr/binaries/gps.o
+strncpy                                           /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strncpy.o)
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+strnlen                                           /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strnlen.o)
+                                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+strnlen_P                                         /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(strnlen_P.o)
+                                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+uart_init                                         /home/niladrib/trunk/aggr/binaries/uart.o
+                                                  /home/niladrib/trunk/aggr/binaries/main.o
+vfprintf                                          /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(vfprintf_std.o)
+                                                  /usr/lib/gcc/avr/4.2.2/../../../../avr/lib/avr5/libc.a(sprintf.o)
