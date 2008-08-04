@@ -73,15 +73,17 @@ public class LiveModel extends MotionModel
         // get current position
 
         Point position = new Point(
-          message.getDoubleProperty(EASTING),
-          message.getDoubleProperty(NORTHING));
+          10, 10);
+//           message.getDoubleProperty(EASTING),
+//           message.getDoubleProperty(NORTHING));
 
         // if the global offset has not yet been initialized do that with
         // the current position of this very first orb message
-        
+
         if (!globalOffsetInitialized)
         {
-          SwarmCon.getInstance().setGlobalOffset(getPosition());
+          SwarmCon.setGlobalOffset(
+            new Point(-position.getX(), -position.getY()));
           globalOffsetInitialized = true;
         }
         

@@ -365,7 +365,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
     /** the global word offset to correct the orbs postion by */
 
-    private Point globalOffset = new Point(0, 0);
+    private static Point globalOffset = new Point(0, 0);
 
     /** swarm of mobjects (not just orbs) (maybe this should not be
      * called the swarm?) */
@@ -1497,6 +1497,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       g.scale(PIXELS_PER_METER, -PIXELS_PER_METER);
 
       // draw timeline regions
+
       if (timeline != null)
       {
         boolean first = true;
@@ -1504,18 +1505,12 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
         {
           Region region = (Region)it.next();
           region.paint(g);
-          /*
-            if (first) {
-            // debugging stuffs
-            Orb o0 = (Orb)swarm.getOrb(0);
-            double o0x = o0.getX();
-            double o0y = o0.getY();
-            //System.out.println("R " + region.getName() + "<" + region.x1 + ", " + region.y1 + ">-<" + region.x2 + ", " + region.y2 + "> orb0: (" + o0x + ", " + o0y + ")");
-            first = false;
-            }
-          */
         }
       }
+
+      // apply the global offset
+
+      g.translate(globalOffset.getX(), globalOffset.getY());
 
       // draw mobjects
 
@@ -1531,16 +1526,16 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
     /** Get the global offset. */
 
-    public Point getGlobalOffset()
+    public static Point getGlobalOffset()
     {
       return new Point(globalOffset);
     }
     
     /** Set the global offset. */
 
-    public void setGlobalOffset(Point globalOffset)
+    public static void setGlobalOffset(Point _globalOffset)
     {
-      this.globalOffset = globalOffset;
+      globalOffset = _globalOffset;
     }
 
     // object which is always set to the position of the mouse
@@ -1564,9 +1559,11 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
             {
                 public void mouseMoved(MouseEvent e)
                 {
-                  setPosition(e.getX() / PIXELS_PER_METER,
-                  (arenax.getHeight() - e.getY()) /
-                  PIXELS_PER_METER);
+                  double x = e.getX() / PIXELS_PER_METER;
+                  double y = (arenax.getHeight() - e.getY()) / PIXELS_PER_METER;
+                  setPosition(
+                    x - globalOffset.getX(),
+                    y - globalOffset.getY());
                 }
             };
 

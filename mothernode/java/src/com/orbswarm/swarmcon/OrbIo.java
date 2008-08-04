@@ -71,10 +71,6 @@ public class OrbIo extends SerialIo
 
     public void dispatchOrbMessage(Message message)
     {
-      System.out.println("Orb count: " + orbs.size());
-      for (Orb orb: orbs.values())
-        System.out.println("Orb: " + orb);
-
       // if this is an unknow message type, just ignore it for now
 
       if (message.getType() == UNKNOWN)
