@@ -73,9 +73,8 @@ public class LiveModel extends MotionModel
         // get current position
 
         Point position = new Point(
-          10, 10);
-//           message.getDoubleProperty(EASTING),
-//           message.getDoubleProperty(NORTHING));
+           message.getDoubleProperty(EASTING),
+           message.getDoubleProperty(NORTHING));
 
         // if the global offset has not yet been initialized do that with
         // the current position of this very first orb message

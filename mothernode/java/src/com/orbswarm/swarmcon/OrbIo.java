@@ -155,7 +155,7 @@ public class OrbIo extends SerialIo
 
     public void orbCommand(int orbId, String command)
     {
-      super.send("{" + (60 + orbId) + " " + command + "}\n");
+      super.send("{" + (60 + orbId) + " " + command + "}");
     }
 
     /** for testing */

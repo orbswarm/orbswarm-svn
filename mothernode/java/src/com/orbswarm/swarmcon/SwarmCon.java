@@ -1561,14 +1561,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
                 
                 public void mouseMoved(MouseEvent e)
                 {
-                  double x = e.getX() / PIXELS_PER_METER;
-                  double y = -e.getY() / PIXELS_PER_METER;
-
-                  // correct for the global offset
-                  
-                  setPosition(
-                    x - getGlobalOffset().getX(),
-                    y - getGlobalOffset().getY());
+                  setPosition(screenToWorld(e.getPoint()));
                 }
             };
 
@@ -1617,15 +1610,55 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       return rTriangle;
     }
 
-    /** swarm mouse input adapter */
+    /** Convert screen coordinates to world coordinates. 
+     *
+     * @param screenPos a position in screen coordinates
+     *
+     * @return the point converted to world coodinates.
+     */
 
+    public Point2D.Double screenToWorld(java.awt.Point screenPos)
+    {
+      return new Point2D.Double(
+        screenPos.getX() /  PIXELS_PER_METER - getGlobalOffset().getX(),
+        screenPos.getY() / -PIXELS_PER_METER - getGlobalOffset().getY());
+    }
+
+    /** swarm mouse input adapter */
+    
     class SwarmMia extends MouseInputAdapter
     {
+        private MouseEvent clickEvent = null;
+
+        // mouse pressed event
+
+        public void mousePressed(MouseEvent e)
+        {
+          clickEvent = e;
+        }
+
         // mouse dragged event
 
         public void mouseDragged(MouseEvent e)
         {
+          if (clickEvent != null)
+          {
+            Point2D start = screenToWorld(clickEvent.getPoint());
+            Point2D end = screenToWorld(e.getPoint());
+            setGlobalOffset(new Point(
+              globalOffset.getX() + (end.getX() - start.getX()),
+              globalOffset.getY() + (end.getY() - start.getY())));
+            clickEvent = e;
+          }
         }
+
+        // mouse released event
+
+        public void mouseReleased(MouseEvent e)
+        {
+          clickEvent = null;
+        }
+
         // mouse moved event
 
         public void mouseMoved(MouseEvent e)
@@ -1635,15 +1668,10 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
         public void mouseClicked(MouseEvent e)
         {
-          // convert point to meters
-
-          Point2D.Double point = new Point2D.Double(
-            e.getX() / PIXELS_PER_METER,
-            (arena.getHeight() - e.getY()) / PIXELS_PER_METER);
-
           // find nearest selectable mobject
 
-          final Mobject nearest = swarm.findSelected(point);
+          final Mobject nearest = swarm
+            .findSelected(screenToWorld(e.getPoint()));
 
           // if shift is not down, clear selected
 
