@@ -30,7 +30,8 @@ import java.util.Iterator;
 
 import java.text.*;
 
-import org.trebor.pid.*;
+import org.trebor.pid.Controller;
+import org.trebor.pid.PidTuner;
 import org.trebor.util.JarTools;
 import org.trebor.util.Debug;
 
@@ -160,7 +161,6 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
     /** The joystick manager object */
     private JoystickManager joystickManager = null;
 
-
     /*
      * The following are values specified in the properties file.  The
      * default values here will be overwritten by the values in the
@@ -194,6 +194,9 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
     /** delay between sending commands to the orb */
     public static int commandRefreshDelay = 200;
+
+    /** delay between sending commands to the orb */
+    public static int positionPollPeriod = 200;
 
     /** enable sending commands to orbs */
     public static boolean sendCommandsToOrbs = true;
@@ -468,6 +471,15 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
           i++;
           sc.commandRefreshDelay = refresh;
         }
+
+        else if (args[i].equalsIgnoreCase("--positionPollPeriod"))
+        {
+          i++;
+          sc.positionPollPeriod = Integer.parseInt(args[i]);
+          i++;
+        }
+
+
         // Note: not giving the option to turn off sending commands to orbs right now.
 
         else if (args[i].equalsIgnoreCase("--help") || args[i].equalsIgnoreCase("-help"))
@@ -488,6 +500,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       System.out.println("     --simulateSounds true|false   default: false");
       System.out.println("     --simulateColors true|false   default: true");
       System.out.println("     --commandRefreshDelay <ms>    default: 200");
+      System.out.println("     --positionPollPeriod <ms>     default: 200");
       System.out.println("     --power <0-100>               default:  50");
       System.out.println("     --steering <0-100>            default: 100");
       System.out.println("     --timelineWidth <int>         default: 900");
@@ -563,12 +576,12 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       
       // start joystick managner
 
-      joystickManager = new JoystickManager();
-      joystickManager.registerListener(this);
+      //joystickManager = new JoystickManager();
+      //joystickManager.registerListener(this);
 
       // construct the frame
 
-      constructFrame(getContentPane());
+      boolean shouldCreateOrbsNow = constructFrame(getContentPane());
 
       // get the graphics device from the local graphic environment
 
@@ -597,15 +610,12 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
       // init Swarm
 
-      Controller[] controllers = addOrbs(new Rectangle2D
-      .Double(arena.getBounds().getX() / PIXELS_PER_METER,
-      arena.getBounds().getY() / PIXELS_PER_METER,
-      arena.getBounds().getWidth()  / PIXELS_PER_METER,
-      arena.getBounds().getHeight() / PIXELS_PER_METER));
+      if (shouldCreateOrbsNow)
+        createOrbs();
 
       // start motor control thread
 
-      activateMotorControllThread();
+      //activateMotorControllThread();
       requestFocus();
     }
     /** Reads properties file out of users home directory.  If this
@@ -659,6 +669,8 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
         "swarmcon.motion.steeringRange", steeringRange);
       commandRefreshDelay = getIntProperty(
         "swarmcon.comm.commandRefreshDelay", commandRefreshDelay);
+      positionPollPeriod = getIntProperty(
+        "swarmcon.comm.positionPollPeriod", positionPollPeriod);
       sendCommandsToOrbs = getBooleanProperty(
         "swarmcon.comm.sendCommandsToOrbs", sendCommandsToOrbs);
       joystickGuiControl = getBooleanProperty(
@@ -818,54 +830,109 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       System.out.println("SwarmCon: stop controlling");
     }
 
-    public Controller[] addOrbs(Rectangle2D.Double bounds)
+    /** Convert milliseconds to decimal seconds.
+     *
+     * @param milliseconds ya know milliseconds
+     *
+     * @return dimension seconds.
+     */
+
+    public static double millisecondsToSeconds(long milliseconds)
     {
+      return milliseconds / 1000d;
+    }
+
+
+    /** Create the swarm and the orbs it is composed of. */
+    
+    public void createOrbs()
+    {
+      // bet bounds from arena
+
+      Rectangle2D.Double bounds = new Rectangle2D
+        .Double(arena.getBounds().getX() / PIXELS_PER_METER,
+        arena.getBounds().getY() / PIXELS_PER_METER,
+        arena.getBounds().getWidth()  / PIXELS_PER_METER,
+        arena.getBounds().getHeight() / PIXELS_PER_METER);
+
+      // create the swarm object
+
       swarm = new Swarm(bounds);
 
       Mobject preveouse = new MouseMobject(arena);
       swarm.add(preveouse);
       Controller[] controllers = null;
 
-      // construct the swarm
+      // create the orbs
 
-      for (int i = 0; i < orbCount; ++i)
+      System.out.println("Creating orbs: ");
+
+      // compute the time offset between orbs for orbs to request
+      // position updates, so as not to overload the network
+
+      double positionPollPeriodDelta = 
+        millisecondsToSeconds(positionPollPeriod) / orbCount;
+      double positionPollPeriodOffset = 0;
+      int oldSize = swarm.size();
+      for (int id = 0; swarm.size() - oldSize < orbCount; ++id)
       {
-        // create an orb
+        // if this orb is not enbabled, don't create it
 
-        Orb orb = new Orb(swarm, new SimModel(), i);
-        controllers = ((SimModel)orb.getModel()).getControllers();
+        if (!getBooleanProperty("swarmcon.orb" + id + ".enabled", false))
+          continue;
+        
+        // report the birth of an orb
+        
+        System.out.println("id: " + id + " mode: " + (liveMode ? "LIVE" : "SIM"));
+        
+        // create the orb model
+
+        MotionModel model = liveMode
+          ? new LiveModel(orbIo, id, positionPollPeriodOffset)
+          : new SimModel();
+
+        positionPollPeriodOffset += positionPollPeriodDelta;
+
+        // get the controllers for the new orb, but we're not doing
+        // anything with them at the moment
+
+        Orb orb = new Orb(swarm, model, id);
+        if (orb.getModel() instanceof SimModel)
+          controllers = ((SimModel)orb.getModel()).getControllers();
 
         // add behvaiors
 
         swarm.add(orb);
-        JoyBehavior jb = new JoyBehavior();
-        joystickManager.registerListener(orbIdtoJoystick(i), jb);
+        //JoyBehavior jb = new JoyBehavior();
+        //joystickManager.registerListener(orbIdtoJoystick(id), jb);
         Behavior wb = new WanderBehavior();
         Behavior fb = new FollowBehavior(preveouse);
         Behavior rb = new RandomBehavior();
         Behavior cb = new ClusterBehavior();
         Behavior fab = new AvoidBehavior(fb);
         Behavior cab = new AvoidBehavior(cb);
-        orb.add(jb);
+        //orb.add(jb);
         orb.add(fb);
         orb.add(rb);
         orb.add(cb);
         orb.add(fab);
         orb.add(cab);
 
-
         // register the joystick behavoir as a reciever of joystick events
 
         preveouse = orb;
       }
       swarm.nextBehavior();
-
-      return controllers;
     }
     // update the world
 
     public void update()
     {
+      // if (for whatever reason) there is no swarm, don't update
+
+      if (swarm == null)
+        return;
+
       synchronized (swarm)
       {
         // sleep until it's been a minimum frame delay
@@ -874,7 +941,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
         {
           long start = lastUpdate.getTimeInMillis();
           while (currentTimeMillis() - start < MIN_FRAME_DELAY)
-            Thread.sleep(10);
+            Thread.sleep(MIN_FRAME_DELAY / 4);
         }
         catch (Exception ex)
         {
@@ -885,26 +952,28 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
         Calendar now = Calendar.getInstance();
         long nowMillis = now.getTimeInMillis();
-        float timeSinceTimelineStarted = (nowMillis - timelineStarted) / 1000.f;
+        float timeSinceTimelineStarted = (float)millisecondsToSeconds(
+          nowMillis - timelineStarted);
 
-        double time = (now.getTimeInMillis()
-        - lastUpdate.getTimeInMillis()) / 1000d;
+        double time = millisecondsToSeconds(
+          nowMillis - lastUpdate.getTimeInMillis());
 
         // establish the time since last update
 
         lastUpdate = now;
 
         // give the timeline a cycle
+
         timelineDisplay.cycle(timeSinceTimelineStarted);
 
         // update all the objects
 
         swarm.update(time);
-
         swarm.updateOrbDistances();
         broadcastOrbState();
         updateTimelineRegions();
         timeline.orbState(swarm);
+
         // repaint the screen
 
         arena.repaint();
@@ -1167,9 +1236,15 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       return image;
     }
 
-    // place gui object into frame
+    /** Place gui objects into frame.
+     *
+     * @param frame container to put stuff into
+     *
+     * @return weather or not create the orbs after done with this or if
+     * orb creation will be handled by the spash screen code.
+     */
 
-    public void constructFrame(Container frame)
+    public boolean constructFrame(Container frame)
     {
       // frame closes on exit
 
@@ -1280,6 +1355,10 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       {
         (new SwarmComPortAction(serialPortId)).actionPerformed(null);
       }
+
+      // if no splash needed then create the orbs in the follow on procedure
+
+      return !splashNeeded;
     }
 
     /** Establish the pattern of phantoms on the screen. */
@@ -1659,6 +1738,8 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
             else
               liveMode = false;
 
+            createOrbs();
+
             cardLayout.last(centerPanel);
             attemptTimelineAutoStart();
           }
@@ -1677,9 +1758,11 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       {
           public void actionPerformed(ActionEvent e)
           {
+            liveMode = false;
+            createOrbs();
+
             cardLayout.last(centerPanel);
             attemptTimelineAutoStart();
-            liveMode = false;
           }
       };
 
@@ -1808,8 +1891,8 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
     TimelineDisplay timelineDisplay)
     {
       controlTabs = new JTabbedPane();
-      JPanel joystickInfoPanel = createJoystickPanel(joystickManager);
-      controlTabs.addTab("Joysticks", joystickInfoPanel);
+      //JPanel joystickInfoPanel = createJoystickPanel(joystickManager);
+      //controlTabs.addTab("Joysticks", joystickInfoPanel);
 
       JPanel motionControlUIPanel = createMotionControlUIPanel();
       controlTabs.addTab("Motion", motionControlUIPanel);

@@ -327,28 +327,30 @@ public class OrbControl implements IOrbControl
       if (simulateColors)
       {
         final Orb orb = (Orb)swarmCon.swarm.getOrb(orbNum);
-        Color prevOrbColor = orb.getOrbColor();
-        final HSV prevHSV = HSV.fromColor(prevOrbColor);
-        if (timeMS <= 0)
+        if (orb != null)
         {
-          Color color = hsvColor.toColor();
-          orbColors[orbNum] = hsvColor;
-          orb.setOrbColor(color);
-        }
-        else
-        {
-          final int _timeMS = timeMS;
-          final HSV _hsvColor = hsvColor;
-          final int _orbNum = orbNum;
-          new Thread()
+          Color prevOrbColor = orb.getOrbColor();
+          final HSV prevHSV = HSV.fromColor(prevOrbColor);
+          if (timeMS <= 0)
           {
-              public void run()
-              {
-                boolean sendFadesToOrbs = swarmCon.steppedColorFades; // need this until Jon implements on-board fades.
-                fadeColor(_orbNum, orb, prevHSV, _hsvColor, _timeMS, 300, sendFadesToOrbs);
-              }
+            Color color = hsvColor.toColor();
+            orbColors[orbNum] = hsvColor;
+            orb.setOrbColor(color);
           }
-            .start();
+          else
+          {
+            final int _timeMS = timeMS;
+            final HSV _hsvColor = hsvColor;
+            final int _orbNum = orbNum;
+            new Thread()
+            {
+                public void run()
+                {
+                  boolean sendFadesToOrbs = swarmCon.steppedColorFades; // need this until Jon implements on-board fades.
+                  fadeColor(_orbNum, orb, prevHSV, _hsvColor, _timeMS, 300, sendFadesToOrbs);
+                }
+            }.start();
+          }
         }
       }
       else

@@ -68,6 +68,7 @@ public class Swarm extends Mobjects implements com.orbswarm.choreography.Swarm
             if (mobject instanceof Orb)
                ((Orb)mobject).previousBehavior();
       }
+
       // update the swarm
 
       public void update(double time)

@@ -23,9 +23,17 @@ public class LiveModel extends MotionModel
     
     private boolean orbPositionInitialized = false;
     
-    /** Time of the last update so we can compute 1st derivites. */
+    /** Time of the last position report. */
 
-    private double lastUpdateTime;
+    private double lastPositionReportTime;
+
+    /** Time of the last position request. */
+
+    private double lastPositionRequestTime;
+
+    /** Period to wait between position requests. */
+
+    private double positionPollPeriod;
 
     /** The id of the orb of which this is a model. */
 
@@ -41,11 +49,15 @@ public class LiveModel extends MotionModel
      * @param orbIo the commincations linkn to the physical orb
      */
 
-    public LiveModel(Orb orb, int orbId)
+    public LiveModel(OrbIo orbIo, int orbId, double reportOffset)
     {
-      this.orbId = orbId;
+      SwarmCon sc = SwarmCon.getInstance();
       this.orbIo = orbIo;
-      lastUpdateTime = SwarmCon.getTime();
+      this.orbId = orbId;
+      double now = SwarmCon.getTime();
+      lastPositionReportTime = now;
+      lastPositionRequestTime = now + reportOffset;
+      positionPollPeriod = SwarmCon.positionPollPeriod / 1000d;
     }
 
     /** Handel messages from the orb. */
@@ -56,7 +68,7 @@ public class LiveModel extends MotionModel
       {
         // compute times
 
-        double newUpdateTime = SwarmCon.getTime();
+        double newPositionReportTime = SwarmCon.getTime();
 
         // get current position
 
@@ -81,7 +93,7 @@ public class LiveModel extends MotionModel
         {
           // compute distance and time
 
-          double time = newUpdateTime - lastUpdateTime;
+          double time = newPositionReportTime - lastPositionReportTime;
           double distance = getPosition().distance(position);
 
           // and from that the velocity
@@ -99,7 +111,7 @@ public class LiveModel extends MotionModel
         // update our current postion, and time
 
         setPosition(position);
-        lastUpdateTime = newUpdateTime;
+        lastPositionReportTime = newPositionReportTime;
       }
     }
 
@@ -110,7 +122,12 @@ public class LiveModel extends MotionModel
 
     public void update(double time)
     {
-      orbIo.requestPositionReport(orbId);
+      double now = SwarmCon.getTime();
+      if (now - lastPositionRequestTime > positionPollPeriod)
+      {
+        orbIo.requestPositionReport(orbId);
+        lastPositionRequestTime = now;
+      }
     }
 
     /** Get the current velocity of the orb.
