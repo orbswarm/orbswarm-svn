@@ -1377,7 +1377,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
         fileMenu.add(menu);
       }
 
-      // if no splash needed go ahed and start the sytem
+      // if no splash needed go ahed and start the system
 
       if (!splashNeeded)
       {
@@ -1491,10 +1491,6 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
             }
         }
       }
-      // set 0,0 to lower left corner, and scale for meters
-
-      g.translate(0, height);
-      g.scale(PIXELS_PER_METER, -PIXELS_PER_METER);
 
       // draw timeline regions
 
@@ -1508,9 +1504,13 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
         }
       }
 
+      // set 0,0 to lower left corner, and scale for meters
+
+      g.scale(PIXELS_PER_METER, -PIXELS_PER_METER);
+
       // apply the global offset
 
-      g.translate(globalOffset.getX(), globalOffset.getY());
+      g.translate(getGlobalOffset().getX(), getGlobalOffset().getY());
 
       // draw mobjects
 
@@ -1526,24 +1526,25 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
     /** Get the global offset. */
 
-    public static Point getGlobalOffset()
+    public Point getGlobalOffset()
     {
-      return new Point(globalOffset);
+      return new Point(
+        globalOffset.getX() + (arena.getWidth() / PIXELS_PER_METER / 2),
+        globalOffset.getY() - (arena.getHeight() / PIXELS_PER_METER / 2));
     }
     
     /** Set the global offset. */
 
-    public static void setGlobalOffset(Point _globalOffset)
+    public void setGlobalOffset(Point _globalOffset)
     {
       globalOffset = _globalOffset;
+      System.out.println("new global offset: " + globalOffset);
     }
 
     // object which is always set to the position of the mouse
 
     public class MouseMobject extends Mobject
     {
-        JPanel arenax = arena;
-
         // shape to be drawn
 
         Shape shape = new Ellipse2D.Double(
@@ -1557,13 +1558,17 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
           super(ORB_DIAMETER / 2);
           MouseInputAdapter mia = new MouseInputAdapter()
             {
+                
                 public void mouseMoved(MouseEvent e)
                 {
                   double x = e.getX() / PIXELS_PER_METER;
-                  double y = (arenax.getHeight() - e.getY()) / PIXELS_PER_METER;
+                  double y = -e.getY() / PIXELS_PER_METER;
+
+                  // correct for the global offset
+                  
                   setPosition(
-                    x - globalOffset.getX(),
-                    y - globalOffset.getY());
+                    x - getGlobalOffset().getX(),
+                    y - getGlobalOffset().getY());
                 }
             };
 

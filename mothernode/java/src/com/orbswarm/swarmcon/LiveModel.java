@@ -82,7 +82,7 @@ public class LiveModel extends MotionModel
 
         if (!globalOffsetInitialized)
         {
-          SwarmCon.setGlobalOffset(
+          SwarmCon.getInstance().setGlobalOffset(
             new Point(-position.getX(), -position.getY()));
           globalOffsetInitialized = true;
         }
