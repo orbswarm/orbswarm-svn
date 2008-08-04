@@ -1404,7 +1404,9 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
       // find the center of the arena
 
-      Point2D.Double center = swarm.getGlobalOffset(); //Center();
+      Point2D.Double center = new Point2D.Double(
+        -globalOffset.getX(),
+        -globalOffset.getY());
 
       // if we've got 1 orb, size it real big
 
