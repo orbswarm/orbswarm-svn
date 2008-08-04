@@ -64,6 +64,13 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
     public static final int JOYSTICK_STEERING_AXIS = 0;
     public int power_range = 50;
 
+    /** Total maximum anticpated orb count. */
+    public static final int MAX_ORB_COUNT = 6;
+
+    /** The offset between internal orb IDs (0-5) and actual orb IDs (60
+     * - 65) */
+    public static final int ORB_OFFSET_ID = 60;
+
     /** Joystick access responsible for driving forward and back. */
     public static final int JOYSTICK_POWER_AXIS = 1;
 
@@ -183,9 +190,6 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
     /** auto start timeline */
     public static String autoStartTimeline = "";
 
-    /** the number of orbs */
-    public static int orbCount = 6;
-
     /** allowable range of values for power */
     public static int powerRange = 50;
 
@@ -196,7 +200,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
     public static int commandRefreshDelay = 200;
 
     /** delay between sending commands to the orb */
-    public static int positionPollPeriod = 200;
+    public static long positionPollPeriod = 200;
 
     /** enable sending commands to orbs */
     public static boolean sendCommandsToOrbs = true;
@@ -219,7 +223,6 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
     /** Joystick or Orb mapping table. */
     public static HashMap<Integer, Integer> joystickToOrbMapping =
       new HashMap<Integer, Integer>();
-
 
     class MotorCommandInfo
     {
@@ -245,6 +248,9 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
     }
 
     MotorCommandInfo motorCommandInfo[] = null;
+
+    /** the number of orbs inferred from the properteis file */
+    public static int orbCount = 0;
 
     /** arena in which we play */
 
@@ -475,7 +481,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
         else if (args[i].equalsIgnoreCase("--positionPollPeriod"))
         {
           i++;
-          sc.positionPollPeriod = Integer.parseInt(args[i]);
+          sc.positionPollPeriod = Long.parseLong(args[i]);
           i++;
         }
 
@@ -661,15 +667,13 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
     private void setValuesFromProperties()
     {
-      orbCount = getIntProperty(
-        "swarmcon.orb.count", this.orbCount);
       powerRange = getIntProperty(
         "swarmcon.motion.powerRange", powerRange);
       steeringRange = getIntProperty(
         "swarmcon.motion.steeringRange", steeringRange);
       commandRefreshDelay = getIntProperty(
         "swarmcon.comm.commandRefreshDelay", commandRefreshDelay);
-      positionPollPeriod = getIntProperty(
+      positionPollPeriod = getLongProperty(
         "swarmcon.comm.positionPollPeriod", positionPollPeriod);
       sendCommandsToOrbs = getBooleanProperty(
         "swarmcon.comm.sendCommandsToOrbs", sendCommandsToOrbs);
@@ -696,13 +700,13 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
       // init the motorCommandInfo now that we know how many orbs we have
 
-      motorCommandInfo = new MotorCommandInfo[orbCount];
+      motorCommandInfo = new MotorCommandInfo[MAX_ORB_COUNT];
 
       // read orb specific data
 
-      for (int orbId = 0; orbId < orbCount; ++orbId)
+      orbCount = 0;
+      for (int orbId = 0; orbId < MAX_ORB_COUNT; ++orbId)
       {
-
         // get stick to orb mapping
 
         joystickToOrbMapping.put(
@@ -714,6 +718,11 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
         motorCommandInfo[orbId] = new MotorCommandInfo();
         motorCommandInfo[orbId].enabled = getBooleanProperty(
           "swarmcon.orb" + orbId + ".enabled", motorCommandInfo[orbId].enabled);
+
+        // compute an accurate orb count
+
+        if (motorCommandInfo[orbId].enabled)
+          ++orbCount;
       }
     }
 
@@ -729,6 +738,21 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       {
         String vstr = this.properties.getProperty(key, null);
         val = Integer.parseInt(vstr);
+      }
+      catch (Exception ex)
+      {
+        // pass
+      }
+      return val;
+    }
+
+    public long getLongProperty(String key, long defaultVal)
+    {
+      long val = defaultVal;
+      try
+      {
+        String vstr = this.properties.getProperty(key, null);
+        val = Long.parseLong(vstr);
       }
       catch (Exception ex)
       {
@@ -873,8 +897,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       double positionPollPeriodDelta = 
         millisecondsToSeconds(positionPollPeriod) / orbCount;
       double positionPollPeriodOffset = 0;
-      int oldSize = swarm.size();
-      for (int id = 0; swarm.size() - oldSize < orbCount; ++id)
+      for (int id = 0; id < MAX_ORB_COUNT; ++id)
       {
         // if this orb is not enbabled, don't create it
 
@@ -899,6 +922,11 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
         Orb orb = new Orb(swarm, model, id);
         if (orb.getModel() instanceof SimModel)
           controllers = ((SimModel)orb.getModel()).getControllers();
+
+        // register the new orb or orb io so it can get messages
+
+        if (orbIo != null)
+          orbIo.register(orb);
 
         // add behvaiors
 

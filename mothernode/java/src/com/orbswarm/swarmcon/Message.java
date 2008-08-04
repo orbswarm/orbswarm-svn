@@ -110,11 +110,19 @@ public class Message extends Properties
     {
       StringTokenizer t = new StringTokenizer(message, " @\t\n\r\f={}");
 
+      // if there are not tokens it's an empty message, lets just ignore it
+
+      if (!t.hasMoreTokens())
+      {
+        type = Type.UNKNOWN;
+        return;
+      }
+
       // get the sender id
 
       if (!t.hasMoreTokens())
         throw new Error("No sender id specified in message: " + message);
-      senderId = Integer.valueOf(t.nextToken());
+      senderId = Integer.valueOf(t.nextToken()) - SwarmCon.ORB_OFFSET_ID;
 
       // get the message type
 

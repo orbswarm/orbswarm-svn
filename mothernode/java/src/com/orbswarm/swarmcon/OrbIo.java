@@ -6,6 +6,7 @@ import java.util.Properties;
 import java.util.Map;
 
 import static java.lang.Character.*;
+import static com.orbswarm.swarmcon.Message.Type.*;
 
 /** OrbIo provids all I/O between phycical orbs and the orb objects in
  * this software.  There will be one OrbIo object for all the orbs (one
@@ -70,7 +71,21 @@ public class OrbIo extends SerialIo
 
     public void dispatchOrbMessage(Message message)
     {
+      System.out.println("Orb count: " + orbs.size());
+      for (Orb orb: orbs.values())
+        System.out.println("Orb: " + orb);
+
+      // if this is an unknow message type, just ignore it for now
+
+      if (message.getType() == UNKNOWN)
+        return;
+
+      // find the orb
+        
       Orb orb = orbs.get(message.getSenderId());
+
+      // if we found an orb, then go ahead and pass the message along
+
       if (orb != null)
         orb.onOrbMessage(message);
       else
@@ -144,7 +159,7 @@ public class OrbIo extends SerialIo
 
     public void orbCommand(int orbId, String command)
     {
-      super.send("{" + (60 + orbId) + " " + command + "}");
+      super.send("{" + (60 + orbId) + " " + command + "}\n");
     }
 
     /** for testing */

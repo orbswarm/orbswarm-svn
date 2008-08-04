@@ -329,7 +329,6 @@ public class SerialIo
                      while(true)
                      {
                         String line = lnr.readLine();
-                        System.out.println("go line: " + line);
                         debugIo(line, false);
                         for (LineListener l: lineListeners)
                            l.lineEvent(line);
