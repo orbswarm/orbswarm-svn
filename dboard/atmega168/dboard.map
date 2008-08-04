@@ -140,7 +140,7 @@ LOAD c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000     0x180e
+.text           0x00000000     0x1812
  *(.vectors)
  .vectors       0x00000000       0x68 c:/winavr/bin/../lib/gcc/avr/4.3.0/../../../../avr/lib/avr5/crtm168.o
                 0x00000000                __vectors
@@ -281,31 +281,31 @@ LOAD c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a
                 0x0000109c                A2D_Init
  .text          0x00001152       0xc8 IMU.o
                 0x00001152                Get_IMU_Data
- .text          0x0000121a      0x5c8 main.o
+ .text          0x0000121a      0x5cc main.o
                 0x00001332                pause
-                0x000013e0                process_command_string
+                0x000013e4                process_command_string
                 0x0000125a                command_data
                 0x000012fe                turn_LED
-                0x000016e8                main
+                0x000016ec                main
                 0x0000134a                check_heart_beat
                 0x0000139c                Init_Chip
                 0x0000121a                build_up_command_string
- .text          0x000017e2        0x0 c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a(_udivmodhi4.o)
- .text          0x000017e2        0x0 c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a(_exit.o)
- .text          0x000017e2        0x0 c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a(_copy_data.o)
- .text          0x000017e2        0x0 c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a(_clear_bss.o)
-                0x000017e2                . = ALIGN (0x2)
+ .text          0x000017e6        0x0 c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a(_udivmodhi4.o)
+ .text          0x000017e6        0x0 c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a(_exit.o)
+ .text          0x000017e6        0x0 c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a(_copy_data.o)
+ .text          0x000017e6        0x0 c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a(_clear_bss.o)
+                0x000017e6                . = ALIGN (0x2)
  *(.text.*)
- .text.libgcc   0x000017e2       0x28 c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a(_udivmodhi4.o)
-                0x000017e2                __udivmodhi4
- .text.libgcc   0x0000180a        0x0 c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a(_exit.o)
- .text.libgcc   0x0000180a        0x0 c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a(_copy_data.o)
- .text.libgcc   0x0000180a        0x0 c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a(_clear_bss.o)
-                0x0000180a                . = ALIGN (0x2)
+ .text.libgcc   0x000017e6       0x28 c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a(_udivmodhi4.o)
+                0x000017e6                __udivmodhi4
+ .text.libgcc   0x0000180e        0x0 c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a(_exit.o)
+ .text.libgcc   0x0000180e        0x0 c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a(_copy_data.o)
+ .text.libgcc   0x0000180e        0x0 c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a(_clear_bss.o)
+                0x0000180e                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x0000180a        0x0 c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a(_exit.o)
-                0x0000180a                exit
-                0x0000180a                _exit
+ .fini9         0x0000180e        0x0 c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a(_exit.o)
+                0x0000180e                exit
+                0x0000180e                _exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -324,11 +324,11 @@ LOAD c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x0000180a        0x4 c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a(_exit.o)
+ .fini0         0x0000180e        0x4 c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a(_exit.o)
  *(.fini0)
-                0x0000180e                _etext = .
+                0x00001812                _etext = .
 
-.data           0x00800100      0x1fa load address 0x0000180e
+.data           0x00800100      0x1fa load address 0x00001812
                 0x00800100                PROVIDE (__data_start, .)
  *(.data)
  .data          0x00800100        0x0 c:/winavr/bin/../lib/gcc/avr/4.3.0/../../../../avr/lib/avr5/crtm168.o
@@ -354,7 +354,7 @@ LOAD c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a
                 0x008002fa                _edata = .
                 0x008002fa                PROVIDE (__data_end, .)
 
-.bss            0x008002fa       0xaa load address 0x00001a08
+.bss            0x008002fa       0xaa load address 0x00001a0c
                 0x008002fa                PROVIDE (__bss_start, .)
  *(.bss)
  .bss           0x008002fa        0x0 c:/winavr/bin/../lib/gcc/avr/4.3.0/../../../../avr/lib/avr5/crtm168.o
@@ -387,8 +387,8 @@ LOAD c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a
                 0x008003a2                Drive_Debug_Output
                 0x008003a3                Steer_Debug_Output
                 0x008003a4                PROVIDE (__bss_end, .)
-                0x0000180e                __data_load_start = LOADADDR (.data)
-                0x00001a08                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x00001812                __data_load_start = LOADADDR (.data)
+                0x00001a0c                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x008003a4        0x0
                 0x008003a4                PROVIDE (__noinit_start, .)
@@ -489,32 +489,32 @@ LOAD c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a
  .debug_pubnames
                 0x00000525       0xe3 main.o
 
-.debug_info     0x00000000     0x16fa
+.debug_info     0x00000000     0x1706
  *(.debug_info)
  .debug_info    0x00000000      0x1e7 UART.o
  .debug_info    0x000001e7      0x164 putstr.o
  .debug_info    0x0000034b      0x13c timer.o
  .debug_info    0x00000487      0x104 encoder.o
- .debug_info    0x0000058b      0x7a5 motor.o
- .debug_info    0x00000d30      0x3d9 steering.o
- .debug_info    0x00001109      0x10a a2d.o
- .debug_info    0x00001213       0x92 IMU.o
- .debug_info    0x000012a5      0x455 main.o
+ .debug_info    0x0000058b      0x7b1 motor.o
+ .debug_info    0x00000d3c      0x3d9 steering.o
+ .debug_info    0x00001115      0x10a a2d.o
+ .debug_info    0x0000121f       0x92 IMU.o
+ .debug_info    0x000012b1      0x455 main.o
  *(.gnu.linkonce.wi.*)
 
-.debug_abbrev   0x00000000      0x865
+.debug_abbrev   0x00000000      0x872
  *(.debug_abbrev)
  .debug_abbrev  0x00000000       0xcd UART.o
  .debug_abbrev  0x000000cd       0x9f putstr.o
  .debug_abbrev  0x0000016c       0x68 timer.o
  .debug_abbrev  0x000001d4       0x88 encoder.o
- .debug_abbrev  0x0000025c      0x1f7 motor.o
- .debug_abbrev  0x00000453       0xf5 steering.o
- .debug_abbrev  0x00000548       0xbc a2d.o
- .debug_abbrev  0x00000604       0x57 IMU.o
- .debug_abbrev  0x0000065b      0x20a main.o
+ .debug_abbrev  0x0000025c      0x204 motor.o
+ .debug_abbrev  0x00000460       0xf5 steering.o
+ .debug_abbrev  0x00000555       0xbc a2d.o
+ .debug_abbrev  0x00000611       0x57 IMU.o
+ .debug_abbrev  0x00000668      0x20a main.o
 
-.debug_line     0x00000000     0x1a8e
+.debug_line     0x00000000     0x1a96
  *(.debug_line)
  .debug_line    0x00000000      0x18b UART.o
  .debug_line    0x0000018b      0x260 putstr.o
@@ -524,7 +524,7 @@ LOAD c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a
  .debug_line    0x00000df5      0x407 steering.o
  .debug_line    0x000011fc      0x112 a2d.o
  .debug_line    0x0000130e       0xea IMU.o
- .debug_line    0x000013f8      0x696 main.o
+ .debug_line    0x000013f8      0x69e main.o
 
 .debug_frame    0x00000000      0x480
  *(.debug_frame)
@@ -538,7 +538,7 @@ LOAD c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a
  .debug_frame   0x000003d0       0x20 IMU.o
  .debug_frame   0x000003f0       0x90 main.o
 
-.debug_str      0x00000000      0x776
+.debug_str      0x00000000      0x77c
  *(.debug_str)
  .debug_str     0x00000000      0x11f UART.o
                                 0x158 (size before relaxing)
@@ -548,15 +548,15 @@ LOAD c:/winavr/bin/../lib/gcc/avr/4.3.0/avr5\libgcc.a
                                 0x14d (size before relaxing)
  .debug_str     0x00000206       0x34 encoder.o
                                 0x113 (size before relaxing)
- .debug_str     0x0000023a      0x21c motor.o
-                                0x305 (size before relaxing)
- .debug_str     0x00000456      0x1ab steering.o
+ .debug_str     0x0000023a      0x222 motor.o
+                                0x30b (size before relaxing)
+ .debug_str     0x0000045c      0x1ab steering.o
                                 0x28c (size before relaxing)
- .debug_str     0x00000601       0x3d a2d.o
+ .debug_str     0x00000607       0x3d a2d.o
                                  0xef (size before relaxing)
- .debug_str     0x0000063e       0x13 IMU.o
+ .debug_str     0x00000644       0x13 IMU.o
                                  0xc8 (size before relaxing)
- .debug_str     0x00000651      0x125 main.o
+ .debug_str     0x00000657      0x125 main.o
                                 0x239 (size before relaxing)
 
 .debug_loc      0x00000000      0xafe
@@ -581,6 +581,7 @@ Cross Reference Table
 
 Symbol                                            File
 A2D_Init                                          a2d.o
+                                                  main.o
 A2D_poll_adc                                      a2d.o
                                                   main.o
 A2D_read_channel                                  a2d.o

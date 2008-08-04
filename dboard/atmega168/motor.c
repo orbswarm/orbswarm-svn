@@ -66,6 +66,7 @@ extern volatile unsigned short encoder1_dir;
 
 /* Static Vars */
 static motor_control_block drive;
+static motor_control_block steer;
 
 
 /* Prototype */
