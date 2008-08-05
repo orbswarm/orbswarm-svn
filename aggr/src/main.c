@@ -58,6 +58,36 @@ void setGpsMode(void) {
 	sprintf(strDebugMsg, "\r\nack=%s", ack);
 	info(strDebugMsg);
 
+	/*
+	 * 314 - Set NMEA sentence output frequencies.
+	 *  0 NMEA_SEN_GLL,  // GPGLL interval - Geographic Position - Latitude longitude
+	 * 1 NMEA_SEN_RMC,   // GPRMC interval - Recommended Minimum Specific GNSS Sentence
+	 * 2 NMEA_SEN_VTG,  // GPVTG interval - Course Over Ground and Ground Speed
+	 * 3 NMEA_SEN_GGA,   // GPGGA interval - GPS Fix Data
+	 * 4 NMEA_SEN_GSA,   // GPGSA interval - GNSS DOPS and Active Satellites
+	 * 5 NMEA_SEN_GSV,   // GPGSV interval - GNSS Satellites in View
+	 * 6 NMEA_SEN_GRS,   // GPGRS interval - GNSS Range Residuals
+	 * 7 NMEA_SEN_GST,  // GPGST interval - GNSS Pseudorange Errors Statistics
+	 * 13 NMEA_SEN_MALM,   // PMTKALM interval - GPS almanac information
+	 * 14 NMEA_SEN_MEPH,   // PMTKEPH interval - GPS ephmeris information
+	 * 15 NMEA_SEN_MDGP,   // PMTKDGP interval - GPS differential correction information
+	 * 16 NMEA_SEN_MDBG,    // PMTKDBG interval – MTK debug information
+	 *
+	 */
+	info("\r\n sending 314");
+	msg="PMTK314,0,0,1,1"
+			"0,0,0,0"
+			"0,0,0,0"
+			"0,0,0,0";
+	sprintf(cmd, "$%s*%02X", msg, calculateCheckSum(msg));
+	info("\r\ncmd=");
+	info(cmd);
+	sendGPSAMsg(cmd);
+	loopTimer0(2000);
+	getPmtkMsg(ack, 0 /*false */);
+	sprintf(strDebugMsg, "\r\nack=%s", ack);
+	info(strDebugMsg);
+
 	info("\r\nsending 313");
 	/*
 	 * 313 - Enable to search a SBAS satellite or not.
@@ -65,7 +95,9 @@ void setGpsMode(void) {
 	 * ‘1’ = Enable
 	 */
 	msg = "PMTK313,1";
-	sprintf(cmd, "$%s*%x\r\n", msg, calculateCheckSum(msg));
+	sprintf(cmd, "$%s*%02X", msg, calculateCheckSum(msg));
+	info("\r\ncmd=");
+	info(cmd);
 	sendGPSAMsg(cmd);
 	loopTimer0(2000);
 	getPmtkMsg(ack, 0 /*false */);
@@ -81,7 +113,9 @@ void setGpsMode(void) {
 	 *
 	 */
 	msg = "PMTK301,2";
-	sprintf(cmd, "$%s*%x\r\n", msg, calculateCheckSum(msg));
+	sprintf(cmd, "$%s*%02X", msg, calculateCheckSum(msg));
+	info("\r\ncmd=");
+	info(cmd);
 	sendGPSAMsg(cmd);
 	loopTimer0(2000);
 	getPmtkMsg(ack, 0 /*false */);
@@ -93,7 +127,7 @@ void setGpsMode(void) {
 	 * Query DGPS mode
 	 */
 	msg = "PMTK401";
-	sprintf(cmd, "$%s*%x\r\n", msg, calculateCheckSum(msg));
+	sprintf(cmd, "$%s*%02X", msg, calculateCheckSum(msg));
 	sendGPSAMsg(cmd);
 	loopTimer0(2000);
 	getPmtkMsg(ack, 0 /*false */);
@@ -105,7 +139,7 @@ void setGpsMode(void) {
 	 * Query SBAS mode
 	 */
 	msg = "PMTK413";
-	sprintf(cmd, "$%s*%x\r\n", msg, calculateCheckSum(msg));
+	sprintf(cmd, "$%s*%02X", msg, calculateCheckSum(msg));
 	sendGPSAMsg(cmd);
 	loopTimer0(2000);
 	getPmtkMsg(ack, 0 /*false */);
@@ -146,7 +180,7 @@ int main(void) {
 	sprintf(strDebugMsg, "\r\n PORTB=%x", PORTB);
 	info(strDebugMsg);
 
-	initXbeeModule(pushSwarmMsgBus, blinkLedPortB6, debug);
+	initXbeeModule(pushSwarmMsgBus, blinkLedPortB6, 0);
 	initGpsModule(blinkLedPortB7, debug);
 	initSpuModule(pushSwarmMsgBus, 0, debug);
 
@@ -187,19 +221,32 @@ int main(void) {
 			while (isSpuSendInProgress())
 				;
 			debug("\r\n Got request for GPS");
-			pushSpuDataQ("{(", 0);
+			pushSpuDataQ("\r\n{(", 0);
 			getGpsGpggaMsg(gps_msg_buffer, 0);
-			stripChecksum(gps_msg_buffer + 1, sanitizedGpsString);
-			pushSpuDataQ(sanitizedGpsString, 0);
-			//pushSpuDataQ(gps_msg_buffer+1, 0);
 
-			pushSpuDataQ(";", 0);
+			//stripChecksum(gps_msg_buffer + 1, sanitizedGpsString);
+			sprintf(strDebugMsg, "\r\n [un santiized gga=%s]", gps_msg_buffer);
+			debug(strDebugMsg);
+			if(strlen(gps_msg_buffer)>6){
+				strncpy(sanitizedGpsString, gps_msg_buffer +1, strlen(gps_msg_buffer)-6);
+				sprintf(strDebugMsg, "\r\n [santiized gga=%s]", sanitizedGpsString);
+				debug(strDebugMsg);
+				pushSpuDataQ(sanitizedGpsString, 0);
+			}
+
+			pushSpuDataQ(";\r\n", 0);
 			startAsyncSpuTransmit();
 
 			getGpsGpvtgMsg(gps_msg_buffer, 0);
-			stripChecksum(gps_msg_buffer + 1, sanitizedGpsString);
-			pushSpuDataQ(sanitizedGpsString, 0);
-			//pushSpuDataQ(gps_msg_buffer+1, 0);
+			//stripChecksum(gps_msg_buffer + 1, sanitizedGpsString);
+			sprintf(strDebugMsg, "\r\n [un santiized vtg=%s]", gps_msg_buffer);
+			debug(strDebugMsg);
+			if(strlen(gps_msg_buffer)>6){
+				strncpy(sanitizedGpsString, gps_msg_buffer +1, strlen(gps_msg_buffer)-6);
+				sprintf(strDebugMsg, "\r\n [santiized vtg=%s]", sanitizedGpsString);
+				debug(strDebugMsg);
+				pushSpuDataQ(sanitizedGpsString, 0);
+			}
 
 			pushSpuDataQ(")}", 0);
 			startAsyncSpuTransmit();

@@ -78,8 +78,10 @@ getGpsGpggaMsg (char *returnBuffer, int isInterruptCtx)
       int nRecSeq = s_nGpsGpggaRecordSeq;
       if (!isInterruptCtx)
         sei ();
-      //end critical section              
-      strcpy (returnBuffer, (char *)s_strGpsGpggaMsg);
+      //end critical section
+      debug("\r\n copying into return buff msg=");
+      debug((char*)s_strGpsGpggaMsg);
+      strcpy (returnBuffer, (char*)s_strGpsGpggaMsg);
 
       //critical section start
       if (!isInterruptCtx)
@@ -93,7 +95,7 @@ getGpsGpggaMsg (char *returnBuffer, int isInterruptCtx)
         debug ("\r\n discarding stale message");
       if (!isInterruptCtx)
         sei ();
-      //end critical section              
+      //end critical section
     }
 }
 
@@ -115,7 +117,7 @@ getGpsGpvtgMsg (char *returnBuffer, int isInterruptCtx)
       int nRecSeq = s_nGpsGpvtgRecordSeq;
       if (!isInterruptCtx)
         sei ();
-      //end critical section              
+      //end critical section
       strcpy (returnBuffer, (char *)s_strGpsGpvtgMsg);
 
       //critical section start
@@ -125,7 +127,7 @@ getGpsGpvtgMsg (char *returnBuffer, int isInterruptCtx)
         isDone = 1;
       if (!isInterruptCtx)
         sei ();
-      //end critical section              
+      //end critical section
     }
 }
 
@@ -134,6 +136,7 @@ initGpsModule (void (*debugCallback) (void), void (*debug) (const char *))
 {
   s_debugCallback = debugCallback;
   s_debug = debug;
+  s_strGpsGpggaMsg[0]=s_strGpsGpvtgMsg[0]=s_strGpsPmtkMsg[0]=0;
 }
 
 static void
@@ -157,7 +160,7 @@ void handleGpsSerial (char c, int isError)
 				initGpsMsgStart(c);
 				//s_nGpsRxState stays in state=eGpsStraightSerialRxInit
 			}
-			else 
+			else
 	    	{
 				s_gpsRx_Packet[++s_nGpsRxStateByteNum] = c;
 				s_nGpsRxState=eGpsStraightSerialRxPayload;
@@ -170,13 +173,19 @@ void handleGpsSerial (char c, int isError)
 				if(0 == strncmp((char *)s_gpsRx_Packet, "$GPGGA", 6)){
 					strcpy((char *)s_strGpsGpggaMsg, (char *)s_gpsRx_Packet);
 					s_nGpsGpggaRecordSeq++;
+					debug("\r\n GGA message complete=");
+					debug((char*)s_strGpsGpggaMsg);
 				}
 				else if(0 == strncmp((char *)s_gpsRx_Packet, "$GPVTG", 6)){
 					strcpy((char *)s_strGpsGpvtgMsg, (char *)s_gpsRx_Packet);
 					s_nGpsGpvtgRecordSeq++;
+					debug("\r\n VTG message complete=");
+					debug((char*)s_strGpsGpvtgMsg);
 				}
 				else if(0 == strncmp((char *)s_gpsRx_Packet, "$PMTK", 6)){
 					strcpy((char *)s_strGpsPmtkMsg, (char *)s_gpsRx_Packet);
+					debug("\r\n PMTK response complete=");
+					debug((char*)s_strGpsPmtkMsg);
 				}
 				//initialize
 				initGpsMsgStart(c);
@@ -193,7 +202,7 @@ void handleGpsSerial (char c, int isError)
 				initGpsMsgStart(c);
 				s_nGpsRxState=eGpsStraightSerialRxInit;
 			}
-			break;	
+			break;
 		default:
 			break;
 	}
