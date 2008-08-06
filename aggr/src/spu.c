@@ -14,11 +14,11 @@ volatile static unsigned long s_nSpuRxStateByteNum=0;
 volatile static struct SWARM_MSG s_spuRxPacket;
 static void (* volatile s_debugCallback)(void)=0;
 static void (* volatile s_debug)(const char* debugMsg)=0;
-static void (* volatile s_pushSwarmMsgBus)(struct SWARM_MSG msg, 
+static void (* volatile s_pushSwarmMsgBus)(struct SWARM_MSG msg,
 											int isInterruptCtx);
 
-void initSpuModule( void (*pushSwarmMsgBus)(struct SWARM_MSG msg, 
-											int isInterruptCtx), 
+void initSpuModule( void (*pushSwarmMsgBus)(struct SWARM_MSG msg,
+											int isInterruptCtx),
 			void (*debugCallback)(void),
 		    void (*debug)(const char*) )
 {
@@ -50,10 +50,10 @@ void handleSpuSerial(char c, int isError)
 {
 	//char strDebugMsg[1024];
   //if it's an error flag and discard till the start of the next message
-  
+
   if(isError){
     s_isSpuRxError=isError;
-	debugCallback();    
+	debugCallback();
     return;
   }
   switch(s_nSpuRxState){
@@ -107,6 +107,6 @@ void handleSpuSerial(char c, int isError)
      break;
    default:
      break;
-  }  
+  }
 }
-	
+

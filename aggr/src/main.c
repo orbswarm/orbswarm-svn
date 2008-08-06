@@ -75,11 +75,11 @@ void setGpsMode(void) {
 	 *
 	 */
 	info("\r\n sending 314");
-	msg="PMTK314,0,0,1,1"
-			"0,0,0,0"
-			"0,0,0,0"
-			"0,0,0,0";
-	sprintf(cmd, "$%s*%02X", msg, calculateCheckSum(msg));
+	msg="PMTK314,0,0,1,1,"
+		"0,0,0,0,"
+		"0,0,0,0,"
+		"0,0,0,0,0";
+	sprintf(cmd, "$%s*%02X\r\n", msg, calculateCheckSum(msg));
 	info("\r\ncmd=");
 	info(cmd);
 	sendGPSAMsg(cmd);
@@ -95,7 +95,7 @@ void setGpsMode(void) {
 	 * ‘1’ = Enable
 	 */
 	msg = "PMTK313,1";
-	sprintf(cmd, "$%s*%02X", msg, calculateCheckSum(msg));
+	sprintf(cmd, "$%s*%02X\r\n", msg, calculateCheckSum(msg));
 	info("\r\ncmd=");
 	info(cmd);
 	sendGPSAMsg(cmd);
@@ -113,7 +113,7 @@ void setGpsMode(void) {
 	 *
 	 */
 	msg = "PMTK301,2";
-	sprintf(cmd, "$%s*%02X", msg, calculateCheckSum(msg));
+	sprintf(cmd, "$%s*%02X\r\n", msg, calculateCheckSum(msg));
 	info("\r\ncmd=");
 	info(cmd);
 	sendGPSAMsg(cmd);
@@ -127,7 +127,7 @@ void setGpsMode(void) {
 	 * Query DGPS mode
 	 */
 	msg = "PMTK401";
-	sprintf(cmd, "$%s*%02X", msg, calculateCheckSum(msg));
+	sprintf(cmd, "$%s*%02X\r\n", msg, calculateCheckSum(msg));
 	sendGPSAMsg(cmd);
 	loopTimer0(2000);
 	getPmtkMsg(ack, 0 /*false */);
@@ -139,7 +139,7 @@ void setGpsMode(void) {
 	 * Query SBAS mode
 	 */
 	msg = "PMTK413";
-	sprintf(cmd, "$%s*%02X", msg, calculateCheckSum(msg));
+	sprintf(cmd, "$%s*%02X\r\n", msg, calculateCheckSum(msg));
 	sendGPSAMsg(cmd);
 	loopTimer0(2000);
 	getPmtkMsg(ack, 0 /*false */);
@@ -155,19 +155,6 @@ char dummyPop(int isInterruptCtx) {
 void dummyHandler(char c, int isError) {
 }
 
-static void stripChecksum(const char* gpsStr, char* destStr) {
-	size_t idx;
-	for (idx = 0; idx < MAX_GPS_PACKET_LENGTH; idx++)
-		destStr[idx] = 0;
-	idx = strlen(gpsStr);
-	for (; idx >= 0; idx--) {
-		if (',' == gpsStr[idx]) {
-			strncpy(destStr, gpsStr, idx);
-			return;
-		}
-	}
-}
-
 int main(void) {
 	char gps_msg_buffer[MAX_GPS_PACKET_LENGTH];
 
@@ -181,8 +168,8 @@ int main(void) {
 	info(strDebugMsg);
 
 	initXbeeModule(pushSwarmMsgBus, blinkLedPortB6, 0);
-	initGpsModule(blinkLedPortB7, debug);
-	initSpuModule(pushSwarmMsgBus, 0, debug);
+	initGpsModule(blinkLedPortB7, 0);
+	initSpuModule(pushSwarmMsgBus, 0, /*debug*/ 0);
 
 	info("\r\ninit ");
 	sei();
@@ -224,11 +211,15 @@ int main(void) {
 			pushSpuDataQ("\r\n{(", 0);
 			getGpsGpggaMsg(gps_msg_buffer, 0);
 
+			//Now remove trailing '*' because that confuses the lemon parser
 			//stripChecksum(gps_msg_buffer + 1, sanitizedGpsString);
-			sprintf(strDebugMsg, "\r\n [un santiized gga=%s]", gps_msg_buffer);
+			sprintf(strDebugMsg, "\r\n [len=%d un santiized gga=%s]", strlen(gps_msg_buffer),
+					gps_msg_buffer);
 			debug(strDebugMsg);
+			//sanitizedGpsString[0]=0;
 			if(strlen(gps_msg_buffer)>6){
 				strncpy(sanitizedGpsString, gps_msg_buffer +1, strlen(gps_msg_buffer)-6);
+				sanitizedGpsString[strlen(gps_msg_buffer)-6]=0;
 				sprintf(strDebugMsg, "\r\n [santiized gga=%s]", sanitizedGpsString);
 				debug(strDebugMsg);
 				pushSpuDataQ(sanitizedGpsString, 0);
@@ -239,10 +230,13 @@ int main(void) {
 
 			getGpsGpvtgMsg(gps_msg_buffer, 0);
 			//stripChecksum(gps_msg_buffer + 1, sanitizedGpsString);
-			sprintf(strDebugMsg, "\r\n [un santiized vtg=%s]", gps_msg_buffer);
+			sprintf(strDebugMsg, "\r\n [len=%d un santiized vtg=%s]",strlen(gps_msg_buffer),
+					gps_msg_buffer);
 			debug(strDebugMsg);
+			//sanitizedGpsString[0]=0;
 			if(strlen(gps_msg_buffer)>6){
 				strncpy(sanitizedGpsString, gps_msg_buffer +1, strlen(gps_msg_buffer)-6);
+				sanitizedGpsString[strlen(gps_msg_buffer)-6]=0;
 				sprintf(strDebugMsg, "\r\n [santiized vtg=%s]", sanitizedGpsString);
 				debug(strDebugMsg);
 				pushSpuDataQ(sanitizedGpsString, 0);

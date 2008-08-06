@@ -32,15 +32,15 @@ arduino_upload: $(MYBIN)/$(TARGET).hex
 ########AVRDUDE section for the stk500
 ###programming mode is ISP
 AVRDUDE=avrdude
-#AVRDUDE_PROGRAMMER = stk500v2
-AVRDUDE_PROGRAMMER = stk500
+AVRDUDE_PROGRAMMER = stk500v2
+#AVRDUDE_PROGRAMMER = usbtiny
 #AVRDUDE_PORT = /dev/tty.USA19H1b1P1.1
 #AVRDUDE_PORT = /dev/tty.usbserial-ftDDKSD7
 AVRDUDE_PORT = /dev/ttyUSB0
 #AVRDUDE_PORT = COM7
 UPLOAD_RATE = 115200
 AVRDUDE_WRITE_FLASH = -U flash:w:$(MYBIN)/$(TARGET).hex:i
-AVRDUDE_FLAGS = -v -p $(MCU) -b $(UPLOAD_RATE) -P $(AVRDUDE_PORT) \
+AVRDUDE_FLAGS = -v -p $(MCU) -P $(AVRDUDE_PORT) -b $(UPLOAD_RATE) \
 	-c $(AVRDUDE_PROGRAMMER)
 FORMAT = ihex 		# create a .hex file
 
