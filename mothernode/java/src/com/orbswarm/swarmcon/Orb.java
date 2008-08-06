@@ -7,6 +7,7 @@ import java.awt.geom.*;
 import java.awt.event.*;
 import java.awt.image.*;
 import java.util.Vector;
+import java.text.NumberFormat;
 import com.orbswarm.swarmcon.OrbIo.IOrbListener;
 
 import static java.lang.System.*;
@@ -23,6 +24,15 @@ public class Orb extends Mobject
     /** optionally draw fancy orb on screen */
 
     private boolean drawFancyOrb = true;
+
+    /** is this a phantom we are painting */
+
+    private boolean isPhantom = false;
+
+    /** double number formatter */
+
+    private static NumberFormat dblFmt = NumberFormat.getInstance();
+
 
     /** orb identifer */
 
@@ -331,6 +341,15 @@ public class Orb extends Mobject
       return distances;
     }
 
+    // paint phantom version of this mobject onto the graphics area
+    
+    public void paint(Phantom phantom, Graphics2D g)
+    {
+      isPhantom = true;
+      super.paint(phantom, g);
+      isPhantom = false;
+    }
+
     // paint this object onto a graphics area
 
     public void paint(Graphics2D g)
@@ -373,12 +392,36 @@ public class Orb extends Mobject
         -model.getDirection()));
       }
 
-      // draw orb id
+      // setup for drawing text
 
-      g.setFont(ORB_FONT);
+      double txX = -ORB_DIAMETER / 2;
+      double txY = ORB_DIAMETER / 2;
       g.setColor(TEXT_CLR);
-      drawText(g, -ORB_DIAMETER / 2,
-      ORB_DIAMETER / 2, "" + getId());
+
+      // if this is not a phantom just draw teh orb id
+
+      if (!isPhantom)
+      {
+        g.setFont(ORB_FONT);
+        drawText(g, txX, txY, "" + getId());
+      }
+
+      // otherwise show lots of data
+
+      else
+      {
+         g.setFont(PHANTOM_ORB_FONT);
+        double dTxY = g.getFontMetrics().getStringBounds("W", g).getHeight();
+        txY -= dTxY;
+        drawText(g, txX, txY, "  ID: " + getId());
+        txY -= dTxY;
+        drawText(g, txX, txY, "EAST: " + dblFmt.format(getX()));
+        txY -= dTxY;
+        drawText(g, txX, txY, "NORH: " + dblFmt.format(getY()));
+        txY -= dTxY;
+        drawText(g, txX, txY, " YAW: " + (int)((360 + getYaw()) % 360));
+        txY -= dTxY;
+      }
 
       // restore old transform
 

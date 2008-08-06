@@ -192,9 +192,12 @@ public class Mobject
       public void paint(Phantom phantom, Graphics2D g)
       {
          Point tmp = position;
-         position = phantom.getPosition();
+         AffineTransform oldTransform = g.getTransform();
+         g.translate(
+           phantom.getX() - getX(), 
+           phantom.getY() - getY());
          paint(g);
-         position = tmp;
+         g.setTransform(oldTransform);
       }
       // compute heading to some point
 

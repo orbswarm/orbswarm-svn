@@ -104,7 +104,7 @@ public class Phantom extends Mobject
        * @return a value from 0 to 1
        */
 
-      double progress()
+      public double progress()
       {
          if (time >= period)
             return 1;

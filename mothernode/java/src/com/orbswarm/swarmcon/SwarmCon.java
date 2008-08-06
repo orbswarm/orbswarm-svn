@@ -141,7 +141,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
     public static final int    ORB_SPAR_COUNT    =   4  ; // arcs
 
     /** time in seconds for a phantom to move to it's target postion */
-    public static final double PHANTOM_PERIOD    =  2  ;
+    public static final double PHANTOM_PERIOD    =  1   ;
 
     /** scale for graphics */
     public static final double PIXELS_PER_METER  = 30.0;
@@ -327,20 +327,19 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
     // color
 
-    public static Color BACKGROUND    = WHITE;
-    public static Color BUTTON_CLR    = new Color(  0,   0,   0, 164);
-    public static Color TEXT_CLR      = new Color(  0,   0,   0, 128);
-    public static Color MENU_CLR      = new Color(  0,   0,   0, 128);
-    public static Color ORB_CLR       = new Color(196, 196, 196);
-    public static Color ORB_FRAME_CLR = new Color( 64,  64,  64);
-    public static Color SEL_ORB_CLR   = new Color(255, 196, 255);
-    public static Color VECTOR_CRL    = new Color(255,   0,   0, 128);
-    public static Font  MISC_FONT     = new Font("Helvetica",
-    Font.PLAIN, 15);
-    public static Font  ORB_FONT      =  new Font("Helvetica",
-    Font.PLAIN, 10);
-    public static Font  MENU_FONT      =  new Font("Helvetica",
-    Font.PLAIN, 15);
+    public static Color BACKGROUND       = WHITE;
+    public static Color BUTTON_CLR       = new Color(  0,   0,   0, 164);
+    public static Color TEXT_CLR         = new Color(  0,   0,   0, 128);
+    public static Color MENU_CLR         = new Color(  0,   0,   0, 128);
+    public static Color ORB_CLR          = new Color(196, 196, 196);
+    public static Color ORB_FRAME_CLR    = new Color( 64,  64,  64);
+    public static Color SEL_ORB_CLR      = new Color(255, 196, 255);
+    public static Color VECTOR_CRL       = new Color(255,   0,   0, 128);
+    public static Font  MISC_FONT        = new Font("Helvetica", Font.PLAIN, 15);
+    public static Font  ORB_FONT         =  new Font("Courier New", Font.PLAIN, 15);
+    public static Font  PHANTOM_ORB_FONT =  new Font("Courier New", Font.PLAIN, 3);
+    public static Font  MENU_FONT        =  new Font("Helvetica", Font.PLAIN, 15);
+
     /** Standard button font */
 
     public static Font BUTTON_FONT = new Font("Lucida Grande", Font.PLAIN, 40);
@@ -348,6 +347,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
     static
     {
       ORB_FONT = scaleFont(ORB_FONT);
+      PHANTOM_ORB_FONT = scaleFont(PHANTOM_ORB_FONT);
     }
 
     /** Scale a font which are to be used in arena units
