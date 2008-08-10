@@ -1,6 +1,6 @@
 
 // ---------------------------------------------------------------------
-// 
+//
 //	File: imuutils.c
 //      SWARM Orb SPU code http://www.orbswarm.com
 //	Utilities to parse and convert Inertial Measurement Unit (IMU) readings
@@ -10,10 +10,21 @@
 
 #include "imuutils.h"
 
+#include "spi.c"
+
+// defines for SPI Com
+#define DIOBASE 0xE8000000
+#define CS_PIN 5
+#define RW_REG(ptr) *(ptr + 0x08/sizeof(unsigned int))
+
+// module variables
+int spiFd;
+volatile unsigned int *dioptr;
+
 double countsToRPS(int counts);
 
-// Average IMU data over several readings and return an estimate of bias 
-//(zero reading). NOTE: ORB MUST BE STATIONARY and PERFECTLY UPRIGHT WHEN 
+// Average IMU data over several readings and return an estimate of bias
+//(zero reading). NOTE: ORB MUST BE STATIONARY and PERFECTLY UPRIGHT WHEN
 // THIS IS CALLED
 void calculateImuBias(struct swarmImuData *imuData) {
   int i=0;
@@ -55,7 +66,7 @@ double imuAccelToSI(int imuAccelInt, double bias)
 {
   double accel_f;
   double msec=107.9;
-  
+
   accel_f = (double)(imuAccelInt) - bias;
   return (accel_f/1024)*msec;
 }
@@ -70,8 +81,8 @@ double imuYawToSI(int imuYawInt, double bias) {
 
 void logImuDataString(struct swarmImuData *imuData, char *imuDataString) {
 
-  sprintf(imuDataString, "%f,%f,%f,%f,%f", imuData->si_ratex, imuData->si_ratez , 
-		imuData->si_accx , imuData->si_accy , imuData->si_accz );	
+  sprintf(imuDataString, "%f,%f,%f,%f,%f", imuData->si_ratex, imuData->si_ratez ,
+		imuData->si_accx , imuData->si_accy , imuData->si_accz );
 }
 
 void logDriveDataString(struct swarmMotorData *motorData, char *motorDataString) {
@@ -85,7 +96,7 @@ void logSteerDataString(struct swarmMotorData *motorData, char *motorDataString)
 }
 // print out IMU struct for debug
 void dumpImuData(struct swarmImuData *imuData) {
-  
+
   printf("RateX raw: %s%d SI: %f bias: %f\n",
 	 imuData->ratex_str,
 	 imuData->int_ratex,
@@ -141,7 +152,7 @@ int parseImuMsg(char *imuBuf, struct swarmImuData *imuData)
     imuData->int_ratex=msg_data;
     strncpy(imuData->ratex_str,msg_type,10);
     imuBuf += advance + 1;
-  } 
+  }
   else return(-1);
 
   // Second Value is RateZ
@@ -299,7 +310,7 @@ int parseDriveMsg(char *driveBuf, struct swarmMotorData *motData)
 // calculate speed in radians per second given encoder counts
 //  we have a 500 count per revolution on the motor
 // we measure the counts every 1/10 of a second
-// there is a 9/23 gear ratio between motor and shell 
+// there is a 9/23 gear ratio between motor and shell
 //(shell does nine revolutions for every 23 motor revs
 // there are 2 pi radians per revolution
 // so the conversion factor given N counts in the last interval is:
@@ -312,7 +323,7 @@ double countsToRPS(int counts) {
 
 // print out motor struct for debug & logging
 void dumpMotorData(struct swarmMotorData *motData) {
-  
+
   printf("driveTarget: %s%d\n",
 	 motData->driveTarget_str,
 	 motData->driveTarget);
@@ -418,7 +429,7 @@ int parseQueryMsg(char *queryBuf, struct swarmMotorData *motData, struct swarmIm
     imuData->int_adc0=msg_data;
     strncpy(imuData->adc0_str,msg_type,10);
     queryBuf += advance + 1;
-  } 
+  }
   else return(-9);
 
 
@@ -437,7 +448,7 @@ int parseQueryMsg(char *queryBuf, struct swarmMotorData *motData, struct swarmIm
     imuData->int_ratex=msg_data;
     strncpy(imuData->ratex_str,msg_type,10);
     queryBuf += advance + 1;
-  } 
+  }
   else return(-11);
 
   // Fourth Value is ratez
@@ -489,4 +500,26 @@ int parseQueryMsg(char *queryBuf, struct swarmMotorData *motData, struct swarmIm
   imuIntToSI(imuData);
   //dummy return to please compiler
   return 0;
+}
+
+void initYawSensor(void)
+{
+	int spiFd = open("/dev/mem", O_RDWR|O_SYNC);
+	dioptr = (unsigned int *)mmap(0, getpagesize(),
+			PROT_READ|PROT_WRITE, MAP_SHARED, spiFd, DIOBASE);
+	RW_REG(dioptr) &= ~(1 << CS_PIN); // make sure yaw sensor not chip selected
+	init_spi(); // call init_spi before selecting an SPI device
+}
+
+int getYawRate(void)
+{
+	int rawYaw = 0;
+
+	RW_REG(dioptr) ^= (1 << CS_PIN); // yaw sensor chip select
+	spi8(0x05);
+	spi8(0x00);
+	rawYaw = spi8(0x00) << 10;
+	rawYaw |= spi8(0x00) << 2;
+	RW_REG(dioptr) &= ~(1 << CS_PIN); // yaw sensor chip select
+	return(rawYaw);
 }

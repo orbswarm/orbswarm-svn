@@ -627,8 +627,8 @@ void covarianceSet( uFloat **Qk, uFloat **R )
   R[ MEAS_za ][ MEAS_za ] 		= 1.0;
   R[ MEAS_xr ][ MEAS_xr ] 		= 0.1;
   R[ MEAS_zr ][ MEAS_zr ] 		= 0.1;
-  R[ MEAS_xg ][ MEAS_xg ] 		= 7.0;
-  R[ MEAS_yg ][ MEAS_yg ] 		= 7.0;
+  R[ MEAS_xg ][ MEAS_xg ] 		= 2.0;
+  R[ MEAS_yg ][ MEAS_yg ] 		= 2.0;
   R[ MEAS_psig ][ MEAS_psig ] 	= 4*PI;
   R[ MEAS_vg ][ MEAS_vg ] 		= 5.0;
   R[ MEAS_omega ][ MEAS_omega ] = 0.1;

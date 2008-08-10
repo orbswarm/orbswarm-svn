@@ -96,6 +96,7 @@ void startChildProcessToGronk(void) {
 	struct swarmFeedback feedback;
 	int thisSteeringValue;
 	double distanceToCarrot;
+	int thisYawRate;
 
 	zeroStateEstimates(&stateEstimate);
 
@@ -108,6 +109,8 @@ void startChildProcessToGronk(void) {
 		fprintf(stderr, "\n gps struct lock acquire failed during init");
 
 	swarmFeedbackInit();
+
+	initYawSensor();
 
 	int kalmanDataFileFD = open("sensordata", O_RDWR | O_CREAT | O_NONBLOCK
 			| O_TRUNC, 0x777);
@@ -155,6 +158,10 @@ void startChildProcessToGronk(void) {
 			parseImuMsg(buffer, &imuData);
 
 			logImuDataString(&imuData, buffer);
+
+			thisYawRate = getYawRate();
+
+			logit(eMcuLog, eLogInfo, "\n Yaw Gyro Raw=%d", thisYawRate);
 
 			enum {GRONK_WAITFORFIX, GRONK_BIAS, GRONK_KALMANINIT, GRONK_RUN, GRONK_COMPLETE};
 
