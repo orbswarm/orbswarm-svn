@@ -24,7 +24,7 @@
 #include "swarmipc.h"
 #include "pathfollow.h"
 
-// #define JOYSTICK
+#define JOYSTICK
 
 extern Queue *mcuQueuePtr;
 extern swarmGpsData *latestGpsCoordinates;
@@ -91,7 +91,7 @@ void startChildProcessToGronk(void) {
 	struct swarmFeedback feedback;
 	int thisSteeringValue;
 	double distanceToCarrot;
-	int thisYawRate;
+	double thisYawRate;
 
 	zeroStateEstimates(&stateEstimate);
 
@@ -157,7 +157,7 @@ void startChildProcessToGronk(void) {
 
 			thisYawRate = getYawRate();
 
-			logit(eMcuLog, eLogInfo, "\n Yaw Gyro Raw=%d", thisYawRate);
+			logit(eMcuLog, eLogInfo, "\n Yaw Gyro Raw=%f", thisYawRate);
 
 			enum {GRONK_WAITFORFIX, GRONK_BIAS, GRONK_KALMANINIT, GRONK_RUN, GRONK_COMPLETE};
 
@@ -219,8 +219,8 @@ void startChildProcessToGronk(void) {
 					stateEstimate.x = 0;
 					stateEstimate.y = 0;
 					kalmanInit( &stateEstimate );
-					carrot.x = 20 * cos(stateEstimate.psi + PI/6);
-					carrot.y = 20 * sin(stateEstimate.psi + PI/6);
+					carrot.x = 2000 * cos(stateEstimate.psi + PI/6);
+					carrot.y = 2000 * sin(stateEstimate.psi + PI/6);
 				}
 				if (initCounter > 10){
 					logit(eMcuLog, eLogDebug, "\ninit state=2");

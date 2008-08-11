@@ -37,29 +37,29 @@ unsigned char spi8(unsigned char c) {
   int i;
   unsigned char m0c0, m1c0, m0c1, m1c1;
   unsigned char ret = 0;
+  int waitIdx;
 
   m1c1 = SPI_RW | SPI_MOSI | SPI_CLK;
   m1c0 = m1c1 & ~SPI_CLK;
   m0c0 = m1c0 & ~SPI_MOSI;
   m0c1 = m1c1 & ~SPI_MOSI;
-  int dummy = 1;
   for(i=0; i < 8; i++) {
-      dummy *= 5;
-      dummy *= 5;
     if (c & 0x80) {
-      SPI_RW = m1c1;
-      ret <<= 1;
-      dummy = (~SPI_RO & SPI_MISO);
       SPI_RW = m1c0;
-      c <<= 1;
-      if (~SPI_RO & SPI_MISO) ret |= 1; // SPI MISO comes out inverted on the 7800.
-    } else {
-      SPI_RW = m0c1;
+      for (waitIdx = 0; waitIdx < 1000; waitIdx++);
       ret <<= 1;
-      dummy = (~SPI_RO & SPI_MISO);
-      SPI_RW = m0c0;
       c <<= 1;
       if (~SPI_RO & SPI_MISO) ret |= 1; // SPI MISO comes out inverted on the 7800.
+      SPI_RW = m1c1;
+      for (waitIdx = 0; waitIdx < 1000; waitIdx++);
+    } else {
+        SPI_RW = m0c0;
+        for (waitIdx = 0; waitIdx < 1000; waitIdx++);
+        ret <<= 1;
+        c <<= 1;
+        if (~SPI_RO & SPI_MISO) ret |= 1; // SPI MISO comes out inverted on the 7800.
+        SPI_RW = m0c1;
+        for (waitIdx = 0; waitIdx < 1000; waitIdx++);
     }
   }
   SPI_RW = m0c1;

@@ -29,4 +29,4 @@ void logDriveDataString(struct swarmMotorData *motorData, char *motorDataString)
 void logSteerDataString(struct swarmMotorData *motorData, char *motorDataString);
 int parseDriveMsg(char *driveBuf, struct swarmMotorData *motData);
 void initYawSensor(void);
-int getYawRate(void);
+double getYawRate(void);
