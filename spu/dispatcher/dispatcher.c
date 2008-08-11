@@ -35,7 +35,7 @@
  * 3. Gronkulator:
  * 			This child process(started by startChildProcessToGronk())
  *    runs the 10 Hz loop that calls the Kalman Filter to
- * 	  do the estimated corrections. When the timer overflows every 100 ms(not accurate) or so
+ * 	  do the estimate corrections. When the timer overflows every 100 ms(not accurate) or so
  *    it queries the daughterboard on COM5 to get the drive and steering measurements and outputs
  *    that along with the most current gps location and velocity values from the variable 'latestGpsCoordinates'
  * 	  in shared memory. The gronkulator also recieves MCU commands(sent from the remotes or the

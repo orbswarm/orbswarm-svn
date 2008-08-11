@@ -4,11 +4,6 @@
 //	File: gronkulator.c
 //      SWARM Orb SPU code http://www.orbswarm.com
 //      prototypes and #defs for swarm serial com routines
-//
-//      main loop here.
-//      read input data from COM2. Parse it and dispatch parsed commands
-//      written by Jonathan Foote (Head Rotor at rotorbrain.com)
-//      based on lots of code by Matt, Dillo, Niladri, Rick,
 // -----------------------------------------------------------------------
 
 
@@ -154,6 +149,7 @@ void startChildProcessToGronk(void) {
 					latestGpsCoordinatesInternalCopy.UTMNorthing,
 					latestGpsCoordinatesInternalCopy.UTMEasting,
 					latestGpsCoordinatesInternalCopy.UTMZone);
+			logit(eMcuLog, eLogDebug, parsedAndFormattedGpsCoordinates);
 
 			parseImuMsg(buffer, &imuData);
 

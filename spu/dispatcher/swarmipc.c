@@ -2,12 +2,12 @@
  * swarmipc.c
  * This module handles all the IPC stuff for the dispatcher -
  * 1. Creating the pipes to communicate between the parent and the children
- * 2. Create the shared mem variable to store the latest GPS co-ordinates
- * 3. Create semaphores to share the com ports
+ * 2. Creating the shared mem variable to store the latest GPS co-ordinates
+ * 3. Creating semaphores to share the com ports and shared memory structs
  *  Created on: Jul 27, 2008
- *      Author: niladrib
+ *      Author: niladri bora
  */
-#include <stdio.h>              /* Standard input/output definitions */
+#include <stdio.h>
 #include <unistd.h>
 #include <getopt.h>
 #include <stdlib.h>
@@ -43,7 +43,7 @@ static int gpsStructSemId;
 
 
 int acquireGpsStructLock(void){
-	fprintf(stderr,  "\nacquireGpsStructLock():START");
+	//fprintf(stderr,  "\nacquireGpsStructLock():START");
 	struct sembuf getLockOps[1];
 	getLockOps[0].sem_num =0;
 	getLockOps[0].sem_op = -1;
@@ -51,24 +51,24 @@ int acquireGpsStructLock(void){
 	//int nStatus =semop(com3SemId, getLockOps, 1);
 	if(semop(gpsStructSemId, getLockOps, 1) < 0){
 		perror("\n gps struct sem acquire failed");
-		fprintf(stderr,  "\nacquireGpsStructLock():END");
+		//fprintf(stderr,  "\nacquireGpsStructLock():END");
 		return 0;
 	}
 	else{
-		fprintf(stderr,  "\nacquireGpsStructLock():END");
+		//fprintf(stderr,  "\nacquireGpsStructLock():END");
 		return 1;
 	}
 }
 
 void releaseGpsStructLock(void){
-	fprintf(stderr, "\nreleaseGpsStructLock():START");
+	//fprintf(stderr, "\nreleaseGpsStructLock():START");
 	struct sembuf releaseLockOps[1];
 	releaseLockOps[0].sem_num =0;
 	releaseLockOps[0].sem_op = +1;
 	releaseLockOps[0].sem_flg = 0;
 	if(semop(gpsStructSemId, releaseLockOps, 1) < 0)
 		perror("\n gps struct sem release failed");
-	fprintf(stderr, "\nreleaseGpsStructLock():END");
+	//fprintf(stderr, "\nreleaseGpsStructLock():END");
 }
 
 
