@@ -46,7 +46,17 @@ unsigned char calculateCheckSum(char * msg) {
 	}
 	return checksum;
 }
-
+void setGpsModeInUBlox(void)
+{
+	loopTimer0(3000);
+	//B5 62 06 08 06 00 FA 00 01 00 01 00 10 96
+	info("\r\nsending UBX rate msg");
+	unsigned char msg[] ={0xB5, 0x62, 0x06, 0x08,
+			0x06, 0x00, 0xFA, 0x00,
+			0x01,0x00, 0x01, 0x00,
+			0x10,0x96};
+	sendGPSABinaryMsg(msg, 14);
+}
 void setGpsMode(void) {
 	char strDebugMsg[1024];
 	char ack[MAX_GPS_PACKET_LENGTH];
@@ -173,7 +183,8 @@ int main(void) {
 
 	info("\r\ninit ");
 	sei();
-	setGpsMode();
+	//setGpsMode();
+	setGpsModeInUBlox();
 	DDRB = 0xff;
 	setTimerInAsync(GPS_TIMER_VAL_MILLIS);
 	while (1) {

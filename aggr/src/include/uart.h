@@ -3,11 +3,11 @@
  * are turned off at reset
  * 2. Stopping a stopped xmit or strating a started xmit result in a
  * no op
- * 3. It maybe desirable to stop an async xmit before using one of the 
+ * 3. It maybe desirable to stop an async xmit before using one of the
  * send*Msg() methods and then starting the async xmit immediately after.
  * 4. Async xmits are available only for the spu and the xbee.
  * 5. Async receives i.e. handle*Recv() are available for all 3 UART
- * peripherals. 
+ * peripherals.
  * */
 int uart_init(void (*handleXBeeRecv)(char c, int isError),
 	      void (*handleSpuRecv)(char c, int isErrror),
@@ -18,6 +18,8 @@ int uart_init(void (*handleXBeeRecv)(char c, int isError),
 void sendSpuMsg(const char *s);
 
 void sendGPSAMsg(const char *s);
+
+void sendGPSABinaryMsg(unsigned char *s, int len);
 
 void startAsyncXBeeTransmit(void);
 
