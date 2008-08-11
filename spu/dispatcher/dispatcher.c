@@ -76,7 +76,7 @@
 //all externs in one file i.e. dispatcher.c or testharness.c
 //                      --niladri.bora@gmail.com
 //////////////////////////////////////////////////////////////////////////
-int parseDebug = eMcuLog; /*  parser uses this for debug output */
+int parseDebug = eMcuLog /*eDispatcherLog*/; /*  parser uses this for debug output */
 int parseLevel = eLogDebug;
 int myOrbId = 60; /* which orb are we?  */
 int com1 = 0; /* File descriptor for the port */
@@ -174,7 +174,7 @@ void startChildProcessToProcessGpsMsg(void) {
 					releaseGpsStructLock();
 				}
 			} //end if GPGGA
-			else if (0 == strncmp(buffer, "GPVTG", 5)) {
+			else if (0 == strncmp(buffer+2, "GPVTG", 5)) {
 				logit(eGpsLog, eLogDebug, "\n+++++++got VTG message+++++++");
 				if(acquireGpsStructLock()){
 					strncpy(latestGpsCoordinates->vtgSentence, buffer, MSG_LENGTH);
@@ -185,12 +185,10 @@ void startChildProcessToProcessGpsMsg(void) {
 					releaseGpsStructLock();
 				}
 			} else{
-//				if(acquireGpsStructLock()){
-//					logit(eGpsLog, eLogError,
-//							"\n+++++++got unknown message+++++++, msg=%s",
-//							latestGpsCoordinates->ggaSentence);
-//					releaseGpsStructLock();
-//				}
+				logit(eGpsLog, eLogError,
+						"\n+++++++got unknown message, msg=%s++++++++++++++",
+						buffer);
+
 			}
 		}
 			else {
@@ -266,9 +264,9 @@ void dispatchGpsLocationMsg(cmdStruct * c) {
 }
 
 void dispatchGpsVelocityMsg(cmdStruct * c) {
-	//logit(eGpsLog, eLogDebug, "got gps gpvtg msg: \"%s\"\n", c->cmd);
+	logit(eGpsLog, eLogDebug, "\ngot gps gpvtg msg: \"%s\"\n", c->cmd);
 	if (push(c->cmd, gpsQueuePtr)) {
-		//logit(eGpsLog, eLogDebug, "\n successfully pushed GPS msg");
+		logit(eGpsLog, eLogDebug, "\n successfully pushed GPS VTG msg");
 		tellChild(eGpsCommandPipeId);
 	} else {
 		//logit(eGpsLog, eLogWarn, "\n push failed. gps Q full");

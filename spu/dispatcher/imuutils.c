@@ -510,7 +510,7 @@ void initYawSensor(void)
 
 	int rawYaw = 0;
 	unsigned char c;
-	char debugMsg[1024];
+//	char debugMsg[1024];
 	int myIdx;
 
 	int spiFd = open("/dev/mem", O_RDWR|O_SYNC);
@@ -554,7 +554,7 @@ double getYawRate(void)
 {
 	int16_t rawYaw = 0;
 	unsigned char c;
-	char debugMsg[1024];
+//	char debugMsg[1024];
 	int myIdx;
 	double yawSi;
 
