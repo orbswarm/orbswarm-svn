@@ -120,7 +120,7 @@ int kalmanProcess( struct swarmGpsDataStruct * gpsData, struct swarmImuData * im
    measurementVec[ MEAS_psig ] += rint((stateVec[ STATE_psi ]-measurementVec[ MEAS_psig ])/(2*PI))*2*PI;
 
    // if encoder indicates low velocity, ignore GPS heading and velocity information
-   if (omega < 1.0)
+   if (imuData->omega < 1.0)
    {
 	   measurementVec[ MEAS_psig ]  = stateVec[ STATE_psi ];
 	   measurementVec[ MEAS_vg ]	= stateVec[ STATE_v ];

@@ -24,7 +24,7 @@
 #include "swarmipc.h"
 #include "pathfollow.h"
 
-#define JOYSTICK
+//#define JOYSTICK
 
 extern Queue *mcuQueuePtr;
 extern swarmGpsData *latestGpsCoordinates;
@@ -85,12 +85,13 @@ void startChildProcessToGronk(void) {
 	struct swarmStateEstimate stateEstimate;
 	char dataFileBuffer[1024];
 	char outputFileBuffer[1024];
+	char controlFileBuffer[1024];
 	int initCounter = 0;
 	int gronkMode = 0; // 4 states - 0. initializing bias 1. initializing kf 2. running 3. found goal
 	struct swarmCoord carrot;
 	struct swarmFeedback feedback;
 	int thisSteeringValue;
-	double distanceToCarrot;
+	//double distanceToCarrot;
 	double thisYawRate;
 	struct swarmCircle circle;
 
@@ -112,10 +113,16 @@ void startChildProcessToGronk(void) {
 			| O_TRUNC, 0x777);
 	if (kalmanDataFileFD < 0)
 		perror("Failed to open sensordata");
-	int kalmanResulstFileFD = open("kalmanoutput", O_RDWR | O_CREAT
+
+	int kalmanResulstFileFD = open("kalmandata", O_RDWR | O_CREAT
 			| O_NONBLOCK | O_TRUNC, 0x777);
 	if (kalmanResulstFileFD < 0)
-		perror("Failed to open kalmanoutput");
+		perror("Failed to open kalmandata");
+
+	int controlFileFD = open("controldata", O_RDWR | O_CREAT
+			| O_NONBLOCK | O_TRUNC, 0x777);
+	if (controlFileFD < 0)
+		perror("Failed to open controldata");
 
 	while (1) {
 		//logit(eMcuLog, eLogDebug, "\n running while loop");
@@ -197,7 +204,8 @@ void startChildProcessToGronk(void) {
 
 				kalmanInitialBias(&latestGpsCoordinatesInternalCopy, &imuData, &stateEstimate);
 				initCounter++;
-				if (initCounter > 599)
+				if (initCounter > 599)    // 60 sec
+				//if (initCounter > 101)  // 10 sec
 					gronkMode = GRONK_KALMANINIT;
 			break;
 
@@ -224,6 +232,9 @@ void startChildProcessToGronk(void) {
 					kalmanInit( &stateEstimate );
 					//carrot.x = 2000 * cos(stateEstimate.psi + PI/6);
 					//carrot.y = 2000 * sin(stateEstimate.psi + PI/6);
+					circle.carrotDistance = 2.0;
+					circle.radius = 9.0;
+					circle.direction = 1.0;
 					circleInit( &stateEstimate, &circle );
 				}
 
@@ -283,12 +294,29 @@ void startChildProcessToGronk(void) {
 				logit(eMcuLog, eLogDebug, outputFileBuffer);
 
 				circlePath( &circle, &stateEstimate, &carrot );
-				swarmFeedbackProcess( &stateEstimate, &carrot, &feedback );
+				swarmFeedbackProcess( &stateEstimate, &carrot, &feedback, buffer );
+
+				sprintf(controlFileBuffer, "\n%f,%f,%f,%f,%f,%f,%f %s",
+						(double)nowGronkTime.tv_sec + (double)nowGronkTime.tv_usec / 1000000,
+						carrot.x-stateEstimate.x,
+						carrot.y-stateEstimate.y,
+						circle.current.x,
+						circle.current.y,
+						circle.center.x,
+						circle.center.y,
+						buffer);
+				logit(eMcuLog, eLogDebug, controlFileBuffer);
+
 				thisSteeringValue = (int)rint(feedback.deltaDes * 190.0);
 				if(thisSteeringValue > 100)
 					thisSteeringValue = 100;
 				if(thisSteeringValue < -100)
 					thisSteeringValue = -100;
+
+
+
+
+
 #ifndef JOYSTICK
 				sprintf(buffer, "$s%d*", thisSteeringValue );
 				logit(eMcuLog, eLogDebug, buffer);
@@ -298,12 +326,14 @@ void startChildProcessToGronk(void) {
 					drainSerialPort(com5);
 				}
 #endif
-				distanceToCarrot = distanceToCoord( &stateEstimate, &carrot);
-				sprintf(buffer, "\n distanceToCarrot: %f", distanceToCarrot);
-				logit(eMcuLog, eLogDebug, buffer);
-				if (distanceToCarrot < 5.0)
-					gronkMode = GRONK_COMPLETE;
-			break;
+				// waypoint
+				//distanceToCarrot = distanceToCoord( &stateEstimate, &carrot);
+				//sprintf(buffer, "\n distanceToCarrot: %f", distanceToCarrot);
+				//logit(eMcuLog, eLogDebug, buffer);
+				//if (distanceToCarrot < 5.0)
+				//	gronkMode = GRONK_COMPLETE;
+
+				break;
 
 			case GRONK_COMPLETE: // made it to goal
 #ifndef JOYSTICK
@@ -343,6 +373,12 @@ void startChildProcessToGronk(void) {
 				if (kalmanResulstFileFD > nMaxFd)
 					nMaxFd = kalmanResulstFileFD;
 			}
+			if (controlFileBuffer[0] != 0) {
+				FD_SET (controlFileFD, &writeSet);
+				if (controlFileFD > nMaxFd)
+					nMaxFd = controlFileFD;
+			}
+
 			nMaxFd++;
 			timeout.tv_sec = 0;
 			timeout.tv_usec = 10000; //10 milli secs is the smallest we can safely set..I think
@@ -406,6 +442,26 @@ void startChildProcessToGronk(void) {
 					}
 					//now set buffer to "\0" to indicate it has been written to file
 					outputFileBuffer[0] = 0;
+				}
+
+				if (FD_ISSET (controlFileFD, &writeSet)) {
+					logit(eMcuLog, eLogDebug,
+							"\n writing to results file=%s",
+							controlFileBuffer);
+					char *ptr = controlFileBuffer;
+					int nToWrite = strlen(ptr);
+					while (nToWrite > 0) {
+						int nWritten;
+						if ((nWritten = write(controlFileFD, ptr,
+								nToWrite)) < 0)
+							perror("error in writing to controldata");
+						else if (nWritten > 0) {
+							ptr += nWritten;
+							nToWrite -= nWritten;
+						}
+					}
+					//now set buffer to "\0" to indicate it has been written to file
+					controlFileBuffer[0] = 0;
 				}
 
 			}

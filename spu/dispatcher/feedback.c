@@ -27,13 +27,14 @@ static struct swarmPID velocityPID;
 double limit( double *v, double minVal, double maxVal);
 double processPID( struct swarmPID * PID );
 void debugPID( struct swarmPID * PID, FILE * fD);
+void debugPIDString( struct swarmPID * PID, char * buffer);
 
 // ------------------------------------------------------------------------
 
 void swarmFeedbackInit(void)
 {
-	lateralPID.Kp 		= 0.05;
-	lateralPID.Ki 		= 0.0001;
+	lateralPID.Kp 		= 0.1;
+	lateralPID.Ki 		= 0.001;
 	lateralPID.Kd 		= 0.0;
 	lateralPID.deadBand 	= 0.0;	// Set high to stop chatter, decrease for precision
 	lateralPID.minDrive 	= 0.0;
@@ -55,7 +56,7 @@ void swarmFeedbackInit(void)
 }
 
 void swarmFeedbackProcess(struct swarmStateEstimate * stateEstimate,
-		struct swarmCoord * carrot, struct swarmFeedback * feedback )
+		struct swarmCoord * carrot, struct swarmFeedback * feedback, char * buffer )
 {
    lateralPID.error  =  headingError(stateEstimate, carrot);
    // velocityPID.error = -xError * sin( target->nmea_course ) + yError * cos( target->nmea_course );
@@ -63,7 +64,9 @@ void swarmFeedbackProcess(struct swarmStateEstimate * stateEstimate,
    feedback->deltaDes     = processPID( &lateralPID );
    // swarmFeedback->vDes = processPID( &velocityPID ) + target->speed;
 
-   debugPID( &lateralPID, stdout );
+   // debugPID( &lateralPID, stdout );
+   debugPIDString( &lateralPID, buffer );
+
 }
 
 
@@ -118,5 +121,9 @@ void debugPID( struct swarmPID * PID, FILE * fD)
 	fprintf( fD, "\n error:%f pTerm:%f iTerm:%f dTerm:%f iSum:%f",PID->error, PID->pTerm, PID->iTerm, PID->dTerm, PID->iSum);
 }
 
+void debugPIDString( struct swarmPID * PID, char * buffer)
+{
+	sprintf( buffer, "\n error:%f pTerm:%f iTerm:%f dTerm:%f iSum:%f",PID->error, PID->pTerm, PID->iTerm, PID->dTerm, PID->iSum);
+}
 
 

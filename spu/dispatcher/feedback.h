@@ -16,5 +16,5 @@
 void swarmFeedbackInit(void);
 
 void swarmFeedbackProcess(struct swarmStateEstimate * stateEstimate,
-		struct swarmCoord * carrot, struct swarmFeedback * feedback );
+		struct swarmCoord * carrot, struct swarmFeedback * feedback,  char * buffer  );
 

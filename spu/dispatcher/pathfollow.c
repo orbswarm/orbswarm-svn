@@ -47,7 +47,7 @@ double headingError(struct swarmStateEstimate * stateEstimate, struct swarmCoord
 // ------------------------------------------------------------------------
 void circleInit( struct swarmStateEstimate * stateEstimate, struct swarmCircle * circle )
 {
-  circle->center.psi = -(stateEstimate->psi + circle->direction * (PI/2));
+  circle->center.psi = stateEstimate->psi + circle->direction * (PI/2) + PI;
   circle->center.x   = stateEstimate->x - circle->radius * cos(circle->center.psi);
   circle->center.y   = stateEstimate->y - circle->radius * sin(circle->center.psi);
 }
@@ -62,7 +62,7 @@ void circleInit( struct swarmStateEstimate * stateEstimate, struct swarmCircle *
 void circlePath( struct swarmCircle * circle, struct swarmStateEstimate * stateEstimate,
 		 struct swarmCoord * carrot )
 {
-  circle->center.psi = atan2( (stateEstimate->y - circle->center.y),(stateEstimate->x - circle->center.x) );
+  circle->center.psi = atan2( (stateEstimate->y-circle->center.y),(stateEstimate->x - circle->center.x) );
 
   circle->current.x   = circle->radius * cos( circle->center.psi ) + circle->center.x;
   circle->current.y   = circle->radius * sin( circle->center.psi ) + circle->center.y;
