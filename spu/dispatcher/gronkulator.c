@@ -159,6 +159,8 @@ void startChildProcessToGronk(void) {
 
 			logit(eMcuLog, eLogInfo, "\n Yaw Gyro Raw=%f", thisYawRate);
 
+			imuData.si_yawRate = thisYawRate;
+
 			enum {GRONK_WAITFORFIX, GRONK_BIAS, GRONK_KALMANINIT, GRONK_RUN, GRONK_COMPLETE};
 
 			switch (gronkMode)
@@ -248,9 +250,10 @@ void startChildProcessToGronk(void) {
 
 				kalmanProcess(&latestGpsCoordinatesInternalCopy, &imuData, &stateEstimate);
 
-				sprintf(dataFileBuffer, "\n%f,%s,%f,%f,%f,%f,%f,%s",
+				sprintf(dataFileBuffer, "\n%f,%s,%f,%f,%f,%f,%f,%f,%s",
 						(double)nowGronkTime.tv_sec + (double)nowGronkTime.tv_usec / 1000000,
-						buffer,		/*formatted IMU data*/
+						buffer,				// formatted IMU data
+						imuData.si_yawRate, // new yaw rate gyro
 						latestGpsCoordinatesInternalCopy.metFromMshipEast,
 						latestGpsCoordinatesInternalCopy.metFromMshipNorth,
 						latestGpsCoordinatesInternalCopy.nmea_course,
@@ -258,7 +261,7 @@ void startChildProcessToGronk(void) {
 						imuData.omega,
 						latestGpsCoordinatesInternalCopy.UTMZone);
 				logit(eMcuLog, eLogDebug, dataFileBuffer);
-				sprintf(outputFileBuffer, "\n%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f",
+				sprintf(outputFileBuffer, "\n%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f",
 						(double)nowGronkTime.tv_sec + (double)nowGronkTime.tv_usec / 1000000,
 						stateEstimate.vdot,
 						stateEstimate.v,
@@ -272,7 +275,8 @@ void startChildProcessToGronk(void) {
 						stateEstimate.yab,
 						stateEstimate.zab,
 						stateEstimate.xrb,
-						stateEstimate.zrb);
+						stateEstimate.zrb,
+						stateEstimate.yawb);
 				logit(eMcuLog, eLogDebug, outputFileBuffer);
 
 				swarmFeedbackProcess(&stateEstimate, &carrot, &feedback );

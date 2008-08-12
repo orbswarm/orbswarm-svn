@@ -43,6 +43,8 @@ void kalmanInitialBias( struct swarmGpsDataStruct * gpsData, struct swarmImuData
 
 	stateEstimate->xrb 	= 0.05 * imuData->si_ratex + 0.95 * stateEstimate->xrb;
 	stateEstimate->zrb 	= 0.05 * imuData->si_ratez + 0.95 * stateEstimate->zrb;
+
+	stateEstimate->yawb 	= 0.05 * imuData->si_yawRate + 0.95 * stateEstimate->yawb;
 }
 
 int kalmanInit( struct swarmStateEstimate * stateEstimate )
@@ -75,6 +77,8 @@ int kalmanInit( struct swarmStateEstimate * stateEstimate )
    x[ STATE_zab ]		= stateEstimate->zab;
    x[ STATE_xrb ]		= stateEstimate->xrb;
    x[ STATE_zrb ] 		= stateEstimate->zrb;
+   x[ STATE_yawb ] 		= stateEstimate->yawb;
+
 
    extended_kalman_init( P, x );
 
@@ -88,24 +92,25 @@ int kalmanInit( struct swarmStateEstimate * stateEstimate )
 int kalmanProcess( struct swarmGpsDataStruct * gpsData, struct swarmImuData * imuData, struct swarmStateEstimate * stateEstimate)
 {
 
-   measurementVec[ MEAS_xa ] = imuData->si_accx;
-   measurementVec[ MEAS_ya ] = imuData->si_accy;
-   measurementVec[ MEAS_za ] = imuData->si_accz;
-   measurementVec[ MEAS_xr ] = imuData->si_ratex;
-   measurementVec[ MEAS_zr ] = imuData->si_ratez;
+   measurementVec[ MEAS_xa ] 	= imuData->si_accx;
+   measurementVec[ MEAS_ya ] 	= imuData->si_accy;
+   measurementVec[ MEAS_za ] 	= imuData->si_accz;
+   measurementVec[ MEAS_xr ] 	= imuData->si_ratex;
+   measurementVec[ MEAS_zr ] 	= imuData->si_ratez;
+   measurementVec[ MEAS_yaw ] 	= imuData->si_yawRate;
 
    measurementVec[ MEAS_omega ] = imuData->omega;
 
-   measurementVec[ MEAS_xg ]   = gpsData->metFromMshipEast;
-   measurementVec[ MEAS_yg ]   = gpsData->metFromMshipNorth;
+   measurementVec[ MEAS_xg ]   	= gpsData->metFromMshipEast;
+   measurementVec[ MEAS_yg ]   	= gpsData->metFromMshipNorth;
 
-   measurementVec[ MEAS_vg ]   = (uFloat)gpsData->speed;
+   measurementVec[ MEAS_vg ]   	= (uFloat)gpsData->speed;
    //correct for direction is v < 0
    if (stateVec[ STATE_v ] < 0)
-     measurementVec[ MEAS_vg ] = - measurementVec[ MEAS_vg ];
+     measurementVec[ MEAS_vg ] 	= - measurementVec[ MEAS_vg ];
 
 
-   measurementVec[ MEAS_psig ] = (uFloat)gpsData->nmea_course;
+   measurementVec[ MEAS_psig ] 	= (uFloat)gpsData->nmea_course;
 
    //correct for direction is v < 0
    if (stateVec[ STATE_v ] < 0)
@@ -131,6 +136,7 @@ int kalmanProcess( struct swarmGpsDataStruct * gpsData, struct swarmImuData * im
    stateEstimate->zab    = stateVec[ STATE_zab ];
    stateEstimate->xrb    = stateVec[ STATE_xrb ];
    stateEstimate->zrb    = stateVec[ STATE_zrb ];
+   stateEstimate->yawb    = stateVec[ STATE_yawb ];
 
    return SWARM_SUCCESS;
 }
@@ -151,6 +157,7 @@ void zeroStateEstimates( struct swarmStateEstimate * stateEstimate )
   stateEstimate->zab	= -1.87;	// z accelerometer bias
   stateEstimate->xrb	= -0.26;	// x rate gyro bias
   stateEstimate->zrb	= 2.316;	// z rate gyro bias
+  stateEstimate->yawb	= 0.0;	// z rate gyro bias
 }
 
 void initStateEstimates(struct swarmGpsDataStruct * gpsData, struct swarmImuData * imuData,
@@ -165,6 +172,8 @@ void initStateEstimates(struct swarmGpsDataStruct * gpsData, struct swarmImuData
 
 	stateEstimate->xrb 	= imuData->si_ratex;
 	stateEstimate->zrb 	= imuData->si_ratez;
+
+	stateEstimate->yawb = imuData->si_yawRate;
 }
 
 /****************  System Model Manifestations   **************
@@ -186,6 +195,7 @@ void systemF( uFloat *stateDot, uFloat *state )
 	stateDot[ STATE_zab ] 		= 0.0;
 	stateDot[ STATE_xrb ] 		= 0.0;
 	stateDot[ STATE_zrb ] 		= 0.0;
+	stateDot[ STATE_yawb ] 		= 0.0;
 }
 
 
@@ -215,6 +225,7 @@ void systemJacobian( uFloat *state, uFloat **jacobian )
 	jacobian[ STATE_vdot ][ STATE_zab ] 	= 0.0;
 	jacobian[ STATE_vdot ][ STATE_xrb ] 	= 0.0;
 	jacobian[ STATE_vdot ][ STATE_zrb ] 	= 0.0;
+	jacobian[ STATE_vdot ][ STATE_yawb ] 	= 0.0;
 
 	jacobian[ STATE_v ][ STATE_vdot ] 	= 1.0;
 	jacobian[ STATE_v ][ STATE_v ] 		= 0.0;
@@ -229,6 +240,7 @@ void systemJacobian( uFloat *state, uFloat **jacobian )
 	jacobian[ STATE_v ][ STATE_zab ] 	= 0.0;
 	jacobian[ STATE_v ][ STATE_xrb ] 	= 0.0;
 	jacobian[ STATE_v ][ STATE_zrb ] 	= 0.0;
+	jacobian[ STATE_v ][ STATE_yawb ] 	= 0.0;
 
 	jacobian[ STATE_phidot ][ STATE_vdot ] 	= 0.0;
 	jacobian[ STATE_phidot ][ STATE_v ] 	= 0.0;
@@ -243,6 +255,7 @@ void systemJacobian( uFloat *state, uFloat **jacobian )
 	jacobian[ STATE_phidot ][ STATE_zab ] 	= 0.0;
 	jacobian[ STATE_phidot ][ STATE_xrb ] 	= 0.0;
 	jacobian[ STATE_phidot ][ STATE_zrb ] 	= 0.0;
+	jacobian[ STATE_phidot ][ STATE_yawb ] 	= 0.0;
 
 	jacobian[ STATE_phi ][ STATE_vdot ] 	= 0.0;
 	jacobian[ STATE_phi ][ STATE_v ] 	= 0.0;
@@ -257,6 +270,7 @@ void systemJacobian( uFloat *state, uFloat **jacobian )
 	jacobian[ STATE_phi ][ STATE_zab ] 	= 0.0;
 	jacobian[ STATE_phi ][ STATE_xrb ] 	= 0.0;
 	jacobian[ STATE_phi ][ STATE_zrb ] 	= 0.0;
+	jacobian[ STATE_phi ][ STATE_yawb ] 	= 0.0;
 
 	jacobian[ STATE_theta ][ STATE_vdot ] 	= 0.0;
 	jacobian[ STATE_theta ][ STATE_v ] 	= 0.0;
@@ -271,6 +285,7 @@ void systemJacobian( uFloat *state, uFloat **jacobian )
 	jacobian[ STATE_theta ][ STATE_zab ] 	= 0.0;
 	jacobian[ STATE_theta ][ STATE_xrb ] 	= 0.0;
 	jacobian[ STATE_theta ][ STATE_zrb ] 	= 0.0;
+	jacobian[ STATE_theta ][ STATE_yawb ] 	= 0.0;
 
 	jacobian[ STATE_psi ][ STATE_vdot ] 	= 0.0;
 	jacobian[ STATE_psi ][ STATE_v ] 	= -tan( state[ STATE_phi ] ) / RADIUS;
@@ -286,6 +301,7 @@ void systemJacobian( uFloat *state, uFloat **jacobian )
 	jacobian[ STATE_psi ][ STATE_zab ] 	= 0.0;
 	jacobian[ STATE_psi ][ STATE_xrb ] 	= 0.0;
 	jacobian[ STATE_psi ][ STATE_zrb ] 	= 0.0;
+	jacobian[ STATE_psi ][ STATE_yawb ] 	= 0.0;
 
 	jacobian[ STATE_x ][ STATE_vdot ] 	= 0.0;
 	jacobian[ STATE_x ][ STATE_v ] 		= cos( state[ STATE_psi ] );
@@ -300,6 +316,7 @@ void systemJacobian( uFloat *state, uFloat **jacobian )
 	jacobian[ STATE_x ][ STATE_zab ] 	= 0.0;
 	jacobian[ STATE_x ][ STATE_xrb ] 	= 0.0;
 	jacobian[ STATE_x ][ STATE_zrb ] 	= 0.0;
+	jacobian[ STATE_x ][ STATE_yawb ] 	= 0.0;
 
 	jacobian[ STATE_y ][ STATE_vdot ] 	= 0.0;
 	jacobian[ STATE_y ][ STATE_v ] 		= sin( state[ STATE_psi ] );
@@ -314,6 +331,7 @@ void systemJacobian( uFloat *state, uFloat **jacobian )
 	jacobian[ STATE_y ][ STATE_zab ] 	= 0.0;
 	jacobian[ STATE_y ][ STATE_xrb ] 	= 0.0;
 	jacobian[ STATE_y ][ STATE_zrb ] 	= 0.0;
+	jacobian[ STATE_y ][ STATE_yawb ] 	= 0.0;
 
 	jacobian[ STATE_xab ][ STATE_vdot ] 	= 0.0;
 	jacobian[ STATE_xab ][ STATE_v ] 	= 0.0;
@@ -328,6 +346,7 @@ void systemJacobian( uFloat *state, uFloat **jacobian )
 	jacobian[ STATE_xab ][ STATE_zab ] 	= 0.0;
 	jacobian[ STATE_xab ][ STATE_xrb ] 	= 0.0;
 	jacobian[ STATE_xab ][ STATE_zrb ] 	= 0.0;
+	jacobian[ STATE_xab ][ STATE_yawb ] 	= 0.0;
 
 	jacobian[ STATE_yab ][ STATE_vdot ] 	= 0.0;
 	jacobian[ STATE_yab ][ STATE_v ] 	= 0.0;
@@ -342,6 +361,7 @@ void systemJacobian( uFloat *state, uFloat **jacobian )
 	jacobian[ STATE_yab ][ STATE_zab ] 	= 0.0;
 	jacobian[ STATE_yab ][ STATE_xrb ] 	= 0.0;
 	jacobian[ STATE_yab ][ STATE_zrb ] 	= 0.0;
+	jacobian[ STATE_yab ][ STATE_yawb ] 	= 0.0;
 
 	jacobian[ STATE_zab ][ STATE_vdot ] 	= 0.0;
 	jacobian[ STATE_zab ][ STATE_v ] 	= 0.0;
@@ -356,6 +376,7 @@ void systemJacobian( uFloat *state, uFloat **jacobian )
 	jacobian[ STATE_zab ][ STATE_zab ] 	= 0.0;
 	jacobian[ STATE_zab ][ STATE_xrb ] 	= 0.0;
 	jacobian[ STATE_zab ][ STATE_zrb ] 	= 0.0;
+	jacobian[ STATE_zab ][ STATE_yawb ] 	= 0.0;
 
 	jacobian[ STATE_xrb ][ STATE_vdot ] 	= 0.0;
 	jacobian[ STATE_xrb ][ STATE_v ] 	= 0.0;
@@ -370,6 +391,7 @@ void systemJacobian( uFloat *state, uFloat **jacobian )
 	jacobian[ STATE_xrb ][ STATE_zab ] 	= 0.0;
 	jacobian[ STATE_xrb ][ STATE_xrb ] 	= 0.0;
 	jacobian[ STATE_xrb ][ STATE_zrb ] 	= 0.0;
+	jacobian[ STATE_xrb ][ STATE_yawb ] 	= 0.0;
 
 	jacobian[ STATE_zrb ][ STATE_vdot ] 	= 0.0;
 	jacobian[ STATE_zrb ][ STATE_v ] 	= 0.0;
@@ -384,6 +406,23 @@ void systemJacobian( uFloat *state, uFloat **jacobian )
 	jacobian[ STATE_zrb ][ STATE_zab ] 	= 0.0;
 	jacobian[ STATE_zrb ][ STATE_xrb ] 	= 0.0;
 	jacobian[ STATE_zrb ][ STATE_zrb ] 	= 0.0;
+	jacobian[ STATE_zrb ][ STATE_yawb ] 	= 0.0;
+
+	jacobian[ STATE_yawb ][ STATE_vdot ] 	= 0.0;
+	jacobian[ STATE_yawb ][ STATE_v ] 	= 0.0;
+	jacobian[ STATE_yawb ][ STATE_phidot ] 	= 0.0;
+	jacobian[ STATE_yawb ][ STATE_phi ] 	= 0.0;
+	jacobian[ STATE_yawb ][ STATE_theta ] 	= 0.0;
+	jacobian[ STATE_yawb ][ STATE_psi ] 	= 0.0;
+	jacobian[ STATE_yawb ][ STATE_x ] 	= 0.0;
+	jacobian[ STATE_yawb ][ STATE_y ] 	= 0.0;
+	jacobian[ STATE_yawb ][ STATE_xab ] 	= 0.0;
+	jacobian[ STATE_yawb ][ STATE_yab ] 	= 0.0;
+	jacobian[ STATE_yawb ][ STATE_zab ] 	= 0.0;
+	jacobian[ STATE_yawb ][ STATE_xrb ] 	= 0.0;
+	jacobian[ STATE_yawb ][ STATE_zrb ] 	= 0.0;
+	jacobian[ STATE_yawb ][ STATE_yawb ] 	= 0.0;
+
 
 #ifdef PRINT_DEBUG
 	/* print_matrix( "jacobian", jacobian, STATE_SIZE, STATE_SIZE ); */
@@ -434,6 +473,9 @@ void apply_measurement( uFloat *newState, uFloat *est_measurement )
 
   est_measurement[ MEAS_omega ] = newState[ STATE_v ] / RADIUS; // * cos( newState[ STATE_phi ] ));
 
+  est_measurement[ MEAS_yaw ] = - newState[ STATE_v ] * newState[ STATE_phi ] / RADIUS
+	+ newState[ STATE_yawb ];
+
 }
 
 /*  generate_measurement_transfer
@@ -460,6 +502,7 @@ void generate_measurement_transfer( uFloat *state, uFloat **H )
   H[ MEAS_xa ][ STATE_zab ] 	= 0.0;
   H[ MEAS_xa ][ STATE_xrb ] 	= 0.0;
   H[ MEAS_xa ][ STATE_zrb ] 	= 0.0;
+  H[ MEAS_xa ][ STATE_yawb ] 	= 0.0;
 
   H[ MEAS_ya ][ STATE_vdot ] 	= 0.0;
   H[ MEAS_ya ][ STATE_v ] 	= 2.0 * state[ STATE_v ] * state[ STATE_phi ] / RADIUS;
@@ -474,6 +517,8 @@ void generate_measurement_transfer( uFloat *state, uFloat **H )
   H[ MEAS_ya ][ STATE_zab ] 	= 0.0;
   H[ MEAS_ya ][ STATE_xrb ] 	= 0.0;
   H[ MEAS_ya ][ STATE_zrb ] 	= 0.0;
+  H[ MEAS_ya ][ STATE_yawb ] 	= 0.0;
+
 
   H[ MEAS_za ][ STATE_vdot ] 	= state[ STATE_theta ];
   H[ MEAS_za ][ STATE_v ] 	= 0.0; //2.0 * state[ STATE_v ] * state[ STATE_phi ] * state[ STATE_phi ] / RADIUS;
@@ -488,6 +533,7 @@ void generate_measurement_transfer( uFloat *state, uFloat **H )
   H[ MEAS_za ][ STATE_zab ] 	= 1.0;
   H[ MEAS_za ][ STATE_xrb ] 	= 0.0;
   H[ MEAS_za ][ STATE_zrb ] 	= 0.0;
+  H[ MEAS_za ][ STATE_yawb ] 	= 0.0;
 
   H[ MEAS_xr ][ STATE_vdot ] 	= 0.0;
   H[ MEAS_xr ][ STATE_v ] 	= 0.0;//-state[ STATE_theta ] * state[ STATE_phi ] / RADIUS;
@@ -502,6 +548,7 @@ void generate_measurement_transfer( uFloat *state, uFloat **H )
   H[ MEAS_xr ][ STATE_zab ] 	= 0.0;
   H[ MEAS_xr ][ STATE_xrb ] 	= 1.0;
   H[ MEAS_xr ][ STATE_zrb ] 	= 0.0;
+  H[ MEAS_xr ][ STATE_yawb ] 	= 0.0;
 
   H[ MEAS_zr ][ STATE_vdot ] 	= 0.0;
   H[ MEAS_zr ][ STATE_v ] 	= -state[ STATE_phi ] / RADIUS;
@@ -516,6 +563,7 @@ void generate_measurement_transfer( uFloat *state, uFloat **H )
   H[ MEAS_zr ][ STATE_zab ] 	= 0.0;
   H[ MEAS_zr ][ STATE_xrb ] 	= 0.0;
   H[ MEAS_zr ][ STATE_zrb ] 	= 1.0;
+  H[ MEAS_zr ][ STATE_yawb ] 	= 0.0;
 
   H[ MEAS_xg ][ STATE_vdot ] 	= 0.0;
   H[ MEAS_xg ][ STATE_v ] 	= 0.0;
@@ -530,6 +578,7 @@ void generate_measurement_transfer( uFloat *state, uFloat **H )
   H[ MEAS_xg ][ STATE_zab ] 	= 0.0;
   H[ MEAS_xg ][ STATE_xrb ] 	= 0.0;
   H[ MEAS_xg ][ STATE_zrb ] 	= 0.0;
+  H[ MEAS_xg ][ STATE_yawb ] 	= 0.0;
 
   H[ MEAS_yg ][ STATE_vdot ] 	= 0.0;
   H[ MEAS_yg ][ STATE_v ] 	= 0.0;
@@ -544,6 +593,7 @@ void generate_measurement_transfer( uFloat *state, uFloat **H )
   H[ MEAS_yg ][ STATE_zab ] 	= 0.0;
   H[ MEAS_yg ][ STATE_xrb ] 	= 0.0;
   H[ MEAS_yg ][ STATE_zrb ] 	= 0.0;
+  H[ MEAS_yg ][ STATE_yawb ] 	= 0.0;
 
   H[ MEAS_psig ][ STATE_vdot ] 	= 0.0;
   H[ MEAS_psig ][ STATE_v ] 	= 0.0;
@@ -558,6 +608,7 @@ void generate_measurement_transfer( uFloat *state, uFloat **H )
   H[ MEAS_psig ][ STATE_zab ] 	= 0.0;
   H[ MEAS_psig ][ STATE_xrb ] 	= 0.0;
   H[ MEAS_psig ][ STATE_zrb ] 	= 0.0;
+  H[ MEAS_psig ][ STATE_yawb ] 	= 0.0;
 
   H[ MEAS_vg ][ STATE_vdot ] 	= 0.0;
   H[ MEAS_vg ][ STATE_v ] 	= 1.0;
@@ -572,6 +623,7 @@ void generate_measurement_transfer( uFloat *state, uFloat **H )
   H[ MEAS_vg ][ STATE_zab ] 	= 0.0;
   H[ MEAS_vg ][ STATE_xrb ] 	= 0.0;
   H[ MEAS_vg ][ STATE_zrb ] 	= 0.0;
+  H[ MEAS_vg ][ STATE_yawb ] 	= 0.0;
 
   H[ MEAS_omega ][ STATE_vdot ]   = 0.0;
   H[ MEAS_omega ][ STATE_v ] 	  = 1.0 / ( RADIUS ); // * cos(state[ STATE_phi ]) );
@@ -587,6 +639,22 @@ void generate_measurement_transfer( uFloat *state, uFloat **H )
   H[ MEAS_omega ][ STATE_zab ]    = 0.0;
   H[ MEAS_omega ][ STATE_xrb ]    = 0.0;
   H[ MEAS_omega ][ STATE_zrb ]    = 0.0;
+  H[ MEAS_omega ][ STATE_yawb ]    = 0.0;
+
+  H[ MEAS_yaw ][ STATE_vdot ] 	= 0.0;
+  H[ MEAS_yaw ][ STATE_v ] 		= -state[ STATE_phi ] / RADIUS;
+  H[ MEAS_yaw ][ STATE_phidot ] = 0.0;
+  H[ MEAS_yaw ][ STATE_phi ] 	= -state[ STATE_v ] / RADIUS;
+  H[ MEAS_yaw ][ STATE_theta ] 	= 0.0;
+  H[ MEAS_yaw ][ STATE_psi ] 	= 0.0;
+  H[ MEAS_yaw ][ STATE_x ] 		= 0.0;
+  H[ MEAS_yaw ][ STATE_y ] 		= 0.0;
+  H[ MEAS_yaw ][ STATE_xab ] 	= 0.0;
+  H[ MEAS_yaw ][ STATE_yab ] 	= 0.0;
+  H[ MEAS_yaw ][ STATE_zab ] 	= 0.0;
+  H[ MEAS_yaw ][ STATE_xrb ] 	= 0.0;
+  H[ MEAS_yaw ][ STATE_zrb ] 	= 0.0;
+  H[ MEAS_yaw ][ STATE_yawb ] 	= 1.0;
 
 }
 
@@ -615,6 +683,7 @@ void covarianceSet( uFloat **Qk, uFloat **R )
   Qk[ STATE_zab ][ STATE_zab ] 		= 0.000005;
   Qk[ STATE_xrb ][ STATE_xrb ] 		= 0.00005;
   Qk[ STATE_zrb ][ STATE_zrb ]  	= 0.000001;
+  Qk[ STATE_yawb ][ STATE_yawb ]  	= 0.0000000001;
 
   matMultScalar( Qk, PERIOD, Qk, STATE_SIZE, STATE_SIZE );
 
@@ -632,5 +701,6 @@ void covarianceSet( uFloat **Qk, uFloat **R )
   R[ MEAS_psig ][ MEAS_psig ] 	= 4*PI;
   R[ MEAS_vg ][ MEAS_vg ] 		= 5.0;
   R[ MEAS_omega ][ MEAS_omega ] = 0.1;
+  R[ MEAS_yaw ][ MEAS_yaw ] 	= 0.005;
 }
 

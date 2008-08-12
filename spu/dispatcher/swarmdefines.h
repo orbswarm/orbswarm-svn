@@ -88,6 +88,8 @@ struct	swarmImuData
 
   double omega;
 
+  double si_yawRate;
+
   /* raw data from IMU */
   int int_ratex;
   int int_ratez;
@@ -179,6 +181,7 @@ struct  swarmStateEstimate
   double zab;
   double xrb;
   double zrb;
+  double yawb;
 };
 
 struct swarmFeedback
