@@ -3,10 +3,10 @@
 % 7/28/08 MAP
 %
 % sensordata file:
-% 1.time, 2.ratex, 3.ratez, 4.accx, 5.accy, 6.accz, 7.easting, 8.northing, 9.gps heading , 10.gps vel, 11.omega, 12.utmzone
+% 1.time, 2.ratex, 3.ratez, 4.accx, 5.accy, 6.accz, 7.easting, 8.northing, 9.gps heading , 10.gps vel, 11.omega, 12. yaw gyro, 13.utmzone
 %
 % kalmanoutput
-% 1.time, 2.vdot, 3. v, 4.phidot, 5.phi, 6.theta, 7.psi, 8.x, 9.y, 10.xab, 11.yab, 12.zab, 13.xrb, 14.zrb
+% 1.time, 2.vdot, 3. v, 4.phidot, 5.phi, 6.theta, 7.psi, 8.x, 9.y, 10.xab, 11.yab, 12.zab, 13.xrb, 14.zrb, 15. yawb
 %
 
 close all;
@@ -30,5 +30,5 @@ figure;
 plot( [sensordata(:,9) + round((kalmanoutput(:,7)-sensordata(:,9))/(2*pi))*2*pi kalmanoutput(:,7)]);
 title('Heading (rad ccw vs East)');
 
-my_data = [sensordata(:,4) sensordata(:,5) sensordata(:,6) sensordata(:,2) sensordata(:,3) sensordata(:,7) sensordata(:,8) sensordata(:,9) sensordata(:,10) sensordata(:,11)];
+my_data = [sensordata(:,4) sensordata(:,5) sensordata(:,6) sensordata(:,2) sensordata(:,3) sensordata(:,7) sensordata(:,8) sensordata(:,9) sensordata(:,10) sensordata(:,11) sensordata(:,12)];
 save -text full_data my_data
