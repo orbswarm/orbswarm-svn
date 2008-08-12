@@ -92,6 +92,7 @@ void startChildProcessToGronk(void) {
 	int thisSteeringValue;
 	double distanceToCarrot;
 	double thisYawRate;
+	struct swarmCircle circle;
 
 	zeroStateEstimates(&stateEstimate);
 
@@ -221,9 +222,11 @@ void startChildProcessToGronk(void) {
 					stateEstimate.x = 0;
 					stateEstimate.y = 0;
 					kalmanInit( &stateEstimate );
-					carrot.x = 2000 * cos(stateEstimate.psi + PI/6);
-					carrot.y = 2000 * sin(stateEstimate.psi + PI/6);
+					//carrot.x = 2000 * cos(stateEstimate.psi + PI/6);
+					//carrot.y = 2000 * sin(stateEstimate.psi + PI/6);
+					circleInit( &stateEstimate, &circle );
 				}
+
 				if (initCounter > 10){
 					logit(eMcuLog, eLogDebug, "\ninit state=2");
 					// set to green = go!
@@ -279,7 +282,8 @@ void startChildProcessToGronk(void) {
 						stateEstimate.yawb);
 				logit(eMcuLog, eLogDebug, outputFileBuffer);
 
-				swarmFeedbackProcess(&stateEstimate, &carrot, &feedback );
+				circlePath( &circle, &stateEstimate, &carrot );
+				swarmFeedbackProcess( &stateEstimate, &carrot, &feedback );
 				thisSteeringValue = (int)rint(feedback.deltaDes * 190.0);
 				if(thisSteeringValue > 100)
 					thisSteeringValue = 100;

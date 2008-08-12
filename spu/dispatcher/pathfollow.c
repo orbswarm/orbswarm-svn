@@ -62,7 +62,7 @@ void circleInit( struct swarmStateEstimate * stateEstimate, struct swarmCircle *
 void circlePath( struct swarmCircle * circle, struct swarmStateEstimate * stateEstimate,
 		 struct swarmCoord * carrot )
 {
-  circle->center.psi = atan2((stateEstimate->x - circle->center.x), (stateEstimate->y - circle->center.y));
+  circle->center.psi = atan2( (stateEstimate->y - circle->center.y),(stateEstimate->x - circle->center.x) );
 
   circle->current.x   = circle->radius * cos( circle->center.psi ) + circle->center.x;
   circle->current.y   = circle->radius * sin( circle->center.psi ) + circle->center.y;
