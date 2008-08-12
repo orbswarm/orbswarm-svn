@@ -256,12 +256,12 @@ void startChildProcessToGronk(void) {
 				sprintf(dataFileBuffer, "\n%f,%s,%f,%f,%f,%f,%f,%f,%s",
 						(double)nowGronkTime.tv_sec + (double)nowGronkTime.tv_usec / 1000000,
 						buffer,				// formatted IMU data
-						imuData.si_yawRate, // new yaw rate gyro
 						latestGpsCoordinatesInternalCopy.metFromMshipEast,
 						latestGpsCoordinatesInternalCopy.metFromMshipNorth,
 						latestGpsCoordinatesInternalCopy.nmea_course,
 						latestGpsCoordinatesInternalCopy.speed,
 						imuData.omega,
+						imuData.si_yawRate, // new yaw rate gyro
 						latestGpsCoordinatesInternalCopy.UTMZone);
 				logit(eMcuLog, eLogDebug, dataFileBuffer);
 				sprintf(outputFileBuffer, "\n%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f",

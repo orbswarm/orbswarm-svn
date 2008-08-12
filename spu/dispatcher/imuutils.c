@@ -590,7 +590,7 @@ double getYawRate(void)
 
 	rawYaw = rawYaw / 4;
 
-	yawSi = (double)rawYaw * 0.000639314;  // 0.03663 * pi / 180 (for 160 deg/sec range)
+	yawSi = -((double)rawYaw) * 0.000639314;  // 0.03663 * pi / 180 (for 160 deg/sec range)
 
 	return(yawSi);
 }
