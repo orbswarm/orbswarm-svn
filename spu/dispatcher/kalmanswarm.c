@@ -119,6 +119,13 @@ int kalmanProcess( struct swarmGpsDataStruct * gpsData, struct swarmImuData * im
    // psig is heading between -pi and pi. bring it to the same range as the current psi.
    measurementVec[ MEAS_psig ] += rint((stateVec[ STATE_psi ]-measurementVec[ MEAS_psig ])/(2*PI))*2*PI;
 
+   // if encoder indicates low velocity, ignore GPS heading and velocity information
+   if (omega < 1.0)
+   {
+	   measurementVec[ MEAS_psig ]  = stateVec[ STATE_psi ];
+	   measurementVec[ MEAS_vg ]	= stateVec[ STATE_v ];
+   }
+
    extended_kalman_step( measurementVec );
 
    stateVec = kalman_get_state();
