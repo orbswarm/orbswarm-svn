@@ -24,7 +24,7 @@
 #include "swarmipc.h"
 #include "pathfollow.h"
 
-//#define JOYSTICK
+#define JOYSTICK
 
 extern Queue *mcuQueuePtr;
 extern swarmGpsData *latestGpsCoordinates;
