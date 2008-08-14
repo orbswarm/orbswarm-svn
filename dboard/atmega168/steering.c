@@ -32,6 +32,7 @@ static short maxAccel;
 static short crntPWM;
 static short iSum = 0;
 static short iLimit = 0;
+static short steer_max=0;
 
 extern volatile uint8_t Steer_Debug_Output;	// flag for outputing PID tuning info
 
@@ -51,14 +52,16 @@ void Steering_Init(void)
 	iSum = 0;
 	iLimit = 500;
 	last_pos_error = 0;
+	steer_max = 100;	/* maximum extent from zero */
 }
 	
 
 // -----------------------------------------------------------------------
 
-void Steering_Set_Target_Pos(short targetPos)
+void Steering_Set_Target_Pos(short desiredPos)
 {
-	target_Pos = targetPos;
+	limit(&desiredPos,-steer_max, steer_max);
+	target_Pos = desiredPos;
 }
 
 // -----------------------------------------------------------------------

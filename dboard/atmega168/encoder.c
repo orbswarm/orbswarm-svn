@@ -53,23 +53,21 @@ SIGNAL(INT0_vect)
 
 void Encoder_Init(void)
 {
-  unsigned char n;
-  
-  //  for (n=0;n<MAX_SAMPLES;n++)
-  //  prevSample[n] = 0;
   
   encoder1_count = 0;
   encoder1_speed = 0;
   encoder1_dir = 0;
   odometer = 0;
 
-  MCUCR |= ((1<<ISC00) | (1<<ISC01)); // Rising edge generates interrupt
+  //MCUCR |= ((1<<ISC00) | (1<<ISC01)); // Rising edge generates interrupt
   //GICR &= ~(1<<INT1); // disable interrupt on pin PD3(INT1)
   //GICR = 0;
   //GICR |= (1<<INT0); // Enable interrupt on pin PD2(INT0)
   
-   EIMSK = 0;
-   EIMSK |= (1<<INT0); // Enable interrupt on pin PD2(INT0)
+  EICRA = ((1<<ISC00) | (1<<ISC01)); /* Rising edge generates interrupt */
+
+  EIMSK = 0;
+  EIMSK |= (1<<INT0); // Enable interrupt on pin PD2(INT0)
 
 }
 
