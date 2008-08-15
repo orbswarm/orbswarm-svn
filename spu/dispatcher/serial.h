@@ -23,11 +23,11 @@
 
 /* defines for TS-7800 serial ports */
 
-#define COM1 "/dev/ttyS0"
-#define COM2 "/dev/ttyS1"
-#define COM3 "/dev/ttts4"
-#define COM4 "/dev/ttts5"
-#define COM5 "/dev/ttts6"
+//#define COM1 "/dev/ttyS0"
+#define COM2 "/dev/ttyS1" //aggr
+#define COM3 "/dev/ttts4" //led
+//#define COM3 "/dev/ttts5" //led
+#define COM5 "/dev/ttts6" //mcu
 
 
 /*define 7260 serial ports */

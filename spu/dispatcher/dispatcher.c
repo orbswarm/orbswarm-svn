@@ -387,7 +387,7 @@ int main(int argc, char *argv[]) {
 
 	/* Motor Control commands go to and from COM5 */
 	//com5 = initSerialPort (COM5, 38400);
-	com5 = initSerialPortBlocking(COM5, 38400);
+	com5 = initSerialPortBlocking(COM5, 115200);
 #endif
 
 	/* find maximum fd for the select() */
