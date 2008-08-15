@@ -1,25 +1,5 @@
 #!/bin/sh
 
-#cd /root
-#while true
-#do
-#    ps_cnt=0
-#    ps -efw | grep DDISPATCHER
-#    ps_cnt=`ps -efw | grep DDISPATCHER | wc -l`
-#    
-#    if [ ${ps_cnt} != 4 ] ; then
-#           echo "ps_cnt=${ps_cnt}"
-#           pkill dispatcher
-#	   echo "killed old dispatcher"
-#	   nohup ./dispatcher -DDISPATCHER >stdout.log 2>&1 &
-#	   echo "restarted dispatcher"
-#    else
-#	echo "ps_cnt=${ps_cnt}" 
-#	echo "dispatcher is running"
-#    fi
-#    sleep 5
-#done
-
 cd /root
 while true
 do 
@@ -39,5 +19,5 @@ do
     else
 	echo "dispatcher is running"
     fi
-    sleep 5
+    sleep 5 
 done
