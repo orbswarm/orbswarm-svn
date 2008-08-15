@@ -520,6 +520,35 @@ void initYawSensor(void)
 
 	RW_REG(dioptr) ^= (1 << CS_PIN); // yaw sensor chip select-set high
 	init_spi(); // call init_spi before selecting an SPI device
+
+
+	for (myIdx=0; myIdx < 2000; myIdx++);
+	RW_REG(dioptr) &= ~(1 << CS_PIN); // yaw sensor chip select - set low
+
+	c=spi8(0xB9);
+	//sprintf(debugMsg, "\n Yaw: init 1 write=%02X", c);
+	//logit(eMcuLog, eLogDebug, debugMsg);
+	c=spi8(0x02);
+	//sprintf(debugMsg, "\n Yaw: init 2 write=%02X", c);
+	//logit(eMcuLog, eLogDebug, debugMsg);
+
+	RW_REG(dioptr) ^= (1 << CS_PIN); // yaw sensor chip select - set high
+
+	for (myIdx=0; myIdx < 2000; myIdx++);
+
+	RW_REG(dioptr) &= ~(1 << CS_PIN); // yaw sensor chip select - set low
+
+	c = spi8(0xB8);
+	//sprintf(debugMsg, "\n Yaw: init 3 read=%02X", c);
+	//logit(eMcuLog, eLogDebug, debugMsg);
+	rawYaw = (c & 0x3f) << 10;
+
+	c = spi8(0x02);
+	//sprintf(debugMsg, "\n Yaw: init 4 read=%02X", c);
+	//logit(eMcuLog, eLogDebug, debugMsg);
+	rawYaw |= c << 2;
+	RW_REG(dioptr) ^= (1 << CS_PIN); // yaw sensor chip select - set high
+
 	for (myIdx=0; myIdx < 2000; myIdx++);
 	RW_REG(dioptr) &= ~(1 << CS_PIN); // yaw sensor chip select - set low
 
@@ -548,13 +577,14 @@ void initYawSensor(void)
 	RW_REG(dioptr) ^= (1 << CS_PIN); // yaw sensor chip select - set high
 
 
+
 }
 
 double getYawRate(void)
 {
 	int16_t rawYaw = 0;
 	unsigned char c;
-//	char debugMsg[1024];
+	//char debugMsg[1024];
 	int myIdx;
 	double yawSi;
 
@@ -577,7 +607,7 @@ double getYawRate(void)
 	//c = spi8(0x3d);   // STATUS
 	//c = spi8(0x35);   // MSC_CRTL
 	//c = spi8(0x05);   // GYRO_DATA
-	c = spi8(0x39);    // SENS/AVG
+	c = spi8(0x04);    // SENS/AVG
 	//sprintf(debugMsg, "\n Yaw: first byte from SPI read=%02X", c);
 	//logit(eMcuLog, eLogDebug, debugMsg);
 	rawYaw = (c & 0x3f) << 10;
