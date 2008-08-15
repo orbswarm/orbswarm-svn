@@ -24,7 +24,7 @@
 #include "swarmipc.h"
 #include "pathfollow.h"
 
-#define JOYSTICK
+//#define JOYSTICK
 
 extern Queue *mcuQueuePtr;
 extern swarmGpsData *latestGpsCoordinates;
@@ -180,6 +180,13 @@ void startChildProcessToGronk(void) {
 					char* msg="<LB255><LR255><LG0><LT0><LF>";
 					writeCharsToSerialPort(com3, msg, strlen(msg));
 					releaseCom3Lock();
+					sprintf(buffer, "$p0*");
+					writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
+					sprintf(buffer, "$s0*");
+					writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
+					drainSerialPort(com5);
+
+
 				}
 
 				if ((strncmp(latestGpsCoordinatesInternalCopy.UTMZone,
