@@ -11,7 +11,7 @@
 
 #define ARBITRARY_SCALE        1
 
-#define PHICENTER 0.02
+#define PHICENTER 0.005
 
 #include <stdio.h>
 #include <math.h>
@@ -705,8 +705,8 @@ void covarianceSet( uFloat **Qk, uFloat **R )
   R[ MEAS_zr ][ MEAS_zr ] 		= 0.2;
   R[ MEAS_xg ][ MEAS_xg ] 		= 1.5;
   R[ MEAS_yg ][ MEAS_yg ] 		= 1.5;
-  R[ MEAS_psig ][ MEAS_psig ] 	= 2*PI;
-  R[ MEAS_vg ][ MEAS_vg ] 		= 2.0;
+  R[ MEAS_psig ][ MEAS_psig ] 	= PI;
+  R[ MEAS_vg ][ MEAS_vg ] 		= 1.0;
   R[ MEAS_omega ][ MEAS_omega ] = 0.1;
   R[ MEAS_yaw ][ MEAS_yaw ] 	= 0.005;
 }
