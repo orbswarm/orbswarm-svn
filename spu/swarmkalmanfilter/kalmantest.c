@@ -66,9 +66,9 @@ int main( int argc, char **argv )
 
   struct swarmMotorData motorData;
 
-  zeroStateEstimates( &stateEstimate );	
+  zeroStateEstimates( &stateEstimate );
 
-  debug = 1;	
+  debug = 1;
 
   parse_arguments( argc, argv );   /*  Parse the command line arguments  */
 
@@ -83,11 +83,11 @@ int main( int argc, char **argv )
   load_meas( meas_fname, MEAS_SIZE, num_samples, meas );
 
   kalmanInit( &stateEstimate );
-    
+
       /*  For each sample in the test run, perform one estimation and
 	  copy the results into the trajectory history   */
-      
-  start_clock();	
+
+  start_clock();
       for( time = 1; time <= num_samples; time++ )
 	{
 /*
@@ -101,8 +101,9 @@ int main( int argc, char **argv )
   		imuData.si_ratez 	= meas[time][MEAS_zr];
   		imuData.si_accx  	= meas[time][MEAS_xa];
   		imuData.si_accy  	= meas[time][MEAS_ya];
-  		imuData.si_accz  	= 0.0;
-		
+  		imuData.si_accz  	= meas[time][MEAS_za];
+  		imuData.si_yawRate  = meas[time][MEAS_yaw];
+
 		// motorData.speedRPS 	= meas[time][MEAS_omega];
 
 		imuData.omega		= meas[time][MEAS_omega];
@@ -128,9 +129,9 @@ int main( int argc, char **argv )
 	}
 
   end_clock("All samples processed in this many ticks -");
-    
+
   /*  Save the set of estimated parameters into a file  */
-  
+
   save_track( output_fname, num_samples, trajectory );
 
   freeMatrix( P, 1, STATE_SIZE, 1, STATE_SIZE );
@@ -163,16 +164,16 @@ void load_meas( char *name, int num_meas, int num_steps,
 
     for( sample = 1; sample <= num_steps; sample ++ )
       {
-	if( fscanf( fptr, " %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", 
-		&data[1], &data[2], &data[3], &data[4], &data[5], &data[6], 
-		&data[7], &data[8], &data[9], &data[10] ) != 10 )
+	if( fscanf( fptr, " %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
+		&data[1], &data[2], &data[3], &data[4], &data[5], &data[6],
+		&data[7], &data[8], &data[9], &data[10], &data[11] ) != 11 )
 	  {
 	    printf("load_meas: Error reading %s ! (%d samples read )\n",
 		   name, sample );
 	    fclose( fptr );
 	    exit( -1 );
 	  }
-	
+
 	for ( i = 1; i <= MEAS_SIZE; i++)
 	meas[ sample ][ i ] = (uFloat)data[ i ];
       }

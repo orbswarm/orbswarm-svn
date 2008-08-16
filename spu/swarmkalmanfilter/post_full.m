@@ -25,17 +25,29 @@
 % MEAS_psig    	8
 % MEAS_vg    	9
 % MEAS_omega	10
-%
+% MEAS_yaw	    11
 
 load -ascii full_data;
 load -ascii full_data_out;
 close all;
 
+radius = 9;
+state_psi = -pi/5;
+center_psi = state_psi + 1 * (pi/2) + pi;
+center_x   = - radius * cos(center_psi);
+center_y   = - radius * sin(center_psi);
+circ_theta = linspace(0,2*pi);
+circ_x = radius * cos( circ_theta )+center_x;
+circ_y = radius * sin( circ_theta )+center_y;
+
+
+
 figure;
-plot(full_data(:,6),full_data(:,7),"r");
+% plot(full_data(:,6),full_data(:,7),"r");
 hold;
 plot(full_data_out(:,7),full_data_out(:,8),"b");
-title('Overhead - GPS in Red, Kalman in Blue');
+plot(circ_x, circ_y, "g");
+title('Overhead - GPS in Red, Kalman in Blue, Circle in Green');
 grid;
 
 figure;
@@ -44,8 +56,12 @@ title('Velocity (m/s)');
 grid;
 
 figure;
-plot([-.125*(full_data(:,2)-full_data_out(:,10)) -(full_data(:,5)-full_data_out(:,13)) full_data_out(:,4)]);
+plot([-0.5*(full_data(:,5)-full_data_out(:,13)) full_data_out(:,4)]);
 title('Y acc (blue), Z rate (green), Phi (red)');
+
+figure;
+plot([ -0.5*(full_data(:,11)-full_data_out(:,14)) full_data_out(:,4)]);
+title('Z rate (blue), Phi (green)');
 
 figure;
 plot([full_data(:,8) + round((full_data_out(:,6)-full_data(:,8))/(2*pi))*2*pi full_data_out(:,6)]);
