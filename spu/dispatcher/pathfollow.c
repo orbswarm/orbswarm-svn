@@ -72,6 +72,89 @@ void circlePath( struct swarmCircle * circle, struct swarmStateEstimate * stateE
   carrot->y = circle->current.y + circle->carrotDistance * sin(circle->current.psi);
 }
 
+void figEightInit( struct swarmStateEstimate * stateEstimate, struct swarmFigEight * figEight )
+{
+	struct swarmStateEstimate circleState;
+
+	figEight->point0.x 	 = stateEstimate->x;
+	figEight->point0.y 	 = stateEstimate->y;
+	figEight->point0.psi = stateEstimate->psi;
+
+	figEight->point1.x = figEight->point0.x + figEight->radius * cos(figEight->point0.psi);
+	figEight->point1.y = figEight->point0.y + figEight->radius * sin(figEight->point0.psi);
+
+	figEight->point2.x = figEight->point0.x + figEight->radius * cos(figEight->point0.psi - PI/2.0 );
+	figEight->point2.y = figEight->point0.y + figEight->radius * sin(figEight->point0.psi - PI/2.0 );
+
+	figEight->point3.x = figEight->point0.x + figEight->radius * cos(figEight->point0.psi + PI/2.0 );
+	figEight->point3.y = figEight->point0.y + figEight->radius * sin(figEight->point0.psi + PI/2.0 );
+
+	figEight->point4.x = figEight->point0.x + figEight->radius * cos(figEight->point0.psi + PI );
+	figEight->point4.y = figEight->point0.y + figEight->radius * sin(figEight->point0.psi + PI );
+
+	circleState.x  	= figEight->point1.x;
+	circleState.y   = figEight->point1.y;
+	circleState.psi = figEight->point0.psi;
+
+	figEight->circle1.radius    = figEight->radius;
+	figEight->circle1.direction = -1.0;
+	figEight->circle1.carrotDistance = figEight->carrotDistance;
+
+	circleInit(&circleState, &(figEight->circle1));
+
+	circleState.x  	= figEight->point3.x;
+	circleState.y   = figEight->point3.y;
+	circleState.psi = figEight->point0.psi + PI;
+
+	figEight->circle1.radius    = figEight->radius;
+	figEight->circle1.direction = 1.0;
+	figEight->circle1.carrotDistance = figEight->carrotDistance;
+
+	circleInit(&circleState, &(figEight->circle1));
+
+	figEight->mode = 1;
+
+}
+
+void figEightPath( struct swarmFigEight * figEight, struct swarmStateEstimate * stateEstimate,
+		 struct swarmCoord * carrot )
+{
+	enum {FIGEIGHT_STRAIGHT1, FIGEIGHT_CIRCLE1, FIGEIGHT_STRAIGHT2, FIGEIGHT_CIRCLE2};
+
+	switch (figEight->mode)
+	{
+	case FIGEIGHT_STRAIGHT1:
+			carrot->x = figEight->point1.x;
+			carrot->y = figEight->point1.y;
+			if (distanceToCoord( stateEstimate, &(figEight->point1)) < 3.0)
+				figEight->mode = FIGEIGHT_CIRCLE1;
+		break;
+
+	case FIGEIGHT_CIRCLE1:
+		circlePath( &(figEight->circle1), stateEstimate, carrot );
+		if (distanceToCoord( stateEstimate, &(figEight->point2)) < 3.0)
+			figEight->mode = FIGEIGHT_STRAIGHT2;
+		break;
+	case FIGEIGHT_STRAIGHT2:
+			carrot->x = figEight->point3.x;
+			carrot->y = figEight->point3.y;
+			if (distanceToCoord( stateEstimate, &(figEight->point3)) < 3.0)
+				figEight->mode = FIGEIGHT_CIRCLE2;
+		break;
+
+	case FIGEIGHT_CIRCLE2:
+		circlePath( &(figEight->circle2), stateEstimate, carrot );
+		if (distanceToCoord( stateEstimate, &(figEight->point4)) < 3.0)
+			figEight->mode = FIGEIGHT_STRAIGHT1;
+		break;
+
+	}
+
+}
+
+
+
+
 double distanceToCoord( struct swarmStateEstimate * stateEstimate, struct swarmCoord * thisCoord )
 {
 	double distance;

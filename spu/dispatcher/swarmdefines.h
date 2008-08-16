@@ -233,4 +233,20 @@ struct swarmCircle
   double carrotDistance;	// length to place carrot in front of current
 };
 
+struct swarmFigEight
+{
+  struct swarmCoord center;		// location of circle center
+  struct swarmCoord current;	// current position along circle circumference
+  double radius;
+  double carrotDistance;		// length to place carrot in front of current
+  struct swarmCircle circle1;
+  struct swarmCircle circle2;
+  struct swarmCoord point0;	// location of figure 8 center
+  struct swarmCoord point1;	// location of figure 8 center
+  struct swarmCoord point2;	// location of figure 8 center
+  struct swarmCoord point3;	// location of figure 8 center
+  struct swarmCoord point4;	// location of figure 8 center
+  int mode;
+};
+
 #endif
