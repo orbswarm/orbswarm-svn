@@ -35,6 +35,23 @@ void circleInit( struct swarmStateEstimate * stateEstimate, struct swarmCircle *
 void circlePath( struct swarmCircle * circle, struct swarmStateEstimate * stateEstimate,
 		 struct swarmCoord * carrot );
 
+// ------------------------------------------------------------------------
+// figEightInit
+//
+// Initializes a figure 8
+//
+// ------------------------------------------------------------------------
+void figEightInit( struct swarmStateEstimate * stateEstimate, struct swarmFigEight * figEight );
+
+// ------------------------------------------------------------------------
+// figEightPath
+//
+// Finds current location on the figure 8 path,
+// and figures out the carrot position
+// ------------------------------------------------------------------------
+void figEightPath( struct swarmFigEight * figEight, struct swarmStateEstimate * stateEstimate,
+		 struct swarmCoord * carrot );
+
 double distanceToCoord( struct swarmStateEstimate * stateEstimate, struct swarmCoord * thisCoord );
 
 
