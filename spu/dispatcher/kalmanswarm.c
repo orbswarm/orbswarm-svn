@@ -688,9 +688,9 @@ void covarianceSet( uFloat **Qk, uFloat **R )
   Qk[ STATE_xab ][ STATE_xab ] 		= 0.000005;
   Qk[ STATE_yab ][ STATE_yab ] 		= 0.00005;
   Qk[ STATE_zab ][ STATE_zab ] 		= 0.000005;
-  Qk[ STATE_xrb ][ STATE_xrb ] 		= 0.00005;
-  Qk[ STATE_zrb ][ STATE_zrb ]  	= 0.000001;
-  Qk[ STATE_yawb ][ STATE_yawb ]  	= 0.0000000001;
+  Qk[ STATE_xrb ][ STATE_xrb ] 		= 0.00002;
+  Qk[ STATE_zrb ][ STATE_zrb ]  	= 0.00002;
+  Qk[ STATE_yawb ][ STATE_yawb ]  	= 0.0000000003;
 
   matMultScalar( Qk, PERIOD, Qk, STATE_SIZE, STATE_SIZE );
 
@@ -703,11 +703,11 @@ void covarianceSet( uFloat **Qk, uFloat **R )
   R[ MEAS_za ][ MEAS_za ] 		= 1.0;
   R[ MEAS_xr ][ MEAS_xr ] 		= 0.1;
   R[ MEAS_zr ][ MEAS_zr ] 		= 0.2;
-  R[ MEAS_xg ][ MEAS_xg ] 		= 1.5;
-  R[ MEAS_yg ][ MEAS_yg ] 		= 1.5;
-  R[ MEAS_psig ][ MEAS_psig ] 	= PI;
-  R[ MEAS_vg ][ MEAS_vg ] 		= 1.0;
+  R[ MEAS_xg ][ MEAS_xg ] 		= 2.0;
+  R[ MEAS_yg ][ MEAS_yg ] 		= 2.0;
+  R[ MEAS_psig ][ MEAS_psig ] 	= PI/2.0;
+  R[ MEAS_vg ][ MEAS_vg ] 		= 0.5;
   R[ MEAS_omega ][ MEAS_omega ] = 0.1;
-  R[ MEAS_yaw ][ MEAS_yaw ] 	= 0.005;
+  R[ MEAS_yaw ][ MEAS_yaw ] 	= 0.003;
 }
 
