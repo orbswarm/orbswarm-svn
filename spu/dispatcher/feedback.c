@@ -46,11 +46,11 @@ void swarmFeedbackInit(void)
 	velocityPID.Kp 		= 5.0;
 	velocityPID.Ki 		= 0.0;
 	velocityPID.Kd 		= 0.0;
-	velocityPID.deadBand 	= 10.0;	// Set high to stop chatter, decrease for precision
-	velocityPID.minDrive 	= 60.0;
-	velocityPID.maxDrive 	= 200.0;
+	velocityPID.deadBand 	= 0.0;	// Set high to stop chatter, decrease for precision
+	velocityPID.minDrive 	= 0.0;
+	velocityPID.maxDrive 	= 0.0;
 	velocityPID.iSum 	= 0.0;
-	velocityPID.iLimit 	= 500.0;
+	velocityPID.iLimit 	= 10.0;
 	velocityPID.lastError 	= 0.0;
 
 }
