@@ -94,6 +94,9 @@ void startChildProcessToGronk(void) {
 	//double distanceToCarrot;
 	double thisYawRate;
 	struct swarmCircle circle;
+	struct swarmFigEight figEight;
+	int pathMode = 0;
+	int nextPath = 2;
 
 	zeroStateEstimates(&stateEstimate);
 
@@ -237,12 +240,6 @@ void startChildProcessToGronk(void) {
 					stateEstimate.x = 0;
 					stateEstimate.y = 0;
 					kalmanInit( &stateEstimate );
-					//carrot.x = 2000 * cos(stateEstimate.psi + PI/6);
-					//carrot.y = 2000 * sin(stateEstimate.psi + PI/6);
-					circle.carrotDistance = 2.0;
-					circle.radius = 9.0;
-					circle.direction = 1.0;
-					circleInit( &stateEstimate, &circle );
 				}
 
 				if (initCounter > 10){
@@ -300,8 +297,41 @@ void startChildProcessToGronk(void) {
 						stateEstimate.yawb);
 				logit(eMcuLog, eLogDebug, outputFileBuffer);
 
-				circlePath( &circle, &stateEstimate, &carrot );
-				swarmFeedbackProcess( &stateEstimate, &carrot, &feedback, buffer );
+				enum {PATH_JOYSTICK, PATH_CIRCLE, PATH_FIGEIGHT};
+				switch (pathMode)
+				{
+					case PATH_JOYSTICK:
+							if (nextPath == 1)
+							{
+								//carrot.x = 2000 * cos(stateEstimate.psi + PI/6);
+								//carrot.y = 2000 * sin(stateEstimate.psi + PI/6);
+								circle.carrotDistance = 2.0;
+								circle.radius = 9.0;
+								circle.direction = 1.0;
+								circleInit( &stateEstimate, &circle );
+
+								pathMode = PATH_CIRCLE;
+							}
+							if (nextPath == 2)
+							{
+								figEight.carrotDistance = 2.0;
+								figEight.radius = 10.0;
+								figEightInit( &stateEstimate, &figEight );
+
+								pathMode = PATH_FIGEIGHT;
+							}
+						break;
+
+					case PATH_CIRCLE:
+							circlePath( &circle, &stateEstimate, &carrot );
+							swarmFeedbackProcess( &stateEstimate, &carrot, &feedback, buffer );
+						break;
+
+					case PATH_FIGEIGHT:
+							figEightPath( &figEight, &stateEstimate, &carrot );
+							swarmFeedbackProcess( &stateEstimate, &carrot, &feedback, buffer );
+						break;
+				}
 
 				sprintf(controlFileBuffer, "\n%f,%f,%f,%f,%f,%f,%f %s",
 						(double)nowGronkTime.tv_sec + (double)nowGronkTime.tv_usec / 1000000,
@@ -320,10 +350,6 @@ void startChildProcessToGronk(void) {
 				if(thisSteeringValue < -100)
 					thisSteeringValue = -100;
 
-
-
-
-
 #ifndef JOYSTICK
 				sprintf(buffer, "$s%d*", thisSteeringValue );
 				logit(eMcuLog, eLogDebug, buffer);
@@ -333,12 +359,6 @@ void startChildProcessToGronk(void) {
 					drainSerialPort(com5);
 				}
 #endif
-				// waypoint
-				//distanceToCarrot = distanceToCoord( &stateEstimate, &carrot);
-				//sprintf(buffer, "\n distanceToCarrot: %f", distanceToCarrot);
-				//logit(eMcuLog, eLogDebug, buffer);
-				//if (distanceToCarrot < 5.0)
-				//	gronkMode = GRONK_COMPLETE;
 
 				break;
 
