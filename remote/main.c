@@ -5,10 +5,16 @@ http://www.orbswarm.com
 Adapted by Jonathan Foote (Head Rotor at rotorbrain.com)
 in 2008 from code orginally written by Petey the Programmer '07
 
-Version 1.2
+Version 1.2 (Coachella)
 
 * added deadband
 * changed from RGB to HSV
+
+Version 1.3 (BM 2008)
+
+* Increased power levels and deadband (40->60, 60->100 (turbo)
+* Added HALT and MODE SPU commands
+
 
 -- main.c --
 
@@ -28,7 +34,8 @@ Project: ORB Portable Transmitter using ATMega8L chip
 #include "a2d.h"
 
 /* list of available sound files */
-#include "soundlist.h"
+//#include "soundlist.h"
+#include "smallsound.h"
 
 #define LED_ON 0
 #define LED_OFF 1
@@ -127,15 +134,15 @@ char ccb[] = {0x00,0x00,0xFE,0xFE, 0x00,0xFE,0xFE,0x00};
 // Misc. numerical constants
 
 short steer_max=100;
-short drive_max=40;
-short drive_turbo=60;
+short drive_max=70;		/* was 40 */
+short drive_turbo=100;		/* was 60 */
 
-/* joysticks are nonlinear. Have more extension in neg direction */
-short negmax = 530;
-short posmax = 300;
 
-#define MINRDIFF ((short) 0x00) /* minimum diff for right (power) joyst */
-#define MINLDIFF ((short) 0x05) /* minimum diff for left  (illum) joyst */
+short negmax = 500;
+short posmax = 500;
+
+#define MINRDIFF ((short) 5) /* minimum diff for right (power) joyst */
+#define MINLDIFF ((short) 5) /* deadband for left  (illum) joyst */
 
 short deadband = 3; /* send zero if +/- deadband away from zero */
 
@@ -236,6 +243,7 @@ int main (void)
   unsigned char keys; 		/* PINB key pad (triggers, etc) */
   unsigned char sws;		/* PINC switces */
   short hue, val, diff;
+  short abshue, absval;
 
   Init_Chip();
   
@@ -268,10 +276,10 @@ int main (void)
 
       /* check voltage ref: are we below thresh?*/
       ch1 = A2D_read_channel(VREF);
-      if(debug_out & 1) {
-	putstr("\r\n VREF:");
-	putS16(ch1);
-      }
+/*       if(debug_out & 1) { */
+/* 	putstr("\r\n VREF:"); */
+/* 	putS16(ch1); */
+/*       } */
       if(ch1 > _2V70){ 		/* increasing VREF val means decreasing bat V */
 	low_batt = 1;
       }
@@ -282,7 +290,7 @@ int main (void)
       diff = ch1 - oldsteer;
       if (diff < 0) diff = -diff; /* abs value */
       
-      if(diff > MINRDIFF) {
+      if((diff > MINRDIFF)) {
 	send_addr(addr);
 	putstr("$s");
 	if(abs(ch1) < deadband) 
@@ -295,18 +303,23 @@ int main (void)
       oldsteer = ch1;
 
       ch2 = A2D_read_channel(JOYRY) - zero[JOYRY];
-      diff = ch2 - olddrive;
-      if (diff < 0) diff = -diff;
+
       if(debug_out & 0) {
 	putstr("\r\n ch2:");
 	putS16(ch2);
-	putstr(" diff: ");
-	putS16(diff);
+	putstr(" ch1:");
+	putS16(ch1);
       }
-      if(diff > MINRDIFF) {
+
+
+      diff = ch2 - olddrive;
+      if (diff < 0) diff = -diff;
+      if((diff > MINRDIFF) & 0 ) {
 	send_addr(addr);
 	putstr("$p");
-	if(ABS(ch2) < deadband) 
+	diff = ch2;
+	if (diff < 0) diff = -diff;
+	if(diff < deadband) 
 	  UART_send_byte('0');
 	else {
 	  if(~PINC & VIB_MAX)
@@ -321,11 +334,15 @@ int main (void)
       /* left joystick controls color */
       hue = A2D_read_channel(JOYLY) - zero[JOYLY];
       val = A2D_read_channel(JOYLX) - zero[JOYLX];
-      if((ABS(hue) > MINLDIFF) | 
-	 (ABS(val) > MINLDIFF) ){
+
+      abshue = (hue < 0) ? -hue : hue;
+      absval = (hue < 0) ? -val : val;
+      if((abshue > MINLDIFF) | 
+	 (absval > MINLDIFF) ){
 	do_joy_color(val,hue);
 
       }
+
       //oldhue = hue;
       //oldval = val;
 
@@ -424,12 +441,12 @@ void do_keys(unsigned char keys, unsigned char oldkeys){
   /* find key up transitions new key will be high, old key will be low*/
   keyup =  ~oldkeys & keys;
 
-  if(debug_out ){
-    putstr("\n\r kup: ");
-    putB8(keyup);
-    putstr(" kdwn: ");
-    putB8(keydown);
-  }
+/*   if(debug_out ){ */
+/*     putstr("\n\r kup: "); */
+/*     putB8(keyup); */
+/*     putstr(" kdwn: "); */
+/*     putB8(keydown); */
+/*   } */
 
   if(keydown & TRIGR1) {      /* R1 trigger button down */
     send_sound(addr,soundlist[sound++]);
@@ -461,13 +478,29 @@ void do_keys(unsigned char keys, unsigned char oldkeys){
     putstr("$p00*}");
     send_addr(addr);
     putstr("$s00*}");
+    send_addr(addr);
+    putstr("[HALT 0]}");
+
   }
   if(keydown & JOYBR) {		/* Do identification flash */
-    send_hue(addr, 0, 0, (unsigned char) 254);
-    send_hue(addr, 1, 0, (unsigned char) 254);
-    send_hue(addr, 2, 240, (unsigned char) 254);
-    send_hue(addr, 3, 240, (unsigned char) 254);
     send_light_cmd(addr, XVAL, 'C', XVAL);
+    /* send SPU command */
+    send_addr(addr);
+
+     putstr("[MODE "); 
+     switch(~keys & (TRIGL1 | TRIGL2)){
+     case TRIGL1: 
+       putstr("1]}"); 
+      break;
+    case TRIGL2:
+      putstr("2]}");
+      break;
+    case TRIGL1 + TRIGL2:
+      putstr("3]}");
+      break;
+    default:
+      putstr("0]}");
+    }
   }
 }
 
@@ -494,12 +527,12 @@ void do_joy_color(short val, short hue) {
   }
   else {
     
-    if(debug_out & 0) {
-      putstr("\r\n hue: ");
-      putS16(thishue); 
-      putstr(" val: ");
-      putS16(thisval); 
-    }
+    // if(debug_out & 0) {
+    //  putstr("\r\n hue: ");
+    //  putS16(thishue); 
+    //  putstr(" val: ");
+    //  putS16(thisval); 
+    //}
     send_hue(addr, XVAL, thishue, (unsigned char)thisval);
   }
 }
