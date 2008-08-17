@@ -36,6 +36,15 @@ void circlePath( struct swarmCircle * circle, struct swarmStateEstimate * stateE
 		 struct swarmCoord * carrot );
 
 // ------------------------------------------------------------------------
+// circleSynchro
+//
+// Finds current location on the circular path,
+// and figures out the carrot position
+// ------------------------------------------------------------------------
+void circleSynchro( struct swarmCircle * circle, struct swarmStateEstimate * stateEstimate,
+		 struct swarmCoord * carrot );
+
+// ------------------------------------------------------------------------
 // figEightInit
 //
 // Initializes a figure 8
@@ -52,8 +61,19 @@ void figEightInit( struct swarmStateEstimate * stateEstimate, struct swarmFigEig
 void figEightPath( struct swarmFigEight * figEight, struct swarmStateEstimate * stateEstimate,
 		 struct swarmCoord * carrot );
 
+// ------------------------------------------------------------------------
+// distanceToCoord
+//
+// returns the distance to a coordinate from current position
+// ------------------------------------------------------------------------
 double distanceToCoord( struct swarmStateEstimate * stateEstimate, struct swarmCoord * thisCoord );
 
-
+// ------------------------------------------------------------------------
+// phaseFromCoord
+//
+// returns the phase (as a distance) from a coordinate to current position,
+// in the coordinate's heading direction
+// ------------------------------------------------------------------------
+double phaseFromCoord( struct swarmStateEstimate * stateEstimate, struct swarmCoord * thisCoord );
 
 

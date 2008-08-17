@@ -268,6 +268,8 @@ void startChildProcessToGronk(void) {
 
 				kalmanProcess(&latestGpsCoordinatesInternalCopy, &imuData, &stateEstimate);
 
+				stateEstimate.time = (double)nowGronkTime.tv_sec + (double)nowGronkTime.tv_usec / 1000000;
+
 				sprintf(dataFileBuffer, "\n%f,%s,%f,%f,%f,%f,%f,%f,%s",
 						(double)nowGronkTime.tv_sec + (double)nowGronkTime.tv_usec / 1000000,
 						buffer,				// formatted IMU data
@@ -297,7 +299,7 @@ void startChildProcessToGronk(void) {
 						stateEstimate.yawb);
 				logit(eMcuLog, eLogDebug, outputFileBuffer);
 
-				enum {PATH_JOYSTICK, PATH_CIRCLE, PATH_FIGEIGHT};
+				enum {PATH_JOYSTICK, PATH_CIRCLE, PATH_FIGEIGHT, PATH_CIRCLESYNCHRO};
 				switch (pathMode)
 				{
 					case PATH_JOYSTICK:
@@ -320,6 +322,18 @@ void startChildProcessToGronk(void) {
 
 								pathMode = PATH_FIGEIGHT;
 							}
+							if (nextPath == 3)
+							{
+								//carrot.x = 2000 * cos(stateEstimate.psi + PI/6);
+								//carrot.y = 2000 * sin(stateEstimate.psi + PI/6);
+								circle.carrotDistance = 2.0;
+								circle.radius = 9.0;
+								circle.direction = 1.0;
+								circle.rate = 0.1;
+								circleInit( &stateEstimate, &circle );
+
+								pathMode = PATH_CIRCLESYNCHRO;
+							}
 						break;
 
 					case PATH_CIRCLE:
@@ -330,6 +344,20 @@ void startChildProcessToGronk(void) {
 					case PATH_FIGEIGHT:
 							figEightPath( &figEight, &stateEstimate, &carrot );
 							swarmFeedbackProcess( &stateEstimate, &carrot, &feedback, buffer );
+						break;
+					case PATH_CIRCLESYNCHRO:
+							circleSynchro( &circle, &stateEstimate, &carrot );
+							swarmFeedbackProcess( &stateEstimate, &carrot, &feedback, buffer );
+#ifndef JOYSTICK
+							sprintf(buffer, "$p%d*", (int)rint(feedback.vDes + 50.0) );
+							logit(eMcuLog, eLogDebug, buffer);
+							if (1)
+							{
+								writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
+								drainSerialPort(com5);
+							}
+#endif
+
 						break;
 				}
 

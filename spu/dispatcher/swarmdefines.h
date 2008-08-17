@@ -182,6 +182,7 @@ struct  swarmStateEstimate
   double xrb;
   double zrb;
   double yawb;
+  double time;
 };
 
 struct swarmFeedback
@@ -220,8 +221,9 @@ struct	swarmCoord
 
   double x;		// x position (meters East)
   double y;		// y position (meters North)
-  double psi;		// heading (radians counterclockwise from East)
+  double psi;	// heading (radians counterclockwise from East)
   double v;		// velocity
+  double phase; // phase (as a distance)
 };
 
 struct swarmCircle
@@ -231,6 +233,9 @@ struct swarmCircle
   double radius;
   double direction;		// right hand rule: +1 for counterclockwise, -1 for clockwise
   double carrotDistance;	// length to place carrot in front of current
+  double zeroTime;
+  double zeroPsi;
+  double rate;
 };
 
 struct swarmFigEight

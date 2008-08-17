@@ -43,7 +43,7 @@ void swarmFeedbackInit(void)
 	lateralPID.iLimit 	= 1.0;
 	lateralPID.lastError 	= 0.0;
 
-	velocityPID.Kp 		= 8.0;
+	velocityPID.Kp 		= 5.0;
 	velocityPID.Ki 		= 0.0;
 	velocityPID.Kd 		= 0.0;
 	velocityPID.deadBand 	= 10.0;	// Set high to stop chatter, decrease for precision
@@ -59,10 +59,10 @@ void swarmFeedbackProcess(struct swarmStateEstimate * stateEstimate,
 		struct swarmCoord * carrot, struct swarmFeedback * feedback, char * buffer )
 {
    lateralPID.error  =  headingError(stateEstimate, carrot);
-   // velocityPID.error = -xError * sin( target->nmea_course ) + yError * cos( target->nmea_course );
+   velocityPID.error =  carrot->phase;
 
-   feedback->deltaDes     = processPID( &lateralPID );
-   // swarmFeedback->vDes = processPID( &velocityPID ) + target->speed;
+   feedback->deltaDes     	= processPID( &lateralPID );
+   feedback->vDes 			= -processPID( &velocityPID );
 
    // debugPID( &lateralPID, stdout );
    debugPIDString( &lateralPID, buffer );
