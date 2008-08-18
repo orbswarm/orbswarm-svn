@@ -81,7 +81,7 @@ dispatcher: dispatcher.o serial.o spuutils.o scanner.o scan.h serial.h  gpsutils
 
 # version of dispatcher for remote control only...
 joypatcher: dispatcher.o serial.o spuutils.o scanner.o scan.h serial.h  gpsutils.o queues.o imuutils.h imuutils.o kalmanswarm.o kalman.o matmath.o pathfollow.o swarmipc.o feedback.o joygronk.o
-	$(CC) $(LFLAGS) -o dispatcher dispatcher.o serial.o spuutils.o scanner.o  gpsutils.o queues.o imuutils.o kalmanswarm.o kalman.o matmath.o pathfollow.o swarmipc.o feedback.o joygronk.o /opt/crosstool/arm-none-linux-gnueabi/arm-none-linux-gnueabi/sys-root/usr/lib/libm.a
+	$(CC) $(LFLAGS) -o joypatcher dispatcher.o serial.o spuutils.o scanner.o  gpsutils.o queues.o imuutils.o kalmanswarm.o kalman.o matmath.o pathfollow.o swarmipc.o feedback.o joygronk.o /opt/crosstool/arm-none-linux-gnueabi/arm-none-linux-gnueabi/sys-root/usr/lib/libm.a
 
 
 
