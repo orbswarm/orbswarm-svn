@@ -24,7 +24,14 @@
 #include "swarmipc.h"
 #include "pathfollow.h"
 
+
+/* set this define if joystick is in use */
 //#define JOYSTICK
+
+
+#ifdef JOYSTICK
+#warning JOYSTICK mode set: motor control output is disabled
+#endif
 
 extern Queue *mcuQueuePtr;
 extern swarmGpsData *latestGpsCoordinates;
@@ -97,6 +104,12 @@ void startChildProcessToGronk(void) {
 	struct swarmFigEight figEight;
 	int pathMode = 0;
 	int nextPath = 3;
+
+#ifdef JOYSTICK
+	logit(eMcuLog, eLogDebug, "\n Gronk is in JOYSTICK MODE (no motor control)");
+#else
+	logit(eMcuLog, eLogDebug, "\n Gronk is not in joy mode. Normal motor control.");
+#endif
 
 	zeroStateEstimates(&stateEstimate);
 
