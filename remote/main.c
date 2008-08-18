@@ -401,7 +401,7 @@ void send_light_cmd(char addr, unsigned char pod,  char cmd, unsigned char val){
 void send_sound(char start_addr, char end_addr, short soundnum, char *prefix){
   char dest;
   
-  for(dest=start_addr;dest<=end_addr;dest++){
+  for(dest=start_addr;dest<end_addr;dest++){
     send_addr(dest);
     putstr("<M ");
     if(soundnum == STOP_SOUND) {
@@ -467,11 +467,11 @@ void do_keys(unsigned char keys, unsigned char oldkeys){
   }
   else {
     start_addr = addr;
-    end_addr = addr;
+    end_addr = addr+1;
   }
 
   if(keydown & TRIGR1) {      /* R1 trigger button down */
-    if(~keys & TRIGL1) {      /* if mode, advance sound count */
+    if((keys | ~TRIGL1)) {      /* if not mode, advance sound count */
       if(++happysoundcount >= NUM_HAPPYSOUNDS) {
 	happysoundcount = 0;
       }
@@ -479,7 +479,7 @@ void do_keys(unsigned char keys, unsigned char oldkeys){
     send_sound(start_addr,end_addr, happysoundcount, "h");
   }
   if(keydown & TRIGR2) {      /* R2 trigger button down */
-    if(~keys & TRIGL1) {      /* if mode, advance sound count */
+    if((keys | ~TRIGL1)) {      /* if not mode, advance sound count */
       if(++angrysoundcount >= NUM_HAPPYSOUNDS);
       angrysoundcount = 0;
     }
