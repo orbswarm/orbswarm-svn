@@ -14,7 +14,7 @@ Version 1.3 (BM 2008)
 
 * Increased power levels and deadband (40->60, 60->100 (turbo)
 * Added HALT and MODE SPU commands
-
+* new soundinterface
 
 -- main.c --
 
@@ -36,6 +36,23 @@ Project: ORB Portable Transmitter using ATMega8L chip
 /* list of available sound files */
 //#include "soundlist.h"
 #include "smallsound.h"
+
+
+short steer_max=100;
+short drive_max=70;		/* was 40 */
+short drive_turbo=100;		/* was 60 */
+
+short negmax = 500;
+short posmax = 500;
+
+#define MINRDIFF ((short) 5) /* minimum diff for right (power) joyst */
+#define MINLDIFF ((short) 5) /* deadband for left  (illum) joyst */
+
+#define NUM_HAPPYSOUNDS 16
+#define NUM_ANGRYSOUNDS 16
+#define NUM_SONGSOUNDS  8
+#define NUM_ORBS 6
+#define STOP_SOUND 99 	/* special sound number token to send stop cmd */
 
 #define LED_ON 0
 #define LED_OFF 1
@@ -103,7 +120,8 @@ void send_addr(unsigned char addr);
 void send_hue(char addr, unsigned char pod, short hue, unsigned char val);
 void send_index_color(char addr, unsigned char pod, unsigned char index);
 void send_light_cmd(char addr, unsigned char pod, char cmd, unsigned char val);
-void send_sound(char addr, char* soundname);
+void send_sound(char start_addr, char end_addr, short soundnum, char *prefix);
+void send_song(short soundnum, char *prefix);
 void do_keys(unsigned char keys, unsigned char oldkeys);
 void do_joy_color(short joyx, short joyy);
 
@@ -133,17 +151,6 @@ char ccb[] = {0x00,0x00,0xFE,0xFE, 0x00,0xFE,0xFE,0x00};
 
 // Misc. numerical constants
 
-short steer_max=100;
-short drive_max=70;		/* was 40 */
-short drive_turbo=100;		/* was 60 */
-
-
-short negmax = 500;
-short posmax = 500;
-
-#define MINRDIFF ((short) 5) /* minimum diff for right (power) joyst */
-#define MINLDIFF ((short) 5) /* deadband for left  (illum) joyst */
-
 short deadband = 3; /* send zero if +/- deadband away from zero */
 
 short thishue = 0; /* current hue */
@@ -164,8 +171,9 @@ char low_batt=0;		/* set if battery low condition) */
 
 /* indexes */
 unsigned char color = 0; 	/* points to current color in array */
-unsigned char sound = 0;	/* points to current sound in array */
-
+unsigned char happysoundcount = 0;	/* points to current sound in array */
+unsigned char angrysoundcount = 0;	/* points to current sound in array */
+unsigned char songsoundcount = 0;
 
 // Init hardware
 // This stuff is very chip dependant
@@ -207,20 +215,12 @@ void Init_Chip(void)
   thishue = addr*60 + 20;
   thisval = 127;
 
-  if(debug_out){
-    putstr("Remote v1.2 at addr: " );
-    putU8(addr);
-    putstr("\r\n");
-  }
-  else { 			/* wake up Zigbee */
-    putstr("Remote v1.2\r\n" );
-  }
+  putstr("Remote v1.3\r\n" );
 
   send_light_cmd(addr, XVAL, 'H', thishue); 
   send_light_cmd(addr, XVAL, 'V', (unsigned char) thisval); 
   send_light_cmd(addr, XVAL, 'F',XVAL); 
   
-
 
   /* and blink status LED that many times */
   for (i=0; i<addr; i++) {
@@ -276,10 +276,6 @@ int main (void)
 
       /* check voltage ref: are we below thresh?*/
       ch1 = A2D_read_channel(VREF);
-/*       if(debug_out & 1) { */
-/* 	putstr("\r\n VREF:"); */
-/* 	putS16(ch1); */
-/*       } */
       if(ch1 > _2V70){ 		/* increasing VREF val means decreasing bat V */
 	low_batt = 1;
       }
@@ -303,15 +299,6 @@ int main (void)
       oldsteer = ch1;
 
       ch2 = A2D_read_channel(JOYRY) - zero[JOYRY];
-
-      if(debug_out & 0) {
-	putstr("\r\n ch2:");
-	putS16(ch2);
-	putstr(" ch1:");
-	putS16(ch1);
-      }
-
-
       diff = ch2 - olddrive;
       if (diff < 0) diff = -diff;
       if((diff > MINRDIFF) & 0 ) {
@@ -335,12 +322,22 @@ int main (void)
       hue = A2D_read_channel(JOYLY) - zero[JOYLY];
       val = A2D_read_channel(JOYLX) - zero[JOYLX];
 
+      if(debug_out) {
+	putstr("\n\rD:");
+	putS16(ch2);
+	putstr(" S:");
+	putS16(ch1);
+	putstr(" H:");
+	putS16(hue);
+	putstr(" V:");
+	putS16(val);
+      }
+
       abshue = (hue < 0) ? -hue : hue;
       absval = (hue < 0) ? -val : val;
       if((abshue > MINLDIFF) | 
 	 (absval > MINLDIFF) ){
 	do_joy_color(val,hue);
-
       }
 
       //oldhue = hue;
@@ -401,37 +398,52 @@ void send_light_cmd(char addr, unsigned char pod,  char cmd, unsigned char val){
 }
 
 /* generate a sound command (null soundname sends "stop") */
-void send_sound(char addr, char* soundname){
-
-  if (~PINC & MACRO) {
-    for(addr=0;addr<6;addr++){
-      send_addr(addr);
-      putstr("<M ");
-      if(soundname != NULL) {
-	putstr("VPF ");
-	putstr(soundname);
-	putstr(".mp3>}");
-      }
-      else
-	putstr("VST>}");
-    }
-  }
-  else {
-    send_addr(addr);
+void send_sound(char start_addr, char end_addr, short soundnum, char *prefix){
+  char dest;
+  
+  for(dest=start_addr;dest<=end_addr;dest++){
+    send_addr(dest);
     putstr("<M ");
-    if(soundname != NULL) {
+    if(soundnum == STOP_SOUND) {
+      putstr("VST>}");
+    }
+    else{
       putstr("VPF ");
-      putstr(soundname);
+      putstr(prefix);
+      putS16(soundnum);
       putstr(".mp3>}");
     }
-    else
-      putstr("VST>}");  
+  }
+}
+
+
+/* generate a song command (null soundname sends "stop") */
+void send_song(short soundnum, char *prefix){
+  
+  char dest = 0; 		/* address of destination orb */
+  for(dest=0;dest<NUM_ORBS;dest++){
+    send_addr(dest);
+    putstr("<M ");
+    if(soundnum == STOP_SOUND) {
+      putstr("VST>}");
+    }
+    else {
+      putstr("VPF ");
+      putstr(prefix);
+      putS16(soundnum);
+      putstr("_");
+      UART_send_byte(dest + '0');
+      putstr(".mp3>}");
+    }
   }
 }
 
 void do_keys(unsigned char keys, unsigned char oldkeys){
   unsigned char keydown = 0;
   unsigned char keyup = 0;
+  unsigned char start_addr=0;
+  unsigned char end_addr=0;
+
 
   /* find key down transitions: oldkey bits will be high (pullup) */
   /* new key down bits will be low */
@@ -448,29 +460,49 @@ void do_keys(unsigned char keys, unsigned char oldkeys){
 /*     putB8(keydown); */
 /*   } */
 
-  if(keydown & TRIGR1) {      /* R1 trigger button down */
-    send_sound(addr,soundlist[sound++]);
-    if (sound >= nfiles)
-      sound = 0;
+
+  if (~PINC & MACRO) { 		/* send to all orbs if macro down */
+    start_addr = 0;
+    end_addr = NUM_ORBS;
   }
-  if(keydown & TRIGR2) {      /* R2 trigger button down */
-    send_sound(addr,soundlist[sound--]);
-    if (sound >= nfiles)		/* wrap around */
-      sound = nfiles-1;
-    identify=0;
+  else {
+    start_addr = addr;
+    end_addr = addr;
   }
 
-  if(keydown & TRIGL1) {      /* L1 trigger button down */
-    send_index_color(addr,XVAL,color++);
-    if (color >=6)
-      color=0;
-    identify=0;
+  if(keydown & TRIGR1) {      /* R1 trigger button down */
+    if(~keys & TRIGL1) {      /* if mode, advance sound count */
+      if(++happysoundcount >= NUM_HAPPYSOUNDS) {
+	happysoundcount = 0;
+      }
+    }
+    send_sound(start_addr,end_addr, happysoundcount, "h");
   }
+  if(keydown & TRIGR2) {      /* R2 trigger button down */
+    if(~keys & TRIGL1) {      /* if mode, advance sound count */
+      if(++angrysoundcount >= NUM_HAPPYSOUNDS);
+      angrysoundcount = 0;
+    }
+    send_sound(start_addr,end_addr, angrysoundcount, "a");
+  }
+
+  /* no response to L1 (MODE) */
+
   /* turn off lights and sounds with TL2 */
   if(keydown & TRIGL2) {      /* L2 trigger button down */
-    send_light_cmd(addr, XVAL, 'V', 0); 
-    send_light_cmd(addr, XVAL, 'F', XVAL); 
-    send_sound(addr,NULL);	   /* turn off sounds */
+    if(~keys & TRIGL1) {      /* if mode, turn off lights */
+      send_light_cmd(addr, XVAL, 'V', 0); 
+      send_light_cmd(addr, XVAL, 'F', XVAL); 
+    }
+    else if (~PINC & MACRO){ 	/* if macro btn down, send song */
+      if(++songsoundcount >= NUM_SONGSOUNDS) {
+	songsoundcount = 0;
+      }
+      send_song(songsoundcount, "song");
+    }
+    else { /* send stop sound command */
+      send_song(STOP_SOUND,NULL);
+    }
   }
 
   if(keydown & JOYBL) {		/* the stop button (joyr) was pressed */
@@ -507,61 +539,31 @@ void do_keys(unsigned char keys, unsigned char oldkeys){
 
 void do_joy_color(short val, short hue) {
 
+  char dest = 0;
   hue = linearize(hue,20); 
   thishue += hue;
+
   if(thishue > 360) thishue -= 360;
   if(thishue < 0 ) thishue += 360;
 
   val = linearize(val,-10); 
-
   thisval += val;
+
   if((short)thisval >=254) 
     thisval = 254;
   if((short)thisval <=1) 
     thisval = 1;
 
   if (~PINC & MACRO) {
-    for(addr=0;addr<6;addr++){
-      send_hue(addr, XVAL, thishue, (unsigned char)thisval);
+    for(dest=0;dest<NUM_ORBS;dest++){
+      send_hue(dest, XVAL, thishue, (unsigned char)thisval);
     }
   }
   else {
-    
-    // if(debug_out & 0) {
-    //  putstr("\r\n hue: ");
-    //  putS16(thishue); 
-    //  putstr(" val: ");
-    //  putS16(thisval); 
-    //}
     send_hue(addr, XVAL, thishue, (unsigned char)thisval);
   }
 }
-
-#ifdef FOO
-void do_joy_abs_color(short val, short hue) {
-  unsigned char  a;
-
-  hue = linearize(hue,180) + 180 + charhue; 
-  if(hue > 360) hue -= 360;
-  val = linearize(val,-127) + 127; 
-
-  if (~PINC & MACRO) {
-    for(a=0;a<6;a++){
-      send_hue(a, XVAL, hue, (unsigned char)val);
-    }
-  }
-  else {
-    
-    if(debug_out & 0) {
-      putstr("\r\n hue: ");
-      putS16(hue); 
-      putstr(" val: ");
-      putS16(val); 
-    }
-    send_hue(addr, XVAL, hue, (unsigned char)val);
-  }
-}
-#endif
+ 
 
 // for debugging - use PortB 4:5 output pins to control LEDs on STK500 board.
 //				 - use PortC 5 for LED on Olimex board
@@ -594,7 +596,6 @@ void do_heartbeat(unsigned char *state)
     if (*state == 0) {
       setLED(STAT_LED,LED_ON);
       *state = 1;
-      //if(debug_out)putstr("hb 1");
       setLED(BATT_LED,LED_OFF); /* always turn off so we don't get stuck */
 
     }
@@ -603,10 +604,7 @@ void do_heartbeat(unsigned char *state)
       if(low_batt)
 	setLED(BATT_LED,LED_ON);
       *state = 0;
-      //if(debug_out) putstr("hb 0");
     }
-    
-
   }
 }
 
