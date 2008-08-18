@@ -46,13 +46,12 @@ short negmax = 500;
 short posmax = 500;
 
 #define MINRDIFF ((short) 5) /* minimum diff for right (power) joyst */
-#define MINLDIFF ((short) 5) /* deadband for left  (illum) joyst */
+#define MINLDIFF ((short) 10) /* deadband for left  (illum) joyst */
 
 #define NUM_HAPPYSOUNDS 16
 #define NUM_ANGRYSOUNDS 16
 #define NUM_SONGSOUNDS  8
 #define NUM_ORBS 6
-#define STOP_SOUND 99 	/* special sound number token to send stop cmd */
 
 #define LED_ON 0
 #define LED_OFF 1
@@ -286,7 +285,7 @@ int main (void)
       diff = ch1 - oldsteer;
       if (diff < 0) diff = -diff; /* abs value */
       
-      if((diff > MINRDIFF)) {
+      if(diff > MINRDIFF) {
 	send_addr(addr);
 	putstr("$s");
 	if(abs(ch1) < deadband) 
@@ -301,7 +300,7 @@ int main (void)
       ch2 = A2D_read_channel(JOYRY) - zero[JOYRY];
       diff = ch2 - olddrive;
       if (diff < 0) diff = -diff;
-      if((diff > MINRDIFF) & 0 ) {
+      if(diff > MINRDIFF ) {
 	send_addr(addr);
 	putstr("$p");
 	diff = ch2;
@@ -334,12 +333,12 @@ int main (void)
       }
 
       abshue = (hue < 0) ? -hue : hue;
-      absval = (hue < 0) ? -val : val;
+      absval = (val < 0) ? -val : val;
       if((abshue > MINLDIFF) | 
 	 (absval > MINLDIFF) ){
 	do_joy_color(val,hue);
       }
-
+      
       //oldhue = hue;
       //oldval = val;
 
@@ -404,7 +403,7 @@ void send_sound(char start_addr, char end_addr, short soundnum, char *prefix){
   for(dest=start_addr;dest<end_addr;dest++){
     send_addr(dest);
     putstr("<M ");
-    if(soundnum == STOP_SOUND) {
+    if(prefix == NULL) {
       putstr("VST>}");
     }
     else{
@@ -424,7 +423,7 @@ void send_song(short soundnum, char *prefix){
   for(dest=0;dest<NUM_ORBS;dest++){
     send_addr(dest);
     putstr("<M ");
-    if(soundnum == STOP_SOUND) {
+    if(prefix==NULL) {
       putstr("VST>}");
     }
     else {
@@ -471,7 +470,7 @@ void do_keys(unsigned char keys, unsigned char oldkeys){
   }
 
   if(keydown & TRIGR1) {      /* R1 trigger button down */
-    if((keys | ~TRIGL1)) {      /* if not mode, advance sound count */
+    if(~keys & TRIGL1) {      /* if mode, advance sound count */
       if(++happysoundcount >= NUM_HAPPYSOUNDS) {
 	happysoundcount = 0;
       }
@@ -479,7 +478,7 @@ void do_keys(unsigned char keys, unsigned char oldkeys){
     send_sound(start_addr,end_addr, happysoundcount, "h");
   }
   if(keydown & TRIGR2) {      /* R2 trigger button down */
-    if((keys | ~TRIGL1)) {      /* if not mode, advance sound count */
+    if(~keys & TRIGL1) {      /* if mode, advance sound count */
       if(++angrysoundcount >= NUM_HAPPYSOUNDS);
       angrysoundcount = 0;
     }
@@ -495,13 +494,17 @@ void do_keys(unsigned char keys, unsigned char oldkeys){
       send_light_cmd(addr, XVAL, 'F', XVAL); 
     }
     else if (~PINC & MACRO){ 	/* if macro btn down, send song */
-      if(++songsoundcount >= NUM_SONGSOUNDS) {
+      if(songsoundcount & 0x01) /* if odd count, send all stop */
+	send_song(0, NULL);
+      else
+	send_song((songsoundcount>>1), "song");
+      if(++songsoundcount >= (NUM_SONGSOUNDS << 1)) {
 	songsoundcount = 0;
       }
-      send_song(songsoundcount, "song");
+
     }
     else { /* send stop sound command */
-      send_song(STOP_SOUND,NULL);
+      send_sound(start_addr,end_addr, 0, NULL);
     }
   }
 
@@ -515,14 +518,14 @@ void do_keys(unsigned char keys, unsigned char oldkeys){
 
   }
   if(keydown & JOYBR) {		/* Do identification flash */
+    send_light_cmd(addr, XVAL, 'T', 50); 
     send_light_cmd(addr, XVAL, 'C', XVAL);
     /* send SPU command */
     send_addr(addr);
-
-     putstr("[MODE "); 
-     switch(~keys & (TRIGL1 | TRIGL2)){
-     case TRIGL1: 
-       putstr("1]}"); 
+    putstr("[MODE "); 
+    switch(~keys & (TRIGL1 | TRIGL2)){
+    case TRIGL1: 
+      putstr("1]}"); 
       break;
     case TRIGL2:
       putstr("2]}");
@@ -546,13 +549,18 @@ void do_joy_color(short val, short hue) {
   if(thishue > 360) thishue -= 360;
   if(thishue < 0 ) thishue += 360;
 
-  val = linearize(val,-10); 
+  val = linearize(val,-15); 
+  if(debug_out & 0){
+    putstr("\n\r linval: ");
+    putS16(val);
+  }
+
   thisval += val;
 
   if((short)thisval >=254) 
     thisval = 254;
   if((short)thisval <=1) 
-    thisval = 1;
+    thisval = 0;
 
   if (~PINC & MACRO) {
     for(dest=0;dest<NUM_ORBS;dest++){
@@ -623,7 +631,6 @@ short linearize(short input, short scale)
     value = value / (float)posmax;
   else
     value = (value / (float)negmax);
-
       
   return((short)(value*scale));
 }

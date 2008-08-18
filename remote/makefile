@@ -8,7 +8,7 @@ TARGET=atmega8
 
 #set programmer here
 PGMR = stk500v2 
-#PGMR = usbtiny 
+PGMR = usbtiny 
 
 # set avrdude COM port here
 
