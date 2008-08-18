@@ -25,8 +25,8 @@
 
 //#define COM1 "/dev/ttyS0"
 #define COM2 "/dev/ttyS1" //aggr
-#define COM3 "/dev/ttts4" //led
-//#define COM3 "/dev/ttts5" //led
+//#define COM3 "/dev/ttts4" //led
+#define COM3 "/dev/ttts5" //led
 #define COM5 "/dev/ttts6" //mcu
 
 

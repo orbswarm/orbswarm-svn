@@ -96,7 +96,7 @@ void startChildProcessToGronk(void) {
 	struct swarmCircle circle;
 	struct swarmFigEight figEight;
 	int pathMode = 0;
-	int nextPath = 2;
+	int nextPath = 3;
 
 	zeroStateEstimates(&stateEstimate);
 

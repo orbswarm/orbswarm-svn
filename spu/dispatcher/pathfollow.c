@@ -51,6 +51,7 @@ void circleInit( struct swarmStateEstimate * stateEstimate, struct swarmCircle *
   circle->center.x   = stateEstimate->x - circle->radius * cos(circle->center.psi);
   circle->center.y   = stateEstimate->y - circle->radius * sin(circle->center.psi);
   circle->zeroTime	 = stateEstimate->time;
+  circle->zeroPsi    = circle->center.psi;
 }
 
 
@@ -139,7 +140,7 @@ void figEightInit( struct swarmStateEstimate * stateEstimate, struct swarmFigEig
 
 	circleInit(&circleState, &(figEight->circle1));
 
-	figEight->mode = 1;
+	figEight->mode = 0;
 
 }
 
@@ -158,25 +159,25 @@ void figEightPath( struct swarmFigEight * figEight, struct swarmStateEstimate * 
 	case FIGEIGHT_STRAIGHT1:
 			carrot->x = figEight->point1.x;
 			carrot->y = figEight->point1.y;
-			if (distanceToCoord( stateEstimate, &(figEight->point1)) < 3.0)
+			if (distanceToCoord( stateEstimate, &(figEight->point1)) < 5.0)
 				figEight->mode = FIGEIGHT_CIRCLE1;
 		break;
 
 	case FIGEIGHT_CIRCLE1:
 		circlePath( &(figEight->circle1), stateEstimate, carrot );
-		if (distanceToCoord( stateEstimate, &(figEight->point2)) < 3.0)
+		if (distanceToCoord( stateEstimate, &(figEight->point2)) < 5.0)
 			figEight->mode = FIGEIGHT_STRAIGHT2;
 		break;
 	case FIGEIGHT_STRAIGHT2:
 			carrot->x = figEight->point3.x;
 			carrot->y = figEight->point3.y;
-			if (distanceToCoord( stateEstimate, &(figEight->point3)) < 3.0)
+			if (distanceToCoord( stateEstimate, &(figEight->point3)) < 5.0)
 				figEight->mode = FIGEIGHT_CIRCLE2;
 		break;
 
 	case FIGEIGHT_CIRCLE2:
 		circlePath( &(figEight->circle2), stateEstimate, carrot );
-		if (distanceToCoord( stateEstimate, &(figEight->point4)) < 3.0)
+		if (distanceToCoord( stateEstimate, &(figEight->point4)) < 5.0)
 			figEight->mode = FIGEIGHT_STRAIGHT1;
 		break;
 
