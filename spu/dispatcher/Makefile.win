@@ -1,0 +1,79 @@
+#Makefile for Windows -- CodeSourcery. Download from here
+#ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7800-linux/cross-toolchains
+
+# assumes something like C:/Program Files/CodeSourcery/Sourcery G++/arm-none-linux-gnueabi/bin/" is in your path
+
+WINCC = arm-none-linux-gnueabi-gcc.exe
+
+NATIVECC = c:/cygwin/bin/gcc.exe
+
+CC = $(WINCC)
+
+
+# Version
+VERSION = 0.0.1
+
+# Compiler flags
+CFLAGS = -Wall -Wno-unused-parameter  -O2 
+# Linker flags
+LFLAGS =  -static -O2 -s -pipe -lm
+
+#scan.c is automatically generated from scan.y by lemon
+#scanfrontend.c has support code and lexical analyser for the lemon scanner
+
+all: dispatcher 
+scanner.o scan.h: scan.c scan.y scanfrontend.c
+	cat scan.c scanfrontend.c  > scanner.c
+	$(CC) -c -o scanner.o $(CFLAGS) scanner.c
+
+scan.c: scan.y 
+	./lemon scan.y ; rm -f scanner.c
+
+lemon: lemon.c
+	$(NATIVECC) -o $@ $(CFLAGS)  $<
+
+gpsutils.o: gpsutils.c 
+	$(CC) -c -o $@ $(CFLAGS)  $<
+
+queues.o: queues.c queues.h
+	$(CC) -c -o $@ $(CFLAGS)  $<
+
+gronkulator.o: gronkulator.c
+	$(CC) -c -o $@ $(CFLAGS)  $<
+
+kalmanswarm.o: kalmanswarm.c
+	$(CC) -c -o $@ $(CFLAGS)  $<
+
+kalman.o: kalman.c
+	$(CC) -c -o $@ $(CFLAGS)  $<
+
+matmath.o: matmath.c
+	$(CC) -c -o $@ $(CFLAGS)  $<
+
+pathfollow.o: pathfollow.c
+	$(CC) -c -o $@ $(CFLAGS)  $<
+
+swarmipc.p: swarmipc.c swarmdefines.h scanner.h queues.h
+	$(CC) -c -o $@ $(CFLAGS) $<
+
+feedback.o: feedback.c
+	$(CC) -c -o $@ $(CFLAGS)  $<
+
+%.o : %.c scan.h
+	$(CC) -c -o $@ $(CFLAGS)  $<
+
+testharness: scanner.o testharness.o scan.h gpsutils.o queues.o 	
+	$(CC) $(LFLAGS) -o testharness scanner.o testharness.o gpsutils.o /usr/lib/libm.a
+
+dispatcher: dispatcher.o serial.o spuutils.o scanner.o scan.h serial.h  gpsutils.o queues.o imuutils.h imuutils.o kalmanswarm.o kalman.o matmath.o pathfollow.o swarmipc.o feedback.o gronkulator.o
+	$(CC) $(LFLAGS) -o dispatcher dispatcher.o serial.o spuutils.o scanner.o  gpsutils.o queues.o imuutils.o kalmanswarm.o kalman.o matmath.o pathfollow.o swarmipc.o feedback.o gronkulator.o "C:\Program Files\CodeSourcery\Sourcery G++\arm-none-linux-gnueabi\libc\usr\lib\libm.a"
+
+
+
+install: dispatcher
+	chmod +x $<
+	../transfer.sh $<
+clean:	
+	rm  -f  test *.o scan.c scan.h scan.out dispatcher gpsutils
+
+
