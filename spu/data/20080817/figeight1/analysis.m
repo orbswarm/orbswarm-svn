@@ -14,24 +14,13 @@ close all;
 load -ascii sensordata;
 load -ascii kalmandata;
 
-radius = 9;
-state_psi = -pi/5;
-center_psi = state_psi + 1 * (pi/2) + pi;
-center_x   = - radius * cos(center_psi);
-center_y   = - radius * sin(center_psi);
-circ_theta = linspace(0,2*pi);
-circ_x = radius * cos( circ_theta )+center_x;
-circ_y = radius * sin( circ_theta )+center_y;
-
 initialbias = kalmandata(1,:);
 
 figure;
 plot(sensordata(:,7),sensordata(:,8),"r");
 hold;
 plot(kalmandata(:,8),kalmandata(:,9),"b");
-plot(circ_x, circ_y, 'g');
-grid;
-title('Overhead - GPS in Red, Kalman in Blue, Circle in Green');
+title('Overhead - GPS in Red, Kalman in Blue');
 
 figure;
 plot([kalmandata(:,3) .38*sensordata(:,11) sensordata(:,10)]);
@@ -41,5 +30,5 @@ figure;
 plot( [sensordata(:,9) + round((kalmandata(:,7)-sensordata(:,9))/(2*pi))*2*pi kalmandata(:,7)]);
 title('Heading (rad ccw vs East)');
 
-my_data = [sensordata(:,4) sensordata(:,5) sensordata(:,6) sensordata(:,2) sensordata(:,3) sensordata(:,7) sensordata(:,8) sensordata(:,9) sensordata(:,10) sensordata(:,11) sensordata(:,12)];
+my_data = [sensordata(:,4) sensordata(:,5) sensordata(:,6) sensordata(:,2) sensordata(:,3) sensordata(:,7) sensordata(:,8) sensordata(:,9) sensordata(:,10) sensordata(:,11)];
 save -text full_data my_data
