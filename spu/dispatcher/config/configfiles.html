@@ -1,0 +1,272 @@
+<HTML>
+<HEAD>
+<TITLE>Program Configuration Files in Linux</TITLE>
+</HEAD>
+<BODY TEXT="black" BGCOLOR="white">
+
+<H1>
+<TT><FONT COLOR="green">Program Configuration Files in Linux</FONT></TT></H1>
+
+<DIV ALIGN=right>
+<H3>
+<TT>By: Kerry D. Mathews II July 20th 1997</TT></H3></DIV>
+
+<PRE><TT>Have you ever looked at the initialization files from other programs&nbsp;
+and said: "I wish my Linux app could read init files like that?"</TT></PRE>
+
+<PRE><TT>Well, hold your breath no longer.&nbsp;
+
+In this short article, I'll go over some code that will make it possible.&nbsp;
+I've made a single function that will perform reading the configuration file,
+but not write. The reason is i felt it was unneccesary overhead to launch
+a program just to modify its configuration file. In my approach, I can use
+any ordinary text editor (e.g. vim), after all why re-invent the wheel.&nbsp;&nbsp;
+
+The code, for this function, will essentially search a file for a <FONT COLOR="red">KEYWORD</FONT>&nbsp;
+and then grab corresponding <FONT COLOR="red">VALUE</FONT>.</TT></PRE>
+
+<PRE><TT><B>Requirements:</B> A function that takes two parameters, a filename, keyword,&nbsp;
+and retrieves a corresponding value. Returning an appropriate execution
+status (error value) is also needed.</TT></PRE>
+
+<PRE><TT>First ponder the reasons for having to read values from a file. (hmm..)&nbsp;
+
+Well, it:</TT></PRE>
+
+<OL>
+<LI>
+<TT>Avoids passing parameters on the command line.</TT></LI>
+
+<LI>
+<TT>It also avoids having to hardcode values in the executable.</TT></LI>
+
+<LI>
+<TT>And thirdly, it is very ergonomic to the administrator of that program.</TT></LI>
+</OL>
+
+<PRE><TT>For the rest of this article, I'll refer to the parameter file as:&nbsp;
+the Config File. But please remember it fills the role of an init file&nbsp;
+and a runtime parameter file.</TT></PRE>
+
+<PRE><B><TT>Minor requirements are:</TT></B></PRE>
+
+<UL>
+<LI>
+<TT>The Config File should be flat ascii. That avoids user editing problems.</TT></LI>
+
+<LI>
+<TT>Any one keyword/value combination will take up only one line.</TT></LI>
+
+<LI>
+<TT>The maximum length of the keyword/value is set to 80 (and trailing
+'\n').</TT></LI>
+
+<LI>
+<TT>The connector between keyword and value will be the equals sign "=".</TT></LI>
+</UL>
+
+<PRE><TT>Enough requirements.
+We are now ready to examine the Config file.</TT></PRE>
+
+<PRE>
+<TT>Again, I do things as simple as possible. I only expect to get a string&nbsp;
+value from the Config file. You can take the code and modify it to your&nbsp;
+requirements. A single entry in the Config file cannot span more (or less)
+than 1 line. Entries into the Config file should look like&nbsp;
+"{keyword}={value}\n" ... in psuedo code of course.
+
+Valid entries in a Config File should look like:</TT></PRE>
+
+<UL>
+<UL>
+<PRE><TT>scanner1=/dev/tty3a</TT></PRE>
+
+<PRE><TT>WATERHOSE=199.200.11.31</TT></PRE>
+
+<PRE><TT>dinner_time=11pm GMT</TT></PRE>
+
+<PRE><TT>Colonels_Secret_Ingredient=salt</TT></PRE>
+</UL>
+</UL>
+
+<PRE><TT>That looks good. Easy enough for my seven year old daughter to maintain.&nbsp; :)</TT></PRE>
+
+<PRE><TT>The returned value is a NULL terminated string containing all the characters&nbsp;
+after the first "=" and up to, but not including, the '\n'.</TT></PRE>
+
+<PRE><TT>From the examples above we can say:&nbsp;
+For keyword: [WATERHOSE] the value is: [199.200.11.31]&nbsp;
+For keyword: [dinner_time] the value is: [11pm GMT]</TT></PRE>
+
+<PRE><TT>We can conclude that spaces, tabs, and other characters will be included&nbsp;
+in the value variable.</TT></PRE>
+
+<PRE><TT>I am satisfied with the Config File and the keyword/value synergy.&nbsp;
+Let's look at the code next.</TT></PRE>
+
+<PRE>
+
+<TT>The name and prototype of our new found functions is:
+
+
+<HR WIDTH="100%">
+<FONT COLOR="green">int read_config_var( char *values_file, char *keyword , char value[] );
+
+
+<HR WIDTH="100%">
+</FONT>The char *<B>values_file</B> is the <B>full path name</B> of the Config File.&nbsp;
+The char *<B>keyword</B> is the <B>keyword</B>.&nbsp;
+The char <B>value</B>[] is an <B>array </B>that is filled by read_config_var().
+
+The return values are:</TT></PRE>
+
+<UL>
+<LI>
+<TT>zero for Flawless Execution</TT></LI>
+
+<LI>
+<TT>-1 for File Error</TT></LI>
+
+<LI>
+<TT>-2 for Parameter Error</TT></LI>
+</UL>
+
+<PRE><TT>Value could be a char *, but i decided against that. I used an array,
+because if its fixed length nature.</TT></PRE>
+
+<PRE><TT>The meat of our function is below. You can see that it uses fgets() to fill
+the variable str. (oh.. yuck, the length is hardcoded) You can make your own
+judgements on that call. Then a string comparison between the variables&nbsp;
+'str' and 'keyword'. If the keyword is found in str, then sprintf() is used
+to firmly place that value in the variable 'value'.</TT></PRE>
+
+<PRE>
+<HR WIDTH="100%"><TT><FONT COLOR="green">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for(;;)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fgets(str, 80, _file);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if( ferror(_file) || feof(_file) ) return(UGLY);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; len = strlen(str);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if( strncmp(keyword, str, strlen(keyword)) == 0 )
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (str[len - 1] == '\n') str[--len] = 0;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sprintf(value, "%s", &amp;str[strlen(keyword)+1] ); break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }&nbsp;</FONT></TT>
+
+
+<HR WIDTH="100%"></PRE>
+
+<PRE><TT>One glaring weak point is that hardcoded fgets parameter. If the value of&nbsp;
+that exceeds that of the dimension of value[], bad things will happen.
+If you don't need anything over 80 characters, then your safe. But, if you
+do ensure that value[] and str[] and the fgets(%,max_length,%) are all the
+same length. A worldly global can be useful in its place,&nbsp;
+like FILENAME_MAX or UCHAR_MAX.
+
+OK. We are nearly done. The last topic is implementation.</TT></PRE>
+
+<PRE>
+
+<TT>Below is an example of how our function can be used.
+
+
+<HR WIDTH="100%">
+
+<FONT COLOR="green">int main( int argc, char *argv[] )&nbsp;
+{&nbsp;
+char * v_file = "./Secret_Addresses";&nbsp;
+char * keyword = "Kurt Cobain";&nbsp;
+char value[80] ;</FONT></TT></PRE>
+
+<PRE><TT><FONT COLOR="green">&nbsp;&nbsp;&nbsp; switch( read_config_var(v_file, keyword, value) )&nbsp;
+&nbsp;&nbsp;&nbsp; {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 0:&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; printf("\nValue for %s in %s is %s\n", keyword, v_file, value);&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case -1:&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; printf("\nFile Error for [%s] \n", v_file); break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case -2:&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; printf("\nBad User Parm for [%s] \n", keyword); break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; default:&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; printf("\nUnknown Error Occurred \n"); break;
+&nbsp;&nbsp;&nbsp; }
+return 0;&nbsp;
+}</FONT></TT></PRE>
+
+<PRE>
+<HR WIDTH="100%"></PRE>
+
+<PRE>
+<TT>A couple of quick notes on the Config File:</TT></PRE>
+
+<OL>
+<LI>
+<TT>There is no restriction on the name or location of the Config File.</TT></LI>
+
+<LI>
+<TT>The attributes of the Config File, I suggest, should be world readable</TT></LI>
+
+<BR><TT>and only writable by the program administrator.</TT>
+<LI>
+<TT>For the location of the Config File, I suggest using paths like:</TT></LI>
+
+<BR><TT><B>/usr/local/bin/program_name/program_name.cfg</B></TT>
+<BR><TT>or</TT>
+<BR><B><TT>/etc/conf.program_name</TT></B></OL>
+
+<PRE>
+
+<B><TT>Bonus Notes</TT></B></PRE>
+
+<PRE><TT>In earlier articles, the topic of daemons came up. Well written daemons will
+have startup and shutdown functions. The startup functions, should, read
+from configuration files and implement those values. A smart approach
+to a well written daemon, is to re-read the configuration file when a
+certain signal is raised (i.e. SIGUSR1). That way, you proggie need not be
+stopped, just because you changed parameters. (nifty?)&nbsp;
+
+Below is a sample snippet:</TT></PRE>
+
+<PRE>
+<HR WIDTH="100%"></PRE>
+
+<PRE><TT><FONT COLOR="green">struct sigaction SignalAct;&nbsp;
+
+SignalAct.sa_handler = SigCatch;
+sigemptyset( &amp;SignalAct.sa_mask );
+SignalAct.sa_flags = 0;</FONT></TT></PRE>
+
+<PRE><TT><FONT COLOR="green">void SigCatch(int sig)
+{
+char * funct_name = "SigCatch";
+
+&nbsp;&nbsp; if (sig == SIGUSR1) /* re - initialize daemon */
+&nbsp;&nbsp; {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; shutdown_gracefully();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sleep(3);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; init_system();
+&nbsp;&nbsp;&nbsp; }
+
+} /* end SigCatch */</FONT></TT>
+
+
+
+
+<HR WIDTH="100%"></PRE>
+
+<PRE>
+<TT>There you have a very handy function for program configurability.&nbsp;
+It is so conveinent you may want to include it in your utility library.&nbsp;
+Another thought, you may want to develop a corresponding write function.</TT></PRE>
+
+<PRE><TT>Additionally; I claim no ownership, rights, or responsibilities for&nbsp;
+this code.</TT></PRE>
+
+<PRE><TT>Final Notes: The source code for this function and examples is in&nbsp;
+<FONT COLOR="blue">values.zip</FONT>&nbsp;
+
+Compile by using: cc -o main main.c values.c&nbsp;
+This was written for the 2.7.2.1 gcc compiler on the 2.0.27 Linux OS.</TT></PRE>
+
+</BODY>
+</HTML>
