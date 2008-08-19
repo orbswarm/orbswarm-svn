@@ -109,6 +109,10 @@ void sendMotorControl ( int steeringValue, int propValue )
 
 void startChildProcessToGronk(void) {
 	logit(eMcuLog, eLogDebug, "\n STARTING GRONK()");
+
+	int pathMode = 0;
+	int nextPath = 4;
+	int logData = 1;
 	struct timeval lastGronkTime;
 	gettimeofday(&lastGronkTime, NULL);
 	struct timeval nowGronkTime;
@@ -132,8 +136,10 @@ void startChildProcessToGronk(void) {
 	double thisYawRate;
 	struct swarmCircle circle;
 	struct swarmFigEight figEight;
-	int pathMode = 0;
-	int nextPath = 4;
+	int kalmanDataFileFD;
+	int kalmanResulstFileFD;
+	int controlFileFD;
+
 
 #ifdef JOYSTICK
 	logit(eMcuLog, eLogDebug, "\n Gronk is in JOYSTICK MODE (no motor control)");
@@ -155,20 +161,23 @@ void startChildProcessToGronk(void) {
 
 	initYawSensor();
 
-	int kalmanDataFileFD = open("sensordata", O_RDWR | O_CREAT | O_NONBLOCK
-			| O_TRUNC, 0x777);
-	if (kalmanDataFileFD < 0)
-		perror("Failed to open sensordata");
+	if (logData == 1)
+	{
+		kalmanDataFileFD = open("sensordata", O_RDWR | O_CREAT | O_NONBLOCK
+				| O_TRUNC, 0x777);
+		if (kalmanDataFileFD < 0)
+			perror("Failed to open sensordata");
 
-	int kalmanResulstFileFD = open("kalmandata", O_RDWR | O_CREAT
-			| O_NONBLOCK | O_TRUNC, 0x777);
-	if (kalmanResulstFileFD < 0)
-		perror("Failed to open kalmandata");
+		kalmanResulstFileFD = open("kalmandata", O_RDWR | O_CREAT
+				| O_NONBLOCK | O_TRUNC, 0x777);
+		if (kalmanResulstFileFD < 0)
+			perror("Failed to open kalmandata");
 
-	int controlFileFD = open("controldata", O_RDWR | O_CREAT
-			| O_NONBLOCK | O_TRUNC, 0x777);
-	if (controlFileFD < 0)
-		perror("Failed to open controldata");
+		controlFileFD = open("controldata", O_RDWR | O_CREAT
+				| O_NONBLOCK | O_TRUNC, 0x777);
+		if (controlFileFD < 0)
+			perror("Failed to open controldata");
+	}
 
 	while (1) {
 		//logit(eMcuLog, eLogDebug, "\n running while loop");
@@ -443,28 +452,35 @@ void startChildProcessToGronk(void) {
 		} else {
 			//Not time to gronk yet. Process mcu commands
 			//and write any buffered output to data file
+
 			int nMaxFd = 0;
 			FD_ZERO (&readSet);
 			FD_ZERO (&writeSet);
 			FD_SET (pfd2[0], &readSet);
 			nMaxFd = pfd2[0];
-			if (dataFileBuffer[0] != 0) {
-				FD_SET (kalmanDataFileFD, &writeSet);
-				if (kalmanDataFileFD > nMaxFd)
-					nMaxFd = kalmanDataFileFD;
-			}
-			if (outputFileBuffer[0] != 0) {
-				FD_SET (kalmanResulstFileFD, &writeSet);
-				if (kalmanResulstFileFD > nMaxFd)
-					nMaxFd = kalmanResulstFileFD;
-			}
-			if (controlFileBuffer[0] != 0) {
-				FD_SET (controlFileFD, &writeSet);
-				if (controlFileFD > nMaxFd)
-					nMaxFd = controlFileFD;
+
+			if (logData == 1)
+			{
+
+				if (dataFileBuffer[0] != 0) {
+					FD_SET (kalmanDataFileFD, &writeSet);
+					if (kalmanDataFileFD > nMaxFd)
+						nMaxFd = kalmanDataFileFD;
+				}
+				if (outputFileBuffer[0] != 0) {
+					FD_SET (kalmanResulstFileFD, &writeSet);
+					if (kalmanResulstFileFD > nMaxFd)
+						nMaxFd = kalmanResulstFileFD;
+				}
+				if (controlFileBuffer[0] != 0) {
+					FD_SET (controlFileFD, &writeSet);
+					if (controlFileFD > nMaxFd)
+						nMaxFd = controlFileFD;
+				}
 			}
 
 			nMaxFd++;
+
 			timeout.tv_sec = 0;
 			timeout.tv_usec = 10000; //10 milli secs is the smallest we can safely set..I think
 			int nSelectResult = select(nMaxFd, &readSet, &writeSet, NULL,
@@ -489,7 +505,7 @@ void startChildProcessToGronk(void) {
 					logit(eMcuLog, eLogDebug,
 							"\n selected data no longer available");
 
-				if (FD_ISSET (kalmanDataFileFD, &writeSet)) {
+				if ((FD_ISSET (kalmanDataFileFD, &writeSet)) && (logData ==1)) {
 					//the fact that we are here means that we have something to write
 					logit(eMcuLog, eLogDebug, "\nwriting to data file=%s",
 							dataFileBuffer);
@@ -509,7 +525,7 @@ void startChildProcessToGronk(void) {
 					}
 				}
 
-				if (FD_ISSET (kalmanResulstFileFD, &writeSet)) {
+				if ((FD_ISSET (kalmanResulstFileFD, &writeSet)) && (logData ==1)) {
 					logit(eMcuLog, eLogDebug,
 							"\n writing to results file=%s",
 							outputFileBuffer);
@@ -529,7 +545,7 @@ void startChildProcessToGronk(void) {
 					outputFileBuffer[0] = 0;
 				}
 
-				if (FD_ISSET (controlFileFD, &writeSet)) {
+				if ((FD_ISSET (controlFileFD, &writeSet))&& (logData ==1)) {
 					logit(eMcuLog, eLogDebug,
 							"\n writing to results file=%s",
 							controlFileBuffer);
