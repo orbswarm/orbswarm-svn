@@ -33,7 +33,6 @@ public class Orb extends Mobject
 
     private static NumberFormat dblFmt = NumberFormat.getInstance();
 
-
     /** orb identifer */
 
     private int id;
