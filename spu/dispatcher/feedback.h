@@ -18,3 +18,7 @@ void swarmFeedbackInit(void);
 void swarmFeedbackProcess(struct swarmStateEstimate * stateEstimate,
 		struct swarmCoord * carrot, struct swarmFeedback * feedback,  char * buffer  );
 
+int potFeedForward ( struct swarmStateEstimate * stateEstimate, struct swarmCoord * carrot );
+
+int propFeedForward( struct swarmStateEstimate * stateEstimate, struct swarmCoord * carrot );
+

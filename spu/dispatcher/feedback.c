@@ -19,6 +19,8 @@
 #include "swarmdefines.h"
 #include "pathfollow.h"
 
+#define RADIUS 0.38
+
 
 // Static vars for control
 static struct swarmPID lateralPID;
@@ -69,6 +71,21 @@ void swarmFeedbackProcess(struct swarmStateEstimate * stateEstimate,
 
 }
 
+
+int potFeedForward( struct swarmStateEstimate * stateEstimate, struct swarmCoord * carrot )
+{
+	int potValue;
+
+	potValue = (int)(rint(187.4 * carrot->psidot * RADIUS / stateEstimate->v));
+	return(potValue);
+}
+
+int propFeedForward( struct swarmStateEstimate * stateEstimate, struct swarmCoord * carrot )
+{
+	int propValue;
+	propValue = (int)(rint(carrot->v * 30.0));
+	return(propValue);
+}
 
 // -----------------------------------------------------------------------
 

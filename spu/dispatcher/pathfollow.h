@@ -62,6 +62,15 @@ void figEightPath( struct swarmFigEight * figEight, struct swarmStateEstimate * 
 		 struct swarmCoord * carrot );
 
 // ------------------------------------------------------------------------
+// pathFollow
+//
+// Takes a trajectory and generates a carrot to follow it.
+// ------------------------------------------------------------------------
+void pathFollow( struct swarmCoord * trajectory, struct swarmStateEstimate * stateEstimate,
+		 struct swarmCoord * carrot );
+
+
+// ------------------------------------------------------------------------
 // distanceToCoord
 //
 // returns the distance to a coordinate from current position

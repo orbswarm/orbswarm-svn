@@ -17,6 +17,8 @@
 #include "swarmdefines.h"
 #include "pathfollow.h"
 
+#define PATHCARROTDISTANCE  3.0
+
 
 // ------------------------------------------------------------------------
 
@@ -184,6 +186,26 @@ void figEightPath( struct swarmFigEight * figEight, struct swarmStateEstimate * 
 	}
 
 }
+
+// ------------------------------------------------------------------------
+// pathFollow
+//
+// Takes a trajectory and generates a carrot to follow it.
+// ------------------------------------------------------------------------
+void pathFollow( struct swarmCoord * trajectory, struct swarmStateEstimate * stateEstimate,
+		 struct swarmCoord * carrot )
+{
+
+	carrot->x  		= trajectory->x + PATHCARROTDISTANCE * cos(trajectory->psi);
+	carrot->y  		= trajectory->y + PATHCARROTDISTANCE * sin(trajectory->psi);
+
+	carrot->phase 	= phaseFromCoord( stateEstimate, trajectory );
+
+	carrot->v 		= trajectory->v;
+	carrot->psidot  = trajectory->psidot;
+}
+
+
 
 // ------------------------------------------------------------------------
 // distanceToCoord
