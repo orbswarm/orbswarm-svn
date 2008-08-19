@@ -53,9 +53,9 @@ static swarmGpsData latestGpsCoordinatesInternalCopy;
 static void safeCopyGpsStruct(swarmGpsData * dest,swarmGpsData * src)
 {
 	if(acquireGpsStructLock()){
-		fprintf(stderr, "\nstart of safe copy");
+		//fprintf(stderr, "\nstart of safe copy");
 		strncpy(dest->gpsSentenceType, src->gpsSentenceType, 31);
-		fprintf(stderr, "\nhere");
+		//fprintf(stderr, "\nhere");
 		strncpy(dest->ggaSentence, src->ggaSentence, MAX_GPS_SENTENCE_SZ);
 		strncpy(dest->vtgSentence, src->vtgSentence, MAX_GPS_SENTENCE_SZ);
 		strncpy(dest->nmea_utctime, src->nmea_utctime, 64);
@@ -77,7 +77,7 @@ static void safeCopyGpsStruct(swarmGpsData * dest,swarmGpsData * src)
 		dest->nmea_course=src->nmea_course;
 		dest->speed=src->speed;
 		dest->mode=src->mode;
-		fprintf(stderr, "\nend of safe copy");
+		//fprintf(stderr, "\nend of safe copy");
 		releaseGpsStructLock();
 	}
 }
