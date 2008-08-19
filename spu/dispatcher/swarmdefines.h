@@ -219,11 +219,12 @@ struct	swarmCoord
 {
   // an x,y coordinate and some related attributes
 
-  double x;		// x position (meters East)
-  double y;		// y position (meters North)
-  double psi;	// heading (radians counterclockwise from East)
-  double v;		// velocity
-  double phase; // phase (as a distance)
+  double x;			// x position (meters East)
+  double y;			// y position (meters North)
+  double psi;		// heading (radians counterclockwise from East)
+  double psidot;	// rate of change of heading ( counterclockwise rad/s )
+  double v;			// velocity
+  double phase; 	// phase (as a distance)
 };
 
 struct swarmCircle
@@ -253,5 +254,6 @@ struct swarmFigEight
   struct swarmCoord point4;	// location of figure 8 center
   int mode;
 };
+
 
 #endif
