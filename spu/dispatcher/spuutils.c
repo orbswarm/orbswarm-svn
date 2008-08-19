@@ -25,81 +25,97 @@
 
 #include "spuutils.h"
 
-int setSpuLed(const unsigned int ledState){
-#ifdef LOCAL
-#warning "compiling spuutils.c for LOCAL use (not SPU)"
-   switch(ledState) {
-   case SPU_LED_RED_ON:
-     printf("SPU_LED_RED_ON\n");
-     break;
-   case SPU_LED_GREEN_ON:
-     printf("SPU_LED_GREEN_ON\n");
-     break;
-   case SPU_LED_BOTH_ON:
-     printf("SPU_LED_BOTH_ON\n");
-     break;
-   case SPU_LED_BOTH_OFF:
-     printf("SPU_LED_BOTH_OFF\n");
-     break;
-   case SPU_LED_RED_OFF:
-     printf("SPU_LED_RED_OFF\n");
-     break;
-   case SPU_LED_GREEN_OFF:
-     printf("SPU_LED_GREEN_OFF\n");
-     break;
-   default:
-     fprintf(stderr,"\nUNKNOWN LED STATE");
-   }
-   return(1);
+static int /*c,*/ devmem;
+//static unsigned int otp_addr, otp_data, secs = 0;
+static unsigned int /*val_addr=0, val_data=0,*/ *twi_regs, *regs;
+//static unsigned int start_adc=0, raw=0;
+//static unsigned int display_odom=0, did_something=0, display_bday=0;
+//static unsigned int display_otp=0, display_mem=0, display_mac=0;
+//static unsigned int len, odom, bday;
+//static unsigned char str[80];
+static volatile unsigned int *GREENLEDPORT/*, *PEDDR*/;
+static volatile unsigned char *start;
 
-#else
-   volatile unsigned int *PEDR, *PEDDR;
-   unsigned char *start;
-   int fd = open("/dev/mem", O_RDWR|O_SYNC);
-   if(fd <= 0) {
-     printf("/dev/mem open failed in setSPULed()\n");
-     return(0);
-   }
 
-   start =(unsigned char*) mmap(0, getpagesize(), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x80840000);
+//int setSpuLed(const unsigned int ledState){
+//#ifdef LOCAL
+//#warning "compiling spuutils.c for LOCAL use (not SPU)"
+//	switch(ledState) {
+//	case SPU_LED_RED_ON:
+//		printf("SPU_LED_RED_ON\n");
+//		break;
+//	case SPU_LED_GREEN_ON:
+//		printf("SPU_LED_GREEN_ON\n");
+//		break;
+//	case SPU_LED_BOTH_ON:
+//		printf("SPU_LED_BOTH_ON\n");
+//		break;
+//	case SPU_LED_BOTH_OFF:
+//		printf("SPU_LED_BOTH_OFF\n");
+//		break;
+//	case SPU_LED_RED_OFF:
+//		printf("SPU_LED_RED_OFF\n");
+//		break;
+//	case SPU_LED_GREEN_OFF:
+//		printf("SPU_LED_GREEN_OFF\n");
+//		break;
+//	default:
+//		fprintf(stderr,"\nUNKNOWN LED STATE");
+//	}
+//	return(1);
+//
+//#else
+//	volatile unsigned int *PEDR, *PEDDR;
+//	int fd = open("/dev/mem", O_RDWR|O_SYNC);
+//	if(fd <= 0) {
+//		printf("/dev/mem open failed in setSPULed()\n");
+//		return(0);
+//	}
+//
+//	start =(unsigned char*) mmap(0, getpagesize(), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0x80840000);
+//
+//	if(start <= 0) {
+//		printf("/dev/mem map failed in setSPULed()\n");
+//		return(0);
+//	}
+//	PEDR = (unsigned int *)(start + 0x20);     // port e data
+//	PEDDR = (unsigned int *)(start + 0x24);    // port e direction register
+//
+//	*PEDDR = 0xff;                             // all output (just 2 bits)
+//
+//	switch(ledState) {
+//	case SPU_LED_RED_ON:
+//		*PEDR |= 0x02;
+//		break;
+//	case SPU_LED_GREEN_ON:
+//		*PEDR |= 0x01;
+//		break;
+//	case SPU_LED_BOTH_ON:
+//		*PEDR |= 0x03;
+//		break;
+//	case SPU_LED_BOTH_OFF:
+//		*PEDR &= 0xFC;
+//		break;
+//	case SPU_LED_RED_OFF:
+//		*PEDR &= 0xFD;
+//		break;
+//	case SPU_LED_GREEN_OFF:
+//		*PEDR &= 0xFE;
+//		break;
+//	default:
+//		fprintf(stderr,"\nUNKNOWN LED STATE");
+//	}
+//	munmap(start,getpagesize());
+//	close(fd);
+//	return 0;
+//#endif
+//}
 
-   if(start <= 0) {
-     printf("/dev/mem map failed in setSPULed()\n");
-     return(0);
-   }
-   PEDR = (unsigned int *)(start + 0x20);     // port e data
-   PEDDR = (unsigned int *)(start + 0x24);    // port e direction register
-
-   *PEDDR = 0xff;                             // all output (just 2 bits)
-
-   switch(ledState) {
-   case SPU_LED_RED_ON:
-     *PEDR |= 0x02;
-     break;
-   case SPU_LED_GREEN_ON:
-     *PEDR |= 0x01;
-     break;
-   case SPU_LED_BOTH_ON:
-     *PEDR |= 0x03;
-     break;
-   case SPU_LED_BOTH_OFF:
-     *PEDR &= 0xFC;
-     break;
-   case SPU_LED_RED_OFF:
-     *PEDR &= 0xFD;
-     break;
-   case SPU_LED_GREEN_OFF:
-     *PEDR &= 0xFE;
-     break;
-   default:
-     fprintf(stderr,"\nUNKNOWN LED STATE");
-   }
-   munmap(start,getpagesize());
-   close(fd);
-   return 0;
-#endif
+void cleanupSpuutils(void)
+{
+	munmap(start, getpagesize());
+	close(devmem);
 }
-
 
 /* retrieve IP address using ioctl interface */
 int getIP(const char *Interface, char *ip)
@@ -213,18 +229,7 @@ void static inline twi_select(unsigned char addr, unsigned char dir) {
         if(verbose) fprintf(stderr,"Succesfully selected slave\n");
 }
 
-static int /*c,*/ devmem;
-//static unsigned int otp_addr, otp_data, secs = 0;
-static unsigned int /*val_addr=0, val_data=0,*/ *twi_regs, *regs;
-//static unsigned int start_adc=0, raw=0;
-//static unsigned int display_odom=0, did_something=0, display_bday=0;
-//static unsigned int display_otp=0, display_mem=0, display_mac=0;
-//static unsigned int len, odom, bday;
-//static unsigned char str[80];
-static volatile unsigned int *GREENLEDPORT/*, *PEDDR*/;
-static unsigned char *start;
-
-int init(void){
+int initSpuutils(void){
 	//init for RED led
 	devmem = open("/dev/mem", O_RDWR|O_SYNC);
 	assert(devmem != -1);

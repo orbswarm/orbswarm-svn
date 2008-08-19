@@ -20,8 +20,10 @@
 #define SPU_LED_RED_OFF 44
 #define SPU_LED_GREEN_OFF 45
 
-int setSpuLed(const unsigned int ledState);
+int initSpuutils(void);
+//int setSpuLed(const unsigned int ledState);
 int getIP(const char *Interface, char *ip);
 void blinkGreen(void);
 void blinkRed(void);
+void cleanupSpuutils(void);
 

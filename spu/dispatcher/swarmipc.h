@@ -34,7 +34,7 @@ void releaseGpsStructLock(void);
 
 //Semaphores to synchronize access to shared memory waypoint struct
 int acquireWaypointStructLock(void);
-
+void releaseWaypointStructLock(void);
 //////////////////////////////////////////////////////////
 
 

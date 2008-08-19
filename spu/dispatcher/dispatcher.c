@@ -91,6 +91,7 @@ struct shmid_ds mcuQueueShmidDs;
 int latestGpsCoordinatesSegmentId = -1;
 struct shmid_ds latestGpsCoordinatesShmidDs;
 swarmGpsData *latestGpsCoordinates;
+struct swarmCoord *latestWaypoint;
 Queue *gpsQueuePtr;
 Queue *mcuQueuePtr;
 int pfd1[2] /*Gps */, pfd2[2] /*mcu */;
@@ -111,7 +112,6 @@ void logit(int nLogArea, int nLogLevel, char *strFormattedSring, ...) {
 	va_end (fmtargs);
 	if (eLogError == nLogLevel) {
 		fprintf(stderr, "%s", buffer);
-		fprintf(stdout, "%s", buffer);
 	} else if (nLogLevel >= parseLevel && nLogArea == parseDebug)
 		fprintf(stdout, "%s", buffer);
 }
@@ -120,8 +120,10 @@ void logit(int nLogArea, int nLogLevel, char *strFormattedSring, ...) {
 static void signalHandler(int signo) {
 	if (SIGTERM == signo || SIGINT == signo || SIGQUIT == signo) {
 		cleanupIPCStructs(isParent);
+		cleanupSpuutils();
 		exit(EXIT_SUCCESS);
 	} else
+		cleanupSpuutils();
 		cleanupIPCStructs(isParent);
 	exit(EXIT_FAILURE);
 }
@@ -203,7 +205,7 @@ void startChildProcessToProcessGpsMsg(void) {
 void dispatchMCUCmd(int spuAddr, cmdStruct * c) {
 	if (spuAddr != myOrbId)
 		return;
-	blinkGreen();
+	//blinkGreen();
 	if (parseDebug == 5)
 		printf("Orb %d Got MCU command: \"%s\"\n", spuAddr, c->cmd);
 	//    writeCharsToSerialPort(com5, c->cmd, c->cmd_len);
@@ -245,15 +247,26 @@ void dispatchSPUCmd(int spuAddr, cmdStruct * c) {
 					latestGpsCoordinates->UTMEasting);
 			releaseGpsStructLock();
 		}
-		logit(eGpsLog, eLogInfo, "\n sending msg to spu=%s", resp);
-		writeCharsToSerialPort(com2, resp, strlen(resp));
 	}
 	else if(strncmp(c->cmd, "i?", 2)){
 
 	}
 	else if(strncmp(c->cmd, "w", 1)){
-		//get waypoint params from the message
+		if(acquireWaypointStructLock()){
+			float x,y,psi,psidot,v;
+			sscanf(c->cmd, "x=%f y=%f p=%f pdot=%f v=%f",&x,
+					&y, &psi,
+					&psidot, &v);
+			releaseWaypointStructLock();
+			//send ack back to mo-ship
+			sprintf(resp, "{\n@%d w \n}",
+					myOrbId);
+
+		}
 	}
+
+	logit(eGpsLog, eLogInfo, "\n sending response to spu=%s", resp);
+	writeCharsToSerialPort(com2, resp, strlen(resp));
 }
 
 void dispatchGpsLocationMsg(cmdStruct * c) {
@@ -402,9 +415,16 @@ int main(int argc, char *argv[]) {
 	max_fd++;
 
 	if (initSwarmIpc()) {
-		logit(eGpsLog, eLogDebug, "\n shared memory initialized successfully");
+		logit(eGpsLog, eLogError, "\n shared memory initialized successfully");
 	} else {
 		fprintf(stderr, "\n swarm IPC init UNSUCCESSFUL");
+		return (1);
+	}
+
+	if (initSpuutils()){
+		logit(eDispatcherLog, eLogError, "\n init spu utils successful");
+	}else {
+		fprintf(stderr, "\n spuutils init UNSUCCESSFUL");
 		return (1);
 	}
 	//set up pipes
@@ -438,7 +458,8 @@ int main(int argc, char *argv[]) {
 		} else { //still the parent
 #endif
 			while (1) {
-				blinkRed();
+				//blinkRed();
+				blinkGreen();
 				/* Initialize the input set for select() */
 				FD_ZERO (&input);
 				FD_SET (com2, &input);
@@ -459,14 +480,14 @@ int main(int argc, char *argv[]) {
 				if (selectResult == 0) { /* select times out with a result of 0 */
 					++tenHzticks;
 					// if we've turned it on to signal data in
-					setSpuLed(SPU_LED_RED_OFF);
+					//setSpuLed(SPU_LED_RED_OFF);
 					if (tenHzticks == 5) {
-						setSpuLed(SPU_LED_GREEN_ON);
+						//setSpuLed(SPU_LED_GREEN_ON);
 					}
 
 					if (tenHzticks == 10) {
 						tenHzticks = 0;
-						setSpuLed(SPU_LED_GREEN_OFF);
+						//setSpuLed(SPU_LED_GREEN_OFF);
 						//printf(" Runtime: %d\n", seconds++);
 					}
 				} else { /* we got a select; handle it */
@@ -478,7 +499,7 @@ int main(int argc, char *argv[]) {
 						if (bytesRead > 0) { /* if we actually got some data, then parse it */
 							buff[bytesRead] = 0; /* null-term buffer if not done already */
 							/* got some input so flash red LED for indication */
-							setSpuLed(SPU_LED_RED_ON);
+							//setSpuLed(SPU_LED_RED_ON);
 							logit(eDispatcherLog, eLogInfo,
 									"\nReceived \"%s\" from  com2\n", buff);
 							if (isLogging(eDispatcherLog, eLogInfo))

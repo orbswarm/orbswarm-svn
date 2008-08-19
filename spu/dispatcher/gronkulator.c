@@ -40,6 +40,8 @@ extern int myOrbId; /* which orb are we?  */
 extern int com1; /* File descriptor for the port */
 extern int com2; /* File descriptor for the port */
 extern int com3, com5; /* ditto */
+extern struct swarmCoord *latestWaypoint;
+
 static swarmGpsData latestGpsCoordinatesInternalCopy;
 
 /*
@@ -97,14 +99,14 @@ void startChildProcessToGronk(void) {
 	int gronkMode = 0; // 4 states - 0. initializing bias 1. initializing kf 2. running 3. found goal
 	struct swarmCoord carrot;
 	struct swarmFeedback feedback;
-	int thisSteeringValue;
-	int thisPropValue;
+	int thisSteeringValue = 0;
+	int thisPropValue = 0;
 	//double distanceToCarrot;
 	double thisYawRate;
 	struct swarmCircle circle;
 	struct swarmFigEight figEight;
 	int pathMode = 0;
-	int nextPath = 3;
+	int nextPath = 4;
 
 #ifdef JOYSTICK
 	logit(eMcuLog, eLogDebug, "\n Gronk is in JOYSTICK MODE (no motor control)");
@@ -191,6 +193,7 @@ void startChildProcessToGronk(void) {
 			switch (gronkMode)
 			{
 			case GRONK_WAITFORFIX:
+				logit(eMcuLog, eLogDebug, "\nGRONK_WAITFORFIX");
 				// set to purple
 				if(initCounter==0  && acquireCom3Lock()){
 					logit(eMcuLog, eLogDebug, "\ninit state=0");
@@ -202,7 +205,6 @@ void startChildProcessToGronk(void) {
 					sprintf(buffer, "$s0*");
 					writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
 					drainSerialPort(com5);
-
 
 				}
 
@@ -217,6 +219,7 @@ void startChildProcessToGronk(void) {
 			break;
 
 			case GRONK_BIAS:  //initialize bias
+				logit(eMcuLog, eLogDebug, "\nGRONK_BIAS");
 				//set to red, and initialize stateEstimate
 				if(initCounter==0  && acquireCom3Lock()){
 					logit(eMcuLog, eLogDebug, "\ninit state=0");
@@ -234,7 +237,7 @@ void startChildProcessToGronk(void) {
 			break;
 
 			case GRONK_KALMANINIT: // found biases, now initialize kalman filter
-
+				logit(eMcuLog, eLogDebug, "\nGRONK_KALMANINIT");
 				if (initCounter > 100)
 				{
 					initCounter = 0;
@@ -279,7 +282,7 @@ void startChildProcessToGronk(void) {
 			break;
 
 			case GRONK_RUN: // normal running mode
-
+				logit(eMcuLog, eLogDebug, "\nGRONK_RUN");
 				kalmanProcess(&latestGpsCoordinatesInternalCopy, &imuData, &stateEstimate);
 
 				stateEstimate.time = (double)nowGronkTime.tv_sec + (double)nowGronkTime.tv_usec / 1000000;
@@ -385,7 +388,10 @@ void startChildProcessToGronk(void) {
 
 					case PATH_FOLLOWING:
 
-						pathFollow( &latestWayPoint, &stateEstimate, &carrot );
+						if(acquireWaypointStructLock()){
+							pathFollow( latestWaypoint, &stateEstimate, &carrot );
+							releaseWaypointStructLock();
+						}
 
 						swarmFeedbackProcess( &stateEstimate, &carrot, &feedback, buffer );
 
