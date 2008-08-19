@@ -50,112 +50,12 @@ void setGpsModeInUBlox(void)
 {
 	loopTimer0(3000);
 	//B5 62 06 08 06 00 FA 00 01 00 01 00 10 96
-	info("\r\nsending UBX rate msg");
+	info("\r\nsending UBX rate msg to set to 4Hz");
 	unsigned char msg[] ={0xB5, 0x62, 0x06, 0x08,
 			0x06, 0x00, 0xFA, 0x00,
 			0x01,0x00, 0x01, 0x00,
 			0x10,0x96};
 	sendGPSABinaryMsg(msg, 14);
-}
-void setGpsMode(void) {
-	char strDebugMsg[1024];
-	char ack[MAX_GPS_PACKET_LENGTH];
-	char *msg;
-	char cmd[64];
-	info("\r\nReading init params if any");
-	loopTimer0(2000);
-	getPmtkMsg(ack, 0 /*false */);
-	sprintf(strDebugMsg, "\r\nack=%s", ack);
-	info(strDebugMsg);
-
-	/*
-	 * 314 - Set NMEA sentence output frequencies.
-	 *  0 NMEA_SEN_GLL,  // GPGLL interval - Geographic Position - Latitude longitude
-	 * 1 NMEA_SEN_RMC,   // GPRMC interval - Recommended Minimum Specific GNSS Sentence
-	 * 2 NMEA_SEN_VTG,  // GPVTG interval - Course Over Ground and Ground Speed
-	 * 3 NMEA_SEN_GGA,   // GPGGA interval - GPS Fix Data
-	 * 4 NMEA_SEN_GSA,   // GPGSA interval - GNSS DOPS and Active Satellites
-	 * 5 NMEA_SEN_GSV,   // GPGSV interval - GNSS Satellites in View
-	 * 6 NMEA_SEN_GRS,   // GPGRS interval - GNSS Range Residuals
-	 * 7 NMEA_SEN_GST,  // GPGST interval - GNSS Pseudorange Errors Statistics
-	 * 13 NMEA_SEN_MALM,   // PMTKALM interval - GPS almanac information
-	 * 14 NMEA_SEN_MEPH,   // PMTKEPH interval - GPS ephmeris information
-	 * 15 NMEA_SEN_MDGP,   // PMTKDGP interval - GPS differential correction information
-	 * 16 NMEA_SEN_MDBG,    // PMTKDBG interval – MTK debug information
-	 *
-	 */
-	info("\r\n sending 314");
-	msg="PMTK314,0,0,1,1,"
-		"0,0,0,0,"
-		"0,0,0,0,"
-		"0,0,0,0,0";
-	sprintf(cmd, "$%s*%02X\r\n", msg, calculateCheckSum(msg));
-	info("\r\ncmd=");
-	info(cmd);
-	sendGPSAMsg(cmd);
-	loopTimer0(2000);
-	getPmtkMsg(ack, 0 /*false */);
-	sprintf(strDebugMsg, "\r\nack=%s", ack);
-	info(strDebugMsg);
-
-	info("\r\nsending 313");
-	/*
-	 * 313 - Enable to search a SBAS satellite or not.
-	 * ‘0’ = Disable
-	 * ‘1’ = Enable
-	 */
-	msg = "PMTK313,1";
-	sprintf(cmd, "$%s*%02X\r\n", msg, calculateCheckSum(msg));
-	info("\r\ncmd=");
-	info(cmd);
-	sendGPSAMsg(cmd);
-	loopTimer0(2000);
-	getPmtkMsg(ack, 0 /*false */);
-	sprintf(strDebugMsg, "\r\nack=%s", ack);
-	info(strDebugMsg);
-
-	info("\r\nsending 301");
-	/*
-	 * 301 - DGPS correction data source mode.
-	 * '0’: No DGPS source
-	 * ‘1’: RTCM
-	 * ‘2’: WAAS
-	 *
-	 */
-	msg = "PMTK301,2";
-	sprintf(cmd, "$%s*%02X\r\n", msg, calculateCheckSum(msg));
-	info("\r\ncmd=");
-	info(cmd);
-	sendGPSAMsg(cmd);
-	loopTimer0(2000);
-	getPmtkMsg(ack, 0 /*false */);
-	sprintf(strDebugMsg, "\r\nack=%s", ack);
-	info(strDebugMsg);
-
-	info("\r\nsending dgps query");
-	/*
-	 * Query DGPS mode
-	 */
-	msg = "PMTK401";
-	sprintf(cmd, "$%s*%02X\r\n", msg, calculateCheckSum(msg));
-	sendGPSAMsg(cmd);
-	loopTimer0(2000);
-	getPmtkMsg(ack, 0 /*false */);
-	sprintf(strDebugMsg, "\r\nack=%s", ack);
-	info(strDebugMsg);
-
-	info("\r\nsending sbas query");
-	/*
-	 * Query SBAS mode
-	 */
-	msg = "PMTK413";
-	sprintf(cmd, "$%s*%02X\r\n", msg, calculateCheckSum(msg));
-	sendGPSAMsg(cmd);
-	loopTimer0(2000);
-	getPmtkMsg(ack, 0 /*false */);
-	sprintf(strDebugMsg, "\r\nack=%s", ack);
-	info(strDebugMsg);
-
 }
 
 char dummyPop(int isInterruptCtx) {
@@ -177,8 +77,8 @@ int main(void) {
 	sprintf(strDebugMsg, "\r\n PORTB=%x", PORTB);
 	info(strDebugMsg);
 
-	initXbeeModule(pushSwarmMsgBus, blinkLedPortB6, 0);
-	initGpsModule(blinkLedPortB7, 0);
+	initXbeeModule(pushSwarmMsgBus, blinkLedPortB7, 0);
+	initGpsModule(blinkLedPortB6, 0);
 	initSpuModule(pushSwarmMsgBus, 0, /*debug*/ 0);
 
 	info("\r\ninit ");

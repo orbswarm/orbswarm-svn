@@ -148,9 +148,9 @@ initGpsMsgStart (char c)
 
 void handleGpsSerial (char c, int isError)
 {
+	debugCallback();
 	if(isError){
 		s_nGpsRxState=eGpsStraightSerialRxDiscard;
-		debugCallback();
       	return;
 	}
 	switch(s_nGpsRxState)

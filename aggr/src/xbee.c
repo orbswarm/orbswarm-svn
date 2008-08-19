@@ -48,15 +48,15 @@ static void initXbeeMsgStart(char c)
 
 void handleXbeeSerial(char c, int isError)
 {
+    debugCallback();
 /*	char strDebugMsg[1024];
 	sprintf(strDebugMsg, "\r\nhandleXbeeSerial.state=%d", s_nXbeeRxState);
 	debug(strDebugMsg);
-	sprintf(strDebugMsg, "\r\nhandleXbeeSerial.char=%c",c);*/ 
+	sprintf(strDebugMsg, "\r\nhandleXbeeSerial.char=%c",c);*/
   //if it's an error flag and discard till the start of the next message
   if(isError){
     //debug("\nerror flag set");
     s_xbeeRxIsError=isError;
-    debugCallback();
     return;
   }
   switch(s_nXbeeRxState){
@@ -105,7 +105,7 @@ void handleXbeeSerial(char c, int isError)
      {
 	 	//check for max size
 	 	s_nXbeeRxStateByteNum++;
-	 	if(s_nXbeeRxStateByteNum 
+	 	if(s_nXbeeRxStateByteNum
 	    	<= (MAX_SWARM_MSG_LENGTH-1)/*leave 1 byte for the new line */ )
 	   		s_xbeeRxPacket.swarm_msg_payload[s_nXbeeRxStateByteNum]=c;
 /*	   	else
@@ -114,7 +114,7 @@ void handleXbeeSerial(char c, int isError)
      }
      break;
     default:
-     break;    
+     break;
   }
 }
 
