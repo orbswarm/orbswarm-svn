@@ -70,17 +70,14 @@ swarmipc.p: swarmipc.c swarmdefines.h scanner.h queues.h
 feedback.o: feedback.c
 	$(CC) -c -o $@ $(CFLAGS)  $<
 
-blinky.o: blinky.c twsi.h
-	$(CC) -c -o $@ $(CFLAGS)  $<
-
 %.o : %.c scan.h
 	$(CC) -c -o $@ $(CFLAGS)  $<
 
 testharness: scanner.o testharness.o scan.h gpsutils.o queues.o 	
 	$(CC) $(LFLAGS) -o testharness scanner.o testharness.o gpsutils.o /usr/lib/libm.a
 
-dispatcher: dispatcher.o serial.o spuutils.o scanner.o scan.h serial.h  gpsutils.o queues.o imuutils.h imuutils.o kalmanswarm.o kalman.o matmath.o pathfollow.o swarmipc.o feedback.o gronkulator.o blinky.o
-	$(CC) $(LFLAGS) -o dispatcher dispatcher.o serial.o spuutils.o scanner.o  gpsutils.o queues.o imuutils.o kalmanswarm.o kalman.o matmath.o pathfollow.o swarmipc.o feedback.o gronkulator.o blinky.o /opt/crosstool/arm-none-linux-gnueabi/arm-none-linux-gnueabi/sys-root/usr/lib/libm.a
+dispatcher: dispatcher.o serial.o spuutils.o scanner.o scan.h serial.h  gpsutils.o queues.o imuutils.h imuutils.o kalmanswarm.o kalman.o matmath.o pathfollow.o swarmipc.o feedback.o gronkulator.o
+	$(CC) $(LFLAGS) -o dispatcher dispatcher.o serial.o spuutils.o scanner.o  gpsutils.o queues.o imuutils.o kalmanswarm.o kalman.o matmath.o pathfollow.o swarmipc.o feedback.o gronkulator.o /opt/crosstool/arm-none-linux-gnueabi/arm-none-linux-gnueabi/sys-root/usr/lib/libm.a
 
 # version of dispatcher for remote control only...
 joypatcher: dispatcher.o serial.o spuutils.o scanner.o scan.h serial.h  gpsutils.o queues.o imuutils.h imuutils.o kalmanswarm.o kalman.o matmath.o pathfollow.o swarmipc.o feedback.o joygronk.o

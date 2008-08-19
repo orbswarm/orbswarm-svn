@@ -7,6 +7,8 @@
 #include <net/ethernet.h>
 #include <arpa/inet.h>
 #include  <sys/ioctl.h>
+#include "twsi.h"
+
 #else
 #warning "compiling spuutils.h for LOCAL use (not SPU)"
 #endif
@@ -20,3 +22,6 @@
 
 int setSpuLed(const unsigned int ledState);
 int getIP(const char *Interface, char *ip);
+void blinkGreen(void);
+void blinkRed(void);
+

@@ -203,6 +203,7 @@ void startChildProcessToProcessGpsMsg(void) {
 void dispatchMCUCmd(int spuAddr, cmdStruct * c) {
 	if (spuAddr != myOrbId)
 		return;
+	blinkGreen();
 	if (parseDebug == 5)
 		printf("Orb %d Got MCU command: \"%s\"\n", spuAddr, c->cmd);
 	//    writeCharsToSerialPort(com5, c->cmd, c->cmd_len);
@@ -249,6 +250,9 @@ void dispatchSPUCmd(int spuAddr, cmdStruct * c) {
 	}
 	else if(strncmp(c->cmd, "i?", 2)){
 
+	}
+	else if(strncmp(c->cmd, "w", 1)){
+		//get waypoint params from the message
 	}
 }
 
@@ -434,6 +438,7 @@ int main(int argc, char *argv[]) {
 		} else { //still the parent
 #endif
 			while (1) {
+				blinkRed();
 				/* Initialize the input set for select() */
 				FD_ZERO (&input);
 				FD_SET (com2, &input);
@@ -470,7 +475,6 @@ int main(int argc, char *argv[]) {
 
 						bytesRead = readCharsFromSerialPort(com2, buff,
 								BUFLENGTH);
-
 						if (bytesRead > 0) { /* if we actually got some data, then parse it */
 							buff[bytesRead] = 0; /* null-term buffer if not done already */
 							/* got some input so flash red LED for indication */

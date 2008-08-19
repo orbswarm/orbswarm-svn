@@ -66,7 +66,4 @@
 #define OTP_R		0x80
 
 
-void blinkGreen(void);
-void blinkRed(void);
-
 

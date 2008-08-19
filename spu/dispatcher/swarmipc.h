@@ -31,6 +31,10 @@ void releaseCom3Lock(void);
 //Same as above to read and write from the shared memory GPS structs
 int acquireGpsStructLock(void);
 void releaseGpsStructLock(void);
+
+//Semaphores to synchronize access to shared memory waypoint struct
+int acquireWaypointStructLock(void);
+
 //////////////////////////////////////////////////////////
 
 

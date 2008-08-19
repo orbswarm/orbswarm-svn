@@ -38,9 +38,34 @@ extern Queue *gpsQueuePtr;
 extern Queue *mcuQueuePtr;
 extern int pfd1[2] /*Gps */, pfd2[2] /*mcu */;
 
+extern struct swarmCoord *latestWaypoint;
+
 static int com3SemId;
 static int gpsStructSemId;
+static int waypointStructSemId;
 
+int acquireWaypointStructLock(void){
+	struct sembuf getLockOps[1];
+	getLockOps[0].sem_num =0;
+	getLockOps[0].sem_op = -1;
+	getLockOps[0].sem_flg = 0;
+	if(semop(waypointStructSemId, getLockOps, 1) < 0){
+		perror("\n waypoint struct sem acquire failed");
+		return 0;
+	}
+	else{
+		return 1;
+	}
+}
+
+void releaseWaypointStructLock(void){
+	struct sembuf releaseLockOps[1];
+	releaseLockOps[0].sem_num =0;
+	releaseLockOps[0].sem_op = +1;
+	releaseLockOps[0].sem_flg = 0;
+	if(semop(waypointStructSemId, releaseLockOps, 1) < 0)
+		perror("\n waypoint struct sem release failed");
+}
 
 int acquireGpsStructLock(void){
 	//fprintf(stderr,  "\nacquireGpsStructLock():START");
