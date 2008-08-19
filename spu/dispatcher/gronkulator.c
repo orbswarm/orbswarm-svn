@@ -24,6 +24,8 @@
 #include "swarmipc.h"
 #include "pathfollow.h"
 
+#define MOTORSPEED 60
+
 
 /* set this define if joystick is in use */
 //#define JOYSTICK
@@ -78,6 +80,31 @@ static void safeCopyGpsStruct(swarmGpsData * dest,swarmGpsData * src)
 		fprintf(stderr, "\nend of safe copy");
 		releaseGpsStructLock();
 	}
+}
+
+void sendMotorControl ( int steeringValue, int propValue )
+{
+#ifndef JOYSTICK
+
+	char buffer[MSG_LENGTH + 1];
+	int limitedSteeringValue = 0;
+
+	if(steeringValue > 100)
+		limitedSteeringValue = 100;
+	if(steeringValue < -100)
+		limitedSteeringValue = -100;
+
+	sprintf(buffer, "$s%d*", limitedSteeringValue );
+	logit(eMcuLog, eLogDebug, buffer);
+	writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
+	drainSerialPort(com5);
+
+	sprintf(buffer, "$p%d*", propValue );
+	logit(eMcuLog, eLogDebug, buffer);
+	writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
+	drainSerialPort(com5);
+
+#endif
 }
 
 void startChildProcessToGronk(void) {
@@ -200,11 +227,7 @@ void startChildProcessToGronk(void) {
 					char* msg="<LB255><LR255><LG0><LT0><LF>";
 					writeCharsToSerialPort(com3, msg, strlen(msg));
 					releaseCom3Lock();
-					sprintf(buffer, "$p0*");
-					writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
-					sprintf(buffer, "$s0*");
-					writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
-					drainSerialPort(com5);
+					sendMotorControl ( 0, 0 );
 
 				}
 
@@ -268,13 +291,6 @@ void startChildProcessToGronk(void) {
 						releaseCom3Lock();
 					}
 
-#ifndef JOYSTICK
-					sprintf(buffer, "$p60*");
-					writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
-					sprintf(buffer, "$s0*");
-					writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
-					drainSerialPort(com5);
-#endif
 					gronkMode = GRONK_RUN;
 				}
 
@@ -317,10 +333,11 @@ void startChildProcessToGronk(void) {
 				logit(eMcuLog, eLogDebug, outputFileBuffer);
 
 				enum {PATH_JOYSTICK, PATH_CIRCLE, PATH_FIGEIGHT, PATH_CIRCLESYNCHRO, PATH_FOLLOWING};
+
 				switch (pathMode)
 				{
 					case PATH_JOYSTICK:
-							if (nextPath == 1)
+							if (nextPath == PATH_CIRCLE)
 							{
 								//carrot.x = 2000 * cos(stateEstimate.psi + PI/6);
 								//carrot.y = 2000 * sin(stateEstimate.psi + PI/6);
@@ -328,18 +345,18 @@ void startChildProcessToGronk(void) {
 								circle.radius = 9.0;
 								circle.direction = 1.0;
 								circleInit( &stateEstimate, &circle );
-
+								sendMotorControl ( 0, MOTORSPEED );
 								pathMode = PATH_CIRCLE;
 							}
-							if (nextPath == 2)
+							if (nextPath == PATH_FIGEIGHT)
 							{
 								figEight.carrotDistance = 2.0;
 								figEight.radius = 10.0;
 								figEightInit( &stateEstimate, &figEight );
-
+								sendMotorControl ( 0, MOTORSPEED );
 								pathMode = PATH_FIGEIGHT;
 							}
-							if (nextPath == 3)
+							if (nextPath == PATH_CIRCLESYNCHRO)
 							{
 								//carrot.x = 2000 * cos(stateEstimate.psi + PI/6);
 								//carrot.y = 2000 * sin(stateEstimate.psi + PI/6);
@@ -352,7 +369,7 @@ void startChildProcessToGronk(void) {
 								pathMode = PATH_CIRCLESYNCHRO;
 							}
 
-							if (nextPath == 4)
+							if (nextPath == PATH_FOLLOWING)
 							{
 								pathMode = PATH_FOLLOWING;
 							}
@@ -362,27 +379,21 @@ void startChildProcessToGronk(void) {
 							circlePath( &circle, &stateEstimate, &carrot );
 							swarmFeedbackProcess( &stateEstimate, &carrot, &feedback, buffer );
 							thisSteeringValue = (int)rint(feedback.deltaDes * 190.0);
+							sendMotorControl ( thisSteeringValue, MOTORSPEED );
 						break;
 
 					case PATH_FIGEIGHT:
 							figEightPath( &figEight, &stateEstimate, &carrot );
 							swarmFeedbackProcess( &stateEstimate, &carrot, &feedback, buffer );
 							thisSteeringValue = (int)rint(feedback.deltaDes * 190.0);
+							sendMotorControl ( thisSteeringValue, MOTORSPEED );
 						break;
 					case PATH_CIRCLESYNCHRO:
 							circleSynchro( &circle, &stateEstimate, &carrot );
 							swarmFeedbackProcess( &stateEstimate, &carrot, &feedback, buffer );
 
 							thisSteeringValue = (int)rint(feedback.deltaDes * 190.0);
-#ifndef JOYSTICK
-							sprintf(buffer, "$p%d*", (int)rint(feedback.vDes + 50.0) );
-							logit(eMcuLog, eLogDebug, buffer);
-							if (1)
-							{
-								writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
-								drainSerialPort(com5);
-							}
-#endif
+							sendMotorControl ( thisSteeringValue, (int)rint(feedback.vDes + 50.0) );
 
 						break;
 
@@ -401,59 +412,24 @@ void startChildProcessToGronk(void) {
 						thisSteeringValue += potFeedForward( &stateEstimate, &carrot );
 						thisPropValue += propFeedForward( &stateEstimate, &carrot );
 
-#ifndef JOYSTICK
-						sprintf(buffer, "$p%d*", thisPropValue  );
-						logit(eMcuLog, eLogDebug, buffer);
-						if (1)
-						{
-							writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
-							drainSerialPort(com5);
-						}
-#endif
-
-
+						sendMotorControl ( thisSteeringValue, thisPropValue );
 
 					break;
 				}
 
-				sprintf(controlFileBuffer, "\n%f,%f,%f,%f,%f,%f,%f %s",
+				sprintf(controlFileBuffer, "\n%f,%f,%f %s",
 						(double)nowGronkTime.tv_sec + (double)nowGronkTime.tv_usec / 1000000,
 						carrot.x-stateEstimate.x,
 						carrot.y-stateEstimate.y,
-						circle.current.x,
-						circle.current.y,
-						circle.center.x,
-						circle.center.y,
 						buffer);
 				logit(eMcuLog, eLogDebug, controlFileBuffer);
-
-				if(thisSteeringValue > 100)
-					thisSteeringValue = 100;
-				if(thisSteeringValue < -100)
-					thisSteeringValue = -100;
-
-#ifndef JOYSTICK
-				sprintf(buffer, "$s%d*", thisSteeringValue );
-				logit(eMcuLog, eLogDebug, buffer);
-				if (1)
-				{
-					writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
-					drainSerialPort(com5);
-				}
-#endif
 
 				break;
 
 			case GRONK_COMPLETE: // made it to goal
-#ifndef JOYSTICK
-				// stop drive
-				sprintf(buffer, "$p0*");
-				writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
-				// set steering to 0
-				sprintf(buffer, "$s0*");
-				writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
-				drainSerialPort(com5);
-#endif
+
+				sendMotorControl ( 0, 0 );
+
 				if(acquireCom3Lock()){
 					char* msg="<LB255><LR255><LG255><LT0><LF>";
 					writeCharsToSerialPort(com3, msg, strlen(msg));
