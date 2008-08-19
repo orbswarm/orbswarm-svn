@@ -29,16 +29,22 @@
 //defined in the dispatcher
 extern int gpsQueueSegmentId;
 extern struct shmid_ds gpsQueueShmidDs;
+
 extern int mcuQueueSegmentId;
 extern struct shmid_ds mcuQueueShmidDs;
+
 extern int latestGpsCoordinatesSegmentId;
 extern struct shmid_ds latestGpsCoordinatesShmidDs;
 extern swarmGpsData *latestGpsCoordinates;
+
+extern int waypointStructSegmentId;
+extern struct shmid_ds waypointStructShmidDs;
+extern struct swarmCoord *latestWaypoint;
+
 extern Queue *gpsQueuePtr;
 extern Queue *mcuQueuePtr;
 extern int pfd1[2] /*Gps */, pfd2[2] /*mcu */;
 
-extern struct swarmCoord *latestWaypoint;
 
 static int com3SemId;
 static int gpsStructSemId;
@@ -123,7 +129,7 @@ void releaseCom3Lock(void){
 /*
  * Sets up the pipes to communicate between parent and children
  */
-void tellWait(void) {
+void intiPipes(void) {
 	if (pipe(pfd1) < 0 || pipe(pfd2) < 0) {
 		fprintf(stderr, "pipe error");
 		exit(EXIT_FAILURE);
@@ -180,6 +186,46 @@ int initSwarmIpc() {
 		}
 	}
 
+	//Create semaphore for shared memory waypoint struct
+	waypointStructSemId = semget(IPC_PRIVATE, 1, S_IRUSR | S_IWUSR);
+	if(waypointStructSemId < 0){
+		perror("Failed to get waypoint struct semaphore");
+		return 0;
+	}
+	else{
+		union {
+			int              val;    /* Value for SETVAL */
+			struct semid_ds *buf;    /* Buffer for IPC_STAT, IPC_SET */
+			unsigned short  *array;  /* Array for GETALL, SETALL */
+			struct seminfo  *__buf;  /* Buffer for IPC_INFO
+		                                (Linux specific) */
+		}  arg;
+		arg.val=1;//available
+		if(semctl(waypointStructSemId, 0, SETVAL, arg)<0){
+			perror("Failed to init waypoint struct semaphore");
+			return 0;
+		}
+	}
+
+	//Allocate shared memory for waypoint struct that represents latest co-ordintaes
+	waypointStructSegmentId = shmget(IPC_PRIVATE, sizeof(struct swarmCoord),
+			IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR);
+	if (-1 == waypointStructSegmentId)
+		return 0;
+	//Attach
+	latestWaypoint = (struct swarmCoord *) shmat(waypointStructSegmentId,
+			0, 0);
+	if (-1 == (int) latestWaypoint)
+		return 0;
+	//read shared memory data structure
+	if (-1 == shmctl(waypointStructSegmentId, IPC_STAT,
+			&waypointStructShmidDs))
+		return 0;
+	logit(eDispatcherLog, eLogError,
+			"\nsegment size for latest waypoint co-ord data struct=%d",
+			waypointStructShmidDs.shm_segsz);
+
+
     //Allocate shared memory for GPS struct that represents latest co-ordintaes
 	latestGpsCoordinatesSegmentId = shmget(IPC_PRIVATE, sizeof(swarmGpsData),
 			IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR);
@@ -227,7 +273,7 @@ int initSwarmIpc() {
 		return 0;
 	logit(eDispatcherLog, eLogDebug, "\nsegment size for spu msg queue=%d",
 			mcuQueueShmidDs.shm_segsz);
-	tellWait();//init IPC pipes
+	intiPipes();//init IPC pipes
 	return 1;
 }
 

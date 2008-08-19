@@ -76,7 +76,7 @@
 //all externs in one file i.e. dispatcher.c or testharness.c
 //                      --niladri.bora@gmail.com
 //////////////////////////////////////////////////////////////////////////
-int parseDebug = eMcuLog /*eDispatcherLog*/; /*  parser uses this for debug output */
+int parseDebug = eSpuLog /*eDispatcherLog*/; /*  parser uses this for debug output */
 int parseLevel = eLogDebug;
 int myOrbId = 60; /* which orb are we?  */
 int com1 = 0; /* File descriptor for the port */
@@ -88,10 +88,15 @@ int gpsQueueSegmentId = -1;
 struct shmid_ds gpsQueueShmidDs;
 int mcuQueueSegmentId = -1;
 struct shmid_ds mcuQueueShmidDs;
+
 int latestGpsCoordinatesSegmentId = -1;
 struct shmid_ds latestGpsCoordinatesShmidDs;
 swarmGpsData *latestGpsCoordinates;
+
+int waypointStructSegmentId;
+struct shmid_ds waypointStructShmidDs;
 struct swarmCoord *latestWaypoint;
+
 Queue *gpsQueuePtr;
 Queue *mcuQueuePtr;
 int pfd1[2] /*Gps */, pfd2[2] /*mcu */;
@@ -116,16 +121,22 @@ void logit(int nLogArea, int nLogLevel, char *strFormattedSring, ...) {
 		fprintf(stdout, "%s", buffer);
 }
 
+void cleanup(int isParent)
+{
+	cleanupIPCStructs(isParent);
+	cleanupSpuutils();
+}
+
+
 
 static void signalHandler(int signo) {
 	if (SIGTERM == signo || SIGINT == signo || SIGQUIT == signo) {
-		cleanupIPCStructs(isParent);
-		cleanupSpuutils();
+		cleanup(isParent);
 		exit(EXIT_SUCCESS);
-	} else
-		cleanupSpuutils();
-		cleanupIPCStructs(isParent);
-	exit(EXIT_FAILURE);
+	} else{
+		cleanup(isParent);
+		exit(EXIT_FAILURE);
+	}
 }
 
 
@@ -236,37 +247,45 @@ void dispatchSPUCmd(int spuAddr, cmdStruct * c) {
 	if (spuAddr != myOrbId)
 		return;
 
-	if (parseDebug == 4)
-		printf("Orb %d Got SPU command: \"%s\"\n", spuAddr, c->cmd);
+	logit(eSpuLog, eLogInfo, "Orb %d Got SPU command: \"%s\"\n", spuAddr, c->cmd);
 	/* handle the command here */
-	if(strncmp(c->cmd, "p?", 2)){
+	if(0==strncmp(c->cmd, "[p?", 3)){
 		fprintf(stderr, "\n about to acquire lock on gps struct before reading it for query");
 		if(acquireGpsStructLock()){
 			sprintf (resp, "{\n@%d p e=%f n=%f\n}",
 					myOrbId, latestGpsCoordinates->UTMNorthing,
 					latestGpsCoordinates->UTMEasting);
 			releaseGpsStructLock();
+			logit(eSpuLog, eLogInfo, "\n sending p? response to spu=%s", resp);
+			writeCharsToSerialPort(com2, resp, strlen(resp));
+
 		}
 	}
-	else if(strncmp(c->cmd, "i?", 2)){
+	else if(0==strncmp(c->cmd, "[i?", 3)){
 
 	}
-	else if(strncmp(c->cmd, "w", 1)){
+	else if(0==strncmp(c->cmd, "[w", 2)){
+		float x,y,psi,psidot,v;
+		sscanf(c->cmd, "[w x=%f y=%f p=%f pdot=%f v=%f",&x,
+				&y, &psi,
+				&psidot, &v);
 		if(acquireWaypointStructLock()){
-			float x,y,psi,psidot,v;
-			sscanf(c->cmd, "x=%f y=%f p=%f pdot=%f v=%f",&x,
-					&y, &psi,
-					&psidot, &v);
+			latestWaypoint->x=x;
+			latestWaypoint->y=y;
+			latestWaypoint->psi=psi;
+			latestWaypoint->psidot=psidot;
+			latestWaypoint->v=v;
 			releaseWaypointStructLock();
 			//send ack back to mo-ship
 			sprintf(resp, "{\n@%d w \n}",
 					myOrbId);
-
+			logit(eSpuLog, eLogInfo, "\n sending p? response to spu=%s", resp);
+			writeCharsToSerialPort(com2, resp, strlen(resp));
 		}
 	}
+	else
+		fprintf(stderr, "ERRRRRRRRRRRRRRRROR");
 
-	logit(eGpsLog, eLogInfo, "\n sending response to spu=%s", resp);
-	writeCharsToSerialPort(com2, resp, strlen(resp));
 }
 
 void dispatchGpsLocationMsg(cmdStruct * c) {
@@ -432,7 +451,7 @@ int main(int argc, char *argv[]) {
 	//First fork startChildProcessToProcessGpsMsg()
 	if ((pid = fork()) < 0) {
 		fprintf(stderr, "\n fork() unsuccessful");
-		cleanupIPCStructs(isParent);
+		cleanup(isParent);
 		return (2);
 	} else if (pid == 0) {
 		isParent = 0;
@@ -450,7 +469,7 @@ int main(int argc, char *argv[]) {
 		//mode. TBD
 		if ((pid = fork()) < 0) {
 			fprintf(stderr, "\ngronkulator fork() unsuccessful");
-			cleanupIPCStructs(isParent);
+			cleanup(isParent);
 			return (2);
 		} else if (pid == 0) {
 			isParent = 0;
@@ -512,7 +531,7 @@ int main(int argc, char *argv[]) {
 #ifdef LOCAL
 						else
 						{ /* no bytes read means EOF */
-							cleanupIPCStructs (isParent);
+							cleanup (isParent);
 							return (0);
 						}
 #endif

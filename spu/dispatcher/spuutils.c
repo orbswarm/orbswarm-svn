@@ -113,7 +113,7 @@ static volatile unsigned char *start;
 
 void cleanupSpuutils(void)
 {
-	munmap(start, getpagesize());
+	munmap((unsigned char *)start, getpagesize());
 	close(devmem);
 }
 
