@@ -98,6 +98,7 @@ void startChildProcessToGronk(void) {
 	struct swarmCoord carrot;
 	struct swarmFeedback feedback;
 	int thisSteeringValue;
+	int thisPropValue;
 	//double distanceToCarrot;
 	double thisYawRate;
 	struct swarmCircle circle;
@@ -312,7 +313,7 @@ void startChildProcessToGronk(void) {
 						stateEstimate.yawb);
 				logit(eMcuLog, eLogDebug, outputFileBuffer);
 
-				enum {PATH_JOYSTICK, PATH_CIRCLE, PATH_FIGEIGHT, PATH_CIRCLESYNCHRO};
+				enum {PATH_JOYSTICK, PATH_CIRCLE, PATH_FIGEIGHT, PATH_CIRCLESYNCHRO, PATH_FOLLOWING};
 				switch (pathMode)
 				{
 					case PATH_JOYSTICK:
@@ -347,20 +348,29 @@ void startChildProcessToGronk(void) {
 
 								pathMode = PATH_CIRCLESYNCHRO;
 							}
+
+							if (nextPath == 4)
+							{
+								pathMode = PATH_FOLLOWING;
+							}
 						break;
 
 					case PATH_CIRCLE:
 							circlePath( &circle, &stateEstimate, &carrot );
 							swarmFeedbackProcess( &stateEstimate, &carrot, &feedback, buffer );
+							thisSteeringValue = (int)rint(feedback.deltaDes * 190.0);
 						break;
 
 					case PATH_FIGEIGHT:
 							figEightPath( &figEight, &stateEstimate, &carrot );
 							swarmFeedbackProcess( &stateEstimate, &carrot, &feedback, buffer );
+							thisSteeringValue = (int)rint(feedback.deltaDes * 190.0);
 						break;
 					case PATH_CIRCLESYNCHRO:
 							circleSynchro( &circle, &stateEstimate, &carrot );
 							swarmFeedbackProcess( &stateEstimate, &carrot, &feedback, buffer );
+
+							thisSteeringValue = (int)rint(feedback.deltaDes * 190.0);
 #ifndef JOYSTICK
 							sprintf(buffer, "$p%d*", (int)rint(feedback.vDes + 50.0) );
 							logit(eMcuLog, eLogDebug, buffer);
@@ -372,6 +382,32 @@ void startChildProcessToGronk(void) {
 #endif
 
 						break;
+
+					case PATH_FOLLOWING:
+
+						pathFollow( &latestWayPoint, &stateEstimate, &carrot );
+
+						swarmFeedbackProcess( &stateEstimate, &carrot, &feedback, buffer );
+
+						thisSteeringValue = (int)rint(feedback.deltaDes * 190.0);
+						thisPropValue = (int)rint(feedback.vDes);
+
+						thisSteeringValue += potFeedForward( &stateEstimate, &carrot );
+						thisPropValue += propFeedForward( &stateEstimate, &carrot );
+
+#ifndef JOYSTICK
+						sprintf(buffer, "$p%d*", thisPropValue  );
+						logit(eMcuLog, eLogDebug, buffer);
+						if (1)
+						{
+							writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
+							drainSerialPort(com5);
+						}
+#endif
+
+
+
+					break;
 				}
 
 				sprintf(controlFileBuffer, "\n%f,%f,%f,%f,%f,%f,%f %s",
@@ -385,7 +421,6 @@ void startChildProcessToGronk(void) {
 						buffer);
 				logit(eMcuLog, eLogDebug, controlFileBuffer);
 
-				thisSteeringValue = (int)rint(feedback.deltaDes * 190.0);
 				if(thisSteeringValue > 100)
 					thisSteeringValue = 100;
 				if(thisSteeringValue < -100)

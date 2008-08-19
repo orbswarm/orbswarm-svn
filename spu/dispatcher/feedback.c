@@ -76,7 +76,7 @@ int potFeedForward( struct swarmStateEstimate * stateEstimate, struct swarmCoord
 {
 	int potValue;
 
-	potValue = (int)(rint(187.4 * carrot->psidot * RADIUS / stateEstimate->v));
+	potValue = -(int)(rint(187.4 * carrot->psidot * RADIUS / stateEstimate->v));
 	return(potValue);
 }
 
