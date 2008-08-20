@@ -41,8 +41,8 @@ public interface IOrbControl
     // Motion methods
     //
 
-    public void followPath(com.orbswarm.choreography.Point[] wayPoints);
-    public void stopOrb(int orb);
+    public SmoothPath followPath(int orbNum, Path targets);
+    public void stopOrb(int orbNum);
 
     //
     // SoundFile -> sound hash mapping.

@@ -9,6 +9,9 @@
 package com.orbswarm.swarmcomposer.swarmulator;
 
 import com.orbswarm.swarmcon.IOrbControl;
+import com.orbswarm.swarmcon.Target;
+import com.orbswarm.swarmcon.Path;
+import com.orbswarm.swarmcon.SmoothPath;
 
 import com.orbswarm.choreography.Orb;
 import com.orbswarm.choreography.Point;
@@ -1491,8 +1494,11 @@ public class Swarmulator implements MouseListener, MouseMotionListener, ColorSch
     //
     // Motion methods
     //
-    public void followPath(Point[] wayPoints) {}
-    public void stopOrb(int orb) {}
+    public SmoothPath followPath(int orbNum, Path targets)
+    {
+      return null;
+    }
+    public void stopOrb(int orbNum) {}
 
     //
     // SoundFile -> sound hash mapping.

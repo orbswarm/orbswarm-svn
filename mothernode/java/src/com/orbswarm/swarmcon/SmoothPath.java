@@ -8,14 +8,14 @@ import java.awt.geom.PathIterator;
 import java.util.Vector;
 import java.util.Iterator;
 
-class SmoothPath extends Vector<Waypoint>
+public class SmoothPath extends Vector<Waypoint>
 {
    /** Continouse path representing the smooth path */
 
    GeneralPath continousePath;
 
    /** indicates that the we have not reached cruise speed */
-   
+
    public static double NOT_CRUISING = -1;
    
    /** Construct a smoothed path from path which the orb can safely follow.
@@ -27,11 +27,12 @@ class SmoothPath extends Vector<Waypoint>
     * @return a smoothed path with waypoints and times
     */
 
-   public SmoothPath(Path path, Rate velocity, double interval, 
-                              double curveWidth)
+   public SmoothPath(
+     Path path, Rate velocity, double interval, 
+     double curveWidth, double flatness)
    {
       continousePath = computeContinousePath(path, curveWidth);
-      PathIterator pi = continousePath.getPathIterator(null, 1);
+      PathIterator pi = continousePath.getPathIterator(null, flatness);
 
       // variables used during the iteration of the path
       
@@ -289,7 +290,7 @@ class SmoothPath extends Vector<Waypoint>
 
                   Path path = new Path();
                   for (int i = 0; i < count; ++i)
-                     path.add(new Point(
+                     path.add(new Target(
                                  (double)rnd.nextInt(clip.width),
                                  (double)rnd.nextInt(clip.height)));
                   
@@ -304,7 +305,7 @@ class SmoothPath extends Vector<Waypoint>
 
                   
                   SmoothPath smoothPath = new SmoothPath(
-                     path, rate, 1.0d, curveWidth);
+                    path, rate, 1.0d, curveWidth, 1.0);
                   g.setColor(new java.awt.Color(0, 0, 0, 64));
                   g.setStroke(new java.awt.BasicStroke(
                                  20,

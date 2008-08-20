@@ -15,31 +15,31 @@ abstract public class MotionModel implements IOrbListener
 
     /** yaw of orb */
 
-    private Angle yaw = new Angle();
+    protected Angle yaw = new Angle();
 
     /** pitch of orb */
 
-    private Angle pitch = new Angle();
+    protected Angle pitch = new Angle();
 
     /** roll of orb */
 
-    private Angle roll = new Angle();
+    protected Angle roll = new Angle();
 
     /** direction of travel (as distinct from yaw) */
 
-    private Angle direction = new Angle();
+    protected Angle direction = new Angle();
 
     /** position of orb */
 
-    private Point position = new Point(0, 0);
+    protected Point position = new Point(0, 0);
 
     /** velocity of orb */
 
-    private double velocity = 0;
+    protected double velocity = 0;
 
     /** yaw rate */
 
-    private double yawRate = 0;
+    protected double yawRate = 0;
 
     // ------- pitch roll rate control parameters --------
 
@@ -224,10 +224,12 @@ abstract public class MotionModel implements IOrbListener
      *
      * @param target target position
      */
+
     public void setTargetPosition(Point target)
     {
       targetPosition = target;
     }
+
     /** Get target yaw. */
 
     public double getTargetYaw()

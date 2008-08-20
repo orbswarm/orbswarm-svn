@@ -471,7 +471,12 @@ public class OrbControl implements IOrbControl
     //
     // Motion methods
     //
-    public void followPath(com.orbswarm.choreography.Point[] wayPoints) {}
+
+    public SmoothPath followPath(int orbNum, Path targets) 
+    {
+      return null;
+    }
+
     public void stopOrb(int orbNum)
     {
       if (orbIo != null)

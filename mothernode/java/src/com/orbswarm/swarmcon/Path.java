@@ -9,6 +9,6 @@ import java.util.Vector;
 import java.util.Iterator;
 
 
-class Path extends Vector<Point>
+public class Path extends Vector<Target>
 {
 }

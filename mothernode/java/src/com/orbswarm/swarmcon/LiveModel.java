@@ -9,6 +9,26 @@ import static com.orbswarm.swarmcon.Message.Field.*;
 
 public class LiveModel extends MotionModel
 {
+    /** Distance to travel before completing smooth path. (meters) */
+    
+    public static final double HEAD_ROOM = 6;
+    
+    /** Distance to travel before completing smooth path. (meters) */
+    
+    public static final double SMOOTH_PATH_UPDATE_RATE = .1;
+
+    /** Curve width for smooth path calculations. */
+
+    public static final double CURVE_WIDTH = HEAD_ROOM;
+
+    /** Flatness of waypoints. */
+
+    public static final double CURVE_FLATNESS = 0.1;
+    
+    /** Velocity rate profile to folow */
+
+    private static Rate velocityRate = new Rate("Velocity", 0, 1, .25);
+
     /** Note that we have not yet initialized the global offset, which
      * is gonna be some big ugly number based on on the UTM values we're
      * getting from the GPS.  Once we start getting values we'll want to
@@ -148,5 +168,36 @@ public class LiveModel extends MotionModel
     public double getYawRate()
     {
       return 0;
+    }
+
+   /** Command position.
+    *
+    * @param target target position
+    */
+    
+    public void setTargetPosition(Target target)
+    {
+      Path path = new Path();
+      super.setTargetPosition(target);
+      
+      // add the current orb position
+
+      path.add(new Target(position));
+
+      // add the intermediate point between the orb and the target
+
+      path.add(new Target(yaw.cartesian(HEAD_ROOM, true, getX(), getY())));
+
+      // add the target
+
+      path.add(target);
+
+      // make a smooth path to follow
+
+      SmoothPath sp = new SmoothPath(
+        path, velocityRate, 
+        SMOOTH_PATH_UPDATE_RATE, CURVE_WIDTH, CURVE_FLATNESS);
+
+      SwarmCon.getInstance().getSwarm().add(new SmoothMobject(sp));
     }
 }

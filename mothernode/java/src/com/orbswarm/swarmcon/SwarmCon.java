@@ -1,4 +1,3 @@
-
 package com.orbswarm.swarmcon;
 
 import javax.swing.*;
@@ -45,7 +44,6 @@ import com.orbswarm.choreography.timeline.TimelineDisplay;
 import com.orbswarm.swarmcomposer.color.*;
 import com.orbswarm.swarmcomposer.composer.BotVisualizer;
 import com.orbswarm.swarmcomposer.util.TokenReader;
-
 
 import static org.trebor.util.ShapeTools.*;
 import static java.lang.System.*;
@@ -530,7 +528,6 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       sc.setupControlPanel(schemer, bv, timelineDisplay);
       //sc.startControlling();
     }
-
 
     // construct a swarm
 
@@ -1494,6 +1491,14 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
         }
       }
 
+      // set 0,0 to lower left corner, and scale for meters
+
+      g.scale(PIXELS_PER_METER, -PIXELS_PER_METER);
+
+      // apply the global offset
+
+      g.translate(getGlobalOffset().getX(), getGlobalOffset().getY());
+
       // draw timeline regions
 
       if (timeline != null)
@@ -1505,14 +1510,6 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
           region.paint(g);
         }
       }
-
-      // set 0,0 to lower left corner, and scale for meters
-
-      g.scale(PIXELS_PER_METER, -PIXELS_PER_METER);
-
-      // apply the global offset
-
-      g.translate(getGlobalOffset().getX(), getGlobalOffset().getY());
 
       // draw mobjects
 
@@ -1666,9 +1663,41 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
         public void mouseMoved(MouseEvent e)
         {
         }
+
         // mouse clicked event
 
         public void mouseClicked(MouseEvent e)
+        {
+          if (!e.isControlDown())
+            selectOrb(e);
+          else
+            commandOrb(e);
+        }
+
+        Orb orbToCommand = null;
+
+        public void commandOrb(MouseEvent e)
+        {
+          Point2D.Double worldPos = screenToWorld(e.getPoint());
+          final Mobject nearest = swarm.findSelected(worldPos);
+
+          if (nearest != null && nearest instanceof Mobject)
+          {
+            orbToCommand = (Orb)nearest;
+          }
+          else if (orbToCommand != null)
+          {
+            // compute the positon of the first point to command to get
+            // the orb in the right direction
+
+            orbToCommand.getModel().setTargetPosition(new Point(worldPos));
+            //System.println("goto pos: " + worldPos);
+          }
+        }
+
+        // select an orb for zoom display
+
+        public void selectOrb(MouseEvent e)
         {
           // find nearest selectable mobject
 

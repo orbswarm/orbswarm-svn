@@ -22,6 +22,7 @@ The text of the MIT license apears in the mit-license.txt file.
   <property name = "domain-scope-dir"   value = "com/orbswarm"/>
 <!--   <property name = "main-class"         value = "JoystickManager"/> -->
 <!--   <property name = "main-class"         value = "SerialIo"/> -->
+<!--   <property name = "main-class"         value = "SmoothPath"/> -->
   <property name = "main-class"         value = "SwarmCon"/>
   <property name = "lib-dir"            value = "lib"/>
   <property name = "resources"          value = "resources"/>
