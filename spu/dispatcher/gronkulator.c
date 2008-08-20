@@ -26,6 +26,7 @@
 
 #define MOTORSPEED 60
 
+enum {PATH_JOYSTICK, PATH_CIRCLE, PATH_FIGEIGHT, PATH_CIRCLESYNCHRO, PATH_FOLLOWING};
 
 /* set this define if joystick is in use */
 //#define JOYSTICK
@@ -110,8 +111,10 @@ void sendMotorControl ( int steeringValue, int propValue )
 void startChildProcessToGronk(void) {
 	logit(eMcuLog, eLogDebug, "\n STARTING GRONK()");
 
-	int pathMode = 0;
-	int nextPath = 4;
+// enum {PATH_JOYSTICK, PATH_CIRCLE, PATH_FIGEIGHT, PATH_CIRCLESYNCHRO, PATH_FOLLOWING};
+
+	int pathMode = PATH_JOYSTICK;
+	int nextPath = PATH_JOYSTICK;
 	int logData = 1;
 	struct timeval lastGronkTime;
 	gettimeofday(&lastGronkTime, NULL);
@@ -306,6 +309,7 @@ void startChildProcessToGronk(void) {
 
 			case GRONK_RUN: // normal running mode
 				logit(eMcuLog, eLogDebug, "\nGRONK_RUN");
+
 				kalmanProcess(&latestGpsCoordinatesInternalCopy, &imuData, &stateEstimate);
 
 				stateEstimate.time = (double)nowGronkTime.tv_sec + (double)nowGronkTime.tv_usec / 1000000;
@@ -339,11 +343,12 @@ void startChildProcessToGronk(void) {
 						stateEstimate.yawb);
 				logit(eMcuLog, eLogDebug, outputFileBuffer);
 
-				enum {PATH_JOYSTICK, PATH_CIRCLE, PATH_FIGEIGHT, PATH_CIRCLESYNCHRO, PATH_FOLLOWING};
-
+				// enum {PATH_JOYSTICK, PATH_CIRCLE, PATH_FIGEIGHT, PATH_CIRCLESYNCHRO, PATH_FOLLOWING};
 				switch (pathMode)
 				{
 					case PATH_JOYSTICK:
+						logit(eMcuLog, eLogDebug,
+								"\nPath State: PATH_JOYSTICK");
 							if (nextPath == PATH_CIRCLE)
 							{
 								//carrot.x = 2000 * cos(stateEstimate.psi + PI/6);
@@ -352,6 +357,12 @@ void startChildProcessToGronk(void) {
 								circle.radius = 9.0;
 								circle.direction = 1.0;
 								circleInit( &stateEstimate, &circle );
+								if(acquireCom3Lock()){
+									logit(eMcuLog, eLogDebug, "\ninit state=0");
+									char* msg="<LB255><LR255><LG0><LT0><LF>";
+									writeCharsToSerialPort(com3, msg, strlen(msg));
+									releaseCom3Lock();
+								}
 								sendMotorControl ( 0, MOTORSPEED );
 								pathMode = PATH_CIRCLE;
 							}
@@ -360,6 +371,12 @@ void startChildProcessToGronk(void) {
 								figEight.carrotDistance = 2.0;
 								figEight.radius = 10.0;
 								figEightInit( &stateEstimate, &figEight );
+								if(acquireCom3Lock()){
+									logit(eMcuLog, eLogDebug, "\ninit state=0");
+									char* msg="<LB255><LR255><LG0><LT0><LF>";
+									writeCharsToSerialPort(com3, msg, strlen(msg));
+									releaseCom3Lock();
+								}
 								sendMotorControl ( 0, MOTORSPEED );
 								pathMode = PATH_FIGEIGHT;
 							}
@@ -372,59 +389,116 @@ void startChildProcessToGronk(void) {
 								circle.direction = 1.0;
 								circle.rate = 0.1;
 								circleInit( &stateEstimate, &circle );
-
+								if(acquireCom3Lock()){
+									logit(eMcuLog, eLogDebug, "\ninit state=0");
+									char* msg="<LB255><LR255><LG0><LT0><LF>";
+									writeCharsToSerialPort(com3, msg, strlen(msg));
+									releaseCom3Lock();
+								}
 								pathMode = PATH_CIRCLESYNCHRO;
 							}
 
 							if (nextPath == PATH_FOLLOWING)
 							{
+								if(acquireCom3Lock()){
+									logit(eMcuLog, eLogDebug, "\ninit state=0");
+									char* msg="<LB255><LR255><LG0><LT0><LF>";
+									writeCharsToSerialPort(com3, msg, strlen(msg));
+									releaseCom3Lock();
+								}
 								pathMode = PATH_FOLLOWING;
 							}
 						break;
 
 					case PATH_CIRCLE:
-							circlePath( &circle, &stateEstimate, &carrot );
-							swarmFeedbackProcess( &stateEstimate, &carrot, &feedback, buffer );
-							thisSteeringValue = (int)rint(feedback.deltaDes * 190.0);
-							sendMotorControl ( thisSteeringValue, MOTORSPEED );
+						logit(eMcuLog, eLogDebug,
+								"\nPath State: PATH_CIRCLE");
+						    if (nextPath == PATH_JOYSTICK)
+						    {
+						    	pathMode = PATH_JOYSTICK;
+								if(acquireCom3Lock()){
+									char* msg="<LB0><LR0><LG255><LT0><LF>";
+									writeCharsToSerialPort(com3, msg, strlen(msg));
+									releaseCom3Lock();
+								}
+						    } else {
+						    	circlePath( &circle, &stateEstimate, &carrot );
+						    	swarmFeedbackProcess( &stateEstimate, &carrot, &feedback, buffer );
+						    	thisSteeringValue = (int)rint(feedback.deltaDes * 190.0);
+						    	sendMotorControl ( thisSteeringValue, MOTORSPEED );
+						    }
 						break;
 
 					case PATH_FIGEIGHT:
+						logit(eMcuLog, eLogDebug,
+								"\nPath State: PATH_FIGEIGHT");
+					    if (nextPath == PATH_JOYSTICK)
+					    {
+					    	pathMode = PATH_JOYSTICK;
+					    	if(acquireCom3Lock()){
+					    		char* msg="<LB0><LR0><LG255><LT0><LF>";
+					    		writeCharsToSerialPort(com3, msg, strlen(msg));
+					    		releaseCom3Lock();
+					    	}
+				    } else {
 							figEightPath( &figEight, &stateEstimate, &carrot );
 							swarmFeedbackProcess( &stateEstimate, &carrot, &feedback, buffer );
 							thisSteeringValue = (int)rint(feedback.deltaDes * 190.0);
 							sendMotorControl ( thisSteeringValue, MOTORSPEED );
+					    }
 						break;
 					case PATH_CIRCLESYNCHRO:
+						logit(eMcuLog, eLogDebug,
+								"\nPath State: PATH_CIRCLESYNCHRO");
+					    if (nextPath == PATH_JOYSTICK)
+					    {
+					    	pathMode = PATH_JOYSTICK;
+					    	if(acquireCom3Lock()){
+					    		char* msg="<LB0><LR0><LG255><LT0><LF>";
+					    		writeCharsToSerialPort(com3, msg, strlen(msg));
+					    		releaseCom3Lock();
+					    	}
+				    } else {
 							circleSynchro( &circle, &stateEstimate, &carrot );
 							swarmFeedbackProcess( &stateEstimate, &carrot, &feedback, buffer );
 
 							thisSteeringValue = (int)rint(feedback.deltaDes * 190.0);
 							sendMotorControl ( thisSteeringValue, (int)rint(feedback.vDes + 50.0) );
-
+					    }
 						break;
 
 					case PATH_FOLLOWING:
+						logit(eMcuLog, eLogDebug,
+								"\nPath State: PATH_FOLLOWING");
+					    if (nextPath == PATH_JOYSTICK)
+					    {
+					    	pathMode = PATH_JOYSTICK;
+					    	if(acquireCom3Lock()){
+					    		char* msg="<LB0><LR0><LG255><LT0><LF>";
+					    		writeCharsToSerialPort(com3, msg, strlen(msg));
+					    		releaseCom3Lock();
+					    	}
 
-						if(acquireWaypointStructLock()){
-							logit(eMcuLog, eLogDebug, "\n waypoint vals x=%f y=%f"
+					    } else {
+					    	if(acquireWaypointStructLock()){
+					    		logit(eMcuLog, eLogDebug, "\n waypoint vals x=%f y=%f"
 									" psi=%f psidot=%f v=%f",
 									latestWaypoint->x, latestWaypoint->y,
 									latestWaypoint->psi, latestWaypoint->psidot, latestWaypoint->v);
-							pathFollow( latestWaypoint, &stateEstimate, &carrot );
-							releaseWaypointStructLock();
-						}
+								pathFollow( latestWaypoint, &stateEstimate, &carrot );
+								releaseWaypointStructLock();
+							}
 
-						swarmFeedbackProcess( &stateEstimate, &carrot, &feedback, buffer );
+							swarmFeedbackProcess( &stateEstimate, &carrot, &feedback, buffer );
 
-						thisSteeringValue = (int)rint(feedback.deltaDes * 190.0);
-						thisPropValue = (int)rint(feedback.vDes);
+							thisSteeringValue = (int)rint(feedback.deltaDes * 190.0);
+							thisPropValue = (int)rint(feedback.vDes);
 
-						thisSteeringValue += potFeedForward( &stateEstimate, &carrot );
-						thisPropValue += propFeedForward( &stateEstimate, &carrot );
+							thisSteeringValue += potFeedForward( &stateEstimate, &carrot );
+							thisPropValue += propFeedForward( &stateEstimate, &carrot );
 
-						sendMotorControl ( thisSteeringValue, thisPropValue );
-
+							sendMotorControl ( thisSteeringValue, thisPropValue );
+					    }
 					break;
 				}
 
@@ -505,14 +579,25 @@ void startChildProcessToGronk(void) {
 						else if(0 == strncmp(buffer, "[HALT", 5)){
 							logit(eMcuLog, eLogDebug,
 									"\ngot HALT message from parent=%s", buffer);
-
+							sendMotorControl ( 0, 0 );
+							pathMode = PATH_JOYSTICK;
+							nextPath = PATH_JOYSTICK;
 						}
 						else if(0 == strncmp(buffer, "[MODE", 5)){
 							logit(eMcuLog, eLogDebug,
 									"\ngot MODE message from parent=%s", buffer);
 							int nMode;
+							// enum {PATH_JOYSTICK, PATH_CIRCLE, PATH_FIGEIGHT, PATH_CIRCLESYNCHRO, PATH_FOLLOWING};
 							sscanf(buffer, "[MODE %d]", &nMode);
 							logit(eMcuLog, eLogDebug, "\n got MODE=%d", nMode);
+							if (nMode == 0)
+								nextPath = PATH_JOYSTICK;
+							if (nMode == 1)
+								nextPath = PATH_CIRCLE;
+							if (nMode == 2)
+								nextPath = PATH_FIGEIGHT;
+							if (nMode == 3)
+								nextPath = PATH_FOLLOWING;
 
 						}
 						else
