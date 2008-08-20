@@ -51,5 +51,7 @@ public interface IOrbControl
     public void   addSoundFileMapping(String soundFilePath, String soundFileHash);
     public String getSoundFileHash(String soundFilePath);
     public List   getSoundFileMappingKeys();
+
+    public SwarmCon getSwarmCon();
 }
 

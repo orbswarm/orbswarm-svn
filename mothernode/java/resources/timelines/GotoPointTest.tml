@@ -1,0 +1,172 @@
+<timeline>
+  name: Goto Point Test
+  arena: 200.
+  duration: 180.
+
+  <path>
+   name: pent
+   point: 3 3
+   point: 15 2
+   point: 19 13
+   point: 11 20
+   point: 1.5 14
+   point: 3 3
+  </path>
+
+  <path>
+   name: square
+   point: -6 7
+   point: 3 7
+   point: 3 17
+   point: -6 17
+   point: -6 7
+  </path>
+
+  <path>
+    name: one
+    point: 10 10
+    point: 12 12
+    point: 13 14
+    point: 12 16
+    point: 10 18
+  </path>
+
+  <path>
+    name: two
+    point: 2 0
+    point: 3 -1
+    point: 4 -3
+    point: 5 -2
+    point: 6 0
+  </path>
+
+  <event>
+     name: fadeIn
+     specialist: SimpleColor
+     startTime: 4
+     fadeTime: 15
+     <color> RGB 80 200 80 </color>
+  </event>
+
+  <region>
+     name: FollowSquare
+     x: -8 -5
+     y: 6 9
+      <event>
+        name: followSquare
+        trigger: enter
+        specialist: FollowPath
+        <properties>
+            path: square
+        </properties>
+      </event>
+  </region>
+
+  <region>
+     name: P
+     x: 2 4
+     y: 2 4
+      <event>
+        name: A_enter
+        trigger: enter
+        specialist: FollowPath
+        <properties>
+            path: pent
+        </properties>
+      </event>
+  </region>
+
+  <region>
+     name: A
+     x: 4 6
+     y: 4 6
+      <event>
+        name: A_enter
+        trigger: enter
+        specialist: GotoPoint
+        <properties>
+            x: 13
+            y: 5
+        </properties>
+      </event>
+      <event>
+        name: A_inside
+        trigger: inside
+        specialist: TemporaryColor
+        color: RGB 55 55 255
+        fadeTime: 4
+        <properties>
+           fadeOutTime 5
+        </properties>
+      </event>
+  </region>
+
+  <region>
+     name: B
+     x: 12 14
+     y: 4 6
+      <event>
+        name: B_enter
+        trigger: enter
+        specialist: GotoPoint
+        <properties>
+            x: 17
+            y: 11
+        </properties>
+      </event>
+  </region>
+
+  <region>
+     name: C
+     x: 16 18
+     y: 10 12
+      <event>
+        name: C_enter
+        trigger: enter
+        specialist: GotoPoint
+        <properties>
+            x: 11
+            y: 17
+        </properties>
+      </event>
+  </region>
+
+  <region>
+     name: D
+     x: 10 12
+     y: 16 18
+      <event>
+        name: D_enter
+        trigger: enter
+        specialist: GotoPoint
+        <properties>
+            x: 4
+            y: 13
+        </properties>
+      </event>
+  </region>
+
+  <region>
+     name: E
+     x: 3 5
+     y: 12 14
+      <event>
+        name: E_enter
+        trigger: enter
+        specialist: GotoPoint
+        <properties>
+            x: 5
+            y: 5
+        </properties>
+      </event>
+  </region>
+
+  <event>
+      name: fadeout
+      specialist: SimpleColor
+      startTime: 160
+      fadeTime: 20
+      color: RGB 0 0 0 
+  </event>
+
+</timeline>

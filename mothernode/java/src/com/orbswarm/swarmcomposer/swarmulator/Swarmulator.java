@@ -1458,6 +1458,10 @@ public class Swarmulator implements MouseListener, MouseMotionListener, ColorSch
       return this;
     }
 
+    public com.orbswarm.swarmcon.SwarmCon getSwarmCon() {
+        return null;
+    }
+
     // sound control methods not implemented.
     public float playSoundFile(int orb, String soundFilePath)
     {

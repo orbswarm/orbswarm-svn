@@ -117,19 +117,19 @@ public class Mobject
       }
       // positon getter 
 
-      Point getPosition()
+      public Point getPosition()
       {
          return new Point(getX(), getY());
       }
       // get x position
 
-      double getX()
+      public double getX()
       {
          return position.getX();
       }
       // get y position
 
-      double getY()
+      public double getY()
       {
          return position.getY();
       }

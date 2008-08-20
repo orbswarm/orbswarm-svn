@@ -99,6 +99,16 @@ public abstract class AbstractSpecialist implements Specialist {
         }
         return result;
     }
+
+    public boolean getBooleanProperty(String name, boolean defaultVal) {
+        String prop = getProperty(name);
+        boolean result = defaultVal;
+        try {
+            result = Boolean.valueOf(prop).booleanValue();
+        } catch (Exception ex) {
+        }
+        return result;
+    }
  
     /////////////////////////////////
     /// Command Listener          ///

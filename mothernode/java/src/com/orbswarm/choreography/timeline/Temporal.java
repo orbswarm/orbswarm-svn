@@ -19,6 +19,8 @@ public class Temporal {
     public static final String END_SEQUENCE = "</sequence>";
     public static final String REGION       = "<region>";
     public static final String END_REGION   = "</region>";
+    public static final String PATH         = "<path>";
+    public static final String END_PATH     = "</path>";
     public static final String PROPERTIES     = "<properties>";
     public static final String END_PROPERTIES = "</properties>";
 
@@ -39,6 +41,10 @@ public class Temporal {
     public static final String Y            = "y:";
     public static final String R            = "r:";
     public static final String THETA        = "theta:";
+    public static final String POINT        = "point:";
+    public static final String DELTA        = "delta:";
+    public static final String RELATIVE     = "relative";
+    public static final String RELATIVE_ANGLES = "relative_angles";
     public static final String TARGET       = "target:";
     public static final String TRIGGER      = "trigger:";
     public static final String TRIGGER_ACTION  = "triggerAction:";

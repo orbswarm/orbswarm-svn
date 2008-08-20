@@ -38,6 +38,7 @@ import com.orbswarm.choreography.Specialist;
 import com.orbswarm.swarmcon.IOrbControl;
 
 import com.orbswarm.choreography.timeline.Region;
+import com.orbswarm.choreography.timeline.TimelinePath;
 import com.orbswarm.choreography.timeline.Timeline;
 import com.orbswarm.choreography.timeline.TimelineDisplay;
 
@@ -562,6 +563,11 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       return activeSwarmCon;
     }
 
+    public Timeline getTimeline() {
+        return timeline;
+    }
+    
+
     /** Splitting constructor from initializer, so that parameters can
      *  be set in the main routine before starting it up. (e.g. can't
      *  reset the timeline width after constructing the frame).
@@ -997,6 +1003,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
         swarm.updateOrbDistances();
         broadcastOrbState();
         updateTimelineRegions();
+        updateTimelinePaths();
         timeline.orbState(swarm);
 
         // repaint the screen
@@ -1069,6 +1076,11 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
           }
         }
       }
+    }
+
+    public void updateTimelinePaths()
+    {
+        // whaddoIdo?
     }
 
 
@@ -1500,16 +1512,31 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       g.translate(getGlobalOffset().getX(), getGlobalOffset().getY());
 
       // draw timeline regions
-
       if (timeline != null)
       {
-        boolean first = true;
         for (Iterator it = timeline.getRegions().iterator(); it.hasNext(); )
         {
           Region region = (Region)it.next();
           region.paint(g);
         }
       }
+
+      if (timeline != null)
+      { 
+       // draw timeline paths
+       for (Iterator it = timeline.getPathsIterator(); it.hasNext(); )
+        {
+          TimelinePath path = (TimelinePath)it.next();
+          path.paint(g);
+        }
+        // draw ephemeral timeline paths 
+       for (Iterator it = timeline.getEphemeralPathsIterator(); it.hasNext(); )
+        {
+          TimelinePath path = (TimelinePath)it.next();
+          path.paint(g);
+        }
+     }
+      
 
       // draw mobjects
 
@@ -2456,5 +2483,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       Timeline.registerSpecialist("RandomSongPlayer", "com.orbswarm.swarmcomposer.composer.RandomSongSpecialist");
       Timeline.registerSpecialist("SimpleSound",  chpkg + "." + "SingleSoundSpecialist");
       Timeline.registerSpecialist("Multitrack",   chpkg + "." + "MultitrackSongSpecialist");
+      Timeline.registerSpecialist("FollowPath",   chpkg + "." + "FollowPathSpecialist");
+      Timeline.registerSpecialist("GotoPoint",   chpkg + "." + "GotoPointSpecialist");
     }
 }

@@ -1,6 +1,7 @@
 package com.orbswarm.choreography;
 
 import java.awt.Color;
+import com.orbswarm.swarmcon.Point;
 
 /**
  * Abstraction of an Orb, giving the information needed by Specialist
@@ -18,9 +19,12 @@ public interface Orb {
      */
     public double[] getDistances();
 
+    public Color getOrbColor();
+
     /**
      * Do we need methods for orb position and such?
+     *  (yes)
      */
+    public Point getPosition();
 
-    public Color getOrbColor();
 }

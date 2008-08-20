@@ -3,6 +3,7 @@ package com.orbswarm.choreography.timeline;
 import com.orbswarm.swarmcomposer.util.TokenReader;
 import com.orbswarm.swarmcomposer.color.HSV;
 import com.orbswarm.swarmcon.Swarm;
+import com.orbswarm.swarmcon.Target;
 import com.orbswarm.choreography.Orb;
 
 import java.io.IOException;
@@ -27,9 +28,12 @@ public class Timeline extends Temporal {
 
     protected float arena = NO_SIZE;
     protected static HashMap specialistRegistry;
-    protected ArrayList regions = new ArrayList();
     public    TimelineDisplay timelineDisplay = null;
     protected ArrayList proximityTriggers = new ArrayList();
+    protected HashMap   paths = new HashMap();
+    protected ArrayList ephemeralPaths = new ArrayList();
+    protected ArrayList regions = new ArrayList();
+    
 
     public void setTimelineDisplay(TimelineDisplay val) {
         this.timelineDisplay = val;
@@ -83,6 +87,9 @@ public class Timeline extends Temporal {
             } else if (token.equalsIgnoreCase(REGION)) {
                 Region region = readRegion(reader, timeline, END_REGION);
                 timeline.addRegion(region);
+            } else if (token.equalsIgnoreCase(PATH)) {
+                TimelinePath path = readPath(reader, END_PATH);
+                timeline.addPath(path);
             } else if (token.equalsIgnoreCase(PROXIMITY)) {
                 readProximityEvent(reader, timeline, END_PROXIMITY);
             }
@@ -94,6 +101,7 @@ public class Timeline extends Temporal {
 
     private void postProcess() {
         annealRegions();
+        annealPaths();
     }
 
     
@@ -252,6 +260,16 @@ public class Timeline extends Temporal {
             i++;
         }
     }
+
+    private void annealPaths() {
+        int numPaths = paths.size();
+        int i=0;
+        for(Iterator it = getPathsIterator(); it.hasNext(); ) {
+            TimelinePath timelinePath = (TimelinePath)it.next();
+            timelinePath.setBaseHue(i, numPaths);
+            i++;
+        }
+    }
     
     public static Region readRegion(TokenReader reader,
                                     Timeline timeline,
@@ -302,6 +320,44 @@ public class Timeline extends Temporal {
         System.out.println("Finished ReadRegion: " + token);
 
         return region;
+    }
+
+    public static TimelinePath readPath(TokenReader reader,
+                                String endToken)  throws IOException {
+        TimelinePath path = new TimelinePath();
+        String token = reader.readToken();
+        double x = 0., y = 0.;
+        System.out.println("Reading Path. ");
+        boolean absolute = true;
+        while (token != null && !token.equalsIgnoreCase(endToken)) {
+            if (token.equalsIgnoreCase(NAME)) {
+                String name = reader.readLine();
+                System.out.println(" path name: " + name);
+                path.setName(name);
+
+            } else if (token.equalsIgnoreCase(POINT)) {
+                x = reader.readDouble();
+                y = reader.readDouble();
+                System.out.println(" path target coords: " + x + " " + y);
+                path.add(new Target(x, y));
+
+            } else if (token.equalsIgnoreCase(RELATIVE)) {
+                absolute = false;
+            } 
+            token = reader.readToken();
+        }
+        path.setAbsolute(absolute);
+        if (absolute) {
+            path.reshape();
+        } else {
+            // TODO: didn't get relative paths correct at all!
+            //Target zero = new Target(0., 0.);
+            //path.reshapeRelative(zero);
+        }
+
+        System.out.println("Finished ReadPath: " + token);
+
+        return path;
     }
 
     public static void readProximityEvent(TokenReader reader,
@@ -452,6 +508,29 @@ public class Timeline extends Temporal {
 
     public ArrayList getRegions() {
         return regions;
+    }
+
+    //
+    // Paths
+    //
+    public void addPath(TimelinePath path) {
+        paths.put(path.getName(), path);
+    }
+
+    public void addEphemeralPath(TimelinePath path) {
+        ephemeralPaths.add(path);
+    }
+
+    public TimelinePath getPath(String name) {
+        return (TimelinePath)paths.get(name);
+    }
+    
+    public Iterator getPathsIterator() {
+        return paths.values().iterator();
+    }
+
+    public Iterator getEphemeralPathsIterator() {
+        return ephemeralPaths.iterator();
     }
 
     /**

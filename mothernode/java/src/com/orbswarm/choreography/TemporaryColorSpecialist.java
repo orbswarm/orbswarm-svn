@@ -31,6 +31,12 @@ public class TemporaryColorSpecialist extends AbstractSpecialist implements Colo
     public void setup(IOrbControl orbControl, Properties initialProperties, int[] orbs)
     {
       super.setup(orbControl, initialProperties, orbs);
+
+        System.out.print("[[[[ TemporaryColor.  <setup> orbs: {");
+        for(int i=0; i < orbs.length; i++) {
+            System.out.print(i + ", ");
+        }
+        System.out.println("} ]]]]");
     }
 
     public void setColor(HSV color, float fadeTimeSec)
@@ -42,6 +48,11 @@ public class TemporaryColorSpecialist extends AbstractSpecialist implements Colo
 
     public void start()
     {
+        System.out.print("[[[[ TemporaryColor.  <start> orbs: {");
+        for(int i=0; i < orbs.length; i++) {
+            System.out.print(orbs[i] + ", ");
+        }
+        System.out.println("} ]]]]");
       rememberTheColors = new HSV[orbs.length];
       for (int i=0; i < orbs.length; i++)
       {
