@@ -318,4 +318,9 @@ void cleanupIPCStructs(int isParent) {
 		fprintf(stderr,
 				"\n cleaned shared mem for latest gps co-ord data struct");
 	}
+	if(isParent && -1 != waypointStructSegmentId){
+		shmctl(waypointStructSegmentId, IPC_RMID, 0);
+		fprintf(stderr,
+				"\n cleaned shared mem for latest waypoint data struct");
+	}
 }

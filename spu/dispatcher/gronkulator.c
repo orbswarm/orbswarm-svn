@@ -136,9 +136,9 @@ void startChildProcessToGronk(void) {
 	double thisYawRate;
 	struct swarmCircle circle;
 	struct swarmFigEight figEight;
-	int kalmanDataFileFD;
-	int kalmanResulstFileFD;
-	int controlFileFD;
+	int kalmanDataFileFD=-1;
+	int kalmanResulstFileFD=-1;
+	int controlFileFD=-1;
 
 
 #ifdef JOYSTICK
@@ -203,9 +203,7 @@ void startChildProcessToGronk(void) {
 			logit(eMcuLog, eLogInfo, "\nread resp to $QI*:END");
 			logit(eMcuLog, eLogInfo, "\n IMU data=%s bytes read=%d", buffer,
 					i_bytesRead);
-			fprintf(stderr, "\nbefore safe copy");
 			safeCopyGpsStruct(&latestGpsCoordinatesInternalCopy, latestGpsCoordinates);
-			fprintf(stderr, "\nafter safe copy");
 			char parsedAndFormattedGpsCoordinates[96];
 			sprintf(parsedAndFormattedGpsCoordinates,
 					"{orb=%d northing=%f easting=%f utmzone=%s}", myOrbId,

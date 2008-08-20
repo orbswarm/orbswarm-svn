@@ -28,7 +28,8 @@ LFLAGS =  -static -O2 -s -pipe -lm
 #scan.c is automatically generated from scan.y by lemon
 #scanfrontend.c has support code and lexical analyser for the lemon scanner
 
-all: lemon dispatcher
+all: lemon dispatcher joypatcher
+
 scanner.o scan.h: scan.c scan.y scanfrontend.c
 	cat scan.c scanfrontend.c  > scanner.c
 	$(CC) -c -o scanner.o $(CFLAGS) scanner.c
