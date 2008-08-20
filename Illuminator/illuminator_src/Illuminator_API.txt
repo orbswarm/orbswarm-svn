@@ -94,6 +94,6 @@ Example: to display cyan from color index 6: <LL6><LF>
 Example: to write blue to index 5 without displaying it, <LR0><LG0><LB255><LW5>
 
 
-KN - blink with period N x 0.1 seconds (0<=N<=255). Blinks between index colors 0 and index color 1, so if you don't like white and red then load different colors with the W command.
+KN - blink N times, at 5 hz. Blinks between index colors 0 and index color 1, so if you don't like white and red then load different colors with the W command.
 
 C -- self-test Check. Blinks white the number of times corresponding to the address. Address 0 blinks white for a long period. 
