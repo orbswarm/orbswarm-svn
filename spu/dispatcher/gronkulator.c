@@ -407,6 +407,10 @@ void startChildProcessToGronk(void) {
 					case PATH_FOLLOWING:
 
 						if(acquireWaypointStructLock()){
+							logit(eMcuLog, eLogDebug, "\n waypoint vals x=%f y=%f"
+									" psi=%f psidot=%f v=%f",
+									latestWaypoint->x, latestWaypoint->y,
+									latestWaypoint->psi, latestWaypoint->psidot, latestWaypoint->v);
 							pathFollow( latestWaypoint, &stateEstimate, &carrot );
 							releaseWaypointStructLock();
 						}
@@ -491,10 +495,29 @@ void startChildProcessToGronk(void) {
 				if (FD_ISSET (pfd2[0], &readSet) /*1 */) {
 					waitParent(eMcuCommandPipeId); //guranteed to not block
 					if (pop(buffer, mcuQueuePtr)) {
-						logit(eMcuLog, eLogDebug,
-								"\ngot mcu message from parent=%s", buffer);
-						writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
-						drainSerialPort(com5);
+						if(0 == strncmp(buffer, "$", 1)){
+							//This is a mcu command
+							logit(eMcuLog, eLogDebug,
+									"\ngot mcu message from parent=%s", buffer);
+							writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
+							drainSerialPort(com5);
+						}
+						else if(0 == strncmp(buffer, "[HALT", 5)){
+							logit(eMcuLog, eLogDebug,
+									"\ngot HALT message from parent=%s", buffer);
+
+						}
+						else if(0 == strncmp(buffer, "[MODE", 5)){
+							logit(eMcuLog, eLogDebug,
+									"\ngot MODE message from parent=%s", buffer);
+							int nMode;
+							sscanf(buffer, "[MODE %d]", &nMode);
+							logit(eMcuLog, eLogDebug, "\n got MODE=%d", nMode);
+
+						}
+						else
+							logit(eMcuLog, eLogError, "\ngronkulator un-expected "
+									" and unhandled message=%s", buffer);
 					} else {
 						logit(eMcuLog, eLogError,
 								"\npop returned nothing. shouldn't be here");

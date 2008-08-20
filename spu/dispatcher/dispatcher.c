@@ -76,8 +76,8 @@
 //all externs in one file i.e. dispatcher.c or testharness.c
 //                      --niladri.bora@gmail.com
 //////////////////////////////////////////////////////////////////////////
-int parseDebug = eLedLog /*eDispatcherLog*/; /*  parser uses this for debug output */
-int parseLevel = eLogInfo;
+int parseDebug = eMcuLog /*eDispatcherLog*/; /*  parser uses this for debug output */
+int parseLevel = eLogDebug;
 int myOrbId = 60; /* which orb are we?  */
 int com1 = 0; /* File descriptor for the port */
 int com2 = 0; /* File descriptor for the port */
@@ -154,7 +154,7 @@ void startChildProcessToProcessGpsMsg(void) {
 				//releasing the lock
 				//IMPORTANT: You shouldn't do any IO inside the critical section
 				//Turn down logging if possible
-				fprintf(stderr, "\nabout to lock gps struct because I got a new gps message");
+				//fprintf(stderr, "\nabout to lock gps struct because I got a new gps message");
 				if(acquireGpsStructLock()){
 					strncpy(latestGpsCoordinates->ggaSentence, buffer, MSG_LENGTH);
 					int status = parseGPSGGASentence(latestGpsCoordinates);
@@ -247,7 +247,7 @@ void dispatchSPUCmd(int spuAddr, cmdStruct * c) {
 	if (spuAddr != myOrbId)
 		return;
 
-	logit(eSpuLog, eLogInfo, "Orb %d Got SPU command: \"%s\"\n", spuAddr, c->cmd);
+	logit(eMcuLog, eLogInfo, "Orb %d Got SPU command: \"%s\"\n", spuAddr, c->cmd);
 	/* handle the command here */
 	if(0==strncmp(c->cmd, "[p?", 3)){
 		fprintf(stderr, "\n about to acquire lock on gps struct before reading it for query");
@@ -256,7 +256,7 @@ void dispatchSPUCmd(int spuAddr, cmdStruct * c) {
 					myOrbId, latestGpsCoordinates->UTMNorthing,
 					latestGpsCoordinates->UTMEasting);
 			releaseGpsStructLock();
-			logit(eSpuLog, eLogInfo, "\n sending p? response to spu=%s", resp);
+			logit(eMcuLog, eLogInfo, "\n sending p? response to spu=%s", resp);
 			writeCharsToSerialPort(com2, resp, strlen(resp));
 
 		}
@@ -279,8 +279,26 @@ void dispatchSPUCmd(int spuAddr, cmdStruct * c) {
 			//send ack back to mo-ship
 			sprintf(resp, "{\n@%d w \n}",
 					myOrbId);
-			logit(eSpuLog, eLogInfo, "\n sending p? response to spu=%s", resp);
+			logit(eMcuLog, eLogInfo, "\n sending w response to spu=%s", resp);
 			writeCharsToSerialPort(com2, resp, strlen(resp));
+		}
+	}
+	else if(0==strncmp(c->cmd, "[HALT", 5)){
+		logit(eMcuLog, eLogDebug, "got HALT msg=%s", c->cmd);
+		if (push(c->cmd, mcuQueuePtr)) {
+			logit(eMcuLog, eLogDebug, "\n successfully pushed HALT msg");
+			tellChild(eMcuCommandPipeId);
+		} else {
+			logit(eMcuLog, eLogWarn, "\n push failed. mcu Q full");
+		}
+	}
+	else if(0==strncmp(c->cmd, "[MODE", 5)){
+		logit(eMcuLog, eLogDebug, "got MODE msg=%s", c->cmd);
+		if (push(c->cmd, mcuQueuePtr)) {
+			logit(eMcuLog, eLogDebug, "\n successfully pushed MODE msg");
+			tellChild(eMcuCommandPipeId);
+		} else {
+			logit(eMcuLog, eLogWarn, "\n push failed. mcu Q full");
 		}
 	}
 	else

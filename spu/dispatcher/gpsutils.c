@@ -91,7 +91,7 @@ int parseGPSVTGSentance(swarmGpsData * gpsdata) {
     char* strtok_r_ptr = NULL;
 
     // populate nmea_course, speed, and mode
-    logit(eMcuLog, eLogError, "\n VTG GPS sentence is %s", gpsdata->vtgSentence);
+    logit(eGpsLog, eLogDebug, "\n VTG GPS sentence is %s", gpsdata->vtgSentence);
     strcpy(gpssentcpy, gpsdata->vtgSentence);
     paramptr = strtok_r(gpssentcpy, SWARM_NMEA_GPS_DATA_DELIM, &strtok_r_ptr);
 

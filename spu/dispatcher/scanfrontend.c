@@ -100,6 +100,7 @@ void doScanner(void * pParser(), char* str)
       case '.':
       case '-':
       case '?':
+      case '=':
 	Parse (pParser, CHAR, inChar);
 	break;
       case '(':
