@@ -26,10 +26,17 @@
 
 #define MOTORSPEED 60
 
+// States of high level GRONK state machine
+enum {GRONK_WAITFORFIX, GRONK_BIAS, GRONK_KALMANINIT, GRONK_RUN, GRONK_COMPLETE};
+
+// States of lower level PATH state machine
 enum {PATH_JOYSTICK, PATH_CIRCLE, PATH_FIGEIGHT, PATH_CIRCLESYNCHRO, PATH_FOLLOWING};
 
-/* set this define if joystick is in use */
+/* set this define to eliminate autonomous control for joystick-only use */
 //#define JOYSTICK
+
+/* set this define to log sensordata, kalmandata, and controldata */
+#define LOGDATA
 
 
 #ifdef JOYSTICK
@@ -89,18 +96,27 @@ void sendMotorControl ( int steeringValue, int propValue )
 
 	char buffer[MSG_LENGTH + 1];
 	int limitedSteeringValue = 0;
+	int limitedPropValue     = 0;
+
+	limitedSteeringValue = steeringValue;
+	limitedPropValue     = propValue;
 
 	if(steeringValue > 100)
 		limitedSteeringValue = 100;
 	if(steeringValue < -100)
 		limitedSteeringValue = -100;
 
+	if(propValue > 100)
+		limitedPropValue = 100;
+	if(propValue < -100)
+		limitedPropValue = -100;
+
 	sprintf(buffer, "$s%d*", limitedSteeringValue );
 	logit(eMcuLog, eLogDebug, buffer);
 	writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
 	drainSerialPort(com5);
 
-	sprintf(buffer, "$p%d*", propValue );
+	sprintf(buffer, "$p%d*", limitedPropValue );
 	logit(eMcuLog, eLogDebug, buffer);
 	writeCharsToSerialPort(com5, buffer, strlen(buffer) + 1);
 	drainSerialPort(com5);
@@ -115,7 +131,7 @@ void startChildProcessToGronk(void) {
 
 	int pathMode = PATH_JOYSTICK;
 	int nextPath = PATH_JOYSTICK;
-	int logData = 1;
+	int logData = 0;
 	struct timeval lastGronkTime;
 	gettimeofday(&lastGronkTime, NULL);
 	struct timeval nowGronkTime;
@@ -135,13 +151,20 @@ void startChildProcessToGronk(void) {
 	struct swarmFeedback feedback;
 	int thisSteeringValue = 0;
 	int thisPropValue = 0;
-	//double distanceToCarrot;
 	double thisYawRate;
 	struct swarmCircle circle;
 	struct swarmFigEight figEight;
 	int kalmanDataFileFD=-1;
 	int kalmanResulstFileFD=-1;
 	int controlFileFD=-1;
+
+#ifdef LOGDATA
+	logData = 1;
+	logit(eMcuLog, eLogDebug, "\n LOGDATA is set in Gronk");
+#else
+	logit(eMcuLog, eLogDebug, "\n No LOGDATA in Gronk");
+#endif
+
 
 
 #ifdef JOYSTICK
@@ -225,7 +248,7 @@ void startChildProcessToGronk(void) {
 
 			imuData.si_yawRate = thisYawRate;
 
-			enum {GRONK_WAITFORFIX, GRONK_BIAS, GRONK_KALMANINIT, GRONK_RUN, GRONK_COMPLETE};
+			// enum {GRONK_WAITFORFIX, GRONK_BIAS, GRONK_KALMANINIT, GRONK_RUN, GRONK_COMPLETE};
 
 			switch (gronkMode)
 			{
@@ -364,6 +387,7 @@ void startChildProcessToGronk(void) {
 									releaseCom3Lock();
 								}
 								sendMotorControl ( 0, MOTORSPEED );
+								swarmFeedbackInit();
 								pathMode = PATH_CIRCLE;
 							}
 							if (nextPath == PATH_FIGEIGHT)
@@ -378,6 +402,7 @@ void startChildProcessToGronk(void) {
 									releaseCom3Lock();
 								}
 								sendMotorControl ( 0, MOTORSPEED );
+								swarmFeedbackInit();
 								pathMode = PATH_FIGEIGHT;
 							}
 							if (nextPath == PATH_CIRCLESYNCHRO)
@@ -395,6 +420,7 @@ void startChildProcessToGronk(void) {
 									writeCharsToSerialPort(com3, msg, strlen(msg));
 									releaseCom3Lock();
 								}
+								swarmFeedbackInit();
 								pathMode = PATH_CIRCLESYNCHRO;
 							}
 
@@ -406,6 +432,7 @@ void startChildProcessToGronk(void) {
 									writeCharsToSerialPort(com3, msg, strlen(msg));
 									releaseCom3Lock();
 								}
+								swarmFeedbackInit();
 								pathMode = PATH_FOLLOWING;
 							}
 						break;
@@ -502,13 +529,15 @@ void startChildProcessToGronk(void) {
 					break;
 				}
 
-				sprintf(controlFileBuffer, "\n%f,%f,%f %s",
+				if (pathMode != PATH_JOYSTICK)
+				{
+					sprintf(controlFileBuffer, "\n%f,%f,%f %s",
 						(double)nowGronkTime.tv_sec + (double)nowGronkTime.tv_usec / 1000000,
 						carrot.x-stateEstimate.x,
 						carrot.y-stateEstimate.y,
 						buffer);
-				logit(eMcuLog, eLogDebug, controlFileBuffer);
-
+					logit(eMcuLog, eLogDebug, controlFileBuffer);
+				}
 				break;
 
 			case GRONK_COMPLETE: // made it to goal
