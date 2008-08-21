@@ -134,7 +134,7 @@ void figEightInit( struct swarmStateEstimate * stateEstimate, struct swarmFigEig
 
 	circleState.x  	= figEight->point3.x;
 	circleState.y   = figEight->point3.y;
-	circleState.psi = figEight->point0.psi + PI;
+	circleState.psi = figEight->point0.psi + PI / 2.0;
 
 	figEight->circle2.radius    = figEight->radius;
 	figEight->circle2.direction = 1.0;
