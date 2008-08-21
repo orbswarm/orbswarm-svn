@@ -1,2 +1,2 @@
 #!/bin/sh
-nohup sh /root/spumon.sh > spumon.log 2>&1 &
+nohup /root/spumon.sh > /dev/null 2>&1 &
