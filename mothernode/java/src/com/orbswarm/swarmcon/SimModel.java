@@ -227,7 +227,7 @@ public class SimModel extends MotionModel
     * @param target target position
     */
     
-    public void setTargetPosition(Target target)
+    public SmoothPath setTargetPosition(Target target)
     {
       throw(new Error("Method not yet implemented."));
     }
@@ -237,7 +237,7 @@ public class SimModel extends MotionModel
      * @param path the path the orb should follow
      */
 
-    public void setTargetPath(Path path)
+    public SmoothPath setTargetPath(Path path)
     {
       throw(new Error("Method not yet implemented."));
     }

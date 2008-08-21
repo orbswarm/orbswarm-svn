@@ -176,7 +176,7 @@ public class LiveModel extends MotionModel
     * @param target target position
     */
     
-    public void setTargetPosition(Target target)
+    public SmoothPath setTargetPosition(Target target)
     {
       // create a path
 
@@ -197,7 +197,7 @@ public class LiveModel extends MotionModel
 
       // command out the path
 
-      setTargetPath(path);
+      return setTargetPath(path);
     }
 
     /** Command a path.
@@ -205,7 +205,7 @@ public class LiveModel extends MotionModel
      * @param path the path the orb should follow
      */
 
-    public void setTargetPath(Path path)
+    public SmoothPath setTargetPath(Path path)
     {
       // make a smooth path to follow
 
@@ -223,6 +223,10 @@ public class LiveModel extends MotionModel
 
       pathCommander = new PathCommander(sp);
       pathCommander.start();
+
+      // return the smooth path
+
+      return sp;
     }
     
     // the one true path commander
