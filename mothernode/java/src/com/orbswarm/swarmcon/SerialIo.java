@@ -268,7 +268,7 @@ public class SerialIo
             {
                out.write(string.getBytes());
                out.flush();
-               debugIo(string, true);
+               debugIo(string, debug);
             }
          }
          catch (Exception e)

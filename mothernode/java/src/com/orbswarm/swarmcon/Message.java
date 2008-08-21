@@ -80,7 +80,14 @@ public class Message extends Properties
 
     public Message(String message)
     {
-      parseMessage(message);
+      try
+      {
+        parseMessage(message);
+      }
+      catch (Exception e)
+      {
+        // do nothing for now
+      }
     }
         
     /** Get the message type.
@@ -121,13 +128,15 @@ public class Message extends Properties
       // get the sender id
 
       if (!t.hasMoreTokens())
-        throw new Error("No sender id specified in message: " + message);
+        return;
+        //throw new Error("No sender id specified in message: " + message);
       senderId = Integer.valueOf(t.nextToken()) - SwarmCon.ORB_OFFSET_ID;
 
       // get the message type
 
       if (!t.hasMoreTokens())
-        throw new Error("No type specified in message: " + message);
+        return;
+//        throw new Error("No type specified in message: " + message);
       type = Type.getType(t.nextToken());
 
       // loop through the remaining tokens and parse them in as
@@ -142,9 +151,10 @@ public class Message extends Properties
         // get the value
             
         if (!t.hasMoreTokens())
-          throw new Error(
-            "Property \"" + key + 
-            "\" has no value in message: " + message);
+          return;
+//           throw new Error(
+//             "Property \"" + key + 
+//             "\" has no value in message: " + message);
         String value = t.nextToken();
             
         // set property value

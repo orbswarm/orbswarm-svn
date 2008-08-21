@@ -221,6 +221,28 @@ public class SimModel extends MotionModel
       setDirection(toDegrees(atan2(delta.getX(), delta.getY())));
     }
 
+
+   /** Command position.
+    *
+    * @param target target position
+    */
+    
+    public void setTargetPosition(Target target)
+    {
+      throw(new Error("Method not yet implemented."));
+    }
+
+    /** Command a path.
+     *
+     * @param path the path the orb should follow
+     */
+
+    public void setTargetPath(Path path)
+    {
+      throw(new Error("Method not yet implemented."));
+    }
+
+
     /** Handel messages from the orb. This is stubbed out as the
      * simulation would not be connected to an orb. */
 

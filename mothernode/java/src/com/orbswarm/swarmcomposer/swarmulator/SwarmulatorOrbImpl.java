@@ -1,6 +1,7 @@
 package com.orbswarm.swarmcomposer.swarmulator;
 
 import com.orbswarm.choreography.Orb;
+import com.orbswarm.swarmcon.Point;
 
 import java.awt.Color;
 
@@ -36,4 +37,12 @@ public class SwarmulatorOrbImpl implements Orb {
         return null;
     }
 
+    /**
+     * Do we need methods for orb position and such?
+     *  (yes)
+     */
+    public Point getPosition()
+    {
+      return null;
+    }
 }

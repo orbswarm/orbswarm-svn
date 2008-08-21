@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.StringTokenizer;
 import java.util.Properties;
 import java.util.Map;
+import java.text.NumberFormat;
 
 import static java.lang.Character.*;
 import static com.orbswarm.swarmcon.Message.Type.*;
@@ -16,23 +17,16 @@ import static com.orbswarm.swarmcon.Message.Type.*;
 
 public class OrbIo extends SerialIo
 {
-    // message types
-    
-//     public static final String GPS_MSG_TYPE   = "GPS";
-//     public static final String MSLOC_MSG_TYPE = "MSLOC";
-//     public static final String DUMP_MSG_TYPE  = "DUMP_STATUS";
-//     public static final String TRAJ_MSG_TYPE  = "TRAJ";
-    
-//     // known message fields
-    
-//     public static final String ORB_MSG_FLD      = "orb";
-//     public static final String NORTH_MSG_FLD    = "northing";
-//     public static final String EAST_MSG_FLD     = "easting";
-//     public static final String UTMZONE_MSG_FLD  = "utmzone";
-//     public static final String VELOCITY_MSG_FLD = "velocity";
-//     public static final String HEADING_MSG_FLD  = "heading";
-//     public static final String TIME_MSG_FLD     = "time";
+    /** the standard formatter for sending values. */
 
+    public static NumberFormat StdFormat = NumberFormat.getNumberInstance();
+
+    static
+    {
+      StdFormat.setMinimumIntegerDigits(1);
+      StdFormat.setMaximumFractionDigits(3);
+      StdFormat.setMinimumFractionDigits(3);
+    }
 
     /** Hash of orbs to used to dispatch messages to orbs. */
 
@@ -106,6 +100,7 @@ public class OrbIo extends SerialIo
     {
       orbs.put(orb.getId(), orb);
     }
+
     /** Signal a message to an orb.
      *
      * @param message message to be sent to the orb
@@ -151,6 +146,22 @@ public class OrbIo extends SerialIo
       orbCommand(orbId, "[i?]");
     }
 
+    /** Send a waypoint requst to the orb. */
+
+    public void sendWaypoint(int orbId, Waypoint wp)
+    {
+      String command =
+        "[w" +
+        " x=" + format(wp.getX()) +
+        " y=" + format(wp.getY()) +
+        " p=" + format(wp.getRadians()) +
+        " pdot=" + format(wp.getDeltaRadians()) +
+        " v=" + format(wp.getVelocity()) +
+        "]";
+       
+      orbCommand(orbId, command);
+    }
+
     /** Send command to orb. */
 
     public void orbCommand(int orbId, String command)
@@ -192,6 +203,13 @@ public class OrbIo extends SerialIo
           e.printStackTrace();
         }
       }
+    }
+
+    /** Format doubles for sending to an orb */
+
+    public String format(double value)
+    {
+      return StdFormat.format(value);
     }
 
     /** The orb message class. */

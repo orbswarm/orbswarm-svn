@@ -225,10 +225,14 @@ abstract public class MotionModel implements IOrbListener
      * @param target target position
      */
 
-    public void setTargetPosition(Point target)
-    {
-      targetPosition = target;
-    }
+    abstract public void setTargetPosition(Target target);
+
+    /** Command a path.
+     *
+     * @param path the path the orb should follow
+     */
+
+    abstract public void setTargetPath(Path path);
 
     /** Get target yaw. */
 

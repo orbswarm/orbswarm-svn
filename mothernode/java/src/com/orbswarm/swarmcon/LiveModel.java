@@ -1,5 +1,6 @@
 package com.orbswarm.swarmcon;
 
+import java.lang.Thread;
 import org.trebor.util.Angle;
 
 import static com.orbswarm.swarmcon.Message.Type.*;
@@ -9,25 +10,25 @@ import static com.orbswarm.swarmcon.Message.Field.*;
 
 public class LiveModel extends MotionModel
 {
-    /** Distance to travel before completing smooth path. (meters) */
+    /** Distance to travel to give the orb some room to turn (meters). */
     
-    public static final double HEAD_ROOM = 6;
+    public static final double HEAD_ROOM = 4;
     
-    /** Distance to travel before completing smooth path. (meters) */
+    /** Time between points on a smooth path (seconds). */
     
     public static final double SMOOTH_PATH_UPDATE_RATE = .1;
 
     /** Curve width for smooth path calculations. */
 
-    public static final double CURVE_WIDTH = HEAD_ROOM;
+    public static final double CURVE_WIDTH = HEAD_ROOM * 0.60;
 
     /** Flatness of waypoints. */
 
-    public static final double CURVE_FLATNESS = 0.1;
+    public static final double CURVE_FLATNESS = 0.01;
     
     /** Velocity rate profile to folow */
 
-    private static Rate velocityRate = new Rate("Velocity", 0, 1, .25);
+    private static Rate velocityRate = new Rate("Velocity", 0, 1.0, .15);
 
     /** Note that we have not yet initialized the global offset, which
      * is gonna be some big ugly number based on on the UTM values we're
@@ -177,27 +178,123 @@ public class LiveModel extends MotionModel
     
     public void setTargetPosition(Target target)
     {
+      // create a path
+
       Path path = new Path();
-      super.setTargetPosition(target);
-      
+
       // add the current orb position
 
       path.add(new Target(position));
 
       // add the intermediate point between the orb and the target
 
+      path.add(new Target(yaw.cartesian(HEAD_ROOM / 4, true, getX(), getY())));
       path.add(new Target(yaw.cartesian(HEAD_ROOM, true, getX(), getY())));
 
-      // add the target
+      // add the actual target
 
       path.add(target);
 
+      // command out the path
+
+      setTargetPath(path);
+    }
+
+    /** Command a path.
+     *
+     * @param path the path the orb should follow
+     */
+
+    public void setTargetPath(Path path)
+    {
       // make a smooth path to follow
 
       SmoothPath sp = new SmoothPath(
         path, velocityRate, 
-        SMOOTH_PATH_UPDATE_RATE, CURVE_WIDTH, CURVE_FLATNESS);
+        SMOOTH_PATH_UPDATE_RATE, 
+        CURVE_WIDTH, CURVE_FLATNESS);
+      
+      // if there is a live path commander kill it
 
-      SwarmCon.getInstance().getSwarm().add(new SmoothMobject(sp));
+      if (pathCommander != null)
+        pathCommander.requestDeath();
+
+      // make a fresh new commander on this smooth path, and follow it
+
+      pathCommander = new PathCommander(sp);
+      pathCommander.start();
+    }
+    
+    // the one true path commander
+
+    private PathCommander pathCommander = null;
+
+    // thread for commanding orb
+
+    class PathCommander extends Thread
+    {
+        private SmoothPath path;
+
+        private boolean deathRequest = false;
+
+        private Swarm swarm = SwarmCon.getInstance().getSwarm();
+
+        public PathCommander(SmoothPath path)
+        {
+          this.path = path;
+        }
+
+        public void requestDeath()
+        {
+          deathRequest = true;
+        }
+
+        public void run()
+        {
+          try
+          {
+            System.out.println("started commander: " + path.size());
+
+            // make the path visable
+            
+            SmoothMobject smob = new SmoothMobject(path);
+            swarm.add(smob);
+
+            double lastTime = 0;
+            
+            for (Waypoint wp: path)
+            {
+              // sleep until it's time to send it
+
+              sleep(SwarmCon.secondsToMilliseconds(wp.getTime() - lastTime));
+
+              // if requested to die, do so
+
+              if (deathRequest)
+              {
+                swarm.remove(smob);
+                return;
+              }
+
+              // send the waypoint
+
+              orbIo.sendWaypoint(orbId, wp);
+              smob.setCurrentWaypoint(wp);
+              //System.out.println("wp -> " + wp);
+
+              // update the last time a way point was set
+
+              lastTime = wp.getTime();
+            }
+            
+            // nolonger show smod
+
+            swarm.remove(smob);
+          }
+          catch (Exception e)
+          {
+            e.printStackTrace();
+          }
+        }
     }
 }

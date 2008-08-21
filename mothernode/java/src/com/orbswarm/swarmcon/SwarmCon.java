@@ -394,7 +394,6 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
     public static NumberFormat HeadingFormat = NumberFormat.getNumberInstance();
     public static NumberFormat StdFormat = NumberFormat.getNumberInstance();
 
-
     /** static initializations */
 
     static
@@ -861,12 +860,24 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
      *
      * @param milliseconds ya know milliseconds
      *
-     * @return dimension seconds.
+     * @return decimal seconds.
      */
 
     public static double millisecondsToSeconds(long milliseconds)
     {
       return milliseconds / 1000d;
+    }
+
+    /** Convert decimal seconds to milliseconds.
+     *
+     * @param decimal seconds
+     *
+     * @return ya know milliseconds
+     */
+
+    public static long secondsToMilliseconds(double seconds)
+    {
+      return (long)(seconds * 1000);
     }
 
 
@@ -1717,8 +1728,8 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
             // compute the positon of the first point to command to get
             // the orb in the right direction
 
-            orbToCommand.getModel().setTargetPosition(new Point(worldPos));
-            //System.println("goto pos: " + worldPos);
+            orbToCommand.getModel().setTargetPosition(new Target(worldPos));
+            System.out.println("goto pos: " + worldPos);
           }
         }
 

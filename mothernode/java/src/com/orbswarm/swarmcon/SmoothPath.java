@@ -71,7 +71,7 @@ public class SmoothPath extends Vector<Waypoint>
       
       // start at time zero and speed zero and traveled zero
 
-      long time = 0;
+      double time = 0;
       velocity.setRate(0);
       double travel = 0;
       double cruiseDist = NOT_CRUISING;
@@ -110,7 +110,8 @@ public class SmoothPath extends Vector<Waypoint>
                         p1.x + (p2.x - p1.x) * segmentPercent,
                         p1.y + (p2.y - p1.y) * segmentPercent,
                         time,
-                        velocity.getRate());
+                        velocity.getRate(),
+                        new Angle(p1, p2));
             add(wp);
             
 
@@ -150,6 +151,11 @@ public class SmoothPath extends Vector<Waypoint>
             }
          }
       }
+
+      // now compute the turn rate
+
+      for (int i = 1; i < this.size() - 1; ++i)
+        get(i).setDeltaRadians(get(i - 1), get(i + 1));
    }
    /** Get the continouse path for this smoothed path.
     *
