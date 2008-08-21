@@ -230,6 +230,7 @@ public class SimModel extends MotionModel
     public SmoothPath setTargetPosition(Target target)
     {
       //throw(new Error("Method not yet implemented."));
+      return null;
     }
 
     /** Command a path.
@@ -240,6 +241,7 @@ public class SimModel extends MotionModel
     public SmoothPath setTargetPath(Path path)
     {
       //throw(new Error("Method not yet implemented."));
+      return null;
     }
 
 
