@@ -1,0 +1,278 @@
+<timeline>
+  name: Concentrics
+  arena: 200.
+  duration: 180.
+
+  <path>
+   name: pent
+   point: 10 10
+   point: 16 10
+   point: 18 15
+   point: 13 18.5
+   point:  8 15
+   point: 10 10
+  </path>
+
+  <path>
+    name: hex
+    point: 13 4
+    point: 4 8
+    point: 4 19
+    point: 13 23
+    point: 22 19
+    point: 22 8
+    point: 13 4
+  </path>
+
+  <event>
+     name: fadeIn
+     specialist: SimpleColor
+     startTime: 4
+     fadeTime: 15
+     <color> RGB 80 200 80 </color>
+  </event>
+
+  <region>
+     name: P0
+     x: 9 11
+     y: 9 11
+      <event>
+        name: followPent
+        trigger: enter
+        specialist: FollowPath
+        <properties>
+            path: pent
+        </properties>
+      </event>
+
+     <event>
+       name: bluePent
+       specialist: SimpleColor
+       fadeTime: 1
+       <color> RGB 0 0 250 </color>
+    </event>
+  </region>
+
+  <region>
+     name: P1
+     x: 15 17
+     y: 9 11
+      <event>
+        name: p1_flash
+        trigger: inside
+        specialist: TemporaryColor
+        color: RGB 255 255 255
+        fadeTime: 1
+        <properties>
+           fadeOutTime 5
+        </properties>
+      </event>
+  </region>
+
+  <region>
+     name: P2
+     x: 17 19
+     y: 14 16
+      <event>
+        name: p2_flash
+        trigger: inside
+        specialist: TemporaryColor
+        color: RGB 255 255 255
+        fadeTime: 1
+        <properties>
+           fadeOutTime 5
+        </properties>
+      </event>
+  </region>
+
+  <region>
+     name: P3
+     x: 12 14
+     y: 17 19
+      <event>
+        name: p3_flash
+        trigger: inside
+        specialist: TemporaryColor
+        color: RGB 255 255 255
+        fadeTime: 1
+        <properties>
+           fadeOutTime 5
+        </properties>
+      </event>
+  </region>
+
+  <region>
+     name: P4
+     x: 7 9
+     y: 14 16
+      <event>
+        name: p4_flash
+        trigger: inside
+        specialist: TemporaryColor
+        color: RGB 255 255 255
+        fadeTime: 1
+        <properties>
+           fadeOutTime 5
+        </properties>
+      </event>
+  </region>
+        
+  <region>
+     name: Hex_A
+     x: 11 15
+     y: 2 6
+      <event>
+        name: A_enter
+        trigger: enter
+        specialist: GotoPoint
+        <properties>
+            x: 4
+            y: 8
+        </properties>
+      </event>
+      <event>
+        name: A_inside
+        trigger: inside
+        specialist: TemporaryColor
+        color: RGB 0 255 0
+        fadeTime: 2
+        <properties>
+           fadeOutTime 5
+        </properties>
+      </event>
+  </region>
+
+  <region>
+     name: Hex_B
+     x: 2 6
+     y: 6 10
+      <event>
+        name: B_enter
+        trigger: enter
+        specialist: GotoPoint
+        <properties>
+            x: 4
+            y: 19
+        </properties>
+      </event>
+      <event>
+        name: B_inside
+        trigger: inside
+        specialist: TemporaryColor
+        color: RGB 255 255 0
+        fadeTime: 2
+        <properties>
+           fadeOutTime 5
+        </properties>
+      </event>
+  </region>
+
+  <region>
+     name: Hex_C
+     x: 2 6
+     y: 17 21
+      <event>
+        name: C_enter
+        trigger: enter
+        specialist: GotoPoint
+        <properties>
+            x: 13
+            y: 23
+        </properties>
+      </event>
+      <event>
+        name: C_inside
+        trigger: inside
+        specialist: TemporaryColor
+        color: RGB 255 0 0
+        fadeTime: 2
+        <properties>
+           fadeOutTime 5
+        </properties>
+      </event>
+  </region>
+
+  <region>
+     name: D
+     x: 11 15
+     y: 21 25
+      <event>
+        name: D_enter
+        trigger: enter
+        specialist: GotoPoint
+        <properties>
+            x: 22
+            y: 19
+        </properties>
+      </event>
+      <event>
+        name: D_inside
+        trigger: inside
+        specialist: TemporaryColor
+        color: RGB 255 255 255
+        fadeTime: 2
+        <properties>
+           fadeOutTime 5
+        </properties>
+      </event>
+  </region>
+
+  <region>
+     name: E
+     x: 20 24
+     y: 17 21
+      <event>
+        name: E_enter
+        trigger: enter
+        specialist: GotoPoint
+        <properties>
+            x: 22
+            y: 8
+        </properties>
+      </event>
+      <event>
+        name: E_inside
+        trigger: inside
+        specialist: TemporaryColor
+        color: RGB 0 0 255
+        fadeTime: 2
+        <properties>
+           fadeOutTime 5
+        </properties>
+      </event>
+  </region>
+
+  <region>
+     name: F
+     x: 20 24
+     y: 6 10
+      <event>
+        name: F_enter
+        trigger: enter
+        specialist: GotoPoint
+        <properties>
+            x: 13 
+            y: 4
+        </properties>
+      </event>
+      <event>
+        name: F_inside
+        trigger: inside
+        specialist: TemporaryColor
+        color: RGB 255 255 0
+        fadeTime: 2
+        <properties>
+           fadeOutTime 5
+        </properties>
+      </event>
+  </region>
+
+  <event>
+      name: fadeout
+      specialist: SimpleColor
+      startTime: 160
+      fadeTime: 20
+      color: RGB 0 0 0 
+  </event>
+
+</timeline>
