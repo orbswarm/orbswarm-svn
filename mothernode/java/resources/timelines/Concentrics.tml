@@ -65,6 +65,22 @@
        fadeTime: 3
        <color> RGB 0 0 250 </color>
     </event>
+      <event>
+        name: pentstart
+        trigger: enter
+        specialist: SimpleSound
+        <properties>
+            soundfile /orbsounds/FX/chimes/DC_g2.aif
+        </properties>
+      </event>
+      <event>
+        name: pentstart
+        trigger: exit
+        specialist: SimpleSound
+        <properties>
+            soundfile /orbsounds/FX/chimes/DC_b3.aif
+        </properties>
+      </event>
   </region>
 
   <region>
@@ -79,6 +95,14 @@
         fadeTime: 1
         <properties>
            fadeOutTime 5
+        </properties>
+      </event>
+      <event>
+        name: pentstart
+        trigger: enter
+        specialist: SimpleSound
+        <properties>
+            soundfile /orbsounds/FX/chimes/DC_e1a.aif
         </properties>
       </event>
   </region>
@@ -97,6 +121,14 @@
            fadeOutTime 5
         </properties>
       </event>
+      <event>
+        name: pentstart
+        trigger: enter
+        specialist: SimpleSound
+        <properties>
+            soundfile /orbsounds/FX/chimes/DC_c2a.aif
+        </properties>
+      </event>
   </region>
 
   <region>
@@ -113,6 +145,14 @@
            fadeOutTime 5
         </properties>
       </event>
+      <event>
+        name: pentstart
+        trigger: enter
+        specialist: SimpleSound
+        <properties>
+            soundfile /orbsounds/FX/chimes/DC_e3a.aif
+        </properties>
+      </event>
   </region>
 
   <region>
@@ -127,6 +167,14 @@
         fadeTime: 1
         <properties>
            fadeOutTime 5
+        </properties>
+      </event>
+      <event>
+        name: pentstart
+        trigger: enter
+        specialist: SimpleSound
+        <properties>
+            soundfile /orbsounds/FX/chimes/DC_f#3.aif
         </properties>
       </event>
   </region>
@@ -154,6 +202,15 @@
            fadeOutTime 5
         </properties>
       </event>
+      <event>
+        name: HexAM
+        trigger: enter
+        specialist: SimpleSound
+        <properties>
+            soundfile /orbsounds/songs/SolsticeNocturne_S07/chords/Am/Am_VDC_3.aif
+        </properties>
+      </event>
+
   </region>
 
   <region>
@@ -177,6 +234,14 @@
         fadeTime: 2
         <properties>
            fadeOutTime 5
+        </properties>
+      </event>
+      <event>
+        name: HexCMaj
+        trigger: enter
+        specialist: SimpleSound
+        <properties>
+            soundfile /orbsounds/songs/SolsticeNocturne_S07/chords/Cmaj/Cmaj_DC_45.aif
         </properties>
       </event>
   </region>
@@ -204,6 +269,14 @@
            fadeOutTime 5
         </properties>
       </event>
+      <event>
+        name: HexEb+
+        trigger: enter
+        specialist: SimpleSound
+        <properties>
+            soundfile /orbsounds/songs/SolsticeNocturne_S07/chords/Em/Em_DC_5.aif
+        </properties>
+      </event>
   </region>
 
   <region>
@@ -227,6 +300,14 @@
         fadeTime: 2
         <properties>
            fadeOutTime 5
+        </properties>
+      </event>
+      <event>
+        name: HexEb+
+        trigger: enter
+        specialist: SimpleSound
+        <properties>
+            soundfile /orbsounds/songs/SolsticeNocturne_S07/chords/G+/G+_VDC_34.aif
         </properties>
       </event>
   </region>
@@ -254,6 +335,16 @@
            fadeOutTime 5
         </properties>
       </event>
+      <event>
+        name: HexEb+
+        trigger: enter
+        specialist: SimpleSound
+        <properties>
+            soundfile /orbsounds/songs/SolsticeNocturne_S07/chords/Am/Am_V_1_2.aif
+
+
+        </properties>
+      </event>
   </region>
 
   <region>
@@ -279,12 +370,20 @@
            fadeOutTime 5
         </properties>
       </event>
+      <event>
+        name: HexEb+
+        trigger: enter
+        specialist: SimpleSound
+        <properties>
+            soundfile /orbsounds/songs/SolsticeNocturne_S07/chords/Em/Em_V_3.aif
+        </properties>
+      </event>
   </region>
 
   <event>
       name: fadeout
       specialist: SimpleColor
-      startTime: 160
+      startTime: 520
       fadeTime: 20
       color: RGB 0 0 0 
   </event>
