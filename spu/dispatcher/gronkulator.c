@@ -490,7 +490,12 @@ void startChildProcessToGronk(void) {
 							swarmFeedbackProcess( &stateEstimate, &carrot, &feedback, buffer );
 
 							thisSteeringValue = (int)rint(feedback.deltaDes * 190.0);
-							sendMotorControl ( thisSteeringValue, (int)rint(feedback.vDes + 50.0) );
+							carrot.v = 0.8;
+							carrot.psidot = 0.1;
+							thisSteeringValue += potFeedForward( &stateEstimate, &carrot );
+							thisPropValue += propFeedForward( &stateEstimate, &carrot );
+
+							sendMotorControl ( thisSteeringValue, (int)rint(feedback.vDes) );
 					    }
 						break;
 
@@ -622,7 +627,7 @@ void startChildProcessToGronk(void) {
 							if (nMode == 0)
 								nextPath = PATH_JOYSTICK;
 							if (nMode == 1)
-								nextPath = PATH_CIRCLE;
+								nextPath = PATH_CIRCLESYNCHRO;
 							if (nMode == 2)
 								nextPath = PATH_FIGEIGHT;
 							if (nMode == 3)
