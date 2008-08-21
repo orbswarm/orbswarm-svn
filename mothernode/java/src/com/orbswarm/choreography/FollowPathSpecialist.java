@@ -1,6 +1,7 @@
 package com.orbswarm.choreography;
 
 import com.orbswarm.swarmcon.IOrbControl;
+import com.orbswarm.swarmcon.SmoothPath;
 import com.orbswarm.swarmcon.SwarmCon;
 
 import com.orbswarm.swarmcomposer.color.HSV;
@@ -25,26 +26,42 @@ public class FollowPathSpecialist extends AbstractSpecialist  {
         if (pathName != null) {
             path = timeline.getPath(pathName);
         }
-        System.out.println("[[[[ FOLLOW PATH.  <setup> " + path.getName());
+        //System.out.println("[[[[ FOLLOW PATH.  <setup> " + path.getName());
     }
 
     public void start() {
-        System.out.println("[[[[ FOLLOW PATH.  <start> " + path.getName());
+        ///System.out.println("[[[[ FOLLOW PATH.  <start> " + path.getName());
         if (enabled && path != null) {
-            //path.setOnCall(true);
-            path.setActive(true);
             for(int i=0; i < orbs.length; i++) {
                 if (orbs[i] >= 0) {
-                    System.out.println("FollowPath <orb: " + i + " path: " + path.getName() + ">");
-                    orbControl.followPath(i, path);
+                    //System.out.println("FollowPath <orb: " + i + " path: " + path.getName() + ">");
+                    threadedFollowPath(orbControl, orbs[i], path);
                 }
             }
-            broadcastCommandCompleted("start", orbs, null);
         }
+    }
+
+    private void threadedFollowPath(final IOrbControl orbControl,
+                                    final int orbNum,
+                                    final TimelinePath gpath) {
+        Thread t = new Thread() {
+                public void run() {
+                    gpath.setActive(true);
+                    timeline.addEphemeralPath(gpath);
+                    orbControl.followPath(orbNum, gpath);
+                    timeline.removeEphemeralPath(gpath);
+                    gpath.setActive(false);
+                    broadcastCommandCompleted("start", orbs, null);
+                }
+            };
+        t.start();
     }
 
     public void stop() {
         //orbControl.stopPath(path);
+        if (path != null) {
+            path.setActive(false);
+        }
     }
 
     public void enable(boolean value) {

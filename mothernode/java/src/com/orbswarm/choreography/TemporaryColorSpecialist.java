@@ -48,11 +48,13 @@ public class TemporaryColorSpecialist extends AbstractSpecialist implements Colo
 
     public void start()
     {
+        /* debug
         System.out.print("[[[[ TemporaryColor.  <start> orbs: {");
         for(int i=0; i < orbs.length; i++) {
             System.out.print(orbs[i] + ", ");
         }
         System.out.println("} ]]]]");
+        */
       rememberTheColors = new HSV[orbs.length];
       for (int i=0; i < orbs.length; i++)
       {

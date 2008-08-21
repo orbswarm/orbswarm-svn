@@ -521,6 +521,13 @@ public class Timeline extends Temporal {
         ephemeralPaths.add(path);
     }
 
+    public void removeEphemeralPath(TimelinePath path) {
+        int idx = ephemeralPaths.indexOf(path);
+        if (idx >= 0) {
+            ephemeralPaths.remove(idx);
+        }
+    }
+
     public TimelinePath getPath(String name) {
         return (TimelinePath)paths.get(name);
     }

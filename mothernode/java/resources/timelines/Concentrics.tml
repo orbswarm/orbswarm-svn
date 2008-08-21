@@ -1,7 +1,15 @@
 <timeline>
   name: Concentrics
   arena: 200.
-  duration: 180.
+  duration: 540.
+
+  <event>
+     name: fadeIn
+     specialist: SimpleColor
+     startTime: 4
+     fadeTime: 15
+     <color> RGB 80 200 80 </color>
+  </event>
 
   <path>
    name: pent
@@ -24,13 +32,18 @@
     point: 13 4
   </path>
 
-  <event>
-     name: fadeIn
-     specialist: SimpleColor
-     startTime: 4
-     fadeTime: 15
-     <color> RGB 80 200 80 </color>
-  </event>
+  <region>
+     name: (0, 0)
+     x: -.5 .5
+     y: -.5 .5
+     <event>
+       name: bluePent
+       trigger: inside
+       specialist: SimpleColor
+       fadeTime: 1
+       <color> RGB 0 0 250 </color>
+    </event>
+  </region>
 
   <region>
      name: P0
@@ -47,8 +60,9 @@
 
      <event>
        name: bluePent
+       trigger: enter
        specialist: SimpleColor
-       fadeTime: 1
+       fadeTime: 3
        <color> RGB 0 0 250 </color>
     </event>
   </region>
@@ -133,7 +147,7 @@
       <event>
         name: A_inside
         trigger: inside
-        specialist: TemporaryColor
+        specialist: SimpleColor
         color: RGB 0 255 0
         fadeTime: 2
         <properties>
@@ -158,8 +172,8 @@
       <event>
         name: B_inside
         trigger: inside
-        specialist: TemporaryColor
-        color: RGB 255 255 0
+        specialist: SimpleColor
+        color: RGB 255 0 255
         fadeTime: 2
         <properties>
            fadeOutTime 5
@@ -183,7 +197,7 @@
       <event>
         name: C_inside
         trigger: inside
-        specialist: TemporaryColor
+        specialist: SimpleColor
         color: RGB 255 0 0
         fadeTime: 2
         <properties>
@@ -208,7 +222,7 @@
       <event>
         name: D_inside
         trigger: inside
-        specialist: TemporaryColor
+        specialist: SimpleColor
         color: RGB 255 255 255
         fadeTime: 2
         <properties>
@@ -233,7 +247,7 @@
       <event>
         name: E_inside
         trigger: inside
-        specialist: TemporaryColor
+        specialist: SimpleColor
         color: RGB 0 0 255
         fadeTime: 2
         <properties>
@@ -258,7 +272,7 @@
       <event>
         name: F_inside
         trigger: inside
-        specialist: TemporaryColor
+        specialist: SimpleColor
         color: RGB 255 255 0
         fadeTime: 2
         <properties>

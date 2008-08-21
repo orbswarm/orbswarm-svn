@@ -222,30 +222,7 @@ public class SimModel extends MotionModel
     }
 
 
-   /** Command position.
-    *
-    * @param target target position
-    */
-    
-    public SmoothPath setTargetPosition(Target target)
-    {
-      //throw(new Error("Method not yet implemented."));
-      return null;
-    }
-
-    /** Command a path.
-     *
-     * @param path the path the orb should follow
-     */
-
-    public SmoothPath setTargetPath(Path path)
-    {
-      //throw(new Error("Method not yet implemented."));
-      return null;
-    }
-
-
-    /** Handel messages from the orb. This is stubbed out as the
+    /** Handle messages from the orb. This is stubbed out as the
      * simulation would not be connected to an orb. */
 
     public void onOrbMessage(Message message)

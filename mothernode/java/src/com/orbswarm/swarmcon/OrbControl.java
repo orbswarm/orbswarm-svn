@@ -472,9 +472,33 @@ public class OrbControl implements IOrbControl
     // Motion methods
     //
 
-    public SmoothPath followPath(int orbNum, Path targets) 
+    // NOTE: will sleep the thread while following the path.
+    //       call from within a thread to call this asynchronously.
+    public SmoothPath followPath(int orbNum, Path path) 
     {
-      return null;
+        Orb orb = swarmCon.getOrb(orbNum);
+        Target target = firstPoint(path);
+        SmoothPath poised = orb.getModel().setTargetPosition(target);
+        long poiseTimeMs = (long)(poised.getDuration() * 1000.);
+        try {
+            Thread.sleep((long)poiseTimeMs);
+        } catch (Exception ex) {
+        }
+        SmoothPath travel = orb.getModel().setTargetPath(path);
+        long travelTimeMs = (long)(travel.getDuration() * 1000.);
+        try {
+            Thread.sleep((long)travelTimeMs);
+        } catch (Exception ex) {
+        }
+        return travel;
+    }
+
+    private Target firstPoint(Path path) {
+        if (path.size() > 0) {
+            return (Target)path.firstElement();
+        } else {
+            return null;
+        }
     }
 
     public void stopOrb(int orbNum)

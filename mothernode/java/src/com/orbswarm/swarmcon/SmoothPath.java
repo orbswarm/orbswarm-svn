@@ -271,6 +271,22 @@ public class SmoothPath extends Vector<Waypoint>
       return continousePath;
    }
 
+   /**
+    * return the duration (double seconds) of the path.
+    */
+   public double getDuration()
+   {
+       // the arrival time of the last waypoint is essentially the
+       // duration of the SmoothPath (the 1st waypoint's time is 0)
+       double duration = 0.;
+       if (this.size() > 0)
+       {
+           Waypoint theEnd = (Waypoint)this.lastElement();
+           duration = theEnd.getTime();
+       }
+       return duration;
+   }
+
    /** Test path code. */
 
    public static void main(String[] args)

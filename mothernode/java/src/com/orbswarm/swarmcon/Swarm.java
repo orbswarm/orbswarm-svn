@@ -94,7 +94,7 @@ public class Swarm extends Mobjects implements com.orbswarm.choreography.Swarm
       //
       // methods implementing com.orbswarm.choreography.Swarm interface
       //
-      public com.orbswarm.choreography.Orb getOrb(int orbNum) {
+      public Orb getOrb(int orbNum) {
          // assuming orbs are in the Vector in order of their Ids...
          for (Mobject mobject: this) {
             if (mobject instanceof Orb) {

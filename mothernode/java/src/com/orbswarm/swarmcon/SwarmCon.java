@@ -376,6 +376,10 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       return swarm;
     }
 
+    public Orb getOrb(int orbNum) {
+        return getSwarm().getOrb(orbNum);
+    }
+    
     /** selected objects */
 
     Mobjects selected = new Mobjects();

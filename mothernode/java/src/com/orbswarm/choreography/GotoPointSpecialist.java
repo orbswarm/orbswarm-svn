@@ -1,6 +1,7 @@
 package com.orbswarm.choreography;
 
 import com.orbswarm.swarmcon.IOrbControl;
+import com.orbswarm.swarmcon.SmoothPath;
 import com.orbswarm.swarmcon.SwarmCon;
 import com.orbswarm.swarmcon.Mobject;
 import com.orbswarm.swarmcon.Target;
@@ -29,29 +30,31 @@ public class GotoPointSpecialist extends AbstractSpecialist  {
         x = getDoubleProperty("x:", 0.);
         y = getDoubleProperty("y:", 0.);
         relative = getBooleanProperty("relative:", false);
-        
+        /* debug
         System.out.print("[[[[ GotoPoint.  <setup> orbs: {");
         for(int i=0; i < orbs.length; i++) {
             System.out.print(orbs[i] + ", ");
         }
         System.out.println("} ]]]]");
+        */
     }
 
     public void start() {
-        System.out.print("[[[[ GotoPoint.  <start> orbs: {");
+        //System.out.print("[[[[ GotoPoint.  <start> orbs: {");
         for(int i=0; i < orbs.length; i++) {
             System.out.print(orbs[i] + ", ");
         }
-        System.out.println("[[[[ GotoPoint.  {" + x + ", " + y + "}  ]]]]");
+        //System.out.println("[[[[ GotoPoint.  {" + x + ", " + y + "}  ]]]]");
         Swarm swarm = sc.getSwarm();
         if (enabled) {
+            long travelTime = 0l;
             for(int i=0; i < orbs.length; i++) {
                 if (orbs[i] >= 0) {
                     Orb orbi = swarm.getOrb(orbs[i]);
                     Point posi = orbi.getPosition();
                     double x0 = posi.getX();
                     double y0 = posi.getY();
-                    System.out.println("GotoPoint orb " + orbs[i] + " from {" + x0 + ", " + y0 + "} to {" + x + ", " + y + "}");
+                    //System.out.println("GotoPoint orb " + orbs[i] + " from {" + x0 + ", " + y0 + "} to {" + x + ", " + y + "}");
                     String name = "goto("+ orbs[i]+ ")<" + x + ", " + y + ">";
                     TimelinePath gpath = new TimelinePath(name);
                     gpath.add(new Target(x0, y0));
@@ -59,14 +62,26 @@ public class GotoPointSpecialist extends AbstractSpecialist  {
                     gpath.reshape();
                     gpath.resetColors();
                     gpath.setActive(true);
-                    timeline.addEphemeralPath(gpath);
-                    orbControl.followPath(orbs[i], gpath);
+                    threadedFollowPath(orbControl, orbs[i], gpath);
                 }
             }
-            broadcastCommandCompleted("start", orbs, null);
         }
     }
 
+    private void threadedFollowPath(final IOrbControl orbControl,
+                                    final int orbNum,
+                                    final TimelinePath gpath) {
+        Thread t = new Thread() {
+                public void run() {
+                    timeline.addEphemeralPath(gpath);
+                    orbControl.followPath(orbNum, gpath);
+                    timeline.removeEphemeralPath(gpath);
+                    broadcastCommandCompleted("start", orbs, null);
+                }
+            };
+        t.start();
+    }
+    
     public void stop() {
         //orbControl.stopPath(path);
     }

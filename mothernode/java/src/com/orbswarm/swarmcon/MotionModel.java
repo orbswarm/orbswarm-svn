@@ -11,6 +11,27 @@ import static java.lang.Math.*;
 
 abstract public class MotionModel implements IOrbListener
 {
+    /** Distance to travel to give the orb some room to turn (meters). */
+    
+    public static final double HEAD_ROOM = 4;
+
+    /** Time between points on a smooth path (seconds). */
+    
+    public static final double SMOOTH_PATH_UPDATE_RATE = .1;
+
+    /** Curve width for smooth path calculations. */
+
+    public static final double CURVE_WIDTH = HEAD_ROOM * 0.60;
+
+    /** Flatness of waypoints. */
+
+    public static final double CURVE_FLATNESS = 0.01;
+    
+    /** Velocity rate profile to folow */
+
+    private static Rate velocityRate = new Rate("Velocity", 0, 1.0, .15);
+
+    
     // ------- vehicle state --------
 
     /** yaw of orb */
@@ -220,19 +241,49 @@ abstract public class MotionModel implements IOrbListener
       this.distanceError = distanceError;
     }
 
-    /** Command position.
-     *
-     * @param target target position
-     */
+   /** Command position.
+    *
+    * @param target target position
+    */
+    
+    public SmoothPath setTargetPosition(Target target)
+    {
+      //throw(new Error("Method not yet implemented."));
+      // create a path
 
-    abstract public SmoothPath setTargetPosition(Target target);
+      Path path = new Path();
+
+      // add the current orb position
+
+      path.add(new Target(position));
+
+      // add the intermediate point between the orb and the target
+
+      path.add(new Target(yaw.cartesian(HEAD_ROOM / 4, true, getX(), getY())));
+      path.add(new Target(yaw.cartesian(HEAD_ROOM, true, getX(), getY())));
+
+      // add the actual target
+
+      path.add(target);
+
+      // command out the path
+
+      return setTargetPath(path);
+    }
 
     /** Command a path.
      *
      * @param path the path the orb should follow
      */
 
-    abstract public SmoothPath setTargetPath(Path path);
+    public SmoothPath setTargetPath(Path path)
+    {
+      SmoothPath sp = new SmoothPath(
+        path, velocityRate, 
+        SMOOTH_PATH_UPDATE_RATE, 
+        CURVE_WIDTH, CURVE_FLATNESS);
+      return sp;
+    }
 
     /** Get target yaw. */
 
