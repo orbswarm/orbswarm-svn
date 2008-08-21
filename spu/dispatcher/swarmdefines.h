@@ -75,6 +75,8 @@ typedef struct	swarmGpsDataStruct
   float nmea_course; //heading radians respect to due east
   float speed; //meters per second
   char mode;
+  double kalmanEstimateX;
+  double kalmanEstimateY;
 } swarmGpsData;
 
 struct	swarmImuData
