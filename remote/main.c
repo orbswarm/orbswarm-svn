@@ -39,8 +39,8 @@ Project: ORB Portable Transmitter using ATMega8L chip
 
 
 short steer_max=100;
-short drive_max=70;		/* was 40 */
-short drive_turbo=100;		/* was 60 */
+short drive_max=60;		/* was 40 */
+short drive_turbo=80;		/* was 60 */
 
 short negmax = 500;
 short posmax = 500;
@@ -430,7 +430,7 @@ void send_song(short soundnum, char *prefix){
       putstr("VPF ");
       putstr(prefix);
       putS16(soundnum);
-      putstr("_");
+      //putstr("_");
       UART_send_byte(dest + '0');
       putstr(".mp3>}");
     }
@@ -470,7 +470,8 @@ void do_keys(unsigned char keys, unsigned char oldkeys){
   }
 
   if(keydown & TRIGR1) {      /* R1 trigger button down */
-    if(~keys & TRIGL1) {      /* if mode, advance sound count */
+    if(~keys & TRIGL1);
+    else {      /* if mode, advance sound count */
       if(++happysoundcount >= NUM_HAPPYSOUNDS) {
 	happysoundcount = 0;
       }
@@ -478,9 +479,10 @@ void do_keys(unsigned char keys, unsigned char oldkeys){
     send_sound(start_addr,end_addr, happysoundcount, "h");
   }
   if(keydown & TRIGR2) {      /* R2 trigger button down */
-    if(~keys & TRIGL1) {      /* if mode, advance sound count */
-      if(++angrysoundcount >= NUM_HAPPYSOUNDS);
-      angrysoundcount = 0;
+    if(~keys & TRIGL1);
+    else {      /* if mode, advance sound count */
+      if(++angrysoundcount >= NUM_ANGRYSOUNDS)
+	angrysoundcount = 0;
     }
     send_sound(start_addr,end_addr, angrysoundcount, "a");
   }
@@ -497,7 +499,7 @@ void do_keys(unsigned char keys, unsigned char oldkeys){
       if(songsoundcount & 0x01) /* if odd count, send all stop */
 	send_song(0, NULL);
       else
-	send_song((songsoundcount>>1), "song");
+	send_song((songsoundcount>>1), "s");
       if(++songsoundcount >= (NUM_SONGSOUNDS << 1)) {
 	songsoundcount = 0;
       }
@@ -508,18 +510,20 @@ void do_keys(unsigned char keys, unsigned char oldkeys){
     }
   }
 
-  if(keydown & JOYBL) {		/* the stop button (joyr) was pressed */
+  if(keydown & JOYBL) {		/* the stop button (joyl) was pressed */
     send_addr(addr);
     putstr("$p00*}");
     send_addr(addr);
     putstr("$s00*}");
     send_addr(addr);
     putstr("[HALT 0]}");
-
-  }
-  if(keydown & JOYBR) {		/* Do identification flash */
+    /* do identification flash */
     send_light_cmd(addr, XVAL, 'T', 50); 
     send_light_cmd(addr, XVAL, 'C', XVAL);
+  }
+  if(keydown & JOYBR) {		/* Do identification flash */
+    //send_light_cmd(addr, XVAL, 'T', 50); 
+    //send_light_cmd(addr, XVAL, 'C', XVAL);
     /* send SPU command */
     send_addr(addr);
     putstr("[MODE "); 
