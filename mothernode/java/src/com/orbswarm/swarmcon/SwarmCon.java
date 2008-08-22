@@ -398,19 +398,23 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
     /** format for printing heading values */
 
-    public static NumberFormat HeadingFormat = NumberFormat.getNumberInstance();
-    public static NumberFormat StdFormat = NumberFormat.getNumberInstance();
+    public static NumberFormat HeadingFmt = NumberFormat.getNumberInstance();
+    public static NumberFormat UtmFmt = NumberFormat.getNumberInstance();
+    public static NumberFormat StdFmt = NumberFormat.getNumberInstance();
 
     /** static initializations */
 
     static
     {
-      HeadingFormat.setMaximumIntegerDigits(3);
-      HeadingFormat.setMinimumIntegerDigits(3);
-      HeadingFormat.setMaximumFractionDigits(0);
-      StdFormat.setMinimumIntegerDigits(1);
-      StdFormat.setMaximumFractionDigits(2);
-      StdFormat.setMinimumFractionDigits(2);
+      HeadingFmt.setMaximumIntegerDigits(3);
+      HeadingFmt.setMinimumIntegerDigits(3);
+      HeadingFmt.setMaximumFractionDigits(0);
+      UtmFmt.setMinimumIntegerDigits(1);
+      UtmFmt.setMaximumFractionDigits(3);
+      UtmFmt.setMinimumFractionDigits(3);
+      StdFmt.setMinimumIntegerDigits(1);
+      StdFmt.setMaximumFractionDigits(2);
+      StdFmt.setMinimumFractionDigits(2);
     }
     // entry point
 
@@ -1642,13 +1646,13 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
                 (behavior != null
                 ? behavior.toString()
                 : "[none]") +
-                " R: " + HeadingFormat.
+                " R: " + HeadingFmt.
                 format(round(orb.getRoll ())) +
-                " P: " + HeadingFormat.
+                " P: " + HeadingFmt.
                 format(round(orb.getPitch())) +
-                " Y: " + HeadingFormat.
+                " Y: " + HeadingFmt.
                 format(round(orb.getYaw  ())) +
-                " YR: " + HeadingFormat.
+                " YR: " + HeadingFmt.
                 format(round(orb.getYawRate())) +
                 " V: " + round(orb.getSpeed() * 100) / 100d,
                 5, 15 + id++ * 15);

@@ -29,10 +29,6 @@ public class Orb extends Mobject
 
     private boolean isPhantom = false;
 
-    /** double number formatter */
-
-    private static NumberFormat dblFmt = NumberFormat.getInstance();
-
     /** orb identifer */
 
     private int id;
@@ -414,9 +410,9 @@ public class Orb extends Mobject
         txY -= dTxY;
         drawText(g, txX, txY, "  ID: " + getId());
         txY -= dTxY;
-        drawText(g, txX, txY, "EAST: " + dblFmt.format(getX()));
+        drawText(g, txX, txY, "EAST: " + SwarmCon.UtmFmt.format(getX()));
         txY -= dTxY;
-        drawText(g, txX, txY, "NORH: " + dblFmt.format(getY()));
+        drawText(g, txX, txY, "NORH: " + SwarmCon.UtmFmt.format(getY()));
         txY -= dTxY;
         drawText(g, txX, txY, " YAW: " + (int)((360 + getYaw()) % 360));
         txY -= dTxY;
