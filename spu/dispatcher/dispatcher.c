@@ -252,11 +252,13 @@ void dispatchSPUCmd(int spuAddr, cmdStruct * c) {
 	if(0==strncmp(c->cmd, "[p?", 3)){
 		fprintf(stderr, "\n about to acquire lock on gps struct before reading it for query");
 		if(acquireGpsStructLock()){
-			sprintf (resp, "{\n@%d p e=%f n=%f\n}",
+			sprintf (resp, "{\nto mothernode: e=%f n=%f y=%f\n}",
 					/*myOrbId, latestGpsCoordinates->metFromMshipEast,
 					latestGpsCoordinates->metFromMshipNorth*/
 					latestGpsCoordinates->kalmanEstimateX,
-					latestGpsCoordinates->kalmanEstimateY);
+					latestGpsCoordinates->kalmanEstimateY,
+					latestGpsCoordinates->kalmanEstimateYaw);
+
 			releaseGpsStructLock();
 			logit(eMcuLog, eLogInfo, "\n sending p? response to spu=%s", resp);
 			writeCharsToSerialPort(com2, resp, strlen(resp));

@@ -77,6 +77,9 @@ typedef struct	swarmGpsDataStruct
   char mode;
   double kalmanEstimateX;
   double kalmanEstimateY;
+  double kalmanEstimateYaw;
+  double surveyX;
+  double surveyY;
 } swarmGpsData;
 
 struct	swarmImuData

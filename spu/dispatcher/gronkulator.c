@@ -264,8 +264,9 @@ void startChildProcessToGronk(void) {
 
 				}
 
-				if ((strncmp(latestGpsCoordinatesInternalCopy.UTMZone,
-						"31Z",3) != 0) || (initCounter > 1199))
+				if (((strcmp(latestGpsCoordinatesInternalCopy.UTMZone,
+						"") != 0) && (strncmp(latestGpsCoordinatesInternalCopy.UTMZone,
+								"31N",3) != 0)) || (initCounter > 1199))
 				{
 					gronkMode = GRONK_BIAS;
 					initCounter = 0;
@@ -302,12 +303,12 @@ void startChildProcessToGronk(void) {
 					fprintf(stderr, "\nacquiring lock on gps struct before updating "
 							" m ship positions");
 					if(acquireGpsStructLock()){
-						latestGpsCoordinates->mshipNorth =
-							latestGpsCoordinatesInternalCopy.mshipNorth=
-								stateEstimate.y;
-						latestGpsCoordinates->mshipEast  =
-							latestGpsCoordinatesInternalCopy.mshipEast  =
+						latestGpsCoordinates->surveyX  =
+							latestGpsCoordinatesInternalCopy.surveyX =
 								stateEstimate.x;
+						latestGpsCoordinates->surveyY =
+							latestGpsCoordinatesInternalCopy.surveyY=
+								stateEstimate.y;
 						releaseGpsStructLock();
 					}
 					stateEstimate.x = 0;
@@ -336,6 +337,19 @@ void startChildProcessToGronk(void) {
 				kalmanProcess(&latestGpsCoordinatesInternalCopy, &imuData, &stateEstimate);
 
 				stateEstimate.time = (double)nowGronkTime.tv_sec + (double)nowGronkTime.tv_usec / 1000000;
+
+				if(acquireGpsStructLock()){
+					latestGpsCoordinates->kalmanEstimateX =
+						latestGpsCoordinatesInternalCopy.kalmanEstimateX =
+							stateEstimate.x;
+					latestGpsCoordinates->kalmanEstimateY =
+						latestGpsCoordinatesInternalCopy.kalmanEstimateY =
+							stateEstimate.y;
+					latestGpsCoordinates->kalmanEstimateYaw =
+						latestGpsCoordinatesInternalCopy.kalmanEstimateYaw =
+							stateEstimate.psi;
+					releaseGpsStructLock();
+				}
 
 				sprintf(dataFileBuffer, "\n%f,%s,%f,%f,%f,%f,%f,%f,%s",
 						(double)nowGronkTime.tv_sec + (double)nowGronkTime.tv_usec / 1000000,
