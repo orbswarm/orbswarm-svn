@@ -406,4 +406,18 @@ abstract public class MotionModel implements IOrbListener
     {
       setPosition(getX() + dX, getY() + dY);
     }
+
+    /** Return the orb survey position, or null if we haven't got one yet. */
+
+    public Point getSurveyPosition()
+    {
+      return null;
+    }
+
+    /** Return true if the orb has acked the origin command. */
+
+    public boolean isOriginAcked()
+    {
+      return false;
+    }
 }

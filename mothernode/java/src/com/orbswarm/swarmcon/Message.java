@@ -16,6 +16,8 @@ public class Message extends Properties
       POSITION_REPORT("p"), 
         SURVEY_REPORT("s"), 
         INFO_REPORT("i"), 
+        WAYPOINT_ACK("w"),
+        ORIGIN_ACK("o"),
         UNKNOWN("");
 
       private String token = null;
@@ -36,7 +38,7 @@ public class Message extends Properties
 
       public String toString()
       {
-        return token;
+        return super.toString();
       }
     };
 
@@ -170,11 +172,12 @@ public class Message extends Properties
     @Override
     public String toString()
     {
-      StringBuffer buf = new StringBuffer("@" + senderId + " " + type);
+      StringBuffer buf = new StringBuffer(type + "[orb=" + senderId);
           
       for (Entry<Object,Object> entry: entrySet())
         buf.append(" " + entry.getKey() + "=" + entry.getValue());
-          
+      
+      buf.append("]");
       return buf.toString();
     }
 

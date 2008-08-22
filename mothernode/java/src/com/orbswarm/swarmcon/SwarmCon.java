@@ -173,6 +173,9 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
      * properties file or command line values, if either exist.
      */
 
+    /** show io messaging details */
+    public static boolean showIoMessages = false;
+
     /** stepped color fades (true == do simulation; false = rely on
      * light board to do the fades) */
     public static boolean steppedColorFades = false;
@@ -586,11 +589,6 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
         simulateColors,
         simulateSounds);
       
-      // start joystick managner
-
-      //joystickManager = new JoystickManager();
-      //joystickManager.registerListener(this);
-
       // construct the frame
 
       boolean shouldCreateOrbsNow = constructFrame(getContentPane());
@@ -627,7 +625,6 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
       // start motor control thread
 
-      //activateMotorControllThread();
       requestFocus();
     }
     /** Reads properties file out of users home directory.  If this
@@ -673,6 +670,8 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
     private void setValuesFromProperties()
     {
+      showIoMessages = getBooleanProperty(
+        "swarmcon.comm.showIoMessages", showIoMessages);
       powerRange = getIntProperty(
         "swarmcon.motion.powerRange", powerRange);
       steeringRange = getIntProperty(
@@ -890,7 +889,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
     
     public void createOrbs()
     {
-      // bet bounds from arena
+      // set bounds from arena
 
       Rectangle2D.Double bounds = new Rectangle2D
         .Double(arena.getBounds().getX() / PIXELS_PER_METER,
@@ -916,6 +915,9 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       double positionPollPeriodDelta = 
         millisecondsToSeconds(positionPollPeriod) / orbCount;
       double positionPollPeriodOffset = 0;
+
+      // now create each orb
+
       for (int id = 0; id < MAX_ORB_COUNT; ++id)
       {
         // if this orb is not enbabled, don't create it
@@ -946,31 +948,163 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
         if (orbIo != null)
           orbIo.register(orb);
-
-        // add behvaiors
+        
+        // add the orb to the swarm
 
         swarm.add(orb);
-        //JoyBehavior jb = new JoyBehavior();
-        //joystickManager.registerListener(orbIdtoJoystick(id), jb);
-        Behavior wb = new WanderBehavior();
-        Behavior fb = new FollowBehavior(preveouse);
-        Behavior rb = new RandomBehavior();
-        Behavior cb = new ClusterBehavior();
-        Behavior fab = new AvoidBehavior(fb);
-        Behavior cab = new AvoidBehavior(cb);
-        //orb.add(jb);
-        orb.add(fb);
-        orb.add(rb);
-        orb.add(cb);
-        orb.add(fab);
-        orb.add(cab);
 
-        // register the joystick behavoir as a reciever of joystick events
+        // if in simulation mode, add behvaiors
+
+        if (!liveMode)
+        {
+          Behavior fb = new FollowBehavior(preveouse);
+          Behavior wb = new WanderBehavior();
+          Behavior rb = new RandomBehavior();
+          Behavior cb = new ClusterBehavior();
+          Behavior fab = new AvoidBehavior(fb);
+          Behavior cab = new AvoidBehavior(cb);
+          orb.add(fb);
+          orb.add(rb);
+          orb.add(cb);
+          orb.add(fab);
+          orb.add(cab);
+        }
+
+        // record preveouse for the follow behavior
 
         preveouse = orb;
       }
-      swarm.nextBehavior();
+
+      // if in live mode, init the swarm origin
+
+      if (liveMode)
+      {
+//         new Thread()
+//         {
+//             public void run()
+//             {
+//               JOptionPane.showMessageDialog(
+//                 activeSwarmCon, "Surveying Orbs, see console for progress.");
+//             }
+//         }.start();
+
+        initSwarmOrigin();
+      }
     }
+
+    // collect orb survey positions and inform the orbs what they should
+    // all use for the swarm origin (0, 0).  this process can take a
+    // while (upto 60 seconds) if the orbs have not completed their
+    // de-biasing process.  this method blocks until the process is
+    // complete.
+
+    public void initSwarmOrigin()
+    {
+      try
+      {
+        // extect just the orbs from the swarm
+
+        Vector<Orb> orbs = new Vector<Orb>();
+        for (Mobject m: swarm)
+          if (m instanceof Orb)
+            orbs.add((Orb)m);
+
+        // create a place to put survey results
+
+        HashMap<Orb, Point> results = new HashMap<Orb, Point>();
+        
+        // keep going until we have has many results as we do orbs
+
+        while (results.size() < orbs.size())
+        {
+          // walk through orbs
+
+          for (Orb orb: orbs)
+          {
+            // if we don't have a survey result
+
+            if (results.get(orb) == null)
+            {
+              MotionModel mm = orb.getModel();
+
+              // if we got a result since we last checked, record that
+              
+              Point p = mm.getSurveyPosition();
+
+              if (p != null)
+              {
+                results.put(orb, p);
+                System.out.println(
+                  "survey result from orb [" + orb.getId() + "]: " + p);
+              }
+
+              // otherwise request a report
+
+              else
+              {
+                orbIo.requestSurvayPosition(orb.getId());
+                System.out.println(
+                  "survey request to orb [" + orb.getId() + "]");
+              }
+            }
+
+            // sleep a little between each orb to give the zigbee a break
+            
+            Thread.sleep(positionPollPeriod / orbs.size());
+          }
+        }
+
+        // now we have ALL the survey resutls compute the centroid of
+        // the orbs
+
+        Point centroid = new Point();
+        for (Point p: results.values())
+          centroid.translate(p);
+        centroid.scale(results.values().size());
+
+        // now inform all the orbs of the new origin
+        
+        while (results.size() > 0)
+        {
+          for (Orb orb: orbs)
+          {
+            // if we're not done with this orb yet
+
+            if (results.get(orb) != null)
+            {
+              MotionModel mm = orb.getModel();
+
+              // if we got an ack, this orb is done 
+              
+              if (mm.isOriginAcked())
+              {
+                results.remove(orb);
+                System.out.println(
+                  "origin ack from orb [" + orb.getId() + "]: " + centroid);
+              }
+
+              // otherwise send the origin to the orb
+
+              else
+              {
+                orbIo.commandOrigin(orb.getId(), centroid);
+                System.out.println(
+                  "sent origin to orb [" + orb.getId() + "]: " + centroid);
+              }
+            
+              // sleep a little between each orb to give the zigbee a break
+            
+              Thread.sleep(positionPollPeriod / orbs.size());
+            }
+          }
+        }
+      }
+      catch (Exception e)
+      {
+        e.printStackTrace();
+      }
+    }
+
     // update the world
 
     public void update()
@@ -1866,7 +2000,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
           {
             if (!portId.equalsIgnoreCase(SIMULATION))
             {
-              orbIo = new OrbIo(portId, true);
+              orbIo = new OrbIo(portId, showIoMessages);
               orbControlImpl.setOrbIo(orbIo);
               liveMode = true;
             }

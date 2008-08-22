@@ -48,7 +48,7 @@ public class OrbIo extends SerialIo
      * @param debug print io debugging text
      */
 
-    public OrbIo(String portName, boolean debug)
+    public OrbIo(String portName, final boolean debug)
     {
       super(portName, debug);
       
@@ -58,7 +58,10 @@ public class OrbIo extends SerialIo
         {
             public void lineEvent(String line)
             {
-              dispatchOrbMessage(new Message(line));
+              Message m = new Message(line);
+              dispatchOrbMessage(m);
+              if (debug) 
+                System.out.println("MSG: " + m);
             }
         });
     }
@@ -139,11 +142,31 @@ public class OrbIo extends SerialIo
       orbCommand(orbId, "[p?]");
     }
 
+    /** Request survey postion. */
+
+    public void requestSurvayPosition(int orbId)
+    {
+      orbCommand(orbId, "[s?]");
+    }
+
     /** Request info report from the orb. */
 
     public void requestInfoReport(int orbId)
     {
       orbCommand(orbId, "[i?]");
+    }
+
+    /** Send the origin to an orb. */
+
+    public void commandOrigin(int orbId, Point origin)
+    {
+      String command =
+        "[o" +
+        " e=" + format(origin.getX()) +
+        " n=" + format(origin.getY()) +
+        "]";
+
+      orbCommand(orbId, command);
     }
 
     /** Send a waypoint requst to the orb. */

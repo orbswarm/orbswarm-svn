@@ -23,6 +23,14 @@ public class LiveModel extends MotionModel
      * about is locaion. */
     
     private boolean orbPositionInitialized = false;
+
+    /** The initial location of the orb when it woke up. */
+
+    private Point surveyPosition = null;
+
+    /** Set to true if the orb has acked the origin commanded. */
+
+    private boolean originAcked = false;
     
     /** Time of the last position report. */
 
@@ -65,7 +73,25 @@ public class LiveModel extends MotionModel
 
     public void onOrbMessage(Message message)
     {
-      if (message.getType() == POSITION_REPORT)
+      // handle survey report
+
+      if (message.getType() == SURVEY_REPORT)
+      {
+        surveyPosition = new Point(
+          message.getDoubleProperty(EASTING),
+          message.getDoubleProperty(NORTHING));
+      }
+
+      // handle origin ack
+
+      else if (message.getType() == ORIGIN_ACK)
+      {
+        originAcked = true;
+      }
+
+      // handle position report
+
+      else if (message.getType() == POSITION_REPORT)
       {
         // compute times
 
@@ -80,12 +106,12 @@ public class LiveModel extends MotionModel
         // if the global offset has not yet been initialized do that with
         // the current position of this very first orb message
 
-        if (!globalOffsetInitialized)
-        {
-          SwarmCon.getInstance().setGlobalOffset(
-            new Point(-position.getX(), -position.getY()));
-          globalOffsetInitialized = true;
-        }
+//         if (!globalOffsetInitialized)
+//         {
+//           SwarmCon.getInstance().setGlobalOffset(
+//             new Point(-position.getX(), -position.getY()));
+//           globalOffsetInitialized = true;
+//         }
         
         // if the orb has already received some real world data then we
         // can go ahead and infer speed and heading from prevouse
@@ -117,6 +143,20 @@ public class LiveModel extends MotionModel
       }
     }
 
+    /** Return the survey position, or null if we haven't got one yet. */
+
+    public Point getSurveyPosition()
+    {
+      return surveyPosition;
+    }
+
+    /** Return true if the orb has acked the origin command. */
+
+    public boolean isOriginAcked()
+    {
+      return originAcked;
+    }
+
     /** Update the model state by sending a request to the orb for state
      * information.  When recive the local model will be updated to
      * reflect that state information.
@@ -125,7 +165,8 @@ public class LiveModel extends MotionModel
     public void update(double time)
     {
       double now = SwarmCon.getTime();
-      if (now - lastPositionRequestTime > positionPollPeriod)
+      if (
+        originAcked && now - lastPositionRequestTime > positionPollPeriod)
       {
         orbIo.requestPositionReport(orbId);
         lastPositionRequestTime = now;

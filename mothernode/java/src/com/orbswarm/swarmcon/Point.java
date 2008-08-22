@@ -42,4 +42,9 @@ public class Point extends Point2D.Double
     {
       setLocation(getX() + dX, getY() + dY);
     }
+    
+    public void scale(double factor)
+    {
+      setLocation(getX() / factor, getY() / factor);
+    }
 }
