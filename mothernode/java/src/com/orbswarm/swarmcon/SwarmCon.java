@@ -1548,11 +1548,11 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
           TimelinePath path = (TimelinePath)it.next();
           path.paint(g);
         }
-        // draw ephemeral timeline paths 
-       for (Iterator it = timeline.getEphemeralPathsIterator(); it.hasNext(); )
-        {
-          TimelinePath path = (TimelinePath)it.next();
-          path.paint(g);
+        // draw ephemeral timeline paths
+       ArrayList ep = timeline.getEphemeralPaths();
+       for(int i=0; i < ep.size(); i++) {
+           TimelinePath path = (TimelinePath)ep.get(i);
+           path.paint(g);
         }
      }
       

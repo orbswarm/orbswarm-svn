@@ -383,7 +383,7 @@
   <event>
       name: fadeout
       specialist: SimpleColor
-      startTime: 520
+      startTime: 220
       fadeTime: 20
       color: RGB 0 0 0 
   </event>

@@ -544,6 +544,10 @@ public class Timeline extends Temporal {
         return ephemeralPaths.iterator();
     }
 
+    public ArrayList getEphemeralPaths() {
+        return ephemeralPaths;
+    }
+
     /**
      * @return a list of regions that contain the point (x, y)
      *

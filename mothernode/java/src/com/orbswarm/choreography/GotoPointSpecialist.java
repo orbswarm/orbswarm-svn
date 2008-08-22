@@ -26,7 +26,6 @@ public class GotoPointSpecialist extends AbstractSpecialist  {
         super.setup(orbControl, initialProperties, orbs);
         sc = orbControl.getSwarmCon();
         // TODO: this is problematic. can't get tehe sc from the interface?
-        timeline = sc.getTimeline();
         x = getDoubleProperty("x:", 0.);
         y = getDoubleProperty("y:", 0.);
         relative = getBooleanProperty("relative:", false);
@@ -41,6 +40,7 @@ public class GotoPointSpecialist extends AbstractSpecialist  {
 
     public void start() {
         //System.out.print("[[[[ GotoPoint.  <start> orbs: {");
+        timeline = sc.getTimeline();
         for(int i=0; i < orbs.length; i++) {
             System.out.print(orbs[i] + ", ");
         }
@@ -54,7 +54,7 @@ public class GotoPointSpecialist extends AbstractSpecialist  {
                     Point posi = orbi.getPosition();
                     double x0 = posi.getX();
                     double y0 = posi.getY();
-                    //System.out.println("GotoPoint orb " + orbs[i] + " from {" + x0 + ", " + y0 + "} to {" + x + ", " + y + "}");
+                    System.out.println("GotoPoint orb " + orbs[i] + " from {" + x0 + ", " + y0 + "} to {" + x + ", " + y + "}");
                     String name = "goto("+ orbs[i]+ ")<" + x + ", " + y + ">";
                     TimelinePath gpath = new TimelinePath(name);
                     gpath.add(new Target(x0, y0));
@@ -73,6 +73,7 @@ public class GotoPointSpecialist extends AbstractSpecialist  {
                                     final TimelinePath gpath) {
         Thread t = new Thread() {
                 public void run() {
+                    System.out.println("GotoPoint specialist. followpath. gpath: " + gpath + " timeline: " + timeline);
                     timeline.addEphemeralPath(gpath);
                     orbControl.followPath(orbNum, gpath);
                     timeline.removeEphemeralPath(gpath);

@@ -15,21 +15,22 @@ public class FollowPathSpecialist extends AbstractSpecialist  {
     private boolean enabled = true;
     private TimelinePath path;
     private Timeline timeline;
+    private String pathName;
+    private SwarmCon sc;
     
     public void setup(IOrbControl orbControl, Properties initialProperties, int[] orbs) {
         super.setup(orbControl, initialProperties, orbs);
-        SwarmCon sc = orbControl.getSwarmCon();
-        // TODO: this is problematic. can't get tehe sc from the interface?
-        timeline = sc.getTimeline();
+        sc = orbControl.getSwarmCon();
         
-        String pathName = getProperty("path:", null);
-        if (pathName != null) {
-            path = timeline.getPath(pathName);
-        }
+        pathName = getProperty("path:", null);
         //System.out.println("[[[[ FOLLOW PATH.  <setup> " + path.getName());
     }
 
     public void start() {
+        timeline = sc.getTimeline();
+        if (pathName != null) {
+            path = timeline.getPath(pathName);
+        }
         ///System.out.println("[[[[ FOLLOW PATH.  <start> " + path.getName());
         if (enabled && path != null) {
             for(int i=0; i < orbs.length; i++) {
