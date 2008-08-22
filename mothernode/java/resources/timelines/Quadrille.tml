@@ -54,6 +54,52 @@
         </properties>
       </event>
 
+  <event>
+     name: ColorSchemer
+     specialist: ColorScheme
+     startTime: 12
+     endTime: 215
+     <orbs> 0 1 2 3 4 5  </orbs>
+     <properties>
+         colorscheme Analogous
+         basecolor RGB 255 220 140
+         spread 16
+         meander 50
+     </properties>
+  </event>
+
+  <event>
+      target: ColorSchemer
+      startTime: 55
+      <properties>
+         colorscheme Triad
+         basecolor RGB 255 240 120
+         spread 35
+         meander 30
+      </properties>
+  </event>
+
+  <event>
+      target: ColorSchemer
+      startTime: 100
+      <properties>
+         colorscheme Analogous
+         basecolor RGB 55 40 255
+         spread 35
+         meander 20
+      </properties>
+  </event>
+
+  <event>
+      target: ColorSchemer
+      startTime: 150
+      <properties>
+         colorscheme Analogous
+         basecolor RGB 255 40 255
+         spread 35
+         meander 25
+      </properties>
+  </event>
 
   <event>
     name: ready1
