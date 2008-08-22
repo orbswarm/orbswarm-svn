@@ -1,5 +1,6 @@
  #!/bin/sh
 exe=dispatcher # if you change the binary here please change it in kill_all.sh
+cd /root
 while true
 do 
     dispatcher_pids=`pidof ${exe}`

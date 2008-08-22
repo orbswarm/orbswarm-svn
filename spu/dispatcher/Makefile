@@ -1,5 +1,3 @@
-
-
 # Crosstools are slightly different versions for cygwin and linux; 
 #LINUXCC = /opt/crosstool/gcc-4.0.1-glibc-2.3.5/arm-unknown-linux-gnu/arm-unknown-linux-gnu/bin/gcc
 LINUXCC = /opt/crosstool/arm-none-linux-gnueabi/bin/arm-none-linux-gnueabi-gcc
@@ -28,7 +26,7 @@ LFLAGS =  -static -O2 -s -pipe -lm
 #scan.c is automatically generated from scan.y by lemon
 #scanfrontend.c has support code and lexical analyser for the lemon scanner
 
-all: lemon dispatcher joypatcher
+all: lemon dispatcher dispatcher_test
 
 scanner.o scan.h: scan.c scan.y scanfrontend.c
 	cat scan.c scanfrontend.c  > scanner.c
@@ -52,6 +50,10 @@ gronkulator.o: gronkulator.c
 # this disables gronk motor control for use with remotes
 joygronk.o: gronkulator.c
 	$(CC)  -DJOYSTICK -c -o $@ $(CFLAGS)  $<
+
+# this disables the data file logging
+gronk_test.o: gronkulator.c
+	$(CC)  -DLOGDATA -c -o $@ $(CFLAGS)  $<
 
 kalmanswarm.o: kalmanswarm.c
 	$(CC) -c -o $@ $(CFLAGS)  $<
@@ -79,6 +81,9 @@ testharness: scanner.o testharness.o scan.h gpsutils.o queues.o
 
 dispatcher: dispatcher.o serial.o spuutils.o scanner.o scan.h serial.h  gpsutils.o queues.o imuutils.h imuutils.o kalmanswarm.o kalman.o matmath.o pathfollow.o swarmipc.o feedback.o gronkulator.o
 	$(CC) $(LFLAGS) -o dispatcher dispatcher.o serial.o spuutils.o scanner.o  gpsutils.o queues.o imuutils.o kalmanswarm.o kalman.o matmath.o pathfollow.o swarmipc.o feedback.o gronkulator.o /opt/crosstool/arm-none-linux-gnueabi/arm-none-linux-gnueabi/sys-root/usr/lib/libm.a
+
+dispatcher_test: dispatcher.o serial.o spuutils.o scanner.o scan.h serial.h  gpsutils.o queues.o imuutils.h imuutils.o kalmanswarm.o kalman.o matmath.o pathfollow.o swarmipc.o feedback.o gronk_test.o
+	$(CC) $(LFLAGS) -o dispatcher_test dispatcher.o serial.o spuutils.o scanner.o  gpsutils.o queues.o imuutils.o kalmanswarm.o kalman.o matmath.o pathfollow.o swarmipc.o feedback.o gronk_test.o /opt/crosstool/arm-none-linux-gnueabi/arm-none-linux-gnueabi/sys-root/usr/lib/libm.a
 
 # version of dispatcher for remote control only...
 joypatcher: dispatcher.o serial.o spuutils.o scanner.o scan.h serial.h  gpsutils.o queues.o imuutils.h imuutils.o kalmanswarm.o kalman.o matmath.o pathfollow.o swarmipc.o feedback.o joygronk.o

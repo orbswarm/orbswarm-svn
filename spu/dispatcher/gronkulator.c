@@ -26,17 +26,17 @@
 
 #define MOTORSPEED 60
 
-// States of high level GRONK state machine
-enum {GRONK_WAITFORFIX, GRONK_BIAS, GRONK_KALMANINIT, GRONK_RUN, GRONK_COMPLETE};
 
 // States of lower level PATH state machine
 enum {PATH_JOYSTICK, PATH_CIRCLE, PATH_FIGEIGHT, PATH_CIRCLESYNCHRO, PATH_FOLLOWING};
+
+//higher level state structs are in swarmdefines.h
 
 /* set this define to eliminate autonomous control for joystick-only use */
 //#define JOYSTICK
 
 /* set this define to log sensordata, kalmandata, and controldata */
-#define LOGDATA
+//#define LOGDATA
 
 
 #ifdef JOYSTICK
@@ -146,7 +146,11 @@ void startChildProcessToGronk(void) {
 	char outputFileBuffer[1024];
 	char controlFileBuffer[1024];
 	int initCounter = 0;
-	int gronkMode = 0; // 4 states - 0. initializing bias 1. initializing kf 2. running 3. found goal
+	int gronkMode = 0;// 4 states - 0. initializing bias 1. initializing kf 2. running 3. found goal
+	if(acquireGpsStructLock()){
+		latestGpsCoordinates->kalmanEstimatorState=gronkMode;
+		releaseGpsStructLock();
+	}
 	struct swarmCoord carrot;
 	struct swarmFeedback feedback;
 	int thisSteeringValue = 0;
@@ -268,7 +272,10 @@ void startChildProcessToGronk(void) {
 						"") != 0) && (strncmp(latestGpsCoordinatesInternalCopy.UTMZone,
 								"31N",3) != 0)) || (initCounter > 1199))
 				{
-					gronkMode = GRONK_BIAS;
+					if(acquireGpsStructLock()){
+						gronkMode = latestGpsCoordinates->kalmanEstimatorState =GRONK_BIAS;
+						releaseGpsStructLock();
+					}
 					initCounter = 0;
 				} else {
 					initCounter++;
@@ -288,9 +295,14 @@ void startChildProcessToGronk(void) {
 
 				kalmanInitialBias(&latestGpsCoordinatesInternalCopy, &imuData, &stateEstimate);
 				initCounter++;
-				if (initCounter > 599)    // 60 sec
+				if (initCounter > 599)  {//60 sec
 				//if (initCounter > 101)  // 10 sec
-					gronkMode = GRONK_KALMANINIT;
+					if(acquireGpsStructLock()){
+						gronkMode = latestGpsCoordinates->kalmanEstimatorState = GRONK_KALMANINIT;
+						releaseGpsStructLock();
+					}
+
+				}
 			break;
 
 			case GRONK_KALMANINIT: // found biases, now initialize kalman filter
@@ -309,6 +321,12 @@ void startChildProcessToGronk(void) {
 						latestGpsCoordinates->surveyY =
 							latestGpsCoordinatesInternalCopy.surveyY=
 								stateEstimate.y;
+						latestGpsCoordinates->mshipEast  =
+							latestGpsCoordinatesInternalCopy.mshipEast =
+								stateEstimate.x;
+						latestGpsCoordinates->mshipNorth =
+							latestGpsCoordinatesInternalCopy.mshipNorth=
+								stateEstimate.y;
 						releaseGpsStructLock();
 					}
 					stateEstimate.x = 0;
@@ -324,8 +342,10 @@ void startChildProcessToGronk(void) {
 						writeCharsToSerialPort(com3, msg, strlen(msg));
 						releaseCom3Lock();
 					}
-
-					gronkMode = GRONK_RUN;
+					if(acquireGpsStructLock()){
+						gronkMode = latestGpsCoordinates->kalmanEstimatorState =GRONK_RUN;
+						releaseGpsStructLock();
+					}
 				}
 
 				initCounter++;

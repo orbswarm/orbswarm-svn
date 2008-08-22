@@ -53,6 +53,7 @@
  */
 typedef struct	swarmGpsDataStruct
 {
+	//GPS fields
   char gpsSentenceType[32];
   char ggaSentence[MAX_GPS_SENTENCE_SZ];
   char vtgSentence[MAX_GPS_SENTENCE_SZ];
@@ -75,11 +76,14 @@ typedef struct	swarmGpsDataStruct
   float nmea_course; //heading radians respect to due east
   float speed; //meters per second
   char mode;
+  //Additional fields
   double kalmanEstimateX;
   double kalmanEstimateY;
   double kalmanEstimateYaw;
   double surveyX;
   double surveyY;
+
+  int kalmanEstimatorState;
 } swarmGpsData;
 
 struct	swarmImuData
@@ -259,6 +263,9 @@ struct swarmFigEight
   struct swarmCoord point4;	// location of figure 8 center
   int mode;
 };
+
+// States of high level GRONK state machine
+enum {GRONK_WAITFORFIX, GRONK_BIAS, GRONK_KALMANINIT, GRONK_RUN, GRONK_COMPLETE};
 
 
 #endif

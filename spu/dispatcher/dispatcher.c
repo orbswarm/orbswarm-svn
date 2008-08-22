@@ -252,9 +252,10 @@ void dispatchSPUCmd(int spuAddr, cmdStruct * c) {
 	if(0==strncmp(c->cmd, "[p?", 3)){
 		fprintf(stderr, "\n about to acquire lock on gps struct before reading it for query");
 		if(acquireGpsStructLock()){
-			sprintf (resp, "{\nto mothernode: e=%f n=%f y=%f\n}",
+			sprintf (resp, "{\n@%d p e=%f n=%f y=%f\n}",
 					/*myOrbId, latestGpsCoordinates->metFromMshipEast,
 					latestGpsCoordinates->metFromMshipNorth*/
+					myOrbId,
 					latestGpsCoordinates->kalmanEstimateX,
 					latestGpsCoordinates->kalmanEstimateY,
 					latestGpsCoordinates->kalmanEstimateYaw);
@@ -286,6 +287,40 @@ void dispatchSPUCmd(int spuAddr, cmdStruct * c) {
 			logit(eMcuLog, eLogInfo, "\n sending w response to spu=%s", resp);
 			writeCharsToSerialPort(com2, resp, strlen(resp));
 		}
+	}
+	/*
+	 * survey request
+	 * request={<orbid> [s?]}
+	 * response={<cr>@<orbid> s e=<east> n=<north><cr>}
+	 */
+	else if(0==strncmp(c->cmd, "[s", 2)){
+		if(acquireGpsStructLock()){
+			if(GRONK_RUN == latestGpsCoordinates->kalmanEstimatorState){
+				sprintf(resp, "{\n%d s e=%f n=%f\n}", myOrbId,
+						latestGpsCoordinates->surveyX, latestGpsCoordinates->surveyY);
+				logit(eMcuLog, eLogInfo, "\n sending s response to m node=%s", resp);
+				writeCharsToSerialPort(com2, resp, strlen(resp));
+			}
+			releaseGpsStructLock();
+		}
+	}
+	/* origin command
+	 * request={<orbid> [o e=<east> n=<north>]}
+	 */
+	else if(0==strncmp(c->cmd, "[o",2)){
+		float x,y;
+		sscanf(c->cmd, "[0 e=%f n=%f",&x,
+				&y);
+		if(acquireGpsStructLock()){
+			latestGpsCoordinates->mshipEast=x;
+			latestGpsCoordinates->mshipNorth=y;
+			releaseGpsStructLock();
+		}
+		//send ack back to mo-ship
+		sprintf(resp, "{\n@%d o \n}",
+				myOrbId);
+		logit(eMcuLog, eLogInfo, "\n sending o response to spu=%s", resp);
+		writeCharsToSerialPort(com2, resp, strlen(resp));
 	}
 	else if(0==strncmp(c->cmd, "[HALT", 5)){
 		logit(eMcuLog, eLogDebug, "got HALT msg=%s", c->cmd);

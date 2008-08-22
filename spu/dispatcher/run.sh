@@ -1,3 +1,3 @@
 #!/bin/sh
-
-nohup ./dispatcher >stdout.log 2>&1 &
+cd /root
+nohup ./dispatcher_test >stdout.log 2>&1 &
