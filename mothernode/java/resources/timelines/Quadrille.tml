@@ -1,0 +1,251 @@
+<timeline>
+  name: Concentrics
+  arena: 200.
+  duration: 240.
+
+  <event>
+     name: fadeIn
+     specialist: SimpleColor
+     startTime: 0
+     fadeTime: 15
+     <color> RGB 80 200 80 </color>
+  </event>
+  
+  <event>
+    name: ready0
+    <orbs> 0 </orbs>
+    startTime: 4
+    specialist: GotoPoint
+    <properties>
+      x: 3
+      y: 3
+    </properties>
+  </event>
+      <event>
+        startTime: 1
+         <orbs> 0 </orbs>
+        specialist: SimpleSound
+        <properties>
+            soundfile /orbsounds/songs/SolsticeNocturne_S07/notes/a/Vibe_a3.aif
+        </properties>
+      </event>
+      <event>
+        startTime: 1.4
+         <orbs> 1 </orbs>
+        specialist: SimpleSound
+        <properties>
+            soundfile /orbsounds/songs/SolsticeNocturne_S07/notes/c/DC_c2.aif
+        </properties>
+      </event>
+      <event>
+        startTime: 1.9
+         <orbs> 2 </orbs>
+        specialist: SimpleSound
+        <properties>
+            soundfile /orbsounds/songs/SolsticeNocturne_S07/notes/e/LR_e2.aif
+        </properties>
+      </event>
+      <event>
+        startTime: 2.7
+         <orbs> 3 </orbs>
+        specialist: SimpleSound
+        <properties>
+            soundfile /orbsounds/FX/chimes/DC_c2a.aif
+        </properties>
+      </event>
+
+
+  <event>
+    name: ready1
+    <orbs> 1 </orbs>
+    startTime: 4
+    specialist: GotoPoint
+    <properties>
+      x: -4 
+      y: 2
+    </properties>
+  </event>
+
+  <event>
+    name: ready2
+    <orbs> 2 </orbs>
+    startTime: 4
+    specialist: GotoPoint
+    <properties>
+      x: -3 
+      y: -3
+    </properties>
+  </event>
+
+  <event>
+    name: ready3
+    <orbs> 3 </orbs>
+    startTime: 4
+    specialist: GotoPoint
+    <properties>
+      x: 4 
+      y: -2
+    </properties>
+  </event>
+
+  <region>
+     name: (0, 0)
+     x: -.5 .5
+     y: -.5 .5
+     <event>
+       name: bluePent
+       trigger: inside
+       specialist: SimpleColor
+       fadeTime: 1
+       <color> RGB 0 0 250 </color>
+    </event>
+  </region>
+
+  <path>
+    name: q1
+    point:   3  3
+    point: -10  3
+    point:  -3 -3
+  </path>
+
+  <path>
+    name: q2
+    point:  -4   2
+    point:  -4 -10
+    point:   4  -2
+  </path>
+
+  <path>
+    name: q3
+    point:  -3 -3
+    point:  10 -3
+    point:   3  3
+  </path>
+
+  <path>
+    name: q4
+    point:   4 -2
+    point:   4 10
+    point:  -4  2
+  </path>
+
+  <region>
+    name: Qstart1
+    x: 2 4
+    y: 2 4
+      <event>
+        name: followQ1
+        trigger: enter
+        specialist: FollowPath
+        <properties>
+            path: q1
+        </properties>
+      </event>
+      <event>
+        trigger: enter
+        specialist: SimpleSound
+        <properties>
+            soundfile /orbsounds/songs/PickerelLake/Melody_Found/main/Vibes_2lines8.aif
+        </properties>
+      </event>
+  </region>
+
+  <region>
+    name: Qstart2
+    x: -5 -3
+    y:  1 3
+      <event>
+        name: followQ2
+        trigger: enter
+        specialist: FollowPath
+        <properties>
+            path: q2
+        </properties>
+      </event>
+      <event>
+        trigger: enter
+        specialist: SimpleSound
+        <properties>
+            soundfile /orbsounds/songs/PickerelLake/Harmon_IiiiV/main/Vibes_iiitheme.aif
+        </properties>
+      </event>
+
+  </region>
+
+  <region>
+    name: Qstart3
+    x: -4 -2
+    y: -4 -2
+      <event>
+        name: followQ3
+        trigger: enter
+        specialist: FollowPath
+        <properties>
+            path: q3
+        </properties>
+      </event>
+      <event>
+        trigger: enter
+        specialist: SimpleSound
+        <properties>
+            soundfile /orbsounds/songs/PickerelLake/Melody_Found/main/Brushies16.aif
+        </properties>
+      </event>
+  </region>
+
+  <region>
+    name: Qstart4
+    x: 3 5
+    y: -3 -1 
+      <event>
+        name: followQ4
+        trigger: enter
+        specialist: FollowPath
+        <properties>
+            path: q4
+        </properties>
+      </event>
+      <event>
+        trigger: enter
+        specialist: SimpleSound
+        <properties>
+            soundfile /orbsounds/songs/PickerelLake/Harmon_iiiVvi/main/MartianOrgan_V_2.aif
+        </properties>
+      </event>
+  </region>
+
+  <region>
+    name: Qend1
+    x: -11 -9
+    y: 2 4
+  </region>
+
+  <region>
+    name: Qend2
+    x: -5 -3
+    y: -11 -9
+  </region>
+
+  <region>
+    name: Qend3
+    x: 9 11
+    y: -4 -2
+  </region>
+
+  <region>
+    name: Qend4
+    x: 3 5
+    y: 9 11
+  </region>
+
+  
+
+  <event>
+      name: fadeout
+      specialist: SimpleColor
+      startTime: 220
+      fadeTime: 20
+      color: RGB 0 0 0 
+  </event>
+
+</timeline>
