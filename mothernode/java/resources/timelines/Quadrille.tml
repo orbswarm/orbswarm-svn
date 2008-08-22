@@ -189,9 +189,12 @@
       </event>
       <event>
         trigger: enter
-        specialist: SimpleSound
+        specialist: RandomSound
         <properties>
-            soundfile /orbsounds/songs/PickerelLake/Melody_Found/main/Vibes_2lines8.aif
+            soundfile0 /orbsounds/songs/PickerelLake/Melody_Found/main/Vibes_2lines8.aif
+            soundfile1 /orbsounds/songs/PickerelLake/Melody_Found/main/horsemagpie.aif
+            soundfile2 /orbsounds/songs/PickerelLake/Melody_Found/main/Vibes_singlerun_high4.aif
+            soundfile3 /orbsounds/songs/PickerelLake/Melody_Found/main/Vibes_TonyG.aif
         </properties>
       </event>
   </region>
@@ -210,9 +213,11 @@
       </event>
       <event>
         trigger: enter
-        specialist: SimpleSound
+        specialist: RandomSound
         <properties>
-            soundfile /orbsounds/songs/PickerelLake/Harmon_IiiiV/main/Vibes_iiitheme.aif
+            soundfile0 /orbsounds/songs/PickerelLake/Harmon_IiiiV/main/Vibes_iiitheme.aif
+            soundfile1 /orbsounds/songs/PickerelLake/Harmon_IiiiV/main/Vibes_Isubtheme.aif
+            soundfile2 /orbsounds/songs/PickerelLake/Harmon_IiiiV/main/Vibes_Itheme.aif
         </properties>
       </event>
 
@@ -232,9 +237,14 @@
       </event>
       <event>
         trigger: enter
-        specialist: SimpleSound
+        specialist: RandomSound
         <properties>
-            soundfile /orbsounds/songs/PickerelLake/Melody_Found/main/Brushies16.aif
+            soundfile0 /orbsounds/songs/PickerelLake/Melody_Found/main/Brushies16.aif
+            soundfile1 /orbsounds/songs/PickerelLake/Melody_Found/main/8barbreak.aif
+            soundfile2 /orbsounds/songs/PickerelLake/Perc_Found/main/FastBrushies12.aif
+            soundfile3 /orbsounds/songs/PickerelLake/Perc_Found/main/SimpleHats.aif
+            soundfile4 /orbsounds/songs/PickerelLake/Perc_Found/main/TwoToms.aif
+            soundfile5 /orbsounds/songs/PickerelLake/Perc_Found/main/SimpleHats2.aif
         </properties>
       </event>
   </region>
@@ -253,9 +263,13 @@
       </event>
       <event>
         trigger: enter
-        specialist: SimpleSound
+        specialist: RandomSound
         <properties>
-            soundfile /orbsounds/songs/PickerelLake/Harmon_iiiVvi/main/MartianOrgan_V_2.aif
+            soundfile0 /orbsounds/songs/PickerelLake/Harmon_iiiVvi/main/MartianOrgan_V_2.aif
+            soundfile1 /orbsounds/songs/PickerelLake/Harmon_iiiVvi/main/MartianOrgan_vitheme.aif
+            soundfile2 /orbsounds/songs/PickerelLake/Harmon_iiiVvi/main/MartianOrgan_57.aif
+            soundfile3 /orbsounds/songs/PickerelLake/Harmon_iiiVvi/main/SlapBass_35.aif
+            soundfile4 /orbsounds/songs/PickerelLake/Harmon_IiiiV/main/MartianOrgan_iiitheme_16T.aif
         </properties>
       </event>
   </region>
