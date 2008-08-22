@@ -897,6 +897,9 @@ public class TimelineDisplay
     public boolean cycle(float time)
     {
       cycleTimeNow = time;
+      if (timeline == null) {
+          return false;
+      }
       //System.out.println("TIMELINE cycle[" + time + "]");
       if (time < timeline.getDuration())
       {
@@ -910,7 +913,8 @@ public class TimelineDisplay
         System.out.println("TD: Timeline ended. stopping swarmcon");
         if (swarmCon != null)
         {
-          swarmCon.stopTimeline();
+            // TODO: if the timeline is a looper, then restart the timeline. 
+            swarmCon.stopTimeline();
         }
         return false;
       }

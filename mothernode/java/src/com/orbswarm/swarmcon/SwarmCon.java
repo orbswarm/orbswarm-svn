@@ -530,7 +530,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       sc.setTimelineDisplay(timelineDisplay);
       timelineDisplay.setSwarmCon(sc);
       sc.setupControlPanel(schemer, bv, timelineDisplay);
-      //sc.startControlling();
+      sc.startControlling();
     }
 
     // construct a swarm
@@ -821,9 +821,10 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       this.steeringRange = val;
     }
 
-    boolean running;
+    boolean running = false;
     public void startControlling()
     {
+        System.out.println("Start controlling");
       // if we are already running, stop that
       if (running)
         stopControlling();
@@ -847,6 +848,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
             lastUpdate = Calendar.getInstance();
             while (running)
             {
+                System.out.println(".");
               update();
             }
           }
@@ -1010,7 +1012,9 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
         // give the timeline a cycle
 
-        timelineDisplay.cycle(timeSinceTimelineStarted);
+        if (timelineDisplay != null) {
+            timelineDisplay.cycle(timeSinceTimelineStarted);
+        }
 
         // update all the objects
 
@@ -1019,10 +1023,11 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
         broadcastOrbState();
         updateTimelineRegions();
         updateTimelinePaths();
-        timeline.orbState(swarm);
+        if (timeline != null) {
+            timeline.orbState(swarm);
+        }
 
         // repaint the screen
-
         arena.repaint();
       }
     }
@@ -2477,13 +2482,13 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
     {
       this.timelineStarted = System.currentTimeMillis();
       System.out.println("SwarmCon: start timeline");
-      startControlling();
+      //startControlling();
     }
 
     public void stopTimeline()
     {
       System.out.println("SwarmCon: stop timeline");
-      stopControlling();
+      //stopControlling();
       timelineDisplay.stopAllRunningEvents();
     }
 

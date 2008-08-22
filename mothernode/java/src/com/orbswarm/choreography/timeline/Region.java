@@ -246,7 +246,7 @@ public class Region  {
         // draw region name
 
         if (name != null) {
-            double fontScale = 2;
+            double fontScale = 1.2;
             g.scale(fontScale, fontScale);
             g.setFont(SwarmCon.ORB_FONT);
             g.setColor(SwarmCon.TEXT_CLR);

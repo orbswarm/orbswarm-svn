@@ -10,26 +10,26 @@
      fadeTime: 15
      <color> RGB 80 200 80 </color>
   </event>
-
+# current centroid: 13 (19-8)/2 = 6.5+8=14.4
   <path>
    name: pent
-   point: 10 10
-   point: 16 10
-   point: 18 15
-   point: 13 18.5
-   point:  8 15
-   point: 10 10
+   point: -3 -4
+   point:  3 -4
+   point:  5  1
+   point:  0  5
+   point: -5  1
+   point: -3 -4
   </path>
 
   <path>
     name: hex
-    point: 13 4
-    point: 4 8
-    point: 4 19
-    point: 13 23
-    point: 22 19
-    point: 22 8
-    point: 13 4
+    point:  0 -10
+    point: -9  -6
+    point: -9   5
+    point:  0   9
+    point:  9   5
+    point:  9  -6
+    point:  0 -10
   </path>
 
   <region>
@@ -47,8 +47,8 @@
 
   <region>
      name: P0
-     x: 9 11
-     y: 9 11
+     x: -4 -2
+     y: -5 -3
       <event>
         name: followPent
         trigger: enter
@@ -85,8 +85,8 @@
 
   <region>
      name: P1
-     x: 15 17
-     y: 9 11
+     x: 2 4
+     y: -5 -3
       <event>
         name: p1_flash
         trigger: inside
@@ -109,8 +109,8 @@
 
   <region>
      name: P2
-     x: 17 19
-     y: 14 16
+     x: 4 6
+     y: 0 2
       <event>
         name: p2_flash
         trigger: inside
@@ -133,8 +133,8 @@
 
   <region>
      name: P3
-     x: 12 14
-     y: 17 19
+     x: -1 1
+     y: 4 6
       <event>
         name: p3_flash
         trigger: inside
@@ -157,8 +157,8 @@
 
   <region>
      name: P4
-     x: 7 9
-     y: 14 16
+     x: -6 -4
+     y: 0 2
       <event>
         name: p4_flash
         trigger: inside
@@ -181,15 +181,15 @@
         
   <region>
      name: Hex_A
-     x: 11 15
-     y: 2 6
+     x: -2 2
+     y: -12 -8
       <event>
         name: A_enter
         trigger: enter
         specialist: GotoPoint
         <properties>
-            x: 4
-            y: 8
+            x: -9
+            y: -6
         </properties>
       </event>
       <event>
@@ -215,15 +215,15 @@
 
   <region>
      name: Hex_B
-     x: 2 6
-     y: 6 10
+     x: -11 -7
+     y: -8 -4
       <event>
         name: B_enter
         trigger: enter
         specialist: GotoPoint
         <properties>
-            x: 4
-            y: 19
+            x: -9
+            y:  5
         </properties>
       </event>
       <event>
@@ -248,15 +248,15 @@
 
   <region>
      name: Hex_C
-     x: 2 6
-     y: 17 21
+     x: -11 -7
+     y:  3 7
       <event>
         name: C_enter
         trigger: enter
         specialist: GotoPoint
         <properties>
-            x: 13
-            y: 23
+            x: 0
+            y: 9
         </properties>
       </event>
       <event>
@@ -280,16 +280,16 @@
   </region>
 
   <region>
-     name: D
-     x: 11 15
-     y: 21 25
+     name: Hex_D
+     x: -2 2
+     y: 7 11
       <event>
         name: D_enter
         trigger: enter
         specialist: GotoPoint
         <properties>
-            x: 22
-            y: 19
+            x: 9
+            y: 5
         </properties>
       </event>
       <event>
@@ -303,7 +303,7 @@
         </properties>
       </event>
       <event>
-        name: HexEb+
+        name: HexG+
         trigger: enter
         specialist: SimpleSound
         <properties>
@@ -313,16 +313,16 @@
   </region>
 
   <region>
-     name: E
-     x: 20 24
-     y: 17 21
+     name: Hex_E
+     x: 7 11
+     y: 3 7
       <event>
         name: E_enter
         trigger: enter
         specialist: GotoPoint
         <properties>
-            x: 22
-            y: 8
+            x: 9
+            y: -6
         </properties>
       </event>
       <event>
@@ -336,7 +336,7 @@
         </properties>
       </event>
       <event>
-        name: HexEb+
+        name: HexAm
         trigger: enter
         specialist: SimpleSound
         <properties>
@@ -348,16 +348,16 @@
   </region>
 
   <region>
-     name: F
-     x: 20 24
-     y: 6 10
+     name: Hex_F
+     x: 7 11
+     y: -8 -4
       <event>
         name: F_enter
         trigger: enter
         specialist: GotoPoint
         <properties>
-            x: 13 
-            y: 4
+            x: 0
+            y: -10
         </properties>
       </event>
       <event>

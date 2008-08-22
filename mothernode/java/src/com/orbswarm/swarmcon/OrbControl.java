@@ -477,13 +477,6 @@ public class OrbControl implements IOrbControl
     public SmoothPath followPath(int orbNum, Path path) 
     {
         Orb orb = swarmCon.getOrb(orbNum);
-        Target target = firstPoint(path);
-        SmoothPath poised = orb.getModel().setTargetPosition(target);
-        long poiseTimeMs = (long)(poised.getDuration() * 1000.);
-        try {
-            Thread.sleep((long)poiseTimeMs);
-        } catch (Exception ex) {
-        }
         SmoothPath travel = orb.getModel().setTargetPath(path);
         long travelTimeMs = (long)(travel.getDuration() * 1000.);
         try {
@@ -491,6 +484,18 @@ public class OrbControl implements IOrbControl
         } catch (Exception ex) {
         }
         return travel;
+    }
+
+    public SmoothPath gotoTarget(int orbNum, Target target) 
+    {
+        Orb orb = swarmCon.getOrb(orbNum);
+        SmoothPath poised = orb.getModel().setTargetPosition(target);
+        long poiseTimeMs = (long)(poised.getDuration() * 1000.);
+        try {
+            Thread.sleep((long)poiseTimeMs);
+        } catch (Exception ex) {
+        }
+        return poised;
     }
 
     private Target firstPoint(Path path) {
