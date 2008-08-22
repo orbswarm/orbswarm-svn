@@ -309,7 +309,7 @@ void dispatchSPUCmd(int spuAddr, cmdStruct * c) {
 	 */
 	else if(0==strncmp(c->cmd, "[o",2)){
 		float x,y;
-		sscanf(c->cmd, "[0 e=%f n=%f",&x,
+		sscanf(c->cmd, "[o e=%f n=%f",&x,
 				&y);
 		if(acquireGpsStructLock()){
 			latestGpsCoordinates->mshipEast=x;
