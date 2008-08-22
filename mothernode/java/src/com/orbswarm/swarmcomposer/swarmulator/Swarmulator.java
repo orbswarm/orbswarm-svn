@@ -1502,6 +1502,10 @@ public class Swarmulator implements MouseListener, MouseMotionListener, ColorSch
     {
       return null;
     }
+    public SmoothPath gotoTarget(int orbNum, Target target)
+    {
+      return null;
+    }
     public void stopOrb(int orbNum) {}
 
     //

@@ -913,8 +913,12 @@ public class TimelineDisplay
         System.out.println("TD: Timeline ended. stopping swarmcon");
         if (swarmCon != null)
         {
-            // TODO: if the timeline is a looper, then restart the timeline. 
-            swarmCon.stopTimeline();
+            // TODO: if the timeline is a looper, then restart the timeline.
+            if (timeline.getLooping()) {
+                swarmCon.startTimeline();
+            } else {
+                swarmCon.stopTimeline();
+            }
         }
         return false;
       }

@@ -33,6 +33,7 @@ public class Timeline extends Temporal {
     protected HashMap   paths = new HashMap();
     protected ArrayList ephemeralPaths = new ArrayList();
     protected ArrayList regions = new ArrayList();
+    protected boolean   looping = true;
     
 
     public void setTimelineDisplay(TimelineDisplay val) {
@@ -46,7 +47,10 @@ public class Timeline extends Temporal {
     public float getArena() {
         return this.arena;
     }
-    
+
+    public boolean getLooping() {
+        return this.looping;
+    }
 
     public static Timeline readTimeline(String timelinePath) throws IOException {
         System.out.println("ReadTimeline. " + timelinePath);

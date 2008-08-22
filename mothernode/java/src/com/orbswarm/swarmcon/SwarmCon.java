@@ -848,7 +848,6 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
             lastUpdate = Calendar.getInstance();
             while (running)
             {
-                System.out.println(".");
               update();
             }
           }

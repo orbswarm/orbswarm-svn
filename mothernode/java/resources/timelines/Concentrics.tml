@@ -1,7 +1,7 @@
 <timeline>
   name: Concentrics
   arena: 200.
-  duration: 540.
+  duration: 240.
 
   <event>
      name: fadeIn
