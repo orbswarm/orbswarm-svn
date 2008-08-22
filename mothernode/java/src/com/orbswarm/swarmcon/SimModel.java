@@ -169,6 +169,11 @@ public class SimModel extends MotionModel
 
     public void update(double time)
     {
+      // if the commander is active don't update
+
+      if (pathCommander != null)
+        return;
+
       // update pitch and roll rate
 
       pitchRate.update(time);
@@ -227,5 +232,101 @@ public class SimModel extends MotionModel
 
     public void onOrbMessage(Message message)
     {
+    }
+
+    /** Command a path.
+     *
+     * @param path the path the orb should follow
+     */
+
+    public SmoothPath setTargetPath(Path path)
+    {
+      SmoothPath sp = super.setTargetPath(path);
+      // if there is a live path commander kill it
+
+      if (pathCommander != null)
+        pathCommander.requestDeath();
+
+      // make a fresh new commander on this smooth path, and follow it
+
+      pathCommander = new PathCommander(sp);
+      pathCommander.start();
+
+      // return the smooth path
+
+      return sp;
+    }
+    
+    // the one true path commander
+
+    private PathCommander pathCommander = null;
+
+    // thread for commanding orb
+
+    class PathCommander extends Thread
+    {
+        private SmoothPath path;
+
+        private boolean deathRequest = false;
+
+        private Swarm swarm = SwarmCon.getInstance().getSwarm();
+
+        public PathCommander(SmoothPath path)
+        {
+          this.path = path;
+        }
+
+        public void requestDeath()
+        {
+          deathRequest = true;
+        }
+
+        public void run()
+        {
+          try
+          {
+            System.out.println("started commander: " + path.size());
+
+            // make the path visable
+            
+            SmoothMobject smob = new SmoothMobject(path);
+            swarm.add(smob);
+
+            double lastTime = 0;
+            
+            for (Waypoint wp: path)
+            {
+              // sleep until it's time to send it
+
+              sleep(SwarmCon.secondsToMilliseconds(wp.getTime() - lastTime));
+
+              // if requested to die, do so
+
+              if (deathRequest)
+              {
+                swarm.remove(smob);
+                return;
+              }
+
+              // move orb to this waypoint
+
+              setPosition(wp);
+              setYaw(wp.getYaw());
+              smob.setCurrentWaypoint(wp);
+
+              // update the last time a way point was set
+
+              lastTime = wp.getTime();
+            }
+            
+            // nolonger show smod
+
+            swarm.remove(smob);
+          }
+          catch (Exception e)
+          {
+            e.printStackTrace();
+          }
+        }
     }
 }

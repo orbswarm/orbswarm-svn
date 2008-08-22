@@ -13,7 +13,10 @@ public class Message extends Properties
 
     enum Type
     {
-      POSITION_REPORT("p"), INFO_REPORT("i"), UNKNOWN("");
+      POSITION_REPORT("p"), 
+        SURVEY_REPORT("s"), 
+        INFO_REPORT("i"), 
+        UNKNOWN("");
 
       private String token = null;
 
@@ -116,27 +119,26 @@ public class Message extends Properties
     private void parseMessage(String message) 
     {
       StringTokenizer t = new StringTokenizer(message, " @\t\n\r\f={}");
+      
+      // assume the type is unknown
 
-      // if there are not tokens it's an empty message, lets just ignore it
+        type = Type.UNKNOWN;
+      
+      // if there are not tokens it's an empty message, we're done
 
       if (!t.hasMoreTokens())
-      {
-        type = Type.UNKNOWN;
         return;
-      }
 
       // get the sender id
 
       if (!t.hasMoreTokens())
         return;
-        //throw new Error("No sender id specified in message: " + message);
       senderId = Integer.valueOf(t.nextToken()) - SwarmCon.ORB_OFFSET_ID;
 
       // get the message type
 
       if (!t.hasMoreTokens())
         return;
-//        throw new Error("No type specified in message: " + message);
       type = Type.getType(t.nextToken());
 
       // loop through the remaining tokens and parse them in as
@@ -149,16 +151,16 @@ public class Message extends Properties
         String key = t.nextToken();
 
         // get the value
-            
+ 
         if (!t.hasMoreTokens())
+        {
+          type = Type.UNKNOWN;
           return;
-//           throw new Error(
-//             "Property \"" + key + 
-//             "\" has no value in message: " + message);
+        }
         String value = t.nextToken();
-            
+ 
         // set property value
-            
+ 
         setProperty(key, value);
       }
     }

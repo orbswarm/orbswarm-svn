@@ -88,6 +88,13 @@ public class Waypoint extends Point
       return deltaAngle;
     }
 
+    /** Get the yaw position of the orb in degrees. */
+
+    public double getYaw()
+    {
+      return angle.degrees();
+    }
+
     /** Return the radians per second. */
 
     public void setDeltaRadians(Waypoint prev, Waypoint next)
