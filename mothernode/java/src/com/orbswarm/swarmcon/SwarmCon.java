@@ -409,12 +409,15 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       HeadingFmt.setMaximumIntegerDigits(3);
       HeadingFmt.setMinimumIntegerDigits(3);
       HeadingFmt.setMaximumFractionDigits(0);
+      HeadingFmt.setGroupingUsed(false);
       UtmFmt.setMinimumIntegerDigits(1);
       UtmFmt.setMaximumFractionDigits(3);
       UtmFmt.setMinimumFractionDigits(3);
+      UtmFmt.setGroupingUsed(false);
       StdFmt.setMinimumIntegerDigits(1);
       StdFmt.setMaximumFractionDigits(2);
       StdFmt.setMinimumFractionDigits(2);
+      StdFmt.setGroupingUsed(false);
     }
     // entry point
 
@@ -427,6 +430,10 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
     public static void main(String[] args)
     {
+//       double x = 123445345;
+//       System.out.println("num: " + UtmFmt.format(x));
+//       exit(0);
+
       registerSpecialists();
       SwarmCon sc = new SwarmCon();
       int i=0;

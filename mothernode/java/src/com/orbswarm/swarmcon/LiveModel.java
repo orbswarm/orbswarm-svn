@@ -138,6 +138,7 @@ public class LiveModel extends MotionModel
 
         // update our current postion, and time
 
+        setYaw((360 - Math.toDegrees(message.getDoubleProperty(EASTING))));
         setPosition(position);
         lastPositionReportTime = newPositionReportTime;
       }

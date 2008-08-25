@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.StringTokenizer;
 import java.util.Properties;
 import java.util.Map;
-import java.text.NumberFormat;
 
 import static java.lang.Character.*;
 import static com.orbswarm.swarmcon.Message.Type.*;
@@ -17,17 +16,6 @@ import static com.orbswarm.swarmcon.Message.Type.*;
 
 public class OrbIo extends SerialIo
 {
-    /** the standard formatter for sending values. */
-
-    public static NumberFormat StdFormat = NumberFormat.getNumberInstance();
-
-    static
-    {
-      StdFormat.setMinimumIntegerDigits(1);
-      StdFormat.setMaximumFractionDigits(3);
-      StdFormat.setMinimumFractionDigits(3);
-    }
-
     /** Hash of orbs to used to dispatch messages to orbs. */
 
     HashMap<Integer, Orb> orbs = new HashMap<Integer, Orb>();
@@ -81,7 +69,7 @@ public class OrbIo extends SerialIo
 
       if (orb != null)
         orb.onOrbMessage(message);
-      else
+      else if (debug)
         System.out.println("unhandled message: " + message);
     }
 
@@ -232,7 +220,7 @@ public class OrbIo extends SerialIo
 
     public String format(double value)
     {
-      return StdFormat.format(value);
+      return SwarmCon.UtmFmt.format(value);
     }
 
     /** The orb message class. */

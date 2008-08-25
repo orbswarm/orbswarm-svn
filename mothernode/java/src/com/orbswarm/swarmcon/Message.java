@@ -46,7 +46,7 @@ public class Message extends Properties
 
     enum Field
     {
-      EASTING("e"), NORTHING("n"), UNKNOWN("");
+      EASTING("e"), NORTHING("n"), YAW("y"), UNKNOWN("");
 
       private String token = null;
 
@@ -202,7 +202,17 @@ public class Message extends Properties
 
     public Double getDoubleProperty(String name)
     {
-      return Double.valueOf((String)getProperty(name));
+      double value = 0;
+
+      try
+      {
+        value = Double.valueOf((String)getProperty(name));
+      }
+      catch (Exception e)
+      {
+      }
+
+      return value;
     }
 
     /** Get double property.
