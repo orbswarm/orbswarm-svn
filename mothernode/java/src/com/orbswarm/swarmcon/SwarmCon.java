@@ -47,6 +47,7 @@ import com.orbswarm.swarmcomposer.composer.BotVisualizer;
 import com.orbswarm.swarmcomposer.util.TokenReader;
 
 import static org.trebor.util.ShapeTools.*;
+import static org.trebor.util.Angle.Type.*;
 import static java.lang.System.*;
 import static java.awt.Color.*;
 import static java.lang.Math.*;
@@ -968,17 +969,19 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
         if (!liveMode)
         {
+          Behavior nb = new NoBehavior();
           Behavior fb = new FollowBehavior(preveouse);
           Behavior wb = new WanderBehavior();
           Behavior rb = new RandomBehavior();
           Behavior cb = new ClusterBehavior();
           Behavior fab = new AvoidBehavior(fb);
           Behavior cab = new AvoidBehavior(cb);
+//           orb.add(rb);
+//           orb.add(cb);
+//           orb.add(fab);
+//           orb.add(cab);
           orb.add(fb);
-          orb.add(rb);
-          orb.add(cb);
-          orb.add(fab);
-          orb.add(cab);
+          orb.add(nb);
         }
 
         // record preveouse for the follow behavior
@@ -1653,15 +1656,11 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
                 (behavior != null
                 ? behavior.toString()
                 : "[none]") +
-                " R: " + HeadingFmt.
-                format(round(orb.getRoll ())) +
-                " P: " + HeadingFmt.
-                format(round(orb.getPitch())) +
-                " Y: " + HeadingFmt.
-                format(round(orb.getYaw  ())) +
-                " YR: " + HeadingFmt.
-                format(round(orb.getYawRate())) +
-                " V: " + round(orb.getSpeed() * 100) / 100d,
+                " R: "  + HeadingFmt.format(round(orb.getRoll   ().as(HEADING))) + 
+                " P: "  + HeadingFmt.format(round(orb.getPitch  ().as(HEADING))) +
+                " Y: "  + HeadingFmt.format(round(orb.getYaw    ().as(HEADING))) +
+                " YR: " + HeadingFmt.format(round(orb.getYawRate().as(DEGREE_RATE))) +
+                " V: "  + round(orb.getSpeed() * 100) / 100d,
                 5, 15 + id++ * 15);
             }
         }

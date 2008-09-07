@@ -6,6 +6,7 @@ import java.awt.geom.*;
 import org.trebor.util.Angle;
 
 import static java.lang.Math.*;
+import static org.trebor.util.Angle.Type.*;
 
 /** A place to which the orb should go */
 
@@ -72,13 +73,11 @@ public class Waypoint extends Point
       return time;
     }
 
-    /** return the angle in radians (north = pi/2) */
+    /** return the angle in radians */
 
     public double getRadians()
     {
-      Angle tmp = new Angle(angle);
-      tmp.setDeltaAngle(-90);
-      return tmp.radians();
+      return angle.as(RADIANS);
     }
 
     /** Return the radians per second. */
@@ -92,7 +91,7 @@ public class Waypoint extends Point
 
     public double getYaw()
     {
-      return angle.degrees();
+      return angle.as(DEGREES);
     }
 
     /** Return the radians per second. */
@@ -102,8 +101,6 @@ public class Waypoint extends Point
       double dTime = next.getTime() - prev.getTime();
       double dRadians = next.getRadians() - prev.getRadians();
       deltaAngle = dRadians / dTime;
-      //System.out.println("dTime: " + dTime);
-      //System.out.println("dRadians: " + dRadians);
     }
 
     /** Convert to string. */

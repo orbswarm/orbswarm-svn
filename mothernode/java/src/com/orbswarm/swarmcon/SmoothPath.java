@@ -8,6 +8,8 @@ import java.awt.geom.PathIterator;
 import java.util.Vector;
 import java.util.Iterator;
 
+import static org.trebor.util.Angle.Type.*;
+
 public class SmoothPath extends Vector<Waypoint>
 {
    /** Continouse path representing the smooth path */
@@ -211,20 +213,19 @@ public class SmoothPath extends Vector<Waypoint>
             
             // rotate bisection by 90 degrees
             
-            cpAngle.setDeltaAngle(-90);
+            cpAngle.rotate(-90, DEGREES);
 
             // compute control point at this intersection
 
             cp1 = new Point(cpAngle.cartesian(
-                               curveWidth / 2, false,
-                               p1.x, p1.y));
+                               curveWidth / 2, p1.x, p1.y));
 
             // compute new control point at intersection with old curve
             
-            cpAngle.setDeltaAngle(180);
+            cpAngle.rotate(180, DEGREES);
             Point cpOld = new Point(cpAngle.cartesian(
-                                       curveWidth / 2, false,
-                                       p1.x, p1.y));
+              curveWidth / 2,
+              p1.x, p1.y));
 
             // get the older curve
 

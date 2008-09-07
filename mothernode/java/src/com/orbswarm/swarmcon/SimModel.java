@@ -6,6 +6,7 @@ import org.trebor.util.Angle;
 
 import static java.lang.Math.*;
 import static com.orbswarm.swarmcon.SwarmCon.*;
+import static org.trebor.util.Angle.Type.*;
 
 /** A simple motion simulation model based on rates */
 
@@ -60,44 +61,44 @@ public class SimModel extends MotionModel
      *
      * @param targetRollRate target roll rate
      */
-    public void setTargetRollRate(double targetRollRate)
+    public void setTargetRollRate(Angle targetRollRate)
     {
       super.setTargetRollRate(targetRollRate);
-      rollRate.setNormalizedTarget(targetRollRate);
+      rollRate.setNormalizedTarget(targetRollRate.as(DEGREE_RATE));
     }
 
     /** Command low level pitch rate control.
      *
      * @param targetPitchRate target velocity
      */
-    public void setTargetPitchRate(double targetPitchRate)
+    public void setTargetPitchRate(Angle targetPitchRate)
     {
       super.setTargetPitchRate(targetPitchRate);
-      pitchRate.setNormalizedTarget(targetPitchRate);
+      pitchRate.setNormalizedTarget(targetPitchRate.as(DEGREE_RATE));
     }
 
     /** Command target roll.
      *
      * @param targetRoll target roll
      */
-    public void setTargetRoll(double targetRoll)
+    public void setTargetRoll(Angle targetRoll)
     {
       super.setTargetRoll(targetRoll);
-      rollToRollRateCtrl.setTarget(targetRoll);
-      rollToRollRateCtrl.setMeasurment(getRoll());
-      setTargetRollRate(rollToRollRateCtrl.compute());
+      rollToRollRateCtrl.setTarget(targetRoll.as(DEGREE_RATE));
+      rollToRollRateCtrl.setMeasurment(getRoll().as(DEGREE_RATE));
+      setTargetRollRate(new Angle(rollToRollRateCtrl.compute(), DEGREE_RATE));
     }
 
     /** Command target yaw rate.
      *
      * @param targetYawRate target yaw rate
      */
-    public void setTargetYawRate(double targetYawRate)
+    public void setTargetYawRate(Angle targetYawRate)
     {
       super.setTargetYawRate(targetYawRate);
-      yawRateToRollRateCtrl.setTarget(targetYawRate);
-      yawRateToRollRateCtrl.setMeasurment(getYawRate());
-      setTargetRollRate(yawRateToRollRateCtrl.compute());
+      yawRateToRollRateCtrl.setTarget(targetYawRate.as(DEGREE_RATE));
+      yawRateToRollRateCtrl.setMeasurment(getYawRate().as(DEGREE_RATE));
+      setTargetRollRate(new Angle(yawRateToRollRateCtrl.compute(), DEGREE_RATE));
     }
 
     /** Command target velocity.
@@ -109,14 +110,15 @@ public class SimModel extends MotionModel
       super.setTargetVelocity(targetVelocity);
       velocityToPitchCtrl.setTarget(targetVelocity);
       velocityToPitchCtrl.setMeasurment(getSpeed());
-      setTargetPitchRate(velocityToPitchCtrl.compute());
+      setTargetPitchRate(new Angle(velocityToPitchCtrl.compute(), DEGREE_RATE));
     }
 
     /** Command target yaw.
      *
      * @param targetYaw target yaw
      */
-    public void setTargetYaw(double targetYaw)
+
+    public void setTargetYaw(Angle targetYaw)
     {
       // update parent
 
@@ -124,13 +126,14 @@ public class SimModel extends MotionModel
 
       // compute yaw error
 
-      double yawError = Angle.difference(getYaw(), getTargetYaw());
+      double yawError = getYaw().difference(getTargetYaw(), DEGREE_RATE)
+        .as(DEGREE_RATE);
 
       // compute yaw target rate
 
       yawToYawRateCtrl.setTarget(0);
       yawToYawRateCtrl.setMeasurment(yawError);
-      setTargetYawRate(yawToYawRateCtrl.compute());
+      setTargetYawRate(new Angle(yawToYawRateCtrl.compute(), DEGREES));
     }
 
     /** Command distance error.
@@ -173,7 +176,7 @@ public class SimModel extends MotionModel
 
       if (pathCommander != null)
         return;
-
+      
       // update pitch and roll rate
 
       pitchRate.update(time);
@@ -181,49 +184,51 @@ public class SimModel extends MotionModel
 
       // compute delta pitch and roll
 
-      Angle dPitch = new Angle(pitchRate.getRate() * time);
-      Angle dRoll  = new Angle(rollRate.getRate() * time);
+      Angle dPitch = new Angle(pitchRate.getRate() * time, DEGREE_RATE);
+      Angle dRoll  = new Angle(rollRate.getRate() * time, DEGREE_RATE);
 
       // update absolute pitch and roll
 
-      dPitch.setAngle(setDeltaPitch(dPitch.degrees()));
-      dRoll .setAngle(setDeltaRoll (dRoll .degrees()));
+      dPitch.setAngle(setDeltaPitch(dPitch.as(DEGREE_RATE)), DEGREE_RATE);
+      dRoll .setAngle(setDeltaRoll (dRoll .as(DEGREE_RATE)), DEGREE_RATE);
 
       // feed back to actual pitch and roll rate in case
       // in case the orb hit some limit
 
-      pitchRate.setRate(dPitch.degrees() / time);
-      rollRate.setRate(dRoll.degrees()   / time);
+      pitchRate.setRate(dPitch.as(DEGREE_RATE) / time);
+      rollRate.setRate(dRoll.as(DEGREE_RATE)   / time);
 
       // compute yaw
 
-      double dYaw = toDegrees(sin(toRadians(getRoll())) *
-      dPitch.radians());
+      double dYaw = toDegrees(sin(getRoll().as(RADIANS)))
+        * dPitch.as(RADIAN_RATE);
       setDeltaYaw(dYaw);
-      setYawRate(dYaw / time);
+      setYawRate(new Angle(dYaw / time, DEGREE_RATE));
 
       // radius of wide end of the rolling cone
 
-      double p = ORB_RADIUS * cos(toRadians(getRoll()));
+      double p = ORB_RADIUS * cos(roll.as(RADIANS));
+//       double p = ORB_RADIUS * cos(toRadians(getRoll()));
 
       // compute delta x and y
 
-      Point delta = new Point(
-        Angle.cartesian(
-          getYaw(), false, dPitch.radians() * p, true, 0, 0));
+      Point delta = new Point(yaw.cartesian(dPitch.as(RADIAN_RATE) * p));
+
+//       Point delta = new Point(
+//          Angle.cartesian(
+//            getYaw(), RADIANS, dPitch.as(RADIAN_RATE) * p, 0, 0));
 
       // correct for latteral displacement due to roll
 
-      delta.translate(
-        Angle.cartesian(
-          getYaw() + 90, false, dRoll.radians() * ORB_RADIUS,
-          true, 0, 0));
+//       delta.translate(
+//         Angle.cartesian(
+//           getYaw() + 90, RADIANS, dRoll.as(RADIAN_RATE) * ORB_RADIUS, 0, 0));
 
       // set position and velocity and direction
 
       setDeltaPosition(delta.getX(), delta.getY());
       setVelocity(hypot(delta.getX(), delta.getY()) / time);
-      setDirection(toDegrees(atan2(delta.getX(), delta.getY())));
+      setDirection(new Angle(delta.getX(), delta.getY()));
     }
 
 
@@ -311,7 +316,7 @@ public class SimModel extends MotionModel
               // move orb to this waypoint
 
               setPosition(wp);
-              setYaw(wp.getYaw());
+              setYaw(new Angle(wp.getYaw(), DEGREES));
               smob.setCurrentWaypoint(wp);
 
               // update the last time a way point was set

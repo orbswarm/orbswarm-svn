@@ -5,6 +5,7 @@ import com.orbswarm.swarmcon.OrbIo.IOrbListener;
 
 import static com.orbswarm.swarmcon.SwarmCon.*;
 import static java.lang.Math.*;
+import static org.trebor.util.Angle.Type.*;
 
 /** This class models the motion of an orb.  It may be a simulated
  * motion model or a linkage to a live orb. */
@@ -31,18 +32,17 @@ abstract public class MotionModel implements IOrbListener
 
     private static Rate velocityRate = new Rate("Velocity", 0, 1.0, .15);
 
-    
     // ------- vehicle state --------
 
     /** yaw of orb */
 
-    protected Angle yaw = new Angle();
+    protected Angle yaw = new Angle(0, HEADING);
 
-    /** pitch of orb */
+    /** pitch of orb (shell not ballest) */
 
     protected Angle pitch = new Angle();
 
-    /** roll of orb */
+    /** roll of orb (shell not ballest) */
 
     protected Angle roll = new Angle();
 
@@ -60,17 +60,17 @@ abstract public class MotionModel implements IOrbListener
 
     /** yaw rate */
 
-    protected double yawRate = 0;
+    protected Angle yawRate = new Angle();
 
     // ------- pitch roll rate control parameters --------
 
     /** target roll rate */
 
-    private double targetRollRate;
+    private Angle targetRollRate;
 
     /** target pitch rate */
 
-    private double targetPitchRate;
+    private Angle targetPitchRate;
 
     // ------- roll, yaw rate & velocity control parameters --------
 
@@ -80,7 +80,7 @@ abstract public class MotionModel implements IOrbListener
 
     /** target yaw rate */
 
-    private double targetYawRate;
+    private Angle targetYawRate;
 
     /** target pitch rate */
 
@@ -114,7 +114,7 @@ abstract public class MotionModel implements IOrbListener
      * @return yaw rate in degrees per second
      */
 
-    public double getYawRate()
+    public Angle getYawRate()
     {
       return yawRate;
     }
@@ -123,7 +123,7 @@ abstract public class MotionModel implements IOrbListener
      * @param yawRate yaw rate in degrees per second
      */
 
-    protected void setYawRate(double yawRate)
+    protected void setYawRate(Angle yawRate)
     {
       this.yawRate = yawRate;
     }
@@ -136,7 +136,7 @@ abstract public class MotionModel implements IOrbListener
 
     public double getSpeed()
     {
-      return abs(yaw.difference(direction).degrees()) < 90
+      return abs(yaw.difference(direction).as(DEGREES)) < 90
         ? getVelocity()
         : -getVelocity();
     }
@@ -159,21 +159,22 @@ abstract public class MotionModel implements IOrbListener
     {
       this.velocity = velocity;
     }
+
     /** Get the current direction of the orb.
      *
-     * @return direction in meters per second
+     * @return direction as a heading
      */
 
-    public double getDirection()
+    public Angle getDirection()
     {
-      return direction.degrees();
+      return new Angle(direction);
     }
 
     /** Set the current direction of the orb.
      *
-     * @param direction orb direction (headign in degrees)
+     * @param direction orb direction (heading)
      */
-    protected void setDirection(double direction)
+    protected void setDirection(Angle direction)
     {
       this.direction.setAngle(direction);
     }
@@ -182,7 +183,7 @@ abstract public class MotionModel implements IOrbListener
      *
      * @param targetRollRate target roll rate
      */
-    public void setTargetRollRate(double targetRollRate)
+    public void setTargetRollRate(Angle targetRollRate)
     {
       this.targetRollRate = targetRollRate;
     }
@@ -191,7 +192,7 @@ abstract public class MotionModel implements IOrbListener
      *
      * @param targetPitchRate target velocity
      */
-    public void setTargetPitchRate(double targetPitchRate)
+    public void setTargetPitchRate(Angle targetPitchRate)
     {
       this.targetPitchRate = targetPitchRate;
     }
@@ -200,16 +201,16 @@ abstract public class MotionModel implements IOrbListener
      *
      * @param targetRoll target roll
      */
-    public void setTargetRoll(double targetRoll)
+    public void setTargetRoll(Angle targetRoll)
     {
-      this.targetRoll.setAngle(targetRoll);
+      this.targetRoll = targetRoll;
     }
 
     /** Command target yaw rate.
      *
      * @param targetYawRate target yaw rate
      */
-    public void setTargetYawRate(double targetYawRate)
+    public void setTargetYawRate(Angle targetYawRate)
     {
       this.targetYawRate = targetYawRate;
     }
@@ -227,9 +228,10 @@ abstract public class MotionModel implements IOrbListener
      *
      * @param targetYaw target yaw
      */
-    public void setTargetYaw(double targetYaw)
+
+    public void setTargetYaw(Angle targetYaw)
     {
-      this.targetYaw.setAngle(targetYaw);
+      this.targetYaw = targetYaw;
     }
 
     /** Command yaw and distance.
@@ -259,8 +261,8 @@ abstract public class MotionModel implements IOrbListener
 
       // add the intermediate point between the orb and the target
 
-      path.add(new Target(yaw.cartesian(HEAD_ROOM / 4, true, getX(), getY())));
-      path.add(new Target(yaw.cartesian(HEAD_ROOM, true, getX(), getY())));
+      path.add(new Target(yaw.cartesian(HEAD_ROOM / 4, getX(), getY())));
+      path.add(new Target(yaw.cartesian(HEAD_ROOM, getX(), getY())));
 
       // add the actual target
 
@@ -289,78 +291,78 @@ abstract public class MotionModel implements IOrbListener
 
     public double getTargetYaw()
     {
-      return targetYaw.degrees();
+      return targetYaw.as(DEGREES);
     }
     /** Get target roll. */
 
     public double getTargetRoll()
     {
-      return targetRoll.degrees();
+      return targetRoll.as(DEGREES);
     }
     // get yaw
 
-    public double getYaw()
+    public Angle getYaw()
     {
-      return yaw.degrees();
+      return yaw; //.as(DEGREES);
     }
     // set yaw
 
-    protected void setYaw(double yaw)
+    protected void setYaw(Angle yaw)
     {
-      this.yaw.setAngle(yaw);
+      this.yaw = yaw;
     }
     // set delta yaw
 
     protected void setDeltaYaw(double dYaw)
     {
-      yaw.setDeltaAngle(dYaw);
+      yaw.rotate(dYaw, DEGREE_RATE);
     }
     // get pitch
 
-    public double getPitch()
+    public Angle getPitch()
     {
-      return pitch.degrees();
+      return pitch;
     }
     // set pitch
 
     protected double setPitch(double pitch)
     {
-      double deltaPitch = pitch - this.pitch.degrees();
-      this.pitch.setAngle(pitch);
+      double deltaPitch = pitch - this.pitch.as(DEGREES);
+      this.pitch.setAngle(pitch, DEGREES);
       return deltaPitch;
     }
     // set delta pitch
 
     protected double setDeltaPitch(double dPitch)
     {
-      return setPitch(this.pitch.degrees() + dPitch);
+      return setPitch(this.pitch.as(DEGREES) + dPitch);
     }
     // get roll
 
-    public double getRoll()
+    public Angle getRoll()
     {
-      return roll.degrees();
+      return roll;
     }
     // set roll
 
     protected double setRoll(double roll)
     {
       double newRoll = max(min(MAX_ROLL, roll), -MAX_ROLL);
-      double deltaRoll = newRoll - this.roll.degrees();
-      this.roll.setAngle(newRoll);
+      double deltaRoll = newRoll - this.roll.as(DEGREE_RATE);
+      this.roll.setAngle(newRoll, DEGREES);
       return deltaRoll;
     }
     // set delta roll
 
     protected double setDeltaRoll(double dRoll)
     {
-      return setRoll(this.roll.degrees() + dRoll);
+      return setRoll(this.roll.as(DEGREE_RATE) + dRoll);
     }
     // reverse the sense of the vehicle
 
     public void reverse()
     {
-      setYaw(getYaw() + 180);
+      yaw.rotate(180, DEGREES);
     }
     // positon getter
 

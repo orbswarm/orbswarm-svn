@@ -1,7 +1,10 @@
 package com.orbswarm.swarmcon;
 
+import org.trebor.util.Angle;
+
 import static com.orbswarm.swarmcon.SwarmCon.*;
 import static java.lang.Math.*;
+import static org.trebor.util.Angle.Type.*;
 
 // avoid wraps around another behavior and adds obsticle
 // avoidance when usefull
@@ -40,9 +43,9 @@ public class AvoidBehavior extends Behavior
          
          if (orb.getNearestDistance() < CRITICAL_DISTANCE)
          {
-            model.setTargetYaw(orb.headingTo(orb.getNearest()));
-            model.setDistanceError(SAFE_DISTANCE - orb.getNearestDistance());
-            return;
+           model.setTargetYaw(new Angle(orb.headingTo(orb.getNearest()), DEGREES));
+           model.setDistanceError(SAFE_DISTANCE - orb.getNearestDistance());
+           return;
          }
       }
       // overide to string

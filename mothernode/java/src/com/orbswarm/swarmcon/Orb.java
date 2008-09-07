@@ -9,12 +9,14 @@ import java.awt.image.*;
 import java.util.Vector;
 import java.text.NumberFormat;
 import com.orbswarm.swarmcon.OrbIo.IOrbListener;
+import org.trebor.util.Angle;
 
 import static java.lang.System.*;
 import static java.awt.Color.*;
 import static java.lang.Math.*;
 import static com.orbswarm.swarmcon.SwarmCon.*;
 import static org.trebor.util.ShapeTools.*;
+import static org.trebor.util.Angle.Type.*;
 
 /** Representation of an  orb. */
 
@@ -189,25 +191,25 @@ public class Orb extends Mobject
     }
     // get orb roll
 
-    public double getRoll()
+    public Angle getRoll()
     {
       return model.getRoll();
     }
     // get orb pitch
 
-    public double getPitch()
+    public Angle getPitch()
     {
       return model.getPitch();
     }
     // get orb yaw
 
-    public double getYaw()
+    public Angle getYaw()
     {
       return model.getYaw();
     }
     // get orb yaw rate
 
-    public double getYawRate()
+    public Angle getYawRate()
     {
       return model.getYawRate();
     }
@@ -375,16 +377,19 @@ public class Orb extends Mobject
         // draw orb frame
 
         setColor(g, ORB_FRAME_CLR);
-        g.fill(rotateAboutCenter(createOrbFrameShape(), -getYaw()));
+        g.fill(rotateAboutCenter(createOrbFrameShape(), -getYaw().as(HEADING)));
 
         // draw vector line
 
         g.setStroke(vectorStroke);
         setColor(g, VECTOR_CRL);
-        g.draw(rotate(scale(vectorLine,
-        model.getVelocity(),
-        model.getVelocity()),
-        -model.getDirection()));
+        g.draw(
+          rotate(
+            scale(
+              vectorLine,
+              model.getVelocity(),
+              model.getVelocity()),
+            -model.getDirection().as(HEADING)));
       }
 
       // setup for drawing text
@@ -414,7 +419,7 @@ public class Orb extends Mobject
         txY -= dTxY;
         drawText(g, txX, txY, "NORH: " + SwarmCon.UtmFmt.format(getY()));
         txY -= dTxY;
-        drawText(g, txX, txY, " YAW: " + (int)((360 + getYaw()) % 360));
+        drawText(g, txX, txY, " YAW: " + (int)(getYaw().as(HEADING)));
         txY -= dTxY;
       }
 
@@ -488,33 +493,36 @@ public class Orb extends Mobject
 
       // add the equator
 
-      double width = sin(toRadians(model.getRoll()));
-      arc = new Arc2D.Double(-abs(width / 2),
-      -0.5,
-      abs(width),
-      1,
-      width > 0 ? 270 : 90, 180,
-      Arc2D.Double.OPEN);
+      double width = sin(model.getRoll().as(RADIANS));
+      arc = new Arc2D.Double(
+        -abs(width / 2),
+        -0.5,
+        abs(width),
+        1,
+        width > 0 ? 270 : 90, 180,
+        Arc2D.Double.OPEN);
       arcs.append(s.createStrokedShape(arc), true);
 
       // add longitude lines
 
       strokeWidth = ORB_DIAMETER / 128;
-      s = new BasicStroke((float)strokeWidth,
-      BasicStroke.CAP_ROUND,
-      BasicStroke.JOIN_ROUND);
+      s = new BasicStroke(
+        (float)strokeWidth,
+        BasicStroke.CAP_ROUND,
+        BasicStroke.JOIN_ROUND);
 
-      double pitch = (360 + model.getPitch()) % 360;
+      double pitch = model.getPitch().as(DEGREES);
       for (int i = 0; i < ORB_SPAR_COUNT; ++i)
       {
         width = sin(toRadians(pitch));
-        arc = new Arc2D.Double(-0.5,
-        -abs(width / 2),
-        1,
-        abs(width),
-        pitch > 180 && pitch < 270 ||
-        pitch < 90 ? 180 : 0, 180,
-        Arc2D.Double.OPEN);
+        arc = new Arc2D.Double(
+          -0.5,
+          -abs(width / 2),
+          1,
+          abs(width),
+          pitch > 180 && pitch < 270 ||
+          pitch < 90 ? 180 : 0, 180,
+          Arc2D.Double.OPEN);
         arcs.append(s.createStrokedShape(arc), true);
         pitch = (pitch + 180 / ORB_SPAR_COUNT) % 360;
       }

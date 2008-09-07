@@ -5,6 +5,7 @@ import org.trebor.util.Angle;
 
 import static com.orbswarm.swarmcon.Message.Type.*;
 import static com.orbswarm.swarmcon.Message.Field.*;
+import static org.trebor.util.Angle.Type.*;
 
 /** This class is linkage to a live orb */
 
@@ -127,18 +128,13 @@ public class LiveModel extends MotionModel
           // and from that the velocity
 
           setVelocity(distance / time);
-
-          // and now compute yaw
-          
-          Angle yaw = new Angle(getPosition(), position);
-          setYaw(yaw.degrees());
         }
         else
           orbPositionInitialized = true;
 
         // update our current postion, and time
 
-        setYaw((360 - Math.toDegrees(message.getDoubleProperty(EASTING))));
+        setYaw(new Angle(message.getDoubleProperty(YAW), RADIANS));
         setPosition(position);
         lastPositionReportTime = newPositionReportTime;
       }
@@ -185,12 +181,12 @@ public class LiveModel extends MotionModel
     }
     /** Get the yaw rate of the orb.
      *
-     * @return yaw reate in degrees per second
+     * @return yaw reate in angular units per second
      */
 
-    public double getYawRate()
+    public Angle getYawRate()
     {
-      return 0;
+      return new Angle();
     }
 
     /** Command a path.
