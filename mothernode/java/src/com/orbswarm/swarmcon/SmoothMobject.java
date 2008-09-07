@@ -39,10 +39,6 @@ public class SmoothMobject extends Mobject
     
     public void paint(Graphics2D g)
     {
-      //g.setStroke(stroke);
-      //g.setColor(new Color(255, 128, 64));
-      //g.draw(gp);
-      
       g.setColor(new Color(255, 0, 0, 16));
       for (Waypoint wp: sp)
       {
@@ -52,15 +48,15 @@ public class SmoothMobject extends Mobject
         g.setTransform(t);
       }
 
-      g.setColor(new Color(64, 64, 64));
-      for (Waypoint wp: sp)
-      {
-        AffineTransform t = g.getTransform();
-        g.translate(wp.getX(), wp.getY());
-        g.fill(smallDot);
-        g.setTransform(t);
-        if (wp == current)
-          break;
-      }
+//       g.setColor(new Color(64, 64, 64));
+//       for (Waypoint wp: sp)
+//       {
+//         AffineTransform t = g.getTransform();
+//         g.translate(wp.getX(), wp.getY());
+//         g.fill(smallDot);
+//         g.setTransform(t);
+//         if (wp == current)
+//           break;
+//       }
     }
 }

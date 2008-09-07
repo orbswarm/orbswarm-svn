@@ -2,12 +2,20 @@ package com.orbswarm.swarmcon;
 
 import javax.swing.*;
 import javax.swing.event.*;
+
 import java.awt.*;
 import java.awt.geom.*;
 import java.awt.event.*;
 import java.awt.image.*;
-import java.util.Vector;
+
 import java.text.NumberFormat;
+
+import java.util.Vector;
+import java.util.Calendar;
+import java.util.concurrent.Delayed;
+import java.util.concurrent.DelayQueue;
+import java.util.concurrent.TimeUnit;
+
 import com.orbswarm.swarmcon.OrbIo.IOrbListener;
 import org.trebor.util.Angle;
 
@@ -42,6 +50,15 @@ public class Orb extends Mobject
     /** settable color of this orb. */
 
     private Color orbColor = ORB_CLR;
+
+    /** The lenght of the displayed history in milliseconds.  This is
+     * NOT properly factored. */
+
+    public static long historyLength = 6000;
+
+    /** history of were this orb has been */
+
+    private HistoryQueue history = new HistoryQueue();
 
     /** shadow of the orb */
 
@@ -109,6 +126,11 @@ public class Orb extends Mobject
     {
       super.setPosition(x, y);
       model.setPosition(getX(), getY());
+
+      // record our history
+
+      history.add(this);
+      history.removeOld();
     }
 
     void setOrbColor(Color val)
@@ -257,7 +279,6 @@ public class Orb extends Mobject
       // we no longer know what's nearest
 
       resetNearest();
-
     }
     // get nearest mobject
 
@@ -353,12 +374,19 @@ public class Orb extends Mobject
     {
       super.paint(g);
 
-      // record old transform and make the orb the center of the
-      // world
+      // record old transform and scale to orb.
+
 
       AffineTransform old = g.getTransform();
-      g.translate(getX(), getY());
       g.scale(ORB_DIAMETER, ORB_DIAMETER);
+
+      // draw orb history
+
+      history.paint(g);
+
+      //make the orb the center of the world
+
+      g.translate(getX(), getY());
 
       // draw orb shape
 
@@ -530,4 +558,97 @@ public class Orb extends Mobject
 
       return arcs;
     }
+
+    /** Object used to store historical information about the orb. */
+
+    class HistoryElement implements Delayed
+    {
+        /** position of orb */
+
+        public Point position;
+
+        /** the time at which this history element was recorded */
+
+        private long inceptTime;
+
+        /** Construct a history object.
+         *
+         * @param position the position of this orb at this time
+         */
+
+        public HistoryElement(Orb orb)
+        {
+          inceptTime = currentTimeMillis();
+          position = orb.getPosition();
+        }
+        
+        /** Get the remaining delay for this element.
+         *
+         * @param unit the unit of time which this will report remaing
+         * delay in.
+         *
+         * @return the remaining delay.
+         */
+        
+        public long getDelay(TimeUnit unit)
+        {
+          return unit.convert(
+            historyLength - (currentTimeMillis() - inceptTime),
+            TimeUnit.MILLISECONDS);
+        }
+
+        /** Compare two history elements for sorting. */
+
+        public int compareTo(Delayed o)
+        {
+          HistoryElement other = (HistoryElement)o;
+          if (inceptTime < other.inceptTime)
+            return -1;
+          if (inceptTime > other.inceptTime)
+            return 1;
+          return 0;
+        }
+    }
+
+    /** A storage receptical for orb history. */
+
+    public class HistoryQueue extends DelayQueue<HistoryElement>
+    {
+      /** Add the orb as it is at this moment to the  history.
+       *
+       * @param orb the orb state to be added to the history
+       */
+
+      public void add(Orb orb)
+      {
+        add(new HistoryElement(orb));
+      }
+
+      /** Remove all timed out elements from the queue. */
+
+      public void removeOld()
+      {
+        while (poll() != null)
+          ;
+      }
+ 
+      /** Paint this history. */
+
+      public void paint(Graphics2D g)
+      {
+        // draw orb history
+
+        Color oc = getOrbColor();
+        Color historyColor = new Color(0, 255, 0, 4);
+        //oc.getRed(), oc.getGreen(), oc.getBlue(), 4);
+        g.setColor(historyColor);
+        for (HistoryElement he: history)
+        {
+          g.translate(he.position.getX(), he.position.getY());
+          g.fill(shape);
+          g.translate(-he.position.getX(), -he.position.getY());
+        }
+      }
+    };
 }
+

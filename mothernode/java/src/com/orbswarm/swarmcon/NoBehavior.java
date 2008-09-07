@@ -13,6 +13,8 @@ public class NoBehavior extends Behavior
     
     public void update(double time, MotionModel model)
     {
+      model.setTargetRollRate(new Angle());
+      model.setTargetPitchRate(new Angle());
       //model.setRoll(-10);
       //model.setTargetPitchRate(new Angle(1, DEGREE_RATE));
       //model.settPitchRate(1);
