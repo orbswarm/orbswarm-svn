@@ -27,7 +27,6 @@ public class SmoothMobject extends Mobject
       super(1);
       this.sp = sp;
       this.gp = sp.getContinousePath();
-      System.out.println("smooth count: " + sp.size());
     }
 
     public void setCurrentWaypoint(Waypoint current)
@@ -48,15 +47,13 @@ public class SmoothMobject extends Mobject
         g.setTransform(t);
       }
 
-//       g.setColor(new Color(64, 64, 64));
-//       for (Waypoint wp: sp)
-//       {
-//         AffineTransform t = g.getTransform();
-//         g.translate(wp.getX(), wp.getY());
-//         g.fill(smallDot);
-//         g.setTransform(t);
-//         if (wp == current)
-//           break;
-//       }
+      g.setColor(Color.BLACK);
+      for (Target target: sp.getTargets())
+      {
+        AffineTransform t = g.getTransform();
+        g.translate(target.getX(), target.getY());
+        g.fill(smallDot);
+        g.setTransform(t);
+      }
     }
 }

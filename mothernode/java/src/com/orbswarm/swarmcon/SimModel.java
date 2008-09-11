@@ -172,11 +172,6 @@ public class SimModel extends MotionModel
 
     public void update(double time)
     {
-      // if the commander is active don't update
-
-      if (pathCommander != null)
-        return;
-      
       // update pitch and roll rate
 
       pitchRate.update(time);
@@ -208,15 +203,10 @@ public class SimModel extends MotionModel
       // radius of wide end of the rolling cone
 
       double p = ORB_RADIUS * cos(roll.as(RADIANS));
-//       double p = ORB_RADIUS * cos(toRadians(getRoll()));
 
       // compute delta x and y
 
       Point delta = new Point(yaw.cartesian(dPitch.as(RADIAN_RATE) * p));
-
-//       Point delta = new Point(
-//          Angle.cartesian(
-//            getYaw(), RADIANS, dPitch.as(RADIAN_RATE) * p, 0, 0));
 
       // correct for latteral displacement due to roll
 
@@ -239,99 +229,21 @@ public class SimModel extends MotionModel
     {
     }
 
-    /** Command a path.
-     *
-     * @param path the path the orb should follow
-     */
+    /** Deactivate active smooth path. */
 
-    public SmoothPath setTargetPath(Path path)
+    public void deactivatePath()
     {
-      SmoothPath sp = super.setTargetPath(path);
-      // if there is a live path commander kill it
-
-      if (pathCommander != null)
-        pathCommander.requestDeath();
-
-      // make a fresh new commander on this smooth path, and follow it
-
-      pathCommander = new PathCommander(sp);
-      pathCommander.start();
-
-      // return the smooth path
-
-      return sp;
+      super.deactivatePath();
+      stop();
     }
-    
-    // the one true path commander
 
-    private PathCommander pathCommander = null;
+    /** Command the orb to the next waypoint. */
 
-    // thread for commanding orb
-
-    class PathCommander extends Thread
+    protected void commandWaypoint(Waypoint wp)
     {
-        private SmoothPath path;
-
-        private boolean deathRequest = false;
-
-        private Swarm swarm = SwarmCon.getInstance().getSwarm();
-
-        public PathCommander(SmoothPath path)
-        {
-          this.path = path;
-        }
-
-        public void requestDeath()
-        {
-          deathRequest = true;
-        }
-
-        public void run()
-        {
-          try
-          {
-            System.out.println("started commander: " + path.size());
-
-            // make the path visable
-            
-            SmoothMobject smob = new SmoothMobject(path);
-            swarm.add(smob);
-
-            double lastTime = 0;
-            
-            for (Waypoint wp: path)
-            {
-              // sleep until it's time to send it
-
-              sleep(SwarmCon.secondsToMilliseconds(wp.getTime() - lastTime));
-
-              // if requested to die, do so
-
-              if (deathRequest)
-              {
-                swarm.remove(smob);
-                return;
-              }
-
-              // move orb to this waypoint
-
-              setPosition(wp);
-              setYaw(new Angle(wp.getYaw(), DEGREES));
-              smob.setCurrentWaypoint(wp);
-
-              // update the last time a way point was set
-
-              lastTime = wp.getTime();
-            }
-            
-            // nolonger show smod
-
-            swarm.remove(smob);
-          }
-          catch (Exception e)
-          {
-            e.printStackTrace();
-          }
-        }
+      setTargetVelocity(wp.getVelocity());
+      setTargetYaw(new Angle(getPosition(), wp));
+//       setPosition(wp);
+//       setYaw(wp.getYaw());
     }
 }

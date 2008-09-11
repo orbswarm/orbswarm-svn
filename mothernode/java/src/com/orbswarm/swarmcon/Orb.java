@@ -376,9 +376,12 @@ public class Orb extends Mobject
 
       // record old transform and scale to orb.
 
-
       AffineTransform old = g.getTransform();
       g.scale(ORB_DIAMETER, ORB_DIAMETER);
+
+      // draw the command path
+
+      paintPath(g);
 
       // draw orb history
 
@@ -454,6 +457,39 @@ public class Orb extends Mobject
       // restore old transform
 
       g.setTransform(old);
+    }
+
+    private static final Ellipse2D.Double bigDot = 
+      new Ellipse2D.Double(-.3, -.3, .6, .6);
+    private static final Ellipse2D.Double smallDot = 
+      new Ellipse2D.Double(-.1, -.1, .2, .2);
+
+    /** Paint the current active path */
+
+    public void paintPath(Graphics2D g)
+    {
+      SmoothPath sp = model.getActivePath();
+      
+      if (sp == null)
+        return;
+
+      g.setColor(new Color(255, 0, 0, 16));
+      for (Waypoint wp: sp)
+      {
+        AffineTransform t = g.getTransform();
+        g.translate(wp.getX(), wp.getY());
+        g.fill(bigDot);
+        g.setTransform(t);
+      }
+
+      g.setColor(Color.BLACK);
+      for (Target target: sp.getTargets())
+      {
+        AffineTransform t = g.getTransform();
+        g.translate(target.getX(), target.getY());
+        g.fill(smallDot);
+        g.setTransform(t);
+      }
     }
 
     // draw text at a given location

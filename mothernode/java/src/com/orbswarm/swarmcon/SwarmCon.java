@@ -1881,7 +1881,6 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
             // the orb in the right direction
 
             orbToCommand.getModel().setTargetPosition(new Target(worldPos));
-            System.out.println("goto pos: " + worldPos);
           }
         }
 

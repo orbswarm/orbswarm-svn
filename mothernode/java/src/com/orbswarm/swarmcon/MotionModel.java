@@ -12,17 +12,13 @@ import static org.trebor.util.Angle.Type.*;
 
 abstract public class MotionModel implements IOrbListener
 {
-    /** Distance to travel to give the orb some room to turn (meters). */
-    
-    public static final double HEAD_ROOM = 4;
+    /** Curve width for smooth path calculations. */
+
+    public static final double CURVE_WIDTH = 10;
 
     /** Time between points on a smooth path (seconds). */
     
     public static final double SMOOTH_PATH_UPDATE_RATE = .1;
-
-    /** Curve width for smooth path calculations. */
-
-    public static final double CURVE_WIDTH = HEAD_ROOM * 0.60;
 
     /** Flatness of waypoints. */
 
@@ -106,6 +102,13 @@ abstract public class MotionModel implements IOrbListener
      *
      * @param time seconds since last update
      */
+
+    /** the current active smoothed path being followed.  this will be
+     * null if there is no such path. */
+
+    private SmoothPath activeSmoothPath;
+
+    /** Update the motion model. */
 
     abstract public void update(double time);
 
@@ -250,7 +253,6 @@ abstract public class MotionModel implements IOrbListener
     
     public SmoothPath setTargetPosition(Target target)
     {
-      //throw(new Error("Method not yet implemented."));
       // create a path
 
       Path path = new Path();
@@ -258,11 +260,6 @@ abstract public class MotionModel implements IOrbListener
       // add the current orb position
 
       path.add(new Target(position));
-
-      // add the intermediate point between the orb and the target
-
-      path.add(new Target(yaw.cartesian(HEAD_ROOM / 4, getX(), getY())));
-      path.add(new Target(yaw.cartesian(HEAD_ROOM, getX(), getY())));
 
       // add the actual target
 
@@ -280,11 +277,47 @@ abstract public class MotionModel implements IOrbListener
 
     public SmoothPath setTargetPath(Path path)
     {
-      SmoothPath sp = new SmoothPath(
-        path, velocityRate, 
-        SMOOTH_PATH_UPDATE_RATE, 
-        CURVE_WIDTH, CURVE_FLATNESS);
-      return sp;
+      activeSmoothPath = new SmoothPath(
+        path, velocityRate,
+        SMOOTH_PATH_UPDATE_RATE,
+        CURVE_WIDTH, CURVE_FLATNESS, yaw);
+
+      // if there is a live path commander kill it
+
+      if (pathCommander != null)
+        pathCommander.requestDeath();
+
+      // make a fresh new commander on this smooth path, and follow it
+
+      pathCommander = new PathCommander();
+      pathCommander.start();
+
+      // return the smooth path
+
+      return activeSmoothPath;
+    }
+
+    /** Stop the orb. */
+
+    public void stop()
+    {
+      Angle zeroDegreesPerSecond = new Angle();
+      setTargetYawRate(zeroDegreesPerSecond);
+      setTargetPitchRate(zeroDegreesPerSecond);
+    }
+
+    /** Get the active smooth path. */
+
+    public SmoothPath getActivePath()
+    {
+      return activeSmoothPath;
+    }
+
+    /** Deactivate active smooth path. */
+
+    public void deactivatePath()
+    {
+      activeSmoothPath = null;
     }
 
     /** Get target yaw. */
@@ -337,6 +370,7 @@ abstract public class MotionModel implements IOrbListener
     {
       return setPitch(this.pitch.as(DEGREES) + dPitch);
     }
+
     // get roll
 
     public Angle getRoll()
@@ -352,6 +386,7 @@ abstract public class MotionModel implements IOrbListener
       this.roll.setAngle(newRoll, DEGREES);
       return deltaRoll;
     }
+
     // set delta roll
 
     protected double setDeltaRoll(double dRoll)
@@ -421,5 +456,63 @@ abstract public class MotionModel implements IOrbListener
     public boolean isOriginAcked()
     {
       return false;
+    }
+
+    /** Command the orb to the next waypoint. */
+
+    protected abstract void commandWaypoint(Waypoint wp);
+
+    // the one true path commander
+
+    protected PathCommander pathCommander = null;
+
+    // thread for commanding orb
+
+    protected class PathCommander extends Thread
+    {
+        private boolean deathRequest = false;
+
+        private Swarm swarm = SwarmCon.getInstance().getSwarm();
+
+        public void requestDeath()
+        {
+          deathRequest = true;
+        }
+
+        public void run()
+        {
+          try
+          {
+            double lastTime = 0;
+            
+            for (Waypoint wp: getActivePath())
+            {
+              // sleep until it's time to send it
+
+              sleep(SwarmCon.secondsToMilliseconds(wp.getTime() - lastTime));
+
+              // if requested to die, do so
+
+              if (deathRequest)
+                return;
+
+              // move orb to this waypoint
+
+              commandWaypoint(wp);
+
+              // update the last time a way point was set
+
+              lastTime = wp.getTime();
+            }
+
+            // we're done with this path, deactivate it
+
+            deactivatePath();
+          }
+          catch (Exception e)
+          {
+            e.printStackTrace();
+          }
+        }
     }
 }

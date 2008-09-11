@@ -89,9 +89,9 @@ public class Waypoint extends Point
 
     /** Get the yaw position of the orb in degrees. */
 
-    public double getYaw()
+    public Angle getYaw()
     {
-      return angle.as(DEGREES);
+      return angle;
     }
 
     /** Return the radians per second. */
