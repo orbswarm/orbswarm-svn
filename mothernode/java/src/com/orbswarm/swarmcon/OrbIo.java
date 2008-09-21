@@ -6,6 +6,7 @@ import java.util.Properties;
 import java.util.Map;
 
 import static java.lang.Character.*;
+import static org.trebor.util.Angle.Type.*;
 import static com.orbswarm.swarmcon.Message.Type.*;
 
 /** OrbIo provids all I/O between phycical orbs and the orb objects in
@@ -163,11 +164,11 @@ public class OrbIo extends SerialIo
     {
       String command =
         "[w" +
-        " x=" + format(wp.getX()) +
-        " y=" + format(wp.getY()) +
-        " p=" + format(wp.getRadians()) +
-        " pdot=" + format(wp.getDeltaRadians()) +
-        " v=" + format(wp.getVelocity()) +
+        " x="    + format(wp.getX()) +
+        " y="    + format(wp.getY()) +
+        " p="    + format(wp.getYaw().as(RADIANS)) +
+        " pdot=" + format(wp.getYawRate().as(RADIAN_RATE)) +
+        " v="    + format(wp.getVelocity()) +
         "]";
        
       orbCommand(orbId, command);

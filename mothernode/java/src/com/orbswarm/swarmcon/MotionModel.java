@@ -12,9 +12,22 @@ import static org.trebor.util.Angle.Type.*;
 
 abstract public class MotionModel implements IOrbListener
 {
+    /** a nice clearly named zero degrees per second */
+
+    public static final Angle ZERO_DEGREES_PER_SECOND = new Angle(0, DEGREE_RATE);
+
+    /** a nice clearly named zero degrees per second */
+
+    public static final Angle ZERO_DEGREES = new Angle(0, DEGREE_RATE);
+
     /** Curve width for smooth path calculations. */
 
-    public static final double CURVE_WIDTH = 10;
+    public static final double SMOOTHNESS = .4;
+
+    /** The distance from the orb to place a point to give the orb some
+     * room to turn. */
+
+    public static final double HEADROOM = 5;
 
     /** Time between points on a smooth path (seconds). */
     
@@ -22,7 +35,7 @@ abstract public class MotionModel implements IOrbListener
 
     /** Flatness of waypoints. */
 
-    public static final double CURVE_FLATNESS = 0.01;
+    public static final double CURVE_FLATNESS = 0.00000001;
     
     /** Velocity rate profile to folow */
 
@@ -32,31 +45,31 @@ abstract public class MotionModel implements IOrbListener
 
     /** yaw of orb */
 
-    protected Angle yaw = new Angle(0, HEADING);
+    private Angle yaw = new Angle(45, HEADING);
 
     /** pitch of orb (shell not ballest) */
 
-    protected Angle pitch = new Angle();
+    private Angle pitch = new Angle();
 
     /** roll of orb (shell not ballest) */
 
-    protected Angle roll = new Angle();
+    private Angle roll = new Angle();
 
     /** direction of travel (as distinct from yaw) */
 
-    protected Angle direction = new Angle();
+    private Angle direction = new Angle();
 
     /** position of orb */
 
-    protected Point position = new Point(0, 0);
+    private Point position = new Point(0, 0);
 
     /** velocity of orb */
 
-    protected double velocity = 0;
+    private double velocity = 0;
 
     /** yaw rate */
 
-    protected Angle yawRate = new Angle();
+    private Angle yawRate = new Angle();
 
     // ------- pitch roll rate control parameters --------
 
@@ -179,7 +192,7 @@ abstract public class MotionModel implements IOrbListener
      */
     protected void setDirection(Angle direction)
     {
-      this.direction.setAngle(direction);
+      this.direction = direction;
     }
 
     /** Command low level roll rate control.
@@ -225,6 +238,16 @@ abstract public class MotionModel implements IOrbListener
     public void setTargetVelocity(double targetVelocity)
     {
       this.targetVelocity = targetVelocity;
+    }
+
+    /** Report target velocity.
+     *
+     * @return target velocity
+     */
+
+    public double getTargetVelocity()
+    {
+      return targetVelocity;
     }
 
     /** Command target yaw.
@@ -280,7 +303,7 @@ abstract public class MotionModel implements IOrbListener
       activeSmoothPath = new SmoothPath(
         path, velocityRate,
         SMOOTH_PATH_UPDATE_RATE,
-        CURVE_WIDTH, CURVE_FLATNESS, yaw);
+        SMOOTHNESS, CURVE_FLATNESS, yaw, HEADROOM);
 
       // if there is a live path commander kill it
 
@@ -301,9 +324,8 @@ abstract public class MotionModel implements IOrbListener
 
     public void stop()
     {
-      Angle zeroDegreesPerSecond = new Angle();
-      setTargetYawRate(zeroDegreesPerSecond);
-      setTargetPitchRate(zeroDegreesPerSecond);
+      setTargetRoll(new Angle(0, DEGREES));
+      setTargetPitchRate(ZERO_DEGREES_PER_SECOND);
     }
 
     /** Get the active smooth path. */
@@ -340,15 +362,18 @@ abstract public class MotionModel implements IOrbListener
     }
     // set yaw
 
-    protected void setYaw(Angle yaw)
+    protected Angle setYaw(Angle newYaw)
     {
-      this.yaw = yaw;
+      Angle deltaYaw = yaw.difference(newYaw);
+      yaw = newYaw;
+      return deltaYaw;
     }
+
     // set delta yaw
 
-    protected void setDeltaYaw(double dYaw)
+    protected Angle setDeltaYaw(Angle deltaYaw)
     {
-      yaw.rotate(dYaw, DEGREE_RATE);
+      return setYaw(new Angle(yaw, deltaYaw));
     }
     // get pitch
 
@@ -358,17 +383,17 @@ abstract public class MotionModel implements IOrbListener
     }
     // set pitch
 
-    protected double setPitch(double pitch)
+    protected Angle setPitch(Angle newPitch)
     {
-      double deltaPitch = pitch - this.pitch.as(DEGREES);
-      this.pitch.setAngle(pitch, DEGREES);
+      Angle deltaPitch = pitch.difference(newPitch);
+      pitch = newPitch;
       return deltaPitch;
     }
     // set delta pitch
 
-    protected double setDeltaPitch(double dPitch)
+    protected Angle setDeltaPitch(Angle deltaPitch)
     {
-      return setPitch(this.pitch.as(DEGREES) + dPitch);
+      return setPitch(new Angle(pitch, deltaPitch));
     }
 
     // get roll
@@ -379,20 +404,30 @@ abstract public class MotionModel implements IOrbListener
     }
     // set roll
 
-    protected double setRoll(double roll)
+    protected Angle setRoll(Angle unlimitedRoll)
     {
-      double newRoll = max(min(MAX_ROLL, roll), -MAX_ROLL);
-      double deltaRoll = newRoll - this.roll.as(DEGREE_RATE);
-      this.roll.setAngle(newRoll, DEGREES);
+      double degrees = unlimitedRoll.as(DEGREE_RATE);
+      Angle limitedRoll = new Angle(
+        max(min(MAX_ROLL, degrees), -MAX_ROLL), DEGREE_RATE);
+
+      Angle deltaRoll = roll.difference(limitedRoll);
+      roll = limitedRoll;
       return deltaRoll;
     }
 
-    // set delta roll
+    /** Set delta roll.  The roll is limited, so the value returned is
+     * the actual achieved delta roll.
+     *
+     * @param droll the delta roll
+     *
+     * @return The achieved delta roll.
+     */
 
-    protected double setDeltaRoll(double dRoll)
+    protected Angle setDeltaRoll(Angle deltaRoll)
     {
-      return setRoll(this.roll.as(DEGREE_RATE) + dRoll);
+      return setRoll(new Angle(roll, deltaRoll));
     }
+
     // reverse the sense of the vehicle
 
     public void reverse()
@@ -484,8 +519,9 @@ abstract public class MotionModel implements IOrbListener
           try
           {
             double lastTime = 0;
+            SmoothPath sp = getActivePath();
             
-            for (Waypoint wp: getActivePath())
+            for (Waypoint wp: sp)
             {
               // sleep until it's time to send it
 
@@ -499,6 +535,7 @@ abstract public class MotionModel implements IOrbListener
               // move orb to this waypoint
 
               commandWaypoint(wp);
+              sp.setCurrentWaypoint(wp);
 
               // update the last time a way point was set
 

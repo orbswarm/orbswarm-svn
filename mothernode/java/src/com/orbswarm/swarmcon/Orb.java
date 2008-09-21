@@ -54,7 +54,7 @@ public class Orb extends Mobject
     /** The lenght of the displayed history in milliseconds.  This is
      * NOT properly factored. */
 
-    public static long historyLength = 6000;
+    public static long historyLength = 10000;
 
     /** history of were this orb has been */
 
@@ -379,13 +379,18 @@ public class Orb extends Mobject
       AffineTransform old = g.getTransform();
       g.scale(ORB_DIAMETER, ORB_DIAMETER);
 
-      // draw the command path
+      // if not a phantom,
 
-      paintPath(g);
+      if (!isPhantom)
+      {
+        // draw the command path
 
-      // draw orb history
-
-      history.paint(g);
+        paintPath(g);
+        
+        // draw orb history
+        
+        history.paint(g);
+      }
 
       //make the orb the center of the world
 
@@ -441,7 +446,7 @@ public class Orb extends Mobject
 
       else
       {
-         g.setFont(PHANTOM_ORB_FONT);
+        g.setFont(PHANTOM_ORB_FONT);
         double dTxY = g.getFontMetrics().getStringBounds("W", g).getHeight();
         txY -= dTxY;
         drawText(g, txX, txY, "  ID: " + getId());
@@ -463,6 +468,12 @@ public class Orb extends Mobject
       new Ellipse2D.Double(-.3, -.3, .6, .6);
     private static final Ellipse2D.Double smallDot = 
       new Ellipse2D.Double(-.1, -.1, .2, .2);
+    private static final Color SmoothPathColor = new 
+      Color(255, 0, 0, 16);
+    private static final Color CurrentWaypointColor = new 
+      Color(255, 0, 0, 128);
+    private static final Color controlPointColor = new 
+      Color(0, 0, 0, 64);
 
     /** Paint the current active path */
 
@@ -473,14 +484,27 @@ public class Orb extends Mobject
       if (sp == null)
         return;
 
-      g.setColor(new Color(255, 0, 0, 16));
+      // draw the path
+
       for (Waypoint wp: sp)
       {
+        g.setColor(sp.getCurrentWaypoint() == wp
+          ? CurrentWaypointColor
+          : SmoothPathColor);
+
         AffineTransform t = g.getTransform();
         g.translate(wp.getX(), wp.getY());
         g.fill(bigDot);
         g.setTransform(t);
+
+
+//         g.setColor(controlPointColor);
+//         g.setStroke(vectorStroke);
+//         g.draw(new Line2D.Double(
+//           wp, wp.getYaw().cartesian(5, wp)));
       }
+
+      // draw the target points
 
       g.setColor(Color.BLACK);
       for (Target target: sp.getTargets())
@@ -490,6 +514,16 @@ public class Orb extends Mobject
         g.fill(smallDot);
         g.setTransform(t);
       }
+
+//       // draw the control points at lines
+
+//       g.setColor(controlPointColor);
+//       g.setStroke(vectorStroke);
+//       for (CubicCurve2D.Double curve: sp.getCurves())
+//       {
+//         g.draw(new Line2D.Double(curve.getP1(), curve.getCtrlP1()));
+//         g.draw(new Line2D.Double(curve.getP2(), curve.getCtrlP2()));
+//       }
     }
 
     // draw text at a given location
@@ -557,7 +591,7 @@ public class Orb extends Mobject
 
       // add the equator
 
-      double width = sin(model.getRoll().as(RADIANS));
+      double width = -sin(model.getRoll().as(RADIANS));
       arc = new Arc2D.Double(
         -abs(width / 2),
         -0.5,
@@ -603,6 +637,10 @@ public class Orb extends Mobject
 
         public Point position;
 
+        /** the velocity of the orb */
+
+        public double velocity;
+
         /** the time at which this history element was recorded */
 
         private long inceptTime;
@@ -616,6 +654,7 @@ public class Orb extends Mobject
         {
           inceptTime = currentTimeMillis();
           position = orb.getPosition();
+          velocity = orb.getVelocity();
         }
         
         /** Get the remaining delay for this element.
@@ -672,17 +711,18 @@ public class Orb extends Mobject
 
       public void paint(Graphics2D g)
       {
+        AffineTransform ot = g.getTransform();
         // draw orb history
 
-        Color oc = getOrbColor();
         Color historyColor = new Color(0, 255, 0, 4);
-        //oc.getRed(), oc.getGreen(), oc.getBlue(), 4);
         g.setColor(historyColor);
         for (HistoryElement he: history)
         {
+          //double scale = 0.33 + (1 - he.velocity) / 2;
           g.translate(he.position.getX(), he.position.getY());
+          //g.scale(scale, scale);
           g.fill(shape);
-          g.translate(-he.position.getX(), -he.position.getY());
+          g.setTransform(ot);
         }
       }
     };

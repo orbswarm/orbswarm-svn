@@ -1,7 +1,9 @@
 package com.orbswarm.swarmcon;
 
+import java.lang.Iterable;
 import java.awt.*;
 import java.awt.geom.*;
+import java.text.NumberFormat;
 
 import org.trebor.util.Angle;
 
@@ -10,7 +12,7 @@ import static org.trebor.util.Angle.Type.*;
 
 /** A place to which the orb should go */
 
-public class Waypoint extends Point
+public class Waypoint extends Point 
 {
     /** Time expected to reach this waypoint in seconds. */
 
@@ -20,13 +22,21 @@ public class Waypoint extends Point
 
     private double velocity = 0;
 
-    /** Expected angle at this waypoint. */
+    /** Expected yaw at this waypoint. */
 
-    private Angle angle;
+    private Angle yaw = new Angle();
 
-    /** The delta angle in radinas per second. */
+    /** The turn rate in angular units per second. */
 
-    private double deltaAngle = 0;
+    private Angle yawRate = new Angle();
+
+    /** Waypont preceeding this one. */
+
+    private Waypoint previous;
+
+    /** Waypont following this one. */
+
+    private Waypoint next;
 
     /** Construct a default waypoint */
 
@@ -37,26 +47,26 @@ public class Waypoint extends Point
 
     /** Construct a waypoint */
 
-    public Waypoint(double x, double y, double time, double velocity, Angle angle)
+    public Waypoint(double x, double y, double time, double velocity, Angle yaw)
     {
       super(x, y);
       this.time = time;
       this.velocity = velocity;
-      this.angle = angle;
+      this.yaw = yaw;
     }
 
     /** Construct a Waypoint from a Point */
 
-    public Waypoint(Point p, double time, double velocity, Angle angle)
+    public Waypoint(Point p, double time, double velocity, Angle yaw)
     {
-      this(p.x, p.y, time, velocity, angle);
+      this(p.x, p.y, time, velocity, yaw);
     }
 
     /** Construct a Waypoint from a Point2D.Double */
 
-    public Waypoint(Point2D p, double time, double velocity, Angle angle)
+    public Waypoint(Point2D p, double time, double velocity, Angle yaw)
     {
-      this(p.getX(), p.getY(), time, velocity, angle);
+      this(p.getX(), p.getY(), time, velocity, yaw);
     }
 
     /** Velocity getter. */
@@ -73,34 +83,80 @@ public class Waypoint extends Point
       return time;
     }
 
-    /** return the angle in radians */
+    /** Return yaw rate in angular units per second. */
 
-    public double getRadians()
+    public Angle getYawRate()
     {
-      return angle.as(RADIANS);
-    }
-
-    /** Return the radians per second. */
-
-    public double getDeltaRadians()
-    {
-      return deltaAngle;
+      return yawRate;
     }
 
     /** Get the yaw position of the orb in degrees. */
 
     public Angle getYaw()
     {
-      return angle;
+      return yaw;
+    }
+
+    /** Set the next and previous waypoints */
+
+    public void setNextPrevious(Waypoint  next, Waypoint previous)
+    {
+      this.next = next;
+      this.previous = previous;
+      setYawRate();
+    }
+
+    /** Get next waypoint. */
+    
+    public Waypoint getNext()
+    {
+      return next;
+    }
+
+    /** Get previous waypoint. */
+    
+    public Waypoint getPrevious()
+    {
+      return previous;
     }
 
     /** Return the radians per second. */
 
-    public void setDeltaRadians(Waypoint prev, Waypoint next)
+    protected void setYawRate()
     {
-      double dTime = next.getTime() - prev.getTime();
-      double dRadians = next.getRadians() - prev.getRadians();
-      deltaAngle = dRadians / dTime;
+      if (next == null)
+        yawRate = new Angle(0, DEGREE_RATE);
+      else
+      {
+        double dTime = next.getTime() - getTime();
+        yawRate = new Angle(
+           Angle.difference(getYaw(), next.getYaw()).as(DEGREE_RATE) / dTime, 
+           DEGREE_RATE);
+
+        if (dTime == 0)
+          System.out.println("Zero Time!");
+      }
+
+
+      System.out.println("computed yawRate: " + yawRate.as(DEGREE_RATE));
+      
+      if (java.lang.Double.isNaN(yawRate.as(DEGREE_RATE)))
+      {
+        System.out.println("This: " + this);
+        System.out.println("Next: " + (next != null ? next : "NULL"));
+      }
+    }
+
+    public static NumberFormat NumFmt = NumberFormat.getNumberInstance();
+
+    /** static initializations */
+
+    static
+    {
+      //NumFmt.setMaximumIntegerDigits();
+      NumFmt.setMinimumIntegerDigits(3);
+      NumFmt.setMinimumFractionDigits(2);
+      NumFmt.setMaximumFractionDigits(5);
     }
 
     /** Convert to string. */
@@ -108,12 +164,12 @@ public class Waypoint extends Point
     public String toString()
     {
       return 
-        "WP:[x=" + getX() + 
-        " y=" + getY() + 
-        " t=" + getTime() + 
-        " v=" + getVelocity() + 
-        " p=" + getRadians() +
-        " pdot=" + getDeltaRadians() +
+        "WP:[x=" + NumFmt.format(getX()) + 
+        " y="    + NumFmt.format(getY()) + 
+        " t="    + NumFmt.format(getTime()) + 
+        " v="    + NumFmt.format(getVelocity()) + 
+        " yaw="  + NumFmt.format(getYaw().as(HEADING)) +
+        " dyaw=" + NumFmt.format(getYawRate().as(DEGREE_RATE)) +
         "]";
     }
 }

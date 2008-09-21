@@ -133,7 +133,7 @@ public class SimModel extends MotionModel
 
       yawToYawRateCtrl.setTarget(0);
       yawToYawRateCtrl.setMeasurment(yawError);
-      setTargetYawRate(new Angle(yawToYawRateCtrl.compute(), DEGREES));
+      setTargetYawRate(new Angle(yawToYawRateCtrl.compute(), DEGREE_RATE));
     }
 
     /** Command distance error.
@@ -182,12 +182,13 @@ public class SimModel extends MotionModel
       Angle dPitch = new Angle(pitchRate.getRate() * time, DEGREE_RATE);
       Angle dRoll  = new Angle(rollRate.getRate() * time, DEGREE_RATE);
 
-      // update absolute pitch and roll
+      // update absolute pitch and roll, overwrite deltas with achieved
+      // values
 
-      dPitch.setAngle(setDeltaPitch(dPitch.as(DEGREE_RATE)), DEGREE_RATE);
-      dRoll .setAngle(setDeltaRoll (dRoll .as(DEGREE_RATE)), DEGREE_RATE);
+      dPitch = setDeltaPitch(dPitch);
+      dRoll  = setDeltaRoll(dRoll);
 
-      // feed back to actual pitch and roll rate in case
+      // feed back to actual pitch and roll rate
       // in case the orb hit some limit
 
       pitchRate.setRate(dPitch.as(DEGREE_RATE) / time);
@@ -195,26 +196,32 @@ public class SimModel extends MotionModel
 
       // compute yaw
 
-      double dYaw = toDegrees(sin(getRoll().as(RADIANS)))
-        * dPitch.as(RADIAN_RATE);
-      setDeltaYaw(dYaw);
-      setYawRate(new Angle(dYaw / time, DEGREE_RATE));
+      Angle dYaw = new Angle(
+        sin(getRoll().as(RADIAN_RATE)) * dPitch.as(RADIAN_RATE), RADIAN_RATE);
+      dYaw = setDeltaYaw(dYaw);
+      setYawRate(new Angle(dYaw.as(DEGREE_RATE) / time, DEGREE_RATE));
 
       // radius of wide end of the rolling cone
 
-      double p = ORB_RADIUS * cos(roll.as(RADIANS));
+      double p = ORB_RADIUS * cos(getRoll().as(RADIAN_RATE));
 
       // compute delta x and y
 
-      Point delta = new Point(yaw.cartesian(dPitch.as(RADIAN_RATE) * p));
+      Point delta = new Point(getYaw().cartesian(dPitch.as(RADIAN_RATE) * p));
 
-      // correct for latteral displacement due to roll
+      // update the direction of the orb
 
+
+      // correct for latteral displacement due to roll.  for reasons i
+      // don't understand if i include the roll correction into the
+      // direcion above, it breaks the velocity controller.  this note
+      // stands in place of a proper fix.
+
+//       Angle rollDir = new Angle(getYaw(), new Angle(90, DEGREE_RATE));
 //       delta.translate(
-//         Angle.cartesian(
-//           getYaw() + 90, RADIANS, dRoll.as(RADIAN_RATE) * ORB_RADIUS, 0, 0));
+//         rollDir.cartesian(dRoll.as(RADIAN_RATE) * ORB_RADIUS, 0, 0));
 
-      // set position and velocity and direction
+      // set position and velocity
 
       setDeltaPosition(delta.getX(), delta.getY());
       setVelocity(hypot(delta.getX(), delta.getY()) / time);
@@ -239,11 +246,37 @@ public class SimModel extends MotionModel
 
     /** Command the orb to the next waypoint. */
 
+//     private Controller wayPointYawController =
+//       new PController("yaw", "yawRate", -20, 20, -0.34);
+
+    double leadTime = 3.0;
+
     protected void commandWaypoint(Waypoint wp)
     {
+      //double targetTime = wp.getTime() + leadTime;
+
       setTargetVelocity(wp.getVelocity());
-      setTargetYaw(new Angle(getPosition(), wp));
-//       setPosition(wp);
-//       setYaw(wp.getYaw());
+      setTargetYawRate(wp.getYawRate());
+//      System.out.println("wp yawRate: " + wp.getYawRate());
+
+//       for (Waypoint wpn: getActivePath())
+//       {
+//         if (wpn.getTime() >= targetTime)
+//         {
+//           setTargetYaw(new Angle(getPosition(), wpn));
+//           return;
+//         }
+//       }
+
+      //setTargetYaw(new Angle(getPosition(), getActivePath().lastElement()));
+
+      //System.out.println("      wp " + wp);
+//      System.out.println("     yaw " + SwarmCon.StdFmt.format(getYaw().as(HEADING)));
+//       System.out.println(
+//         "targ vel: " + SwarmCon.StdFmt.format(getTargetVelocity()) +
+//         " vel: " + SwarmCon.StdFmt.format(getVelocity()) +
+//         " err: " + SwarmCon.StdFmt.format(getTargetVelocity() - getVelocity()));
+      //setPosition(wp);
+      //setYaw(wp.getYaw());
     }
 }

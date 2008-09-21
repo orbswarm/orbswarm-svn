@@ -540,10 +540,10 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       this.colorSchemer = schemer;
       BotVisualizer bv = setupBotVisualizer(sc);
       this.botVisualizer = bv;
-      TimelineDisplay timelineDisplay = new TimelineDisplay(
-        sc, timelineWidth, timelineHeight);
-      sc.setTimelineDisplay(timelineDisplay);
-      timelineDisplay.setSwarmCon(sc);
+//       TimelineDisplay timelineDisplay = new TimelineDisplay(
+//         sc, timelineWidth, timelineHeight);
+//       sc.setTimelineDisplay(timelineDisplay);
+//       timelineDisplay.setSwarmCon(sc);
       sc.setupControlPanel(schemer, bv, timelineDisplay);
       sc.startControlling();
     }
@@ -1865,6 +1865,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
         }
 
         Orb orbToCommand = null;
+        Path commandPath = null;
 
         public void commandOrb(MouseEvent e)
         {
@@ -1877,10 +1878,19 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
           }
           else if (orbToCommand != null)
           {
-            // compute the positon of the first point to command to get
-            // the orb in the right direction
+            if (commandPath == null)
+            {
+              commandPath = new Path();
+              commandPath.add(new Target(orbToCommand.getPosition()));
+            }
 
-            orbToCommand.getModel().setTargetPosition(new Target(worldPos));
+            commandPath.add(new Target(worldPos));
+            
+            if (!e.isMetaDown())
+            {
+              orbToCommand.getModel().setTargetPath(commandPath);
+              commandPath = null;
+            }
           }
         }
 
@@ -2202,12 +2212,13 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       gbc.weighty    = 0.;
       gbc.fill       = GridBagConstraints.NONE;
       gbc.anchor     = GridBagConstraints.SOUTHEAST;
-      actionPanel.add(timelineDisplay.getPanel(), gbc);
+      //actionPanel.add(timelineDisplay.getPanel(), gbc);
     }
 
     public void resizeTimeline()
     {
-      JPanel p = timelineDisplay.getPanel();
+      if (timelineDisplay != null)
+        timelineDisplay.getPanel();
     }
 
     private JPanel createMotionControlUIPanel()

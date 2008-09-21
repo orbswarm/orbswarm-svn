@@ -9,12 +9,21 @@ import java.util.Vector;
 import java.util.Iterator;
 
 import static org.trebor.util.Angle.Type.*;
+import static java.lang.Math.*;
 
 public class SmoothPath extends Vector<Waypoint>
 {
   /** Continouse path representing the smooth path */
 
   private GeneralPath continousePath;
+
+  /** Continouse path representing the smooth path */
+
+  Vector<CubicCurve2D.Double> curves;
+
+  /** The current waypoint being processed. */
+
+  private Waypoint currentWaypoint;
 
   /** The path of origonal targets */
 
@@ -24,48 +33,51 @@ public class SmoothPath extends Vector<Waypoint>
 
   public static double NOT_CRUISING = -1;
 
-  /** the angle range behind the orb for which an initial point must be
-   * added to swoop the orb around correctly. */
+  /** the angle range to the left or right of the orb for which an
+   * initial point must be added to swoop the orb around correctly. */
 
-  public static Angle START_BEHIND = new Angle(135, HEADING);
-  public static Angle END_BEHIND   = new Angle(225, HEADING);
+  public static Angle BEHIND_RANGE = new Angle(60, DEGREES);
 
   /** Construct a smoothed path from path which the orb can safely
    * follow.  The initial direction is assumed to be that of the first
-   * two points of the path.
+   * two points of the path, and the headroom is assumed to be 5 units.
    *
+   * @param path the path of target points to generat a smooth path from
    * @param velocity the velocity rate constraints
    * @param interval interval to update the path, in seconds
-   * @param width width of control points, or roundness of curves
+   * @param smoothness the amount of smoothing which occurs at the targets
    * @param flatness the granularity of the smoothed path, smaller
-   * numbers produces smoother paths
+   * numbers produce smoother paths
    *
    * @return a smoothed path with waypoints and times
    */
 
   public SmoothPath(
     Path path, Rate velocity, double interval,
-    double curveWidth, double flatness)
+    double smoothness, double flatness)
   {
-    this(path, velocity, interval, curveWidth, flatness, new Angle(
-      path.get(0), path.get(1)));
+    this(path, velocity, interval, smoothness, flatness, new Angle(
+      path.get(0), path.get(1)), 5);
   }
 
   /** Construct a smoothed path from path which the orb can safely follow.
    *
+   * @param path the path of target points to generat a smooth path from
    * @param velocity the velocity rate constraints
    * @param interval interval to update the path, in seconds
-   * @param width width of control points, or roundness of curves
+   * @param smoothness the amount of smoothing which occurs at the targets
    * @param flatness the granularity of the smoothed path, smaller
-   * numbers produces smoother paths
+   * numbers produce smoother paths
    * @param initialDirection the initial direction the path should start in
+   * @param headRoom the distance from the orb to place a point to give
+   * the orb some room turn
    *
-   * @return a smoothed path with waypoints and times
+   * @return a smoothed path composed of waypoints
    */
 
   public SmoothPath(
     Path path, Rate velocity, double interval,
-    double curveWidth, double flatness, Angle initialDirection)
+    double smoothness, double flatness, Angle initialDirection, double headRoom)
   {
     // if the second target is directly behind the orb, we're gonna need
     // to add a point inbetween to be sure the orb can take a nice
@@ -73,23 +85,21 @@ public class SmoothPath extends Vector<Waypoint>
     
     Angle behindness = initialDirection
       .difference(new Angle(path.get(0), path.get(1)));
-    boolean isBehind = 
-      (behindness.compareTo(START_BEHIND) < 0 && 
-      behindness.compareTo(END_BEHIND) < 0);
+    boolean isBehind = abs(behindness.as(DEGREE_RATE)) > BEHIND_RANGE.as(DEGREES);
     
     if (isBehind)
     {
       boolean isRight = behindness.compareTo(new Angle(180, HEADING_RATE)) > 0;
-      System.out.println("is right: " + isRight);
       Angle a = new Angle(isRight ? 60 : 300, HEADING_RATE);
       a.rotate(initialDirection);
-      Point p = new Point(a.cartesian(curveWidth, path.get(0)));
+      Point p = new Point(a.cartesian(headRoom, path.get(0)));
       double speed = (path.get(0).getSpeed() + path.get(1).getSpeed()) / 2;
       path.add(1, new Target(p, speed));
     }
 
     this.targets = path;
-    continousePath = computeContinousePath(path, curveWidth, initialDirection);
+    continousePath = new GeneralPath();
+    curves = computeContinousePath(continousePath, path, smoothness, initialDirection);
     PathIterator pi = continousePath.getPathIterator(null, flatness);
 
     // variables used during the iteration of the path
@@ -172,18 +182,17 @@ public class SmoothPath extends Vector<Waypoint>
           new Angle(p1, p2));
         add(wp);
 
+        // update velocity, time and distance traveled
+
+        velocity.update(interval);
+        travel += velocity.getRate() * interval;
+        time += interval;
 
         // if the velocity is zero and travel distance is greater
         // then zero, then we have come to a stop, we're done
 
         if (velocity.getRate() == 0 && travel > 0)
           break;
-
-        // update velocity, time and distance traveled
-
-        velocity.update(interval);
-        travel += velocity.getRate() * interval;
-        time += interval;
 
         // if we have not yet started slowing down
 
@@ -212,9 +221,34 @@ public class SmoothPath extends Vector<Waypoint>
 
     // now compute the turn rate
 
-    for (int i = 1; i < this.size() - 1; ++i)
-      get(i).setDeltaRadians(get(i - 1), get(i + 1));
+    for (int i = 0; i < this.size(); ++i)
+    {
+      Waypoint prev = i > 0 ? get(i - 1) : null;
+      Waypoint next = i < this.size() - 1 ? get(i + 1) : null;
+      get(i).setNextPrevious(next, prev);
+    }
   }
+
+  /** Set the current waypoint which is being commanded to the orb. 
+   *
+   * @param currentWaypoint current waypoint
+   */
+
+  public void setCurrentWaypoint(Waypoint currentWaypoint)
+  {
+    this.currentWaypoint = currentWaypoint;
+  }
+
+  /** Get the curren waypoint.
+   *
+   * @return the current waypoint being commanded to the orb.
+   */
+  
+  public Waypoint getCurrentWaypoint()
+  {
+    return currentWaypoint;
+  }
+
   /** Get the continouse path for this smoothed path.
    *
    * @return Continouse general path for this smooth path.
@@ -223,6 +257,16 @@ public class SmoothPath extends Vector<Waypoint>
   public GeneralPath getContinousePath()
   {
     return continousePath;
+  }
+
+  /** Get the curves used for this smoothed path.
+   *
+   * @return Curves that this smooth path is composed of.
+   */
+
+  public Vector<CubicCurve2D.Double> getCurves()
+  {
+    return curves;
   }
 
   /** Get the targers used to generate this path path.
@@ -237,21 +281,18 @@ public class SmoothPath extends Vector<Waypoint>
 
   /** Compute the smoothed curves from this path.
    *
+   * @param continousePath the continouse path to append the smooth curves too
    * @param path the path containing the targets
-   * @param curveWidth width between the CubicCurve2D control points on the path.
+   * @param smoothness the amount of smoothing which occurs at the targets
    * @param initialDirection the initial direction the path should start in
    *
-   * @return a vector of cubic curves which shadow this path.
+   * @return a vector of cubic curves which shadows this path.
    */
 
-  public static GeneralPath computeContinousePath(
-    Path path, double curveWidth, Angle initialDirection)
+  public static Vector<CubicCurve2D.Double> computeContinousePath(
+    GeneralPath continousePath, Path path, 
+    double smoothness, Angle initialDirection)
   {
-    // initial control point to get the path started in the correct direction
-
-    Point initialCp = new Point(
-      initialDirection.cartesian(curveWidth, path.get(0)));
-
     // collection of curves
 
     Vector<CubicCurve2D.Double> curves = new Vector<CubicCurve2D.Double>();
@@ -259,6 +300,10 @@ public class SmoothPath extends Vector<Waypoint>
     // the angel of the preveouse line segment
 
     Angle oldAngle = null;
+
+    // the lenght of the preveouse line segment
+
+    double oldLength = 0;
 
     // work through the points
 
@@ -268,36 +313,38 @@ public class SmoothPath extends Vector<Waypoint>
 
       Point p1 = path.get(i);
       Point p2 = path.get(i + 1);
-
+      double length = p1.distance(p2);
+      
       // establish angle of this line
 
       Angle angle = new Angle(p1, p2);
 
-      // assume the first control point is the initialCp starts the path
-      // in the correct initial direction
+      // define a place for the first control point
 
-      Point cp1 = initialCp;
+      Point cp1;
 
-      // if this is NOT the first segment
+      // if this is the first segment the control point is headed in the
+      // initial direction
 
-      if (oldAngle != null)
+      if (i == 0)
+        cp1 = new Point(initialDirection.cartesian(length * smoothness, p1));
+      
+      // else this is NOT the first segment
+
+      else
       {
         // bisect the angle of this line and the previouse one
 
         Angle cpAngle = angle.bisect(oldAngle);
 
-        // rotate bisection by 90 degrees
-
-        //cpAngle.rotate(-90, DEGREES);
-
         // compute control point at this intersection
 
-        cp1 = new Point(cpAngle.cartesian(curveWidth / 2, p1));
+        cp1 = new Point(cpAngle.cartesian(length * smoothness, p1));
 
         // compute new control point at intersection with old curve
 
         cpAngle.rotate(180, DEGREES);
-        Point cpOld = new Point(cpAngle.cartesian(curveWidth / 2, p1));
+        Point cpOld = new Point(cpAngle.cartesian(oldLength * smoothness, p1));
 
         // get the older curve
 
@@ -306,14 +353,11 @@ public class SmoothPath extends Vector<Waypoint>
         // fix old curve to smoothly curve around this point
 
         oldCurve.setCurve(
-          oldCurve.getX1(),
-          oldCurve.getY1(),
-          oldCurve.getCtrlX1(),
-          oldCurve.getCtrlY1(),
-          cpOld.x,
-          cpOld.y,
-          oldCurve.getX2(),
-          oldCurve.getY2());
+          oldCurve.getP1(),
+          oldCurve.getCtrlP1(),
+          cpOld,
+          oldCurve.getP2());
+        
       }
 
       // create curve from end points and control points
@@ -331,17 +375,20 @@ public class SmoothPath extends Vector<Waypoint>
       // record this angle for later use
 
       oldAngle = angle;
+
+      // record the old length
+      
+      oldLength = length;
     }
 
     // convert curves into one continouse path
 
-    GeneralPath continousePath = new GeneralPath();
     for (CubicCurve2D.Double curve: curves)
       continousePath.append(curve, true);
 
     // return path
 
-    return continousePath;
+    return curves;
   }
 
   /**
@@ -365,7 +412,7 @@ public class SmoothPath extends Vector<Waypoint>
   public static void main(String[] args)
   {
     final int count = 5;
-    final double curveWidth = 120;
+    final double smoothness = 120;
 
     final Rate rate = new Rate("test", 0, 30, 1);
     final java.util.Random rnd = new java.util.Random();
@@ -402,7 +449,7 @@ public class SmoothPath extends Vector<Waypoint>
 
 
             SmoothPath smoothPath = new SmoothPath(
-              path, rate, 1.0d, curveWidth, 1.0);
+              path, rate, 1.0d, smoothness, 1.0);
             g.setColor(new java.awt.Color(0, 0, 0, 64));
             g.setStroke(new java.awt.BasicStroke(
               20,
