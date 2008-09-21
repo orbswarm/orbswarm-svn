@@ -17,9 +17,9 @@ load -ascii kalmandata;
 initialbias = kalmandata(1,:);
 
 figure;
-plot(sensordata(:,7),sensordata(:,8),"r");
+plot(sensordata(2500:5000,7),sensordata(2500:5000,8),"r");
 hold;
-plot(kalmandata(:,8),kalmandata(:,9),"b");
+plot(kalmandata(2500:5000,8),kalmandata(2500:5000,9),"b");
 title('Overhead - GPS in Red, Kalman in Blue');
 
 figure;
