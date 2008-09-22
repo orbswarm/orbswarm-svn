@@ -324,7 +324,9 @@ abstract public class MotionModel implements IOrbListener
 
     public void stop()
     {
-      setTargetRoll(new Angle(0, DEGREES));
+      pathCommander.requestDeath();
+      deactivatePath();
+      setTargetRollRate(ZERO_DEGREES_PER_SECOND);
       setTargetPitchRate(ZERO_DEGREES_PER_SECOND);
     }
 
@@ -432,7 +434,7 @@ abstract public class MotionModel implements IOrbListener
 
     public void reverse()
     {
-      yaw.rotate(180, DEGREES);
+      yaw = yaw.rotate(180, DEGREES);
     }
     // positon getter
 
@@ -545,6 +547,7 @@ abstract public class MotionModel implements IOrbListener
             // we're done with this path, deactivate it
 
             deactivatePath();
+            stop();
           }
           catch (Exception e)
           {

@@ -91,18 +91,23 @@ public class SmoothPath extends Vector<Waypoint>
     {
       boolean isRight = behindness.compareTo(new Angle(180, HEADING_RATE)) > 0;
       Angle a = new Angle(isRight ? 60 : 300, HEADING_RATE);
-      a.rotate(initialDirection);
+      a = a.rotate(initialDirection);
       Point p = new Point(a.cartesian(headRoom, path.get(0)));
       double speed = (path.get(0).getSpeed() + path.get(1).getSpeed()) / 2;
       path.add(1, new Target(p, speed));
     }
 
+    // record the source targets for this path
+
     this.targets = path;
-    continousePath = new GeneralPath();
-    curves = computeContinousePath(continousePath, path, smoothness, initialDirection);
+
+    // compute the smoothed continouse path to work from
+
+    continousePath = computeContinousePath(path, smoothness, initialDirection, 
+      curves = new Vector<CubicCurve2D.Double>());
     PathIterator pi = continousePath.getPathIterator(null, flatness);
 
-    // variables used during the iteration of the path
+    // variables used during the iteration along the path
 
     Vector<Line2D> lines  = new Vector<Line2D>();
     double[] choords = new double[6];
@@ -172,7 +177,7 @@ public class SmoothPath extends Vector<Waypoint>
         double segmentPercent =
           (travel - (totalSegmentLen - segmentLen)) / segmentLen;
 
-        // add waypoint correct distance along path
+        // add waypoint the correct distance along path
 
         Waypoint wp = new Waypoint(
           p1.x + (p2.x - p1.x) * segmentPercent,
@@ -200,23 +205,31 @@ public class SmoothPath extends Vector<Waypoint>
         {
           // if we have reached cruise speed, note the distance
 
-          if (cruiseDist == NOT_CRUISING &&
-          velocity.getRate() == velocity.getMax())
+          if (
+            cruiseDist == NOT_CRUISING &&
+            velocity.getRate() == velocity.getMax())
+          {
             cruiseDist = travel;
+          }
 
           // if we will soon reach the halfway point and not hit
           // cruise, or we're close to the end of the path, start
           // slowing down
 
-          if ((cruiseDist == NOT_CRUISING &&
-          travel >= (pathLength / 2)) ||
-          (cruiseDist != NOT_CRUISING &&
-          travel >= (pathLength - cruiseDist)))
+          if (
+            (cruiseDist == NOT_CRUISING && travel >= (pathLength / 2)) ||
+            (cruiseDist != NOT_CRUISING && travel >= (pathLength - cruiseDist)))
           {
             velocity.setTarget(0);
           }
         }
       }
+
+      // if the velocity is zero, we've stopped, we don't need to
+      // process more line segments
+
+      if (velocity.getRate() == 0 && travel > 0)
+        break;
     }
 
     // now compute the turn rate
@@ -281,21 +294,20 @@ public class SmoothPath extends Vector<Waypoint>
 
   /** Compute the smoothed curves from this path.
    *
-   * @param continousePath the continouse path to append the smooth curves too
-   * @param path the path containing the targets
+   * @param path the path containing the source targets
    * @param smoothness the amount of smoothing which occurs at the targets
-   * @param initialDirection the initial direction the path should start in
+   * @param initialDirection the initial direction the path should start 
+   * @param curves a vector of cubic curves in which to put the curves
+   * the smooth path is composed of
    *
-   * @return a vector of cubic curves which shadows this path.
+   * @return the continouse path to append the smooth curves too
    */
 
-  public static Vector<CubicCurve2D.Double> computeContinousePath(
-    GeneralPath continousePath, Path path, 
-    double smoothness, Angle initialDirection)
+  public static GeneralPath computeContinousePath(
+    Path path, double smoothness, Angle initialDirection, 
+    Vector<CubicCurve2D.Double> curves)
   {
-    // collection of curves
-
-    Vector<CubicCurve2D.Double> curves = new Vector<CubicCurve2D.Double>();
+    GeneralPath continousePath = new GeneralPath();
 
     // the angel of the preveouse line segment
 
@@ -343,7 +355,7 @@ public class SmoothPath extends Vector<Waypoint>
 
         // compute new control point at intersection with old curve
 
-        cpAngle.rotate(180, DEGREES);
+        cpAngle = cpAngle.rotate(180, DEGREES);
         Point cpOld = new Point(cpAngle.cartesian(oldLength * smoothness, p1));
 
         // get the older curve
@@ -388,7 +400,7 @@ public class SmoothPath extends Vector<Waypoint>
 
     // return path
 
-    return curves;
+    return continousePath;
   }
 
   /**

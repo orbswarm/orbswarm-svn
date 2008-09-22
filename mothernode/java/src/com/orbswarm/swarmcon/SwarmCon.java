@@ -2092,6 +2092,24 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
             swarm.previousBehavior();
           }
       };
+
+
+    /** Emergency stop all orbs. */
+
+    SwarmAction emergencyStop = new SwarmAction(
+      "Emergency Stop",
+      getKeyStroke(VK_SPACE, 0),
+      "stop all the orbs now")
+      {
+          public void actionPerformed(ActionEvent e)
+          {
+            for (Mobject mo: swarm)
+              if (mo instanceof Orb)
+                ((Orb)mo).getModel().stop();
+          }
+      };
+    
+
     /** action to exist the system */
 
     SwarmAction exit = new SwarmAction(
@@ -2112,6 +2130,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       reset,
       nextBehavior,
       previousBehavior,
+      emergencyStop,
       exit,
     };
     /** a convience class for a really big button */

@@ -132,18 +132,6 @@ public class Waypoint extends Point
         yawRate = new Angle(
            Angle.difference(getYaw(), next.getYaw()).as(DEGREE_RATE) / dTime, 
            DEGREE_RATE);
-
-        if (dTime == 0)
-          System.out.println("Zero Time!");
-      }
-
-
-      System.out.println("computed yawRate: " + yawRate.as(DEGREE_RATE));
-      
-      if (java.lang.Double.isNaN(yawRate.as(DEGREE_RATE)))
-      {
-        System.out.println("This: " + this);
-        System.out.println("Next: " + (next != null ? next : "NULL"));
       }
     }
 

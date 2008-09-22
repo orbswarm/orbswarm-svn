@@ -211,21 +211,21 @@ public class SimModel extends MotionModel
 
       // update the direction of the orb
 
+      setDirection(new Angle(delta.getX(), delta.getY()));
 
       // correct for latteral displacement due to roll.  for reasons i
       // don't understand if i include the roll correction into the
       // direcion above, it breaks the velocity controller.  this note
       // stands in place of a proper fix.
 
-//       Angle rollDir = new Angle(getYaw(), new Angle(90, DEGREE_RATE));
-//       delta.translate(
-//         rollDir.cartesian(dRoll.as(RADIAN_RATE) * ORB_RADIUS, 0, 0));
-
+      Angle rollDir = new Angle(getYaw(), new Angle(90, DEGREE_RATE));
+      delta.translate(
+        rollDir.cartesian(dRoll.as(RADIAN_RATE) * ORB_RADIUS, 0, 0));
+      
       // set position and velocity
 
       setDeltaPosition(delta.getX(), delta.getY());
       setVelocity(hypot(delta.getX(), delta.getY()) / time);
-      setDirection(new Angle(delta.getX(), delta.getY()));
     }
 
 
@@ -236,47 +236,25 @@ public class SimModel extends MotionModel
     {
     }
 
-    /** Deactivate active smooth path. */
-
-    public void deactivatePath()
-    {
-      super.deactivatePath();
-      stop();
-    }
-
     /** Command the orb to the next waypoint. */
-
-//     private Controller wayPointYawController =
-//       new PController("yaw", "yawRate", -20, 20, -0.34);
-
-    double leadTime = 3.0;
 
     protected void commandWaypoint(Waypoint wp)
     {
-      //double targetTime = wp.getTime() + leadTime;
+      // set target velocity based on waypoint velocity
 
       setTargetVelocity(wp.getVelocity());
-      setTargetYawRate(wp.getYawRate());
-//      System.out.println("wp yawRate: " + wp.getYawRate());
 
-//       for (Waypoint wpn: getActivePath())
-//       {
-//         if (wpn.getTime() >= targetTime)
-//         {
-//           setTargetYaw(new Angle(getPosition(), wpn));
-//           return;
-//         }
-//       }
+      // establish the delta yaw between the waypoint and the orb
 
-      //setTargetYaw(new Angle(getPosition(), getActivePath().lastElement()));
+//       Angle deltaYaw = wp.getYaw().difference(getYaw());
+//       setTargetYawRate(
+//         wp.getYawRate().rotate(-deltaYaw.as(DEGREE_RATE) * 0.2, DEGREE_RATE));
 
-      //System.out.println("      wp " + wp);
-//      System.out.println("     yaw " + SwarmCon.StdFmt.format(getYaw().as(HEADING)));
-//       System.out.println(
-//         "targ vel: " + SwarmCon.StdFmt.format(getTargetVelocity()) +
-//         " vel: " + SwarmCon.StdFmt.format(getVelocity()) +
-//         " err: " + SwarmCon.StdFmt.format(getTargetVelocity() - getVelocity()));
-      //setPosition(wp);
-      //setYaw(wp.getYaw());
+      double distance = getPosition().distance(wp);
+      Angle headingToWp = (new Angle(wp, getPosition())).difference(getYaw());
+      boolean toLeft = headingToWp.as(HEADING_RATE) < 0;
+      double rotBy = (toLeft ? -1 : 1) * distance * 5.0;
+
+      setTargetYawRate(wp.getYawRate().rotate(rotBy, HEADING_RATE));
     }
 }
