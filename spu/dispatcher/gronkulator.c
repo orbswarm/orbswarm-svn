@@ -467,6 +467,14 @@ void startChildProcessToGronk(void) {
 									releaseCom3Lock();
 								}
 								swarmFeedbackInit();
+						    	if(acquireWaypointStructLock()) {
+						    		latestWaypoint->x = stateEstimate.x;
+									latestWaypoint->y = stateEstimate.y;
+									latestWaypoint->psi = stateEstimate.psi;
+									latestWaypoint->psidot = 0.0;
+									latestWaypoint->v = 0.0;
+									releaseWaypointStructLock();
+						    	}
 								pathMode = PATH_FOLLOWING;
 							}
 						break;

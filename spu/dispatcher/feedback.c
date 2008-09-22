@@ -35,8 +35,8 @@ void debugPIDString( struct swarmPID * PID, char * buffer);
 
 void swarmFeedbackInit(void)
 {
-	lateralPID.Kp 		= 0.4;
-	lateralPID.Ki 		= 0.0005;
+	lateralPID.Kp 		= 0.6;
+	lateralPID.Ki 		= 0.001;
 	lateralPID.Kd 		= 0.0;
 	lateralPID.deadBand 	= 0.0;	// Set high to stop chatter, decrease for precision
 	lateralPID.minDrive 	= 0.0;
@@ -45,8 +45,8 @@ void swarmFeedbackInit(void)
 	lateralPID.iLimit 	= 1.0;
 	lateralPID.lastError 	= 0.0;
 
-	velocityPID.Kp 		= 8.0;
-	velocityPID.Ki 		= 0.0;
+	velocityPID.Kp 		= 12.0;
+	velocityPID.Ki 		= 0.1;
 	velocityPID.Kd 		= 0.0;
 	velocityPID.deadBand 	= 0.0;	// Set high to stop chatter, decrease for precision
 	velocityPID.minDrive 	= 0.0;
@@ -83,7 +83,7 @@ int potFeedForward( struct swarmStateEstimate * stateEstimate, struct swarmCoord
 int propFeedForward( struct swarmStateEstimate * stateEstimate, struct swarmCoord * carrot )
 {
 	int propValue;
-	propValue = (int)(rint(carrot->v * 40.0));
+	propValue = (int)(rint(carrot->v * 60.0));
 	return(propValue);
 }
 
