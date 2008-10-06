@@ -38,10 +38,10 @@ public class JoyBehavior extends Behavior implements JoystickManager.Listener
 
       public void joystickAxisChanged(int stick, int axis, double value)
       {
-         if (axis == SwarmCon.JOYSTICK_STEERING_AXIS)
-            steering = value;
-         else if(axis == SwarmCon.JOYSTICK_POWER_AXIS)
-            power = -value;
+//          if (axis == SwarmCon.JOYSTICK_STEERING_AXIS)
+//             steering = value;
+//          else if(axis == SwarmCon.JOYSTICK_POWER_AXIS)
+//             power = -value;
       }
 
       /** Distpatch joystick hat event.

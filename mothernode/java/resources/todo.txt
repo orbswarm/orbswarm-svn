@@ -2,6 +2,7 @@ todo
 
 - have a look at setNormalizedTarget use for angular rates
 - consider slowing down through sharp truns
+- add history length to properties
 
 issues:
 - why does the orb roll, after being asked to not (has to do with roll correction)

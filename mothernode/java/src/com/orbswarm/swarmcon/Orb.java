@@ -54,7 +54,7 @@ public class Orb extends Mobject
     /** The lenght of the displayed history in milliseconds.  This is
      * NOT properly factored. */
 
-    public static long historyLength = 10000;
+    public static long historyLength = 60000;
 
     /** history of were this orb has been */
 
@@ -116,9 +116,9 @@ public class Orb extends Mobject
       // keep the initial positions within a smaller bounding box
       double boundX = Math.min(10., arena.getWidth());
       double boundY = Math.min(10., arena.getHeight());
-      setPosition(arena.getX() + RND.nextDouble() * boundX,
-      arena.getY() + RND.nextDouble() * boundY);
-      //setPosition(swarm.getCenter());
+      setPosition(
+        arena.getX() + RND.nextDouble() * boundX,
+        arena.getY() + RND.nextDouble() * boundY);
     }
     // position setter
 
@@ -377,7 +377,6 @@ public class Orb extends Mobject
       // record old transform and scale to orb.
 
       AffineTransform old = g.getTransform();
-      g.scale(ORB_DIAMETER, ORB_DIAMETER);
 
       // if not a phantom,
 
@@ -389,12 +388,16 @@ public class Orb extends Mobject
         
         // draw orb history
         
-        history.paint(g);
+        //history.paint(g);
       }
 
       //make the orb the center of the world
 
       g.translate(getX(), getY());
+
+      // scale the rest of the drawing to the size of the orb
+
+      g.scale(ORB_DIAMETER, ORB_DIAMETER);
 
       // draw orb shape
 

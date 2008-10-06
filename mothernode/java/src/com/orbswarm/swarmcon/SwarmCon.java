@@ -2,6 +2,8 @@ package com.orbswarm.swarmcon;
 
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.imageio.ImageIO;
+import javax.swing.SwingUtilities;
 
 import java.awt.*;
 import java.awt.geom.*;
@@ -9,7 +11,6 @@ import java.awt.font.*;
 import java.awt.event.*;
 import java.awt.image.*;
 import java.awt.event.KeyEvent;
-
 
 import java.io.InputStream;
 import java.io.FileInputStream;
@@ -21,11 +22,11 @@ import java.net.URL;
 import java.util.Vector;
 import java.util.HashMap;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.Random;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
+import java.util.Set;
 
 import java.text.*;
 
@@ -33,6 +34,7 @@ import org.trebor.pid.Controller;
 import org.trebor.pid.PidTuner;
 import org.trebor.util.JarTools;
 import org.trebor.util.Debug;
+import org.trebor.util.Properties;
 
 import com.orbswarm.choreography.Specialist;
 import com.orbswarm.swarmcon.IOrbControl;
@@ -54,15 +56,11 @@ import static java.lang.Math.*;
 import static javax.swing.KeyStroke.*;
 import static java.awt.event.KeyEvent.*;
 
-public class SwarmCon extends JFrame implements JoystickManager.Listener
+public class SwarmCon extends JFrame
 {
     /*
      * The following are hard coded constants.
      */
-
-    /** Joystick access responsible for steering. */
-    public static final int JOYSTICK_STEERING_AXIS = 0;
-    public int power_range = 50;
 
     /** Total maximum anticpated orb count. */
     public static final int MAX_ORB_COUNT = 6;
@@ -71,38 +69,28 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
      * - 65) */
     public static final int ORB_OFFSET_ID = 60;
 
-    /** Joystick access responsible for driving forward and back. */
-    public static final int JOYSTICK_POWER_AXIS = 1;
-
-    /** Joystick button mapped to enter key commands */
-    public static final int JOYSTICK_BUTTON_ENTER_KEY = 6;
-
-    /** Joystick button mapped to the space key */
-    public static final int JOYSTICK_BUTTON_SPACE_KEY = 4;
-
-    /** Joystick button mapped to the space key */
-    public static final int FOCUS_JOYSTICK_PANEL_BUTTON = 11;
-
     /** path to resources directory */
     public static final String RESOURCES_PATH    = "resources";
 
     /** location of default properties file. */
     public static final String DEFAULT_PROPERTIES_FILE =
       RESOURCES_PATH + "/swarmcon.properties";
-
-    /** size of joystick buttton icon */
-    public static final int JOY_BUTTON_ICON_SIZE = 30;
-
-    /** size of joystick buttton font */
-    public static final float JOY_BUTTON_FONT_SIZE = 19;
-
-    /** size of joystick buttton font */
+    
+    /** default scale */
+    public static final double DEFAULT_PIXELS_PER_METER = 30;
+    
+    /** size of label font */
     public static final float LABEL_FONT_SIZE = 18;
 
     /** user modifiable properties file */
     public static final String PROPERTIES_FILE_LOCATION =
       System.getProperty("user.home") +
       System.getProperty("file.separator") + ".swarmcon.properties";
+
+    /** the new user modifiable properties file */
+    public static final String PROPERTIES_FILE_LOCATION2 =
+      System.getProperty("user.home") +
+      System.getProperty("file.separator") + ".swarmcon";
 
     /** simulation key word */
     public static final String SIMULATION = "simulation";
@@ -111,7 +99,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
     public static final long MIN_FRAME_DELAY     =  10;
 
     /** physical radius of the orb */
-    public static final double ORB_RADIUS        =   0.5; // meters
+    public static final double ORB_RADIUS        =   0.760 / 2; // meters
 
     /** physical diamter of orb */
     public static final double ORB_DIAMETER      = 2 * ORB_RADIUS; // meters
@@ -143,30 +131,46 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
     /** time in seconds for a phantom to move to it's target postion */
     public static final double PHANTOM_PERIOD    =  1   ;
 
-    /** scale for graphics */
-    public static final double PIXELS_PER_METER  = 30.0;
-
     /*
      * The following are global objects.
      */
 
+    /** The robot used for screen capture. */
+    private Robot robot;
+
+
+    /** scale for graphics */
+    private double pixelsPerMeter = DEFAULT_PIXELS_PER_METER;
+
     /** operational mode (live or simulated) */
     private boolean liveMode = false;
-
-    /** Robot used to control the GUI */
-    private Robot robot = null;
 
     /** Current active SwarmCon object. */
     private static SwarmCon activeSwarmCon = null;
 
     /** Properties for tweaking the system. */
-    private Properties properties = null;
+    private Properties properties;
 
     /** The global source of randomness. */
     public static final Random RND = new Random();
 
-    /** The joystick manager object */
-    private JoystickManager joystickManager = null;
+    /** The list time the screen was painted */
+
+    private Calendar lastPaint = Calendar.getInstance();
+
+    /** Grid related values */
+
+    private static Stroke gridStroke = new BasicStroke(
+      .025f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
+    private static Color grid1Color = new Color(0, 0, 0, 40);
+    private static Color grid2Color = new Color(0, 0, 0, 30);
+    double grid1Size = 5;
+    double grid2Size = 1;
+
+    // stroke used to paint the reticle at the center of the workd
+
+    private static Stroke reticleStroke = new BasicStroke(
+      .10f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 
     /*
      * The following are values specified in the properties file.  The
@@ -208,9 +212,6 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
     /** enable sending commands to orbs */
     public static boolean sendCommandsToOrbs = true;
 
-    /** true if joysticks are allowed to control the gui */
-    public static boolean joystickGuiControl = false;
-
     /** enable colors in simulation */
     public static boolean simulateColors = true;
 
@@ -222,10 +223,6 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
     /** height of timeline on screen */
     public static int timelineHeight = 150;
-
-    /** Joystick or Orb mapping table. */
-    public static HashMap<Integer, Integer> joystickToOrbMapping =
-      new HashMap<Integer, Integer>();
 
     class MotorCommandInfo
     {
@@ -252,7 +249,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
     MotorCommandInfo motorCommandInfo[] = null;
 
-    /** the number of orbs inferred from the properteis file */
+    /** the number of orbs inferred from the properties file */
     public static int orbCount = 0;
 
     /** arena in which we play */
@@ -349,8 +346,8 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
     static
     {
-      ORB_FONT = scaleFont(ORB_FONT);
-      PHANTOM_ORB_FONT = scaleFont(PHANTOM_ORB_FONT);
+      ORB_FONT = scaleFont(ORB_FONT, DEFAULT_PIXELS_PER_METER);
+      PHANTOM_ORB_FONT = scaleFont(PHANTOM_ORB_FONT, DEFAULT_PIXELS_PER_METER);
     }
 
     /** Scale a font which are to be used in arena units
@@ -359,11 +356,9 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
      * @return a scaled copy of the font
      */
 
-    public static Font scaleFont(Font original)
+    public static Font scaleFont(Font original, double scale)
     {
-      return original.deriveFont(
-        (float)(original.getSize()
-        / PIXELS_PER_METER));
+      return original.deriveFont((float)(original.getSize() / scale));
     }
 
     /** the global word offset to correct the orbs postion by */
@@ -431,12 +426,9 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
     public static void main(String[] args)
     {
-//       double x = 123445345;
-//       System.out.println("num: " + UtmFmt.format(x));
-//       exit(0);
-
       registerSpecialists();
-      SwarmCon sc = new SwarmCon();
+      SwarmCon sc = new SwarmCon(args);
+
       int i=0;
       while (i < args.length)
       {
@@ -550,20 +542,14 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
     // construct a swarm
 
-    public SwarmCon()
+    public SwarmCon(String[] args)
     {
       try
       {
         activeSwarmCon = this;
-        robot = new Robot();
-        readProperties();
+        readProperties(args);
         setValuesFromProperties();
-      }
-      catch (IOException ex)
-      {
-        System.err.println(
-          "SwarmCon() caught exception reading properties. Using defaults.");
-        ex.printStackTrace();
+        robot = new Robot();
       }
       catch (Exception e)
       {
@@ -639,40 +625,60 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
       requestFocus();
     }
+
+    private static void definePropertyDefaults(Properties properties)
+    {
+      properties.define("test.prop.1", 5);
+      properties.define("test.prop.2", 3.1415);
+      properties.define("test.prop.3", "hello dolly");
+      properties.define("test.prop.4", Color.RED);
+    }
+    
     /** Reads properties file out of users home directory.  If this
      * file does not exist a default one will be created. */
 
-    private void readProperties() throws IOException
+    private void readProperties(String[] args)
     {
       try
       {
         // if the properties file does not exist, copy a fresh one out
         // of the jar
 
-        File propFile = new File(PROPERTIES_FILE_LOCATION);
+        File propFile = new File(PROPERTIES_FILE_LOCATION2);
         if (!propFile.exists())
           JarTools.copyResource(DEFAULT_PROPERTIES_FILE, propFile);
 
         // identify where the properties file lives
 
-        System.out.println("Properties file location: "
-        + PROPERTIES_FILE_LOCATION);
+        System.out.println(
+          "Properties file location: " + PROPERTIES_FILE_LOCATION2);
 
         // read in the properties
 
-        properties = new Properties();
-        properties.load(new FileInputStream(propFile));
+        properties = new Properties(PROPERTIES_FILE_LOCATION2)
+          {
+              {
+                definePropertyDefaults(this);
+              }
+          };
 
-        // debug print properties
+        // override properties with command line values
+
+        properties.parseCommandLineParameters(args);
+
+        // output properties so people know what they got
 
         System.out.println(
           "-------------------- SwarmCon Properties --------------------");
-        properties.list(System.out);
+        for (Object key: properties.keySet())
+          System.out.println(key + " = " + properties.get(key));
         System.out.println(
           "-------------------------------------------------------------");
       }
       catch (Exception e)
       {
+        System.err.println(
+          "SwarmCon() caught exception reading properties. Using defaults.");
         e.printStackTrace();
       }
     }
@@ -694,8 +700,6 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
         "swarmcon.comm.positionPollPeriod", positionPollPeriod);
       sendCommandsToOrbs = getBooleanProperty(
         "swarmcon.comm.sendCommandsToOrbs", sendCommandsToOrbs);
-      joystickGuiControl = getBooleanProperty(
-        "swarmcon.joystickGuiControl", joystickGuiControl);
       simulateColors = getBooleanProperty(
         "swarmcon.color.simulateColors", simulateColors);
       simulateSounds = getBooleanProperty(
@@ -724,12 +728,6 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       orbCount = 0;
       for (int orbId = 0; orbId < MAX_ORB_COUNT; ++orbId)
       {
-        // get stick to orb mapping
-
-        joystickToOrbMapping.put(
-          getIntProperty("swarmcon.orb" + orbId + ".joystick", orbId),
-          orbId);
-
         // populate the motor command info array and set enabled state for each orb
 
         motorCommandInfo[orbId] = new MotorCommandInfo();
@@ -904,10 +902,10 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       // set bounds from arena
 
       Rectangle2D.Double bounds = new Rectangle2D
-        .Double(arena.getBounds().getX() / PIXELS_PER_METER,
-        arena.getBounds().getY() / PIXELS_PER_METER,
-        arena.getBounds().getWidth()  / PIXELS_PER_METER,
-        arena.getBounds().getHeight() / PIXELS_PER_METER);
+        .Double(arena.getBounds().getX() / pixelsPerMeter,
+        arena.getBounds().getY() / pixelsPerMeter,
+        arena.getBounds().getWidth()  / pixelsPerMeter,
+        arena.getBounds().getHeight() / pixelsPerMeter);
 
       // create the swarm object
 
@@ -1016,7 +1014,7 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
     {
       try
       {
-        // extect just the orbs from the swarm
+        // extrect just the orbs from the swarm
 
         Vector<Orb> orbs = new Vector<Orb>();
         for (Mobject m: swarm)
@@ -1250,7 +1248,6 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
         // whaddoIdo?
     }
 
-
     public JLabel createBigLabel(String text, Color color)
     {
       JLabel label = new JLabel(text);
@@ -1258,148 +1255,6 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       label.setAlignmentX(Component.LEFT_ALIGNMENT);
       label.setFont(label.getFont().deriveFont(LABEL_FONT_SIZE));
       return label;
-    }
-
-    public JPanel createJoystickPanel(JoystickManager jm)
-    {
-      // create the joystick panel
-
-      final JPanel jp = new JPanel();
-      jp.setLayout(new BoxLayout(jp, BoxLayout.Y_AXIS));
-
-      // work through the joystick info
-
-      for (JoystickManager.StickInfo si: jm)
-      {
-        System.out.println("mark: creating joystick for: " +jm);
-        Debug.Mark();
-
-        // create a panel for this joystick
-
-        final JPanel stickPanel = new JPanel();
-        stickPanel.setBackground(Color.WHITE);
-        stickPanel.setBorder(BorderFactory.createTitledBorder(si.getName()));
-        stickPanel.setLayout(new BoxLayout(stickPanel, BoxLayout.Y_AXIS));
-        jp.add(stickPanel);
-
-        // add stick title
-
-        JLabel title = new JLabel("Stick: " +
-        si.getNumber() +
-        "  Orb: " +
-        joystickToOrbId(si.getNumber()));
-        title.setAlignmentX(Component.LEFT_ALIGNMENT);
-        title.setFont(title.getFont().deriveFont(LABEL_FONT_SIZE));
-        stickPanel.add(title);
-
-        // add axes panel
-
-        JPanel axesPanel = new JPanel();
-        axesPanel.setBackground(stickPanel.getBackground());
-        axesPanel.setLayout(new BoxLayout(axesPanel, BoxLayout.X_AXIS));
-        axesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        // add axes title
-
-        JLabel axesTitle = new JLabel("Axes: ");
-        axesTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
-        axesTitle.setFont(axesTitle.getFont().deriveFont(LABEL_FONT_SIZE));
-        axesPanel.add(axesTitle);
-        stickPanel.add(axesPanel);
-
-        // add axes sliders
-
-        final JSlider[] axes = new JSlider[si.getAxes()];
-        for (int i = 0; i < axes.length; ++i)
-        {
-          axes[i] = new JSlider(JSlider.HORIZONTAL);
-          Dimension dim = axes[i].getMaximumSize();
-          dim.width = 50;
-          axes[i].setPreferredSize(dim);
-          axesPanel.add(axes[i]);
-        }
-
-        // make a label for each hat
-
-//             final JLabel[] hats = new JLabel[si.getHats()];
-//             for (int i = 0; i < hats.length; ++i)
-//                stickPanel.add(hats[i] = new JLabel("hat[" + i + "]: -"));
-
-        // make a label for each button
-
-        final JButton[] buttons = new JButton[si.getButtons()];
-        JPanel buttonPanel = null;
-        for (int i = 0; i < buttons.length; ++i)
-        {
-          if (i % 12 == 0)
-          {
-            buttonPanel = new JPanel();
-            buttonPanel.setBackground(stickPanel.getBackground());
-            buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
-            buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-            stickPanel.add(buttonPanel);
-          }
-          buttonPanel.add(buttons[i] = new JButton());
-          buttons[i].setFont(buttons[i].getFont().deriveFont(JOY_BUTTON_FONT_SIZE));
-          setButtonIcons(buttons[i], i);
-        }
-
-
-        // create a listener to update this panel
-        JoystickManager.Listener jl = new JoystickManager.Listener()
-          {
-              public void joystickAxisChanged(int stick, int axis, double value)
-              {
-                axes[axis].setValue((int)((value + 1) * 50));
-                stickPanel.repaint();
-              }
-
-              public void joystickHatChanged(int stick, int hat, int x, int y)
-              {
-//                      hats[hat].setText("hat[" + hat + "]: x:" + x + " y: " + y);
-//                      stickPanel.repaint();
-              }
-              public void joystickButtonPressed(int stick, int button)
-              {
-                // if pressed the "focus joystick panel" button, do that
-
-                if (button == FOCUS_JOYSTICK_PANEL_BUTTON)
-                  controlTabs.setSelectedComponent(jp);
-
-                // update button state
-
-                buttons[button].setSelected(true);
-                stickPanel.repaint();
-              }
-
-              public void joystickButtonReleased(int stick, int button)
-              {
-                buttons[button].setSelected(false);
-                stickPanel.repaint();
-              }
-          };
-
-        jm.registerListener(si.getNumber(), jl);
-      }
-      return jp;
-    }
-
-    public void setButtonIcons(JButton button, int number)
-    {
-      String title = number + "";
-      Image unpressed = createTitledShape(
-        JOY_BUTTON_ICON_SIZE, JOY_BUTTON_ICON_SIZE, CIRCLE,
-        title, Color.LIGHT_GRAY, Color.GRAY, button.getFont());
-
-      Image pressed = createTitledShape(
-        JOY_BUTTON_ICON_SIZE, JOY_BUTTON_ICON_SIZE, CIRCLE,
-        title, Color.RED, Color.BLACK, button.getFont());
-
-      button.setIcon(new ImageIcon(unpressed));
-      button.setPressedIcon(new ImageIcon(pressed));
-      button.setSelectedIcon(new ImageIcon(pressed));
-      button.setOpaque(false);
-      button.setBorder(null);
     }
 
     public Image createTitledShape(int width, int height, Shape shape, String title,
@@ -1506,7 +1361,6 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
       actionPanel = new JPanel();
       actionPanel.setLayout(new GridBagLayout());
-      actionPanel.setBorder(BorderFactory.createLineBorder(Color.BLUE));
 
       // setup paint area
 
@@ -1614,8 +1468,6 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
      * @param graphics graphics object to paint onto
      */
 
-    Calendar lastPaint = Calendar.getInstance();
-
     public void paintArena(Graphics graphics)
     {
       // config graphics
@@ -1626,14 +1478,17 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
       g.setColor(BACKGROUND);
       g.fillRect(0, 0, width, height);
-      g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-      RenderingHints.VALUE_ANTIALIAS_ON);
+      g.setRenderingHint(
+        RenderingHints.KEY_ANTIALIASING,
+        RenderingHints.VALUE_ANTIALIAS_ON);
 
+      // paint frame rate
+      
       g.setColor(TEXT_CLR);
       g.setFont(MISC_FONT);
-      g.drawString("frame delay: " +
-      (currentTimeMillis() - lastPaint.getTimeInMillis())
-      + "ms", 5, 15);
+      g.drawString(
+        "frame rate: " + (currentTimeMillis() - lastPaint.getTimeInMillis())
+        + "ms", 5, 15);
       lastPaint = Calendar.getInstance();
 
       // draw current behavior
@@ -1656,6 +1511,8 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
                 (behavior != null
                 ? behavior.toString()
                 : "[none]") +
+                " X: "  + UtmFmt.format(orb.getX()) + 
+                " Y: "  + UtmFmt.format(orb.getY()) +
                 " R: "  + HeadingFmt.format(round(orb.getRoll   ().as(HEADING))) + 
                 " P: "  + HeadingFmt.format(round(orb.getPitch  ().as(HEADING))) +
                 " Y: "  + HeadingFmt.format(round(orb.getYaw    ().as(HEADING))) +
@@ -1666,15 +1523,31 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
         }
       }
 
+
       // set 0,0 to lower left corner, and scale for meters
 
-      g.scale(PIXELS_PER_METER, -PIXELS_PER_METER);
+      g.scale(pixelsPerMeter, -pixelsPerMeter);
 
       // apply the global offset
 
-      g.translate(getGlobalOffset().getX(), getGlobalOffset().getY());
+      g.translate(
+        getGlobalOffset().getX(), 
+        getGlobalOffset().getY());
+
+      // draw the grid
+      
+      paintGrid(g, grid1Size, grid1Color, gridStroke);
+      paintGrid(g, grid2Size, grid2Color, gridStroke);
+
+      // indicate the center of the world
+
+      g.setColor(new Color(128, 128, 128));
+      g.setStroke(reticleStroke);
+      g.draw(new Line2D.Double(-grid2Size, 0, grid2Size, 0));
+      g.draw(new Line2D.Double(0, -grid2Size, 0, grid2Size));
 
       // draw timeline regions
+
       if (timeline != null)
       {
         for (Iterator it = timeline.getRegions().iterator(); it.hasNext(); )
@@ -1682,25 +1555,24 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
           Region region = (Region)it.next();
           region.paint(g);
         }
-      }
-
-      if (timeline != null)
-      { 
-       // draw timeline paths
-       for (Iterator it = timeline.getPathsIterator(); it.hasNext(); )
+        
+        // draw timeline paths
+        
+        for (Iterator it = timeline.getPathsIterator(); it.hasNext(); )
         {
           TimelinePath path = (TimelinePath)it.next();
           path.paint(g);
         }
+        
         // draw ephemeral timeline paths
-       ArrayList ep = timeline.getEphemeralPaths();
-       for(int i=0; i < ep.size(); i++) {
-           TimelinePath path = (TimelinePath)ep.get(i);
-           path.paint(g);
+        
+        ArrayList ep = timeline.getEphemeralPaths();
+        for(int i=0; i < ep.size(); i++) {
+          TimelinePath path = (TimelinePath)ep.get(i);
+          path.paint(g);
         }
-     }
+      }
       
-
       // draw mobjects
 
       if (swarm != null)
@@ -1713,13 +1585,57 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       }
     }
 
+    /** Paint a grid onto the display.
+     *
+     * @param g graphics context to draw grid onto
+     * @param gridSize size between lines on the grid
+     * @param gridColor color of the grid lines
+     * @param gridStroke the stroke used to draw the grid lines
+     */
+    
+    public void paintGrid(
+      Graphics2D g, double gridSize, Color gridColor, Stroke gridStroke)
+    {
+      // width and height of grid
+      
+      int width = arena.getWidth();
+      int height = arena.getHeight();
+
+      // compute the grid starting position
+      
+      double gridX = 
+        -(getGlobalOffset().getX() - getGlobalOffset().getX() % gridSize);
+      double gridY = 
+        -(getGlobalOffset().getY() - getGlobalOffset().getY() % gridSize);
+
+      // set the color and stroke
+
+      g.setColor(gridColor);
+      g.setStroke(gridStroke);
+      
+      // draw the verticals
+
+      for (double x = gridX; x <= gridX + 1.5 * width / pixelsPerMeter; x += gridSize)
+        g.draw(new Line2D.Double(
+          x, -getGlobalOffset().getY(), 
+          x, -getGlobalOffset().getY() - height / pixelsPerMeter));
+
+      // draw the horizontals
+
+      for (double y = gridY; y >= gridY - 1.5 * height / pixelsPerMeter; y -= gridSize)
+        g.draw(new Line2D.Double(
+          -getGlobalOffset().getX(), y, 
+          -getGlobalOffset().getX() + width / pixelsPerMeter, y));
+    }
+
+
     /** Get the global offset. */
 
     public Point getGlobalOffset()
     {
       return new Point(
-        globalOffset.getX() + (arena.getWidth() / PIXELS_PER_METER / 2),
-        globalOffset.getY() - (arena.getHeight() / PIXELS_PER_METER / 2));
+        globalOffset.getX() + (arena.getWidth() / pixelsPerMeter / 2),
+        globalOffset.getY() - (arena.getHeight() / pixelsPerMeter / 2));
     }
     
     /** Set the global offset. */
@@ -1809,8 +1725,44 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
     public Point2D.Double screenToWorld(java.awt.Point screenPos)
     {
       return new Point2D.Double(
-        screenPos.getX() /  PIXELS_PER_METER - getGlobalOffset().getX(),
-        screenPos.getY() / -PIXELS_PER_METER - getGlobalOffset().getY());
+        screenPos.getX() /  pixelsPerMeter - getGlobalOffset().getX(),
+        screenPos.getY() / -pixelsPerMeter - getGlobalOffset().getY());
+    }
+
+    /** Capture the area from a given component.
+     *
+     * @param component the component to collect the image from
+     * 
+     * @retrn a buffered image of the component passed in.
+     */
+
+    public BufferedImage captureImage(JComponent component)
+    {
+      Rectangle bounds = component.getBounds();
+      java.awt.Point point = new java.awt.Point(bounds.x, bounds.y);
+      SwingUtilities.convertPointToScreen(point, component);
+      bounds.setBounds(point.x, point.y, bounds.width, bounds.height);
+      return robot.createScreenCapture(bounds);
+    }
+
+    /** Capture the area from a given component and write it out to the
+     * home director of the user.
+     *
+     * @param component the component to collect the image from
+     */
+
+    public void captureAndStoreImage(JComponent component)
+    {
+      try
+      {
+        File file = File.createTempFile(
+          "swarmcon", ".png", new File(System.getProperty("user.home")));
+        ImageIO.write(captureImage(arena), "png", file);
+      }
+      catch (Exception ex)
+      {
+        ex.printStackTrace();
+      }
     }
 
     /** swarm mouse input adapter */
@@ -1858,10 +1810,10 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
 
         public void mouseClicked(MouseEvent e)
         {
-          if (!e.isControlDown())
-            selectOrb(e);
-          else
+          if (e.isControlDown())
             commandOrb(e);
+          else
+            selectOrb(e);
         }
 
         Orb orbToCommand = null;
@@ -2093,6 +2045,31 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
           }
       };
 
+    /** Zoom display in. */
+
+    SwarmAction zoomIn = new SwarmAction(
+      "Zoom in",
+      getKeyStroke(VK_MINUS, 0),
+      "zoom in on the display")
+      {
+          public void actionPerformed(ActionEvent e)
+          {
+            pixelsPerMeter /= 1.1;
+          }
+      };
+
+    /** Zoom display out. */
+
+    SwarmAction zoomOut = new SwarmAction(
+      "Zoom out",
+      getKeyStroke(VK_EQUALS, 0),
+      "zoom out on the display")
+      {
+          public void actionPerformed(ActionEvent e)
+          {
+            pixelsPerMeter *= 1.1;
+          }
+      };
 
     /** Emergency stop all orbs. */
 
@@ -2109,17 +2086,29 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
           }
       };
     
-
     /** action to exist the system */
 
     SwarmAction exit = new SwarmAction(
-      "exit",
+      "Exit",
       getKeyStroke(VK_ESCAPE, 0),
       "exit this program")
       {
           public void actionPerformed(ActionEvent e)
           {
             System.exit(0);
+          }
+      };
+
+    /** screen capture */
+
+    SwarmAction captureScreen = new SwarmAction(
+      "Capture Arena",
+      getKeyStroke(VK_SPACE, SHIFT_MASK),
+      "save an image of the arena to your home directory")
+      {
+          public void actionPerformed(ActionEvent e)
+          {
+            captureAndStoreImage(arena);
           }
       };
 
@@ -2131,6 +2120,9 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
       nextBehavior,
       previousBehavior,
       emergencyStop,
+      zoomIn,
+      zoomOut,
+      captureScreen,
       exit,
     };
     /** a convience class for a really big button */
@@ -2198,8 +2190,6 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
     TimelineDisplay timelineDisplay)
     {
       controlTabs = new JTabbedPane();
-      //JPanel joystickInfoPanel = createJoystickPanel(joystickManager);
-      //controlTabs.addTab("Joysticks", joystickInfoPanel);
 
       JPanel motionControlUIPanel = createMotionControlUIPanel();
       controlTabs.addTab("Motion", motionControlUIPanel);
@@ -2399,233 +2389,6 @@ public class SwarmCon extends JFrame implements JoystickManager.Listener
     public void setMultipleMotionCommands(boolean val)
     {
       this.multipleMotionCommands = val;
-    }
-
-    ////////////////////////////////
-    /// dispatch joystick events ///
-    ////////////////////////////////
-
-    /** Distpatch joystick axis event.
-     *
-     * @param stick joystick on which this event occured
-     * @param axis number of axis which has changed
-     * @param value value axis has changed to
-     */
-
-    public void joystickAxisChanged(int stick, int axis, double value)
-    {
-      int orbNum = joystickToOrbId(stick);
-
-      // send joystick events to timeline
-
-      if (timelineDisplay != null)
-      {
-        //timelineDisplay.joystickAxis(orbNum, axis, value);
-      }
-
-      // record steering and power values
-
-      switch (axis)
-      {
-        case JOYSTICK_STEERING_AXIS:
-          motorCommandInfo[orbNum].commandedSteering =
-            (int)(value * steeringRange);
-          break;
-        case JOYSTICK_POWER_AXIS:
-          motorCommandInfo[orbNum].commandedPower =
-            (int)(-1 * value * powerRange);
-          break;
-      }
-    }
-
-    /** Distpatch joystick hat event.
-     *
-     * @param orb orb associated with this stick
-     * @param hat number of hat which has changed
-     * @param x   X value of hat postion
-     * @param x   Y value of hat postion
-     */
-
-    public void joystickHatChanged(int stick, int hat, int x, int y)
-    {
-      // if joysticks are allowed to control the gui
-
-      if (joystickGuiControl)
-      {
-        // if hat right, tab to next gui object
-
-        if (x == 1)
-        {
-          robot.keyPress(VK_TAB);
-          robot.keyRelease(VK_TAB);
-        }
-
-        // if hat left, tab to prev gui object
-
-        else if (x == -1)
-        {
-          robot.keyPress(VK_SHIFT);
-          robot.keyPress(VK_TAB);
-          robot.keyRelease(VK_TAB);
-          robot.keyRelease(VK_SHIFT);
-        }
-
-        // if hat up, increase value of object
-
-        else if (y == 1)
-        {
-          robot.keyPress(VK_UP);
-          robot.keyRelease(VK_UP);
-        }
-
-        // if hat down, decrease value of object
-
-        else if (y == -1)
-        {
-          robot.keyPress(VK_DOWN);
-          robot.keyRelease(VK_DOWN);
-        }
-      }
-
-      out.println("stick: " + stick + " hat: " + hat + " x: " + x + " y: " + y);
-    }
-
-    /** Distpatch joystick button press event.
-     *
-     * @param stick joystick on which this event occured
-     * @param button number of button which has changed
-     */
-
-    public void joystickButtonPressed(int stick, int button)
-    {
-      // send button press event to timeline
-
-      timelineDisplay.joystickButton(joystickToOrbId(stick), button);
-
-      // if joysticks are allowed to control the gui
-
-      if (joystickGuiControl)
-      {
-        // handel space button
-
-        if (button == JOYSTICK_BUTTON_SPACE_KEY)
-          robot.keyPress(VK_SPACE);
-
-        // handel enter button
-
-        else if (button == JOYSTICK_BUTTON_ENTER_KEY)
-          robot.keyPress(VK_ENTER);
-      }
-    }
-
-    /** Distpatch joystick button release event.
-     *
-     * @param stick joystick on which this event occured
-     * @param button number of button which has changed
-     */
-
-    public void joystickButtonReleased(int stick, int button)
-    {
-      // if joysticks are allowed to control the gui
-
-      if (joystickGuiControl)
-      {
-        // handel space button
-
-        if (button == JOYSTICK_BUTTON_SPACE_KEY)
-          robot.keyRelease(VK_SPACE);
-
-        // handel enter button
-
-        else if (button == JOYSTICK_BUTTON_ENTER_KEY)
-          robot.keyRelease(VK_ENTER);
-      }
-    }
-
-    /** Activate the thread which sends motor commands to the orbs. */
-
-    public void activateMotorControllThread()
-    {
-      new Thread()
-      {
-          public void run()
-          {
-            while (true)
-            {
-              try
-              {
-                commandMotors();
-                sleep(commandRefreshDelay);
-              }
-              catch (Exception e)
-              {
-                e.printStackTrace();
-              }
-            }
-          }
-      }
-        .start();
-    }
-
-    /** Send the one round motor commands to the all the active orbs. */
-
-    public void commandMotors()
-    {
-      if (orbIo != null)
-      {
-        for (int i = 0; i < motorCommandInfo.length; ++i)
-        {
-          MotorCommandInfo mci = motorCommandInfo[i];
-          if (mci.enabled &&
-          (mci.commandedSteering != mci.oldCommandedSteering ||
-          multipleMotionCommands))
-          {
-            orbIo.steerOrb(i, mci.commandedSteering);
-            mci.oldCommandedSteering = mci.commandedSteering;
-          }
-
-          if (mci.enabled &&
-          (mci.commandedPower != mci.oldCommandedPower ||
-          multipleMotionCommands))
-          {
-            orbIo.powerOrb(i, mci.commandedPower);
-            mci.oldCommandedPower = mci.commandedPower;
-          }
-        }
-      }
-    }
-
-    /** Lookup joystick to orb mapping.
-     *
-     * @param joystick number of joystick which needs mapping to an orb
-     */
-
-    public static int joystickToOrbId(int joystickNum)
-    {
-      // lookup orb id
-
-      Integer orbId = joystickToOrbMapping.get(joystickNum);
-
-      // if no mapping exists, return the default 1:1 correspondence,
-      // otherwise return looked up orb id
-
-      return orbId == null ? joystickNum : orbId;
-    }
-
-    /** Lookup orb to joystick mapping.
-     *
-     * @param orbId id of orb to match to a joystick number
-     */
-
-    public static int orbIdtoJoystick(int orbId)
-    {
-      // if the orb number appers in the map, return the associated stick
-      for (Entry<Integer, Integer> entry: joystickToOrbMapping.entrySet())
-        if (entry.getValue() == orbId)
-          return entry.getKey();
-
-      // if no mapping exists, return the default 1:1 correspondence
-      return orbId;
     }
 
     ///////////////////////////////////

@@ -39,7 +39,7 @@ abstract public class MotionModel implements IOrbListener
     
     /** Velocity rate profile to folow */
 
-    private static Rate velocityRate = new Rate("Velocity", 0, 1.0, .15);
+    private static Rate velocityRate = new Rate("Velocity", 0, 1.0, 0.08);
 
     // ------- vehicle state --------
 
@@ -325,7 +325,6 @@ abstract public class MotionModel implements IOrbListener
     public void stop()
     {
       pathCommander.requestDeath();
-      deactivatePath();
       setTargetRollRate(ZERO_DEGREES_PER_SECOND);
       setTargetPitchRate(ZERO_DEGREES_PER_SECOND);
     }
@@ -544,9 +543,8 @@ abstract public class MotionModel implements IOrbListener
               lastTime = wp.getTime();
             }
 
-            // we're done with this path, deactivate it
+            // we're done with this path, stop
 
-            deactivatePath();
             stop();
           }
           catch (Exception e)
