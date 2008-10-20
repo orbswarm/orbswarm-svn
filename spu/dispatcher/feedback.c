@@ -35,7 +35,7 @@ void debugPIDString( struct swarmPID * PID, char * buffer);
 
 void swarmFeedbackInit(void)
 {
-	lateralPID.Kp 		= 0.6;
+	lateralPID.Kp 		= 2.0;
 	lateralPID.Ki 		= 0.001;
 	lateralPID.Kd 		= 0.0;
 	lateralPID.deadBand 	= 0.0;	// Set high to stop chatter, decrease for precision
