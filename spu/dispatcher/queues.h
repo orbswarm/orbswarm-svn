@@ -7,8 +7,8 @@
 
 typedef struct queueStruct{
   char buffer[QUEUE_SIZE][MSG_LENGTH];
-  unsigned char head;
-  unsigned char tail;
+  unsigned char head=0;
+  unsigned char tail=0;
 }  Queue;
 
 int push(char* msg, Queue* q);
