@@ -87,6 +87,25 @@ int propFeedForward( struct swarmStateEstimate * stateEstimate, struct swarmCoor
 	return(propValue);
 }
 
+void peekLateralPID( char * buffer )
+{
+	sprintf( buffer, "%f, %f, %f, %f, %f, %f", lateralPID.error, lateralPID.Kp, lateralPID.Kd, lateralPID.Ki, lateralPID.iLimit, lateralPID.deadBand)
+}
+
+void peekVelocityPID( char * buffer )
+{
+	sprintf( buffer, "%f, %f, %f, %f, %f, %f", velocityPID.error, velocityPID.Kp, velocityPID.Kd, velocityPID.Ki, velocityPID.iLimit, velocityPID.deadBand)
+}
+
+void pokeLateralPID( char * buffer )
+{
+	sscanf(buffer,"%f, %f, %f, %f, %f",lateralPID.Kp, lateralPID.Kd, lateralPID.Ki, lateralPID.iLimit, lateralPID.deadBand);
+}
+
+void pokeVelocityPID( char * buffer )
+{
+	sscanf(buffer,"%f, %f, %f, %f, %f",velocityPID.Kp, velocityPID.Kd, velocityPID.Ki, velocityPID.iLimit, velocityPID.deadBand);
+}
 // -----------------------------------------------------------------------
 
 

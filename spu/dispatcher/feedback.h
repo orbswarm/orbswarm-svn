@@ -22,3 +22,11 @@ int potFeedForward ( struct swarmStateEstimate * stateEstimate, struct swarmCoor
 
 int propFeedForward( struct swarmStateEstimate * stateEstimate, struct swarmCoord * carrot );
 
+void peekLateralPID( char * buffer );
+
+void peekVelocityPID( char * buffer );
+
+void pokeLateralPID( char * buffer );
+
+void pokeVelocityPID( char * buffer );
+
