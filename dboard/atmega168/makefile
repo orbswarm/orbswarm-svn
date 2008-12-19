@@ -72,6 +72,8 @@ dboard.hex: dboard.elf
 	${AVRPATH}avr-objcopy -O ihex dboard.elf dboard.hex
 
 
+interactive:  # to fix sck: sck 5
+	${BIN}avrdude.exe -v -P ${COM}  -c stk500v2  -p ${TARGET}  -C  ${BIN}avrdude.conf -t
 
 
 # command to program chip 
