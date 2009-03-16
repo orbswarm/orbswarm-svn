@@ -1,4 +1,4 @@
-	#define MSG_LENGTH 256 //TO DO: This is actually the same as BUFLENGTH in scanner.h
+#define MSG_LENGTH 256 //TO DO: This is actually the same as BUFLENGTH in scanner.h
 #define QUEUE_SIZE 256 //Max size 256
 #define QUEUE_MASK (QUEUE_SIZE -1)
 #if (QUEUE_SIZE & QUEUE_MASK)
@@ -7,8 +7,8 @@
 
 typedef struct queueStruct{
   char buffer[QUEUE_SIZE][MSG_LENGTH];
-  unsigned char head=0;
-  unsigned char tail=0;
+  unsigned char head;
+  unsigned char tail;
 }  Queue;
 
 int push(char* msg, Queue* q);

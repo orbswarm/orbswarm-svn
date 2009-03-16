@@ -76,7 +76,7 @@
 //all externs in one file i.e. dispatcher.c or testharness.c
 //                      --niladri.bora@gmail.com
 //////////////////////////////////////////////////////////////////////////
-int parseDebug = eMcuLog /*eDispatcherLog*/; /*  parser uses this for debug output */
+int parseDebug = eLedLog/*eMcuLog*/ /*eDispatcherLog*/; /*  parser uses this for debug output */
 int parseLevel = eLogDebug;
 int myOrbId = 60; /* which orb are we?  */
 int com1 = 0; /* File descriptor for the port */

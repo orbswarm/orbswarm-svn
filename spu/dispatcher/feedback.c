@@ -35,7 +35,7 @@ void debugPIDString( struct swarmPID * PID, char * buffer);
 
 void swarmFeedbackInit(void)
 {
-	lateralPID.Kp 		= 2.0;
+	lateralPID.Kp 		= 0.5;
 	lateralPID.Ki 		= 0.001;
 	lateralPID.Kd 		= 0.0;
 	lateralPID.deadBand 	= 0.0;	// Set high to stop chatter, decrease for precision
@@ -89,22 +89,26 @@ int propFeedForward( struct swarmStateEstimate * stateEstimate, struct swarmCoor
 
 void peekLateralPID( char * buffer )
 {
-	sprintf( buffer, "%f, %f, %f, %f, %f, %f", lateralPID.error, lateralPID.Kp, lateralPID.Kd, lateralPID.Ki, lateralPID.iLimit, lateralPID.deadBand)
+	sprintf( buffer, "%f, %f, %f, %f, %f, %f", lateralPID.error, lateralPID.Kp, lateralPID.Kd, lateralPID.Ki, 
+	lateralPID.iLimit, lateralPID.deadBand);
 }
 
 void peekVelocityPID( char * buffer )
 {
-	sprintf( buffer, "%f, %f, %f, %f, %f, %f", velocityPID.error, velocityPID.Kp, velocityPID.Kd, velocityPID.Ki, velocityPID.iLimit, velocityPID.deadBand)
+	sprintf( buffer, "%f, %f, %f, %f, %f, %f", velocityPID.error, 
+	velocityPID.Kp, velocityPID.Kd, velocityPID.Ki, velocityPID.iLimit, velocityPID.deadBand);
 }
 
 void pokeLateralPID( char * buffer )
 {
-	sscanf(buffer,"%f, %f, %f, %f, %f",lateralPID.Kp, lateralPID.Kd, lateralPID.Ki, lateralPID.iLimit, lateralPID.deadBand);
+	sscanf(buffer,"%f, %f, %f, %f, %f",lateralPID.Kp, lateralPID.Kd, 
+	lateralPID.Ki, lateralPID.iLimit, lateralPID.deadBand);
 }
 
 void pokeVelocityPID( char * buffer )
 {
-	sscanf(buffer,"%f, %f, %f, %f, %f",velocityPID.Kp, velocityPID.Kd, velocityPID.Ki, velocityPID.iLimit, velocityPID.deadBand);
+	sscanf(buffer,"%f, %f, %f, %f, %f",velocityPID.Kp, velocityPID.Kd, 
+	velocityPID.Ki, velocityPID.iLimit, velocityPID.deadBand);
 }
 // -----------------------------------------------------------------------
 

@@ -682,7 +682,7 @@ void startChildProcessToGronk(void) {
 							if (nMode == 0)
 								nextPath = PATH_JOYSTICK;
 							if (nMode == 1)
-								nextPath = PATH_CIRCLESYNCHRO;
+								nextPath = PATH_CIRCLE;
 							if (nMode == 2)
 								nextPath = PATH_FIGEIGHT;
 							if (nMode == 3)

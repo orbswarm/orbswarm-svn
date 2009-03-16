@@ -1,17 +1,17 @@
-MCU = atmega640
+MCU = atmega168
 F_CPU = 14700000
 SVN_TRUNK = /home/niladrib/trunk
 
 MYSRC = $(SVN_TRUNK)/aggr/src
 MYBIN = $(SVN_TRUNK)/aggr/binaries
-#TARGET=blinky_test
+TARGET=blinky_test
 #TARGET=simple_uart_test
 #TARGET=uart_test
 #TARGET=swarm_queues_test
 #TARGET=spu_test
 #TARGET=xbee_test
 #TARGET=gps_test
-TARGET=main
+#TARGET=main
 
 all:  $(MYBIN)/$(TARGET).hex
 
@@ -19,7 +19,7 @@ all:  $(MYBIN)/$(TARGET).hex
 ARDUINO_UPLOAD_RATE = 19200
 ARDUINO_AVRDUDE=avrdude
 ARDUINO_AVRDUDE_PROGRAMMER = stk500
-ARDUINO_AVRDUDE_PORT = /dev/tty.usbserial-A1000fOr
+ARDUINO_AVRDUDE_PORT = /dev/ttyUSB0
 ARDUINO_AVRDUDE_WRITE_FLASH = -U flash:w:$(MYBIN)/$(TARGET).hex
 ARDUINO_AVRDUDE_FLAGS = -F -p $(MCU) -P $(ARDUINO_AVRDUDE_PORT) -c $(ARDUINO_AVRDUDE_PROGRAMMER) \
   -b $(ARDUINO_UPLOAD_RATE)
