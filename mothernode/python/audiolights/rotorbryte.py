@@ -99,7 +99,9 @@ class testFrame(wx.Frame):
 
         self.orb_cbs = []
         for i in range(6):               # create orb enable checkboxen
-            self.orb_cbs.append(wx.CheckBox(self, OUTPUT_CB, "orb"))
+            cb = wx.CheckBox(self, OUTPUT_CB, "orb 6%d" %i)
+            cb.orbn = 60 + i
+            self.orb_cbs.append(cb)
 
 
         # this loop creates the SpinCntl matrix
