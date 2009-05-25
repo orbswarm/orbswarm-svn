@@ -116,9 +116,20 @@ swarmWS.serviceCall = function(thisPackage, json_data, successCB, failureCB) {
 	if (swarm.SERVICES) {
 	   trace("Request Object: " + json_text);
 
+	var xmr = $.post(url, { data: json_text },
+	  	function(data, stat) {
+	         //trace("Ajax success callback: " + xmr.responseText);
+	         if (data.result) successCB(data);
+	         else             failureCB(data);
+         
+	        // jelli.DEBUGGING = true;
+	      }, "json");
+
+
+/*
 	   var xmr = $.ajax({
 	      url     : url, 
-	      data    : json_text,
+	      data    : 'data='+json_text,
 	      type    : "POST",
 	      dataType: "json",
 
@@ -138,5 +149,6 @@ swarmWS.serviceCall = function(thisPackage, json_data, successCB, failureCB) {
 	         //jelli.DEBUGGING = true;
 	      }
 	   });
+*/
 	}
 }

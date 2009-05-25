@@ -107,15 +107,18 @@ function sendColor() {
 	var blue = parseInt(value.substr(5, 2), 16);	
 
 	var outString = '';
+	//var colorObj = {};
+	
 	if (orbs.length > 0) {
 		for (var i=0; i < orbs.length; i++) {
 			
-			outString += '{6'+orbs[i]+' <LR'+red+'><LG'+green+'><LR'+blue+'><LF>}';
+			outString += '{6'+orbs[i]+' <LR'+red+'>}{6'+orbs[i]+' <LG'+green+'>}{6'+orbs[i]+' <LR'+blue+'>}{6'+orbs[i]+' <LF>}';
 			
 		}
 	}
 		
 	trace(outString);
+	//colorObj.data = outString;
 	
 	if (outString != '') {
 		swarmWS.serviceCall("swarm", outString, colorSuccessCB, colorFailureCB);
@@ -137,6 +140,9 @@ function sendVolume() {
 	var volume = CURRENT_VOLUME;
 	
 	var outString = '';
+	
+	//var volObj = {};
+
 	if (orbs.length > 0) {
 		for (var i=0; i < orbs.length; i++) {
 			
@@ -144,6 +150,8 @@ function sendVolume() {
 			
 		}
 	}
+	
+	//volObj.data = outString;
 	
 	trace(outString);
 	if (outString != '') {
