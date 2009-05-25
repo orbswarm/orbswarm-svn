@@ -1,0 +1,88 @@
+/*-----------------------------
+RESET STYLES
+-----------------------------*/
+
+html, body, form, fieldset, p, div, h1, h2, h3, h4, h5, h6{
+	margin:0;
+	padding:0;
+	-webkit-text-size-adjust:none; /* This stops the iPhone from automatically changing the size of the text when you flip the phone */
+	}
+body{
+	font-size: 62.5%; /* 62.5% means 1em = 10px */
+	}
+ul, li, ol, dl, dd, dt{
+	list-style:none;
+	padding:0;
+	margin:0;
+	}
+a{
+	text-decoration:none;
+	}
+ 
+/*-----------------------------
+	SITE SPECIFIC STYLES
+-----------------------------*/
+
+body{
+	background:#ffffff;
+	font-family: Helvetica; /* Helvetica is on the iPhone already, so you may as well take advantage */
+	color:#000;
+	
+	}
+p{
+	font-size:12px;
+	padding-bottom:8px;
+	}
+a{
+	text-decoration:none;
+	}
+
+/*-----------------------------
+	HEADINGS
+-----------------------------*/
+
+h1{
+	display:block;
+	text-align: center;
+	}
+
+/*-----------------------------
+	BASIC LAYOUT
+-----------------------------*/
+
+#page_wrapper{
+	padding-top:20px;
+	overflow:auto;
+	}
+
+/*-----------------------------
+	ORIENTATION CLEVERNESS
+-----------------------------*/
+
+#content_left,
+#content_right,
+#content_normal,
+#content_flipped{
+	display:none;
+	position: relative;
+	}
+#content_normal {
+	display: block;
+	border: 1px solid red;
+	min-height: 410px;
+}
+.show_normal,
+.show_flipped{
+	width:320px;
+	}
+.show_left,
+.show_right{
+	width:480px;
+	}
+
+.show_left #content_left,
+.show_right #content_right,
+.show_normal #content_normal,
+.show_flipped #content_flipped{
+	display:block;
+	}

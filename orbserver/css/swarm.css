@@ -1,0 +1,64 @@
+
+ul#orbs {
+	margin: 0; padding: 0;
+	position: absolute;
+	bottom: 0;
+}
+ul#orbs li{
+	list-style-type: none;
+	display: inline;
+	float: left;
+}
+ul#orbs input{
+	display: none;
+}
+ul#orbs li a {
+	display: block;
+	height: 40px;
+	width: 49px;
+	background: transparent url(../images/orb.gif) no-repeat;
+	font-weight: bold;
+	font-size: 250%;
+	padding-top: 10px;
+	text-align: center;
+	-webkit-border-radius: 10px;
+	border: 2px solid white;
+}
+ul#orbs li a.on {
+	border: 2px solid red;
+}
+#orb_all {
+	position: absolute;
+	bottom: 64px;
+	left: 3px;
+	font-weight: bold;
+	
+}
+#orb_all a{
+	border: 2px solid #999999;
+	padding: 10px;
+	-webkit-border-radius: 10px;
+	
+}
+#orb_all a.on {
+	border: 2px solid red;
+}
+
+.ui-tabs .ui-tabs-panel {
+	height: 210px;
+}	
+.ui-slider-vertical {
+	/*height: 260px;*/
+}
+#volume {
+	margin-top: 0;
+}	
+.rule {
+	padding-top: 10px;
+}
+.rule .left {
+	float: left;
+}
+.rule .right {
+	float: right;
+}
