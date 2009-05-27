@@ -112,7 +112,7 @@ function sendColor() {
 	if (orbs.length > 0) {
 		for (var i=0; i < orbs.length; i++) {
 			
-			outString += '{6'+orbs[i]+' <LR'+red+'>}{6'+orbs[i]+' <LG'+green+'>}{6'+orbs[i]+' <LR'+blue+'>}{6'+orbs[i]+' <LF>}';
+			outString += '{6'+orbs[i]+' <LR'+red+'>}{6'+orbs[i]+' <LG'+green+'>}{6'+orbs[i]+' <LB'+blue+'>}{6'+orbs[i]+' <LF>}';
 			
 		}
 	}
