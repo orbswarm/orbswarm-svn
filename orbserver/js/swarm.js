@@ -79,6 +79,10 @@ function swarmInit() {
 		trace($(this).val());
 	});
 
+	$('#soundbank').change(function(event) {
+		sendSoundbank($(this).val());
+	});
+
 	orbTimer = $.timer(ORB_INTERVAL, function (timer) {
 	
 		if (CURRENT_COLOR != LAST_COLOR) {
@@ -94,7 +98,29 @@ function swarmInit() {
 
 }
 
+function sendSoundbank(soundbank) {
 
+	trace(soundbank);
+	
+	var outString = '';
+	//var colorObj = {};
+	
+	if (orbs.length > 0) {
+		for (var i=0; i < orbs.length; i++) {
+			
+			
+			//*** CHANGE THIS TO MATCH THE SOUND MODULE API ***
+			outString += '{6'+orbs[i]+' <M VCD '+soundbank+'>}';
+			
+		}
+	}
+		
+	trace(outString);
+	
+	swarmWS.serviceCall("swarm", outString, soundSuccessCB, soundFailureCB);
+	
+	
+}
 function sendColor() {
 	
 	var value = CURRENT_COLOR;
@@ -127,6 +153,14 @@ function sendColor() {
 	LAST_COLOR = CURRENT_COLOR;
 	
 }
+
+function soundSuccessCB(data) {
+	trace('sound success');
+}
+function soundFailureCB(data) {
+	trace('sound failure');	
+}
+
 
 function colorSuccessCB(data) {
 	trace('color success');
