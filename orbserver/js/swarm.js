@@ -107,20 +107,20 @@ function sendSoundbank(soundbank) {
 	
 	if (orbs.length > 0) {
 		for (var i=0; i < orbs.length; i++) {
-			
-			
-			//*** CHANGE THIS TO MATCH THE SOUND MODULE API ***
-			outString += '{6'+orbs[i]+' <M VCD '+soundbank+'>}';
-			
+			 // do everything twice for fault tolerance
+      		        outString += '{6'+orbs[i]+' <M VST>}';
+      		        outString += '{6'+orbs[i]+' <M VST>}';
+			outString += '{6'+orbs[i]+' <M CD ..>}';
+			outString += '{6'+orbs[i]+' <M CD ..>}';
+			outString += '{6'+orbs[i]+' <M CD '+soundbank+'>}';
+			outString += '{6'+orbs[i]+' <M CD '+soundbank+'>}';
 		}
 	}
-		
+
 	trace(outString);
-	
 	swarmWS.serviceCall("swarm", outString, soundSuccessCB, soundFailureCB);
-	
-	
 }
+
 function sendColor() {
 	
 	var value = CURRENT_COLOR;
