@@ -80,7 +80,7 @@ class testFrame(wx.Frame):
         self.label_setgain = wx.StaticText(self, -1, "Audio\ngain", style=wx.ALIGN_CENTRE)
         self.label_msmooth = wx.StaticText(self, -1, "master\nsmooth")
         self.label_mbright = wx.StaticText(self, -1, "master\nbright")
-#        self.slider_hue = wx.Slider(self, SLIDER_HUE, 50, 0, 99, style=wx.SL_VERTICAL|wx.SL_LABELS|wx.SL_INVERSE)
+        self.slider_hue = wx.Slider(self, SLIDER_HUE, 50, 0, 99, style=wx.SL_VERTICAL|wx.SL_LABELS|wx.SL_INVERSE)
 #        self.slider_sat = wx.Slider(self, SLIDER_SAT, 50, 0, 99, style=wx.SL_VERTICAL|wx.SL_LABELS|wx.SL_INVERSE)
         self.slider_setgain = wx.Slider(self, SLIDER_SETGAIN, 50, 0, 99, style=wx.SL_VERTICAL|wx.SL_LABELS|wx.SL_INVERSE)
         self.graphicsPanel = TestPanel.TestPanel(self, -1)
@@ -149,7 +149,7 @@ class testFrame(wx.Frame):
 
  
         self.Bind(wx.EVT_MENU, self.doMenu)
-#        self.Bind(wx.EVT_COMMAND_SCROLL, self.onScroll, id=SLIDER_HUE)
+        self.Bind(wx.EVT_COMMAND_SCROLL, self.onScroll, id=SLIDER_HUE)
 #        self.Bind(wx.EVT_COMMAND_SCROLL, self.onScroll, id=SLIDER_SAT)
         self.Bind(wx.EVT_COMMAND_SCROLL, self.onScroll, id=SLIDER_SETGAIN)
         self.Bind(wx.EVT_COMMAND_SCROLL, self.onScroll, id=SLIDER_MSMOOTH)
@@ -176,7 +176,7 @@ class testFrame(wx.Frame):
         self.label_setgain.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
         self.label_msmooth.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
         self.label_mbright.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
-#        self.slider_hue.SetMinSize((-1, -1))
+        self.slider_hue.SetMinSize((-1, -1))
 #        self.slider_sat.SetMinSize((-1, -1))
 #        self.slider_sat.SetBackgroundColour(wx.Colour(236, 233, 216))
         self.slider_setgain.SetMinSize((-1, -1))
@@ -258,8 +258,8 @@ class testFrame(wx.Frame):
         for i in range(6):
             sizer_orbcbs.Add(self.orb_cbs[i])
         
-#        sizer_toplevel.Add(self.slider_hue, 0, wx.ALL|wx.EXPAND|wx.ALIGN_RIGHT, 0)
-        sizer_toplevel.Add((20, 20), 0, 0, 0) # spacer instead of sat slider
+        sizer_toplevel.Add(self.slider_hue, 0, wx.ALL|wx.EXPAND|wx.ALIGN_RIGHT, 0)
+#        sizer_toplevel.Add((20, 20), 0, 0, 0) # spacer instead of sat slider
 #        sizer_toplevel.Add(self.slider_sat, 0, wx.EXPAND, 0)
         sizer_toplevel.Add(self.slider_setgain, 0, wx.EXPAND, 0)
         sizer_toplevel.Add(self.graphicsPanel, 0, 0, 0)
