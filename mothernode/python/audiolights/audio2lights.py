@@ -73,9 +73,7 @@ class testFrame(wx.Frame):
         self.SetMenuBar(self.menubar)
         # Menu Bar end
         self.statusbar = self.CreateStatusBar(1, 0)
-#        self.label_hue = wx.StaticText(self, -1, "Hue", style=wx.ALIGN_CENTRE)
-#        self.label_sat = wx.StaticText(self, -1, "Sat", style=wx.ALIGN_CENTRE)
-        self.label_hue = wx.StaticText(self, -1, "", style=wx.ALIGN_CENTRE)
+        self.label_hue = wx.StaticText(self, -1, "Hue\nspread", style=wx.ALIGN_CENTRE)
         self.label_sat = wx.StaticText(self, -1, "", style=wx.ALIGN_CENTRE)
         self.label_setgain = wx.StaticText(self, -1, "Audio\ngain", style=wx.ALIGN_CENTRE)
         self.label_msmooth = wx.StaticText(self, -1, "master\nsmooth")
@@ -87,9 +85,9 @@ class testFrame(wx.Frame):
         self.slider_msmooth = wx.Slider(self, SLIDER_MSMOOTH, 50, 0, 99, style=wx.SL_VERTICAL|wx.SL_LABELS|wx.SL_INVERSE)
         self.slider_mbright = wx.Slider(self, SLIDER_MBRIGHT, 50, 0, 99, style=wx.SL_VERTICAL|wx.SL_LABELS|wx.SL_INVERSE)
         self.label_mode = wx.StaticText(self, -1, "mode", style=wx.ALIGN_CENTRE)
-        self.label_outputCB = wx.StaticText(self, -1, "Enable Output")
-        self.label_matrixcb = wx.StaticText(self, -1, "Enable Matrix")
-        self.label_audio_cb = wx.StaticText(self, -1, "Enable Audio")
+        self.label_outputCB = wx.StaticText(self, -1, "Output")
+        self.label_matrixcb = wx.StaticText(self, -1, "Matrix")
+        self.label_audio_cb = wx.StaticText(self, -1, "Audio")
         self.cb_output = wx.CheckBox(self, OUTPUT_CB, "")
         self.cb_matrix = wx.CheckBox(self, MATRIX_CB, "")
         self.cb_audio = wx.CheckBox(self, AUDIO_CB, "")
@@ -150,7 +148,7 @@ class testFrame(wx.Frame):
  
         self.Bind(wx.EVT_MENU, self.doMenu)
         self.Bind(wx.EVT_COMMAND_SCROLL, self.onScroll, id=SLIDER_HUE)
-#        self.Bind(wx.EVT_COMMAND_SCROLL, self.onScroll, id=SLIDER_SAT)
+        self.Bind(wx.EVT_COMMAND_SCROLL, self.onScroll, id=SLIDER_SAT)
         self.Bind(wx.EVT_COMMAND_SCROLL, self.onScroll, id=SLIDER_SETGAIN)
         self.Bind(wx.EVT_COMMAND_SCROLL, self.onScroll, id=SLIDER_MSMOOTH)
         self.Bind(wx.EVT_COMMAND_SCROLL, self.onScroll, id=SLIDER_MBRIGHT)
@@ -177,6 +175,7 @@ class testFrame(wx.Frame):
         self.label_msmooth.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
         self.label_mbright.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
         self.slider_hue.SetMinSize((-1, -1))
+        self.slider_hue.SetBackgroundColour(wx.Colour(236, 233, 216))
 #        self.slider_sat.SetMinSize((-1, -1))
 #        self.slider_sat.SetBackgroundColour(wx.Colour(236, 233, 216))
         self.slider_setgain.SetMinSize((-1, -1))
@@ -244,27 +243,31 @@ class testFrame(wx.Frame):
         sizer_orbcbs = wx.GridSizer(6, 1, 0, 0)
         sizer_modelabels = wx.GridSizer(5, 1, 0, 0)
         sizer_indicator = wx.BoxSizer(wx.VERTICAL)
+
+        # TOPLEVEL first row
         sizer_toplevel.Add((20, 20), 0, 0, 0)
-        sizer_toplevel.Add(self.label_hue, 0, wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM, 0)
+        sizer_toplevel.Add((20, 20), 0, 0, 0)
         sizer_toplevel.Add(self.label_sat, 0, wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM, 0)
+        sizer_toplevel.Add(self.label_hue, 0, wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM, 0)
         sizer_toplevel.Add(self.label_setgain, 0, wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM, 0)
         sizer_toplevel.Add((20, 20), 0, 0, 0)
         sizer_toplevel.Add(self.label_msmooth, 0, wx.LEFT|wx.TOP|wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM, 4)
         sizer_toplevel.Add(self.label_mbright, 0, wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM, 3)
+
+        # TOPLEVEL second row
         sizer_toplevel.Add((20, 20), 0, 0, 0)
-        sizer_toplevel.Add((20, 20), 0, 0, 0)
-        #sizer_toplevel.Add((20, 20), 0, 0, 0) # spacer instead of hue slider
-        sizer_toplevel.Add(sizer_orbcbs, 1, wx.EXPAND, 0)
         for i in range(6):
             sizer_orbcbs.Add(self.orb_cbs[i])
-        
-        sizer_toplevel.Add(self.slider_hue, 0, wx.ALL|wx.EXPAND|wx.ALIGN_RIGHT, 0)
-#        sizer_toplevel.Add((20, 20), 0, 0, 0) # spacer instead of sat slider
+        sizer_toplevel.Add(sizer_orbcbs, 1, wx.EXPAND, 0)
+        sizer_toplevel.Add((20, 20), 0, 0, 0) # spacer instead of sat slider
 #        sizer_toplevel.Add(self.slider_sat, 0, wx.EXPAND, 0)
+        sizer_toplevel.Add(self.slider_hue, 0, wx.EXPAND, 0)
         sizer_toplevel.Add(self.slider_setgain, 0, wx.EXPAND, 0)
         sizer_toplevel.Add(self.graphicsPanel, 0, 0, 0)
         sizer_toplevel.Add(self.slider_msmooth, 0, wx.EXPAND, 0)
         sizer_toplevel.Add(self.slider_mbright, 0, wx.EXPAND, 0)
+
+        # TOPLEVEL third row
         sizer_toplevel.Add((20, 20), 0, 0, 0)
         sizer_toplevel.Add((20, 20), 0, 0, 0)
         sizer_modelabels.Add((20, 20), 0, 0, 0)
@@ -337,11 +340,10 @@ class testFrame(wx.Frame):
         if self.cb_output.GetValue():
             RGBstr = self.getRGBStr(theColor)
             self.ser.write(RGBstr)
-            self.ser.flushInput()
-            self.ser.flushOutput()
+            #self.ser.flushInput()
+            #self.ser.flushOutput()
 
     def getHueStr(self,hue):
-        #fbright = float(self.maxBright/255.0)
         fbright = 1.0
         colors = colorsys.hsv_to_rgb(hue, 1.0, fbright)
         outstr =   "<LR%d>" % int(colors[0]*255)
