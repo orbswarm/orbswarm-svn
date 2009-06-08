@@ -21,7 +21,7 @@ import AudioProc
 
 # 
 SLIDER_HUE = 91
-SLIDER_SAT = 92
+SLIDER_OFFS = 92
 SLIDER_SETGAIN = 93
 SLIDER_MSMOOTH = 94
 SLIDER_MBRIGHT = 95
@@ -73,13 +73,13 @@ class testFrame(wx.Frame):
         self.SetMenuBar(self.menubar)
         # Menu Bar end
         self.statusbar = self.CreateStatusBar(1, 0)
-        self.label_hue = wx.StaticText(self, -1, "Hue\nspread", style=wx.ALIGN_CENTRE)
-        self.label_sat = wx.StaticText(self, -1, "", style=wx.ALIGN_CENTRE)
+        self.label_hue = wx.StaticText(self, -1, "Hue\ncenter", style=wx.ALIGN_CENTRE)
+        self.label_offs = wx.StaticText(self, -1, "Hue\noffset", style=wx.ALIGN_CENTRE)
         self.label_setgain = wx.StaticText(self, -1, "Audio\ngain", style=wx.ALIGN_CENTRE)
         self.label_msmooth = wx.StaticText(self, -1, "master\nsmooth")
         self.label_mbright = wx.StaticText(self, -1, "master\nbright")
-        self.slider_hue = wx.Slider(self, SLIDER_HUE, 50, 0, 99, style=wx.SL_VERTICAL|wx.SL_LABELS|wx.SL_INVERSE)
-#        self.slider_sat = wx.Slider(self, SLIDER_SAT, 50, 0, 99, style=wx.SL_VERTICAL|wx.SL_LABELS|wx.SL_INVERSE)
+        self.slider_hue = wx.Slider(self, SLIDER_HUE, 0, 0, 99, style=wx.SL_VERTICAL|wx.SL_LABELS|wx.SL_INVERSE)
+        self.slider_offs = wx.Slider(self, SLIDER_OFFS, 0, 0, 99, style=wx.SL_VERTICAL|wx.SL_LABELS|wx.SL_INVERSE)
         self.slider_setgain = wx.Slider(self, SLIDER_SETGAIN, 50, 0, 99, style=wx.SL_VERTICAL|wx.SL_LABELS|wx.SL_INVERSE)
         self.graphicsPanel = TestPanel.TestPanel(self, -1)
         self.slider_msmooth = wx.Slider(self, SLIDER_MSMOOTH, 50, 0, 99, style=wx.SL_VERTICAL|wx.SL_LABELS|wx.SL_INVERSE)
@@ -148,7 +148,7 @@ class testFrame(wx.Frame):
  
         self.Bind(wx.EVT_MENU, self.doMenu)
         self.Bind(wx.EVT_COMMAND_SCROLL, self.onScroll, id=SLIDER_HUE)
-        self.Bind(wx.EVT_COMMAND_SCROLL, self.onScroll, id=SLIDER_SAT)
+        self.Bind(wx.EVT_COMMAND_SCROLL, self.onScroll, id=SLIDER_OFFS)
         self.Bind(wx.EVT_COMMAND_SCROLL, self.onScroll, id=SLIDER_SETGAIN)
         self.Bind(wx.EVT_COMMAND_SCROLL, self.onScroll, id=SLIDER_MSMOOTH)
         self.Bind(wx.EVT_COMMAND_SCROLL, self.onScroll, id=SLIDER_MBRIGHT)
@@ -170,20 +170,21 @@ class testFrame(wx.Frame):
         self.statusbar.SetStatusWidths([-1])
 
         self.label_hue.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
-        self.label_sat.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
+        self.label_offs.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
         self.label_setgain.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
         self.label_msmooth.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
         self.label_mbright.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
         self.slider_hue.SetMinSize((-1, -1))
         self.slider_hue.SetBackgroundColour(wx.Colour(236, 233, 216))
-#        self.slider_sat.SetMinSize((-1, -1))
-#        self.slider_sat.SetBackgroundColour(wx.Colour(236, 233, 216))
+        self.slider_offs.SetMinSize((-1, -1))
+        self.slider_offs.SetBackgroundColour(wx.Colour(236, 233, 216))
         self.slider_setgain.SetMinSize((-1, -1))
         self.slider_setgain.SetBackgroundColour(wx.Colour(236, 233, 216))
         self.graphicsPanel.SetMinSize((450,200))
         self.graphicsPanel.SetBackgroundColour(wx.Colour(221, 221, 221))
         self.slider_msmooth.SetMinSize((-1, -1))
         self.slider_msmooth.SetBackgroundColour(wx.Colour(236, 233, 216))
+        self.slider_msmooth.oldval = "-1" # check this val to see if slider has changed
         self.slider_mbright.SetMinSize((-1, -1))
         self.slider_mbright.SetBackgroundColour(wx.Colour(236, 233, 216))
         self.label_mode.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
@@ -204,7 +205,8 @@ class testFrame(wx.Frame):
         self.doSetgain()
         self.slider_mbright.SetValue(valDict['mbright'])
         self.slider_msmooth.SetValue(valDict['msmooth'])
-        self.doSmooth()
+        self.slider_hue.SetValue(valDict['hue'])
+        self.slider_offs.SetValue(valDict['offs'])
         for i in range(NUM_OUTCHANS):
             self.csel[i].SetColour(valDict["csel%d"%i])
             for j in range(NUM_CHANNELS):
@@ -224,6 +226,9 @@ class testFrame(wx.Frame):
         valDict['setgain'] = self.slider_setgain.GetValue()
         valDict['mbright'] = self.slider_mbright.GetValue()
         valDict['msmooth'] = self.slider_msmooth.GetValue()
+
+        valDict['hue'] = self.slider_hue.GetValue()
+        valDict['offs'] = self.slider_offs.GetValue()
 
         for i in range(NUM_OUTCHANS):
             valDict["csel%d"%i] = self.csel[i].GetColour()
@@ -247,7 +252,7 @@ class testFrame(wx.Frame):
         # TOPLEVEL first row
         sizer_toplevel.Add((20, 20), 0, 0, 0)
         sizer_toplevel.Add((20, 20), 0, 0, 0)
-        sizer_toplevel.Add(self.label_sat, 0, wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM, 0)
+        sizer_toplevel.Add(self.label_offs, 0, wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM, 0)
         sizer_toplevel.Add(self.label_hue, 0, wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM, 0)
         sizer_toplevel.Add(self.label_setgain, 0, wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM, 0)
         sizer_toplevel.Add((20, 20), 0, 0, 0)
@@ -259,8 +264,8 @@ class testFrame(wx.Frame):
         for i in range(6):
             sizer_orbcbs.Add(self.orb_cbs[i])
         sizer_toplevel.Add(sizer_orbcbs, 1, wx.EXPAND, 0)
-        sizer_toplevel.Add((20, 20), 0, 0, 0) # spacer instead of sat slider
-#        sizer_toplevel.Add(self.slider_sat, 0, wx.EXPAND, 0)
+#        sizer_toplevel.Add((20, 20), 0, 0, 0) # spacer instead of offs slider
+        sizer_toplevel.Add(self.slider_offs, 0, wx.EXPAND, 0)
         sizer_toplevel.Add(self.slider_hue, 0, wx.EXPAND, 0)
         sizer_toplevel.Add(self.slider_setgain, 0, wx.EXPAND, 0)
         sizer_toplevel.Add(self.graphicsPanel, 0, 0, 0)
@@ -328,8 +333,38 @@ class testFrame(wx.Frame):
         self.indicator.SetBackgroundColour(theColor)
         self.indicator.Refresh()
 
+    def setOrbOutput(self,theColor):
+        noOrbSelected = True
+        for n, cb in enumerate(self.orb_cbs):
+
+            if cb.GetValue():
+                noOrbSelected = False
+                # convert to hue and add offset for each orb
+                theHSV = colorsys.rgb_to_hsv(theColor[0],theColor[1],theColor[2])
+                newhue = theHSV[0] + n*self.slider_offs.GetValue()/200.0
+                while(newhue > 1.0):
+                    newhue -= 1.0
+                outColor = list(colorsys.hsv_to_rgb(newhue,theHSV[1],theHSV[2]))
+
+                # orb-sepcific preamble
+                self.ser.write("{%d " % (n + 60))
+                self.setOutput(outColor)
+                self.ser.write("}")
+        if (noOrbSelected):              # else... no orb checkboxes set
+            self.setOutput(theColor)
+
+
     def setOutput(self,theColor):
         """output array of 0-1 floats as color, converting to byte range"""
+
+       # convert to hue and add offset
+        theHSV = colorsys.rgb_to_hsv(theColor[0],theColor[1],theColor[2])
+        newhue = theHSV[0] + self.slider_hue.GetValue()/100.0
+        while(newhue > 1.0):
+            newhue -= 1.0
+        theColor = list(colorsys.hsv_to_rgb(newhue,theHSV[1],theHSV[2]))
+        
+
         for i in range(len(theColor)):
             theColor[i] = int(theColor[i] * self.slider_mbright.GetValue()/100)
             if theColor[i] > 255:
@@ -340,8 +375,17 @@ class testFrame(wx.Frame):
         if self.cb_output.GetValue():
             RGBstr = self.getRGBStr(theColor)
             self.ser.write(RGBstr)
-            #self.ser.flushInput()
-            #self.ser.flushOutput()
+            smoothval = str(self.slider_msmooth.GetValue())
+            if (smoothval != self.slider_msmooth.oldval):
+                self.slider_msmooth.oldval = smoothval
+                self.ser.write("<LT%s>" % smoothval)
+                self.report("Smooth val set to " + smoothval)
+
+            self.ser.flushInput()
+            self.ser.flushOutput()
+
+
+    
 
     def getHueStr(self,hue):
         fbright = 1.0
@@ -415,18 +459,9 @@ class testFrame(wx.Frame):
         self.Destroy()
 #
     def onCloseWindow(self, event):
-        dlg = wx.MessageDialog(self, "Really exit?", "Exit", wx.YES_NO | wx.ICON_QUESTION)
-        if dlg.ShowModal() == wx.ID_YES:
-            self.report("bye bye!")
-            dlg.Destroy()
-            self.a.Stop()
-            self.a.close()
-            self.Destroy()
-        else:
-            self.report("exit cancelled")
-            dlg.Destroy()
-            event.Veto()
-        #event.Skip()
+        self.a.Stop()
+        self.a.close()
+        self.Destroy()
 
     def doAboutMenu(self): # wxGlade: testFrame.<event_handler>
         dlg = wx.MessageDialog(self, "ROTORBRYTE software\nby Jonathan Foote\nheadrotor@rotorbrain.com", "about", wx.OK)
@@ -455,20 +490,9 @@ class testFrame(wx.Frame):
            self.a.setgain(val)
         elif slider.GetId() == SLIDER_MSMOOTH:
             self.report("Fade time set to " + str(val))
-            self.doSmooth()
         elif slider.GetId() == SLIDER_MBRIGHT:
             self.report("Gain set to " + str(val)) 
-        elif slider.GetId() == SLIDER_HUE:
-            self.hue = float(val/255.0)
-            self.report("self.hue = %f" % self.hue)
 #        event.Skip()
-
-    def doSmooth(self):
-        smoothval = str(self.slider_msmooth.GetValue())
-        if self.cb_output.GetValue():
-            self.ser.write("<LT%s>" % smoothval)
-            self.ser.flushOutput()
-        self.report("Smooth val set to " + smoothval)
 
     def doSetgain(self):
         gain = self.slider_setgain.GetValue()
@@ -622,7 +646,7 @@ class testFrame(wx.Frame):
                     for c in range(3):
                         outval[c] += channelout * ccolor[c] 
             if self.cb_matrix.GetValue():
-                self.setOutput(outval)
+                self.setOrbOutput(outval)
         event.StopPropagation()   
 #        event.Skip()
 
@@ -674,6 +698,9 @@ class testFrame(wx.Frame):
         initVals['setgain'] = 50
         initVals['msmooth'] = 40
         initVals['mbright'] = 75
+
+        initVals['hue'] = 0
+        initVals['offs'] = 0
 
         initVals['csel0'] = (255,0,0)
         initVals['csel1'] = (0,255,0)
