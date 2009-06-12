@@ -347,14 +347,14 @@ class testFrame(wx.Frame):
                 outColor = list(colorsys.hsv_to_rgb(newhue,theHSV[1],theHSV[2]))
 
                 # orb-sepcific preamble
-                self.ser.write("{%d " % (n + 60))
-                self.setOutput(outColor)
+                theOrb= "%d " % (n + 60)
+                self.setOutput(theOrb,outColor)
                 self.ser.write("}")
         if (noOrbSelected):              # else... no orb checkboxes set
-            self.setOutput(theColor)
+            self.setOutput("60",theColor)
 
 
-    def setOutput(self,theColor):
+    def setOutput(self,theOrb,theColor):
         """output array of 0-1 floats as color, converting to byte range"""
 
        # convert to hue and add offset
@@ -373,12 +373,13 @@ class testFrame(wx.Frame):
                 theColor[i] = 0
         self.setIndicator(theColor)        
         if self.cb_output.GetValue():
-            RGBstr = self.getRGBStr(theColor)
+            RGBstr = self.getRGBStr(theOrb,theColor)
+            #self.report(RGBstr)
             self.ser.write(RGBstr)
             smoothval = str(self.slider_msmooth.GetValue())
             if (smoothval != self.slider_msmooth.oldval):
                 self.slider_msmooth.oldval = smoothval
-                self.ser.write("<LT%s>" % smoothval)
+                self.ser.write("{%s <LT%s>}" % (theOrb,smoothval))
                 self.report("Smooth val set to " + smoothval)
 
             self.ser.flushInput()
@@ -396,11 +397,11 @@ class testFrame(wx.Frame):
         outstr +=  "<LF>"
         return(outstr)
 
-    def getRGBStr(self,theColor):
-        outstr =   "<LR%d>" % int(theColor[0])
-        outstr +=  "<LG%d>" % int(theColor[1])
-        outstr +=  "<LB%d>" % int(theColor[2])
-        outstr +=  "<LF>"
+    def getRGBStr(self,theOrb,theColor):
+        outstr =   "{%s <LR%d>}" % (theOrb,int(theColor[0]))
+        outstr +=  "{%s <LG%d>}" % (theOrb,int(theColor[1]))
+        outstr +=  "{%s <LB%d>}" % (theOrb,int(theColor[2]))
+        outstr +=  "{%s <LF>}" % theOrb
         return(outstr)
 
     def goodbye(self):
