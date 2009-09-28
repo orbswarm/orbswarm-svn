@@ -7,7 +7,7 @@
 COM = COM5
 
 #set avr executable path here
-AVRPATH = C:\\WinAVR\\bin\\
+AVRPATH = C:\\WinAVR-20080610\\bin\\
 
 # NOTE NEW TARGET! Not a atmega8 like old daughterboard
 TARGET=atmega168
@@ -19,8 +19,8 @@ DUDETARGET=m168
 GCCFLAGS = -c -g -O3
 
 #set programmer here
-PGMR = stk500v2 
-#PGMR = usbtiny
+#PGMR = stk500v2 
+PGMR = usbtiny
 
 # default target when "make" is run w/o arguments
 all: dboard.hex

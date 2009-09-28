@@ -1,16 +1,19 @@
 // ---------------------------------------------------------------------
-// 
-//	steering.c 
-//      SWARM Orb 
+//
+//	steering.c
+//      SWARM Orb
 //      Steering feedback PID loop  for SWARM Orb http://www.orbswarm.com
 //
 //	Refactored by Jonathan (Head Rotor at rotorbrain.com)
 //      Original Version by Petey the Programmer  Date: 30-April-2007
 // -----------------------------------------------------------------------
 
- 
+// This is the EEPROM address to store the motor PID coefficients
+#define STEER_EEPROM	10
+
 #include <avr/io.h>
 #include <stdlib.h>
+#include <avr/eeprom.h>
 #include "UART.h"
 #include "putstr.h"
 #include "a2d.h"
@@ -54,7 +57,59 @@ void Steering_Init(void)
 	last_pos_error = 0;
 	steer_max = 100;	/* maximum extent from zero */
 }
-	
+
+
+// -------------------------------------------------------------------------
+// Note: steering values are typed as shorts for PID calcs
+// We only save byte values to eeprom.
+void Steering_save_PID_settings(void)
+{
+	char checksum;
+	checksum = (Kp + Ki + Kd + dead_band + minDrive + maxDrive + maxAccel);	// generate checksum
+
+	eeprom_write_byte( STEER_EEPROM,   (char)Kp );
+	eeprom_write_byte( STEER_EEPROM+1, (char)Ki );
+	eeprom_write_byte( STEER_EEPROM+2, (char)Kd );
+	eeprom_write_byte( STEER_EEPROM+3, (char)dead_band );
+	eeprom_write_byte( STEER_EEPROM+4, (char)minDrive );
+	eeprom_write_byte( STEER_EEPROM+5, (char)maxDrive );
+	eeprom_write_byte( STEER_EEPROM+6, (char)maxAccel );
+	eeprom_write_byte( STEER_EEPROM+7, checksum );
+}
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+void Steering_read_PID_settings(void)
+{
+  uint8_t v[8];
+  uint8_t n;
+  char checksum, cs = 0;
+
+  for (n=0; n<7; n++) {
+    v[n] = eeprom_read_byte( STEER_EEPROM + n );
+    cs += v[n];
+  }
+  checksum = eeprom_read_byte( STEER_EEPROM + 7 );
+
+  putstr("Init Steering PID");
+  if (checksum == cs)
+    {	// checksum is OK - load values into motor control block
+      Kp = v[0];
+      Ki = v[1];
+      Kd = v[2];
+      dead_band = v[3];
+      minDrive = v[4];
+      maxDrive = v[5];
+      maxAccel = v[6];
+    }
+
+  else
+    putstr(" no cksum, defaults");
+  putstr("\r\n");
+
+}
+
+
 
 // -----------------------------------------------------------------------
 
@@ -122,7 +177,7 @@ void Steering_Servo_Task(void)
   int16_t p_term, d_term, i_term;
 
   Steering_Read_Position();			// read Steering Feedback Pot
-  
+
   // derivative term calculation
   steeringError = target_Pos - current_Pos;
   if (abs(steeringError) < dead_band) {	// we are where we want to be - no motion required
@@ -131,14 +186,14 @@ void Steering_Servo_Task(void)
     iSum = 0;
     return;
   }
-  
+
   // calculate p term
   p_term = steeringError * Kp;
 
   // calculate d term
   d_term = Kd * (last_pos_error - steeringError);
   last_pos_error = steeringError;
-  
+
 
   // sum to integrate steering error  and limit runaway
   iSum += steeringError;
@@ -148,9 +203,9 @@ void Steering_Servo_Task(void)
   i_term = Ki*iSum;
   i_term = i_term >> 2; // shift right (divide by 4) to scale
 
-  motor_Drive = (p_term + d_term + i_term);	
+  motor_Drive = (p_term + d_term + i_term);
   motor_Drive = motor_Drive /8; // shift right (divide by 8) to scale
-  
+
   //limit( &motor_Drive, 0, crntPWM + maxAccel);
   crntPWM = motor_Drive;
 
@@ -170,9 +225,9 @@ void Steering_Servo_Task(void)
     putS16(iSum);
     putstr("\r\n");
   }
-  
 
-  if (motor_Drive > 0) { 
+
+  if (motor_Drive > 0) {
     limit( &motor_Drive, minDrive, maxDrive);
     Set_Motor2_PWM( motor_Drive, FORWARD );
   }
@@ -181,7 +236,7 @@ void Steering_Servo_Task(void)
     limit( &motor_Drive, minDrive, maxDrive);
     Set_Motor2_PWM( motor_Drive, REVERSE );
   }
-  
+
 }
 
 

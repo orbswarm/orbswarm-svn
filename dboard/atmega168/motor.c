@@ -1,15 +1,15 @@
 // ---------------------------------------------------------------------
-// 
+//
 //	File: motor.c
-//      SWARM Orb 
+//      SWARM Orb
 //      Motor controller functions for SWARM Orb http://www.orbswarm.com
 //
 //	Refactored by Jonathan (Head Rotor at rotorbrain.com)
 //      Original Version by Petey the Programmer  Date: 30-April-2007
 // -----------------------------------------------------------------------
 
-
-
+// This is the EEPROM address to store the motor PID coefficients
+#define MOTOR_EEPROM	1
 
 // Output 2 channels of PWM on PortB Pins 1&2
 // Ouput 2 sets of control lines (Dir/Disable) on Port D 4:5 & 6:7
@@ -18,6 +18,7 @@
 
 #include <avr/io.h>
 #include <stdlib.h>
+#include <avr/eeprom.h>
 #include "UART.h"
 #include "a2d.h"
 #include "putstr.h"
@@ -57,7 +58,7 @@
 
 static short iSum = 0;
 
-extern volatile uint8_t Drive_Debug_Output;	
+extern volatile uint8_t Drive_Debug_Output;
 extern volatile unsigned char doing_Speed_control;
 
 extern volatile uint32_t odometer;
@@ -87,51 +88,51 @@ void Drive_Servo_Task(void)
     Set_Motor1_PWM(0, FORWARD);
     return;
   }
-  
-  
-  // get current speed 
+
+
+  // get current speed
   drive.currentSpeed = encoder1_speed;
-  
+
   // calculate error term
-  speedError = drive.targetSpeed - drive.currentSpeed; 
+  speedError = drive.targetSpeed - drive.currentSpeed;
   // if currentSpeed is less than target, speed up:  positive PWM
   // if currentSpeed is more than target, slow down: negative PWM
 
 
-  if (abs(speedError) < drive.dead_band) {   
+  if (abs(speedError) < drive.dead_band) {
     // we are close enough to desired speed
     // don't change anything
-    
-    if (Drive_Debug_Output == 1) 
+
+    if (Drive_Debug_Output == 1)
       putstr("DRIVE speed OK ");
     return;
   }
-  
+
   //if here, error is significant; change PWM to decrease it
-  
+
   // calculate proportional term
   p_term = speedError * drive.Kp;
-  
+
   // calculate derivative term
   d_term = drive.Kd * (drive.lastSpeedError - speedError);
   drive.lastSpeedError = speedError;
-  
+
   // sum to integrate steering error
   iSum += speedError;
-  
+
   //  and limit runaway
   limit(&iSum,-drive.intLimit,drive.intLimit);
-  
+
   i_term = drive.Ki*iSum;
   i_term = i_term /8; //  (divide by 4) to scale
-  
-  drivePWM = p_term + d_term + i_term;	
+
+  drivePWM = p_term + d_term + i_term;
   drivePWM = drivePWM / 32; //  (divide to scale)
-  
+
   drive.currentPWM = drivePWM;
-  
-  
-  
+
+
+
   // If Debug Log is turned on, output PID data until position is stable
   if (Drive_Debug_Output == 1) {
     putstr("DRIVEspd targ curr ");
@@ -146,18 +147,18 @@ void Drive_Servo_Task(void)
     putstr(" int ");
     putS16(iSum);
     putstr("\r\n");
-  }  
-  
-  
+  }
+
+
   // use computed PWM to drive the motor
-  // check current limit here -- reduce power if so? 
+  // check current limit here -- reduce power if so?
 
 
-  
+
   if (drivePWM < 0) {
     drive.currentDirection = REVERSE;
     drivePWM = abs(drivePWM);
-  }  
+  }
   else
     drive.currentDirection = FORWARD;
 
@@ -166,27 +167,27 @@ void Drive_Servo_Task(void)
     if (Drive_Debug_Output)
       putstr("DRIVE under min\n");
   }
-  
+
   // take care of absolute min and max
-  // make sure arg2 < arg3  
+  // make sure arg2 < arg3
   limit( &drivePWM, drive.minPWM, drive.maxPWM);
-  
-  // limit change of drive: make sure arg2 < arg3  
+
+  // limit change of drive: make sure arg2 < arg3
   limit( &drivePWM, drive.lastPWM - drive.deltaAccel,
 	 drive.lastPWM + drive.deltaAccel);
 
   Set_Motor1_PWM((unsigned char) drivePWM, drive.currentDirection );
-    
+
   //if(drive.currentDirection == FORWARD)
   //  Set_Motor1_PWM( drivePWM, drive.currentDirection );
   //else
   //    Set_Motor1_PWM(0, FORWARD );
 
   drive.lastPWM = (unsigned char)drivePWM;
-  
+
 }
 
-  
+
 // ----------------------------------------------------------------------
 // Init Pulse Width Modulation hardware for Speed Controllers.
 // Output 2 channels of PWM on PortB Pins 1&2
@@ -197,22 +198,22 @@ void Drive_Servo_Task(void)
 void Motor_PWM_Init(void)
 {
   Motor_clear_mcb( &drive );		// Only drive uses Motor Control Block
-  
+
   // Set Port Direction bits (1=Output) and enable PWM pins and timers
-  
+
   DDRB |= (_BV(PINB1) | _BV(PINB2));							// PWM Pins
   DDRD |= (_BV(PIND4) | _BV(PIND5) | _BV(PIND6) | _BV(PIND7));	// Direction control pins
-  
+
   MOTOR1_DISABLE();	// Disable before starting PWM
   MOTOR2_DISABLE();	// Set Disable Pins High to turn OFF H-Bridge
-  
+
   TCCR1A |= (_BV(COM1A0) | _BV(COM1A1));	// Set OC1A on compare match
   TCCR1A |= (_BV(COM1B0) | _BV(COM1B1));	// Set OC1B on compare match
-  
+
   TCCR1A |= _BV(WGM10);		// PWM Mode 2 ==> 8 Bit phase correct
 
   TCCR1B |= _BV(CS10);		// 1 prescale = 28.9 kHz PWM @ 14.7 MHz
-  
+
   // Make sure motors are stopped
   Set_Motor1_PWM(0, FORWARD);
   Set_Motor2_PWM(0, FORWARD);
@@ -237,7 +238,7 @@ void Motor_clear_mcb( motor_control_block *m )
 	m->deltaAccel = 100;
 	m->minPWM = 10;
 	m->maxPWM = 150;
-	m->intLimit = 4000; 
+	m->intLimit = 4000;
 	m->maxCurrent = 20;
 }
 
@@ -276,7 +277,7 @@ void Set_Drive_Speed(short t)
 
 
 void Set_Motor1_PWM(unsigned char pwm, signed char direction)
-{	
+{
 
 
   drive.currentDirection = direction;
@@ -286,17 +287,17 @@ void Set_Motor1_PWM(unsigned char pwm, signed char direction)
     {
       MOTOR1_DISABLE();
       write_drivePWM( 0 );
- 
+
     }
   else
-    {		
+    {
       if (direction == FORWARD)
 	{
 	  MOTOR1_FORWARD();  // setup direction pin & non-inverted PWM
 	  write_drivePWM( pwm );	// Set PWM as 16 bit value
 
 	  //	  putstr("\n SforwardPWM: ");
-	  //	  putS16((unsigned short)pwm); 
+	  //	  putS16((unsigned short)pwm);
 
 	}
       else // direction == REVERSE
@@ -304,7 +305,7 @@ void Set_Motor1_PWM(unsigned char pwm, signed char direction)
 	  MOTOR1_REVERSE();		// setup direction pin & inverted PWM
 	  write_drivePWM( pwm );		// Set PWM as 16 bit value
 	  //putstr("\n SreversePWM: ");
-	  //putS16((unsigned short)pwm); 
+	  //putS16((unsigned short)pwm);
 	}
       MOTOR1_ENABLE();
     }
@@ -322,14 +323,14 @@ void Set_Motor2_PWM(unsigned char pwm, signed char direction)
       write_steerPWM( 0 );
     }
   else
-    {		
+    {
       if(direction == FORWARD)
 	{
 	  MOTOR2_FORWARD();
 	  write_steerPWM( pwm );	// Set PWM as 16 bit value
 	}
       else // direction == REVERSE
-	{	  
+	{
 	  MOTOR2_REVERSE();
 	  write_steerPWM( pwm );	// Set PWM as 16 bit value
 	}
@@ -395,7 +396,7 @@ void Get_Drive_Status(void)
   putS16((unsigned short)odometer);
   putstr("\r\nIsense:");
   theData = A2D_read_channel(CURRENT_SENSE_CHANNEL);
-  putS16(theData);	
+  putS16(theData);
   putstr("\r\n");
 }
 // ------------------------------------------------------------------------
@@ -416,8 +417,8 @@ void Motor_dump_data(void)
   putS16(drive.Kd);
   putstr("  ISense: ");
   theData = A2D_read_channel(CURRENT_SENSE_CHANNEL);
-  putS16(theData);	
-	
+  putS16(theData);
+
   //  putstr("\r\n");
   putstr("\n       dead minP maxP delA");
   putS16(drive.dead_band);
@@ -427,7 +428,41 @@ void Motor_dump_data(void)
   putstr("\r\n");
 }
 
+// -----------------------------------------------------------------------
 
+void Motor_save_PID_settings()
+{
+  char checksum = 0;
+  checksum = (char)drive.Kp + (char)drive.Ki + (char)drive.Kd;
+  eeprom_write_byte( MOTOR_EEPROM, (char)drive.Kp );
+  eeprom_write_byte( MOTOR_EEPROM+1, (char)drive.Ki );
+  eeprom_write_byte( MOTOR_EEPROM+2, (char)drive.Kd );
+  eeprom_write_byte( MOTOR_EEPROM+3, checksum );
+
+}
+
+// ----------------------------------------------------------------------
+
+void Motor_read_PID_settings()
+{
+  char v1,v2,v3,checksum;
+
+  v1 = eeprom_read_byte( MOTOR_EEPROM );
+  v2 = eeprom_read_byte( MOTOR_EEPROM+1 );
+  v3 = eeprom_read_byte( MOTOR_EEPROM+2 );
+  checksum = eeprom_read_byte( MOTOR_EEPROM+3 );
+
+  putstr("Init Drive PID");
+  if ((v1 + v2 + v3) == checksum)
+    {	// checksum is OK - load values into motor control block
+      drive.Kp = v1;
+      drive.Ki = v2;
+      drive.Kd = v3;
+    }
+  else
+    putstr(" no cksum, defaults");
+    putstr("\r\n");
+}
 // make sure minVal < maxVal (!)
 short limit( short *v, short minVal, short maxVal)
 {
