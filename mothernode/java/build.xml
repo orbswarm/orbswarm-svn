@@ -38,6 +38,7 @@ The text of the MIT license apears in the mit-license.txt file.
     <include name = "util.jar"/>
     <include name = "pid.jar"/>
     <include name = "jusb.jar"/>
+    <include name = "json.jar"/>
   </fileset>
   
   <!-- any extra resources which may be neaded by the application -->
@@ -168,8 +169,8 @@ The text of the MIT license apears in the mit-license.txt file.
           description = "execute project code">
     <java classname = "${domain-scope}.${app-name}.${main-class}"
           fork = "true">
-      <arg value = "-Xdoc:name=${app-title}"/>
-      <arg value = "-ae"/>
+      <jvmarg value = "-Xdock:name=${app-title}"/>
+      <jvmarg value = "-esa"/>
       <classpath>
           <fileset refid = "libraries"/>
           <pathelement location = "${build-dir}"/>

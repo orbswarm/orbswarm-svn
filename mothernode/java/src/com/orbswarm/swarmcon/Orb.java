@@ -388,7 +388,7 @@ public class Orb extends Mobject
         
         // draw orb history
         
-        //history.paint(g);
+        history.paint(g);
       }
 
       //make the orb the center of the world
@@ -675,6 +675,27 @@ public class Orb extends Mobject
             TimeUnit.MILLISECONDS);
         }
 
+        /** Get the incept time of this element
+         *
+         * @return incept time of this element in milliseconds
+         */
+
+        public long getInceptTime()
+        {
+          return inceptTime;
+        }
+
+
+        /** Get the position of this element
+         *
+         * @return positon of the orb
+         */
+        
+        public Point getPosition()
+        {
+          return position;
+        }
+
         /** Compare two history elements for sorting. */
 
         public int compareTo(Delayed o)
@@ -692,6 +713,8 @@ public class Orb extends Mobject
 
     public class HistoryQueue extends DelayQueue<HistoryElement>
     {
+      HistoryElement last = null;
+
       /** Add the orb as it is at this moment to the  history.
        *
        * @param orb the orb state to be added to the history
@@ -699,7 +722,13 @@ public class Orb extends Mobject
 
       public void add(Orb orb)
       {
-        add(new HistoryElement(orb));
+        if (last == null || (
+          (currentTimeMillis() - last.getInceptTime()) > 100 && 
+          !last.getPosition().equals(getPosition())))
+        {
+          last = new HistoryElement(orb);
+          add(last);
+        }
       }
 
       /** Remove all timed out elements from the queue. */
@@ -715,15 +744,15 @@ public class Orb extends Mobject
       public void paint(Graphics2D g)
       {
         AffineTransform ot = g.getTransform();
+
         // draw orb history
 
-        Color historyColor = new Color(0, 255, 0, 4);
+        Color historyColor = new Color(0, 0, 255, 32);
         g.setColor(historyColor);
         for (HistoryElement he: history)
         {
-          //double scale = 0.33 + (1 - he.velocity) / 2;
           g.translate(he.position.getX(), he.position.getY());
-          //g.scale(scale, scale);
+          g.scale(ORB_DIAMETER, ORB_DIAMETER);
           g.fill(shape);
           g.setTransform(ot);
         }

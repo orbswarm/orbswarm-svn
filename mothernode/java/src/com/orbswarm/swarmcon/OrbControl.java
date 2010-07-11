@@ -68,9 +68,10 @@ public class OrbControl implements IOrbControl
     {
       soundCatalog = new HashMap();
       // FIXME: this should be done after swarmcon reads its properties.
-      String soundCatalogsProp = swarmCon.getProperty(
-        "swarmcon.sound.soundCatalogs",
-        SwarmCon.RESOURCES_PATH + "/songs/sounds.catalog");
+//       String soundCatalogsProp = swarmCon.getProperty(
+//         "swarmcon.sound.soundCatalogs",
+//         SwarmCon.RESOURCES_PATH + "/songs/sounds.catalog");
+      String soundCatalogsProp = SwarmCon.RESOURCES_PATH + "/songs/sounds.catalog";
       String[] soundCatalogs = soundCatalogsProp.trim().split(" ");
       for (int i=0; i < soundCatalogs.length; i++ )
       {
@@ -79,9 +80,10 @@ public class OrbControl implements IOrbControl
           readSoundCatalog(soundCatalogs[i]);
         }
       }
-      String errataCatalog = swarmCon.getProperty(
-        "swarmcon.sound.errataCatalog",
-        SwarmCon.RESOURCES_PATH + "/songs/errata.catalog");
+//       String errataCatalog = swarmCon.getProperty(
+//         "swarmcon.sound.errataCatalog",
+//         SwarmCon.RESOURCES_PATH + "/songs/errata.catalog");
+      String errataCatalog = SwarmCon.RESOURCES_PATH + "/songs/errata.catalog";
       readSoundCatalog(errataCatalog);
     }
 
