@@ -10,12 +10,16 @@ import org.iu.gps.COORD;
 import org.iu.gps.DATUM;
 import org.iu.gps.XY;
 
+import org.apache.log4j.Logger;
+
 import static java.lang.Math.*;
 
 /** GpsIo provids communication between this software and a GPS. */
 
 public class GpsIo extends SerialIo
 {
+      private static Logger log = Logger.getLogger(GpsIo.class);
+
       /** Line listener for NMEA GPS. */
 
       LineListener gpsLineListener = new  LineListener()
@@ -26,23 +30,23 @@ public class GpsIo extends SerialIo
                   NMEA.parse(line, record);
                   if (record.quality > 0)
                   {
-                     System.out.println("east hemi: " + record.eastHemi);
-                     System.out.println("north hemi: " + record.northHemi);
-                     System.out.println("utc: " + record.utc);
-                     System.out.println("quality: " + record.quality);
+                     log.debug("east hemi: " + record.eastHemi);
+                     log.debug("north hemi: " + record.northHemi);
+                     log.debug("utc: " + record.utc);
+                     log.debug("quality: " + record.quality);
                      record.latitude = nmeaToDecimalDegress(record.latitude) *
                         (record.northHemi == 'S' ? -1 : 1);
                      record.longitude = nmeaToDecimalDegress(record.longitude) *
                         (record.eastHemi == 'W' ? -1 : 1);
-                     System.out.println("lat: " + record.latitude +
+                     log.debug("lat: " + record.latitude +
                                         " lon: " + record.longitude);
                      Point utm = latLonToUtm(record.latitude, record.longitude);
-                     System.out.println("easting: " + utm.y + " northing: " + utm.x);
+                     log.debug("easting: " + utm.y + " northing: " + utm.x);
                   }
                   else
                   {
                      if (debug)
-                        System.out.println("no GPS data.");
+                        log.debug("no GPS data.");
                   }
                }
          };
@@ -84,7 +88,7 @@ public class GpsIo extends SerialIo
          {
             //new GpsIo("/dev/tty1");  // swarm computer
             new GpsIo("/dev/cu.usbserial0", false); // trebor's mac
-            //System.out.println("utm: " + nmeaLatLonToUtm(3745.762031, -12224.047551));
+            //log.debug("utm: " + nmeaLatLonToUtm(3745.762031, -12224.047551));
          }
          catch (Exception e)
          {

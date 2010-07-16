@@ -11,12 +11,16 @@ import java.io.File;
 import org.trebor.util.JarTools;
 import org.trebor.util.Debug;
 
+import org.apache.log4j.Logger;
+
 /** JoystickManager provides access to joystick events.  The
  * JoystickManager also is a vector of StickInfo, so it fuctions as it's
  * own database of joystick information. */
 
 public class JoystickManager extends Vector<JoystickManager.StickInfo>
 {
+    private static Logger log = Logger.getLogger(JoystickManager.class);
+
       /** indicates listeners which should get events for all joysticks */
       public static final int ALL_STICKS = -1;
 
@@ -345,7 +349,7 @@ public class JoystickManager extends Vector<JoystickManager.StickInfo>
                   
                   public void joystickAxisChanged(int stick, int axis, double value)
                   {
-                     java.lang.System.out.println(
+                     log.debug(
                         "stick: " + stick + " axis: " + axis + " value: " + value);
                   }
                   
@@ -359,7 +363,7 @@ public class JoystickManager extends Vector<JoystickManager.StickInfo>
                   
                   public void joystickHatChanged(int stick, int hat, int x, int y)
                   {
-                     java.lang.System.out.println(
+                     log.debug(
                         "stick: " + stick + " hat: " + hat + " x: " + x + " y: " + y);
                   }
                   
@@ -371,7 +375,7 @@ public class JoystickManager extends Vector<JoystickManager.StickInfo>
                   
                   public void joystickButtonPressed(int stick, int button)
                   {
-                     java.lang.System.out.println(
+                     log.debug(
                         "stick: " + stick + " button: " + button + " press: 1");
                   }
                   
@@ -383,7 +387,7 @@ public class JoystickManager extends Vector<JoystickManager.StickInfo>
                   
                   public void joystickButtonReleased(int stick, int button)
                   {
-                     java.lang.System.out.println(
+                     log.debug(
                         "stick: " + stick + " button: " + button + " press: 0");
                   }
                   

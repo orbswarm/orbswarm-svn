@@ -1,5 +1,7 @@
 package com.orbswarm.swarmcon;
 
+import org.apache.log4j.Logger;
+
 import com.orbswarm.choreography.Point;
 import com.orbswarm.swarmcon.IOrbControl;
 
@@ -16,6 +18,8 @@ import java.util.HashMap;
 
 public class OrbControl implements IOrbControl
 {
+    private static Logger log = Logger.getLogger(OrbControl.class);
+
     private SwarmCon swarmCon;
     private SoundFilePlayer[] soundFilePlayers;
     private static HashMap soundCatalog;
@@ -60,7 +64,7 @@ public class OrbControl implements IOrbControl
     public boolean isEnabled(int orbNum)
     {
       boolean enabled =  (orbNum < orbEnabledMap.length && orbEnabledMap[orbNum]);
-      //System.out.println("isEnabled[" + orbNum + "] = " + enabled);
+      //log.debug("isEnabled[" + orbNum + "] = " + enabled);
       return enabled;
     }
 
@@ -130,7 +134,7 @@ public class OrbControl implements IOrbControl
       }
       catch (Exception ex)
       {
-        System.out.println(
+        log.debug(
           "OrbControl caught exception reading sound catalog: " + catalogFile);
         ex.printStackTrace();
       }
@@ -157,7 +161,7 @@ public class OrbControl implements IOrbControl
       float dur = sound.getDuration();
       if (simulateSounds)
       {
-        System.out.println("ORI: playsound(" + orbNum + ", " + sound + ") dur:" + dur);
+        log.debug("ORI: playsound(" + orbNum + ", " + sound + ") dur:" + dur);
         SoundFilePlayer player = getSoundPlayer(orbNum);
         playOnThread(player, sound);
       }
@@ -193,7 +197,7 @@ public class OrbControl implements IOrbControl
       {
           public void run()
           {
-            System.out.println("  Playing sound" + _sound + " on thread. " + this);
+            log.debug("  Playing sound" + _sound + " on thread. " + this);
             _player.play(_sound);
           }
       }
@@ -266,7 +270,7 @@ public class OrbControl implements IOrbControl
       if (simulateSounds)
       {
         SoundFilePlayer player = getSoundPlayer(orbNum);
-        //System.out.println("OCI: stopSound(orb:" + orbNum + ") player: " + player);
+        //log.debug("OCI: stopSound(orb:" + orbNum + ") player: " + player);
         if (player != null)
         {
           player.stop();
@@ -312,7 +316,7 @@ public class OrbControl implements IOrbControl
         buf.append(attenByte);
         buf.append(attenByte);
         buf.append(">");
-        System.out.println("Vol: " + volume + " atten: " + atten  + " attenByte: " + attenByte + " buf: " + buf);
+        log.debug("Vol: " + volume + " atten: " + atten  + " attenByte: " + attenByte + " buf: " + buf);
         String orbCmd = wrapOrbCommand(orbNum, buf.toString());
         orbIo.send(orbCmd);
       }
@@ -374,7 +378,7 @@ public class OrbControl implements IOrbControl
       }
       else
       {
-        //System.out.println("sendCommandsToOrbs: " + sendCommandsToOrbs + " orbIo: " + orbIo);
+        //log.debug("sendCommandsToOrbs: " + sendCommandsToOrbs + " orbIo: " + orbIo);
       }
     }
 
@@ -414,7 +418,7 @@ public class OrbControl implements IOrbControl
     // simulate the color fading behaviour on an orb.
     public void fadeColor(int orbNum, Orb orb, HSV prev, HSV target, int timeMS, int slewMS, boolean sendFadesToOrbs)
     {
-      //System.out.println(" fade color. o" + orbNum + " target: " + target.rgbString() + " timeMS: " + timeMS);
+      //log.debug(" fade color. o" + orbNum + " target: " + target.rgbString() + " timeMS: " + timeMS);
       int steps = timeMS / slewMS;
       int timeTics = timeMS * 180 / 1000;
       if (steps == 0)
@@ -434,7 +438,7 @@ public class OrbControl implements IOrbControl
         float v1 = val + i * valDelta;
         HSV stepColorHSV = new HSV(h1, s1, v1);
         orbColors[orbNum] = stepColorHSV;
-        //System.out.println("      o" + orbNum + "    FadeColor step: " + stepColorHSV.rgbString());
+        //log.debug("      o" + orbNum + "    FadeColor step: " + stepColorHSV.rgbString());
 
         Color stepColor = stepColorHSV.toColor();
         if (sendFadesToOrbs && orbIo != null && isEnabled(orbNum))
@@ -459,7 +463,7 @@ public class OrbControl implements IOrbControl
         String boardAddress = ""; // TODO: refactor this.
         sendLightCommand(orbNum, boardAddress, target, 0);
       }
-      //System.out.println(" FADE color. o" + orbNum + " FINAL target: " + target.rgbString() );
+      //log.debug(" FADE color. o" + orbNum + " FINAL target: " + target.rgbString() );
       orbColors[orbNum] = target;
       orb.setOrbColor(target.toColor());
       swarmCon.repaint(); // todo: only if swarmcon not running?

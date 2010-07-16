@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.StringTokenizer;
 import java.util.Properties;
 import java.util.Map;
+import org.apache.log4j.Logger;
 
 import static java.lang.Character.*;
 import static org.trebor.util.Angle.Type.*;
@@ -17,6 +18,8 @@ import static com.orbswarm.swarmcon.Message.Type.*;
 
 public class OrbIo extends SerialIo
 {
+    private static Logger log = Logger.getLogger(OrbIo.class);
+
     /** Hash of orbs to used to dispatch messages to orbs. */
 
     HashMap<Integer, Orb> orbs = new HashMap<Integer, Orb>();
@@ -50,7 +53,7 @@ public class OrbIo extends SerialIo
               Message m = new Message(line);
               dispatchOrbMessage(m);
               if (debug) 
-                System.out.println("MSG: " + m);
+                log.debug("MSG: " + m);
             }
         });
     }
@@ -71,7 +74,7 @@ public class OrbIo extends SerialIo
       if (orb != null)
         orb.onOrbMessage(message);
       else if (debug)
-        System.out.println("unhandled message: " + message);
+        log.debug("unhandled message: " + message);
     }
 
     /** open a serial port */
@@ -187,14 +190,14 @@ public class OrbIo extends SerialIo
     {
       OrbIo oio = new OrbIo(args[0], true);
       for (String port: oio.listSerialPorts())
-        System.out.println("port: " + port);
+        log.debug("port: " + port);
 
       LineListener ll = new LineListener()
         {
             public void lineEvent(String line)
             {
               Message m = new Message(line);
-              System.out.println("foo got: " + m);
+              log.debug("foo got: " + m);
             }
         };
 
@@ -207,7 +210,7 @@ public class OrbIo extends SerialIo
         try
         {
           oio.send(test);
-          System.out.println("sent: " + test);
+          log.debug("sent: " + test);
           java.lang.Thread.sleep(1000);
         }
         catch (Exception e)

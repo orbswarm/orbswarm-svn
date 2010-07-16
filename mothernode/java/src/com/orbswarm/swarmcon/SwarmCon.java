@@ -674,7 +674,7 @@ public class SwarmCon extends JFrame
     }
     catch (Exception e)
     {
-      System.err.println(
+      log.error(
         "SwarmCon() caught exception reading properties. Using defaults.");
       e.printStackTrace();
     }
@@ -737,12 +737,12 @@ public class SwarmCon extends JFrame
   boolean running = false;
   public void startControlling()
   {
-    System.out.println("Start controlling");
+    log.debug("Start controlling");
     // if we are already running, stop that
     if (running)
       stopControlling();
 
-    System.out.println("SwarmCon: start controlling");
+    log.debug("SwarmCon: start controlling");
     running = true;
     new Thread()
     {
@@ -771,7 +771,7 @@ public class SwarmCon extends JFrame
   public void stopControlling()
   {
     running = false;
-    System.out.println("SwarmCon: stop controlling");
+    log.debug("SwarmCon: stop controlling");
   }
 
   /** Convert milliseconds to decimal seconds.
@@ -821,7 +821,7 @@ public class SwarmCon extends JFrame
 
     // create the orbs
 
-    System.out.println("Creating orbs: ");
+    log.debug("Creating orbs: ");
 
     // compute the time offset between orbs for orbs to request
     // position updates, so as not to overload the network
@@ -841,7 +841,7 @@ public class SwarmCon extends JFrame
 
       // report the birth of an orb
 
-      System.out.println("id: " + id + " mode: " + (liveMode ? "LIVE" : "SIM"));
+      log.debug("id: " + id + " mode: " + (liveMode ? "LIVE" : "SIM"));
 
       // create the orb model
 
@@ -950,7 +950,7 @@ public class SwarmCon extends JFrame
             if (p != null)
             {
               results.put(orb, p);
-              System.out.println(
+              log.debug(
                 "survey result from orb [" + orb.getId() + "]: " + p);
             }
 
@@ -959,7 +959,7 @@ public class SwarmCon extends JFrame
             else
             {
               orbIo.requestSurvayPosition(orb.getId());
-              System.out.println(
+              log.debug(
                 "survey request to orb [" + orb.getId() + "]");
             }
           }
@@ -995,7 +995,7 @@ public class SwarmCon extends JFrame
             if (mm.isOriginAcked())
             {
               results.remove(orb);
-              System.out.println(
+              log.debug(
                 "origin ack from orb [" + orb.getId() + "]: " + centroid);
             }
 
@@ -1004,7 +1004,7 @@ public class SwarmCon extends JFrame
             else
             {
               orbIo.commandOrigin(orb.getId(), centroid);
-              System.out.println(
+              log.debug(
                 "sent origin to orb [" + orb.getId() + "]: " + centroid);
             }
 
@@ -1101,13 +1101,13 @@ public class SwarmCon extends JFrame
   // add a Specialist to list of OrbState receivers
   public void addSpecialist(Specialist sp)
   {
-    System.out.println("SwarmCon: adding specialist " + sp);
+    log.debug("SwarmCon: adding specialist " + sp);
     specialists.add(sp);
   }
 
   public void removeSpecialist(Specialist sp)
   {
-    System.out.println("SwarmCon: removing specialist " + sp);
+    log.debug("SwarmCon: removing specialist " + sp);
     specialists.remove(sp);
   }
 
@@ -1550,7 +1550,7 @@ public class SwarmCon extends JFrame
   public void setGlobalOffset(Point _globalOffset)
   {
     globalOffset = _globalOffset;
-    System.out.println("new global offset: " + globalOffset);
+    log.debug("new global offset: " + globalOffset);
   }
 
   // object which is always set to the position of the mouse
@@ -1676,7 +1676,7 @@ public class SwarmCon extends JFrame
 
   public void captureArena()
   {
-    System.out.println("image capture.");
+    log.debug("image capture.");
     captureAndStoreImage(arena);
   }
 
@@ -1851,7 +1851,7 @@ public class SwarmCon extends JFrame
 
     if (autoStartTimeline != "")
     {
-      System.out.println("autoStartTimeline: " + autoStartTimeline);
+      log.debug("autoStartTimeline: " + autoStartTimeline);
       setTimeline(autoStartTimeline);
       startTimeline();
     }
@@ -2253,7 +2253,7 @@ public class SwarmCon extends JFrame
 
   public JSlider makeRangeSlider(int low, int high, int val)
   {
-    System.out.println("SarmCon: make range slider(low: " + low + " hi: " + high + " val: " + val);
+    log.debug("SarmCon: make range slider(low: " + low + " hi: " + high + " val: " + val);
     JSlider slider = new JSlider(JSlider.HORIZONTAL, low, high, val);
     // size matters.
     Dimension size = slider.getSize();
@@ -2331,13 +2331,13 @@ public class SwarmCon extends JFrame
   public void startTimeline()
   {
     this.timelineStarted = System.currentTimeMillis();
-    System.out.println("SwarmCon: start timeline");
+    log.debug("SwarmCon: start timeline");
     //startControlling();
   }
 
   public void stopTimeline()
   {
-    System.out.println("SwarmCon: stop timeline");
+    log.debug("SwarmCon: stop timeline");
     //stopControlling();
     timelineDisplay.stopAllRunningEvents();
   }

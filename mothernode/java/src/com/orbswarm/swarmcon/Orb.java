@@ -26,11 +26,15 @@ import static com.orbswarm.swarmcon.SwarmCon.*;
 import static org.trebor.util.ShapeTools.*;
 import static org.trebor.util.Angle.Type.*;
 
+import org.apache.log4j.Logger;
+
 /** Representation of an  orb. */
 
 public class Orb extends Mobject
   implements IOrbListener, com.orbswarm.choreography.Orb
 {
+    private static Logger log = Logger.getLogger(Orb.class);
+
     /** optionally draw fancy orb on screen */
 
     private boolean drawFancyOrb = true;
@@ -172,7 +176,7 @@ public class Orb extends Mobject
 
     public void handleMessage(String message)
     {
-      System.out.println("Message: " + message);
+      log.debug("Message: " + message);
     }
     // add a behavior
 

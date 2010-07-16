@@ -3,9 +3,12 @@ package com.orbswarm.swarmcon;
 import java.io.*;
 import java.net.URL;
 import java.lang.ClassLoader;
+import org.apache.log4j.Logger;
  
 public class JarLibrary 
 {
+      private static Logger log = Logger.getLogger(JarLibrary.class);
+
       public static void load (String name) throws Exception 
       {
          // establish the correct name of the library based on os
@@ -46,7 +49,7 @@ public class JarLibrary
 
             else
             {
-               System.out.println("should not get here!");
+               log.debug("should not get here!");
                //System.loadLibrary("/usr/lib/rxtx-2/" + libname);
                //System.loadLibrary("/usr/lib/rxtx-2/" + libname);
             }
@@ -62,7 +65,7 @@ public class JarLibrary
          catch (UnsatisfiedLinkError er) 
          {
             String sysLibName = "/usr/lib/" + libname;
-            System.out.println("loading system library: " + sysLibName);
+            log.debug("loading system library: " + sysLibName);
             System.load(sysLibName);
             
             //System.loadLibrary(libname);

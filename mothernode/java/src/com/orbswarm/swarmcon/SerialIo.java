@@ -13,17 +13,17 @@ import java.io.LineNumberReader;
 import java.io.InputStreamReader;
 import java.lang.Thread;
 import org.trebor.util.JarTools;
+import org.apache.log4j.Logger;
 
 import com.orbswarm.swarmcon.Message;
-
-import static java.lang.System.*;
-
 
 /** SerialIo provids serial I/O between this software and devices on
  * serial ports. */
 
 public class SerialIo
 {
+  private static Logger log = Logger.getLogger(SerialIo.class);
+
       /** debugging output option */
 
       boolean debug = false;
@@ -76,37 +76,37 @@ public class SerialIo
 
             try
             {
-               System.out.println("loading from jar: " + libName);
+               log.debug("loading from jar: " + libName);
                JarTools.loadLibrary("lib", libName);
             }
             catch (java.lang.Throwable t1)
             {
                try
                {
-                  System.out.println("loading from system: " + libName);
+                  log.debug("loading from system: " + libName);
                   System.loadLibrary(libName);
                }
                catch (java.lang.Throwable t2)
                {
                   try
                   {
-                     System.out.println("manually loading: " + name);
+                     log.debug("manually loading: " + name);
                      System.loadLibrary(name);
                   }
                   catch (java.lang.Throwable t3)
                   {
-                     err.println("Failed to load " + libName + " from jar:");
+                     log.error("Failed to load " + libName + " from jar:");
                      t1.printStackTrace();
-                     err.println("Failed to load " + libName + " from system:");
+                     log.error("Failed to load " + libName + " from system:");
                      t2.printStackTrace();
-                     err.println("Failed to load " + name + " manuall:");
+                     log.error("Failed to load " + name + " manuall:");
                      t3.printStackTrace();
-                     err.println("Ensure that the directory containing " + 
+                     log.error("Ensure that the directory containing " + 
                                  System.mapLibraryName(libName) +
                                  " appears in the correct enviroment variable:");
-                     err.println("   Mac:     DYLD_LIBRARY_PATH");
-                     err.println("   Unix:    DYLD_LIBRARY_PATH?");
-                     err.println("   Windows: PATH?");
+                     log.error("   Mac:     DYLD_LIBRARY_PATH");
+                     log.error("   Unix:    DYLD_LIBRARY_PATH?");
+                     log.error("   Windows: PATH?");
                   }
                }
             }
@@ -203,16 +203,16 @@ public class SerialIo
       {
          SerialIo sio = new SerialIo("/dev/tty.PL2303-0000201A");
          for (String port: sio.listSerialPorts())
-            System.out.println("port: " + port);
+            log.debug("port: " + port);
 
 
          LineListener ll = new LineListener()
             {
                   public void lineEvent(String line)
                   {
-                    System.out.println("got1: " + line);
+                    log.debug("got1: " + line);
                     Message m = new Message(line);
-                    System.out.println("got2: " + m);
+                    log.debug("got2: " + m);
                   }
             };
 
@@ -225,7 +225,7 @@ public class SerialIo
             try
             {
                sio.send(test);
-               System.out.println("sent: " + test);
+               log.debug("sent: " + test);
                java.lang.Thread.sleep(500);
             }
             catch (Exception e)
@@ -303,12 +303,9 @@ public class SerialIo
       
       public void debugIo(String message, boolean isOutbound)
       {
-         if (debug)
-         {
-            System.out.println((isOutbound 
-                                ? "-> "
-                                : "<- ") + message);
-         }
+        log.debug((isOutbound 
+            ? "-> "
+            : "<- ") + message);
       }
 
       /** Activate line listening thread */
