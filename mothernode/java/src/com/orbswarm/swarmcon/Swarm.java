@@ -4,7 +4,7 @@ import java.util.*;
 import java.awt.*;
 import java.awt.geom.*;
 
-public class Swarm extends Mobjects implements com.orbswarm.choreography.Swarm
+public class Swarm extends Mobjects
 {
       // arena in which to swarm
    

@@ -31,18 +31,7 @@ public class OrbIo extends SerialIo
 
     public OrbIo(String portName)
     {
-      this(portName, false);
-    }
-
-    /** Construct a OrbIo object.
-     *
-     * @param portName name of serial port (/dev/XXX or comX)
-     * @param debug print io debugging text
-     */
-
-    public OrbIo(String portName, final boolean debug)
-    {
-      super(portName, debug);
+      super(portName);
       
       // register the line listener which receives messages from the orbs
 
@@ -52,8 +41,7 @@ public class OrbIo extends SerialIo
             {
               Message m = new Message(line);
               dispatchOrbMessage(m);
-              if (debug) 
-                log.debug("MSG: " + m);
+              log.debug("MSG: " + m);
             }
         });
     }
@@ -73,7 +61,7 @@ public class OrbIo extends SerialIo
 
       if (orb != null)
         orb.onOrbMessage(message);
-      else if (debug)
+      else
         log.debug("unhandled message: " + message);
     }
 
@@ -188,7 +176,7 @@ public class OrbIo extends SerialIo
 
     public static void main(String[] args)
     {
-      OrbIo oio = new OrbIo(args[0], true);
+      OrbIo oio = new OrbIo(args[0]);
       for (String port: oio.listSerialPorts())
         log.debug("port: " + port);
 

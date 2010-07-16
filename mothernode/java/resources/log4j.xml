@@ -9,15 +9,15 @@
     </appender>
 
     <logger name="com.orbswarm">
-        <level value="DEBUG"/>
+        <level value="WARN"/>
     </logger>
 
     <logger name="com.orbswarm.swarmcon.SwarmCon">
-        <level value="WARN"/>
+        <level value="DEBUG"/>
     </logger>
 
     <root>
-        <level value="WARN"/>
+        <level value=""/>
         <appender-ref ref="CONSOLE"/>
     </root>
 

@@ -24,10 +24,6 @@ public class SerialIo
 {
   private static Logger log = Logger.getLogger(SerialIo.class);
 
-      /** debugging output option */
-
-      boolean debug = false;
-
       /** baud */
 
       int baud     = 38400;
@@ -116,27 +112,16 @@ public class SerialIo
             e.printStackTrace();
          }
       }
+
       /** Construct a SerialIo object.
        * 
        * @param portName correct name for serial port on this os
-       * @param debug print all serial IO on standard out
        */
 
       public SerialIo(String portName)
       {
-         this(portName, false);
-      }
-      /** Construct a SerialIo object.
-       * 
-       * @param portName correct name for serial port on this os
-       * @param debug print all serial IO on standard out
-       */
-
-      public SerialIo(String portName, boolean debug)
-      {
          try
          {
-            this.debug = debug;
             if (portName != null)
             {
                portId = CommPortIdentifier.getPortIdentifier(portName);
@@ -268,7 +253,7 @@ public class SerialIo
             {
                out.write(string.getBytes());
                out.flush();
-               debugIo(string, debug);
+               debugIo(string, true);
             }
          }
          catch (Exception e)

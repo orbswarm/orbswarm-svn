@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
 /** Representation of an  orb. */
 
 public class Orb extends Mobject
-  implements IOrbListener, com.orbswarm.choreography.Orb
+  implements IOrbListener
 {
     private static Logger log = Logger.getLogger(Orb.class);
 

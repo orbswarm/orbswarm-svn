@@ -35,7 +35,6 @@ import java.text.*;
 import org.trebor.pid.Controller;
 import org.trebor.pid.PidTuner;
 import org.trebor.util.JarTools;
-import org.trebor.util.Debug;
 import org.trebor.util.properties.IProperty;
 import org.trebor.util.properties.PropertySet;
 import org.trebor.util.properties.FlagProperty;
@@ -44,19 +43,7 @@ import org.trebor.util.properties.StringProperty;
 import org.trebor.util.properties.BooleanProperty;
 import org.trebor.util.properties.IntegerProperty;
 
-import com.orbswarm.choreography.Specialist;
 import com.orbswarm.swarmcon.IOrbControl;
-
-import com.orbswarm.choreography.timeline.Region;
-import com.orbswarm.choreography.timeline.TimelinePath;
-import com.orbswarm.choreography.timeline.Timeline;
-import com.orbswarm.choreography.timeline.TimelineDisplay;
-
-import com.orbswarm.swarmcomposer.color.*;
-import com.orbswarm.swarmcomposer.composer.BotVisualizer;
-import com.orbswarm.swarmcomposer.util.TokenReader;
-
-import java.lang.reflect.Field;
 
 import static org.trebor.util.ShapeTools.*;
 import static org.trebor.util.Angle.Type.*;
@@ -186,31 +173,19 @@ public class SwarmCon extends JFrame
     new IntegerProperty("swarmcon.motion.steeringRange", 100,
       "dynamic range of steering commands"),
 
-    // color
-
-    new BooleanProperty("swarmcon.color.simulateColors", true, 
-      "enable/disable color simulation"),
-    new BooleanProperty("swarmcon.color.steppedColorFades", false,
-      "use stepped colors"),
-
     // sound
 
     new StringProperty("swarmcon.sound.soundCatalogs",
       "resources/songs/sounds.catalog", "location of sounds"),
     new StringProperty("swarmcon.sound.errataCatalog",
       "resources/songs/errata.catalog", "location of sound errata"),
-    new BooleanProperty("swarmcon.sound.simulateSounds", false,
-      "enable/disable sound simulation"),
 
     // live commanding of orbs
-
        
     new StringProperty("swarmcon.comm.serialPort", "simulation",
       "serial port to send command too, either \"simulation\" or something like one of these: /dev/tty.PL2303-0000101D, /dev/tty.PL2303-0000201A, /dev/tty.Bluetooth-PDA-Sync"),
     new BooleanProperty("swarmcon.comm.sendCommandsToOrbs", true,
       "should commands be sent to orbs"),
-    new BooleanProperty("swarmcon.comm.showIoMessages", true,
-      "display orb io messages"),
     new BooleanProperty("swarmcon.comm.multipleMotionCommands", false,
       "sould multiple motion commands be sent"),
     new BooleanProperty("swarmcon.comm.multipleSoundCommands", false,
@@ -219,15 +194,6 @@ public class SwarmCon extends JFrame
       "delay between commands set to orbs in milliseconds"),
     new LongProperty("swarmcon.comm.positionPollPeriod", 200, 
       "the period between position requests in milliseconds"),
-
-    // timeline parameters
-
-    new StringProperty("swarmcon.timeline.autostart", "",
-      "timeline name - for example \"Voices.tml\""),
-    new IntegerProperty("swarmcon.timeline.width", 900, 
-      "width of the timeline"),
-    new IntegerProperty("swarmcon.timeline.height", 150, 
-      "height of the timeline"),
   };
 
   /** Properties for tweaking the system. */
@@ -268,9 +234,6 @@ public class SwarmCon extends JFrame
    * properties file or command line values, if either exist.
    */
 
-  /** show io messaging details */
-  public static boolean showIoMessages = false;
-
   /** stepped color fades (true == do simulation; false = rely on
    * light board to do the fades) */
   public static boolean steppedColorFades = false;
@@ -283,9 +246,6 @@ public class SwarmCon extends JFrame
 
   /** send multiple motion commands */
   public static boolean multipleMotionCommands = true;
-
-  /** auto start timeline */
-  public static String autoStartTimeline = "";
 
   /** allowable range of values for power */
   public static int powerRange = 50;
@@ -307,12 +267,6 @@ public class SwarmCon extends JFrame
 
   /** enable sounds in simulation */
   public static boolean simulateSounds = false;
-
-  /** width of timeline on screen */
-  public static int timelineWidth = 900;
-
-  /** height of timeline on screen */
-  public static int timelineHeight = 150;
 
   class MotorCommandInfo
   {
@@ -351,12 +305,6 @@ public class SwarmCon extends JFrame
         paintArena(graphics);
       }
     };
-
-  /** timeline display */
-  TimelineDisplay timelineDisplay;
-  Timeline timeline = null;
-  long timelineStarted = -1;
-
 
   /** card layout for main view area */
 
@@ -517,27 +465,8 @@ public class SwarmCon extends JFrame
 
   public static void main(String[] args)
   {
-    //registerSpecialists();
     SwarmCon sc = new SwarmCon(args);
     sc.initialize();
-  }
-
-  public ColorSchemer colorSchemer;
-  public BotVisualizer botVisualizer;
-
-  public void constructControlUI(SwarmCon sc)
-  {
-    ColorSchemer schemer = setupColorSchemer(sc);
-    // too close coupling here, but it's late in the game...
-    this.colorSchemer = schemer;
-    BotVisualizer bv = setupBotVisualizer(sc);
-    this.botVisualizer = bv;
-    //       TimelineDisplay timelineDisplay = new TimelineDisplay(
-    //         sc, timelineWidth, timelineHeight);
-    //       sc.setTimelineDisplay(timelineDisplay);
-    //       timelineDisplay.setSwarmCon(sc);
-    sc.setupControlPanel(schemer, bv, timelineDisplay);
-    sc.startControlling();
   }
 
   // construct a swarm
@@ -565,11 +494,6 @@ public class SwarmCon extends JFrame
   public static SwarmCon getInstance()
   {
     return activeSwarmCon;
-  }
-
-  public Timeline getTimeline()
-  {
-    return timeline;
   }
 
 
@@ -613,7 +537,6 @@ public class SwarmCon extends JFrame
       pack();
       setExtendedState(MAXIMIZED_BOTH);
       setVisible(true);
-      resizeTimeline();
     }
     cardLayout.first(centerPanel);
 
@@ -686,21 +609,13 @@ public class SwarmCon extends JFrame
   private void setValuesFromProperties()
   {
     PropertySet ps = properties;
-    showIoMessages = ps.getBoolean("swarmcon.comm.showIoMessages");
     powerRange     = ps.getInteger("swarmcon.motion.powerRange");
     steeringRange  = ps.getInteger("swarmcon.motion.steeringRange");
     commandRefreshDelay = ps.getLong("swarmcon.comm.commandRefreshDelay");
     positionPollPeriod = ps.getLong("swarmcon.comm.positionPollPeriod");
     sendCommandsToOrbs = ps.getBoolean("swarmcon.comm.sendCommandsToOrbs");
-    simulateColors = ps.getBoolean("swarmcon.color.simulateColors");
-    simulateSounds = ps.getBoolean("swarmcon.sound.simulateSounds");
-    timelineWidth = ps.getInteger("swarmcon.timeline.width");
-    timelineHeight = ps.getInteger("swarmcon.timeline.height");
-    steppedColorFades = ps.getBoolean("swarmcon.color.steppedColorFades");
     multipleMotionCommands  = ps.getBoolean("swarmcon.comm.multipleMotionCommands");
-    multipleSoundCommands  = ps.getBoolean("swarmcon.comm.multipleSoundCommands");
     serialPortId  = ps.getString("swarmcon.comm.serialPort");
-    autoStartTimeline  = ps.getString("swarmcon.timeline.autostart");
 
     // init the motorCommandInfo now that we know how many orbs we have
 
@@ -1049,8 +964,6 @@ public class SwarmCon extends JFrame
 
       Calendar now = Calendar.getInstance();
       long nowMillis = now.getTimeInMillis();
-      float timeSinceTimelineStarted = (float)millisecondsToSeconds(
-        nowMillis - timelineStarted);
 
       double time = millisecondsToSeconds(
         nowMillis - lastUpdate.getTimeInMillis());
@@ -1059,25 +972,10 @@ public class SwarmCon extends JFrame
 
       lastUpdate = now;
 
-      // give the timeline a cycle
-
-      if (timelineDisplay != null)
-      {
-        timelineDisplay.cycle(timeSinceTimelineStarted);
-      }
-
       // update all the objects
 
       swarm.update(time);
       swarm.updateOrbDistances();
-      broadcastOrbState();
-      updateTimelineRegions();
-      updateTimelinePaths();
-      if (timeline != null)
-      {
-        timeline.orbState(swarm);
-      }
-
       // repaint the screen
       arena.repaint();
     }
@@ -1096,62 +994,6 @@ public class SwarmCon extends JFrame
   public void repaint()
   {
     arena.repaint();
-  }
-
-  // add a Specialist to list of OrbState receivers
-  public void addSpecialist(Specialist sp)
-  {
-    log.debug("SwarmCon: adding specialist " + sp);
-    specialists.add(sp);
-  }
-
-  public void removeSpecialist(Specialist sp)
-  {
-    log.debug("SwarmCon: removing specialist " + sp);
-    specialists.remove(sp);
-  }
-
-  // broadcast OrbState messages to the timeline and all the Specialists
-  public void broadcastOrbState()
-  {
-    synchronized (specialists)
-    {
-      for (Iterator it = specialists.iterator(); it.hasNext(); )
-      {
-        timeline.orbState(swarm);
-        Specialist specialist = (Specialist)it.next();
-        specialist.orbState(swarm);
-      }
-    }
-  }
-
-  public void updateTimelineRegions()
-  {
-    if (timeline != null)
-    {
-      // loop through orbs
-      for (Mobject mobject: swarm)
-      {
-        if (mobject instanceof Orb)
-        {
-          Orb orb = (Orb)mobject;
-          int orbId = orb.getId();
-          // note:: orb distances are in meters.
-          double orbx = orb.getX();
-          double orby = orb.getY();
-          for (Iterator it = timeline.getRegions().iterator(); it.hasNext(); )
-          {
-            Region region = (Region)it.next();
-            region.testOrbIntersection(orbId, orbx, orby);
-          }
-        }
-      }
-    }
-  }
-
-  public void updateTimelinePaths()
-  {
-    // whaddoIdo?
   }
 
   public JLabel createBigLabel(String text, Color color)
@@ -1281,8 +1123,6 @@ public class SwarmCon extends JFrame
     gbc.anchor  = GridBagConstraints.NORTHWEST;
 
     actionPanel.add(arena, gbc);
-
-    constructControlUI(this);
 
     centerPanel.add(actionPanel, "arena");
     frame.add(centerPanel, BorderLayout.CENTER);
@@ -1451,34 +1291,6 @@ public class SwarmCon extends JFrame
     g.setStroke(reticleStroke);
     g.draw(new Line2D.Double(-grid2Size, 0, grid2Size, 0));
     g.draw(new Line2D.Double(0, -grid2Size, 0, grid2Size));
-
-    // draw timeline regions
-
-    if (timeline != null)
-    {
-      for (Iterator it = timeline.getRegions().iterator(); it.hasNext(); )
-      {
-        Region region = (Region)it.next();
-        region.paint(g);
-      }
-
-      // draw timeline paths
-
-      for (Iterator it = timeline.getPathsIterator(); it.hasNext(); )
-      {
-        TimelinePath path = (TimelinePath)it.next();
-        path.paint(g);
-      }
-
-      // draw ephemeral timeline paths
-
-      ArrayList ep = timeline.getEphemeralPaths();
-      for (int i=0; i < ep.size(); i++)
-      {
-        TimelinePath path = (TimelinePath)ep.get(i);
-        path.paint(g);
-      }
-    }
 
     // draw mobjects
 
@@ -1841,23 +1653,6 @@ public class SwarmCon extends JFrame
   }
 
   /**
-   * Test to see if the timeline should be auto started, and do so
-   * if it is called for.
-   */
-
-  public void attemptTimelineAutoStart()
-  {
-    // if autostart requested, do that
-
-    if (autoStartTimeline != "")
-    {
-      log.debug("autoStartTimeline: " + autoStartTimeline);
-      setTimeline(autoStartTimeline);
-      startTimeline();
-    }
-  }
-
-  /**
    * Action class wich selects a given serial port with witch to
    * commucate to the orbs.
    */
@@ -1886,7 +1681,7 @@ public class SwarmCon extends JFrame
       {
         if (!portId.equalsIgnoreCase(SIMULATION))
         {
-          orbIo = new OrbIo(portId, showIoMessages);
+          orbIo = new OrbIo(portId);
           orbControlImpl.setOrbIo(orbIo);
           liveMode = true;
         }
@@ -1896,7 +1691,6 @@ public class SwarmCon extends JFrame
         createOrbs();
 
         cardLayout.last(centerPanel);
-        attemptTimelineAutoStart();
       }
       catch (Exception ex)
       {
@@ -1917,7 +1711,6 @@ public class SwarmCon extends JFrame
         createOrbs();
 
         cardLayout.last(centerPanel);
-        attemptTimelineAutoStart();
       }
     };
 
@@ -2052,104 +1845,10 @@ public class SwarmCon extends JFrame
     }
   }
 
-  /** Register stock color schemes */
-
-  public static void registerColorSchemes()
-  {
-    ColorScheme.registerColorScheme("Analogous", ColorSchemeAnalogous.class);
-    ColorScheme.registerColorScheme("Split Complement", ColorSchemeSplitComplement.class);
-    ColorScheme.registerColorScheme("Split Complement 3", ColorSchemeSplitComplement3.class);
-    ColorScheme.registerColorScheme("Triad", ColorSchemeTriad.class);
-    ColorScheme.registerColorScheme("Tetrad", ColorSchemeTetrad.class);
-    ColorScheme.registerColorScheme("Crown", ColorSchemeCrown.class);
-  }
-
-  /** Setup the ColorSchemeSpecialist and it's controller interface */
-  public static ColorSchemer setupColorSchemer(SwarmCon swarmCon)
-  {
-    registerColorSchemes();
-
-    /* not doing the specialists this way anymore!
-       ColorSchemeSpecialist colorSchemeSpecialist = new ColorSchemeSpecialist();
-       colorSchemeSpecialist.setup(swarmCon.orbControlImpl, null, null);
-           
-       swarmCon.addSpecialist(colorSchemeSpecialist);
-    */
-
-    ColorSchemer schemer = new ColorSchemer("Crown");
-    //schemer.addColorSchemeListener(colorSchemeSpecialist);
-    schemer.broadcastNewColorScheme();
-    schemer.broadcastColorSchemeChanged();
-
-    // todo: need to set this stuff up inthe ColorSchemeSpecialist.
-    //colorSchemeSpecialist.addBotColorListener(schemer);
-
-    return schemer;
-  }
-
-  /** Setup the ColorSchemeSpecialist and it's controller interface */
-  public static BotVisualizer setupBotVisualizer(SwarmCon swarmCon)
-  {
-
-    /* later...
-       RandomSongSpecialist randomSongSpecialist = new RandomSongSpecialist();
-       swarmCon.addSpecialist(randomSongSpecialist);
-       randomSongSpecialist.setup(swarmCon.orbControlImpl, null, null);
-    */
-
-    return new BotVisualizer(orbCount);
-  }
-
-  public  void setupControlPanel(ColorSchemer schemer,
-    BotVisualizer bv,
-    TimelineDisplay timelineDisplay)
-  {
-    controlTabs = new JTabbedPane();
-
-    JPanel motionControlUIPanel = createMotionControlUIPanel();
-    controlTabs.addTab("Motion", motionControlUIPanel);
-
-    JPanel colorControlUIPanel = createColorControlUIPanel(schemer);
-    controlTabs.addTab("ColorScheme", colorControlUIPanel);
-
-    JPanel soundControlUIPanel = createSoundControlUIPanel(bv);
-    controlTabs.addTab("Sound", soundControlUIPanel);
-
-
-    GridBagConstraints gbc = new GridBagConstraints();
-    gbc.gridx   = 1;
-    gbc.gridy   = 0;
-    gbc.gridheight = 1;
-    gbc.weightx = 0.;
-    gbc.weighty = 0.;
-    gbc.fill    = GridBagConstraints.VERTICAL;
-    gbc.anchor  = GridBagConstraints.EAST;
-
-    actionPanel.add(controlTabs, gbc);
-
-    gbc = new GridBagConstraints();
-    gbc.gridx      = 0;
-    gbc.gridy      = 1;
-    gbc.gridwidth  = 2;
-    //gbc.gridheight = 1;
-    gbc.weightx    = 0.;
-    gbc.weighty    = 0.;
-    gbc.fill       = GridBagConstraints.NONE;
-    gbc.anchor     = GridBagConstraints.SOUTHEAST;
-    //actionPanel.add(timelineDisplay.getPanel(), gbc);
-  }
-
-  public void resizeTimeline()
-  {
-    if (timelineDisplay != null)
-      timelineDisplay.getPanel();
-  }
-
   private JPanel createMotionControlUIPanel()
   {
     JPanel panel = new JPanel();
     panel.setLayout(new GridBagLayout());
-    //panel.setBackground(colorSchemer.bgColor);
     GridBagConstraints gbc = new GridBagConstraints();
 
     gbc.gridx = 0;
@@ -2210,7 +1909,6 @@ public class SwarmCon extends JFrame
         {
           int state = itemEvent.getStateChange();
           boolean sel = (state == ItemEvent.SELECTED);
-          setMultipleMotionCommands(sel);
         }
       }
       );
@@ -2226,7 +1924,6 @@ public class SwarmCon extends JFrame
         {
           int state = itemEvent.getStateChange();
           boolean sel = (state == ItemEvent.SELECTED);
-          setMultipleSoundCommands(sel);
         }
       }
       );
@@ -2262,99 +1959,5 @@ public class SwarmCon extends JFrame
     slider.setMinimumSize(new Dimension(sliderWidth, sliderHeight));
     slider.setPreferredSize(new Dimension(sliderWidth, sliderHeight));
     return slider;
-  }
-
-  private JPanel createColorControlUIPanel(ColorSchemer colorSchemer)
-  {
-    JPanel panel = new JPanel();
-    panel.setLayout(new GridBagLayout());
-    panel.setBackground(colorSchemer.bgColor);
-    GridBagConstraints gbc = new GridBagConstraints();
-
-    gbc.gridx = 0;
-    gbc.gridy = 0;
-    //gbc.weightx = 1.0;
-    //gbc.weighty = 1.0;
-    gbc.fill = GridBagConstraints.HORIZONTAL;
-    panel.add(colorSchemer.getPanel(), gbc);
-    return panel;
-  }
-
-  private JPanel createSoundControlUIPanel(BotVisualizer bv)
-  {
-    JPanel panel = new JPanel();
-    panel.setLayout(new GridBagLayout());
-    panel.setBackground(colorSchemer.bgColor);
-    GridBagConstraints gbc = new GridBagConstraints();
-    gbc.gridx = 0;
-    gbc.gridy = 0;
-    if (bv != null)
-    {
-      panel.add(bv.getPanel(), gbc);
-    }
-
-    return panel;
-  }
-
-  public void setMultipleSoundCommands(boolean val)
-  {
-    this.multipleSoundCommands = val;
-  }
-
-  public void setMultipleMotionCommands(boolean val)
-  {
-    this.multipleMotionCommands = val;
-  }
-
-  ///////////////////////////////////
-  /// Timeline handling           ///
-  ///////////////////////////////////
-
-  public void setTimelineDisplay(TimelineDisplay val)
-  {
-    this.timelineDisplay = val;
-  }
-
-  public void setTimeline(String timelineName)
-  {
-    try
-    {
-      if (timelineDisplay != null)
-        this.timeline = timelineDisplay.setTimeline(timelineName);
-    }
-    catch (Exception ex)
-    {
-      ex.printStackTrace();
-    }
-  }
-
-  public void startTimeline()
-  {
-    this.timelineStarted = System.currentTimeMillis();
-    log.debug("SwarmCon: start timeline");
-    //startControlling();
-  }
-
-  public void stopTimeline()
-  {
-    log.debug("SwarmCon: stop timeline");
-    //stopControlling();
-    timelineDisplay.stopAllRunningEvents();
-  }
-
-  public static void registerSpecialists()
-  {
-    String chpkg = "com.orbswarm.choreography";
-    Timeline.registerSpecialist("SimpleColor",  chpkg + "." + "SingleColorSpecialist");
-    Timeline.registerSpecialist("TemporaryColor",  chpkg + "." + "TemporaryColorSpecialist");
-    Timeline.registerSpecialist("TempColor",  chpkg + "." + "TemporaryColorSpecialist");
-    Timeline.registerSpecialist("ColorScheme",  "com.orbswarm.swarmcomposer.color.ColorSchemeSpecialist");
-    Timeline.registerSpecialist("ColorSchemer", "com.orbswarm.swarmcomposer.color.ColorSchemeSpecialist");
-    Timeline.registerSpecialist("RandomSongPlayer", "com.orbswarm.swarmcomposer.composer.RandomSongSpecialist");
-    Timeline.registerSpecialist("SimpleSound",  chpkg + "." + "SingleSoundSpecialist");
-    Timeline.registerSpecialist("RandomSound",  chpkg + "." + "RandomSoundSpecialist");
-    Timeline.registerSpecialist("Multitrack",   chpkg + "." + "MultitrackSongSpecialist");
-    Timeline.registerSpecialist("FollowPath",   chpkg + "." + "FollowPathSpecialist");
-    Timeline.registerSpecialist("GotoPoint",   chpkg + "." + "GotoPointSpecialist");
   }
 }

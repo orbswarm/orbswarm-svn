@@ -45,33 +45,18 @@ public class GpsIo extends SerialIo
                   }
                   else
                   {
-                     if (debug)
-                        log.debug("no GPS data.");
+                    log.debug("no GPS data.");
                   }
                }
          };
-
       /** Construct a GpsIo object.
        *
        * @param port serial port gps is attached to
-       *
        */
-      
+
       public GpsIo(String port)
       {
-         this(port, false);
-      }
-
-      /** Construct a GpsIo object.
-       *
-       * @param port serial port gps is attached to
-       * @param debug print io debugging
-       *
-       */
-
-      public GpsIo(String port, boolean debug)
-      {
-         super(port, debug);
+         super(port);
 
          // configure the gps
 
@@ -87,7 +72,7 @@ public class GpsIo extends SerialIo
          try
          {
             //new GpsIo("/dev/tty1");  // swarm computer
-            new GpsIo("/dev/cu.usbserial0", false); // trebor's mac
+            new GpsIo("/dev/cu.usbserial0"); // trebor's mac
             //log.debug("utm: " + nmeaLatLonToUtm(3745.762031, -12224.047551));
          }
          catch (Exception e)

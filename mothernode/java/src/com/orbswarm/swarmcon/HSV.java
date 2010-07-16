@@ -1,7 +1,6 @@
-package com.orbswarm.swarmcomposer.color;
+package com.orbswarm.swarmcon;
 
 import java.awt.Color;
-
 
 /**
  * @author Simran Gleason
