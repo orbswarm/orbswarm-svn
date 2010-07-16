@@ -3,8 +3,6 @@ package com.orbswarm.swarmcon;
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
-import gnu.io.SerialPortEvent;
-import gnu.io.SerialPortEventListener;
 import java.util.Vector;
 import java.util.Enumeration;
 import java.io.InputStream;
@@ -17,7 +15,7 @@ import org.apache.log4j.Logger;
 
 import com.orbswarm.swarmcon.Message;
 
-/** SerialIo provids serial I/O between this software and devices on
+/** SerialIo provides serial I/O between this software and devices on
  * serial ports. */
 
 public class SerialIo
@@ -115,7 +113,7 @@ public class SerialIo
 
       /** Construct a SerialIo object.
        * 
-       * @param portName correct name for serial port on this os
+       * @param portName correct name for serial port on this OS
        */
 
       public SerialIo(String portName)
@@ -175,7 +173,7 @@ public class SerialIo
 
       static Vector<String> listSerialPorts()
       {
-         Enumeration portEnum = CommPortIdentifier.getPortIdentifiers();
+         Enumeration<?> portEnum = CommPortIdentifier.getPortIdentifiers();
          Vector<String> list = new Vector<String>();
          while (portEnum.hasMoreElements())
             list.add(((CommPortIdentifier) portEnum.nextElement()).getName());
@@ -187,7 +185,7 @@ public class SerialIo
       public static void main(String[] args)
       {
          SerialIo sio = new SerialIo("/dev/tty.PL2303-0000201A");
-         for (String port: sio.listSerialPorts())
+         for (String port: SerialIo.listSerialPorts())
             log.debug("port: " + port);
 
 
@@ -262,7 +260,7 @@ public class SerialIo
          }
       }
 
-      /** Convenance sleep function with exections already trapped.
+      /** Convenience sleep function with exceptions already trapped.
        *
        * @param millis milliseconds to sleep
        */
@@ -279,9 +277,9 @@ public class SerialIo
          }
       }
 
-      /** Standard way to print serial degging messages. 
+      /** Standard way to print serial debugging messages. 
        *
-       * @param message string being sent or recieved
+       * @param message string being sent or received
        * @param isOutbound true if message is headed out to serial device
        * @param beforSend true is this is before the messages is sent
        */
@@ -323,7 +321,7 @@ public class SerialIo
                }
          }.start();
       }
-      /** Register a line linstener to receive line events.
+      /** Register a line listener to receive line events.
        *
        * @param lineListener listener which will receive line events
        */
@@ -333,7 +331,7 @@ public class SerialIo
          lineListeners.add(lineListener);
       }
 
-      /** Listener for line events comming from serial device */
+      /** Listener for line events coming from serial device */
 
       public static abstract class LineListener
       {

@@ -1,10 +1,7 @@
 package com.orbswarm.swarmcon;
 
-import org.trebor.util.Angle;
-
-import static com.orbswarm.swarmcon.SwarmCon.*;
-import static java.lang.Math.*;
-import static org.trebor.util.Angle.Type.*;
+import static com.orbswarm.swarmcon.SwarmCon.RND;
+import static java.lang.Math.sin;
 
 public class WanderBehavior extends Behavior
 {
@@ -25,9 +22,7 @@ public class WanderBehavior extends Behavior
       public void update(double time, MotionModel model)
       {
          totalTime += time;
-         double tr = adjust * sin(totalTime / 2);
          double tp = adjust * sin(totalTime / 3);
-         model.setTargetYawRate(new Angle(tr, DEGREE_RATE));
          model.setTargetVelocity(tp);
       }
 }

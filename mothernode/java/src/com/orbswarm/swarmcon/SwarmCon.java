@@ -1,38 +1,63 @@
 package com.orbswarm.swarmcon;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.AbstractAction;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.JLabel;
+import javax.swing.JComponent;
+import javax.swing.KeyStroke;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.Box;
+import javax.swing.InputMap;
+import javax.swing.JMenuBar;
+import javax.swing.JMenu;
+import javax.swing.ActionMap;
 import javax.swing.event.*;
 import javax.imageio.ImageIO;
 import javax.swing.SwingUtilities;
 
-import java.awt.*;
-import java.awt.geom.*;
-import java.awt.font.*;
-import java.awt.event.*;
-import java.awt.image.*;
-import java.awt.event.KeyEvent;
-
-import java.io.InputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Robot;
+import java.awt.Shape;
+import java.awt.Stroke;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.awt.geom.Line2D;
+import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.io.File;
-
-import java.net.URL;
 
 import java.util.Vector;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Random;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Iterator;
-import java.util.Set;
 import java.util.Collections;
 
-import java.text.*;
+import java.text.NumberFormat;
 
-import org.trebor.pid.Controller;
 import org.trebor.pid.PidTuner;
 import org.trebor.util.JarTools;
 import org.trebor.util.properties.IProperty;
@@ -45,25 +70,44 @@ import org.trebor.util.properties.IntegerProperty;
 
 import com.orbswarm.swarmcon.IOrbControl;
 
-import static org.trebor.util.ShapeTools.*;
-import static org.trebor.util.Angle.Type.*;
-import static java.awt.Color.*;
-import static java.lang.Math.*;
-import static java.lang.System.*;
-import static javax.swing.KeyStroke.*;
-import static java.awt.event.KeyEvent.*;
+import static org.trebor.util.ShapeTools.normalize;
+import static org.trebor.util.ShapeTools.scale;
+import static org.trebor.util.ShapeTools.translate;
+import static org.trebor.util.ShapeTools.rotate;
+import static org.trebor.util.Angle.Type.DEGREE_RATE;
+import static org.trebor.util.Angle.Type.HEADING;
+import static java.awt.Color.WHITE;
+import static java.awt.Color.RED;
+import static java.lang.Math.min;
+import static java.lang.Math.round;
+import static java.lang.Math.PI;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+import static java.lang.System.currentTimeMillis;
+import static javax.swing.KeyStroke.getKeyStroke;
+import static java.awt.event.KeyEvent.SHIFT_MASK;
+import static java.awt.event.KeyEvent.VK_DOWN;
+import static java.awt.event.KeyEvent.VK_EQUALS;
+import static java.awt.event.KeyEvent.VK_ESCAPE;
+import static java.awt.event.KeyEvent.VK_MINUS;
+import static java.awt.event.KeyEvent.VK_R;
+import static java.awt.event.KeyEvent.VK_S;
+import static java.awt.event.KeyEvent.VK_SPACE;
+import static java.awt.event.KeyEvent.VK_UP;
 
 import org.apache.log4j.Logger;
 
+@SuppressWarnings("serial")
 public class SwarmCon extends JFrame
 {
+  private static final long serialVersionUID = 434565119921549730L;
   private static Logger log = Logger.getLogger(SwarmCon.class);
 
   /*
    * The following are hard coded constants.
    */
 
-  /** Total maximum anticpated orb count. */
+  /** Total maximum anticipated orb count. */
   public static final int MAX_ORB_COUNT = 6;
 
   /** The offset between internal orb IDs (0-5) and actual orb IDs (60
@@ -97,34 +141,34 @@ public class SwarmCon extends JFrame
   /** physical radius of the orb */
   public static final double ORB_RADIUS        =   0.760 / 2; // meters
 
-  /** physical diamter of orb */
+  /** physical diameter of orb */
   public static final double ORB_DIAMETER      = 2 * ORB_RADIUS; // meters
 
   /** maximum roll (left or right) */
-  public static final double MAX_ROLL          =  35.0; // deg
+  public static final double MAX_ROLL          =  35.0; // degrees
 
   /** maximum rate of roll */
-  public static final double MAX_ROLL_RATE     =  50.0; // deg/sec
+  public static final double MAX_ROLL_RATE     =  50.0; // degrees/second
 
   /** maximum change in roll rate */
-  public static final double DROLL_RATE_DT     =  20.0; // deg/sec
+  public static final double DROLL_RATE_DT     =  20.0; // degrees/second
 
   /** maximum rate of pitch */
-  public static final double MAX_PITCH_RATE    = 114.6; // deg/sec
+  public static final double MAX_PITCH_RATE    = 114.6; // degrees/second
 
   /** maximum change in pitch range */
-  public static final double DPITCH_RATE_DT    =  40.0; // deg/sec
+  public static final double DPITCH_RATE_DT    =  40.0; // degrees/second
 
   /** safe distance from other object */
   public static final double SAFE_DISTANCE     =   3.0; // meters
 
-  /** the "way too close do someting about it" distance */
+  /** the "way too close do something about it" distance */
   public static final double CRITICAL_DISTANCE =   2.0; // meters
 
   /** number of spars graphically printed on the orb */
   public static final int    ORB_SPAR_COUNT    =   4  ; // arcs
 
-  /** time in seconds for a phantom to move to it's target postion */
+  /** time in seconds for a phantom to move to it's target position */
   public static final double PHANTOM_PERIOD    =  1   ;
 
   /*
@@ -217,7 +261,7 @@ public class SwarmCon extends JFrame
   /** Grid related values */
 
   private static Stroke gridStroke = new BasicStroke(
-    .025f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
+  .025f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
   private static Color grid1Color = new Color(0, 0, 0, 40);
   private static Color grid2Color = new Color(0, 0, 0, 30);
   double grid1Size = 5;
@@ -248,25 +292,25 @@ public class SwarmCon extends JFrame
   public static boolean multipleMotionCommands = true;
 
   /** allowable range of values for power */
-  public static int powerRange = 50;
+  public int powerRange = 50;
 
   /** allowable range of values for steering */
-  public static int steeringRange = 100;
+  public int steeringRange = 100;
 
   /** delay between sending commands to the orb */
-  public static long commandRefreshDelay = 200;
+  public long commandRefreshDelay = 200;
 
   /** delay between sending commands to the orb */
-  public static long positionPollPeriod = 200;
+  public long positionPollPeriod = 200;
 
   /** enable sending commands to orbs */
-  public static boolean sendCommandsToOrbs = true;
+  public boolean sendCommandsToOrbs = true;
 
   /** enable colors in simulation */
-  public static boolean simulateColors = true;
+  public boolean simulateColors = true;
 
   /** enable sounds in simulation */
-  public static boolean simulateSounds = false;
+  public boolean simulateSounds = false;
 
   class MotorCommandInfo
   {
@@ -300,6 +344,8 @@ public class SwarmCon extends JFrame
 
   final JPanel arena = new JPanel()
     {
+      private static final long serialVersionUID = 6473960062741753128L;
+
       public void paint(Graphics graphics)
       {
         paintArena(graphics);
@@ -328,7 +374,7 @@ public class SwarmCon extends JFrame
 
   private OrbIo orbIo;
 
-  /** communcation with gps */
+  /** communication with GPS */
 
   GpsIo gpsIo;
 
@@ -337,12 +383,13 @@ public class SwarmCon extends JFrame
    * Orbs from the Specialists. Currently control is split between
    * OrbControl and and OrbIo.  This is a bad thing, and this
    * functionality needs to be all moved into one place.  I would be
-   * inclined to have orb io implement IOrbControl. */
+   * inclined to have orb IO implement IOrbControl. */
 
   OrbControl orbControlImpl;
 
   // TODO: generalize the orbControl facility to use real/fake at
   // appropriate times.
+  
   public IOrbControl getOrbControl()
   {
     return orbControlImpl;
@@ -359,10 +406,6 @@ public class SwarmCon extends JFrame
   {
     return this.orbIo;
   }
-
-  /**  Specialists listening to OrbState messages */
-  ArrayList specialists = new ArrayList();
-
   // color
 
   public static Color BACKGROUND       = WHITE;
@@ -504,8 +547,6 @@ public class SwarmCon extends JFrame
 
   public void initialize()
   {
-    // OrbControl for Specialists
-
     orbControlImpl = new OrbControl(
       this,
       sendCommandsToOrbs,
@@ -521,9 +562,9 @@ public class SwarmCon extends JFrame
     GraphicsDevice gv = GraphicsEnvironment.
       getLocalGraphicsEnvironment().getScreenDevices()[0];
 
-    // if full screen is supported setup frame accoringly
+    // if full screen is supported setup frame accordingly
 
-    if (false && gv.isFullScreenSupported())
+    if (gv.isFullScreenSupported())
     {
       setUndecorated(true);
       setVisible(true);
@@ -548,6 +589,8 @@ public class SwarmCon extends JFrame
     // start motor control thread
 
     requestFocus();
+    
+    startControlling();
   }
 
   /** Reads properties file out of users home directory.  If this
@@ -588,7 +631,7 @@ public class SwarmCon extends JFrame
 
       log.debug(
         "-------------------- SwarmCon Properties --------------------");
-      Vector<String> names = new Vector(properties.getNames());
+      Vector<String> names = new Vector<String>(properties.getNames());
       Collections.sort(names);
       for (String name: names)
         log.debug(name + " = " + properties.getValueAsString(name));
@@ -641,12 +684,12 @@ public class SwarmCon extends JFrame
 
   public void setPowerRange(int val)
   {
-    this.powerRange = val;
+    powerRange = val;
   }
 
   public void setSteeringRange(int val)
   {
-    this.steeringRange = val;
+    steeringRange = val;
   }
 
   boolean running = false;
@@ -732,7 +775,6 @@ public class SwarmCon extends JFrame
 
     Mobject preveouse = new MouseMobject(arena);
     swarm.add(preveouse);
-    Controller[] controllers = null;
 
     // create the orbs
 
@@ -770,8 +812,6 @@ public class SwarmCon extends JFrame
       // anything with them at the moment
 
       Orb orb = new Orb(swarm, model, id);
-      if (orb.getModel() instanceof SimModel)
-        controllers = ((SimModel)orb.getModel()).getControllers();
 
       // register the new orb or orb io so it can get messages
 
@@ -782,7 +822,7 @@ public class SwarmCon extends JFrame
 
       swarm.add(orb);
 
-      // if in simulation mode, add behvaiors
+      // if in simulation mode, add behaviors
 
       if (!liveMode)
       {
@@ -793,10 +833,11 @@ public class SwarmCon extends JFrame
         Behavior cb = new ClusterBehavior();
         Behavior fab = new AvoidBehavior(fb);
         Behavior cab = new AvoidBehavior(cb);
-        //           orb.add(rb);
-        //           orb.add(cb);
-        //           orb.add(fab);
-        //           orb.add(cab);
+        orb.add(wb);
+        orb.add(rb);
+        orb.add(cb);
+        orb.add(fab);
+        orb.add(cab);
         orb.add(fb);
         orb.add(nb);
       }
@@ -1153,7 +1194,7 @@ public class SwarmCon extends JFrame
       fileMenu.add(menu);
     }
 
-    // if no splash needed go ahed and start the system
+    // if no splash needed go ahead and start the system
 
     if (!splashNeeded)
     {
@@ -1623,8 +1664,9 @@ public class SwarmCon extends JFrame
 
   abstract class SwarmAction extends AbstractAction
   {
-    // construct the action
+    private static final long serialVersionUID = 2376655282485450773L;
 
+    // construct the action
     public SwarmAction(String name, KeyStroke key, String description)
     {
       super(name);
@@ -1653,12 +1695,14 @@ public class SwarmCon extends JFrame
   }
 
   /**
-   * Action class wich selects a given serial port with witch to
-   * commucate to the orbs.
+   * Action class which selects a given serial port with witch to
+   * communicate to the orbs.
    */
 
   class SwarmComPortAction extends SwarmAction
   {
+    private static final long serialVersionUID = -8462656494373639651L;
+    
     /** communications port id */
 
     private String portId;
@@ -1843,121 +1887,5 @@ public class SwarmCon extends JFrame
       setFont(BUTTON_FONT);
       setForeground(BUTTON_CLR);
     }
-  }
-
-  private JPanel createMotionControlUIPanel()
-  {
-    JPanel panel = new JPanel();
-    panel.setLayout(new GridBagLayout());
-    GridBagConstraints gbc = new GridBagConstraints();
-
-    gbc.gridx = 0;
-    gbc.gridy = 0;
-    //gbc.weightx = 1.0;
-    //gbc.weighty = 1.0;
-    gbc.fill = GridBagConstraints.HORIZONTAL;
-
-    panel.add(new JLabel("Power Range"), gbc);
-    gbc.gridy = 1;
-    JSlider powerSlider = makeRangeSlider(20, 80, powerRange);
-    final JLabel powerSliderValue = new JLabel("" + powerRange);
-
-    powerSlider.addChangeListener(new ChangeListener()
-      {
-        public void stateChanged(ChangeEvent e)
-        {
-          JSlider source = (JSlider)e.getSource();
-          //if (!source.getValueIsAdjusting())
-          powerRange = source.getValue();
-          powerSliderValue.setText("" + powerRange);
-        }
-      }
-      );
-    panel.add(powerSlider, gbc);
-    gbc.gridx = 1;
-    panel.add(powerSliderValue, gbc);
-
-    gbc.gridx = 0;
-    gbc.gridy = 2;
-    panel.add(new JLabel("Steering Range"), gbc);
-    gbc.gridy = 3;
-    //gbc.weightx = 1.0;
-    JSlider steeringSlider = makeRangeSlider(50, 120, steeringRange);
-    final JLabel steeringSliderValue = new JLabel("" + steeringRange);
-    steeringSlider.addChangeListener(new ChangeListener()
-      {
-        public void stateChanged(ChangeEvent e)
-        {
-          JSlider source = (JSlider)e.getSource();
-          //if (!source.getValueIsAdjusting())
-          powerRange = source.getValue();
-          steeringSliderValue.setText("" + steeringRange);
-        }
-      }
-      );
-    panel.add(steeringSlider, gbc);
-    gbc.gridx = 1;
-    panel.add(steeringSliderValue, gbc);
-
-    gbc.gridx = 0;
-    gbc.gridy = 4;
-    JCheckBox multipleMotionCmdsCheck = new JCheckBox("Multiple Motion Commands");
-    multipleMotionCmdsCheck.setSelected(multipleMotionCommands);
-    multipleMotionCmdsCheck.addItemListener(new ItemListener()
-      {
-        public void itemStateChanged(ItemEvent itemEvent)
-        {
-          int state = itemEvent.getStateChange();
-          boolean sel = (state == ItemEvent.SELECTED);
-        }
-      }
-      );
-    panel.add(multipleMotionCmdsCheck, gbc);
-
-    gbc.gridx = 0;
-    gbc.gridy = 5;
-    JCheckBox multipleSoundCmdsCheck = new JCheckBox("Multiple Sound Commands");
-    multipleSoundCmdsCheck.setSelected(multipleSoundCommands);
-    multipleSoundCmdsCheck.addItemListener(new ItemListener()
-      {
-        public void itemStateChanged(ItemEvent itemEvent)
-        {
-          int state = itemEvent.getStateChange();
-          boolean sel = (state == ItemEvent.SELECTED);
-        }
-      }
-      );
-    panel.add(multipleSoundCmdsCheck, gbc);
-
-    gbc.gridx = 0;
-    gbc.gridy = 6;
-    JCheckBox steppedColorFadesCheck = new JCheckBox("Stepped Color Fades");
-    steppedColorFadesCheck.setSelected(steppedColorFades);
-    steppedColorFadesCheck.addItemListener(new ItemListener()
-      {
-        public void itemStateChanged(ItemEvent itemEvent)
-        {
-          int state = itemEvent.getStateChange();
-          boolean sel = (state == ItemEvent.SELECTED);
-          steppedColorFades = sel;
-        }
-      }
-      );
-    panel.add(steppedColorFadesCheck, gbc);
-
-    return panel;
-  }
-
-  public JSlider makeRangeSlider(int low, int high, int val)
-  {
-    log.debug("SarmCon: make range slider(low: " + low + " hi: " + high + " val: " + val);
-    JSlider slider = new JSlider(JSlider.HORIZONTAL, low, high, val);
-    // size matters.
-    Dimension size = slider.getSize();
-    int sliderWidth = 150;
-    int sliderHeight = 20;
-    slider.setMinimumSize(new Dimension(sliderWidth, sliderHeight));
-    slider.setPreferredSize(new Dimension(sliderWidth, sliderHeight));
-    return slider;
   }
 }

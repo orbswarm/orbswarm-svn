@@ -1,13 +1,10 @@
 package com.orbswarm.swarmcon;
 
 import java.util.HashMap;
-import java.util.StringTokenizer;
-import java.util.Properties;
-import java.util.Map;
 import org.apache.log4j.Logger;
 
-import static java.lang.Character.*;
-import static org.trebor.util.Angle.Type.*;
+import static org.trebor.util.Angle.Type.RADIANS;
+import static org.trebor.util.Angle.Type.RADIAN_RATE;
 import static com.orbswarm.swarmcon.Message.Type.*;
 
 /** OrbIo provids all I/O between phycical orbs and the orb objects in
@@ -177,7 +174,7 @@ public class OrbIo extends SerialIo
     public static void main(String[] args)
     {
       OrbIo oio = new OrbIo(args[0]);
-      for (String port: oio.listSerialPorts())
+      for (String port: SerialIo.listSerialPorts())
         log.debug("port: " + port);
 
       LineListener ll = new LineListener()

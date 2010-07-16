@@ -2,8 +2,7 @@ package com.orbswarm.swarmcon;
 
 import org.trebor.util.Angle;
 
-import static org.trebor.util.Angle.Type.*;
-import static com.orbswarm.swarmcon.SwarmCon.*;
+import static org.trebor.util.Angle.Type.HEADING;
 
 public class FollowBehavior extends Behavior
 {
@@ -24,6 +23,5 @@ public class FollowBehavior extends Behavior
     public void update(double time, MotionModel model)
     {
       model.setTargetYaw(new Angle(orb.headingTo(target), HEADING));
-      model.setDistanceError(SAFE_DISTANCE - orb.distanceTo(target));
     }
 }

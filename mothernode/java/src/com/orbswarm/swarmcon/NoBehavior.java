@@ -1,9 +1,5 @@
 package com.orbswarm.swarmcon;
 
-import org.trebor.util.Angle;
-
-import static org.trebor.util.Angle.Type.*;
-
 public class NoBehavior extends Behavior
 {
     public NoBehavior()

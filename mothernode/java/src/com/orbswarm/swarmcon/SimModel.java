@@ -63,7 +63,6 @@ public class SimModel extends MotionModel
      */
     public void setTargetRollRate(Angle targetRollRate)
     {
-      super.setTargetRollRate(targetRollRate);
       rollRate.setNormalizedTarget(targetRollRate.as(DEGREE_RATE));
     }
 
@@ -73,7 +72,6 @@ public class SimModel extends MotionModel
      */
     public void setTargetPitchRate(Angle targetPitchRate)
     {
-      super.setTargetPitchRate(targetPitchRate);
       pitchRate.setNormalizedTarget(targetPitchRate.as(DEGREE_RATE));
     }
 
@@ -95,7 +93,6 @@ public class SimModel extends MotionModel
      */
     public void setTargetYawRate(Angle targetYawRate)
     {
-      super.setTargetYawRate(targetYawRate);
       yawRateToRollRateCtrl.setTarget(targetYawRate.as(DEGREE_RATE));
       yawRateToRollRateCtrl.setMeasurment(getYawRate().as(DEGREE_RATE));
       setTargetRollRate(new Angle(yawRateToRollRateCtrl.compute(), DEGREE_RATE));
@@ -144,10 +141,6 @@ public class SimModel extends MotionModel
 
     public void setDistanceError(double distanceError)
     {
-      // update parent
-
-      super.setDistanceError(distanceError);
-
       // compute target velocity
 
       distanceToVelocityCtrl.setTarget(0);

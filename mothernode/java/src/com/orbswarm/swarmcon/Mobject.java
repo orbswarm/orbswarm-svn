@@ -191,7 +191,6 @@ public class Mobject
 
       public void paint(Phantom phantom, Graphics2D g)
       {
-         Point tmp = position;
          AffineTransform oldTransform = g.getTransform();
          g.translate(
            phantom.getX() - getX(), 

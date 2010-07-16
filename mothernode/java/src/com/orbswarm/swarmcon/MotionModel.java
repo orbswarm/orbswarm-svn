@@ -71,25 +71,11 @@ abstract public class MotionModel implements IOrbListener
 
     private Angle yawRate = new Angle();
 
-    // ------- pitch roll rate control parameters --------
-
-    /** target roll rate */
-
-    private Angle targetRollRate;
-
-    /** target pitch rate */
-
-    private Angle targetPitchRate;
-
     // ------- roll, yaw rate & velocity control parameters --------
 
     /** target roll */
 
     private Angle targetRoll = new Angle();
-
-    /** target yaw rate */
-
-    private Angle targetYawRate;
 
     /** target pitch rate */
 
@@ -101,15 +87,7 @@ abstract public class MotionModel implements IOrbListener
 
     private Angle targetYaw = new Angle();
 
-    /** error between target distance and current distance */
-
-    private double distanceError;
-
     // ------- position control parameters --------
-
-    /** target position */
-
-    private Point targetPosition;
 
     /** Update the state of this model.
      *
@@ -195,24 +173,6 @@ abstract public class MotionModel implements IOrbListener
       this.direction = direction;
     }
 
-    /** Command low level roll rate control.
-     *
-     * @param targetRollRate target roll rate
-     */
-    public void setTargetRollRate(Angle targetRollRate)
-    {
-      this.targetRollRate = targetRollRate;
-    }
-
-    /** Command low level pitch rate control.
-     *
-     * @param targetPitchRate target velocity
-     */
-    public void setTargetPitchRate(Angle targetPitchRate)
-    {
-      this.targetPitchRate = targetPitchRate;
-    }
-
     /** Command target roll.
      *
      * @param targetRoll target roll
@@ -220,15 +180,6 @@ abstract public class MotionModel implements IOrbListener
     public void setTargetRoll(Angle targetRoll)
     {
       this.targetRoll = targetRoll;
-    }
-
-    /** Command target yaw rate.
-     *
-     * @param targetYawRate target yaw rate
-     */
-    public void setTargetYawRate(Angle targetYawRate)
-    {
-      this.targetYawRate = targetYawRate;
     }
 
     /** Command target velocity.
@@ -258,15 +209,6 @@ abstract public class MotionModel implements IOrbListener
     public void setTargetYaw(Angle targetYaw)
     {
       this.targetYaw = targetYaw;
-    }
-
-    /** Command yaw and distance.
-     *
-     * @param distanceError error between target and desired distance
-     */
-    public void setDistanceError(double distanceError)
-    {
-      this.distanceError = distanceError;
     }
 
    /** Command position.
@@ -325,8 +267,6 @@ abstract public class MotionModel implements IOrbListener
     public void stop()
     {
       pathCommander.requestDeath();
-      setTargetRollRate(ZERO_DEGREES_PER_SECOND);
-      setTargetPitchRate(ZERO_DEGREES_PER_SECOND);
     }
 
     /** Get the active smooth path. */
@@ -510,8 +450,6 @@ abstract public class MotionModel implements IOrbListener
 
         private boolean deathRequest = false;
 
-        private Swarm swarm = sc.getSwarm();
-
         public void requestDeath()
         {
           deathRequest = true;
@@ -551,7 +489,6 @@ abstract public class MotionModel implements IOrbListener
 
             // we're done with this path, stop
 
-            stop();
             sc.captureArena();
           }
           catch (Exception e)

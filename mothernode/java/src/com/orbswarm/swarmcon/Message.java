@@ -2,11 +2,11 @@ package com.orbswarm.swarmcon;
 
 import java.util.Properties;
 import java.util.StringTokenizer;
-import java.util.Map;
 import java.util.Map.Entry;
 
 /** The orb message class. */
 
+@SuppressWarnings("serial")
 public class Message extends Properties
 {
     /** Known message types. */

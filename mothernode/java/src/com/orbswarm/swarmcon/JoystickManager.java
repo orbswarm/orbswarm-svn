@@ -3,20 +3,19 @@ package com.orbswarm.swarmcon;
 import java.util.Vector;
 import java.util.HashMap;
 
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.File;
 
 import org.trebor.util.JarTools;
-import org.trebor.util.Debug;
 
 import org.apache.log4j.Logger;
 
 /** JoystickManager provides access to joystick events.  The
- * JoystickManager also is a vector of StickInfo, so it fuctions as it's
+ * JoystickManager also is a vector of StickInfo, so it functions as it's
  * own database of joystick information. */
 
+@SuppressWarnings("serial")
 public class JoystickManager extends Vector<JoystickManager.StickInfo>
 {
     private static Logger log = Logger.getLogger(JoystickManager.class);

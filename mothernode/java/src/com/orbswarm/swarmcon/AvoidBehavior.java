@@ -2,12 +2,12 @@ package com.orbswarm.swarmcon;
 
 import org.trebor.util.Angle;
 
-import static com.orbswarm.swarmcon.SwarmCon.*;
-import static java.lang.Math.*;
-import static org.trebor.util.Angle.Type.*;
+import static com.orbswarm.swarmcon.SwarmCon.CRITICAL_DISTANCE;
+import static com.orbswarm.swarmcon.SwarmCon.SAFE_DISTANCE;
+import static org.trebor.util.Angle.Type.DEGREES;
 
-// avoid wraps around another behavior and adds obsticle
-// avoidance when usefull
+// avoid wraps around another behavior and adds obstacle
+// avoidance when useful
 
 public class AvoidBehavior extends Behavior
 {
@@ -35,20 +35,15 @@ public class AvoidBehavior extends Behavior
          if (orb.getNearestDistance() > SAFE_DISTANCE)
             return;
 
-         // compute distance to nearest orb
-
-         double nDist = orb.getNearestDistance();
-
          // if inside critical distance take over completely
          
          if (orb.getNearestDistance() < CRITICAL_DISTANCE)
          {
            model.setTargetYaw(new Angle(orb.headingTo(orb.getNearest()), DEGREES));
-           model.setDistanceError(SAFE_DISTANCE - orb.getNearestDistance());
            return;
          }
       }
-      // overide to string
+      // override to string
 
       public String toString()
       {

@@ -1,7 +1,5 @@
 package com.orbswarm.swarmcon;
 
-import java.util.List;
-
 public interface IOrbControl
 {
     public SmoothPath gotoTarget(int orbNum, Target target);

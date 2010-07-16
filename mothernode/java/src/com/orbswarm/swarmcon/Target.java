@@ -1,12 +1,10 @@
 package com.orbswarm.swarmcon;
 
-import java.awt.*;
-import java.awt.geom.*;
-
-import static java.lang.Math.*;
+import java.awt.geom.Point2D;
 
 /** A place to which the orb should go */
 
+@SuppressWarnings("serial")
 public class Target extends Point
 {
     /** Expected speed  at this target. */

@@ -1,17 +1,20 @@
 package com.orbswarm.swarmcon;
 
-import javax.swing.*;
-import javax.swing.event.*;
-
-import java.awt.*;
-import java.awt.geom.*;
-import java.awt.event.*;
-import java.awt.image.*;
-
-import java.text.NumberFormat;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Shape;
+import java.awt.Stroke;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Arc2D;
+import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 import java.util.Vector;
-import java.util.Calendar;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.DelayQueue;
 import java.util.concurrent.TimeUnit;
@@ -19,9 +22,10 @@ import java.util.concurrent.TimeUnit;
 import com.orbswarm.swarmcon.OrbIo.IOrbListener;
 import org.trebor.util.Angle;
 
-import static java.lang.System.*;
-import static java.awt.Color.*;
-import static java.lang.Math.*;
+import static java.lang.System.currentTimeMillis;
+import static java.lang.Math.sin;
+import static java.lang.Math.abs;
+import static java.lang.Math.toRadians;
 import static com.orbswarm.swarmcon.SwarmCon.*;
 import static org.trebor.util.ShapeTools.*;
 import static org.trebor.util.Angle.Type.*;
@@ -313,7 +317,7 @@ public class Orb extends Mobject
     {
       return swarm.getCentroid();
     }
-    // check candiate for nearness
+    // check candidate for nearness
 
     public void findNearest()
     {
@@ -479,8 +483,6 @@ public class Orb extends Mobject
       Color(255, 0, 0, 16);
     private static final Color CurrentWaypointColor = new 
       Color(255, 0, 0, 128);
-    private static final Color controlPointColor = new 
-      Color(0, 0, 0, 64);
 
     /** Paint the current active path */
 
@@ -540,21 +542,20 @@ public class Orb extends Mobject
       drawText(g, new Point(x, y), text);
     }
 
-    // draw text at a given location
+  // draw text at a given location
 
-    public void drawText(Graphics2D g, Point2D point, String text)
-    {
-      AffineTransform old = g.getTransform();
-      g.setTransform(new AffineTransform());
-      g.setFont(g.getFont().deriveFont(
-        old.getScaleInstance(old.getScaleX(),
-        -old.getScaleY())));
+  public void drawText(Graphics2D g, Point2D point, String text)
+  {
+    AffineTransform old = g.getTransform();
+    g.setTransform(new AffineTransform());
+    g.setFont(g.getFont().deriveFont(
+      AffineTransform.getScaleInstance(old.getScaleX(), -old.getScaleY())));
 
-      //(float)(g.getFont().getSize() * old.getScaleX())));
-      Point2D n = old.transform(point, new Point2D.Double());
-      g.drawString(text, (int)n.getX(), (int)n.getY());
-      g.setTransform(old);
-    }
+    // (float)(g.getFont().getSize() * old.getScaleX())));
+    Point2D n = old.transform(point, new Point2D.Double());
+    g.drawString(text, (int)n.getX(), (int)n.getY());
+    g.setTransform(old);
+  }
 
     // create orb shape
 
@@ -586,7 +587,7 @@ public class Orb extends Mobject
     {
       GeneralPath arcs = new GeneralPath();
 
-      // add a ring around the cirlce
+      // add a ring around the circle
 
       double strokeWidth = ORB_DIAMETER / 32;
       Stroke s = new BasicStroke((float)strokeWidth,

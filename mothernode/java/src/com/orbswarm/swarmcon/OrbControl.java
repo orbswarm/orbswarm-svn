@@ -4,12 +4,9 @@ import org.apache.log4j.Logger;
 
 import com.orbswarm.swarmcon.IOrbControl;
 
-import org.trebor.util.JarTools;
-
-import java.util.HashMap;
-
 public class OrbControl implements IOrbControl
 {
+    @SuppressWarnings("unused")
     private static Logger log = Logger.getLogger(OrbControl.class);
 
     private SwarmCon swarmCon;
@@ -119,14 +116,6 @@ public class OrbControl implements IOrbControl
         } catch (Exception ex) {
         }
         return poised;
-    }
-
-    private Target firstPoint(Path path) {
-        if (path.size() > 0) {
-            return (Target)path.firstElement();
-        } else {
-            return null;
-        }
     }
 
     public void stopOrb(int orbNum)

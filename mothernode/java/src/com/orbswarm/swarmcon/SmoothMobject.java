@@ -1,37 +1,24 @@
 package com.orbswarm.swarmcon;
 
-import java.awt.*;
-import java.awt.geom.*;
-
-import static java.lang.Math.*;
-import static org.trebor.util.ShapeTools.*;
-import static java.awt.BasicStroke.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
 
 // smooth path for printing on display
 
 public class SmoothMobject extends Mobject
 {
     private SmoothPath sp;
-    private GeneralPath gp;
-    private static final Stroke stroke = 
-      new BasicStroke(1.5f, CAP_ROUND, JOIN_ROUND); 
     private static final Ellipse2D.Double bigDot = 
       new Ellipse2D.Double(-.3, -.3, .6, .6);
     private static final Ellipse2D.Double smallDot = 
       new Ellipse2D.Double(-.1, -.1, .2, .2);
 
-    private Waypoint current = null;
-
     public SmoothMobject(SmoothPath sp)
     {
       super(1);
       this.sp = sp;
-      this.gp = sp.getContinousePath();
-    }
-
-    public void setCurrentWaypoint(Waypoint current)
-    {
-      this.current = current;
     }
 
     // paint this object onto a graphics area

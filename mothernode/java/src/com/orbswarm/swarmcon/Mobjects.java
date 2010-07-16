@@ -6,9 +6,10 @@ import java.awt.geom.Point2D;
 /** A collections of Mobjects. */
 
 
+@SuppressWarnings("serial")
 public class Mobjects extends Vector<Mobject>
 {
-   /** Find nearest mobject to point.
+   /** Find nearest   mobject to point.
     *
     * @param point the selection point
     * @return nearest matching object or null if none

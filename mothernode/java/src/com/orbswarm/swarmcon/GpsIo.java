@@ -1,18 +1,9 @@
 package com.orbswarm.swarmcon;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.LineNumberReader;
-import java.io.InputStreamReader;
 import org.iu.gps.NMEA;
 import org.iu.gps.GPSInfo;
-import org.iu.gps.COORD;
-import org.iu.gps.DATUM;
-import org.iu.gps.XY;
 
 import org.apache.log4j.Logger;
-
-import static java.lang.Math.*;
 
 /** GpsIo provids communication between this software and a GPS. */
 

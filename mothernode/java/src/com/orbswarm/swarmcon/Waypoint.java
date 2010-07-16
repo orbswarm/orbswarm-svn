@@ -1,17 +1,16 @@
 package com.orbswarm.swarmcon;
 
-import java.lang.Iterable;
-import java.awt.*;
-import java.awt.geom.*;
+import java.awt.geom.Point2D;
 import java.text.NumberFormat;
 
 import org.trebor.util.Angle;
 
-import static java.lang.Math.*;
-import static org.trebor.util.Angle.Type.*;
+import static org.trebor.util.Angle.Type.DEGREE_RATE;
+import static org.trebor.util.Angle.Type.HEADING;
 
 /** A place to which the orb should go */
 
+@SuppressWarnings("serial")
 public class Waypoint extends Point 
 {
     /** Time expected to reach this waypoint in seconds. */
@@ -30,11 +29,11 @@ public class Waypoint extends Point
 
     private Angle yawRate = new Angle();
 
-    /** Waypont preceeding this one. */
+    /** Waypoint preceding this one. */
 
     private Waypoint previous;
 
-    /** Waypont following this one. */
+    /** Waypoint following this one. */
 
     private Waypoint next;
 

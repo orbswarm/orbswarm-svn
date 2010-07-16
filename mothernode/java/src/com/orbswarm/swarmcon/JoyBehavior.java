@@ -1,20 +1,7 @@
 package com.orbswarm.swarmcon;
 
-import java.lang.Thread;
-import java.lang.Process;
-import java.lang.Runtime;
-import java.io.LineNumberReader;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.FileInputStream;
-import java.io.File;
-
 import org.trebor.util.Angle;
 
-import static com.orbswarm.swarmcon.SwarmCon.*;
-import static java.lang.System.*;
 import static org.trebor.util.Angle.Type.*;
 
 public class JoyBehavior extends Behavior implements JoystickManager.Listener
@@ -29,9 +16,9 @@ public class JoyBehavior extends Behavior implements JoystickManager.Listener
          super("Joy");
       }
 
-      /** Distpatch joystick axis event.
+      /** Dispatch joystick axis event.
        *
-       * @param stick joystick on which this event occured
+       * @param stick joystick on which this event occurred
        * @param axis number of axis which has changed
        * @param value value axis has changed to
        */
@@ -81,7 +68,6 @@ public class JoyBehavior extends Behavior implements JoystickManager.Listener
       public void update(double time, MotionModel model)
       {
         model.setTargetRoll(new Angle(steering * SwarmCon.MAX_ROLL, DEGREE_RATE));
-        model.setTargetPitchRate(new Angle(power, DEGREE_RATE));
       }
     
 }

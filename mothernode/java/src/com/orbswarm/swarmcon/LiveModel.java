@@ -1,6 +1,5 @@
 package com.orbswarm.swarmcon;
 
-import java.lang.Thread;
 import org.trebor.util.Angle;
 
 import static com.orbswarm.swarmcon.Message.Type.*;
@@ -12,16 +11,14 @@ import static org.trebor.util.Angle.Type.*;
 public class LiveModel extends MotionModel
 {
     /** Note that we have not yet initialized the global offset, which
-     * is gonna be some big ugly number based on on the UTM values we're
+     * is going to be some big ugly number based on on the UTM values we're
      * getting from the GPS.  Once we start getting values we'll want to
      * assume that the very first orb position is at (0,0) for display
      * purposes.  The actual math for that is handled in SwarmCon.
      */
 
-    private static boolean globalOffsetInitialized = false;
-
-    /** Note that the orb has not yet received, real world inforation
-     * about is locaion. */
+    /** Note that the orb has not yet received, real world information
+     * about is location. */
     
     private boolean orbPositionInitialized = false;
 
@@ -29,7 +26,7 @@ public class LiveModel extends MotionModel
 
     private Point surveyPosition = null;
 
-    /** Set to true if the orb has acked the origin commanded. */
+    /** Set to true if the orb has acknowledged the origin commanded. */
 
     private boolean originAcked = false;
     
@@ -56,21 +53,20 @@ public class LiveModel extends MotionModel
     /** Construct a live motion model which links to a real orb
      * rolling around in the world.
      *
-     * @param orbIo the commincations linkn to the physical orb
+     * @param orbIo the communications link to the physical orb
      */
 
     public LiveModel(OrbIo orbIo, int orbId, double reportOffset)
     {
-      SwarmCon sc = SwarmCon.getInstance();
       this.orbIo = orbIo;
       this.orbId = orbId;
       double now = SwarmCon.getTime();
       lastPositionReportTime = now;
       lastPositionRequestTime = now + reportOffset;
-      positionPollPeriod = SwarmCon.positionPollPeriod / 1000d;
+      positionPollPeriod = positionPollPeriod / 1000d;
     }
 
-    /** Handel messages from the orb. */
+    /** Handle messages from the orb. */
 
     public void onOrbMessage(Message message)
     {
@@ -83,7 +79,7 @@ public class LiveModel extends MotionModel
           message.getDoubleProperty(NORTHING));
       }
 
-      // handle origin ack
+      // handle origin ACK
 
       else if (message.getType() == ORIGIN_ACK)
       {
@@ -115,7 +111,7 @@ public class LiveModel extends MotionModel
 //         }
         
         // if the orb has already received some real world data then we
-        // can go ahead and infer speed and heading from prevouse
+        // can go ahead and infer speed and heading from previous
         // position
         
         if (orbPositionInitialized)
@@ -132,7 +128,7 @@ public class LiveModel extends MotionModel
         else
           orbPositionInitialized = true;
 
-        // update our current postion, and time
+        // update our current position, and time
 
         setYaw(new Angle(message.getDoubleProperty(YAW), RADIANS));
         setPosition(position);
@@ -147,7 +143,7 @@ public class LiveModel extends MotionModel
       return surveyPosition;
     }
 
-    /** Return true if the orb has acked the origin command. */
+    /** Return true if the orb has ACKed the origin command. */
 
     public boolean isOriginAcked()
     {
@@ -155,7 +151,7 @@ public class LiveModel extends MotionModel
     }
 
     /** Update the model state by sending a request to the orb for state
-     * information.  When recive the local model will be updated to
+     * information.  When receive the local model will be updated to
      * reflect that state information.
      */
 
@@ -181,7 +177,7 @@ public class LiveModel extends MotionModel
     }
     /** Get the yaw rate of the orb.
      *
-     * @return yaw reate in angular units per second
+     * @return yaw create in angular units per second
      */
 
     public Angle getYawRate()

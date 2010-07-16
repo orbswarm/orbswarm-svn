@@ -4,6 +4,7 @@ import java.awt.geom.Point2D;
 
 /** A point abstraction */
 
+@SuppressWarnings("serial")
 public class Point extends Point2D.Double
 {
     public Point()

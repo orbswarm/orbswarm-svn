@@ -1,9 +1,9 @@
 package com.orbswarm.swarmcon;
 
-import java.util.*;
-import java.awt.*;
-import java.awt.geom.*;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
+@SuppressWarnings("serial")
 public class Swarm extends Mobjects
 {
       // arena in which to swarm

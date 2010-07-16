@@ -6,11 +6,14 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
 import java.util.Vector;
-import java.util.Iterator;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import static org.trebor.util.Angle.Type.*;
 import static java.lang.Math.*;
 
+@SuppressWarnings("serial")
 public class SmoothPath extends Vector<Waypoint>
 {
   /** Continouse path representing the smooth path */
@@ -25,7 +28,7 @@ public class SmoothPath extends Vector<Waypoint>
 
   private Waypoint currentWaypoint;
 
-  /** The path of origonal targets */
+  /** The path of original targets */
 
   private Path targets;
 
@@ -421,6 +424,7 @@ public class SmoothPath extends Vector<Waypoint>
 
   /** Test path code. */
 
+  @SuppressWarnings("serial")
   public static void main(String[] args)
   {
     final int count = 5;
@@ -429,8 +433,8 @@ public class SmoothPath extends Vector<Waypoint>
     final Rate rate = new Rate("test", 0, 30, 1);
     final java.util.Random rnd = new java.util.Random();
 
-    javax.swing.JFrame frame = new javax.swing.JFrame();
-    javax.swing.JPanel panel = new javax.swing.JPanel()
+    JFrame frame = new JFrame();  
+    JPanel panel = new JPanel()
       {
           public void paint (java.awt.Graphics graphics)
           {

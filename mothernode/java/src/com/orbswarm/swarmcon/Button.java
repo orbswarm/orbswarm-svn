@@ -1,18 +1,22 @@
 package com.orbswarm.swarmcon;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.geom.*;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 
-import static java.lang.Math.*;
-import static javax.swing.AbstractAction.*;
+import static javax.swing.AbstractAction.NAME;
 
 /** You know a button. */
 
 public class Button extends Mobject
 {
-      /** button text, may contain carrage returns */
+      /** button text, may contain carriage returns */
 
       private String text;
 
@@ -43,7 +47,7 @@ public class Button extends Mobject
       }
       /** Paint this button.
        *
-       * @param g graphics context usued to identify button's size
+       * @param g graphics context used to identify button's size
        */
       
       public void paint(Graphics2D g)
@@ -73,7 +77,7 @@ public class Button extends Mobject
       }
       /** Create shape for this button.
        *
-       * @param g graphics context usued to identify button's size
+       * @param g graphics context used to identify button's size
        * @return created button shape
        */
 
