@@ -20,9 +20,6 @@ The text of the MIT license apears in the mit-license.txt file.
   <property name = "domain"             value = "swarmcon.com"/>
   <property name = "domain-scope"       value = "com.orbswarm"/>
   <property name = "domain-scope-dir"   value = "com/orbswarm"/>
-<!--   <property name = "main-class"         value = "JoystickManager"/> -->
-<!--   <property name = "main-class"         value = "SerialIo"/> -->
-<!--   <property name = "main-class"         value = "SmoothPath"/> -->
   <property name = "main-class"         value = "SwarmCon"/>
   <property name = "lib-dir"            value = "lib"/>
   <property name = "resources"          value = "resources"/>
@@ -39,21 +36,22 @@ The text of the MIT license apears in the mit-license.txt file.
     <include name = "pid.jar"/>
     <include name = "jusb.jar"/>
     <include name = "json.jar"/>
+    <include name = "log4j.jar"/>
   </fileset>
   
   <!-- any extra resources which may be neaded by the application -->
 
   <fileset dir = "." id = "resources">
     <include name = "${resources}/readme.txt"/>
-    <include name = "${lib-dir}/librxtxSerial.jnilib"/>
-    <include name = "${lib-dir}/librxtxSerial.so"/>
-    <include name = "${lib-dir}/rxtxSerial.dll"/>
     <include name = "${resources}/mit-license.txt"/>
     <include name = "${resources}/multijoy.py"/>
     <include name = "${resources}/swarmcon.properties"/>
     <include name = "${resources}/JoyStickToOrbMapping.txt"/>
-    <include name = "${resources}/songs/*"/>
-    <include name = "${resources}/timelines/*"/>
+    <include name = "${resources}/songs/**"/>
+    <include name = "${resources}/timelines/**"/>
+    <include name = "${lib-dir}/librxtxSerial.jnilib"/>
+    <include name = "${lib-dir}/librxtxSerial.so"/>
+    <include name = "${lib-dir}/rxtxSerial.dll"/>
   </fileset>
 
   <!-- derived build variables -->
@@ -62,7 +60,6 @@ The text of the MIT license apears in the mit-license.txt file.
   <property name = "doc-dir"            value = "doc"/>
   <property name = "build-dir"          value = "build"/>
   <property name = "icons"              value = "${resources}/icons"/>
-  <property name = "samples"            value = "${resources}/samples"/>
   <property name = "jar-name"           value = "${app-name}.jar"/>
   <property name = "app-dir"            value = "${app-title}.app"/>
   <property name = "dmg-dir"            value = "disk-image"/>
@@ -174,6 +171,7 @@ The text of the MIT license apears in the mit-license.txt file.
       <classpath>
           <fileset refid = "libraries"/>
           <pathelement location = "${build-dir}"/>
+          <pathelement location = "${resources}"/>
           <pathelement location = "."/>
       </classpath>
     </java>
@@ -183,18 +181,16 @@ The text of the MIT license apears in the mit-license.txt file.
 
   <target name = "jar" depends = "compile" description = "construct jar package">
 
+    <copy file = "${resources}/log4j.xml"
+          todir = "${build-dir}"/>
+
     <jar destfile = "${jar-name}"
          update   = "false"
          basedir  = "${build-dir}"
-         includes = "${domain-scope-dir}/**"
          manifest = "${resources}/MANIFEST.MF">
       <zipgroupfileset refid = "libraries"/>
       <fileset refid = "resources"/>
     </jar>
-    <jar destfile = "${jar-name}"
-         update   = "true"
-         basedir  = "${source-dir}"
-         includes = "${domain-scope-dir}/**"/>
   </target>
 
   <!-- construct mac .app -->
@@ -254,8 +250,8 @@ The text of the MIT license apears in the mit-license.txt file.
     </exec>
     <copy file = "${resources}/readme.txt" 
           todir = "${dmg-dir}"/>
-    <copy file = "${resources}/gpl.txt" 
-          todir = "${dmg-dir}"/>
+<!--     <copy file = "${resources}/mit-license.txt"  -->
+<!--           todir = "${dmg-dir}"/> -->
     <copy file = "${icons}/${app-title}DiskIcon.icns"
           tofile = "${dmg-dir}/.VolumeIcon.icns"/>
 
@@ -319,11 +315,8 @@ The text of the MIT license apears in the mit-license.txt file.
           todir = "${zip-dir}"/>
     <copy file = "${resources}/readme.txt"
           todir = "${zip-dir}"/>
-    <copy file = "${resources}/gpl.txt"
-          todir = "${zip-dir}"/>
-    <copy todir = "${zip-dir}/samples/">
-      <fileset dir = "${samples}"/>
-    </copy>
+<!--     <copy file = "${resources}/mit-license.txt" -->
+<!--           todir = "${zip-dir}"/> -->
 
     <!-- remove old zip file to be sure no old cruft is laying about -->
 

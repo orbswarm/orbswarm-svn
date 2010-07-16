@@ -66,8 +66,12 @@ import static java.lang.System.*;
 import static javax.swing.KeyStroke.*;
 import static java.awt.event.KeyEvent.*;
 
+import org.apache.log4j.Logger;
+
 public class SwarmCon extends JFrame
 {
+  private static Logger log = Logger.getLogger(SwarmCon.class);
+
   /*
    * The following are hard coded constants.
    */
@@ -513,100 +517,9 @@ public class SwarmCon extends JFrame
 
   public static void main(String[] args)
   {
-    registerSpecialists();
+    //registerSpecialists();
     SwarmCon sc = new SwarmCon(args);
-
-    int i=0;
-    while (i < args.length)
-    {
-      if (args[i].equalsIgnoreCase("--simulateSounds"))
-      {
-        i++;
-        boolean simulateSounds = args[i].equalsIgnoreCase("true");
-        sc.simulateSounds = simulateSounds;
-      }
-
-      else if (args[i].equalsIgnoreCase("--simulateColors"))
-      {
-        i++;
-        boolean simulateColors = args[i].equalsIgnoreCase("true");
-        sc.simulateColors = simulateColors;
-      }
-
-
-      else if (args[i].equalsIgnoreCase("--power") || args[i].equalsIgnoreCase("--powerRange"))
-      {
-        i++;
-        int da_powah = Integer.parseInt(args[i]);
-        i++;
-        sc.setPowerRange(da_powah);
-      }
-
-      else if (args[i].equalsIgnoreCase("--steering") || args[i].equalsIgnoreCase("--steerinRange"))
-      {
-        i++;
-        int da_steer = Integer.parseInt(args[i]);
-        i++;
-        sc.setSteeringRange(da_steer);
-      }
-
-      else if (args[i].equalsIgnoreCase("--timelineWidth"))
-      {
-        i++;
-        int w = Integer.parseInt(args[i]);
-        i++;
-        sc.timelineWidth = w;
-      }
-
-      else if (args[i].equalsIgnoreCase("--timelineHeight"))
-      {
-        i++;
-        int w = Integer.parseInt(args[i]);
-        i++;
-        sc.timelineHeight = w;
-      }
-
-      else if (args[i].equalsIgnoreCase("--commandRefreshDelay"))
-      {
-        i++;
-        int refresh = Integer.parseInt(args[i]);
-        i++;
-        sc.commandRefreshDelay = refresh;
-      }
-
-      else if (args[i].equalsIgnoreCase("--positionPollPeriod"))
-      {
-        i++;
-        sc.positionPollPeriod = Long.parseLong(args[i]);
-        i++;
-      }
-
-
-      // Note: not giving the option to turn off sending commands to orbs right now.
-
-      //         else if (args[i].equalsIgnoreCase("--help") || args[i].equalsIgnoreCase("-help"))
-      //         {
-      //           usage();
-      //           System.exit(0);
-      //         }
-      i++;
-    }
-
     sc.initialize();
-  }
-
-  public static void usage()
-  {
-    System.out.println("java com.orbswarm.swarmcon.SwarmCon [options]");
-    System.out.println("  options: ");
-    System.out.println("     --simulateSounds true|false   default: false");
-    System.out.println("     --simulateColors true|false   default: true");
-    System.out.println("     --commandRefreshDelay <ms>    default: 200");
-    System.out.println("     --positionPollPeriod <ms>     default: 200");
-    System.out.println("     --power <0-100>               default:  50");
-    System.out.println("     --steering <0-100>            default: 100");
-    System.out.println("     --timelineWidth <int>         default: 900");
-    System.out.println("     --timelineHeight <int>        default: 150");
   }
 
   public ColorSchemer colorSchemer;
@@ -730,8 +643,7 @@ public class SwarmCon extends JFrame
 
       // identify where the properties file lives
 
-      System.out.println(
-        "Properties file location: " + PROPERTIES_FILE_LOCATION);
+      log.debug( "Properties file location: " + PROPERTIES_FILE_LOCATION);
 
       // read in the properties
 
@@ -751,13 +663,13 @@ public class SwarmCon extends JFrame
 
       // output properties so people know what they got
 
-      System.out.println(
+      log.debug(
         "-------------------- SwarmCon Properties --------------------");
       Vector<String> names = new Vector(properties.getNames());
       Collections.sort(names);
       for (String name: names)
-        System.out.println(name + " = " + properties.getValueAsString(name));
-      System.out.println(
+        log.debug(name + " = " + properties.getValueAsString(name));
+      log.debug(
         "-------------------------------------------------------------");
     }
     catch (Exception e)
