@@ -1,9 +1,6 @@
 package com.orbswarm.swarmcon.orb;
 
 import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
@@ -17,20 +14,19 @@ import com.orbswarm.swarmcon.io.Message;
 import com.orbswarm.swarmcon.io.OrbIo.IOrbListener;
 import com.orbswarm.swarmcon.model.MotionModel;
 import com.orbswarm.swarmcon.path.Point;
-import com.orbswarm.swarmcon.path.SmoothPath;
-import com.orbswarm.swarmcon.path.Target;
-import com.orbswarm.swarmcon.path.Waypoint;
 
 import org.trebor.util.Angle;
 
 import static java.lang.System.currentTimeMillis;
-import static com.orbswarm.swarmcon.SwarmCon.*;
+import static com.orbswarm.swarmcon.SwarmCon.ORB_CLR;
+import static com.orbswarm.swarmcon.SwarmCon.ORB_DIAMETER;
+import static com.orbswarm.swarmcon.SwarmCon.RND;
 
 import org.apache.log4j.Logger;
 
 /** Representation of an  orb. */
 
-public class Orb extends Mobject
+public class Orb extends AMobject
   implements IOrbListener, IOrb
 {
     private static Logger log = Logger.getLogger(Orb.class);
@@ -46,7 +42,7 @@ public class Orb extends Mobject
     /** The length of the displayed history in milliseconds.  This is
      * NOT properly factored. */
 
-    public static long historyLength = 60000;
+    public static long historyLength = 5000;
 
     /** history of were this orb has been */
 
@@ -57,7 +53,7 @@ public class Orb extends Mobject
     private Vector<Behavior> behaviors = new Vector<Behavior>();
     private Behavior         behavior  = null;
 
-    /** physical model of the orb, either live or sim */
+    /** physical model of the orb, either live or simulated */
 
     private MotionModel model;
 
@@ -70,7 +66,7 @@ public class Orb extends Mobject
 
     private double [] distances;
 
-    // misc globals
+    // miscellaneous globals
 
     protected Swarm              swarm = null;
 
@@ -286,7 +282,7 @@ public class Orb extends Mobject
       model.onOrbMessage(message);
     }
 
-  // update positon
+  // update position
 
   /*
    * (non-Javadoc)
@@ -307,10 +303,6 @@ public class Orb extends Mobject
     // set location to the model location
 
     setPosition(model.getPosition());
-
-    // update children
-
-    super.update(time);
 
     // we no longer know what's nearest
 
@@ -416,192 +408,85 @@ public class Orb extends Mobject
       return distances;
     }
 
-    // paint phantom version of this mobject onto the graphics area
-    
-    /* (non-Javadoc)
-     * @see com.orbswarm.swarmcon.orb.IOrbx#paint(com.orbswarm.swarmcon.view.Phantom, java.awt.Graphics2D)
-     */
-    public void paint(Phantom phantom, Graphics2D g)
-    {
-    }
+  /** Object used to store historical information about the orb. */
 
-    // paint this object onto a graphics area
-
-    /* (non-Javadoc)
-     * @see com.orbswarm.swarmcon.orb.IOrbx#paint(java.awt.Graphics2D)
-     */
-    public void paint(Graphics2D g)
-    {
-    }
-
-    private static final Ellipse2D.Double bigDot = 
-      new Ellipse2D.Double(-.3, -.3, .6, .6);
-    private static final Ellipse2D.Double smallDot = 
-      new Ellipse2D.Double(-.1, -.1, .2, .2);
-    private static final Color SmoothPathColor = new 
-      Color(255, 0, 0, 16);
-    private static final Color CurrentWaypointColor = new 
-      Color(255, 0, 0, 128);
-
-    /* (non-Javadoc)
-     * @see com.orbswarm.swarmcon.orb.IOrbx#paintPath(java.awt.Graphics2D)
-     */
-
-    public void paintPath(Graphics2D g)
-    {
-      SmoothPath sp = model.getActivePath();
-      
-      if (sp == null)
-        return;
-
-      // draw the path
-
-      for (Waypoint wp: sp)
-      {
-        g.setColor(sp.getCurrentWaypoint() == wp
-          ? CurrentWaypointColor
-          : SmoothPathColor);
-
-        AffineTransform t = g.getTransform();
-        g.translate(wp.getX(), wp.getY());
-        g.fill(bigDot);
-        g.setTransform(t);
-
-
-//         g.setColor(controlPointColor);
-//         g.setStroke(vectorStroke);
-//         g.draw(new Line2D.Double(
-//           wp, wp.getYaw().cartesian(5, wp)));
-      }
-
-      // draw the target points
-
-      g.setColor(Color.BLACK);
-      for (Target target: sp.getTargets())
-      {
-        AffineTransform t = g.getTransform();
-        g.translate(target.getX(), target.getY());
-        g.fill(smallDot);
-        g.setTransform(t);
-      }
-
-//       // draw the control points at lines
-
-//       g.setColor(controlPointColor);
-//       g.setStroke(vectorStroke);
-//       for (CubicCurve2D.Double curve: sp.getCurves())
-//       {
-//         g.draw(new Line2D.Double(curve.getP1(), curve.getCtrlP1()));
-//         g.draw(new Line2D.Double(curve.getP2(), curve.getCtrlP2()));
-//       }
-    }
-
-    // draw text at a given location
-
-    /* (non-Javadoc)
-     * @see com.orbswarm.swarmcon.orb.IOrbx#drawText(java.awt.Graphics2D, double, double, java.lang.String)
-     */
-    public void drawText(Graphics2D g, double x, double y, String text)
-    {
-      drawText(g, new Point(x, y), text);
-    }
-
-  // draw text at a given location
-
-  /* (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#drawText(java.awt.Graphics2D, java.awt.geom.Point2D, java.lang.String)
-   */
-  public void drawText(Graphics2D g, Point2D point, String text)
+  public class HistoryElement implements Delayed
   {
-    AffineTransform old = g.getTransform();
-    g.setTransform(new AffineTransform());
-    g.setFont(g.getFont().deriveFont(
-      AffineTransform.getScaleInstance(old.getScaleX(), -old.getScaleY())));
+    /** position of orb */
 
-    // (float)(g.getFont().getSize() * old.getScaleX())));
-    Point2D n = old.transform(point, new Point2D.Double());
-    g.drawString(text, (int)n.getX(), (int)n.getY());
-    g.setTransform(old);
+    public Point position;
+
+    /** the velocity of the orb */
+
+    public double velocity;
+
+    /** the time at which this history element was recorded */
+
+    private long inceptTime;
+
+    /**
+     * Construct a history object.
+     * 
+     * @param position the position of this orb at this time
+     */
+
+    public HistoryElement(IOrb orb)
+    {
+      inceptTime = currentTimeMillis();
+      position = orb.getPosition();
+      velocity = orb.getVelocity();
+    }
+
+    /**
+     * Get the remaining delay for this element.
+     * 
+     * @param unit the unit of time which this will report remaining delay
+     *        in.
+     * @return the remaining delay.
+     */
+
+    public long getDelay(TimeUnit unit)
+    {
+      return unit.convert(historyLength - (currentTimeMillis() - inceptTime),
+        TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Get the incept time of this element
+     * 
+     * @return incept time of this element in milliseconds
+     */
+
+    public long getInceptTime()
+    {
+      return inceptTime;
+    }
+
+    /**
+     * Get the position of this element
+     * 
+     * @return position of the orb
+     */
+
+    public Point getPosition()
+    {
+      return position;
+    }
+
+    /** Compare two history elements for sorting. */
+
+    public int compareTo(Delayed o)
+    {
+      HistoryElement other = (HistoryElement)o;
+      if (inceptTime < other.inceptTime)
+        return -1;
+      if (inceptTime > other.inceptTime)
+        return 1;
+      return 0;
+    }
   }
 
-    /** Object used to store historical information about the orb. */
-
-    public class HistoryElement implements Delayed
-    {
-        /** position of orb */
-
-        public Point position;
-
-        /** the velocity of the orb */
-
-        public double velocity;
-
-        /** the time at which this history element was recorded */
-
-        private long inceptTime;
-
-        /** Construct a history object.
-         *
-         * @param position the position of this orb at this time
-         */
-
-        public HistoryElement(IOrb orb)
-        {
-          inceptTime = currentTimeMillis();
-          position = orb.getPosition();
-          velocity = orb.getVelocity();
-        }
-        
-        /** Get the remaining delay for this element.
-         *
-         * @param unit the unit of time which this will report remaing
-         * delay in.
-         *
-         * @return the remaining delay.
-         */
-        
-        public long getDelay(TimeUnit unit)
-        {
-          return unit.convert(
-            historyLength - (currentTimeMillis() - inceptTime),
-            TimeUnit.MILLISECONDS);
-        }
-
-        /** Get the incept time of this element
-         *
-         * @return incept time of this element in milliseconds
-         */
-
-        public long getInceptTime()
-        {
-          return inceptTime;
-        }
-
-
-        /** Get the position of this element
-         *
-         * @return positon of the orb
-         */
-        
-        public Point getPosition()
-        {
-          return position;
-        }
-
-        /** Compare two history elements for sorting. */
-
-        public int compareTo(Delayed o)
-        {
-          HistoryElement other = (HistoryElement)o;
-          if (inceptTime < other.inceptTime)
-            return -1;
-          if (inceptTime > other.inceptTime)
-            return 1;
-          return 0;
-        }
-    }
-
-    /** A storage receptical for orb history. */
+    /** A storage receptacle for orb history. */
 
     public class HistoryQueue extends DelayQueue<HistoryElement>
     {

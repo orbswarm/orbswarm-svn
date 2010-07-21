@@ -1,32 +1,29 @@
-package com.orbswarm.swarmcon.path;
+package com.orbswarm.swarmcon.view;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 
-import com.orbswarm.swarmcon.orb.AMobject;
+import com.orbswarm.swarmcon.orb.IMobject;
+import com.orbswarm.swarmcon.path.SmoothMobject;
+import com.orbswarm.swarmcon.path.SmoothPath;
+import com.orbswarm.swarmcon.path.Target;
+import com.orbswarm.swarmcon.path.Waypoint;
 
 // smooth path for printing on display
 
-public class SmoothMobject extends AMobject
+public class SmoothPathRenderer extends ARenderer<SmoothMobject>
 {
-    private SmoothPath sp;
     private static final Ellipse2D.Double bigDot = 
       new Ellipse2D.Double(-.3, -.3, .6, .6);
     private static final Ellipse2D.Double smallDot = 
       new Ellipse2D.Double(-.1, -.1, .2, .2);
 
-    public SmoothMobject(SmoothPath sp)
+    public void render(Graphics2D g, IMobject o)
     {
-      super(1);
-      this.sp = sp;
-    }
-
-    // paint this object onto a graphics area
-    
-    public void paint(Graphics2D g)
-    {
+      SmoothPath sp = (SmoothPath)o;
+      
       g.setColor(new Color(255, 0, 0, 16));
       for (Waypoint wp: sp)
       {
@@ -44,9 +41,5 @@ public class SmoothMobject extends AMobject
         g.fill(smallDot);
         g.setTransform(t);
       }
-    }
-
-    public void update(double time)
-    {
     }
 }

@@ -1,16 +1,18 @@
 package com.orbswarm.swarmcon.orb;
 
-import java.awt.*;
-import java.awt.geom.*;
+import java.awt.Shape;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 import com.orbswarm.swarmcon.path.Point;
 
-import static java.lang.Math.*;
-import static org.trebor.util.ShapeTools.*;
+import static java.lang.Math.atan2;
+import static java.lang.Math.toDegrees;
 
 // mobile object
 
-public class Mobject implements IMobject
+public abstract class AMobject implements IMobject
 {
       /** position of mobject in space */
 
@@ -19,10 +21,6 @@ public class Mobject implements IMobject
       /** has this mobject been selected */
 
       private boolean selected = false;
-
-      /** children mobjects which are placed relative to this mobject */
-
-      private Mobjects children = new Mobjects();
 
       /** shape of this mobject used for selection and perhaps display */
 
@@ -35,7 +33,7 @@ public class Mobject implements IMobject
        * object is assumed to be a circle
        */
 
-      public Mobject(double size)
+      public AMobject(double size)
       {
          setShape(new Ellipse2D.Double(-(size / 2), -(size / 2), size, size));
       }
@@ -45,15 +43,6 @@ public class Mobject implements IMobject
        * to compute arrangement of object
        */
 
-      public Mobject(Shape shape)
-      {
-         if (shape != null)
-         {
-            double dx = -(shape.getBounds2D().getX() + shape.getBounds2D().getWidth()  / 2);
-            double dy = -(shape.getBounds2D().getY() + shape.getBounds2D().getHeight() / 2);
-            setShape(translate(shape, dx, dy));
-         }
-      }
       /* (non-Javadoc)
        * @see com.orbswarm.swarmcon.orb.IMobject#isSelected()
        */
@@ -154,50 +143,20 @@ public class Mobject implements IMobject
       {
          setPosition(getX() + dX, getY() + dY);
       }
+      
       // update state of this object
 
-      /* (non-Javadoc)
-       * @see com.orbswarm.swarmcon.orb.IMobject#update(double)
-       */
-      public void update(double time)
-      {
-         for (IMobject child: children)
-            child.update(time);
-      }
-      /* (non-Javadoc)
-       * @see com.orbswarm.swarmcon.orb.IMobject#addChild(com.orbswarm.swarmcon.orb.Mobject)
-       */
+      public abstract void update(double time);
 
-      public void addChild(Mobject child)
-      {
-         children.add(child);
-      }
-      /* (non-Javadoc)
-       * @see com.orbswarm.swarmcon.orb.IMobject#removeChild(com.orbswarm.swarmcon.orb.Mobject)
-       */
-      public void removeChild(Mobject child)
-      {
-         children.add(child);
-      }
       // paint this object onto a graphics area
-
-      /* (non-Javadoc)
-       * @see com.orbswarm.swarmcon.orb.IMobject#paint(java.awt.Graphics2D)
-       */
-      public void paint(Graphics2D g)
-      {
-      }
-      // paint phantom version of this mobject onto the graphics area
 
       // compute heading to some point
 
-      /* (non-Javadoc)
-       * @see com.orbswarm.swarmcon.orb.IMobject#headingTo(com.orbswarm.swarmcon.orb.IMobject)
-       */
       public double headingTo(IMobject other)
       {
          return headingTo(other.getPosition());
       }
+
       // compute heading to some point
 
       /* (non-Javadoc)

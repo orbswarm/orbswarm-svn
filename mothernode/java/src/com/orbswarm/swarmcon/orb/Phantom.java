@@ -5,7 +5,7 @@ import java.awt.geom.Point2D;
 import static java.lang.Math.PI;
 import static java.lang.Math.sin;
 
-public class Phantom extends Mobject
+public class Phantom extends AMobject
 {
       /** the amount of wind-up before moving */
 
@@ -157,7 +157,6 @@ public class Phantom extends Mobject
                origin.getX() * (1 - motion) + target.getX() * motion,
                origin.getY() * (1 - motion) + target.getY() * motion);
          }
-         super.update(time);
       }
       /** Is this phantom actively moving?
        * 

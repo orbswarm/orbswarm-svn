@@ -1,6 +1,7 @@
 package com.orbswarm.swarmcon.model;
 
-import static java.lang.Math.*;
+import static java.lang.Math.min;
+import static java.lang.Math.max;
 
 // a rate
 
@@ -30,13 +31,14 @@ public class Rate
          return other;
       }
       
-      // get min rate
+      // get maximum rate
 
       public double getMax()
       {
          return max;
       }
-      // get min rate
+      
+      // get minimum rate
 
       public double getMin()
       {
@@ -61,6 +63,7 @@ public class Rate
       {
          this.target = target;
       }
+      
       // set target as normalized value from -1 to 1
 
       public void setNormalizedTarget(double target)
@@ -68,18 +71,21 @@ public class Rate
          assert(target >= -1 && target <= 1);
          setTarget(min + (max - min) * ((target + 1) / 2));
       }
+      
       // get target
 
       public double getTarget()
       {
          return target;
       }
+      
       // get target as a normalized value from 0 to 1
 
       public double getNormalizedTarget()
       {
          return ((target - min) / (max - min)) * 2 - 1;
       }
+      
       // update the rate
 
       public double update(double time)

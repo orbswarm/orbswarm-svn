@@ -84,7 +84,7 @@ import com.orbswarm.swarmcon.model.SimModel;
 import com.orbswarm.swarmcon.orb.IMobject;
 import com.orbswarm.swarmcon.orb.IOrbControl;
 import com.orbswarm.swarmcon.orb.IOrb;
-import com.orbswarm.swarmcon.orb.Mobject;
+import com.orbswarm.swarmcon.orb.AMobject;
 import com.orbswarm.swarmcon.orb.Mobjects;
 import com.orbswarm.swarmcon.orb.Orb;
 import com.orbswarm.swarmcon.orb.OrbControl;
@@ -797,7 +797,7 @@ public class SwarmCon extends JFrame
 
     swarm = new Swarm(bounds);
 
-    Mobject preveouse = new MouseMobject(arena);
+    AMobject preveouse = new MouseMobject(arena);
     swarm.add(preveouse);
 
     // create the orbs
@@ -1039,8 +1039,8 @@ public class SwarmCon extends JFrame
 
       // update all the objects
 
-      swarm.update(time);
-      swarm.updateOrbDistances();
+      //swarm.update(time);
+      //swarm.updateOrbDistances();
       // repaint the screen
       arena.repaint();
     }
@@ -1432,7 +1432,7 @@ public class SwarmCon extends JFrame
 
   // object which is always set to the position of the mouse
 
-  public class MouseMobject extends Mobject
+  public class MouseMobject extends AMobject
   {
     // shape to be drawn
 
@@ -1644,7 +1644,7 @@ public class SwarmCon extends JFrame
     {
       // find nearest selectable mobject
 
-      final Mobject nearest = swarm
+      final AMobject nearest = swarm
         .findSelected(screenToWorld(e.getPoint()));
 
       // if shift is not down, clear selected

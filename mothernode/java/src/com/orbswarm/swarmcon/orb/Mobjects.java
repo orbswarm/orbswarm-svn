@@ -9,7 +9,7 @@ import java.awt.geom.Point2D;
 
 
 @SuppressWarnings("serial")
-public class Mobjects extends Vector<Mobject>
+public class Mobjects extends Vector<AMobject>
 {
    /** Find nearest   mobject to point.
     *
@@ -17,13 +17,13 @@ public class Mobjects extends Vector<Mobject>
     * @return nearest matching object or null if none
     */
    
-   public Mobject findSelected(Point2D.Double point)
+   public AMobject findSelected(Point2D.Double point)
    {
       double distance;
       double bestDistance = Double.MAX_VALUE;
-      Mobject bestMoblect = null;
+      AMobject bestMoblect = null;
 
-      for (Mobject mobject: this)
+      for (AMobject mobject: this)
       {
          if (mobject.isSelectedBy(point))
          {

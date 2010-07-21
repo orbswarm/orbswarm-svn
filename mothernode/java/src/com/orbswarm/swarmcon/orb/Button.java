@@ -16,7 +16,7 @@ import static javax.swing.AbstractAction.NAME;
 
 /** You know a button. */
 
-public class Button extends Mobject
+public class Button extends AMobject
 {
       /** button text, may contain carriage returns */
 
@@ -41,7 +41,7 @@ public class Button extends Mobject
       }
       public Button(AbstractAction action, Font font, double x, double y)
       {
-         super(null);
+        super(1.0d);
          this.action = action;
          this.text = (String)action.getValue(NAME);
          this.font = font;
@@ -103,5 +103,9 @@ public class Button extends Mobject
       public void performAction(ActionEvent event)
       {
          action.actionPerformed(event);
+      }
+      
+      public void update(double time)
+      {
       }
 }
