@@ -68,7 +68,32 @@ import org.trebor.util.properties.StringProperty;
 import org.trebor.util.properties.BooleanProperty;
 import org.trebor.util.properties.IntegerProperty;
 
-import com.orbswarm.swarmcon.IOrbControl;
+import com.orbswarm.swarmcon.behavior.AvoidBehavior;
+import com.orbswarm.swarmcon.behavior.Behavior;
+import com.orbswarm.swarmcon.behavior.ClusterBehavior;
+import com.orbswarm.swarmcon.behavior.FollowBehavior;
+import com.orbswarm.swarmcon.behavior.NoBehavior;
+import com.orbswarm.swarmcon.behavior.RandomBehavior;
+import com.orbswarm.swarmcon.behavior.WanderBehavior;
+import com.orbswarm.swarmcon.io.GpsIo;
+import com.orbswarm.swarmcon.io.OrbIo;
+import com.orbswarm.swarmcon.io.SerialIo;
+import com.orbswarm.swarmcon.model.LiveModel;
+import com.orbswarm.swarmcon.model.MotionModel;
+import com.orbswarm.swarmcon.model.SimModel;
+import com.orbswarm.swarmcon.orb.IMobject;
+import com.orbswarm.swarmcon.orb.IOrbControl;
+import com.orbswarm.swarmcon.orb.IOrb;
+import com.orbswarm.swarmcon.orb.Mobject;
+import com.orbswarm.swarmcon.orb.Mobjects;
+import com.orbswarm.swarmcon.orb.Orb;
+import com.orbswarm.swarmcon.orb.OrbControl;
+import com.orbswarm.swarmcon.orb.Phantom;
+import com.orbswarm.swarmcon.orb.Swarm;
+import com.orbswarm.swarmcon.path.Path;
+import com.orbswarm.swarmcon.path.Point;
+import com.orbswarm.swarmcon.path.Target;
+import com.orbswarm.swarmcon.view.Renderer;
 
 import static org.trebor.util.ShapeTools.normalize;
 import static org.trebor.util.ShapeTools.scale;
@@ -249,8 +274,6 @@ public class SwarmCon extends JFrame
       }
     };
 
-
-
   /** The global source of randomness. */
   public static final Random RND = new Random();
 
@@ -364,13 +387,14 @@ public class SwarmCon extends JFrame
   JPanel actionPanel;
 
   /** tabbed panel for control UI panes. */
+  
   JTabbedPane controlTabs;
 
-  /** pid tuner object */
+  /** PID tuner object */
 
   public PidTuner tuner;
 
-  /** communcation with orbs */
+  /** communication with orbs */
 
   private OrbIo orbIo;
 
@@ -456,7 +480,7 @@ public class SwarmCon extends JFrame
     return swarm;
   }
 
-  public Orb getOrb(int orbNum)
+  public IOrb getOrb(int orbNum)
   {
     return getSwarm().getOrb(orbNum);
   }
@@ -877,7 +901,7 @@ public class SwarmCon extends JFrame
       // extrect just the orbs from the swarm
 
       Vector<Orb> orbs = new Vector<Orb>();
-      for (Mobject m: swarm)
+      for (IMobject m: swarm)
         if (m instanceof Orb)
           orbs.add((Orb)m);
 
@@ -938,7 +962,7 @@ public class SwarmCon extends JFrame
 
       while (results.size() > 0)
       {
-        for (Orb orb: orbs)
+        for (IOrb orb: orbs)
         {
           // if we're not done with this orb yet
 
@@ -1254,7 +1278,7 @@ public class SwarmCon extends JFrame
    *
    * @param graphics graphics object to paint onto
    */
-
+  
   public void paintArena(Graphics graphics)
   {
     // config graphics
@@ -1285,7 +1309,7 @@ public class SwarmCon extends JFrame
       synchronized (swarm)
       {
         int id = 1;
-        for (Mobject mobject: swarm)
+        for (IMobject mobject: swarm)
           if (mobject instanceof Orb)
           {
             Orb orb = (Orb)mobject;
@@ -1339,8 +1363,8 @@ public class SwarmCon extends JFrame
     {
       synchronized (swarm)
       {
-        for (Mobject mobject: swarm)
-          mobject.paint(g);
+        for (IMobject mobject: swarm)
+          Renderer.render(g, mobject);
       }
     }
   }
@@ -1443,7 +1467,7 @@ public class SwarmCon extends JFrame
     {
       return false;
     }
-    // update positon of this object
+    // update position of this object
 
     public void update(double time) {}
 
@@ -1590,9 +1614,9 @@ public class SwarmCon extends JFrame
     public void commandOrb(MouseEvent e)
     {
       Point2D.Double worldPos = screenToWorld(e.getPoint());
-      final Mobject nearest = swarm.findSelected(worldPos);
+      final IMobject nearest = swarm.findSelected(worldPos);
 
-      if (nearest != null && nearest instanceof Mobject)
+      if (nearest != null && nearest instanceof IMobject)
       {
         orbToCommand = (Orb)nearest;
       }
@@ -1627,7 +1651,7 @@ public class SwarmCon extends JFrame
 
       if (!e.isShiftDown())
       {
-        for (Mobject m: selected)
+        for (IMobject m: selected)
           m.setSelected(false);
         for (Phantom p: phantoms)
           swarm.remove(p);
@@ -1647,14 +1671,14 @@ public class SwarmCon extends JFrame
 
         selected.add(nearest);
 
-        // add phatom for this mobject
+        // add phantom for this mobject
 
         Phantom p = new Phantom(
           nearest, PHANTOM_PERIOD);
         phantoms.add(p);
         swarm.add(p);
 
-        // tell the phatoms to reconfigure themselfs
+        // tell the phantoms to reconfigure themselves
 
         configurePhantoms();
       }
@@ -1832,9 +1856,9 @@ public class SwarmCon extends JFrame
     {
       public void actionPerformed(ActionEvent e)
       {
-        for (Mobject mo: swarm)
+        for (IMobject mo: swarm)
           if (mo instanceof Orb)
-            ((Orb)mo).getModel().stop();
+            ((IOrb)mo).getModel().stop();
       }
     };
 
