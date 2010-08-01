@@ -1,12 +1,8 @@
 package com.orbswarm.swarmcon.orb;
 
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-
 import org.apache.log4j.Logger;
 
 import com.orbswarm.swarmcon.mobject.AMobjects;
-import com.orbswarm.swarmcon.mobject.IMobject;
 
 @SuppressWarnings("serial")
 public class Swarm extends AMobjects<IOrb>
@@ -14,57 +10,7 @@ public class Swarm extends AMobjects<IOrb>
   @SuppressWarnings("unused")
   private static Logger log = Logger.getLogger(Orb.class);
 
-  // arena in which to swarm
-
-  private Rectangle2D.Double arena;
-
-  // globals
-
-  private Point2D.Double centroid = new Point2D.Double();
-
-  // construct a swarm
-
-  public Swarm(Rectangle2D.Double arena)
-  {
-    this.arena = arena;
-  }
-
-  // randomize position of items in swarm
-
-  public void randomize()
-  {
-    for (IOrb orb: this)
-      orb.randomizePos();
-  }
-
-  // get arena
-
-  public Rectangle2D.Double getArena()
-  {
-    return arena;
-  }
-
-  /**
-   * Compute center of arena.
-   * 
-   * @return center of the arena
-   */
-
-  public Point2D.Double getCenter()
-  {
-    return new Point2D.Double(arena.getX() + arena.getWidth() / 2, arena
-      .getY() +
-      arena.getHeight() / 2);
-  }
-
-  // get centroid
-
-  public Point2D.Double getCentroid()
-  {
-    return centroid;
-  }
-
-  // select next behavoir for all orbs in swarm
+  // select next behavior for all orbs in swarm
 
   public void nextBehavior()
   {
@@ -72,34 +18,12 @@ public class Swarm extends AMobjects<IOrb>
       orb.nextBehavior();
   }
 
-  // select previous behavoir for all orbs in swarm
+  // select previous behavior for all orbs in swarm
 
   public void previousBehavior()
   {
     for (IOrb orb: this)
       orb.previousBehavior();
-  }
-
-  // update the swarm
-
-  public void update(double time)
-  {
-    // establish centroid of swarm
-
-    centroid.x = 0;
-    centroid.y = 0;
-    for (IMobject mobject : this)
-    {
-      centroid.x += mobject.getPosition().x;
-      centroid.y += mobject.getPosition().y;
-    }
-    centroid.x /= size();
-    centroid.y /= size();
-
-    // update individual mobjects
-
-    for (IMobject mobject : this)
-      mobject.update(time);
   }
 
   public IOrb getOrb(int orbNum)

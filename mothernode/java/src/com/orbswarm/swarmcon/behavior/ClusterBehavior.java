@@ -3,23 +3,18 @@ package com.orbswarm.swarmcon.behavior;
 import org.trebor.util.Angle;
 
 import com.orbswarm.swarmcon.model.MotionModel;
+import com.orbswarm.swarmcon.orb.Swarm;
 
-import static com.orbswarm.swarmcon.Constants.SAFE_DISTANCE;
-import static com.orbswarm.swarmcon.Constants.RND;
 import static org.trebor.util.Angle.Type.DEGREES;
 
 public class ClusterBehavior extends Behavior
 {
-  double distance;
+  private final Swarm mSwarm;
 
-  public ClusterBehavior()
+  public ClusterBehavior(Swarm swarm)
   {
     super("Cluster");
-
-    // give each orb a different stand-off distance so they
-    // don't all jam each other up (kinda hacky)
-
-    distance = SAFE_DISTANCE + RND.nextDouble() * SAFE_DISTANCE / 2;
+    mSwarm = swarm;
   }
 
   // update
@@ -28,6 +23,6 @@ public class ClusterBehavior extends Behavior
   {
     // head towards centroid
 
-    model.setTargetYaw(new Angle(orb.headingTo(orb.getCentroid()), DEGREES));
+    model.setTargetYaw(new Angle(orb.headingTo(mSwarm.getPosition()), DEGREES));
   }
 }

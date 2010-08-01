@@ -1,8 +1,6 @@
 package com.orbswarm.swarmcon.orb;
 
 import java.awt.Color;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 
 import java.util.Vector;
 import java.util.concurrent.Delayed;
@@ -22,7 +20,6 @@ import org.trebor.util.Angle;
 import static java.lang.System.currentTimeMillis;
 import static com.orbswarm.swarmcon.Constants.ORB_CLR;
 import static com.orbswarm.swarmcon.Constants.ORB_DIAMETER;
-import static com.orbswarm.swarmcon.Constants.RND;
 
 import org.apache.log4j.Logger;
 
@@ -82,31 +79,10 @@ public class Orb extends AMobject implements IOrbListener, IOrb
     this.swarm = swarm;
     this.distances = new double[6]; // how to get swarm size here?
     this.id = id;
-    randomizePos();
-  }
-
-  // randomize position of orb
-
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#randomizePos()
-   */
-  public void randomizePos()
-  {
-    Rectangle2D.Double arena = swarm.getArena();
-    // keep the initial positions within a smaller bounding box
-    double boundX = Math.min(10., arena.getWidth());
-    double boundY = Math.min(10., arena.getHeight());
-    setPosition(arena.getX() + RND.nextDouble() * boundX, arena.getY() +
-      RND.nextDouble() * boundY);
   }
 
   // position setter
 
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#setPosition(double, double)
-   */
   public void setPosition(double x, double y)
   {
     super.setPosition(x, y);
@@ -382,17 +358,6 @@ public class Orb extends AMobject implements IOrbListener, IOrb
   {
     nearest = null;
     nearestDistance = Double.MAX_VALUE;
-  }
-
-  // get centroid of swarm
-
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#getCentroid()
-   */
-  public Point2D.Double getCentroid()
-  {
-    return swarm.getCentroid();
   }
 
   // check candidate for nearness

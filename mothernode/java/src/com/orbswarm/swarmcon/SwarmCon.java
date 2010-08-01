@@ -312,7 +312,7 @@ public class SwarmCon extends JFrame
     
     // create the place for the swarm and add it to visual objects
     
-    mSwarm = new Swarm(new Rectangle2D.Double(0, 0, 50, 50));
+    mSwarm = new Swarm();
     mVisualObjects.add(mSwarm);
     
     // create a place to put phantoms and add it to visual objects
@@ -536,7 +536,7 @@ public class SwarmCon extends JFrame
         Behavior fb = new FollowBehavior(previous);
         Behavior wb = new WanderBehavior();
         Behavior rb = new RandomBehavior();
-        Behavior cb = new ClusterBehavior();
+        Behavior cb = new ClusterBehavior(mSwarm);
         Behavior fab = new AvoidBehavior(fb);
         Behavior cab = new AvoidBehavior(cb);
         orb.add(wb);
@@ -905,8 +905,8 @@ public class SwarmCon extends JFrame
     // compute 90 % of minimum dimension which is the maximum
     // size to take up
 
-    double maxSize = min(mSwarm.getArena().getWidth(), mSwarm.getArena()
-      .getHeight()) * 0.9d;
+    
+    double maxSize = min(mArena.getWidth(), mArena.getHeight()) * 0.9d;
 
     // find the center of the arena
 
@@ -934,6 +934,25 @@ public class SwarmCon extends JFrame
         angle += dAngle;
       }
     }
+  }
+
+  // randomize position of items in swarm
+
+  public void randomizeSwarm(Rectangle2D range)
+  {
+    for (IOrb orb: mSwarm)
+      randomizePos(orb, range);
+  }
+  
+  // randomize position of orb
+
+  public void randomizePos(IOrb orb, Rectangle2D range)
+  {
+    // keep the initial positions within a smaller bounding box
+    double boundX = Math.min(10., range.getWidth());
+    double boundY = Math.min(10., range.getHeight());
+    orb.setPosition(range.getX() + RND.nextDouble() * boundX, range.getY() +
+      RND.nextDouble() * boundY);
   }
 
   /**
@@ -1415,8 +1434,6 @@ public class SwarmCon extends JFrame
         else
           mLiveMode = false;
 
-        createOrbs();
-
         mCardLayout.last(mCenterPanel);
       }
       catch (Exception ex)
@@ -1434,8 +1451,6 @@ public class SwarmCon extends JFrame
     public void actionPerformed(ActionEvent e)
     {
       mLiveMode = false;
-      createOrbs();
-
       mCardLayout.last(mCenterPanel);
     }
   };
@@ -1447,7 +1462,7 @@ public class SwarmCon extends JFrame
   {
     public void actionPerformed(ActionEvent e)
     {
-      mSwarm.randomize();
+      randomizeSwarm(new Rectangle2D.Double(-3, -3, 6, 6));
     }
   };
 

@@ -1,7 +1,7 @@
 package com.orbswarm.swarmcon.orb;
 
 import java.awt.Color;
-import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 import org.trebor.util.Angle;
 
@@ -13,8 +13,6 @@ import com.orbswarm.swarmcon.orb.Orb.HistoryQueue;
 
 public interface IOrb extends IMobject
 {
-  public void randomizePos();
-
   public Color getOrbColor();
 
   /** Return the current orbs motion model */
@@ -86,10 +84,6 @@ public interface IOrb extends IMobject
   // reset nearest
 
   public void resetNearest();
-
-  // get centroid of swarm
-
-  public Point2D.Double getCentroid();
 
   // check candidate for nearness
 
