@@ -12,7 +12,7 @@ import static java.lang.Math.toDegrees;
 
 // mobile object
 
-public abstract class AMobject implements IMobject
+public abstract class AVobject implements IVobject
 {
   /** position of mobject in space */
 
@@ -34,7 +34,7 @@ public abstract class AMobject implements IMobject
    *        assumed to be a circle
    */
 
-  public AMobject(double size)
+  public AVobject(double size)
   {
     setShape(new Ellipse2D.Double(-(size / 2), -(size / 2), size, size));
   }
@@ -168,7 +168,7 @@ public abstract class AMobject implements IMobject
 
   // compute heading to some point
 
-  public double headingTo(IMobject other)
+  public double headingTo(IVobject other)
   {
     return headingTo(other.getPosition());
   }
@@ -199,7 +199,7 @@ public abstract class AMobject implements IMobject
    * com.orbswarm.swarmcon.orb.IMobject#distanceTo(com.orbswarm.swarmcon
    * .orb.IMobject)
    */
-  public double distanceTo(IMobject other)
+  public double distanceTo(IVobject other)
   {
     return distanceTo(other.getPosition());
   }

@@ -3,13 +3,13 @@ package com.orbswarm.swarmcon.view;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 
-import com.orbswarm.swarmcon.vobject.IMobject;
+import com.orbswarm.swarmcon.vobject.IVobject;
 
-public interface IRenderer<Type extends IMobject>
+public interface IRenderer<Type extends IVobject>
 {
-  public void render(Graphics2D g, IMobject o);
+  public void render(Graphics2D g, IVobject o);
 
-  public void renderAsPhantom(Graphics2D g, IMobject o, double phantomAlpha);
+  public void renderAsPhantom(Graphics2D g, IVobject o, double phantomAlpha);
 
   public void drawText(Graphics2D g, double x, double y, String text);
 

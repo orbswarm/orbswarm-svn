@@ -4,7 +4,7 @@ import java.awt.geom.Point2D;
 
 import com.orbswarm.swarmcon.path.Point;
 
-public interface IMobject
+public interface IVobject
 {
 
   /**
@@ -66,7 +66,7 @@ public interface IMobject
 
   // compute heading to some point
 
-  public double headingTo(IMobject other);
+  public double headingTo(IVobject other);
 
   // compute heading to some point
 
@@ -74,7 +74,7 @@ public interface IMobject
 
   // compute distance to some point
 
-  public double distanceTo(IMobject other);
+  public double distanceTo(IVobject other);
 
   // compute distance to some point
 

@@ -9,8 +9,8 @@ import org.apache.log4j.Logger;
 import com.orbswarm.swarmcon.SwarmCon.MouseMobject;
 import com.orbswarm.swarmcon.orb.IOrb;
 import com.orbswarm.swarmcon.orb.Phantom;
-import com.orbswarm.swarmcon.vobject.IMobject;
-import com.orbswarm.swarmcon.vobject.IMobjects;
+import com.orbswarm.swarmcon.vobject.IVobject;
+import com.orbswarm.swarmcon.vobject.IVobjects;
 
 public class Renderer
 {
@@ -28,24 +28,24 @@ public class Renderer
       MouseMobject.class, MouseMobjectRenderer.class
     },
     {
-      IMobjects.class, MobjectsRenderer.class
+      IVobjects.class, MobjectsRenderer.class
     },
   };
 
   private static Map<Class<?>, IRenderer<?>> mRendererInstanceMap = new HashMap<Class<?>, IRenderer<?>>();
 
-  public static void render(Graphics2D g, IMobject mobject)
+  public static void render(Graphics2D g, IVobject mobject)
   {
     getRenderer(mobject).render(g, mobject);
   }
 
-  public static void renderAsPhantom(Graphics2D g, IMobject mobject,
+  public static void renderAsPhantom(Graphics2D g, IVobject mobject,
     double phantomAlpha)
   {
     getRenderer(mobject).renderAsPhantom(g, mobject, phantomAlpha);
   }
 
-  public static IRenderer<?> getRenderer(IMobject mobject)
+  public static IRenderer<?> getRenderer(IVobject mobject)
   {
     for (Class<?>[] map : renderClasses)
       if (map[0].isInstance(mobject))

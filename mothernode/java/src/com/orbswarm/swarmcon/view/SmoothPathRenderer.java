@@ -9,7 +9,7 @@ import com.orbswarm.swarmcon.path.SmoothMobject;
 import com.orbswarm.swarmcon.path.SmoothPath;
 import com.orbswarm.swarmcon.path.Target;
 import com.orbswarm.swarmcon.path.Waypoint;
-import com.orbswarm.swarmcon.vobject.IMobject;
+import com.orbswarm.swarmcon.vobject.IVobject;
 
 // smooth path for printing on display
 
@@ -20,7 +20,7 @@ public class SmoothPathRenderer extends ARenderer<SmoothMobject>
   private static final Ellipse2D.Double smallDot = new Ellipse2D.Double(-.1,
     -.1, .2, .2);
 
-  public void render(Graphics2D g, IMobject o)
+  public void render(Graphics2D g, IVobject o)
   {
     SmoothPath sp = (SmoothPath)o;
 

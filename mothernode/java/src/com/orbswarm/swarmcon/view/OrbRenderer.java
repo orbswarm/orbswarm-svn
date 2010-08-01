@@ -18,7 +18,7 @@ import com.orbswarm.swarmcon.orb.Orb;
 import com.orbswarm.swarmcon.path.SmoothPath;
 import com.orbswarm.swarmcon.path.Target;
 import com.orbswarm.swarmcon.path.Waypoint;
-import com.orbswarm.swarmcon.vobject.IMobject;
+import com.orbswarm.swarmcon.vobject.IVobject;
 
 import static java.lang.Math.sin;
 import static java.lang.Math.abs;
@@ -57,7 +57,7 @@ public class OrbRenderer extends ARenderer<IOrb>
   BasicStroke vectorStroke = new BasicStroke((float)(ORB_DIAMETER / 8),
     BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 
-  public void render(Graphics2D g, IMobject mobject)
+  public void render(Graphics2D g, IVobject mobject)
   {
     IOrb orb = (IOrb)mobject;
 

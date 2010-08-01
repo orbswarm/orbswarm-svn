@@ -76,10 +76,10 @@ import com.orbswarm.swarmcon.path.Path;
 import com.orbswarm.swarmcon.path.Point;
 import com.orbswarm.swarmcon.path.Target;
 import com.orbswarm.swarmcon.view.Renderer;
-import com.orbswarm.swarmcon.vobject.AMobject;
-import com.orbswarm.swarmcon.vobject.AMobjects;
-import com.orbswarm.swarmcon.vobject.IMobject;
-import com.orbswarm.swarmcon.vobject.Mobjects;
+import com.orbswarm.swarmcon.vobject.AVobject;
+import com.orbswarm.swarmcon.vobject.AVobjects;
+import com.orbswarm.swarmcon.vobject.IVobject;
+import com.orbswarm.swarmcon.vobject.Vobjects;
 
 import static org.trebor.util.ShapeTools.normalize;
 import static org.trebor.util.ShapeTools.scale;
@@ -212,15 +212,15 @@ public class SwarmCon extends JFrame
 
   /** all visual objects in the system */
   
-  private final Mobjects mVisualObjects;
+  private final Vobjects mVisualObjects;
   
   /** selected objects */
 
-  private final Mobjects mSelected;
+  private final Vobjects mSelected;
 
   /** phantom objects */
 
-  private final AMobjects<Phantom> mPhantoms;
+  private final AVobjects<Phantom> mPhantoms;
 
   /** last time mobects were updated */
 
@@ -310,7 +310,7 @@ public class SwarmCon extends JFrame
 
     // create a place to put all visual objects
     
-    mVisualObjects = new Mobjects();
+    mVisualObjects = new Vobjects();
     
     // create the place for the swarm and add it to visual objects
     
@@ -319,12 +319,12 @@ public class SwarmCon extends JFrame
     
     // create a place to put phantoms and add it to visual objects
     
-    mPhantoms = new AMobjects<Phantom>();
+    mPhantoms = new AVobjects<Phantom>();
     mVisualObjects.add(mPhantoms);
     
     // create a place record selected vobject
     
-    mSelected = new Mobjects();
+    mSelected = new Vobjects();
 
     // create robot for capturing images
     
@@ -439,10 +439,13 @@ public class SwarmCon extends JFrame
             Calendar now = Calendar.getInstance();
 
             // update with the difference between now and last update
-
-            update(millisecondsToSeconds(now.getTimeInMillis() -
-              mLastUpdate.getTimeInMillis()));
-
+            
+            synchronized (mVisualObjects)
+            {
+              update(millisecondsToSeconds(now.getTimeInMillis() -
+                mLastUpdate.getTimeInMillis()));
+            }
+            
             // establish the time since last update
 
             mLastUpdate = now;
@@ -468,13 +471,10 @@ public class SwarmCon extends JFrame
   {
     // update all the objects
 
-    synchronized(mVisualObjects)
-    {
-      mVisualObjects.update(time);
-    }
-    
+    mVisualObjects.update(time);
+
     // repaint the screen
-    
+
     mArena.repaint();
   }
 
@@ -482,7 +482,7 @@ public class SwarmCon extends JFrame
 
   public void createOrbs()
   {
-    IMobject mouseDot = new MouseMobject(mArena);
+    IVobject mouseDot = new MouseMobject(mArena);
     mVisualObjects.add(mouseDot);
 
     // create the orbs
@@ -582,7 +582,7 @@ public class SwarmCon extends JFrame
       // extract just the orbs from the swarm
 
       Vector<Orb> orbs = new Vector<Orb>();
-      for (IMobject m : mSwarm)
+      for (IVobject m : mSwarm)
         if (m instanceof Orb)
           orbs.add((Orb)m);
 
@@ -1187,7 +1187,7 @@ public class SwarmCon extends JFrame
 
   // object which is always set to the position of the mouse
 
-  public class MouseMobject extends AMobject
+  public class MouseMobject extends AVobject
   {
     // shape to be drawn
 
@@ -1288,9 +1288,9 @@ public class SwarmCon extends JFrame
     public void commandOrb(MouseEvent e)
     {
       Point2D.Double worldPos = screenToWorld(e.getPoint());
-      final IMobject nearest = mSwarm.findSelected(worldPos);
+      final IVobject nearest = mSwarm.findSelected(worldPos);
 
-      if (nearest != null && nearest instanceof IMobject)
+      if (nearest != null && nearest instanceof IVobject)
       {
         orbToCommand = (Orb)nearest;
       }
@@ -1318,7 +1318,7 @@ public class SwarmCon extends JFrame
     {
       // find nearest selectable mobject
 
-      final IMobject nearest = mSwarm
+      final IVobject nearest = mSwarm
         .findSelected(screenToWorld(e.getPoint()));
 
       // if shift is not down, clear selected
@@ -1513,7 +1513,7 @@ public class SwarmCon extends JFrame
   {
     public void actionPerformed(ActionEvent e)
     {
-      for (IMobject mo : mSwarm)
+      for (IVobject mo : mSwarm)
         if (mo instanceof Orb)
           ((IOrb)mo).getModel().stop();
     }

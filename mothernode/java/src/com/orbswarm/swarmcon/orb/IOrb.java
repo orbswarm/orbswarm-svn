@@ -8,9 +8,9 @@ import com.orbswarm.swarmcon.behavior.Behavior;
 import com.orbswarm.swarmcon.io.Message;
 import com.orbswarm.swarmcon.model.MotionModel;
 import com.orbswarm.swarmcon.orb.Orb.HistoryQueue;
-import com.orbswarm.swarmcon.vobject.IMobject;
+import com.orbswarm.swarmcon.vobject.IVobject;
 
-public interface IOrb extends IMobject
+public interface IOrb extends IVobject
 {
   public Color getOrbColor();
 
@@ -74,7 +74,7 @@ public interface IOrb extends IMobject
 
   // get nearest mobject
 
-  public IMobject getNearest();
+  public IVobject getNearest();
 
   // get distance to nearest mobject
 

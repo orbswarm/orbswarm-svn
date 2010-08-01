@@ -2,13 +2,13 @@ package com.orbswarm.swarmcon.orb;
 
 import java.awt.geom.Point2D;
 
-import com.orbswarm.swarmcon.vobject.AMobject;
-import com.orbswarm.swarmcon.vobject.IMobject;
+import com.orbswarm.swarmcon.vobject.AVobject;
+import com.orbswarm.swarmcon.vobject.IVobject;
 
 import static java.lang.Math.PI;
 import static java.lang.Math.sin;
 
-public class Phantom extends AMobject
+public class Phantom extends AVobject
 {
   /** the amount of wind-up before moving */
 
@@ -44,7 +44,7 @@ public class Phantom extends AMobject
 
   /** mobject that is a phantom of */
 
-  private IMobject mobject;
+  private IVobject mobject;
 
   /**
    * create a phantom from a given mobject
@@ -53,7 +53,7 @@ public class Phantom extends AMobject
    * @param period period of time over which phantom will move
    */
 
-  public Phantom(IMobject mobject, double period)
+  public Phantom(IVobject mobject, double period)
   {
     super(mobject.getSize());
     this.time = 0;
@@ -102,7 +102,7 @@ public class Phantom extends AMobject
    * @return contained Mobject
    */
 
-  public IMobject getMobject()
+  public IVobject getMobject()
   {
     return mobject;
   }

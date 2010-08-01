@@ -12,8 +12,8 @@ import com.orbswarm.swarmcon.io.Message;
 import com.orbswarm.swarmcon.io.OrbIo.IOrbListener;
 import com.orbswarm.swarmcon.model.MotionModel;
 import com.orbswarm.swarmcon.path.Point;
-import com.orbswarm.swarmcon.vobject.AMobject;
-import com.orbswarm.swarmcon.vobject.IMobject;
+import com.orbswarm.swarmcon.vobject.AVobject;
+import com.orbswarm.swarmcon.vobject.IVobject;
 
 import org.trebor.util.Angle;
 
@@ -25,7 +25,7 @@ import org.apache.log4j.Logger;
 
 /** Representation of an orb. */
 
-public class Orb extends AMobject implements IOrbListener, IOrb
+public class Orb extends AVobject implements IOrbListener, IOrb
 {
   private static Logger log = Logger.getLogger(Orb.class);
 
@@ -59,7 +59,7 @@ public class Orb extends AMobject implements IOrbListener, IOrb
 
   // nearest mobject
 
-  private IMobject nearest = null;
+  private IVobject nearest = null;
   private double nearestDistance = Double.MAX_VALUE;
 
   /** distances to all the other orbs. Calculated once per cycle. */
@@ -328,7 +328,7 @@ public class Orb extends AMobject implements IOrbListener, IOrb
    * (non-Javadoc)
    * @see com.orbswarm.swarmcon.orb.IOrbx#getNearest()
    */
-  public IMobject getNearest()
+  public IVobject getNearest()
   {
     if (nearest == null)
       findNearest();
@@ -370,7 +370,7 @@ public class Orb extends AMobject implements IOrbListener, IOrb
   {
     // find nearest other orb in the swarm
 
-    for (IMobject other : swarm)
+    for (IVobject other : swarm)
       if (other != this)
       {
         double distance = distanceTo(other);
@@ -391,7 +391,7 @@ public class Orb extends AMobject implements IOrbListener, IOrb
   public double[] calculateDistances()
   {
     int i = 0;
-    for (IMobject other : swarm)
+    for (IVobject other : swarm)
     {
       if (other instanceof Orb)
       {

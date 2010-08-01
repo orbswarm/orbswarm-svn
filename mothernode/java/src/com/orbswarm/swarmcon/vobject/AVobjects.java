@@ -5,8 +5,8 @@ import java.util.Vector;
 
 import com.orbswarm.swarmcon.path.Point;
 
-public class AMobjects<E extends IMobject> extends Vector<E>
-  implements IMobjects<E>
+public class AVobjects<E extends IVobject> extends Vector<E>
+  implements IVobjects<E>
 {
   private static final long serialVersionUID = -1347610749830598878L;
 
@@ -45,7 +45,7 @@ public class AMobjects<E extends IMobject> extends Vector<E>
       vobject.update(time);
   }
 
-  public double distanceTo(IMobject other)
+  public double distanceTo(IVobject other)
   {
     return getPosition().distance(other.getPosition());
   }
@@ -90,7 +90,7 @@ public class AMobjects<E extends IMobject> extends Vector<E>
     return getPosition().getY();
   }
 
-  public double headingTo(IMobject other)
+  public double headingTo(IVobject other)
   {
     throw new UnsupportedOperationException();
   }

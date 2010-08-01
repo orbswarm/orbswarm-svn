@@ -3,7 +3,7 @@ package com.orbswarm.swarmcon.behavior;
 import org.trebor.util.Angle;
 
 import com.orbswarm.swarmcon.model.MotionModel;
-import com.orbswarm.swarmcon.vobject.IMobject;
+import com.orbswarm.swarmcon.vobject.IVobject;
 
 import static org.trebor.util.Angle.Type.HEADING;
 
@@ -11,11 +11,11 @@ public class FollowBehavior extends Behavior
 {
   // target to follow
 
-  IMobject target;
+  IVobject target;
 
   // create a follow behavior
 
-  public FollowBehavior(IMobject target)
+  public FollowBehavior(IVobject target)
   {
     super("Follow");
     this.target = target;

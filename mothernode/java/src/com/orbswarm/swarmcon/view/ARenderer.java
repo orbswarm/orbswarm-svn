@@ -6,16 +6,16 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
 import com.orbswarm.swarmcon.path.Point;
-import com.orbswarm.swarmcon.vobject.IMobject;
+import com.orbswarm.swarmcon.vobject.IVobject;
 
-public abstract class ARenderer<Type extends IMobject> implements
+public abstract class ARenderer<Type extends IVobject> implements
   IRenderer<Type>
 {
   private boolean isPhantom = false;
 
   private double masterAlpha = 1.0d;
 
-  public void renderAsPhantom(Graphics2D g, IMobject o, double phantomAlpha)
+  public void renderAsPhantom(Graphics2D g, IVobject o, double phantomAlpha)
   {
     setPhantom(true);
     double oldAlpha = getMasterAlpha();

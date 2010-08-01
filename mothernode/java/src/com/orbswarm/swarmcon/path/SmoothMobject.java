@@ -5,11 +5,11 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 
-import com.orbswarm.swarmcon.vobject.AMobject;
+import com.orbswarm.swarmcon.vobject.AVobject;
 
 // smooth path for printing on display
 
-public class SmoothMobject extends AMobject
+public class SmoothMobject extends AVobject
 {
   private SmoothPath sp;
   private static final Ellipse2D.Double bigDot = new Ellipse2D.Double(-.3,

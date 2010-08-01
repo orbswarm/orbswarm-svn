@@ -4,14 +4,14 @@ import java.awt.*;
 import java.awt.geom.*;
 
 import com.orbswarm.swarmcon.orb.Phantom;
-import com.orbswarm.swarmcon.vobject.IMobject;
+import com.orbswarm.swarmcon.vobject.IVobject;
 
 public class PhantomRenderer extends ARenderer<Phantom>
 {
-  public void render(Graphics2D g, IMobject o)
+  public void render(Graphics2D g, IVobject o)
   {
     Phantom phantom = (Phantom)o;
-    IMobject mobject = phantom.getMobject();
+    IVobject mobject = phantom.getMobject();
 
     // record transform and scale
 
