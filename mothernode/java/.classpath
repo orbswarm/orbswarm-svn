@@ -4,7 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/JVM 1.6.0"/>
 	<classpathentry kind="lib" path="/Users/trebor/Documents/personal/swarmcon/lib/GlgEval2.jar"/>
 	<classpathentry kind="lib" path="/Users/trebor/Documents/personal/swarmcon/lib/javagps.jar"/>
-	<classpathentry kind="lib" path="/Users/trebor/Documents/personal/swarmcon/lib/json.jar"/>
 	<classpathentry kind="lib" path="/Users/trebor/Documents/personal/swarmcon/lib/log4j.jar"/>
 	<classpathentry kind="lib" path="/Users/trebor/Documents/personal/swarmcon/lib/pid.jar"/>
 	<classpathentry kind="lib" path="/Users/trebor/Documents/personal/swarmcon/lib/RXTXcomm.jar"/>

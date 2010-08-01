@@ -4,8 +4,8 @@ import org.trebor.util.Angle;
 
 import com.orbswarm.swarmcon.model.MotionModel;
 
-import static com.orbswarm.swarmcon.SwarmCon.*;
-import static org.trebor.util.Angle.Type.*;
+import static com.orbswarm.swarmcon.Constants.RND;
+import static org.trebor.util.Angle.Type.HEADING;
 
 
 public class RandomBehavior extends Behavior

@@ -4,7 +4,7 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Map.Entry;
 
-import com.orbswarm.swarmcon.SwarmCon;
+import static com.orbswarm.swarmcon.Constants.ORB_OFFSET_ID;
 
 /** The orb message class. */
 
@@ -137,7 +137,7 @@ public class Message extends Properties
 
       if (!t.hasMoreTokens())
         return;
-      senderId = Integer.valueOf(t.nextToken()) - SwarmCon.ORB_OFFSET_ID;
+      senderId = Integer.valueOf(t.nextToken()) - ORB_OFFSET_ID;
 
       // get the message type
 

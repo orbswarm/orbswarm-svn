@@ -1,5 +1,6 @@
 package com.orbswarm.swarmcon.model;
 
+import org.apache.log4j.Logger;
 import org.trebor.pid.Controller;
 import org.trebor.pid.PController;
 import org.trebor.util.Angle;
@@ -8,14 +9,20 @@ import com.orbswarm.swarmcon.io.Message;
 import com.orbswarm.swarmcon.path.Point;
 import com.orbswarm.swarmcon.path.Waypoint;
 
-import static java.lang.Math.*;
-import static com.orbswarm.swarmcon.SwarmCon.*;
-import static org.trebor.util.Angle.Type.*;
+import static java.lang.Math.sin;
+import static java.lang.Math.cos;
+import static java.lang.Math.hypot;
+import static org.trebor.util.Angle.Type.DEGREE_RATE;
+import static org.trebor.util.Angle.Type.RADIAN_RATE;
+import static org.trebor.util.Angle.Type.HEADING_RATE;
+import static com.orbswarm.swarmcon.Constants.*;
 
 /** A simple motion simulation model based on rates */
 
 public class SimModel extends MotionModel
 {
+  private static Logger log = Logger.getLogger(SimModel.class);
+  
     /** pitch rate model */
 
     private Rate pitchRate = new Rate(

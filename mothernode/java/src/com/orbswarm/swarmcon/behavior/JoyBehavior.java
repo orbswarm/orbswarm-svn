@@ -2,11 +2,11 @@ package com.orbswarm.swarmcon.behavior;
 
 import org.trebor.util.Angle;
 
-import com.orbswarm.swarmcon.SwarmCon;
 import com.orbswarm.swarmcon.io.JoystickManager;
 import com.orbswarm.swarmcon.model.MotionModel;
 
-import static org.trebor.util.Angle.Type.*;
+import static org.trebor.util.Angle.Type.DEGREE_RATE;
+import static com.orbswarm.swarmcon.Constants.*;
 
 public class JoyBehavior extends Behavior implements JoystickManager.Listener
 {
@@ -37,19 +37,19 @@ public class JoyBehavior extends Behavior implements JoystickManager.Listener
 
       /** Distpatch joystick hat event.
        *
-       * @param orb orb assocated with this stick
+       * @param orb orb associated with this stick
        * @param hat number of hat which has changed
-       * @param x   X value of hat postion
-       * @param x   Y value of hat postion
+       * @param x   X value of hat position
+       * @param x   Y value of hat position
        */
 
       public void joystickHatChanged(int stick, int hat, int x, int y)
       {
       }
 
-      /** Distpatch joystick button press event.
+      /** Dispatch joystick button press event.
        *
-       * @param stick joystick on which this event occured
+       * @param stick joystick on which this event occurred
        * @param button number of button which has changed
        */
 
@@ -57,9 +57,9 @@ public class JoyBehavior extends Behavior implements JoystickManager.Listener
       {
       }
 
-      /** Distpatch joystick button release event.
+      /** Dispatch joystick button release event.
        *
-       * @param stick joystick on which this event occured
+       * @param stick joystick on which this event occurred
        * @param button number of button which has changed
        */
 
@@ -71,7 +71,6 @@ public class JoyBehavior extends Behavior implements JoystickManager.Listener
 
       public void update(double time, MotionModel model)
       {
-        model.setTargetRoll(new Angle(steering * SwarmCon.MAX_ROLL, DEGREE_RATE));
+        model.setTargetRoll(new Angle(steering * MAX_ROLL, DEGREE_RATE));
       }
-    
 }

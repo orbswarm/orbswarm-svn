@@ -4,8 +4,8 @@ import org.trebor.util.Angle;
 
 import com.orbswarm.swarmcon.model.MotionModel;
 
-import static com.orbswarm.swarmcon.SwarmCon.SAFE_DISTANCE;
-import static com.orbswarm.swarmcon.SwarmCon.RND;
+import static com.orbswarm.swarmcon.Constants.SAFE_DISTANCE;
+import static com.orbswarm.swarmcon.Constants.RND;
 import static org.trebor.util.Angle.Type.DEGREES;
 
 public class ClusterBehavior extends Behavior

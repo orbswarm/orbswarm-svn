@@ -1,6 +1,6 @@
 package com.orbswarm.swarmcon.behavior;
 
-import static com.orbswarm.swarmcon.SwarmCon.RND;
+import static com.orbswarm.swarmcon.Constants.RND;
 import static java.lang.Math.sin;
 
 import com.orbswarm.swarmcon.model.MotionModel;

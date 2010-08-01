@@ -18,9 +18,9 @@ import com.orbswarm.swarmcon.path.Point;
 import org.trebor.util.Angle;
 
 import static java.lang.System.currentTimeMillis;
-import static com.orbswarm.swarmcon.SwarmCon.ORB_CLR;
-import static com.orbswarm.swarmcon.SwarmCon.ORB_DIAMETER;
-import static com.orbswarm.swarmcon.SwarmCon.RND;
+import static com.orbswarm.swarmcon.Constants.ORB_CLR;
+import static com.orbswarm.swarmcon.Constants.ORB_DIAMETER;
+import static com.orbswarm.swarmcon.Constants.RND;
 
 import org.apache.log4j.Logger;
 
@@ -295,11 +295,11 @@ public class Orb extends AMobject
 
     if (behavior != null)
       behavior.update(time, model);
-
+    
     // update the model
 
     model.update(time);
-
+    
     // set location to the model location
 
     setPosition(model.getPosition());

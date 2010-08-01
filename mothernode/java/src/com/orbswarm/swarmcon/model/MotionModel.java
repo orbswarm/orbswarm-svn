@@ -10,9 +10,13 @@ import com.orbswarm.swarmcon.path.SmoothPath;
 import com.orbswarm.swarmcon.path.Target;
 import com.orbswarm.swarmcon.path.Waypoint;
 
-import static com.orbswarm.swarmcon.SwarmCon.*;
-import static java.lang.Math.*;
-import static org.trebor.util.Angle.Type.*;
+import static java.lang.Math.abs;
+import static java.lang.Math.min;
+import static java.lang.Math.max;
+import static org.trebor.util.Angle.Type.DEGREE_RATE;
+import static org.trebor.util.Angle.Type.DEGREES;
+import static org.trebor.util.Angle.Type.HEADING;
+import static com.orbswarm.swarmcon.Constants.*;
 
 /** This class models the motion of an orb.  It may be a simulated
  * motion model or a linkage to a live orb. */
@@ -44,7 +48,7 @@ abstract public class MotionModel implements IOrbListener
 
     public static final double CURVE_FLATNESS = 0.00000001;
     
-    /** Velocity rate profile to folow */
+    /** Velocity rate profile to follow */
 
     private static Rate velocityRate = new Rate("Velocity", 0, 1.0, 0.08);
 
@@ -54,11 +58,11 @@ abstract public class MotionModel implements IOrbListener
 
     private Angle yaw = new Angle(45, HEADING);
 
-    /** pitch of orb (shell not ballest) */
+    /** pitch of orb (shell not ballast) */
 
     private Angle pitch = new Angle();
 
-    /** roll of orb (shell not ballest) */
+    /** roll of orb (shell not ballast) */
 
     private Angle roll = new Angle();
 
@@ -129,7 +133,7 @@ abstract public class MotionModel implements IOrbListener
       this.yawRate = yawRate;
     }
     /** Get the current speed of the orb. This takes into account
-     * which way the orb is facing and will return negitive values
+     * which way the orb is facing and will return negative values
      * if the orb is backing up.
      *
      * @return velocity in meters per second
@@ -141,11 +145,12 @@ abstract public class MotionModel implements IOrbListener
         ? getVelocity()
         : -getVelocity();
     }
-    /** Get the current velocity of the orb. Always returns a
-     * postive value.
-     *
-     * @return velocity in meters per second
-     */
+
+  /**
+   * Get the current velocity of the orb. Always returns a positive value.
+   * 
+   * @return velocity in meters per second
+   */
 
     public double getVelocity()
     {
@@ -382,7 +387,7 @@ abstract public class MotionModel implements IOrbListener
     {
       yaw = yaw.rotate(180, DEGREES);
     }
-    // positon getter
+    // position getter
 
     public Point getPosition()
     {
@@ -434,7 +439,7 @@ abstract public class MotionModel implements IOrbListener
       return null;
     }
 
-    /** Return true if the orb has acked the origin command. */
+    /** Return true if the orb has acknowledged the origin command. */
 
     public boolean isOriginAcked()
     {
@@ -449,7 +454,7 @@ abstract public class MotionModel implements IOrbListener
 
     protected PathCommander pathCommander = null;
 
-    // thread for commanding orb
+    // thread for commandingn orb
 
     protected class PathCommander extends Thread
     {

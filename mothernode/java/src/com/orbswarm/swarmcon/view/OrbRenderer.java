@@ -12,7 +12,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 
-import com.orbswarm.swarmcon.SwarmCon;
+import com.orbswarm.swarmcon.Constants;
 import com.orbswarm.swarmcon.orb.IMobject;
 import com.orbswarm.swarmcon.orb.IOrb;
 import com.orbswarm.swarmcon.orb.Orb;
@@ -23,9 +23,11 @@ import com.orbswarm.swarmcon.path.Waypoint;
 import static java.lang.Math.sin;
 import static java.lang.Math.abs;
 import static java.lang.Math.toRadians;
-import static com.orbswarm.swarmcon.SwarmCon.*;
+import static org.trebor.util.Angle.Type.HEADING;
+import static org.trebor.util.Angle.Type.RADIANS;
+import static org.trebor.util.Angle.Type.DEGREES;
 import static org.trebor.util.ShapeTools.*;
-import static org.trebor.util.Angle.Type.*;
+import static com.orbswarm.swarmcon.Constants.*;
 
 import org.apache.log4j.Logger;
 
@@ -138,9 +140,9 @@ public class OrbRenderer extends ARenderer<IOrb>
       txY -= dTxY;
       drawText(g, txX, txY, "  ID: " + orb.getId());
       txY -= dTxY;
-      drawText(g, txX, txY, "EAST: " + SwarmCon.UtmFmt.format(orb.getX()));
+      drawText(g, txX, txY, "EAST: " + Constants.UTM_FORMAT.format(orb.getX()));
       txY -= dTxY;
-      drawText(g, txX, txY, "NORH: " + SwarmCon.UtmFmt.format(orb.getY()));
+      drawText(g, txX, txY, "NORH: " + Constants.UTM_FORMAT.format(orb.getY()));
       txY -= dTxY;
       drawText(g, txX, txY, " YAW: " + (int)(orb.getYaw().as(HEADING)));
       txY -= dTxY;

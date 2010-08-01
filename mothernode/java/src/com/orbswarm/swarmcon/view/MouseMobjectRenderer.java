@@ -10,13 +10,15 @@ import org.trebor.util.ShapeTools;
 import com.orbswarm.swarmcon.SwarmCon;
 import com.orbswarm.swarmcon.orb.IMobject;
 
+import static com.orbswarm.swarmcon.Constants.ORB_DIAMETER;
+
 public class MouseMobjectRenderer extends ARenderer<SwarmCon.MouseMobject>
 {
   // shape to be drawn
 
   Shape shape = new Ellipse2D.Double(
-    -SwarmCon.ORB_DIAMETER / 4, -SwarmCon.ORB_DIAMETER / 4,
-    SwarmCon.ORB_DIAMETER / 2, SwarmCon.ORB_DIAMETER / 2);
+    -ORB_DIAMETER / 4, -ORB_DIAMETER / 4,
+    ORB_DIAMETER / 2, ORB_DIAMETER / 2);
 
   public void render(Graphics2D g, IMobject o)
   {

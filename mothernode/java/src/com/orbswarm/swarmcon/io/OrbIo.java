@@ -3,7 +3,7 @@ package com.orbswarm.swarmcon.io;
 import java.util.HashMap;
 import org.apache.log4j.Logger;
 
-import com.orbswarm.swarmcon.SwarmCon;
+import com.orbswarm.swarmcon.Constants;
 import com.orbswarm.swarmcon.orb.Orb;
 import com.orbswarm.swarmcon.path.Point;
 import com.orbswarm.swarmcon.path.Waypoint;
@@ -18,8 +18,10 @@ import static com.orbswarm.swarmcon.io.Message.Type.*;
  * correct orb object.
  */
 
-public class OrbIo extends SerialIo
+public class OrbIo 
 {
+   SerialIo mIo;
+   
     private static Logger log = Logger.getLogger(OrbIo.class);
 
     /** Hash of orbs to used to dispatch messages to orbs. */
@@ -33,11 +35,11 @@ public class OrbIo extends SerialIo
 
     public OrbIo(String portName)
     {
-      super(portName);
+      mIo = new SerialIo(portName);
       
       // register the line listener which receives messages from the orbs
 
-      registerLineListener(new LineListener()
+      mIo.registerLineListener(new SerialIo.LineListener()
         {
             public void lineEvent(String line)
             {
@@ -73,7 +75,7 @@ public class OrbIo extends SerialIo
     {
       // open serial port
 
-      super.open();
+      mIo.open();
     }
     /** Register an orb as activly recieiving messages from this
      * object.
@@ -171,7 +173,7 @@ public class OrbIo extends SerialIo
 
     public void orbCommand(int orbId, String command)
     {
-      super.send("{" + (60 + orbId) + " " + command + "}");
+      mIo.send("{" + (60 + orbId) + " " + command + "}");
     }
 
     /** for testing */
@@ -182,7 +184,7 @@ public class OrbIo extends SerialIo
       for (String port: SerialIo.listSerialPorts())
         log.debug("port: " + port);
 
-      LineListener ll = new LineListener()
+      SerialIo.LineListener ll = new SerialIo.LineListener()
         {
             public void lineEvent(String line)
             {
@@ -191,7 +193,7 @@ public class OrbIo extends SerialIo
             }
         };
 
-      oio.registerLineListener(ll);
+      oio.mIo.registerLineListener(ll);
 
       String test = "@61 p e=123.45 n=345.67\n";
 
@@ -199,7 +201,7 @@ public class OrbIo extends SerialIo
       {
         try
         {
-          oio.send(test);
+          oio.mIo.send(test);
           log.debug("sent: " + test);
           java.lang.Thread.sleep(1000);
         }
@@ -214,7 +216,12 @@ public class OrbIo extends SerialIo
 
     public String format(double value)
     {
-      return SwarmCon.UtmFmt.format(value);
+      return Constants.UTM_FORMAT.format(value);
+    }
+    
+    public void send(String message)
+    {
+      mIo.send(message);
     }
 
     /** The orb message class. */

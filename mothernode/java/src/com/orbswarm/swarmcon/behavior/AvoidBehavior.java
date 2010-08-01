@@ -4,8 +4,8 @@ import org.trebor.util.Angle;
 
 import com.orbswarm.swarmcon.model.MotionModel;
 
-import static com.orbswarm.swarmcon.SwarmCon.CRITICAL_DISTANCE;
-import static com.orbswarm.swarmcon.SwarmCon.SAFE_DISTANCE;
+import static com.orbswarm.swarmcon.Constants.CRITICAL_DISTANCE;
+import static com.orbswarm.swarmcon.Constants.SAFE_DISTANCE;
 import static org.trebor.util.Angle.Type.DEGREES;
 
 // avoid wraps around another behavior and adds obstacle

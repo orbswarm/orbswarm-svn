@@ -3,98 +3,105 @@ package com.orbswarm.swarmcon.model;
 import static java.lang.Math.min;
 import static java.lang.Math.max;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 // a rate
 
 public class Rate
 {
-      private String name;
-      private double rate;
-      private double target;
-      private double min;
-      private double max;
-      private double acceleration;
+  final private String mName;
+  final private AtomicReference<Double> mRate;
+  final private AtomicReference<Double> mTarget;
+  final private double mMin;
+  final private double mMax;
+  final private double mAcceleration;
 
-      public Rate(String name, double min, double max, double acceleration)
-      {
-         this.name = name;
-         this.min = min;
-         this.max = max;
-         this.acceleration = acceleration;
-      }
-      // clone this rate
+  public Rate(String name, double min, double max, double acceleration)
+  {
+    mName = name;
+    mMin = min;
+    mMax = max;
+    mAcceleration = acceleration;
+    mRate = new AtomicReference<Double>(new Double(0));
+    mTarget = new AtomicReference<Double>(new Double(0));
+  }
 
-      public Rate clone()
-      {
-         Rate other = new Rate(name, min, max, acceleration);
-         other.setRate(getRate());
-         other.setTarget(getTarget());
-         return other;
-      }
-      
-      // get maximum rate
+  // clone this rate
 
-      public double getMax()
-      {
-         return max;
-      }
-      
-      // get minimum rate
+  public Rate clone()
+  {
+    Rate other = new Rate(mName, mMin, mMax, mAcceleration);
+    other.setRate(getRate());
+    other.setTarget(getTarget());
+    return other;
+  }
 
-      public double getMin()
-      {
-         return min;
-      }
-      // stipulate the rate
+  // get maximum rate
 
-      public void setRate(double rate)
-      {
-         assert(false);
-         this.rate = max(min, min(rate, max));
-      }
-      // get current rate
+  public double getMax()
+  {
+    return mMax;
+  }
 
-      public double getRate()
-      {
-         return rate;
-      }
-      // set target rate
-      
-      public void setTarget(double target)
-      {
-         this.target = target;
-      }
-      
-      // set target as normalized value from -1 to 1
+  // get minimum rate
 
-      public void setNormalizedTarget(double target)
-      {
-         assert(target >= -1 && target <= 1);
-         setTarget(min + (max - min) * ((target + 1) / 2));
-      }
-      
-      // get target
+  public double getMin()
+  {
+    return mMin;
+  }
 
-      public double getTarget()
-      {
-         return target;
-      }
-      
-      // get target as a normalized value from 0 to 1
+  // stipulate the rate
 
-      public double getNormalizedTarget()
-      {
-         return ((target - min) / (max - min)) * 2 - 1;
-      }
-      
-      // update the rate
+  public void setRate(double rate)
+  {
+    mRate.set(max(mMin, min(rate, mMax)));
+  }
 
-      public double update(double time)
-      {
-         if (target > rate)
-            rate = min(rate + acceleration * time, target);
-         else if (target < rate)
-            rate = max(rate - acceleration * time, target);
+  // get current rate
 
-         return rate;
-      }
+  public double getRate()
+  {
+    return mRate.get();
+  }
+
+  // set target rate
+
+  public void setTarget(double target)
+  {
+    mTarget.set(target);
+  }
+
+  // set target as normalized value from -1 to 1
+
+  public void setNormalizedTarget(double target)
+  {
+    assert (target >= -1 && target <= 1);
+    setTarget(mMin + (mMax - mMin) * ((target + 1) / 2));
+  }
+
+  // get target
+
+  public double getTarget()
+  {
+    return mTarget.get();
+  }
+
+  // get target as a normalized value from 0 to 1
+
+  public double getNormalizedTarget()
+  {
+    return ((mTarget.get() - mMin) / (mMax - mMin)) * 2 - 1;
+  }
+
+  // update the rate
+
+  public double update(double time)
+  {
+    if (mTarget.get() > mRate.get())
+      mRate.set(min(mRate.get() + mAcceleration * time, mTarget.get()));
+    else if (mTarget.get() < mRate.get())
+      mRate.set(max(mRate.get() - mAcceleration * time, mTarget.get()));
+
+    return mRate.get();
+  }
 }
