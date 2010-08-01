@@ -55,7 +55,6 @@ import java.util.HashMap;
 import java.util.Calendar;
 import java.util.Collections;
 
-
 import org.trebor.util.JarTools;
 import org.trebor.util.properties.IProperty;
 import org.trebor.util.properties.PropertySet;
@@ -125,7 +124,7 @@ public class SwarmCon extends JFrame
 
   /** Current active SwarmCon object. */
   private static SwarmCon mActiveSwarmCon = null;
-  
+
   /*
    * The following are hard coded constants.
    */
@@ -139,28 +138,20 @@ public class SwarmCon extends JFrame
   /** operational mode (live or simulated) */
   private boolean mLiveMode = false;
 
-
-  private static IProperty<?>[] mPropertyList = 
+  private static IProperty<?>[] mPropertyList =
   {
     // help
 
-    new FlagProperty("help", 'h', false, 
-      "should help text be displayed"),
+    new FlagProperty("help", 'h', false, "should help text be displayed"),
 
     // orbs
 
-    new BooleanProperty("swarmcon.orb0.enabled", false,
-      "is orb #0 enabled"),
-    new BooleanProperty("swarmcon.orb1.enabled", false,
-      "is orb #1 enabled"),
-    new BooleanProperty("swarmcon.orb2.enabled", false,
-      "is orb #2 enabled"),
-    new BooleanProperty("swarmcon.orb3.enabled", false,
-      "is orb #3 enabled"),
-    new BooleanProperty("swarmcon.orb4.enabled", false,
-      "is orb #4 enabled"),
-    new BooleanProperty("swarmcon.orb5.enabled", false,
-      "is orb #5 enabled"),
+    new BooleanProperty("swarmcon.orb0.enabled", false, "is orb #0 enabled"),
+    new BooleanProperty("swarmcon.orb1.enabled", false, "is orb #1 enabled"),
+    new BooleanProperty("swarmcon.orb2.enabled", false, "is orb #2 enabled"),
+    new BooleanProperty("swarmcon.orb3.enabled", false, "is orb #3 enabled"),
+    new BooleanProperty("swarmcon.orb4.enabled", false, "is orb #4 enabled"),
+    new BooleanProperty("swarmcon.orb5.enabled", false, "is orb #5 enabled"),
 
     // motion control
 
@@ -177,31 +168,33 @@ public class SwarmCon extends JFrame
       "resources/songs/errata.catalog", "location of sound errata"),
 
     // live commanding of orbs
-       
-    new StringProperty("swarmcon.comm.serialPort", "simulation",
-      "serial port to send command too, either \"simulation\" or something like one" +
-      " of these: /dev/tty.PL2303-0000101D, /dev/tty.PL2303-0000201A," +
-      " /dev/tty.Bluetooth-PDA-Sync"),
+
+    new StringProperty(
+      "swarmcon.comm.serialPort",
+      "simulation",
+      "serial port to send command too, either \"simulation\" or something like one"
+        + " of these: /dev/tty.PL2303-0000101D, /dev/tty.PL2303-0000201A,"
+        + " /dev/tty.Bluetooth-PDA-Sync"),
     new BooleanProperty("swarmcon.comm.sendCommandsToOrbs", true,
       "should commands be sent to orbs"),
     new BooleanProperty("swarmcon.comm.multipleMotionCommands", false,
       "sould multiple motion commands be sent"),
     new BooleanProperty("swarmcon.comm.multipleSoundCommands", false,
       "sould multiple motion commands be sent"),
-    new LongProperty("swarmcon.comm.commandRefreshDelay", 200, 
+    new LongProperty("swarmcon.comm.commandRefreshDelay", 200,
       "delay between commands set to orbs in milliseconds"),
-    new LongProperty("swarmcon.comm.positionPollPeriod", 200, 
+    new LongProperty("swarmcon.comm.positionPollPeriod", 200,
       "the period between position requests in milliseconds"),
   };
 
   /** Properties for tweaking the system. */
   private PropertySet mProperties = new PropertySet()
+  {
     {
-      {
-        for (IProperty<?> property: mPropertyList)
-          add(property);
-      }
-    };
+      for (IProperty<?> property : mPropertyList)
+        add(property);
+    }
+  };
 
   /** The list time the screen was painted */
 
@@ -209,8 +202,8 @@ public class SwarmCon extends JFrame
 
   /** Grid related values */
 
-  private static Stroke mGridStroke = new BasicStroke(
-  .025f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
+  private static Stroke mGridStroke = new BasicStroke(.025f,
+    BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
   private static Color mGrid1Color = new Color(0, 0, 0, 40);
   private static Color mGrid2Color = new Color(0, 0, 0, 30);
   private double mGrid1Size = 5;
@@ -218,13 +211,13 @@ public class SwarmCon extends JFrame
 
   // stroke used to paint the reticle at the center of the worked
 
-  private static Stroke mReticleStroke = new BasicStroke(
-    .10f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+  private static Stroke mReticleStroke = new BasicStroke(.10f,
+    BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 
   /*
-   * The following are values specified in the properties file.  The
-   * default values here will be overwritten by the values in the
-   * properties file or command line values, if either exist.
+   * The following are values specified in the properties file. The default
+   * values here will be overwritten by the values in the properties file
+   * or command line values, if either exist.
    */
 
   /** send multiple sound commands */
@@ -247,14 +240,14 @@ public class SwarmCon extends JFrame
   /** arena in which we play */
 
   private final JPanel mArena = new JPanel()
-    {
-      private static final long serialVersionUID = 6473960062741753128L;
+  {
+    private static final long serialVersionUID = 6473960062741753128L;
 
-      public void paint(Graphics graphics)
-      {
-        paintArena(graphics);
-      }
-    };
+    public void paint(Graphics graphics)
+    {
+      paintArena(graphics);
+    }
+  };
 
   /** card layout for main view area */
 
@@ -271,32 +264,33 @@ public class SwarmCon extends JFrame
 
   private OrbIo mOrbIo;
 
-  /** Implementation of
-   * com.orbswarm.choreography.OrbControl.IOrbControl to control the
-   * Orbs from the Specialists. Currently control is split between
-   * OrbControl and and OrbIo.  This is a bad thing, and this
-   * functionality needs to be all moved into one place.  I would be
-   * inclined to have orb IO implement IOrbControl. */
+  /**
+   * Implementation of com.orbswarm.choreography.OrbControl.IOrbControl to
+   * control the Orbs from the Specialists. Currently control is split
+   * between OrbControl and and OrbIo. This is a bad thing, and this
+   * functionality needs to be all moved into one place. I would be
+   * inclined to have orb IO implement IOrbControl.
+   */
 
   private OrbControl mOrbControlImpl;
 
   // TODO: generalize the orbControl facility to use real/fake at
   // appropriate times.
-  
+
   /** the global word offset to correct the orbs position by */
-  
+
   private static Point globalOffset = new Point(0, 0);
 
   /** selected objects */
-  
+
   private Mobjects selected = new Mobjects();
 
   /** phantom objects */
-  
+
   private Vector<Phantom> phantoms = new Vector<Phantom>();
 
   /** last time mobects were updated */
-  
+
   private Calendar lastUpdate = Calendar.getInstance();
 
   public IOrbControl getOrbControl()
@@ -316,8 +310,9 @@ public class SwarmCon extends JFrame
     return this.mOrbIo;
   }
 
-  /** Scale a font which are to be used in arena units
-   *
+  /**
+   * Scale a font which are to be used in arena units
+   * 
    * @param original font to be scale
    * @return a scaled copy of the font
    */
@@ -327,8 +322,10 @@ public class SwarmCon extends JFrame
     return original.deriveFont((float)(original.getSize() / scale));
   }
 
-  /** swarm of mobjects (not just orbs) (maybe this should not be
-   * called the swarm?) */
+  /**
+   * swarm of mobjects (not just orbs) (maybe this should not be called the
+   * swarm?)
+   */
 
   Swarm mSwarm;
 
@@ -359,7 +356,7 @@ public class SwarmCon extends JFrame
     Constants.STANDARD_FORMAT.setMinimumFractionDigits(2);
     Constants.STANDARD_FORMAT.setGroupingUsed(false);
   }
-  
+
   // color
 
   static
@@ -367,13 +364,15 @@ public class SwarmCon extends JFrame
     ORB_FONT = scaleFont(ORB_FONT, DEFAULT_PIXELS_PER_METER);
     PHANTOM_ORB_FONT = scaleFont(PHANTOM_ORB_FONT, DEFAULT_PIXELS_PER_METER);
   }
-  
+
   // entry point
 
   //
-  // Some booleans that control whether this is a simulation, sends commands to the
+  // Some booleans that control whether this is a simulation, sends
+  // commands to the
   // actual orbs, or what.
-  // Default: sendCommands to the orbs, simulate the colors, but not the sounds.
+  // Default: sendCommands to the orbs, simulate the colors, but not the
+  // sounds.
   // Toggle-able with arguments to the main.
   //
 
@@ -400,8 +399,9 @@ public class SwarmCon extends JFrame
     }
   }
 
-  /** Get the current active instance of SwarmCom.
-   *
+  /**
+   * Get the current active instance of SwarmCom.
+   * 
    * @return the current instance SwarmCon
    */
 
@@ -410,19 +410,16 @@ public class SwarmCon extends JFrame
     return mActiveSwarmCon;
   }
 
-
-  /** Splitting constructor from initializer, so that parameters can
-   *  be set in the main routine before starting it up. (e.g. can't
-   *  reset the time-line width after constructing the frame).
+  /**
+   * Splitting constructor from initializer, so that parameters can be set
+   * in the main routine before starting it up. (e.g. can't reset the
+   * time-line width after constructing the frame).
    */
 
   public void initialize()
   {
-    mOrbControlImpl = new OrbControl(
-      this,
-      mSendCommandsToOrbs,
-      mSimulateColors,
-      mSimulateSounds);
+    mOrbControlImpl = new OrbControl(this, mSendCommandsToOrbs,
+      mSimulateColors, mSimulateSounds);
 
     // construct the frame
 
@@ -430,14 +427,14 @@ public class SwarmCon extends JFrame
 
     // get the graphics device from the local graphic environment
 
-    GraphicsDevice gv = GraphicsEnvironment.
-      getLocalGraphicsEnvironment().getScreenDevices()[0];
+    GraphicsDevice gv = GraphicsEnvironment.getLocalGraphicsEnvironment()
+      .getScreenDevices()[0];
 
     // if full screen is supported setup frame accordingly
 
-    //boolean fullScreenSupported = gv.isFullScreenSupported();
+    // boolean fullScreenSupported = gv.isFullScreenSupported();
     boolean fullScreenSupported = false;
-    
+
     if (fullScreenSupported)
     {
       setUndecorated(true);
@@ -451,7 +448,7 @@ public class SwarmCon extends JFrame
     {
       pack();
       setSize(new Dimension(200, 200));
-      //  setExtendedState(MAXIMIZED_BOTH);
+      // setExtendedState(MAXIMIZED_BOTH);
       setVisible(true);
     }
     mCardLayout.first(mCenterPanel);
@@ -464,18 +461,20 @@ public class SwarmCon extends JFrame
     // start motor control thread
 
     requestFocus();
-    
+
     startControlling();
   }
 
-  /** Reads properties file out of users home directory.  If this
-   * file does not exist a default one will be created. */
+  /**
+   * Reads properties file out of users home directory. If this file does
+   * not exist a default one will be created.
+   */
 
   private void readProperties(String[] args)
   {
     try
     {
-      
+
       // if the properties file does not exist, copy a fresh one out
       // of the jar
 
@@ -485,7 +484,7 @@ public class SwarmCon extends JFrame
 
       // identify where the properties file lives
 
-      log.debug( "Properties file location: " + PROPERTIES_FILE_LOCATION);
+      log.debug("Properties file location: " + PROPERTIES_FILE_LOCATION);
 
       // read in the properties
 
@@ -496,7 +495,7 @@ public class SwarmCon extends JFrame
       mProperties.applyArgs(args);
 
       StringBuffer argsString = new StringBuffer();
-      for (String arg: args)
+      for (String arg : args)
         argsString.append(" " + arg);
       log.debug("args:" + argsString);
 
@@ -509,32 +508,34 @@ public class SwarmCon extends JFrame
       }
 
       // output properties so people know what they got
-      
+
       logProperties();
 
     }
     catch (Exception e)
     {
-      log.error(
-        "SwarmCon() caught exception reading properties. Using defaults.");
+      log
+        .error("SwarmCon() caught exception reading properties. Using defaults.");
       e.printStackTrace();
     }
   }
 
   private void logProperties()
   {
-    log.debug(
-      "-------------------- SwarmCon Properties --------------------");
+    log
+      .debug("-------------------- SwarmCon Properties --------------------");
     Vector<String> names = new Vector<String>(mProperties.getNames());
     Collections.sort(names);
-    for (String name: names)
+    for (String name : names)
       log.debug(name + " = " + mProperties.getValueAsString(name));
-    log.debug(
-      "-------------------------------------------------------------");
+    log
+      .debug("-------------------------------------------------------------");
   }
-  
-  /** all defaults need to be specified in the properties file, and
-   * here, in case the properties file isn't found for some reason. */
+
+  /**
+   * all defaults need to be specified in the properties file, and here, in
+   * case the properties file isn't found for some reason.
+   */
 
   private void setValuesFromProperties()
   {
@@ -542,18 +543,19 @@ public class SwarmCon extends JFrame
     setCommandRefreshDelay(ps.getLong("swarmcon.comm.commandRefreshDelay"));
     mPositionPollPeriod = ps.getLong("swarmcon.comm.positionPollPeriod");
     mSendCommandsToOrbs = ps.getBoolean("swarmcon.comm.sendCommandsToOrbs");
-    mSerialPortId  = ps.getString("swarmcon.comm.serialPort");
+    mSerialPortId = ps.getString("swarmcon.comm.serialPort");
   }
 
   boolean running = false;
+
   public void startControlling()
   {
     log.debug("start controlling");
-    
+
     running = true;
-    
+
     // start the animation thread
-    
+
     new Thread()
     {
       public void run()
@@ -601,19 +603,19 @@ public class SwarmCon extends JFrame
   }
 
   // update the world
-  
+
   public void update(double time)
   {
     // if (for whatever reason) there is no swarm, don't update
-  
+
     if (mSwarm == null)
       return;
-  
+
     // update all the objects
-  
+
     mSwarm.update(time);
     mSwarm.updateOrbDistances();
-  
+
     // repaint the screen
     mArena.repaint();
   }
@@ -624,11 +626,11 @@ public class SwarmCon extends JFrame
   {
     // set bounds from arena
 
-    Rectangle2D.Double bounds = new Rectangle2D
-      .Double(mArena.getBounds().getX() / mPixelsPerMeter,
-        mArena.getBounds().getY() / mPixelsPerMeter,
-        mArena.getBounds().getWidth()  / mPixelsPerMeter,
-        mArena.getBounds().getHeight() / mPixelsPerMeter);
+    Rectangle2D.Double bounds = new Rectangle2D.Double(mArena.getBounds()
+      .getX() /
+      mPixelsPerMeter, mArena.getBounds().getY() / mPixelsPerMeter, mArena
+      .getBounds().getWidth() /
+      mPixelsPerMeter, mArena.getBounds().getHeight() / mPixelsPerMeter);
 
     // create the swarm object
 
@@ -653,7 +655,9 @@ public class SwarmCon extends JFrame
     {
       // report the birth of an orb
 
-      log.debug("id: " + id + " mode: " + (mLiveMode ? "LIVE" : "SIM"));
+      log.debug("id: " + id + " mode: " + (mLiveMode
+        ? "LIVE"
+        : "SIM"));
 
       // create the orb model
 
@@ -706,23 +710,23 @@ public class SwarmCon extends JFrame
 
     if (mLiveMode)
     {
-      //         new Thread()
-      //         {
-      //             public void run()
-      //             {
-      //               JOptionPane.showMessageDialog(
-      //                 activeSwarmCon, "Surveying Orbs, see console for progress.");
-      //             }
-      //         }.start();
+      // new Thread()
+      // {
+      // public void run()
+      // {
+      // JOptionPane.showMessageDialog(
+      // activeSwarmCon, "Surveying Orbs, see console for progress.");
+      // }
+      // }.start();
 
       initSwarmOrigin();
     }
   }
 
   // collect orb survey positions and inform the orbs what they should
-  // all use for the swarm origin (0, 0).  this process can take a
+  // all use for the swarm origin (0, 0). this process can take a
   // while (up to 60 seconds) if the orbs have not completed their
-  // debiasing process.  this method blocks until the process is
+  // debiasing process. this method blocks until the process is
   // complete.
 
   public void initSwarmOrigin()
@@ -732,7 +736,7 @@ public class SwarmCon extends JFrame
       // extract just the orbs from the swarm
 
       Vector<Orb> orbs = new Vector<Orb>();
-      for (IMobject m: mSwarm)
+      for (IMobject m : mSwarm)
         if (m instanceof Orb)
           orbs.add((Orb)m);
 
@@ -746,7 +750,7 @@ public class SwarmCon extends JFrame
       {
         // walk through orbs
 
-        for (Orb orb: orbs)
+        for (Orb orb : orbs)
         {
           // if we don't have a survey result
 
@@ -761,8 +765,7 @@ public class SwarmCon extends JFrame
             if (p != null)
             {
               results.put(orb, p);
-              log.debug(
-                "survey result from orb [" + orb.getId() + "]: " + p);
+              log.debug("survey result from orb [" + orb.getId() + "]: " + p);
             }
 
             // otherwise request a report
@@ -770,8 +773,7 @@ public class SwarmCon extends JFrame
             else
             {
               mOrbIo.requestSurvayPosition(orb.getId());
-              log.debug(
-                "survey request to orb [" + orb.getId() + "]");
+              log.debug("survey request to orb [" + orb.getId() + "]");
             }
           }
 
@@ -785,7 +787,7 @@ public class SwarmCon extends JFrame
       // the orbs
 
       Point centroid = new Point();
-      for (Point p: results.values())
+      for (Point p : results.values())
         centroid.translate(p);
       centroid.scale(results.values().size());
 
@@ -793,7 +795,7 @@ public class SwarmCon extends JFrame
 
       while (results.size() > 0)
       {
-        for (IOrb orb: orbs)
+        for (IOrb orb : orbs)
         {
           // if we're not done with this orb yet
 
@@ -806,8 +808,8 @@ public class SwarmCon extends JFrame
             if (mm.isOriginAcked())
             {
               results.remove(orb);
-              log.debug(
-                "origin ack from orb [" + orb.getId() + "]: " + centroid);
+              log.debug("origin ack from orb [" + orb.getId() + "]: " +
+                centroid);
             }
 
             // otherwise send the origin to the orb
@@ -815,8 +817,8 @@ public class SwarmCon extends JFrame
             else
             {
               mOrbIo.commandOrigin(orb.getId(), centroid);
-              log.debug(
-                "sent origin to orb [" + orb.getId() + "]: " + centroid);
+              log.debug("sent origin to orb [" + orb.getId() + "]: " +
+                centroid);
             }
 
             // sleep a little between each orb to give the zigbee a break
@@ -834,32 +836,33 @@ public class SwarmCon extends JFrame
 
   // update the world
 
-  /** Convert milliseconds to decimal seconds.
-   *
+  /**
+   * Convert milliseconds to decimal seconds.
+   * 
    * @param milliseconds you know milliseconds
-   *
    * @return decimal seconds.
    */
-  
+
   public static double millisecondsToSeconds(long milliseconds)
   {
     return milliseconds / 1000d;
   }
 
-  /** Convert decimal seconds to milliseconds.
-   *
+  /**
+   * Convert decimal seconds to milliseconds.
+   * 
    * @param decimal seconds
-   *
    * @return you know milliseconds
    */
-  
+
   public static long secondsToMilliseconds(double seconds)
   {
     return (long)(seconds * 1000);
   }
 
-  /** Compute the time now.
-   *
+  /**
+   * Compute the time now.
+   * 
    * @return the current time in seconds since 1970 as double
    */
 
@@ -882,16 +885,18 @@ public class SwarmCon extends JFrame
     return label;
   }
 
-  public Image createTitledShape(int width, int height, Shape shape, String title,
-    Color diskColor, Color textColor)
+  public Image createTitledShape(int width, int height, Shape shape,
+    String title, Color diskColor, Color textColor)
   {
-    return createTitledShape(width, height, shape, title, diskColor, textColor, null);
+    return createTitledShape(width, height, shape, title, diskColor,
+      textColor, null);
   }
-  public Image createTitledShape(int width, int height, Shape shape, String title,
-    Color diskColor, Color textColor, Font font)
+
+  public Image createTitledShape(int width, int height, Shape shape,
+    String title, Color diskColor, Color textColor, Font font)
   {
-    BufferedImage image =
-      new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+    BufferedImage image = new BufferedImage(width, height,
+      BufferedImage.TYPE_INT_ARGB);
     shape = normalize(shape);
     shape = scale(shape, width, height);
     shape = translate(shape, width / 2, height / 2);
@@ -907,25 +912,25 @@ public class SwarmCon extends JFrame
 
     if (font != null)
       g.setFont(font);
-    Rectangle2D tBounds = g.getFont().createGlyphVector(g.getFontRenderContext(),
-      title).getVisualBounds();
+    Rectangle2D tBounds = g.getFont().createGlyphVector(
+      g.getFontRenderContext(), title).getVisualBounds();
 
     // paint the text
 
     g.setColor(textColor);
-    int x = (int)((width   - tBounds. getWidth()) / 2) - 1;
+    int x = (int)((width - tBounds.getWidth()) / 2) - 1;
     int y = (int)((height - tBounds.getHeight()) / 2);
     g.drawString(title, x, y + (int)tBounds.getHeight());
 
     return image;
   }
 
-  /** Place GUI objects into frame.
-   *
+  /**
+   * Place GUI objects into frame.
+   * 
    * @param frame container to put stuff into
-   *
-   * @return weather or not create the orbs after done with this or if
-   * orb creation will be handled by the splash screen code.
+   * @return weather or not create the orbs after done with this or if orb
+   *         creation will be handled by the splash screen code.
    */
 
   public boolean constructFrame(Container frame)
@@ -955,7 +960,7 @@ public class SwarmCon extends JFrame
     if (mSerialPortId.equalsIgnoreCase(SIMULATION))
       splashNeeded = false;
     else
-      for (String portId: SerialIo.listSerialPorts())
+      for (String portId : SerialIo.listSerialPorts())
         if (mSerialPortId.equals(portId))
           splashNeeded = false;
 
@@ -971,7 +976,7 @@ public class SwarmCon extends JFrame
       button.setAlignmentX(Component.CENTER_ALIGNMENT);
       button.setAlignmentY(Component.CENTER_ALIGNMENT);
       splash.add(Box.createVerticalGlue());
-      for (String portId :SerialIo.listSerialPorts())
+      for (String portId : SerialIo.listSerialPorts())
       {
         button = new BigButton(new SwarmComPortAction(portId));
         splash.add(button);
@@ -992,12 +997,12 @@ public class SwarmCon extends JFrame
     mArena.addMouseMotionListener(mia);
     mArena.addMouseListener(mia);
     GridBagConstraints gbc = new GridBagConstraints();
-    gbc.gridx   = 0;
-    gbc.gridy   = 0;
+    gbc.gridx = 0;
+    gbc.gridy = 0;
     gbc.weightx = 1d;
     gbc.weighty = 1d;
-    gbc.fill    = GridBagConstraints.BOTH;
-    gbc.anchor  = GridBagConstraints.NORTHWEST;
+    gbc.fill = GridBagConstraints.BOTH;
+    gbc.anchor = GridBagConstraints.NORTHWEST;
 
     mActionPanel.add(mArena, gbc);
 
@@ -1008,7 +1013,7 @@ public class SwarmCon extends JFrame
 
     InputMap inputMap = getRootPane().getInputMap();
     ActionMap actionMap = getRootPane().getActionMap();
-    for (SwarmAction a: actions)
+    for (SwarmAction a : actions)
     {
       inputMap.put(a.getAccelerator(), a.getName());
       actionMap.put(a.getName(), a);
@@ -1022,7 +1027,7 @@ public class SwarmCon extends JFrame
     fileMenu.setForeground(MENU_CLR);
     fileMenu.setFont(MENU_FONT);
     menuBar.add(fileMenu);
-    for (SwarmAction a: actions)
+    for (SwarmAction a : actions)
     {
       JMenuItem menu = new JMenuItem(a);
       menu.setFont(MENU_FONT);
@@ -1051,14 +1056,12 @@ public class SwarmCon extends JFrame
     // compute 90 % of minimum dimension which is the maximum
     // size to take up
 
-    double maxSize = min(
-      mSwarm.getArena().getWidth(),
-      mSwarm.getArena().getHeight()) * 0.9d;
+    double maxSize = min(mSwarm.getArena().getWidth(), mSwarm.getArena()
+      .getHeight()) * 0.9d;
 
     // find the center of the arena
 
-    Point2D.Double center = new Point2D.Double(
-      -globalOffset.getX(),
+    Point2D.Double center = new Point2D.Double(-globalOffset.getX(),
       -globalOffset.getY());
 
     // if we've got 1 orb, size it real big
@@ -1071,27 +1074,25 @@ public class SwarmCon extends JFrame
     else if (count > 1)
     {
       double size = phantoms.get(0).getSize();
-      double scale = maxSize / ((3 * size) -
-        (size / 4 * (6 - count)));
+      double scale = maxSize / ((3 * size) - (size / 4 * (6 - count)));
       double radius = scale * size;
       double dAngle = 2 * PI / phantoms.size();
       double angle = 0;
-      for (Phantom p: phantoms)
+      for (Phantom p : phantoms)
       {
-        p.setTarget(new Point2D.Double(
-            center.getX() + cos(angle) * radius,
-            center.getY() + sin(angle) * radius),
-          scale);
+        p.setTarget(new Point2D.Double(center.getX() + cos(angle) * radius,
+          center.getY() + sin(angle) * radius), scale);
         angle += dAngle;
       }
     }
   }
-  
-  /** Paint all objects in arena.
-   *
+
+  /**
+   * Paint all objects in arena.
+   * 
    * @param graphics graphics object to paint onto
    */
-  
+
   public void paintArena(Graphics graphics)
   {
     // configure graphics
@@ -1102,17 +1103,15 @@ public class SwarmCon extends JFrame
 
     g.setColor(BACKGROUND);
     g.fillRect(0, 0, width, height);
-    g.setRenderingHint(
-      RenderingHints.KEY_ANTIALIASING,
+    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
       RenderingHints.VALUE_ANTIALIAS_ON);
 
     // paint frame rate
 
     g.setColor(TEXT_CLR);
     g.setFont(MISC_FONT);
-    g.drawString(
-      "frame rate: " + (currentTimeMillis() - mLastPaint.getTimeInMillis())
-      + "ms", 5, 15);
+    g.drawString("frame rate: " +
+      (currentTimeMillis() - mLastPaint.getTimeInMillis()) + "ms", 5, 15);
     mLastPaint = Calendar.getInstance();
 
     // draw current behavior
@@ -1122,7 +1121,7 @@ public class SwarmCon extends JFrame
       synchronized (mSwarm)
       {
         int id = 1;
-        for (IMobject mobject: mSwarm)
+        for (IMobject mobject : mSwarm)
           if (mobject instanceof Orb)
           {
             Orb orb = (Orb)mobject;
@@ -1130,23 +1129,31 @@ public class SwarmCon extends JFrame
 
             g.setColor(TEXT_CLR);
             g.setFont(MISC_FONT);
-            g.drawString(
-              orb.getId() + ": " +
+            g.drawString(orb.getId() +
+              ": " +
               (behavior != null
                 ? behavior.toString()
                 : "[none]") +
-              " X: "  + Constants.UTM_FORMAT.format(orb.getX()) +
-              " Y: "  + Constants.UTM_FORMAT.format(orb.getY()) +
-              " R: "  + Constants.HEADING_FORMAT.format(round(orb.getRoll   ().as(HEADING))) +
-              " P: "  + Constants.HEADING_FORMAT.format(round(orb.getPitch  ().as(HEADING))) +
-              " Y: "  + Constants.HEADING_FORMAT.format(round(orb.getYaw    ().as(HEADING))) +
-              " YR: " + Constants.HEADING_FORMAT.format(round(orb.getYawRate().as(DEGREE_RATE))) +
-              " V: "  + round(orb.getSpeed() * 100) / 100d,
+              " X: " +
+              Constants.UTM_FORMAT.format(orb.getX()) +
+              " Y: " +
+              Constants.UTM_FORMAT.format(orb.getY()) +
+              " R: " +
+              Constants.HEADING_FORMAT
+                .format(round(orb.getRoll().as(HEADING))) +
+              " P: " +
+              Constants.HEADING_FORMAT.format(round(orb.getPitch()
+                .as(HEADING))) +
+              " Y: " +
+              Constants.HEADING_FORMAT
+                .format(round(orb.getYaw().as(HEADING))) +
+              " YR: " +
+              Constants.HEADING_FORMAT.format(round(orb.getYawRate().as(
+                DEGREE_RATE))) + " V: " + round(orb.getSpeed() * 100) / 100d,
               5, 15 + id++ * 15);
           }
       }
     }
-
 
     // set 0,0 to lower left corner, and scale for meters
 
@@ -1154,9 +1161,7 @@ public class SwarmCon extends JFrame
 
     // apply the global offset
 
-    g.translate(
-      getGlobalOffset().getX(),
-      getGlobalOffset().getY());
+    g.translate(getGlobalOffset().getX(), getGlobalOffset().getY());
 
     // draw the grid
 
@@ -1176,22 +1181,23 @@ public class SwarmCon extends JFrame
     {
       synchronized (mSwarm)
       {
-        for (IMobject mobject: mSwarm)
+        for (IMobject mobject : mSwarm)
           Renderer.render(g, mobject);
       }
     }
   }
 
-  /** Paint a grid onto the display.
-   *
+  /**
+   * Paint a grid onto the display.
+   * 
    * @param g graphics context to draw grid onto
    * @param gridSize size between lines on the grid
    * @param gridColor color of the grid lines
    * @param gridStroke the stroke used to draw the grid lines
    */
 
-  public void paintGrid(
-    Graphics2D g, double gridSize, Color gridColor, Stroke gridStroke)
+  public void paintGrid(Graphics2D g, double gridSize, Color gridColor,
+    Stroke gridStroke)
   {
     // width and height of grid
 
@@ -1200,10 +1206,10 @@ public class SwarmCon extends JFrame
 
     // compute the grid starting position
 
-    double gridX =
-      -(getGlobalOffset().getX() - getGlobalOffset().getX() % gridSize);
-    double gridY =
-      -(getGlobalOffset().getY() - getGlobalOffset().getY() % gridSize);
+    double gridX = -(getGlobalOffset().getX() - getGlobalOffset().getX() %
+      gridSize);
+    double gridY = -(getGlobalOffset().getY() - getGlobalOffset().getY() %
+      gridSize);
 
     // set the color and stroke
 
@@ -1213,26 +1219,23 @@ public class SwarmCon extends JFrame
     // draw the verticals
 
     for (double x = gridX; x <= gridX + 1.5 * width / mPixelsPerMeter; x += gridSize)
-      g.draw(new Line2D.Double(
-          x, -getGlobalOffset().getY(),
-          x, -getGlobalOffset().getY() - height / mPixelsPerMeter));
+      g.draw(new Line2D.Double(x, -getGlobalOffset().getY(), x,
+        -getGlobalOffset().getY() - height / mPixelsPerMeter));
 
     // draw the horizontal
 
     for (double y = gridY; y >= gridY - 1.5 * height / mPixelsPerMeter; y -= gridSize)
-      g.draw(new Line2D.Double(
-          -getGlobalOffset().getX(), y,
-          -getGlobalOffset().getX() + width / mPixelsPerMeter, y));
+      g.draw(new Line2D.Double(-getGlobalOffset().getX(), y,
+        -getGlobalOffset().getX() + width / mPixelsPerMeter, y));
   }
-
 
   /** Get the global offset. */
 
   public Point getGlobalOffset()
   {
-    return new Point(
-      globalOffset.getX() + (mArena.getWidth() / mPixelsPerMeter / 2),
-      globalOffset.getY() - (mArena.getHeight() / mPixelsPerMeter / 2));
+    return new Point(globalOffset.getX() +
+      (mArena.getWidth() / mPixelsPerMeter / 2), globalOffset.getY() -
+      (mArena.getHeight() / mPixelsPerMeter / 2));
   }
 
   /** Set the global offset. */
@@ -1250,37 +1253,39 @@ public class SwarmCon extends JFrame
     GeneralPath gp = new GeneralPath();
     Shape square = new Rectangle2D.Double(-.5, -.5, 1, 1);
     gp.append(square, false);
-    gp.append(translate(createRightTriangle(), 0, - .5), false);
+    gp.append(translate(createRightTriangle(), 0, -.5), false);
     return normalize(gp);
   }
+
   // create right triangle
 
   public static Shape createRightTriangle()
   {
     Area rTriangle = new Area();
-    rTriangle.add(new Area(rotate(new Rectangle2D.Double(-0.5, -0.5, 1, 1), 45)));
+    rTriangle.add(new Area(rotate(new Rectangle2D.Double(-0.5, -0.5, 1, 1),
+      45)));
     rTriangle.subtract(new Area(new Rectangle2D.Double(-2, 0, 4, 2)));
     return rTriangle;
   }
 
-  /** Convert screen coordinates to world coordinates.
-   *
+  /**
+   * Convert screen coordinates to world coordinates.
+   * 
    * @param screenPos a position in screen coordinates
-   *
    * @return the point converted to world coordinates.
    */
 
   public Point2D.Double screenToWorld(java.awt.Point screenPos)
   {
-    return new Point2D.Double(
-      screenPos.getX() /  mPixelsPerMeter - getGlobalOffset().getX(),
-      screenPos.getY() / -mPixelsPerMeter - getGlobalOffset().getY());
+    return new Point2D.Double(screenPos.getX() / mPixelsPerMeter -
+      getGlobalOffset().getX(), screenPos.getY() / -mPixelsPerMeter -
+      getGlobalOffset().getY());
   }
 
-  /** Capture the area from a given component.
-   *
+  /**
+   * Capture the area from a given component.
+   * 
    * @param component the component to collect the image from
-   *
    * @return a buffered image of the component passed in.
    */
 
@@ -1293,9 +1298,10 @@ public class SwarmCon extends JFrame
     return mRobot.createScreenCapture(bounds);
   }
 
-  /** Capture the area from a given component and write it out to the
-   * home director of the user.
-   *
+  /**
+   * Capture the area from a given component and write it out to the home
+   * director of the user.
+   * 
    * @param component the component to collect the image from
    */
 
@@ -1303,8 +1309,8 @@ public class SwarmCon extends JFrame
   {
     try
     {
-      File file = File.createTempFile(
-        "swarmcon", ".png", new File(System.getProperty("user.home")));
+      File file = File.createTempFile("swarmcon", ".png", new File(System
+        .getProperty("user.home")));
       ImageIO.write(captureImage(mArena), "png", file);
     }
     catch (Exception ex)
@@ -1332,54 +1338,59 @@ public class SwarmCon extends JFrame
   }
 
   // object which is always set to the position of the mouse
-  
+
   public class MouseMobject extends AMobject
   {
     // shape to be drawn
-  
-    Shape shape = new Ellipse2D.Double(
-      -ORB_DIAMETER / 4, -ORB_DIAMETER / 4,
+
+    Shape shape = new Ellipse2D.Double(-ORB_DIAMETER / 4, -ORB_DIAMETER / 4,
       ORB_DIAMETER / 2, ORB_DIAMETER / 2);
-  
+
     // construct a MouseMobject
-  
+
     public MouseMobject(Component arena)
     {
       super(ORB_DIAMETER / 2);
       MouseInputAdapter mia = new MouseInputAdapter()
+      {
+
+        public void mouseMoved(MouseEvent e)
         {
-  
-          public void mouseMoved(MouseEvent e)
-          {
-            setPosition(screenToWorld(e.getPoint()));
-          }
-        };
-  
+          setPosition(screenToWorld(e.getPoint()));
+        }
+      };
+
       arena.addMouseListener(mia);
       arena.addMouseMotionListener(mia);
     }
-    /** Is the given point (think mouse click point) eligable to
-     * select this object?
-     *
+
+    /**
+     * Is the given point (think mouse click point) eligable to select this
+     * object?
+     * 
      * @param clickPoint the point where the mouse was clicked
      */
-  
+
     public boolean isSelectedBy(Point2D.Double clickPoint)
     {
       return false;
     }
+
     // update position of this object
-  
-    public void update(double time) {}
-  
+
+    public void update(double time)
+    {
+    }
+
     // paint this object onto a graphics area
-  
+
     public void paint(Graphics2D g)
     {
       g.setColor(RED);
       g.fill(translate(shape, getX(), getY()));
     }
   }
+
   /** swarm mouse input adapter */
 
   class SwarmMia extends MouseInputAdapter
@@ -1401,9 +1412,9 @@ public class SwarmCon extends JFrame
       {
         Point2D start = screenToWorld(clickEvent.getPoint());
         Point2D end = screenToWorld(e.getPoint());
-        setGlobalOffset(new Point(
-            globalOffset.getX() + (end.getX() - start.getX()),
-            globalOffset.getY() + (end.getY() - start.getY())));
+        setGlobalOffset(new Point(globalOffset.getX() +
+          (end.getX() - start.getX()), globalOffset.getY() +
+          (end.getY() - start.getY())));
         clickEvent = e;
       }
     }
@@ -1474,9 +1485,9 @@ public class SwarmCon extends JFrame
 
       if (!e.isShiftDown())
       {
-        for (IMobject m: selected)
+        for (IMobject m : selected)
           m.setSelected(false);
-        for (Phantom p: phantoms)
+        for (Phantom p : phantoms)
           mSwarm.remove(p);
 
         selected.clear();
@@ -1496,8 +1507,7 @@ public class SwarmCon extends JFrame
 
         // add phantom for this mobject
 
-        Phantom p = new Phantom(
-          nearest, PHANTOM_PERIOD);
+        Phantom p = new Phantom(nearest, PHANTOM_PERIOD);
         phantoms.add(p);
         mSwarm.add(p);
 
@@ -1507,6 +1517,7 @@ public class SwarmCon extends JFrame
       }
     }
   }
+
   /** SwarmCon action class */
 
   abstract class SwarmAction extends AbstractAction
@@ -1521,8 +1532,10 @@ public class SwarmCon extends JFrame
       putValue(SHORT_DESCRIPTION, description);
       putValue(ACCELERATOR_KEY, key);
     }
-    /** Return accelerator key for this action.
-     *
+
+    /**
+     * Return accelerator key for this action.
+     * 
      * @return accelerator key for this action
      */
 
@@ -1530,8 +1543,10 @@ public class SwarmCon extends JFrame
     {
       return (KeyStroke)getValue(ACCELERATOR_KEY);
     }
-    /** Return name of this action.
-     *
+
+    /**
+     * Return name of this action.
+     * 
      * @return name of this action
      */
 
@@ -1549,14 +1564,14 @@ public class SwarmCon extends JFrame
   class SwarmComPortAction extends SwarmAction
   {
     private static final long serialVersionUID = -8462656494373639651L;
-    
+
     /** communications port id */
 
     private String portId;
 
-    /** Construct SwarmComPortAction with a given com port
-     * id.
-     *
+    /**
+     * Construct SwarmComPortAction with a given com port id.
+     * 
      * @param portId a string representation of com port
      */
 
@@ -1566,6 +1581,7 @@ public class SwarmCon extends JFrame
         "connect to orbs via serial port " + portId);
       this.portId = portId;
     }
+
     public void actionPerformed(ActionEvent e)
     {
       try
@@ -1589,127 +1605,111 @@ public class SwarmCon extends JFrame
       }
     }
   }
+
   /** Action to select simulated rather live operation. */
 
-  SwarmAction simulation = new SwarmAction(
-    "simulate orbs",
-    getKeyStroke(VK_S, 0),
-    "simulate orb motion rather then connect to live orbs")
+  SwarmAction simulation = new SwarmAction("simulate orbs", getKeyStroke(
+    VK_S, 0), "simulate orb motion rather then connect to live orbs")
+  {
+    public void actionPerformed(ActionEvent e)
     {
-      public void actionPerformed(ActionEvent e)
-      {
-        mLiveMode = false;
-        createOrbs();
+      mLiveMode = false;
+      createOrbs();
 
-        mCardLayout.last(mCenterPanel);
-      }
-    };
+      mCardLayout.last(mCenterPanel);
+    }
+  };
 
   /** Action to reset simulation state */
 
-  SwarmAction reset = new SwarmAction(
-    "reset sim",
-    getKeyStroke(VK_R, 0),
+  SwarmAction reset = new SwarmAction("reset sim", getKeyStroke(VK_R, 0),
     "reset simulation state")
+  {
+    public void actionPerformed(ActionEvent e)
     {
-      public void actionPerformed(ActionEvent e)
-      {
-        mSwarm.randomize();
-      }
-    };
+      mSwarm.randomize();
+    }
+  };
 
   /** action to select next orb behavior */
 
-  SwarmAction nextBehavior = new SwarmAction(
-    "next behavior",
-    getKeyStroke(VK_UP, 0),
-    "select next orb behavior")
+  SwarmAction nextBehavior = new SwarmAction("next behavior", getKeyStroke(
+    VK_UP, 0), "select next orb behavior")
+  {
+    public void actionPerformed(ActionEvent e)
     {
-      public void actionPerformed(ActionEvent e)
-      {
-        mSwarm.nextBehavior();
-      }
-    };
+      mSwarm.nextBehavior();
+    }
+  };
 
   /** action to select previous orb behavior */
 
-  SwarmAction previousBehavior = new SwarmAction(
-    "previous behavior",
-    getKeyStroke(VK_DOWN, 0),
-    "select previous orb behavior")
+  SwarmAction previousBehavior = new SwarmAction("previous behavior",
+    getKeyStroke(VK_DOWN, 0), "select previous orb behavior")
+  {
+    public void actionPerformed(ActionEvent e)
     {
-      public void actionPerformed(ActionEvent e)
-      {
-        mSwarm.previousBehavior();
-      }
-    };
+      mSwarm.previousBehavior();
+    }
+  };
 
   /** Zoom display in. */
 
-  SwarmAction zoomIn = new SwarmAction(
-    "Zoom in",
-    getKeyStroke(VK_MINUS, 0),
+  SwarmAction zoomIn = new SwarmAction("Zoom in", getKeyStroke(VK_MINUS, 0),
     "zoom in on the display")
+  {
+    public void actionPerformed(ActionEvent e)
     {
-      public void actionPerformed(ActionEvent e)
-      {
-        mPixelsPerMeter /= 1.1;
-      }
-    };
+      mPixelsPerMeter /= 1.1;
+    }
+  };
 
   /** Zoom display out. */
 
-  SwarmAction zoomOut = new SwarmAction(
-    "Zoom out",
-    getKeyStroke(VK_EQUALS, 0),
-    "zoom out on the display")
+  SwarmAction zoomOut = new SwarmAction("Zoom out",
+    getKeyStroke(VK_EQUALS, 0), "zoom out on the display")
+  {
+    public void actionPerformed(ActionEvent e)
     {
-      public void actionPerformed(ActionEvent e)
-      {
-        mPixelsPerMeter *= 1.1;
-      }
-    };
+      mPixelsPerMeter *= 1.1;
+    }
+  };
 
   /** Emergency stop all orbs. */
 
-  SwarmAction emergencyStop = new SwarmAction(
-    "Emergency Stop",
-    getKeyStroke(VK_SPACE, 0),
-    "stop all the orbs now")
+  SwarmAction emergencyStop = new SwarmAction("Emergency Stop", getKeyStroke(
+    VK_SPACE, 0), "stop all the orbs now")
+  {
+    public void actionPerformed(ActionEvent e)
     {
-      public void actionPerformed(ActionEvent e)
-      {
-        for (IMobject mo: mSwarm)
-          if (mo instanceof Orb)
-            ((IOrb)mo).getModel().stop();
-      }
-    };
+      for (IMobject mo : mSwarm)
+        if (mo instanceof Orb)
+          ((IOrb)mo).getModel().stop();
+    }
+  };
 
   /** action to exist the system */
 
-  SwarmAction exit = new SwarmAction(
-    "Exit",
-    getKeyStroke(VK_ESCAPE, 0),
+  SwarmAction exit = new SwarmAction("Exit", getKeyStroke(VK_ESCAPE, 0),
     "exit this program")
+  {
+    public void actionPerformed(ActionEvent e)
     {
-      public void actionPerformed(ActionEvent e)
-      {
-        System.exit(0);
-      }
-    };
+      System.exit(0);
+    }
+  };
 
   /** screen capture */
 
-  SwarmAction captureScreen = new SwarmAction(
-    "Capture Arena",
-    getKeyStroke(VK_SPACE, SHIFT_MASK),
+  SwarmAction captureScreen = new SwarmAction("Capture Arena", getKeyStroke(
+    VK_SPACE, SHIFT_MASK),
     "save an image of the arena to your home directory")
+  {
+    public void actionPerformed(ActionEvent e)
     {
-      public void actionPerformed(ActionEvent e)
-      {
-        captureAndStoreImage(mArena);
-      }
-    };
+      captureAndStoreImage(mArena);
+    }
+  };
 
   /** all the actions in one handy place */
 
@@ -1724,6 +1724,7 @@ public class SwarmCon extends JFrame
     captureScreen,
     exit,
   };
+
   /** a convenience class for a really big button */
 
   private class BigButton extends JButton

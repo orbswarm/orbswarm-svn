@@ -6,17 +6,17 @@ import com.orbswarm.swarmcon.model.MotionModel;
 
 public class SmoothGoto extends Behavior
 {
-    // construct a behavior
+  // construct a behavior
 
-    public SmoothGoto()
-    {
-      super("SmoothGoto");
-    }
-    
-    // update the state of the orb, time (in seconds) provided
-    
-    public void update(double time, MotionModel model)
-    {
-      // check for a point 
-    }
+  public SmoothGoto()
+  {
+    super("SmoothGoto");
+  }
+
+  // update the state of the orb, time (in seconds) provided
+
+  public void update(double time, MotionModel model)
+  {
+    // check for a point
+  }
 }

@@ -7,36 +7,40 @@ import com.orbswarm.swarmcon.path.Point;
 public interface IMobject
 {
 
-  /** Is this mobject selected?
-   *
+  /**
+   * Is this mobject selected?
+   * 
    * @return true if object selected
    */
 
   public boolean isSelected();
 
-  /** Is the given point (think mouse click point) eligable to
-   * select this object?
-   *
+  /**
+   * Is the given point (think mouse click point) eligable to select this
+   * object?
+   * 
    * @param clickPoint the point where the mouse was clicked
    */
 
   public boolean isSelectedBy(Point2D.Double clickPoint);
 
-  /** Set the selection state of this mobject.
-   *
+  /**
+   * Set the selection state of this mobject.
+   * 
    * @param selected selection state of mobject
    */
 
   public void setSelected(boolean selected);
 
-  /** Get the size of this mobject.
-   *
+  /**
+   * Get the size of this mobject.
+   * 
    * @return the nominal of this mobject
    */
 
   public double getSize();
 
-  // position getter 
+  // position getter
 
   public Point getPosition();
 

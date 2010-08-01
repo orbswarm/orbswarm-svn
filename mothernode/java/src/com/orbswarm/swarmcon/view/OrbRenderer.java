@@ -60,7 +60,7 @@ public class OrbRenderer extends ARenderer<IOrb>
   public void render(Graphics2D g, IMobject mobject)
   {
     IOrb orb = (IOrb)mobject;
-    
+
     // record old transform and scale to orb.
 
     AffineTransform old = g.getTransform();
@@ -140,9 +140,11 @@ public class OrbRenderer extends ARenderer<IOrb>
       txY -= dTxY;
       drawText(g, txX, txY, "  ID: " + orb.getId());
       txY -= dTxY;
-      drawText(g, txX, txY, "EAST: " + Constants.UTM_FORMAT.format(orb.getX()));
+      drawText(g, txX, txY, "EAST: " +
+        Constants.UTM_FORMAT.format(orb.getX()));
       txY -= dTxY;
-      drawText(g, txX, txY, "NORH: " + Constants.UTM_FORMAT.format(orb.getY()));
+      drawText(g, txX, txY, "NORH: " +
+        Constants.UTM_FORMAT.format(orb.getY()));
       txY -= dTxY;
       drawText(g, txX, txY, " YAW: " + (int)(orb.getYaw().as(HEADING)));
       txY -= dTxY;
@@ -280,4 +282,3 @@ public class OrbRenderer extends ARenderer<IOrb>
     }
   }
 }
-

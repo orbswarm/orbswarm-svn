@@ -16,8 +16,7 @@ public class MouseMobjectRenderer extends ARenderer<SwarmCon.MouseMobject>
 {
   // shape to be drawn
 
-  Shape shape = new Ellipse2D.Double(
-    -ORB_DIAMETER / 4, -ORB_DIAMETER / 4,
+  Shape shape = new Ellipse2D.Double(-ORB_DIAMETER / 4, -ORB_DIAMETER / 4,
     ORB_DIAMETER / 2, ORB_DIAMETER / 2);
 
   public void render(Graphics2D g, IMobject o)

@@ -8,12 +8,13 @@ import java.awt.geom.Point2D;
 import com.orbswarm.swarmcon.mobject.IMobject;
 import com.orbswarm.swarmcon.path.Point;
 
-public abstract class ARenderer<Type extends IMobject> implements IRenderer<Type>
+public abstract class ARenderer<Type extends IMobject> implements
+  IRenderer<Type>
 {
   private boolean isPhantom = false;
-  
+
   private double masterAlpha = 1.0d;
-  
+
   public void renderAsPhantom(Graphics2D g, IMobject o, double phantomAlpha)
   {
     setPhantom(true);
@@ -23,7 +24,7 @@ public abstract class ARenderer<Type extends IMobject> implements IRenderer<Type
     setPhantom(false);
     setMasterAlpha(oldAlpha);
   }
-  
+
   public void drawText(Graphics2D g, double x, double y, String text)
   {
     drawText(g, new Point(x, y), text);
@@ -35,7 +36,7 @@ public abstract class ARenderer<Type extends IMobject> implements IRenderer<Type
     g.setTransform(new AffineTransform());
     g.setFont(g.getFont().deriveFont(
       AffineTransform.getScaleInstance(old.getScaleX(), -old.getScaleY())));
-  
+
     Point2D n = old.transform(point, new Point2D.Double());
     g.drawString(text, (int)n.getX(), (int)n.getY());
     g.setTransform(old);
@@ -50,15 +51,11 @@ public abstract class ARenderer<Type extends IMobject> implements IRenderer<Type
   {
     return isPhantom;
   }
-  
+
   public void setColor(Graphics2D g, Color color)
   {
-     g.setColor(new Color(
-                   color.getRed(),
-                   color.getGreen(),
-                   color.getBlue(),
-                   (int)((color.getAlpha() / 255d) * 
-                         masterAlpha * 255)));
+    g.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(),
+      (int)((color.getAlpha() / 255d) * masterAlpha * 255)));
   }
 
   public double getMasterAlpha()
@@ -68,7 +65,7 @@ public abstract class ARenderer<Type extends IMobject> implements IRenderer<Type
 
   public void setMasterAlpha(double masterAlpha)
   {
-    assert(masterAlpha >= 0 && masterAlpha <= 1);
+    assert (masterAlpha >= 0 && masterAlpha <= 1);
     this.masterAlpha = masterAlpha;
   }
 }

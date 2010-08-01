@@ -16,185 +16,190 @@ import static org.trebor.util.Angle.Type.*;
 
 public class LiveModel extends MotionModel
 {
-    /** Note that we have not yet initialized the global offset, which
-     * is going to be some big ugly number based on on the UTM values we're
-     * getting from the GPS.  Once we start getting values we'll want to
-     * assume that the very first orb position is at (0,0) for display
-     * purposes.  The actual math for that is handled in SwarmCon.
-     */
+  /**
+   * Note that we have not yet initialized the global offset, which is
+   * going to be some big ugly number based on on the UTM values we're
+   * getting from the GPS. Once we start getting values we'll want to
+   * assume that the very first orb position is at (0,0) for display
+   * purposes. The actual math for that is handled in SwarmCon.
+   */
 
-    /** Note that the orb has not yet received, real world information
-     * about is location. */
-    
-    private boolean orbPositionInitialized = false;
+  /**
+   * Note that the orb has not yet received, real world information about
+   * is location.
+   */
 
-    /** The initial location of the orb when it woke up. */
+  private boolean orbPositionInitialized = false;
 
-    private Point surveyPosition = null;
+  /** The initial location of the orb when it woke up. */
 
-    /** Set to true if the orb has acknowledged the origin commanded. */
+  private Point surveyPosition = null;
 
-    private boolean originAcked = false;
-    
-    /** Time of the last position report. */
+  /** Set to true if the orb has acknowledged the origin commanded. */
 
-    private double lastPositionReportTime;
+  private boolean originAcked = false;
 
-    /** Time of the last position request. */
+  /** Time of the last position report. */
 
-    private double lastPositionRequestTime;
+  private double lastPositionReportTime;
 
-    /** Period to wait between position requests. */
+  /** Time of the last position request. */
 
-    private double positionPollPeriod;
+  private double lastPositionRequestTime;
 
-    /** The id of the orb of which this is a model. */
+  /** Period to wait between position requests. */
 
-    private int orbId;
+  private double positionPollPeriod;
 
-    /** orb communications object */
+  /** The id of the orb of which this is a model. */
 
-    private OrbIo orbIo;
+  private int orbId;
 
-    /** Construct a live motion model which links to a real orb
-     * rolling around in the world.
-     *
-     * @param orbIo the communications link to the physical orb
-     */
+  /** orb communications object */
 
-    public LiveModel(OrbIo orbIo, int orbId, double reportOffset)
+  private OrbIo orbIo;
+
+  /**
+   * Construct a live motion model which links to a real orb rolling around
+   * in the world.
+   * 
+   * @param orbIo the communications link to the physical orb
+   */
+
+  public LiveModel(OrbIo orbIo, int orbId, double reportOffset)
+  {
+    this.orbIo = orbIo;
+    this.orbId = orbId;
+    double now = SwarmCon.getTime();
+    lastPositionReportTime = now;
+    lastPositionRequestTime = now + reportOffset;
+    positionPollPeriod = positionPollPeriod / 1000d;
+  }
+
+  /** Handle messages from the orb. */
+
+  public void onOrbMessage(Message message)
+  {
+    // handle survey report
+
+    if (message.getType() == SURVEY_REPORT)
     {
-      this.orbIo = orbIo;
-      this.orbId = orbId;
-      double now = SwarmCon.getTime();
-      lastPositionReportTime = now;
-      lastPositionRequestTime = now + reportOffset;
-      positionPollPeriod = positionPollPeriod / 1000d;
+      surveyPosition = new Point(message.getDoubleProperty(EASTING), message
+        .getDoubleProperty(NORTHING));
     }
 
-    /** Handle messages from the orb. */
+    // handle origin ACK
 
-    public void onOrbMessage(Message message)
+    else if (message.getType() == ORIGIN_ACK)
     {
-      // handle survey report
+      originAcked = true;
+    }
 
-      if (message.getType() == SURVEY_REPORT)
+    // handle position report
+
+    else if (message.getType() == POSITION_REPORT)
+    {
+      // compute times
+
+      double newPositionReportTime = SwarmCon.getTime();
+
+      // get current position
+
+      Point position = new Point(message.getDoubleProperty(EASTING), message
+        .getDoubleProperty(NORTHING));
+
+      // if the global offset has not yet been initialized do that with
+      // the current position of this very first orb message
+
+      // if (!globalOffsetInitialized)
+      // {
+      // SwarmCon.getInstance().setGlobalOffset(
+      // new Point(-position.getX(), -position.getY()));
+      // globalOffsetInitialized = true;
+      // }
+
+      // if the orb has already received some real world data then we
+      // can go ahead and infer speed and heading from previous
+      // position
+
+      if (orbPositionInitialized)
       {
-        surveyPosition = new Point(
-          message.getDoubleProperty(EASTING),
-          message.getDoubleProperty(NORTHING));
+        // compute distance and time
+
+        double time = newPositionReportTime - lastPositionReportTime;
+        double distance = getPosition().distance(position);
+
+        // and from that the velocity
+
+        setVelocity(distance / time);
       }
+      else
+        orbPositionInitialized = true;
 
-      // handle origin ACK
+      // update our current position, and time
 
-      else if (message.getType() == ORIGIN_ACK)
-      {
-        originAcked = true;
-      }
-
-      // handle position report
-
-      else if (message.getType() == POSITION_REPORT)
-      {
-        // compute times
-
-        double newPositionReportTime = SwarmCon.getTime();
-
-        // get current position
-
-        Point position = new Point(
-           message.getDoubleProperty(EASTING),
-           message.getDoubleProperty(NORTHING));
-
-        // if the global offset has not yet been initialized do that with
-        // the current position of this very first orb message
-
-//         if (!globalOffsetInitialized)
-//         {
-//           SwarmCon.getInstance().setGlobalOffset(
-//             new Point(-position.getX(), -position.getY()));
-//           globalOffsetInitialized = true;
-//         }
-        
-        // if the orb has already received some real world data then we
-        // can go ahead and infer speed and heading from previous
-        // position
-        
-        if (orbPositionInitialized)
-        {
-          // compute distance and time
-
-          double time = newPositionReportTime - lastPositionReportTime;
-          double distance = getPosition().distance(position);
-
-          // and from that the velocity
-
-          setVelocity(distance / time);
-        }
-        else
-          orbPositionInitialized = true;
-
-        // update our current position, and time
-
-        setYaw(new Angle(message.getDoubleProperty(YAW), RADIANS));
-        setPosition(position);
-        lastPositionReportTime = newPositionReportTime;
-      }
+      setYaw(new Angle(message.getDoubleProperty(YAW), RADIANS));
+      setPosition(position);
+      lastPositionReportTime = newPositionReportTime;
     }
+  }
 
-    /** Return the survey position, or null if we haven't got one yet. */
+  /** Return the survey position, or null if we haven't got one yet. */
 
-    public Point getSurveyPosition()
+  public Point getSurveyPosition()
+  {
+    return surveyPosition;
+  }
+
+  /** Return true if the orb has ACKed the origin command. */
+
+  public boolean isOriginAcked()
+  {
+    return originAcked;
+  }
+
+  /**
+   * Update the model state by sending a request to the orb for state
+   * information. When receive the local model will be updated to reflect
+   * that state information.
+   */
+
+  public void update(double time)
+  {
+    double now = SwarmCon.getTime();
+    if (originAcked && now - lastPositionRequestTime > positionPollPeriod)
     {
-      return surveyPosition;
+      orbIo.requestPositionReport(orbId);
+      lastPositionRequestTime = now;
     }
+  }
 
-    /** Return true if the orb has ACKed the origin command. */
+  /**
+   * Get the current velocity of the orb.
+   * 
+   * @return velocity in meters per second
+   */
 
-    public boolean isOriginAcked()
-    {
-      return originAcked;
-    }
+  public double getVelocity()
+  {
+    return 0;
+  }
 
-    /** Update the model state by sending a request to the orb for state
-     * information.  When receive the local model will be updated to
-     * reflect that state information.
-     */
+  /**
+   * Get the yaw rate of the orb.
+   * 
+   * @return yaw create in angular units per second
+   */
 
-    public void update(double time)
-    {
-      double now = SwarmCon.getTime();
-      if (
-        originAcked && now - lastPositionRequestTime > positionPollPeriod)
-      {
-        orbIo.requestPositionReport(orbId);
-        lastPositionRequestTime = now;
-      }
-    }
+  public Angle getYawRate()
+  {
+    return new Angle();
+  }
 
-    /** Get the current velocity of the orb.
-     *
-     * @return velocity in meters per second
-     */
+  /** Command the orb to the next waypoint. */
 
-    public double getVelocity()
-    {
-      return 0;
-    }
-    /** Get the yaw rate of the orb.
-     *
-     * @return yaw create in angular units per second
-     */
-
-    public Angle getYawRate()
-    {
-      return new Angle();
-    }
-
-    /** Command the orb to the next waypoint. */
-
-    protected void commandWaypoint(Waypoint wp)
-    {
-      orbIo.sendWaypoint(orbId, wp);
-    }
+  protected void commandWaypoint(Waypoint wp)
+  {
+    orbIo.sendWaypoint(orbId, wp);
+  }
 }

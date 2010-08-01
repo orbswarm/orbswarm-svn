@@ -38,64 +38,68 @@ public class SmoothPath extends Vector<Waypoint>
 
   public static double NOT_CRUISING = -1;
 
-  /** the angle range to the left or right of the orb for which an
-   * initial point must be added to swoop the orb around correctly. */
+  /**
+   * the angle range to the left or right of the orb for which an initial
+   * point must be added to swoop the orb around correctly.
+   */
 
   public static Angle BEHIND_RANGE = new Angle(60, DEGREES);
 
-  /** Construct a smoothed path from path which the orb can safely
-   * follow.  The initial direction is assumed to be that of the first
-   * two points of the path, and the head room is assumed to be 5 units.
-   *
+  /**
+   * Construct a smoothed path from path which the orb can safely follow.
+   * The initial direction is assumed to be that of the first two points of
+   * the path, and the head room is assumed to be 5 units.
+   * 
    * @param path the path of target points to generate a smooth path from
    * @param velocity the velocity rate constraints
    * @param interval interval to update the path, in seconds
    * @param smoothness the amount of smoothing which occurs at the targets
-   * @param flatness the granularity of the smoothed path, smaller
-   * numbers produce smoother paths
-   *
+   * @param flatness the granularity of the smoothed path, smaller numbers
+   *        produce smoother paths
    * @return a smoothed path with waypoints and times
    */
 
-  public SmoothPath(
-    Path path, Rate velocity, double interval,
+  public SmoothPath(Path path, Rate velocity, double interval,
     double smoothness, double flatness)
   {
-    this(path, velocity, interval, smoothness, flatness, new Angle(
-      path.get(0), path.get(1)), 5);
+    this(path, velocity, interval, smoothness, flatness, new Angle(path
+      .get(0), path.get(1)), 5);
   }
 
-  /** Construct a smoothed path from path which the orb can safely follow.
-   *
+  /**
+   * Construct a smoothed path from path which the orb can safely follow.
+   * 
    * @param path the path of target points to generate a smooth path from
    * @param velocity the velocity rate constraints
    * @param interval interval to update the path, in seconds
    * @param smoothness the amount of smoothing which occurs at the targets
-   * @param flatness the granularity of the smoothed path, smaller
-   * numbers produce smoother paths
+   * @param flatness the granularity of the smoothed path, smaller numbers
+   *        produce smoother paths
    * @param initialDirection the initial direction the path should start in
-   * @param headRoom the distance from the orb to place a point to give
-   * the orb some room turn
-   *
+   * @param headRoom the distance from the orb to place a point to give the
+   *        orb some room turn
    * @return a smoothed path composed of waypoints
    */
 
-  public SmoothPath(
-    Path path, Rate velocity, double interval,
-    double smoothness, double flatness, Angle initialDirection, double headRoom)
+  public SmoothPath(Path path, Rate velocity, double interval,
+    double smoothness, double flatness, Angle initialDirection,
+    double headRoom)
   {
     // if the second target is directly behind the orb, we're going need
     // to add a point in between to be sure the orb can take a nice
     // sweeping path to get there
-    
-    Angle behindness = initialDirection
-      .difference(new Angle(path.get(0), path.get(1)));
-    boolean isBehind = abs(behindness.as(DEGREE_RATE)) > BEHIND_RANGE.as(DEGREES);
-    
+
+    Angle behindness = initialDirection.difference(new Angle(path.get(0),
+      path.get(1)));
+    boolean isBehind = abs(behindness.as(DEGREE_RATE)) > BEHIND_RANGE
+      .as(DEGREES);
+
     if (isBehind)
     {
       boolean isRight = behindness.compareTo(new Angle(180, HEADING_RATE)) > 0;
-      Angle a = new Angle(isRight ? 60 : 300, HEADING_RATE);
+      Angle a = new Angle(isRight
+        ? 60
+        : 300, HEADING_RATE);
       a = a.rotate(initialDirection);
       Point p = new Point(a.cartesian(headRoom, path.get(0)));
       double speed = (path.get(0).getSpeed() + path.get(1).getSpeed()) / 2;
@@ -108,18 +112,18 @@ public class SmoothPath extends Vector<Waypoint>
 
     // compute the smoothed continuous path to work from
 
-    continousePath = computeContinousePath(path, smoothness, initialDirection, 
-      curves = new Vector<CubicCurve2D.Double>());
+    continousePath = computeContinousePath(path, smoothness,
+      initialDirection, curves = new Vector<CubicCurve2D.Double>());
     PathIterator pi = continousePath.getPathIterator(null, flatness);
 
     // variables used during the iteration along the path
 
-    Vector<Line2D> lines  = new Vector<Line2D>();
+    Vector<Line2D> lines = new Vector<Line2D>();
     double[] choords = new double[6];
-    double   pathLength = 0;
-    Point    previouse = null;
-    Point    p = null;
-    Point    open = null;
+    double pathLength = 0;
+    Point previouse = null;
+    Point p = null;
+    Point open = null;
 
     // iterate along the path to compute length and collect line segments
 
@@ -128,21 +132,21 @@ public class SmoothPath extends Vector<Waypoint>
       int type = pi.currentSegment(choords);
       switch (type)
       {
-        case PathIterator.SEG_MOVETO:
-          previouse = new Point(choords[0], choords[1]);
-          open = previouse;
-          break;
-        case PathIterator.SEG_LINETO:
-          p = new Point(choords[0], choords[1]);
-          lines.add(new Line2D.Double(previouse, p));
-          pathLength += previouse.distance(p);
-          previouse = p;
-          break;
-        case PathIterator.SEG_CLOSE:
-          lines.add(new Line2D.Double(previouse, open));
-          pathLength += previouse.distance(open);
-          previouse = open;
-          break;
+      case PathIterator.SEG_MOVETO:
+        previouse = new Point(choords[0], choords[1]);
+        open = previouse;
+        break;
+      case PathIterator.SEG_LINETO:
+        p = new Point(choords[0], choords[1]);
+        lines.add(new Line2D.Double(previouse, p));
+        pathLength += previouse.distance(p);
+        previouse = p;
+        break;
+      case PathIterator.SEG_CLOSE:
+        lines.add(new Line2D.Double(previouse, open));
+        pathLength += previouse.distance(open);
+        previouse = open;
+        break;
       }
       pi.next();
     }
@@ -164,7 +168,7 @@ public class SmoothPath extends Vector<Waypoint>
 
     // work through all the segments in the curve
 
-    for (Line2D segment: lines)
+    for (Line2D segment : lines)
     {
       // establish segment metrics
 
@@ -179,16 +183,13 @@ public class SmoothPath extends Vector<Waypoint>
       {
         // compute the percentage down the segment to travel
 
-        double segmentPercent =
-          (travel - (totalSegmentLen - segmentLen)) / segmentLen;
+        double segmentPercent = (travel - (totalSegmentLen - segmentLen)) /
+          segmentLen;
 
         // add waypoint the correct distance along path
 
-        Waypoint wp = new Waypoint(
-          p1.x + (p2.x - p1.x) * segmentPercent,
-          p1.y + (p2.y - p1.y) * segmentPercent,
-          time,
-          velocity.getRate(),
+        Waypoint wp = new Waypoint(p1.x + (p2.x - p1.x) * segmentPercent,
+          p1.y + (p2.y - p1.y) * segmentPercent, time, velocity.getRate(),
           new Angle(p1, p2));
         add(wp);
 
@@ -210,8 +211,7 @@ public class SmoothPath extends Vector<Waypoint>
         {
           // if we have reached cruise speed, note the distance
 
-          if (
-            cruiseDist == NOT_CRUISING &&
+          if (cruiseDist == NOT_CRUISING &&
             velocity.getRate() == velocity.getMax())
           {
             cruiseDist = travel;
@@ -221,8 +221,7 @@ public class SmoothPath extends Vector<Waypoint>
           // cruise, or we're close to the end of the path, start
           // slowing down
 
-          if (
-            (cruiseDist == NOT_CRUISING && travel >= (pathLength / 2)) ||
+          if ((cruiseDist == NOT_CRUISING && travel >= (pathLength / 2)) ||
             (cruiseDist != NOT_CRUISING && travel >= (pathLength - cruiseDist)))
           {
             velocity.setTarget(0);
@@ -241,14 +240,19 @@ public class SmoothPath extends Vector<Waypoint>
 
     for (int i = 0; i < this.size(); ++i)
     {
-      Waypoint prev = i > 0 ? get(i - 1) : null;
-      Waypoint next = i < this.size() - 1 ? get(i + 1) : null;
+      Waypoint prev = i > 0
+        ? get(i - 1)
+        : null;
+      Waypoint next = i < this.size() - 1
+        ? get(i + 1)
+        : null;
       get(i).setNextPrevious(next, prev);
     }
   }
 
-  /** Set the current waypoint which is being commanded to the orb. 
-   *
+  /**
+   * Set the current waypoint which is being commanded to the orb.
+   * 
    * @param currentWaypoint current waypoint
    */
 
@@ -257,18 +261,20 @@ public class SmoothPath extends Vector<Waypoint>
     this.currentWaypoint = currentWaypoint;
   }
 
-  /** Get the current waypoint.
-   *
+  /**
+   * Get the current waypoint.
+   * 
    * @return the current waypoint being commanded to the orb.
    */
-  
+
   public Waypoint getCurrentWaypoint()
   {
     return currentWaypoint;
   }
 
-  /** Get the continuous path for this smoothed path.
-   *
+  /**
+   * Get the continuous path for this smoothed path.
+   * 
    * @return Continuous general path for this smooth path.
    */
 
@@ -277,8 +283,9 @@ public class SmoothPath extends Vector<Waypoint>
     return continousePath;
   }
 
-  /** Get the curves used for this smoothed path.
-   *
+  /**
+   * Get the curves used for this smoothed path.
+   * 
    * @return Curves that this smooth path is composed of.
    */
 
@@ -287,8 +294,9 @@ public class SmoothPath extends Vector<Waypoint>
     return curves;
   }
 
-  /** Get the targets used to generate this path path.
-   *
+  /**
+   * Get the targets used to generate this path path.
+   * 
    * @return path containing targets.
    */
 
@@ -297,19 +305,19 @@ public class SmoothPath extends Vector<Waypoint>
     return targets;
   }
 
-  /** Compute the smoothed curves from this path.
-   *
+  /**
+   * Compute the smoothed curves from this path.
+   * 
    * @param path the path containing the source targets
    * @param smoothness the amount of smoothing which occurs at the targets
-   * @param initialDirection the initial direction the path should start 
-   * @param curves a vector of cubic curves in which to put the curves
-   * the smooth path is composed of
-   *
+   * @param initialDirection the initial direction the path should start
+   * @param curves a vector of cubic curves in which to put the curves the
+   *        smooth path is composed of
    * @return the continuous path to append the smooth curves too
    */
 
-  public static GeneralPath computeContinousePath(
-    Path path, double smoothness, Angle initialDirection, 
+  public static GeneralPath computeContinousePath(Path path,
+    double smoothness, Angle initialDirection,
     Vector<CubicCurve2D.Double> curves)
   {
     GeneralPath continousePath = new GeneralPath();
@@ -331,7 +339,7 @@ public class SmoothPath extends Vector<Waypoint>
       Point p1 = path.get(i);
       Point p2 = path.get(i + 1);
       double length = p1.distance(p2);
-      
+
       // establish angle of this line
 
       Angle angle = new Angle(p1, p2);
@@ -345,7 +353,7 @@ public class SmoothPath extends Vector<Waypoint>
 
       if (i == 0)
         cp1 = new Point(initialDirection.cartesian(length * smoothness, p1));
-      
+
       // else this is NOT the first segment
 
       else
@@ -369,21 +377,15 @@ public class SmoothPath extends Vector<Waypoint>
 
         // fix old curve to smoothly curve around this point
 
-        oldCurve.setCurve(
-          oldCurve.getP1(),
-          oldCurve.getCtrlP1(),
-          cpOld,
+        oldCurve.setCurve(oldCurve.getP1(), oldCurve.getCtrlP1(), cpOld,
           oldCurve.getP2());
-        
+
       }
 
       // create curve from end points and control points
 
-      CubicCurve2D.Double curve = new CubicCurve2D.Double(
-        p1 .x, p1 .y,
-        cp1.x, cp1.y,
-        p2 .x, p2 .y,
-        p2 .x, p2 .y);
+      CubicCurve2D.Double curve = new CubicCurve2D.Double(p1.x, p1.y, cp1.x,
+        cp1.y, p2.x, p2.y, p2.x, p2.y);
 
       // add curve to curves
 
@@ -394,13 +396,13 @@ public class SmoothPath extends Vector<Waypoint>
       oldAngle = angle;
 
       // record the old length
-      
+
       oldLength = length;
     }
 
     // convert curves into one continuous path
 
-    for (CubicCurve2D.Double curve: curves)
+    for (CubicCurve2D.Double curve : curves)
       continousePath.append(curve, true);
 
     // return path

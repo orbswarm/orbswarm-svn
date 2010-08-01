@@ -13,42 +13,44 @@ import static org.trebor.util.Angle.Type.DEGREES;
 
 public class AvoidBehavior extends Behavior
 {
-      // wrapped behavior
+  // wrapped behavior
 
-      Behavior other;
+  Behavior other;
 
-      // create a follow behavior
+  // create a follow behavior
 
-      public AvoidBehavior(Behavior other)
-      {
-         super("Avoid");
-         this.other = other;
-      }
-      // update
+  public AvoidBehavior(Behavior other)
+  {
+    super("Avoid");
+    this.other = other;
+  }
 
-      public void update(double time, MotionModel model)
-      {
-         // first compute what the other behavior would do
+  // update
 
-         other.update(time, model);
+  public void update(double time, MotionModel model)
+  {
+    // first compute what the other behavior would do
 
-         // nearest is not so near, we're done
+    other.update(time, model);
 
-         if (orb.getNearestDistance() > SAFE_DISTANCE)
-            return;
+    // nearest is not so near, we're done
 
-         // if inside critical distance take over completely
-         
-         if (orb.getNearestDistance() < CRITICAL_DISTANCE)
-         {
-           model.setTargetYaw(new Angle(orb.headingTo(orb.getNearest()), DEGREES));
-           return;
-         }
-      }
-      // override to string
+    if (orb.getNearestDistance() > SAFE_DISTANCE)
+      return;
 
-      public String toString()
-      {
-         return other.toString() + " and " + super.toString();
-      }
+    // if inside critical distance take over completely
+
+    if (orb.getNearestDistance() < CRITICAL_DISTANCE)
+    {
+      model.setTargetYaw(new Angle(orb.headingTo(orb.getNearest()), DEGREES));
+      return;
+    }
+  }
+
+  // override to string
+
+  public String toString()
+  {
+    return other.toString() + " and " + super.toString();
+  }
 }

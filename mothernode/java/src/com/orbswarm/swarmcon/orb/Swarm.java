@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 import com.orbswarm.swarmcon.mobject.IMobject;
 import com.orbswarm.swarmcon.mobject.Mobjects;
 
-
 @SuppressWarnings("serial")
 public class Swarm extends Mobjects
 {
@@ -143,5 +142,3 @@ public class Swarm extends Mobjects
   }
 
 }
-
-

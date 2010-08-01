@@ -18,133 +18,146 @@ import static org.trebor.util.Angle.Type.DEGREES;
 import static org.trebor.util.Angle.Type.HEADING;
 import static com.orbswarm.swarmcon.Constants.*;
 
-/** This class models the motion of an orb.  It may be a simulated
- * motion model or a linkage to a live orb. */
+/**
+ * This class models the motion of an orb. It may be a simulated motion
+ * model or a linkage to a live orb.
+ */
 
 abstract public class MotionModel implements IOrbListener
 {
-    /** a nice clearly named zero degrees per second */
+  /** a nice clearly named zero degrees per second */
 
-    public static final Angle ZERO_DEGREES_PER_SECOND = new Angle(0, DEGREE_RATE);
+  public static final Angle ZERO_DEGREES_PER_SECOND = new Angle(0,
+    DEGREE_RATE);
 
-    /** a nice clearly named zero degrees per second */
+  /** a nice clearly named zero degrees per second */
 
-    public static final Angle ZERO_DEGREES = new Angle(0, DEGREE_RATE);
+  public static final Angle ZERO_DEGREES = new Angle(0, DEGREE_RATE);
 
-    /** Curve width for smooth path calculations. */
+  /** Curve width for smooth path calculations. */
 
-    public static final double SMOOTHNESS = .4;
+  public static final double SMOOTHNESS = .4;
 
-    /** The distance from the orb to place a point to give the orb some
-     * room to turn. */
+  /**
+   * The distance from the orb to place a point to give the orb some room
+   * to turn.
+   */
 
-    public static final double HEADROOM = 5;
+  public static final double HEADROOM = 5;
 
-    /** Time between points on a smooth path (seconds). */
-    
-    public static final double SMOOTH_PATH_UPDATE_RATE = .1;
+  /** Time between points on a smooth path (seconds). */
 
-    /** Flatness of waypoints. */
+  public static final double SMOOTH_PATH_UPDATE_RATE = .1;
 
-    public static final double CURVE_FLATNESS = 0.00000001;
-    
-    /** Velocity rate profile to follow */
+  /** Flatness of waypoints. */
 
-    private static Rate velocityRate = new Rate("Velocity", 0, 1.0, 0.08);
+  public static final double CURVE_FLATNESS = 0.00000001;
 
-    // ------- vehicle state --------
+  /** Velocity rate profile to follow */
 
-    /** yaw of orb */
+  private static Rate velocityRate = new Rate("Velocity", 0, 1.0, 0.08);
 
-    private Angle yaw = new Angle(45, HEADING);
+  // ------- vehicle state --------
 
-    /** pitch of orb (shell not ballast) */
+  /** yaw of orb */
 
-    private Angle pitch = new Angle();
+  private Angle yaw = new Angle(45, HEADING);
 
-    /** roll of orb (shell not ballast) */
+  /** pitch of orb (shell not ballast) */
 
-    private Angle roll = new Angle();
+  private Angle pitch = new Angle();
 
-    /** direction of travel (as distinct from yaw) */
+  /** roll of orb (shell not ballast) */
 
-    private Angle direction = new Angle();
+  private Angle roll = new Angle();
 
-    /** position of orb */
+  /** direction of travel (as distinct from yaw) */
 
-    private Point position = new Point(0, 0);
+  private Angle direction = new Angle();
 
-    /** velocity of orb */
+  /** position of orb */
 
-    private double velocity = 0;
+  private Point position = new Point(0, 0);
 
-    /** yaw rate */
+  /** velocity of orb */
 
-    private Angle yawRate = new Angle();
+  private double velocity = 0;
 
-    // ------- roll, yaw rate & velocity control parameters --------
+  /** yaw rate */
 
-    /** target roll */
+  private Angle yawRate = new Angle();
 
-    private Angle targetRoll = new Angle();
+  // ------- roll, yaw rate & velocity control parameters --------
 
-    /** target pitch rate */
+  /** target roll */
 
-    private double targetVelocity;
+  private Angle targetRoll = new Angle();
 
-    // ------- yaw / distance control parameters --------
+  /** target pitch rate */
 
-    /** target yaw */
+  private double targetVelocity;
 
-    private Angle targetYaw = new Angle();
+  // ------- yaw / distance control parameters --------
 
-    // ------- position control parameters --------
+  /** target yaw */
 
-    /** Update the state of this model.
-     *
-     * @param time seconds since last update
-     */
+  private Angle targetYaw = new Angle();
 
-    /** the current active smoothed path being followed.  this will be
-     * null if there is no such path. */
+  // ------- position control parameters --------
 
-    private SmoothPath activeSmoothPath;
+  /**
+   * Update the state of this model.
+   * 
+   * @param time seconds since last update
+   */
 
-    /** Update the motion model. */
+  /**
+   * the current active smoothed path being followed. this will be null if
+   * there is no such path.
+   */
 
-    abstract public void update(double time);
+  private SmoothPath activeSmoothPath;
 
-    /** Get the yaw rate of the orb.
-     *
-     * @return yaw rate in degrees per second
-     */
+  /** Update the motion model. */
 
-    public Angle getYawRate()
-    {
-      return yawRate;
-    }
-    /** Set the yaw rate of the orb.
-     *
-     * @param yawRate yaw rate in degrees per second
-     */
+  abstract public void update(double time);
 
-    protected void setYawRate(Angle yawRate)
-    {
-      this.yawRate = yawRate;
-    }
-    /** Get the current speed of the orb. This takes into account
-     * which way the orb is facing and will return negative values
-     * if the orb is backing up.
-     *
-     * @return velocity in meters per second
-     */
+  /**
+   * Get the yaw rate of the orb.
+   * 
+   * @return yaw rate in degrees per second
+   */
 
-    public double getSpeed()
-    {
-      return abs(yaw.difference(direction).as(DEGREES)) < 90
-        ? getVelocity()
-        : -getVelocity();
-    }
+  public Angle getYawRate()
+  {
+    return yawRate;
+  }
+
+  /**
+   * Set the yaw rate of the orb.
+   * 
+   * @param yawRate yaw rate in degrees per second
+   */
+
+  protected void setYawRate(Angle yawRate)
+  {
+    this.yawRate = yawRate;
+  }
+
+  /**
+   * Get the current speed of the orb. This takes into account which way
+   * the orb is facing and will return negative values if the orb is
+   * backing up.
+   * 
+   * @return velocity in meters per second
+   */
+
+  public double getSpeed()
+  {
+    return abs(yaw.difference(direction).as(DEGREES)) < 90
+      ? getVelocity()
+      : -getVelocity();
+  }
 
   /**
    * Get the current velocity of the orb. Always returns a positive value.
@@ -152,361 +165,381 @@ abstract public class MotionModel implements IOrbListener
    * @return velocity in meters per second
    */
 
-    public double getVelocity()
-    {
-      return velocity;
-    }
-    /** Set the current velocity of the orb.
-     *
-     * @param velocity orb velocity in meters per second
-     */
+  public double getVelocity()
+  {
+    return velocity;
+  }
 
-    protected void setVelocity(double velocity)
-    {
-      this.velocity = velocity;
-    }
+  /**
+   * Set the current velocity of the orb.
+   * 
+   * @param velocity orb velocity in meters per second
+   */
 
-    /** Get the current direction of the orb.
-     *
-     * @return direction as a heading
-     */
+  protected void setVelocity(double velocity)
+  {
+    this.velocity = velocity;
+  }
 
-    public Angle getDirection()
-    {
-      return new Angle(direction);
-    }
+  /**
+   * Get the current direction of the orb.
+   * 
+   * @return direction as a heading
+   */
 
-    /** Set the current direction of the orb.
-     *
-     * @param direction orb direction (heading)
-     */
-    protected void setDirection(Angle direction)
-    {
-      this.direction = direction;
-    }
+  public Angle getDirection()
+  {
+    return new Angle(direction);
+  }
 
-    /** Command target roll.
-     *
-     * @param targetRoll target roll
-     */
-    public void setTargetRoll(Angle targetRoll)
-    {
-      this.targetRoll = targetRoll;
-    }
+  /**
+   * Set the current direction of the orb.
+   * 
+   * @param direction orb direction (heading)
+   */
+  protected void setDirection(Angle direction)
+  {
+    this.direction = direction;
+  }
 
-    /** Command target velocity.
-     *
-     * @param targetVelocity target velocity
-     */
-    public void setTargetVelocity(double targetVelocity)
-    {
-      this.targetVelocity = targetVelocity;
-    }
+  /**
+   * Command target roll.
+   * 
+   * @param targetRoll target roll
+   */
+  public void setTargetRoll(Angle targetRoll)
+  {
+    this.targetRoll = targetRoll;
+  }
 
-    /** Report target velocity.
-     *
-     * @return target velocity
-     */
+  /**
+   * Command target velocity.
+   * 
+   * @param targetVelocity target velocity
+   */
+  public void setTargetVelocity(double targetVelocity)
+  {
+    this.targetVelocity = targetVelocity;
+  }
 
-    public double getTargetVelocity()
-    {
-      return targetVelocity;
-    }
+  /**
+   * Report target velocity.
+   * 
+   * @return target velocity
+   */
 
-    /** Command target yaw.
-     *
-     * @param targetYaw target yaw
-     */
+  public double getTargetVelocity()
+  {
+    return targetVelocity;
+  }
 
-    public void setTargetYaw(Angle targetYaw)
-    {
-      this.targetYaw = targetYaw;
-    }
+  /**
+   * Command target yaw.
+   * 
+   * @param targetYaw target yaw
+   */
 
-   /** Command position.
-    *
-    * @param target target position
-    */
-    
-    public SmoothPath setTargetPosition(Target target)
-    {
-      // create a path
+  public void setTargetYaw(Angle targetYaw)
+  {
+    this.targetYaw = targetYaw;
+  }
 
-      Path path = new Path();
+  /**
+   * Command position.
+   * 
+   * @param target target position
+   */
 
-      // add the current orb position
+  public SmoothPath setTargetPosition(Target target)
+  {
+    // create a path
 
-      path.add(new Target(position));
+    Path path = new Path();
 
-      // add the actual target
+    // add the current orb position
 
-      path.add(target);
+    path.add(new Target(position));
 
-      // command out the path
+    // add the actual target
 
-      return setTargetPath(path);
-    }
+    path.add(target);
 
-    /** Command a path.
-     *
-     * @param path the path the orb should follow
-     */
+    // command out the path
 
-    public SmoothPath setTargetPath(Path path)
-    {
-      activeSmoothPath = new SmoothPath(
-        path, velocityRate,
-        SMOOTH_PATH_UPDATE_RATE,
-        SMOOTHNESS, CURVE_FLATNESS, yaw, HEADROOM);
+    return setTargetPath(path);
+  }
 
-      // if there is a live path commander kill it
+  /**
+   * Command a path.
+   * 
+   * @param path the path the orb should follow
+   */
 
-      if (pathCommander != null)
-        pathCommander.requestDeath();
+  public SmoothPath setTargetPath(Path path)
+  {
+    activeSmoothPath = new SmoothPath(path, velocityRate,
+      SMOOTH_PATH_UPDATE_RATE, SMOOTHNESS, CURVE_FLATNESS, yaw, HEADROOM);
 
-      // make a fresh new commander on this smooth path, and follow it
+    // if there is a live path commander kill it
 
-      pathCommander = new PathCommander();
-      pathCommander.start();
-
-      // return the smooth path
-
-      return activeSmoothPath;
-    }
-
-    /** Stop the orb. */
-
-    public void stop()
-    {
+    if (pathCommander != null)
       pathCommander.requestDeath();
+
+    // make a fresh new commander on this smooth path, and follow it
+
+    pathCommander = new PathCommander();
+    pathCommander.start();
+
+    // return the smooth path
+
+    return activeSmoothPath;
+  }
+
+  /** Stop the orb. */
+
+  public void stop()
+  {
+    pathCommander.requestDeath();
+  }
+
+  /** Get the active smooth path. */
+
+  public SmoothPath getActivePath()
+  {
+    return activeSmoothPath;
+  }
+
+  /** Deactivate active smooth path. */
+
+  public void deactivatePath()
+  {
+    activeSmoothPath = null;
+  }
+
+  /** Get target yaw. */
+
+  public double getTargetYaw()
+  {
+    return targetYaw.as(DEGREES);
+  }
+
+  /** Get target roll. */
+
+  public double getTargetRoll()
+  {
+    return targetRoll.as(DEGREES);
+  }
+
+  // get yaw
+
+  public Angle getYaw()
+  {
+    return yaw; // .as(DEGREES);
+  }
+
+  // set yaw
+
+  protected Angle setYaw(Angle newYaw)
+  {
+    Angle deltaYaw = yaw.difference(newYaw);
+    yaw = newYaw;
+    return deltaYaw;
+  }
+
+  // set delta yaw
+
+  protected Angle setDeltaYaw(Angle deltaYaw)
+  {
+    return setYaw(new Angle(yaw, deltaYaw));
+  }
+
+  // get pitch
+
+  public Angle getPitch()
+  {
+    return pitch;
+  }
+
+  // set pitch
+
+  protected Angle setPitch(Angle newPitch)
+  {
+    Angle deltaPitch = pitch.difference(newPitch);
+    pitch = newPitch;
+    return deltaPitch;
+  }
+
+  // set delta pitch
+
+  protected Angle setDeltaPitch(Angle deltaPitch)
+  {
+    return setPitch(new Angle(pitch, deltaPitch));
+  }
+
+  // get roll
+
+  public Angle getRoll()
+  {
+    return roll;
+  }
+
+  // set roll
+
+  protected Angle setRoll(Angle unlimitedRoll)
+  {
+    double degrees = unlimitedRoll.as(DEGREE_RATE);
+    Angle limitedRoll = new Angle(max(min(MAX_ROLL, degrees), -MAX_ROLL),
+      DEGREE_RATE);
+
+    Angle deltaRoll = roll.difference(limitedRoll);
+    roll = limitedRoll;
+    return deltaRoll;
+  }
+
+  /**
+   * Set delta roll. The roll is limited, so the value returned is the
+   * actual achieved delta roll.
+   * 
+   * @param droll the delta roll
+   * @return The achieved delta roll.
+   */
+
+  protected Angle setDeltaRoll(Angle deltaRoll)
+  {
+    return setRoll(new Angle(roll, deltaRoll));
+  }
+
+  // reverse the sense of the vehicle
+
+  public void reverse()
+  {
+    yaw = yaw.rotate(180, DEGREES);
+  }
+
+  // position getter
+
+  public Point getPosition()
+  {
+    return new Point(getX(), getY());
+  }
+
+  // get x position
+
+  double getX()
+  {
+    return position.getX();
+  }
+
+  // get y position
+
+  double getY()
+  {
+    return position.getY();
+  }
+
+  // position setter
+
+  protected void setPosition(Point position)
+  {
+    setPosition(position.getX(), position.getY());
+  }
+
+  // position setter
+
+  public void setPosition(double x, double y)
+  {
+    position.setLocation(x, y);
+  }
+
+  // set delta position
+
+  protected void translate(Point delta)
+  {
+    position.translate(delta);
+  }
+
+  // set delta position
+
+  protected void setDeltaPosition(double dX, double dY)
+  {
+    setPosition(getX() + dX, getY() + dY);
+  }
+
+  /** Return the orb survey position, or null if we haven't got one yet. */
+
+  public Point getSurveyPosition()
+  {
+    return null;
+  }
+
+  /** Return true if the orb has acknowledged the origin command. */
+
+  public boolean isOriginAcked()
+  {
+    return false;
+  }
+
+  /** Command the orb to the next waypoint. */
+
+  protected abstract void commandWaypoint(Waypoint wp);
+
+  // the one true path commander
+
+  protected PathCommander pathCommander = null;
+
+  // thread for commandingn orb
+
+  protected class PathCommander extends Thread
+  {
+    private SwarmCon sc = SwarmCon.getInstance();
+
+    private boolean deathRequest = false;
+
+    public void requestDeath()
+    {
+      deathRequest = true;
     }
 
-    /** Get the active smooth path. */
-
-    public SmoothPath getActivePath()
+    public void run()
     {
-      return activeSmoothPath;
-    }
+      try
+      {
+        double lastTime = 0;
+        SmoothPath sp = getActivePath();
+        sc.captureArena();
 
-    /** Deactivate active smooth path. */
-
-    public void deactivatePath()
-    {
-      activeSmoothPath = null;
-    }
-
-    /** Get target yaw. */
-
-    public double getTargetYaw()
-    {
-      return targetYaw.as(DEGREES);
-    }
-    /** Get target roll. */
-
-    public double getTargetRoll()
-    {
-      return targetRoll.as(DEGREES);
-    }
-    // get yaw
-
-    public Angle getYaw()
-    {
-      return yaw; //.as(DEGREES);
-    }
-    // set yaw
-
-    protected Angle setYaw(Angle newYaw)
-    {
-      Angle deltaYaw = yaw.difference(newYaw);
-      yaw = newYaw;
-      return deltaYaw;
-    }
-
-    // set delta yaw
-
-    protected Angle setDeltaYaw(Angle deltaYaw)
-    {
-      return setYaw(new Angle(yaw, deltaYaw));
-    }
-    // get pitch
-
-    public Angle getPitch()
-    {
-      return pitch;
-    }
-    // set pitch
-
-    protected Angle setPitch(Angle newPitch)
-    {
-      Angle deltaPitch = pitch.difference(newPitch);
-      pitch = newPitch;
-      return deltaPitch;
-    }
-    // set delta pitch
-
-    protected Angle setDeltaPitch(Angle deltaPitch)
-    {
-      return setPitch(new Angle(pitch, deltaPitch));
-    }
-
-    // get roll
-
-    public Angle getRoll()
-    {
-      return roll;
-    }
-    // set roll
-
-    protected Angle setRoll(Angle unlimitedRoll)
-    {
-      double degrees = unlimitedRoll.as(DEGREE_RATE);
-      Angle limitedRoll = new Angle(
-        max(min(MAX_ROLL, degrees), -MAX_ROLL), DEGREE_RATE);
-
-      Angle deltaRoll = roll.difference(limitedRoll);
-      roll = limitedRoll;
-      return deltaRoll;
-    }
-
-    /** Set delta roll.  The roll is limited, so the value returned is
-     * the actual achieved delta roll.
-     *
-     * @param droll the delta roll
-     *
-     * @return The achieved delta roll.
-     */
-
-    protected Angle setDeltaRoll(Angle deltaRoll)
-    {
-      return setRoll(new Angle(roll, deltaRoll));
-    }
-
-    // reverse the sense of the vehicle
-
-    public void reverse()
-    {
-      yaw = yaw.rotate(180, DEGREES);
-    }
-    // position getter
-
-    public Point getPosition()
-    {
-      return new Point(getX(), getY());
-    }
-    // get x position
-
-    double getX()
-    {
-      return position.getX();
-    }
-    // get y position
-
-    double getY()
-    {
-      return position.getY();
-    }
-    // position setter
-
-    protected void setPosition(Point position)
-    {
-      setPosition(position.getX(), position.getY());
-    }
-    // position setter
-
-    public void setPosition(double x, double y)
-    {
-      position.setLocation(x, y);
-    }
-
-    // set delta position
-
-    protected void translate(Point delta)
-    {
-      position.translate(delta);
-    }
-
-    // set delta position
-
-    protected void setDeltaPosition(double dX, double dY)
-    {
-      setPosition(getX() + dX, getY() + dY);
-    }
-
-    /** Return the orb survey position, or null if we haven't got one yet. */
-
-    public Point getSurveyPosition()
-    {
-      return null;
-    }
-
-    /** Return true if the orb has acknowledged the origin command. */
-
-    public boolean isOriginAcked()
-    {
-      return false;
-    }
-
-    /** Command the orb to the next waypoint. */
-
-    protected abstract void commandWaypoint(Waypoint wp);
-
-    // the one true path commander
-
-    protected PathCommander pathCommander = null;
-
-    // thread for commandingn orb
-
-    protected class PathCommander extends Thread
-    {
-        private SwarmCon sc = SwarmCon.getInstance();
-
-        private boolean deathRequest = false;
-
-        public void requestDeath()
+        for (Waypoint wp : sp)
         {
-          deathRequest = true;
+          // sleep until it's time to send it
+
+          sleep(SwarmCon.secondsToMilliseconds(wp.getTime() - lastTime));
+
+          // if requested to die, do so
+
+          if (deathRequest)
+          {
+            sc.captureArena();
+            return;
+          }
+
+          // move orb to this waypoint
+
+          commandWaypoint(wp);
+          sp.setCurrentWaypoint(wp);
+
+          // update the last time a way point was set
+
+          lastTime = wp.getTime();
         }
 
-        public void run()
-        {
-          try
-          {
-            double lastTime = 0;
-            SmoothPath sp = getActivePath();
-            sc.captureArena();
+        // we're done with this path, stop
 
-            for (Waypoint wp: sp)
-            {
-              // sleep until it's time to send it
-
-              sleep(SwarmCon.secondsToMilliseconds(wp.getTime() - lastTime));
-
-              // if requested to die, do so
-
-              if (deathRequest)
-              {
-                sc.captureArena();
-                return;
-              }
-
-              // move orb to this waypoint
-
-              commandWaypoint(wp);
-              sp.setCurrentWaypoint(wp);
-
-              // update the last time a way point was set
-
-              lastTime = wp.getTime();
-            }
-
-            // we're done with this path, stop
-
-            sc.captureArena();
-          }
-          catch (Exception e)
-          {
-            e.printStackTrace();
-          }
-        }
+        sc.captureArena();
+      }
+      catch (Exception e)
+      {
+        e.printStackTrace();
+      }
     }
+  }
 }

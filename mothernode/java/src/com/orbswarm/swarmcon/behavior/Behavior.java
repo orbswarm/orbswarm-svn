@@ -9,34 +9,36 @@ import com.orbswarm.swarmcon.orb.IOrb;
 
 public abstract class Behavior
 {
-      // name of this behavior
+  // name of this behavior
 
-      String name;
-      
-      // orb is set when this behavior is added to a particular orb
+  String name;
 
-      protected IOrb orb;
+  // orb is set when this behavior is added to a particular orb
 
-      // construct a behavior
+  protected IOrb orb;
 
-      public Behavior(String name)
-      {
-         this.name = name;
-      }
-      // set orb for this behavior
+  // construct a behavior
 
-      public void setOrb(IOrb orb)
-      {
-         this.orb = orb;
-      }
-      // update the state of the orb, time (in seconds) provided
-      
-      abstract public void update(double time, MotionModel model);
+  public Behavior(String name)
+  {
+    this.name = name;
+  }
 
-      // convert to a string
+  // set orb for this behavior
 
-      public String toString()
-      {
-         return name;
-      }
+  public void setOrb(IOrb orb)
+  {
+    this.orb = orb;
+  }
+
+  // update the state of the orb, time (in seconds) provided
+
+  abstract public void update(double time, MotionModel model);
+
+  // convert to a string
+
+  public String toString()
+  {
+    return name;
+  }
 }

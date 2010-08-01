@@ -24,13 +24,12 @@ public class PhantomRenderer extends ARenderer<Phantom>
     // record and scale current position
 
     Point2D.Double tmpPos = phantom.getPosition();
-    
+
     // position the phantom
-    
+
     phantom.setPosition(phantom.getX() / scale, phantom.getY() / scale);
-    g.translate(
-      phantom.getX() - mobject.getX(), 
-      phantom.getY() - mobject.getY());
+    g.translate(phantom.getX() - mobject.getX(), phantom.getY() -
+      mobject.getY());
 
     // paint phantom
 

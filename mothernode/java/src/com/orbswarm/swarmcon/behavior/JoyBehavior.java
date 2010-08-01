@@ -10,67 +10,71 @@ import static com.orbswarm.swarmcon.Constants.*;
 
 public class JoyBehavior extends Behavior implements JoystickManager.Listener
 {
-      double steering;
-      double power;
-      
-      // create a joy behavior
-      
-      public JoyBehavior()
-      {
-         super("Joy");
-      }
+  double steering;
+  double power;
 
-      /** Dispatch joystick axis event.
-       *
-       * @param stick joystick on which this event occurred
-       * @param axis number of axis which has changed
-       * @param value value axis has changed to
-       */
+  // create a joy behavior
 
-      public void joystickAxisChanged(int stick, int axis, double value)
-      {
-//          if (axis == SwarmCon.JOYSTICK_STEERING_AXIS)
-//             steering = value;
-//          else if(axis == SwarmCon.JOYSTICK_POWER_AXIS)
-//             power = -value;
-      }
+  public JoyBehavior()
+  {
+    super("Joy");
+  }
 
-      /** Distpatch joystick hat event.
-       *
-       * @param orb orb associated with this stick
-       * @param hat number of hat which has changed
-       * @param x   X value of hat position
-       * @param x   Y value of hat position
-       */
+  /**
+   * Dispatch joystick axis event.
+   * 
+   * @param stick joystick on which this event occurred
+   * @param axis number of axis which has changed
+   * @param value value axis has changed to
+   */
 
-      public void joystickHatChanged(int stick, int hat, int x, int y)
-      {
-      }
+  public void joystickAxisChanged(int stick, int axis, double value)
+  {
+    // if (axis == SwarmCon.JOYSTICK_STEERING_AXIS)
+    // steering = value;
+    // else if(axis == SwarmCon.JOYSTICK_POWER_AXIS)
+    // power = -value;
+  }
 
-      /** Dispatch joystick button press event.
-       *
-       * @param stick joystick on which this event occurred
-       * @param button number of button which has changed
-       */
+  /**
+   * Distpatch joystick hat event.
+   * 
+   * @param orb orb associated with this stick
+   * @param hat number of hat which has changed
+   * @param x X value of hat position
+   * @param x Y value of hat position
+   */
 
-      public void joystickButtonPressed(int stick, int button)
-      {
-      }
+  public void joystickHatChanged(int stick, int hat, int x, int y)
+  {
+  }
 
-      /** Dispatch joystick button release event.
-       *
-       * @param stick joystick on which this event occurred
-       * @param button number of button which has changed
-       */
+  /**
+   * Dispatch joystick button press event.
+   * 
+   * @param stick joystick on which this event occurred
+   * @param button number of button which has changed
+   */
 
-      public void joystickButtonReleased(int stick, int button)
-      {
-      }
+  public void joystickButtonPressed(int stick, int button)
+  {
+  }
 
-      // update
+  /**
+   * Dispatch joystick button release event.
+   * 
+   * @param stick joystick on which this event occurred
+   * @param button number of button which has changed
+   */
 
-      public void update(double time, MotionModel model)
-      {
-        model.setTargetRoll(new Angle(steering * MAX_ROLL, DEGREE_RATE));
-      }
+  public void joystickButtonReleased(int stick, int button)
+  {
+  }
+
+  // update
+
+  public void update(double time, MotionModel model)
+  {
+    model.setTargetRoll(new Angle(steering * MAX_ROLL, DEGREE_RATE));
+  }
 }

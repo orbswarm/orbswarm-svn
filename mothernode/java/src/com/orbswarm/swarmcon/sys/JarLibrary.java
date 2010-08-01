@@ -4,15 +4,15 @@ import java.io.*;
 import java.net.URL;
 import java.lang.ClassLoader;
 import org.apache.log4j.Logger;
- 
-public class JarLibrary 
+
+public class JarLibrary
 {
   private static Logger log = Logger.getLogger(JarLibrary.class);
 
   public static void load(String name) throws Exception
   {
     log.debug("loading library: " + name);
-    
+
     // establish the correct name of the library based on os
 
     String libname = System.mapLibraryName(name);

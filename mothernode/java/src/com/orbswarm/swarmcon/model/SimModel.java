@@ -23,243 +23,256 @@ public class SimModel extends MotionModel
 {
   @SuppressWarnings("unused")
   private static Logger log = Logger.getLogger(SimModel.class);
-  
-    /** pitch rate model */
 
-    private Rate pitchRate = new Rate(
-      "pitchRate", -MAX_PITCH_RATE, MAX_PITCH_RATE, DPITCH_RATE_DT);
+  /** pitch rate model */
 
-    /** roll rate model */
+  private Rate pitchRate = new Rate("pitchRate", -MAX_PITCH_RATE,
+    MAX_PITCH_RATE, DPITCH_RATE_DT);
 
-    private Rate rollRate  = new Rate(
-      "roll", -MAX_ROLL_RATE, MAX_ROLL_RATE, DROLL_RATE_DT);
+  /** roll rate model */
 
-    /** yaw to yaw rate controller */
+  private Rate rollRate = new Rate("roll", -MAX_ROLL_RATE, MAX_ROLL_RATE,
+    DROLL_RATE_DT);
 
-    private Controller yawToYawRateCtrl =
-      new PController("yaw", "yawRate", -20, 20, -0.34);
+  /** yaw to yaw rate controller */
 
-    /** yaw rate to roll rate controller */
+  private Controller yawToYawRateCtrl = new PController("yaw", "yawRate",
+    -20, 20, -0.34);
 
-    private Controller yawRateToRollRateCtrl =
-      new PController("yawRate", "rollRate", -.2, .2, 0.125);
+  /** yaw rate to roll rate controller */
 
-    /** roll to roll rate controller */
+  private Controller yawRateToRollRateCtrl = new PController("yawRate",
+    "rollRate", -.2, .2, 0.125);
 
-    private Controller rollToRollRateCtrl =
-      new PController("roll", "rollRate", -.5, .5, 0.0125);
+  /** roll to roll rate controller */
 
-    /** distance to velocity controller */
+  private Controller rollToRollRateCtrl = new PController("roll", "rollRate",
+    -.5, .5, 0.0125);
 
-    private Controller distanceToVelocityCtrl =
-      new PController("distance", "velocity", 0, 1, .2);
+  /** distance to velocity controller */
 
-    /** velocity to pitch rate controller */
+  private Controller distanceToVelocityCtrl = new PController("distance",
+    "velocity", 0, 1, .2);
 
-    private Controller velocityToPitchCtrl =
-      new PController("veloctiy", "pitchRate", -1, 1, 320.0);
+  /** velocity to pitch rate controller */
 
-    /** all the controllers in an array */
+  private Controller velocityToPitchCtrl = new PController("veloctiy",
+    "pitchRate", -1, 1, 320.0);
 
-    Controller[] controllers =
-    {
-      yawToYawRateCtrl,
-      yawRateToRollRateCtrl,
-      distanceToVelocityCtrl,
-      velocityToPitchCtrl,
-    };
+  /** all the controllers in an array */
 
-    /** Command low level roll rate control.
-     *
-     * @param targetRollRate target roll rate
-     */
-    public void setTargetRollRate(Angle targetRollRate)
-    {
-      rollRate.setNormalizedTarget(targetRollRate.as(DEGREE_RATE));
-    }
+  Controller[] controllers =
+  {
+    yawToYawRateCtrl,
+    yawRateToRollRateCtrl,
+    distanceToVelocityCtrl,
+    velocityToPitchCtrl,
+  };
 
-    /** Command low level pitch rate control.
-     *
-     * @param targetPitchRate target velocity
-     */
-    public void setTargetPitchRate(Angle targetPitchRate)
-    {
-      pitchRate.setNormalizedTarget(targetPitchRate.as(DEGREE_RATE));
-    }
+  /**
+   * Command low level roll rate control.
+   * 
+   * @param targetRollRate target roll rate
+   */
+  public void setTargetRollRate(Angle targetRollRate)
+  {
+    rollRate.setNormalizedTarget(targetRollRate.as(DEGREE_RATE));
+  }
 
-    /** Command target roll.
-     *
-     * @param targetRoll target roll
-     */
-    public void setTargetRoll(Angle targetRoll)
-    {
-      super.setTargetRoll(targetRoll);
-      rollToRollRateCtrl.setTarget(targetRoll.as(DEGREE_RATE));
-      rollToRollRateCtrl.setMeasurment(getRoll().as(DEGREE_RATE));
-      setTargetRollRate(new Angle(rollToRollRateCtrl.compute(), DEGREE_RATE));
-    }
+  /**
+   * Command low level pitch rate control.
+   * 
+   * @param targetPitchRate target velocity
+   */
+  public void setTargetPitchRate(Angle targetPitchRate)
+  {
+    pitchRate.setNormalizedTarget(targetPitchRate.as(DEGREE_RATE));
+  }
 
-    /** Command target yaw rate.
-     *
-     * @param targetYawRate target yaw rate
-     */
-    public void setTargetYawRate(Angle targetYawRate)
-    {
-      yawRateToRollRateCtrl.setTarget(targetYawRate.as(DEGREE_RATE));
-      yawRateToRollRateCtrl.setMeasurment(getYawRate().as(DEGREE_RATE));
-      setTargetRollRate(new Angle(yawRateToRollRateCtrl.compute(), DEGREE_RATE));
-    }
+  /**
+   * Command target roll.
+   * 
+   * @param targetRoll target roll
+   */
+  public void setTargetRoll(Angle targetRoll)
+  {
+    super.setTargetRoll(targetRoll);
+    rollToRollRateCtrl.setTarget(targetRoll.as(DEGREE_RATE));
+    rollToRollRateCtrl.setMeasurment(getRoll().as(DEGREE_RATE));
+    setTargetRollRate(new Angle(rollToRollRateCtrl.compute(), DEGREE_RATE));
+  }
 
-    /** Command target velocity.
-     *
-     * @param targetVelocity target velocity
-     */
-    public void setTargetVelocity(double targetVelocity)
-    {
-      super.setTargetVelocity(targetVelocity);
-      velocityToPitchCtrl.setTarget(targetVelocity);
-      velocityToPitchCtrl.setMeasurment(getSpeed());
-      setTargetPitchRate(new Angle(velocityToPitchCtrl.compute(), DEGREE_RATE));
-    }
+  /**
+   * Command target yaw rate.
+   * 
+   * @param targetYawRate target yaw rate
+   */
+  public void setTargetYawRate(Angle targetYawRate)
+  {
+    yawRateToRollRateCtrl.setTarget(targetYawRate.as(DEGREE_RATE));
+    yawRateToRollRateCtrl.setMeasurment(getYawRate().as(DEGREE_RATE));
+    setTargetRollRate(new Angle(yawRateToRollRateCtrl.compute(), DEGREE_RATE));
+  }
 
-    /** Command target yaw.
-     *
-     * @param targetYaw target yaw
-     */
+  /**
+   * Command target velocity.
+   * 
+   * @param targetVelocity target velocity
+   */
+  public void setTargetVelocity(double targetVelocity)
+  {
+    super.setTargetVelocity(targetVelocity);
+    velocityToPitchCtrl.setTarget(targetVelocity);
+    velocityToPitchCtrl.setMeasurment(getSpeed());
+    setTargetPitchRate(new Angle(velocityToPitchCtrl.compute(), DEGREE_RATE));
+  }
 
-    public void setTargetYaw(Angle targetYaw)
-    {
-      // update parent
+  /**
+   * Command target yaw.
+   * 
+   * @param targetYaw target yaw
+   */
 
-      super.setTargetYaw(targetYaw);
+  public void setTargetYaw(Angle targetYaw)
+  {
+    // update parent
 
-      // compute yaw error
+    super.setTargetYaw(targetYaw);
 
-      double yawError = getYaw().difference(getTargetYaw(), DEGREE_RATE)
-        .as(DEGREE_RATE);
+    // compute yaw error
 
-      // compute yaw target rate
+    double yawError = getYaw().difference(getTargetYaw(), DEGREE_RATE).as(
+      DEGREE_RATE);
 
-      yawToYawRateCtrl.setTarget(0);
-      yawToYawRateCtrl.setMeasurment(yawError);
-      setTargetYawRate(new Angle(yawToYawRateCtrl.compute(), DEGREE_RATE));
-    }
+    // compute yaw target rate
 
-    /** Command distance error.
-     *
-     * @param distanceError error between target distance and desired
-     *        distance
-     */
+    yawToYawRateCtrl.setTarget(0);
+    yawToYawRateCtrl.setMeasurment(yawError);
+    setTargetYawRate(new Angle(yawToYawRateCtrl.compute(), DEGREE_RATE));
+  }
 
-    public void setDistanceError(double distanceError)
-    {
-      // compute target velocity
+  /**
+   * Command distance error.
+   * 
+   * @param distanceError error between target distance and desired
+   *        distance
+   */
 
-      distanceToVelocityCtrl.setTarget(0);
-      distanceToVelocityCtrl.setMeasurment(distanceError);
-      setTargetVelocity(distanceToVelocityCtrl.compute());
-    }
+  public void setDistanceError(double distanceError)
+  {
+    // compute target velocity
 
-    /** Get controllers in the system. */
+    distanceToVelocityCtrl.setTarget(0);
+    distanceToVelocityCtrl.setMeasurment(distanceError);
+    setTargetVelocity(distanceToVelocityCtrl.compute());
+  }
 
-    public Controller[] getControllers()
-    {
-      return controllers;
-    }
-    /** Reverse direction of the orb */
+  /** Get controllers in the system. */
 
-    public void reverse()
-    {
-      super.reverse();
-      pitchRate.setRate(-pitchRate.getRate());
-    }
-    // update position
+  public Controller[] getControllers()
+  {
+    return controllers;
+  }
 
-    public void update(double time)
-    {
-      // update pitch and roll rate
+  /** Reverse direction of the orb */
 
-      pitchRate.update(time);
-      rollRate .update(time);
+  public void reverse()
+  {
+    super.reverse();
+    pitchRate.setRate(-pitchRate.getRate());
+  }
 
-      // compute delta pitch and roll
+  // update position
 
-      Angle dPitch = new Angle(pitchRate.getRate() * time, DEGREE_RATE);
-      Angle dRoll  = new Angle(rollRate.getRate() * time, DEGREE_RATE);
+  public void update(double time)
+  {
+    // update pitch and roll rate
 
-      // update absolute pitch and roll, overwrite deltas with achieved
-      // values
+    pitchRate.update(time);
+    rollRate.update(time);
 
-      dPitch = setDeltaPitch(dPitch);
-      dRoll  = setDeltaRoll(dRoll);
+    // compute delta pitch and roll
 
-      // feed back to actual pitch and roll rate
-      // in case the orb hit some limit
+    Angle dPitch = new Angle(pitchRate.getRate() * time, DEGREE_RATE);
+    Angle dRoll = new Angle(rollRate.getRate() * time, DEGREE_RATE);
 
-      pitchRate.setRate(dPitch.as(DEGREE_RATE) / time);
-      rollRate.setRate(dRoll.as(DEGREE_RATE)   / time);
+    // update absolute pitch and roll, overwrite deltas with achieved
+    // values
 
-      // compute yaw
+    dPitch = setDeltaPitch(dPitch);
+    dRoll = setDeltaRoll(dRoll);
 
-      Angle dYaw = new Angle(
-        sin(getRoll().as(RADIAN_RATE)) * dPitch.as(RADIAN_RATE), RADIAN_RATE);
-      dYaw = setDeltaYaw(dYaw);
-      setYawRate(new Angle(dYaw.as(DEGREE_RATE) / time, DEGREE_RATE));
+    // feed back to actual pitch and roll rate
+    // in case the orb hit some limit
 
-      // radius of wide end of the rolling cone
+    pitchRate.setRate(dPitch.as(DEGREE_RATE) / time);
+    rollRate.setRate(dRoll.as(DEGREE_RATE) / time);
 
-      double p = ORB_RADIUS * cos(getRoll().as(RADIAN_RATE));
+    // compute yaw
 
-      // compute delta x and y
+    Angle dYaw = new Angle(sin(getRoll().as(RADIAN_RATE)) *
+      dPitch.as(RADIAN_RATE), RADIAN_RATE);
+    dYaw = setDeltaYaw(dYaw);
+    setYawRate(new Angle(dYaw.as(DEGREE_RATE) / time, DEGREE_RATE));
 
-      Point delta = new Point(getYaw().cartesian(dPitch.as(RADIAN_RATE) * p));
+    // radius of wide end of the rolling cone
 
-      // update the direction of the orb
+    double p = ORB_RADIUS * cos(getRoll().as(RADIAN_RATE));
 
-      setDirection(new Angle(delta.getX(), delta.getY()));
+    // compute delta x and y
 
-      // correct for lateral displacement due to roll.  for reasons i
-      // don't understand if i include the roll correction into the
-      // direction above, it breaks the velocity controller.  this note
-      // stands in place of a proper fix.
+    Point delta = new Point(getYaw().cartesian(dPitch.as(RADIAN_RATE) * p));
 
-      Angle rollDir = new Angle(getYaw(), new Angle(90, DEGREE_RATE));
-      delta.translate(
-        rollDir.cartesian(dRoll.as(RADIAN_RATE) * ORB_RADIUS, 0, 0));
-      
-      // set position and velocity
+    // update the direction of the orb
 
-      setDeltaPosition(delta.getX(), delta.getY());
-      setVelocity(hypot(delta.getX(), delta.getY()) / time);
-    }
+    setDirection(new Angle(delta.getX(), delta.getY()));
 
+    // correct for lateral displacement due to roll. for reasons i
+    // don't understand if i include the roll correction into the
+    // direction above, it breaks the velocity controller. this note
+    // stands in place of a proper fix.
 
-    /** Handle messages from the orb. This is stubbed out as the
-     * simulation would not be connected to an orb. */
+    Angle rollDir = new Angle(getYaw(), new Angle(90, DEGREE_RATE));
+    delta.translate(rollDir.cartesian(dRoll.as(RADIAN_RATE) * ORB_RADIUS, 0,
+      0));
 
-    public void onOrbMessage(Message message)
-    {
-    }
+    // set position and velocity
 
-    /** Command the orb to the next waypoint. */
+    setDeltaPosition(delta.getX(), delta.getY());
+    setVelocity(hypot(delta.getX(), delta.getY()) / time);
+  }
 
-    protected void commandWaypoint(Waypoint wp)
-    {
-      // set target velocity based on waypoint velocity
+  /**
+   * Handle messages from the orb. This is stubbed out as the simulation
+   * would not be connected to an orb.
+   */
 
-      setTargetVelocity(wp.getVelocity());
+  public void onOrbMessage(Message message)
+  {
+  }
 
-      // establish the delta yaw between the waypoint and the orb
+  /** Command the orb to the next waypoint. */
 
-//       Angle deltaYaw = wp.getYaw().difference(getYaw());
-//       setTargetYawRate(
-//         wp.getYawRate().rotate(-deltaYaw.as(DEGREE_RATE) * 0.2, DEGREE_RATE));
+  protected void commandWaypoint(Waypoint wp)
+  {
+    // set target velocity based on waypoint velocity
 
-      double distance = getPosition().distance(wp);
-      Angle headingToWp = (new Angle(wp, getPosition())).difference(getYaw());
-      boolean toLeft = headingToWp.as(HEADING_RATE) < 0;
-      double rotBy = (toLeft ? -1 : 1) * distance * 5.0;
+    setTargetVelocity(wp.getVelocity());
 
-      setTargetYawRate(wp.getYawRate().rotate(rotBy, HEADING_RATE));
-    }
+    // establish the delta yaw between the waypoint and the orb
+
+    // Angle deltaYaw = wp.getYaw().difference(getYaw());
+    // setTargetYawRate(
+    // wp.getYawRate().rotate(-deltaYaw.as(DEGREE_RATE) * 0.2,
+    // DEGREE_RATE));
+
+    double distance = getPosition().distance(wp);
+    Angle headingToWp = (new Angle(wp, getPosition())).difference(getYaw());
+    boolean toLeft = headingToWp.as(HEADING_RATE) < 0;
+    double rotBy = (toLeft
+      ? -1
+      : 1) * distance * 5.0;
+
+    setTargetYawRate(wp.getYawRate().rotate(rotBy, HEADING_RATE));
+  }
 }

@@ -17,38 +17,44 @@ public class Renderer
 
   private static Class<?> renderClasses[][] =
   {
-    {IOrb.class, OrbRenderer.class},
-    {Phantom.class, PhantomRenderer.class},
-    {MouseMobject.class, MouseMobjectRenderer.class},
+    {
+      IOrb.class, OrbRenderer.class
+    },
+    {
+      Phantom.class, PhantomRenderer.class
+    },
+    {
+      MouseMobject.class, MouseMobjectRenderer.class
+    },
   };
-  
-  private static Map<Class<?>, IRenderer<?>> mRendererInstanceMap = 
-    new HashMap<Class<?>, IRenderer<?>>();
+
+  private static Map<Class<?>, IRenderer<?>> mRendererInstanceMap = new HashMap<Class<?>, IRenderer<?>>();
 
   public static void render(Graphics2D g, IMobject mobject)
   {
     getRenderer(mobject).render(g, mobject);
   }
-  
-  public static void renderAsPhantom(Graphics2D g, IMobject mobject, double phantomAlpha)
+
+  public static void renderAsPhantom(Graphics2D g, IMobject mobject,
+    double phantomAlpha)
   {
     getRenderer(mobject).renderAsPhantom(g, mobject, phantomAlpha);
   }
-  
+
   public static IRenderer<?> getRenderer(IMobject mobject)
   {
-    for (Class<?>[] map: renderClasses)
+    for (Class<?>[] map : renderClasses)
       if (map[0].isInstance(mobject))
         return getRenderer(map[0], map[1]);
-    
+
     throw new Error("no renderer found for " + mobject);
   }
-  
-  private static IRenderer<?> getRenderer(Class<?> mobjectType, 
+
+  private static IRenderer<?> getRenderer(Class<?> mobjectType,
     Class<?> rendererType)
   {
     IRenderer<?> renderer = mRendererInstanceMap.get(mobjectType);
-    
+
     if (renderer == null)
     {
       try
@@ -67,7 +73,7 @@ public class Renderer
         e.printStackTrace();
       }
     }
-    
+
     return renderer;
   }
 }

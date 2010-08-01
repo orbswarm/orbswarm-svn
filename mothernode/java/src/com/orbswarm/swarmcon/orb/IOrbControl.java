@@ -7,11 +7,11 @@ import com.orbswarm.swarmcon.path.Target;
 
 public interface IOrbControl
 {
-    public SmoothPath gotoTarget(int orbNum, Target target);
-    public SmoothPath followPath(int orbNum, Path targets);
+  public SmoothPath gotoTarget(int orbNum, Target target);
 
-    public void stopOrb(int orbNum);
+  public SmoothPath followPath(int orbNum, Path targets);
 
-    public SwarmCon getSwarmCon();
+  public void stopOrb(int orbNum);
+
+  public SwarmCon getSwarmCon();
 }
-
