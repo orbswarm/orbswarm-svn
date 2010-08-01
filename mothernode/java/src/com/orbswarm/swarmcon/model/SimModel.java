@@ -49,7 +49,7 @@ public class SimModel extends MotionModel
     private Controller rollToRollRateCtrl =
       new PController("roll", "rollRate", -.5, .5, 0.0125);
 
-    /** distance to veloctiy controller */
+    /** distance to velocity controller */
 
     private Controller distanceToVelocityCtrl =
       new PController("distance", "velocity", 0, 1, .2);
@@ -173,7 +173,7 @@ public class SimModel extends MotionModel
       super.reverse();
       pitchRate.setRate(-pitchRate.getRate());
     }
-    // update positon
+    // update position
 
     public void update(double time)
     {
@@ -218,9 +218,9 @@ public class SimModel extends MotionModel
 
       setDirection(new Angle(delta.getX(), delta.getY()));
 
-      // correct for latteral displacement due to roll.  for reasons i
+      // correct for lateral displacement due to roll.  for reasons i
       // don't understand if i include the roll correction into the
-      // direcion above, it breaks the velocity controller.  this note
+      // direction above, it breaks the velocity controller.  this note
       // stands in place of a proper fix.
 
       Angle rollDir = new Angle(getYaw(), new Angle(90, DEGREE_RATE));
