@@ -21,6 +21,7 @@ import static com.orbswarm.swarmcon.Constants.*;
 
 public class SimModel extends MotionModel
 {
+  @SuppressWarnings("unused")
   private static Logger log = Logger.getLogger(SimModel.class);
   
     /** pitch rate model */

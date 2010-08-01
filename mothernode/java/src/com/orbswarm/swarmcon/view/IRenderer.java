@@ -3,7 +3,7 @@ package com.orbswarm.swarmcon.view;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 
-import com.orbswarm.swarmcon.orb.IMobject;
+import com.orbswarm.swarmcon.mobject.IMobject;
 
 public interface IRenderer<Type extends IMobject>
 {

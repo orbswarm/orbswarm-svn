@@ -5,7 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
-import com.orbswarm.swarmcon.orb.IMobject;
+import com.orbswarm.swarmcon.mobject.IMobject;
 import com.orbswarm.swarmcon.path.Point;
 
 public abstract class ARenderer<Type extends IMobject> implements IRenderer<Type>

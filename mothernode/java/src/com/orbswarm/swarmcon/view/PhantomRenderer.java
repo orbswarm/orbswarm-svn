@@ -3,7 +3,7 @@ package com.orbswarm.swarmcon.view;
 import java.awt.*;
 import java.awt.geom.*;
 
-import com.orbswarm.swarmcon.orb.IMobject;
+import com.orbswarm.swarmcon.mobject.IMobject;
 import com.orbswarm.swarmcon.orb.Phantom;
 
 public class PhantomRenderer extends ARenderer<Phantom>

@@ -7,7 +7,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.orbswarm.swarmcon.SwarmCon.MouseMobject;
-import com.orbswarm.swarmcon.orb.IMobject;
+import com.orbswarm.swarmcon.mobject.IMobject;
 import com.orbswarm.swarmcon.orb.IOrb;
 import com.orbswarm.swarmcon.orb.Phantom;
 

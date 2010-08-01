@@ -13,7 +13,7 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 
 import com.orbswarm.swarmcon.Constants;
-import com.orbswarm.swarmcon.orb.IMobject;
+import com.orbswarm.swarmcon.mobject.IMobject;
 import com.orbswarm.swarmcon.orb.IOrb;
 import com.orbswarm.swarmcon.orb.Orb;
 import com.orbswarm.swarmcon.path.SmoothPath;

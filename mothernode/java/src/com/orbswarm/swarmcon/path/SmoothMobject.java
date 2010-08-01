@@ -5,7 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 
-import com.orbswarm.swarmcon.orb.AMobject;
+import com.orbswarm.swarmcon.mobject.AMobject;
 
 // smooth path for printing on display
 

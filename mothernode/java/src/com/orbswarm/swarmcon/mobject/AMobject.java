@@ -1,4 +1,4 @@
-package com.orbswarm.swarmcon.orb;
+package com.orbswarm.swarmcon.mobject;
 
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;

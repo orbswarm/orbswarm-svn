@@ -5,6 +5,9 @@ import java.awt.geom.Rectangle2D;
 
 import org.apache.log4j.Logger;
 
+import com.orbswarm.swarmcon.mobject.IMobject;
+import com.orbswarm.swarmcon.mobject.Mobjects;
+
 
 @SuppressWarnings("serial")
 public class Swarm extends Mobjects
