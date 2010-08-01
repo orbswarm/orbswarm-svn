@@ -1,4 +1,4 @@
-package com.orbswarm.swarmcon.mobject;
+package com.orbswarm.swarmcon.vobject;
 
 import java.awt.geom.Point2D;
 import java.util.Vector;

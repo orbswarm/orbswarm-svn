@@ -6,9 +6,9 @@ import org.trebor.util.Angle;
 
 import com.orbswarm.swarmcon.behavior.Behavior;
 import com.orbswarm.swarmcon.io.Message;
-import com.orbswarm.swarmcon.mobject.IMobject;
 import com.orbswarm.swarmcon.model.MotionModel;
 import com.orbswarm.swarmcon.orb.Orb.HistoryQueue;
+import com.orbswarm.swarmcon.vobject.IMobject;
 
 public interface IOrb extends IMobject
 {

@@ -5,11 +5,11 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 
-import com.orbswarm.swarmcon.mobject.IMobject;
 import com.orbswarm.swarmcon.path.SmoothMobject;
 import com.orbswarm.swarmcon.path.SmoothPath;
 import com.orbswarm.swarmcon.path.Target;
 import com.orbswarm.swarmcon.path.Waypoint;
+import com.orbswarm.swarmcon.vobject.IMobject;
 
 // smooth path for printing on display
 

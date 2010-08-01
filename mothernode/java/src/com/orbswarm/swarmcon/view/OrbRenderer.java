@@ -13,12 +13,12 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 
 import com.orbswarm.swarmcon.Constants;
-import com.orbswarm.swarmcon.mobject.IMobject;
 import com.orbswarm.swarmcon.orb.IOrb;
 import com.orbswarm.swarmcon.orb.Orb;
 import com.orbswarm.swarmcon.path.SmoothPath;
 import com.orbswarm.swarmcon.path.Target;
 import com.orbswarm.swarmcon.path.Waypoint;
+import com.orbswarm.swarmcon.vobject.IMobject;
 
 import static java.lang.Math.sin;
 import static java.lang.Math.abs;

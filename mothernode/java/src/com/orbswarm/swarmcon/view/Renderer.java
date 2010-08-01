@@ -7,10 +7,10 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.orbswarm.swarmcon.SwarmCon.MouseMobject;
-import com.orbswarm.swarmcon.mobject.IMobject;
-import com.orbswarm.swarmcon.mobject.IMobjects;
 import com.orbswarm.swarmcon.orb.IOrb;
 import com.orbswarm.swarmcon.orb.Phantom;
+import com.orbswarm.swarmcon.vobject.IMobject;
+import com.orbswarm.swarmcon.vobject.IMobjects;
 
 public class Renderer
 {

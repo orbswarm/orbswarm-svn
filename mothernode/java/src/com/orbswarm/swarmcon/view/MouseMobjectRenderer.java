@@ -8,7 +8,7 @@ import java.awt.geom.Ellipse2D;
 import org.trebor.util.ShapeTools;
 
 import com.orbswarm.swarmcon.SwarmCon;
-import com.orbswarm.swarmcon.mobject.IMobject;
+import com.orbswarm.swarmcon.vobject.IMobject;
 
 import static com.orbswarm.swarmcon.Constants.ORB_DIAMETER;
 

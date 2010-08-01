@@ -2,7 +2,7 @@ package com.orbswarm.swarmcon.orb;
 
 import org.apache.log4j.Logger;
 
-import com.orbswarm.swarmcon.mobject.AMobjects;
+import com.orbswarm.swarmcon.vobject.AMobjects;
 
 @SuppressWarnings("serial")
 public class Swarm extends AMobjects<IOrb>

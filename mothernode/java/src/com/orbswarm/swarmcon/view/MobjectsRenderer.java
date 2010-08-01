@@ -3,8 +3,8 @@ package com.orbswarm.swarmcon.view;
 import java.awt.Graphics2D;
 
 import com.orbswarm.swarmcon.SwarmCon;
-import com.orbswarm.swarmcon.mobject.IMobject;
-import com.orbswarm.swarmcon.mobject.IMobjects;
+import com.orbswarm.swarmcon.vobject.IMobject;
+import com.orbswarm.swarmcon.vobject.IMobjects;
 
 public class MobjectsRenderer extends ARenderer<SwarmCon.MouseMobject>
 {

@@ -1,4 +1,4 @@
-package com.orbswarm.swarmcon.mobject;
+package com.orbswarm.swarmcon.vobject;
 
 /** A collections of Mobjects. */
 

@@ -2,8 +2,8 @@ package com.orbswarm.swarmcon.orb;
 
 import java.awt.geom.Point2D;
 
-import com.orbswarm.swarmcon.mobject.AMobject;
-import com.orbswarm.swarmcon.mobject.IMobject;
+import com.orbswarm.swarmcon.vobject.AMobject;
+import com.orbswarm.swarmcon.vobject.IMobject;
 
 import static java.lang.Math.PI;
 import static java.lang.Math.sin;
