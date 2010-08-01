@@ -5,11 +5,11 @@ import java.awt.geom.Rectangle2D;
 
 import org.apache.log4j.Logger;
 
+import com.orbswarm.swarmcon.mobject.AMobjects;
 import com.orbswarm.swarmcon.mobject.IMobject;
-import com.orbswarm.swarmcon.mobject.Mobjects;
 
 @SuppressWarnings("serial")
-public class Swarm extends Mobjects
+public class Swarm extends AMobjects<IOrb>
 {
   @SuppressWarnings("unused")
   private static Logger log = Logger.getLogger(Orb.class);
@@ -33,9 +33,8 @@ public class Swarm extends Mobjects
 
   public void randomize()
   {
-    for (IMobject mobject : this)
-      if (mobject instanceof Orb)
-        ((IOrb)mobject).randomizePos();
+    for (IOrb orb: this)
+      orb.randomizePos();
   }
 
   // get arena
@@ -69,18 +68,16 @@ public class Swarm extends Mobjects
 
   public void nextBehavior()
   {
-    for (IMobject mobject : this)
-      if (mobject instanceof Orb)
-        ((IOrb)mobject).nextBehavior();
+    for (IOrb orb: this)
+      orb.nextBehavior();
   }
 
   // select previous behavoir for all orbs in swarm
 
   public void previousBehavior()
   {
-    for (IMobject mobject : this)
-      if (mobject instanceof Orb)
-        ((IOrb)mobject).previousBehavior();
+    for (IOrb orb: this)
+      orb.previousBehavior();
   }
 
   // update the swarm
@@ -105,40 +102,20 @@ public class Swarm extends Mobjects
       mobject.update(time);
   }
 
-  //
-  // methods implementing com.orbswarm.choreography.Swarm interface
-  //
   public IOrb getOrb(int orbNum)
   {
-    // assuming orbs are in the Vector in order of their Ids...
-    for (IMobject mobject : this)
-    {
-      if (mobject instanceof Orb)
-      {
-        IOrb orb = (IOrb)mobject;
-        if (orb.getId() == orbNum)
-        {
-          return orb;
-        }
-      }
-    }
-    return null; // ? (com.orbswarm.choreography.Orb)
-  }
+    // assuming orbs are in the Vector in order of their IDs
+    
+    for (IOrb orb: this)
+      if (orb.getId() == orbNum)
+        return orb;
 
-  public int getNumOrbs()
-  {
-    return size();
+    return null;
   }
 
   public void updateOrbDistances()
   {
-    for (IMobject mobject : this)
-    {
-      if (mobject instanceof Orb)
-      {
-        ((IOrb)mobject).calculateDistances();
-      }
-    }
+    for (IOrb orb: this)
+      orb.calculateDistances();
   }
-
 }

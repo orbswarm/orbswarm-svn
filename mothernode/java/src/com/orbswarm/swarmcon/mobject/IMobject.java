@@ -54,6 +54,10 @@ public interface IMobject
 
   // position setter
 
+  public void setPosition(Point2D.Double position);
+
+  // position setter
+
   public void setPosition(double x, double y);
 
   // set delta position

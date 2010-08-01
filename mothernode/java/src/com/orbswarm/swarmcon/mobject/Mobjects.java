@@ -1,38 +1,8 @@
 package com.orbswarm.swarmcon.mobject;
 
-import java.util.Vector;
-import java.awt.geom.Point2D;
-
 /** A collections of Mobjects. */
 
-@SuppressWarnings("serial")
-public class Mobjects extends Vector<AMobject>
+public class Mobjects extends AMobjects<IMobject>
 {
-  /**
-   * Find nearest mobject to point.
-   * 
-   * @param point the selection point
-   * @return nearest matching object or null if none
-   */
-
-  public AMobject findSelected(Point2D.Double point)
-  {
-    double distance;
-    double bestDistance = Double.MAX_VALUE;
-    AMobject bestMoblect = null;
-
-    for (AMobject mobject : this)
-    {
-      if (mobject.isSelectedBy(point))
-      {
-        distance = mobject.getPosition().distance(point);
-        if (distance < bestDistance)
-        {
-          bestDistance = distance;
-          bestMoblect = mobject;
-        }
-      }
-    }
-    return bestMoblect;
-  }
+  private static final long serialVersionUID = -6529363246277615674L;
 }

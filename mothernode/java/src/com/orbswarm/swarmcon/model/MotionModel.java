@@ -487,12 +487,10 @@ abstract public class MotionModel implements IOrbListener
 
   protected PathCommander pathCommander = null;
 
-  // thread for commandingn orb
+  // thread for commanding orb
 
   protected class PathCommander extends Thread
   {
-    private SwarmCon sc = SwarmCon.getInstance();
-
     private boolean deathRequest = false;
 
     public void requestDeath()
@@ -506,7 +504,6 @@ abstract public class MotionModel implements IOrbListener
       {
         double lastTime = 0;
         SmoothPath sp = getActivePath();
-        sc.captureArena();
 
         for (Waypoint wp : sp)
         {
@@ -517,10 +514,7 @@ abstract public class MotionModel implements IOrbListener
           // if requested to die, do so
 
           if (deathRequest)
-          {
-            sc.captureArena();
             return;
-          }
 
           // move orb to this waypoint
 
@@ -531,10 +525,6 @@ abstract public class MotionModel implements IOrbListener
 
           lastTime = wp.getTime();
         }
-
-        // we're done with this path, stop
-
-        sc.captureArena();
       }
       catch (Exception e)
       {

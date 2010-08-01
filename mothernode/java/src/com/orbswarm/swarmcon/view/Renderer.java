@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import com.orbswarm.swarmcon.SwarmCon.MouseMobject;
 import com.orbswarm.swarmcon.mobject.IMobject;
+import com.orbswarm.swarmcon.mobject.IMobjects;
 import com.orbswarm.swarmcon.orb.IOrb;
 import com.orbswarm.swarmcon.orb.Phantom;
 
@@ -25,6 +26,9 @@ public class Renderer
     },
     {
       MouseMobject.class, MouseMobjectRenderer.class
+    },
+    {
+      IMobjects.class, MobjectsRenderer.class
     },
   };
 
@@ -47,7 +51,7 @@ public class Renderer
       if (map[0].isInstance(mobject))
         return getRenderer(map[0], map[1]);
 
-    throw new Error("no renderer found for " + mobject);
+    throw new Error("no renderer found for " + mobject.getClass().getSimpleName());
   }
 
   private static IRenderer<?> getRenderer(Class<?> mobjectType,
