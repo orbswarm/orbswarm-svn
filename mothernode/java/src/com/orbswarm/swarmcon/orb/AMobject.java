@@ -22,7 +22,7 @@ public abstract class AMobject implements IMobject
 
       private boolean selected = false;
 
-      /** shape of this mobject used for selection and perhaps display */
+      /** shape of this mobject used for selection (never display) */
 
       private Shape shape;
 
@@ -83,18 +83,11 @@ public abstract class AMobject implements IMobject
        * @see com.orbswarm.swarmcon.orb.IMobject#setShape(java.awt.Shape)
        */
 
-      public void setShape(Shape shape)
+      protected void setShape(Shape shape)
       {
          this.shape = shape;
       }
-      /* (non-Javadoc)
-       * @see com.orbswarm.swarmcon.orb.IMobject#getShape()
-       */
-
-      public Shape getShape()
-      {
-         return shape;
-      }
+      
       // position getter 
 
       /* (non-Javadoc)
