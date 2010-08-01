@@ -1,7 +1,6 @@
 package com.orbswarm.swarmcon.orb;
 
 import java.awt.Color;
-import java.awt.geom.Rectangle2D;
 
 import org.trebor.util.Angle;
 

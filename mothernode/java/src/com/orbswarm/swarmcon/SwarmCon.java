@@ -26,7 +26,6 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -170,7 +169,10 @@ public class SwarmCon extends JFrame
 
     public void paint(Graphics graphics)
     {
-      paintArena(graphics);
+      synchronized(mVisualObjects)
+      {
+        paintArena(graphics);
+      }
     }
   };
 
@@ -346,7 +348,7 @@ public class SwarmCon extends JFrame
 
     // construct the frame
 
-    boolean shouldCreateOrbsNow = constructFrame();
+    constructFrame();
 
     // get the graphics device from the local graphic environment
 
@@ -370,21 +372,23 @@ public class SwarmCon extends JFrame
     else
     {
       pack();
-      setSize(new Dimension(200, 200));
-      // setExtendedState(MAXIMIZED_BOTH);
+      setExtendedState(MAXIMIZED_BOTH);  
       setVisible(true);
     }
     mCardLayout.first(mCenterPanel);
 
     // initialization Swarm
 
-    if (shouldCreateOrbsNow)
-      createOrbs();
+    createOrbs();
+
+    // configure the orbs
+
+    resetSwarm();
 
     // start motor control thread
 
     requestFocus();
-
+    
     startControlling();
   }
   
@@ -464,8 +468,11 @@ public class SwarmCon extends JFrame
   {
     // update all the objects
 
-    mVisualObjects.update(time);
-
+    synchronized(mVisualObjects)
+    {
+      mVisualObjects.update(time);
+    }
+    
     // repaint the screen
     
     mArena.repaint();
@@ -475,16 +482,8 @@ public class SwarmCon extends JFrame
 
   public void createOrbs()
   {
-    // set bounds from arena
-//
-//    Rectangle2D.Double bounds = new Rectangle2D.Double(mArena.getBounds()
-//      .getX() /
-//      mPixelsPerMeter, mArena.getBounds().getY() / mPixelsPerMeter, mArena
-//      .getBounds().getWidth() /
-//      mPixelsPerMeter, mArena.getBounds().getHeight() / mPixelsPerMeter);
-
-    IMobject previous = new MouseMobject(mArena);
-    mVisualObjects.add(previous);
+    IMobject mouseDot = new MouseMobject(mArena);
+    mVisualObjects.add(mouseDot);
 
     // create the orbs
 
@@ -533,7 +532,7 @@ public class SwarmCon extends JFrame
       if (!mLiveMode)
       {
         Behavior nb = new NoBehavior();
-        Behavior fb = new FollowBehavior(previous);
+        Behavior fb = new FollowBehavior(mouseDot);
         Behavior wb = new WanderBehavior();
         Behavior rb = new RandomBehavior();
         Behavior cb = new ClusterBehavior(mSwarm);
@@ -550,7 +549,7 @@ public class SwarmCon extends JFrame
 
       // record previous for the follow behavior
 
-      previous = orb;
+      mouseDot = orb;
     }
 
     // if in live mode, initialization the swarm origin
@@ -905,8 +904,8 @@ public class SwarmCon extends JFrame
     // compute 90 % of minimum dimension which is the maximum
     // size to take up
 
-    
-    double maxSize = min(mArena.getWidth(), mArena.getHeight()) * 0.9d;
+    double maxSize = min(mArena.getWidth(), mArena.getHeight()) * 0.9d /
+      mPixelsPerMeter;
 
     // find the center of the arena
 
@@ -938,8 +937,9 @@ public class SwarmCon extends JFrame
 
   // randomize position of items in swarm
 
-  public void randomizeSwarm(Rectangle2D range)
+  public void resetSwarm()
   {
+    Rectangle2D.Double range = new Rectangle2D.Double(-3, -3, 6, 6);
     for (IOrb orb: mSwarm)
       randomizePos(orb, range);
   }
@@ -984,59 +984,55 @@ public class SwarmCon extends JFrame
 
     // draw current behavior
 
-    if (mSwarm != null)
+    int id = 1;
+    for (IOrb orb : mSwarm)
     {
-      int id = 1;
-      for (IOrb orb : mSwarm)
-      {
-        Behavior behavior = orb.getBehavior();
+      Behavior behavior = orb.getBehavior();
 
-        g.setColor(TEXT_CLR);
-        g.setFont(MISC_FONT);
-        g.drawString(orb.getId() +
-          ": " +
-          (behavior != null
-            ? behavior.toString()
-            : "[none]") +
-          " X: " +
-          Constants.UTM_FORMAT.format(orb.getX()) +
-          " Y: " +
-          Constants.UTM_FORMAT.format(orb.getY()) +
-          " R: " +
-          Constants.HEADING_FORMAT.format(round(orb.getRoll().as(HEADING))) +
-          " P: " +
-          Constants.HEADING_FORMAT.format(round(orb.getPitch().as(HEADING))) +
-          " Y: " +
-          Constants.HEADING_FORMAT.format(round(orb.getYaw().as(HEADING))) +
-          " YR: " +
-          Constants.HEADING_FORMAT.format(round(orb.getYawRate().as(
-            DEGREE_RATE))) + " V: " + round(orb.getSpeed() * 100) / 100d, 5,
-          15 + id++ * 15);
-      }
-
-      // set 0,0 to lower left corner, and scale for meters
-
-      g.scale(mPixelsPerMeter, -mPixelsPerMeter);
-
-      // apply the global offset
-
-      g.translate(getGlobalOffset().getX(), getGlobalOffset().getY());
-
-      // draw the grid
-
-      paintGrid(g, mGrid1Size, mGrid1Color, mGridStroke);
-      paintGrid(g, mGrid2Size, mGrid2Color, mGridStroke);
-
-      // indicate the center of the world
-
-      g.setColor(new Color(128, 128, 128));
-      g.setStroke(mReticleStroke);
-      g.draw(new Line2D.Double(-mGrid2Size, 0, mGrid2Size, 0));
-      g.draw(new Line2D.Double(0, -mGrid2Size, 0, mGrid2Size));
+      g.setColor(TEXT_CLR);
+      g.setFont(MISC_FONT);
+      g.drawString(orb.getId() +
+        ": " +
+        (behavior != null
+          ? behavior.toString()
+          : "[none]") +
+        " X: " +
+        Constants.UTM_FORMAT.format(orb.getX()) +
+        " Y: " +
+        Constants.UTM_FORMAT.format(orb.getY()) +
+        " R: " +
+        Constants.HEADING_FORMAT.format(round(orb.getRoll().as(HEADING))) +
+        " P: " +
+        Constants.HEADING_FORMAT.format(round(orb.getPitch().as(HEADING))) +
+        " Y: " +
+        Constants.HEADING_FORMAT.format(round(orb.getYaw().as(HEADING))) +
+        " YR: " +
+        Constants.HEADING_FORMAT.format(round(orb.getYawRate()
+          .as(DEGREE_RATE))) + " V: " + round(orb.getSpeed() * 100) / 100d,
+        5, 15 + id++ * 15);
     }
 
-    for (IMobject vobject: mVisualObjects)
-      Renderer.render(g, vobject);
+    // set 0,0 to lower left corner, and scale for meters
+
+    g.scale(mPixelsPerMeter, -mPixelsPerMeter);
+
+    // apply the global offset
+
+    g.translate(getGlobalOffset().getX(), getGlobalOffset().getY());
+
+    // draw the grid
+
+    paintGrid(g, mGrid1Size, mGrid1Color, mGridStroke);
+    paintGrid(g, mGrid2Size, mGrid2Color, mGridStroke);
+
+    // indicate the center of the world
+
+    g.setColor(new Color(128, 128, 128));
+    g.setStroke(mReticleStroke);
+    g.draw(new Line2D.Double(-mGrid2Size, 0, mGrid2Size, 0));
+    g.draw(new Line2D.Double(0, -mGrid2Size, 0, mGrid2Size));
+
+    Renderer.render(g, mVisualObjects);
   }
 
   /**
@@ -1462,7 +1458,7 @@ public class SwarmCon extends JFrame
   {
     public void actionPerformed(ActionEvent e)
     {
-      randomizeSwarm(new Rectangle2D.Double(-3, -3, 6, 6));
+      resetSwarm();
     }
   };
 

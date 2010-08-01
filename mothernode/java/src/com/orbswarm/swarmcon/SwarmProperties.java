@@ -19,7 +19,7 @@ import org.trebor.util.properties.IntegerProperty;
 
 public class SwarmProperties extends PropertySet
 {
-  private static Logger log = Logger.getLogger(SwarmCon.class);
+  private static Logger log = Logger.getLogger(SwarmProperties.class);
 
   /*
    * The following are values specified in the properties file. The default
