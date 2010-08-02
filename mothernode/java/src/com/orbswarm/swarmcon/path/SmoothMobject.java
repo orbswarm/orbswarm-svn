@@ -10,7 +10,6 @@ public class SmoothMobject extends AVobject
 
   public SmoothMobject(SmoothPath sp)
   {
-    super(1);
     mSmoothPath = sp;
   }
 

@@ -55,7 +55,6 @@ public class Phantom extends AVobject
 
   public Phantom(IVobject mobject, double period)
   {
-    super(mobject.getSize());
     this.time = 0;
     this.origin = mobject.getPosition();
     this.setPosition(origin);

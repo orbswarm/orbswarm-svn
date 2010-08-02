@@ -14,6 +14,7 @@ import com.orbswarm.swarmcon.vobject.IVobject;
 public abstract class ARenderer<Type extends IVobject> implements
   IRenderer<Type>
 {
+  @SuppressWarnings("unused")
   private static Logger log = Logger.getLogger(ARenderer.class);
   
   private boolean isPhantom = false;

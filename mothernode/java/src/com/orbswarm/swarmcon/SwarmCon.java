@@ -43,7 +43,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
 import java.awt.geom.Area;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -917,11 +916,11 @@ public class SwarmCon extends JFrame
     if (count == 1)
     {
       Phantom p = mPhantoms.get(0);
-      p.setTarget(center, maxSize / p.getSize());
+      p.setTarget(center, maxSize / ORB_DIAMETER);
     }
     else if (count > 1)
     {
-      double size = mPhantoms.get(0).getSize();
+      double size = ORB_DIAMETER;
       double scale = maxSize / ((3 * size) - (size / 4 * (6 - count)));
       double radius = scale * size;
       double dAngle = 2 * PI / mPhantoms.size();
@@ -1189,17 +1188,10 @@ public class SwarmCon extends JFrame
 
   public class MouseMobject extends AVobject
   {
-    // shape to be drawn
-
-    Shape shape = new Ellipse2D.Double(-ORB_DIAMETER / 4, -ORB_DIAMETER / 4,
-      ORB_DIAMETER / 2, ORB_DIAMETER / 2);
-
     // construct a MouseMobject
 
     public MouseMobject(Component arena)
     {
-      super(ORB_DIAMETER / 2);
-
       MouseInputAdapter mia = new MouseInputAdapter()
       {
         public void mouseMoved(MouseEvent e)
@@ -1288,11 +1280,11 @@ public class SwarmCon extends JFrame
     public void commandOrb(MouseEvent e)
     {
       Point2D.Double worldPos = screenToWorld(e.getPoint());
-      final IVobject nearest = mSwarm.findSelected(worldPos);
+      final IVobject selected = Renderer.getSelected(worldPos, mSwarm);
 
-      if (nearest != null && nearest instanceof IVobject)
+      if (selected != null)
       {
-        orbToCommand = (Orb)nearest;
+        orbToCommand = (Orb)selected;
       }
       else if (orbToCommand != null)
       {
@@ -1351,47 +1343,8 @@ public class SwarmCon extends JFrame
         configurePhantoms();
       }
     }
-
-    private void selectOrbOld(MouseEvent e)
-    {
-      // find nearest selectable mobject
-
-      final IVobject nearest = mSwarm
-        .findSelected(screenToWorld(e.getPoint()));
-
-      // if shift is not down, clear selected
-
-      if (!e.isShiftDown())
-      {
-        mSelected.setSelected(false);
-        mSelected.clear();
-        mPhantoms.clear();
-      }
-      
-      // if nearest found, ad to selected set
-
-      if (nearest != null)
-      {
-        // set selected
-
-        nearest.setSelected(true);
-
-        // add to selected mobjects
-
-        mSelected.add(nearest);
-
-        // add phantom for this mobject
-
-        Phantom p = new Phantom(nearest, PHANTOM_PERIOD);
-        mPhantoms.add(p);
-
-        // tell the phantoms to reconfigure themselves
-
-        configurePhantoms();
-      }
-    }
   }
-
+    
   /** SwarmCon action class */
 
   abstract class SwarmAction extends AbstractAction

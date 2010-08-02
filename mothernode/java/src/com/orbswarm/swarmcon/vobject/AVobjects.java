@@ -1,6 +1,5 @@
 package com.orbswarm.swarmcon.vobject;
 
-import java.awt.geom.Point2D;
 import java.util.Vector;
 
 import com.orbswarm.swarmcon.path.Point;
@@ -10,35 +9,6 @@ public class AVobjects<E extends IVobject> extends Vector<E>
 {
   private static final long serialVersionUID = -1347610749830598878L;
 
-  /**
-   * Find nearest vobject to point.
-   * 
-   * @param point the selection point
-   * @return nearest matching object or null if none
-   */
-
-  public E findSelected(Point2D.Double point)
-  {
-    double distance;
-    double bestDistance = Double.MAX_VALUE;
-    E bestVoblect = null;
-
-    for (E vobject : this)
-    {
-      if (vobject.isSelectedBy(point))
-      {
-        distance = vobject.getPosition().distance(point);
-        if (distance < bestDistance)
-        {
-          bestDistance = distance;
-          bestVoblect = vobject;
-        }
-      }
-    }
-
-    return bestVoblect;
-  }
-  
   public void update(double time)
   {
     for (E vobject: this)

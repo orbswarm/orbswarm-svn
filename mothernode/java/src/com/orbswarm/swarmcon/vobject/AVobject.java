@@ -1,16 +1,17 @@
 package com.orbswarm.swarmcon.vobject;
 
-import java.awt.Shape;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 
 import com.orbswarm.swarmcon.path.Point;
 
 import static java.lang.Math.atan2;
 import static java.lang.Math.toDegrees;
 
-// mobile object
+/**
+ * A visible object in the system.
+ * 
+ * @author trebor
+ */
 
 public abstract class AVobject implements IVobject
 {
@@ -22,21 +23,12 @@ public abstract class AVobject implements IVobject
 
   private boolean selected = false;
 
-  /** shape of this mobject used for selection (never display) */
-
-  private Shape shape;
-
   /**
-   * Create a mobject.
-   * 
-   * @param size the typical size of the object use for selection and to
-   *        compute arrangement of object, here the shape of the object is
-   *        assumed to be a circle
+   * Create a vobject.
    */
 
-  public AVobject(double size)
+  public AVobject()
   {
-    setShape(new Ellipse2D.Double(-(size / 2), -(size / 2), size, size));
   }
 
   /**
@@ -56,58 +48,13 @@ public abstract class AVobject implements IVobject
     return selected;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * com.orbswarm.swarmcon.orb.IMobject#isSelectedBy(java.awt.geom.Point2D
-   * .Double)
-   */
-
-  public boolean isSelectedBy(Point2D.Double clickPoint)
-  {
-    return shape.contains(clickPoint.x - getPosition().x, clickPoint.y -
-      getPosition().y);
-  }
-
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IMobject#setSelected(boolean)
-   */
-
   public void setSelected(boolean selected)
   {
     this.selected = selected;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IMobject#getSize()
-   */
-
-  public double getSize()
-  {
-    Rectangle2D b = shape.getBounds2D();
-    return b.getWidth() > b.getHeight()
-      ? b.getWidth()
-      : b.getHeight();
-  }
-
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IMobject#setShape(java.awt.Shape)
-   */
-
-  protected void setShape(Shape shape)
-  {
-    this.shape = shape;
-  }
-
   // position getter
 
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IMobject#getPosition()
-   */
   public Point getPosition()
   {
     return new Point(getX(), getY());
@@ -115,10 +62,6 @@ public abstract class AVobject implements IVobject
 
   // get x position
 
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IMobject#getX()
-   */
   public double getX()
   {
     return position.getX();
@@ -126,10 +69,6 @@ public abstract class AVobject implements IVobject
 
   // get y position
 
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IMobject#getY()
-   */
   public double getY()
   {
     return position.getY();
@@ -144,10 +83,6 @@ public abstract class AVobject implements IVobject
 
   // position setter
 
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IMobject#setPosition(double, double)
-   */
   public void setPosition(double x, double y)
   {
     this.position.setLocation(x, y);
@@ -164,8 +99,6 @@ public abstract class AVobject implements IVobject
 
   public abstract void update(double time);
 
-  // paint this object onto a graphics area
-
   // compute heading to some point
 
   public double headingTo(IVobject other)
@@ -175,12 +108,6 @@ public abstract class AVobject implements IVobject
 
   // compute heading to some point
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * com.orbswarm.swarmcon.orb.IMobject#headingTo(java.awt.geom.Point2D
-   * .Double)
-   */
   public double headingTo(Point2D.Double point)
   {
     double dx = point.getX() - getPosition().getX();
@@ -193,12 +120,6 @@ public abstract class AVobject implements IVobject
 
   // compute distance to some point
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * com.orbswarm.swarmcon.orb.IMobject#distanceTo(com.orbswarm.swarmcon
-   * .orb.IMobject)
-   */
   public double distanceTo(IVobject other)
   {
     return distanceTo(other.getPosition());
@@ -206,12 +127,6 @@ public abstract class AVobject implements IVobject
 
   // compute distance to some point
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * com.orbswarm.swarmcon.orb.IMobject#distanceTo(java.awt.geom.Point2D
-   * .Double)
-   */
   public double distanceTo(Point2D.Double point)
   {
     return getPosition().distance(point);

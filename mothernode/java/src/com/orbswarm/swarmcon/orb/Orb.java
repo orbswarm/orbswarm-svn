@@ -19,7 +19,6 @@ import org.trebor.util.Angle;
 
 import static java.lang.System.currentTimeMillis;
 import static com.orbswarm.swarmcon.Constants.ORB_CLR;
-import static com.orbswarm.swarmcon.Constants.ORB_DIAMETER;
 
 import org.apache.log4j.Logger;
 
@@ -74,7 +73,6 @@ public class Orb extends AVobject implements IOrbListener, IOrb
 
   public Orb(Swarm swarm, MotionModel model, int id)
   {
-    super(ORB_DIAMETER);
     this.model = model;
     this.swarm = swarm;
     this.distances = new double[6]; // how to get swarm size here?
