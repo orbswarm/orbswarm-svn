@@ -3,11 +3,13 @@ package com.orbswarm.swarmcon.path;
 import org.trebor.util.Angle;
 
 import com.orbswarm.swarmcon.model.Rate;
+import com.orbswarm.swarmcon.vobject.IVobject;
 
 import java.awt.geom.CubicCurve2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D.Double;
 import java.util.Vector;
 
 import static org.trebor.util.Angle.Type.DEGREES;
@@ -16,7 +18,7 @@ import static org.trebor.util.Angle.Type.HEADING_RATE;
 import static java.lang.Math.abs;
 
 @SuppressWarnings("serial")
-public class SmoothPath extends Vector<Waypoint>
+public class SmoothPath extends Vector<Waypoint> implements IVobject
 {
   /** Continuous path representing the smooth path */
 
@@ -424,5 +426,74 @@ public class SmoothPath extends Vector<Waypoint>
       duration = theEnd.getTime();
     }
     return duration;
+  }
+
+  public double distanceTo(IVobject other)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  public double distanceTo(Double point)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  public Point getPosition()
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  public double getSize()
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  public double getX()
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  public double getY()
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  public double headingTo(IVobject other)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  public double headingTo(Double point)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  public boolean isSelected()
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  public boolean isSelectedBy(Double clickPoint)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  public void setPosition(Double position)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  public void setPosition(double x, double y)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  public void setSelected(boolean selected)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  public void update(double time)
+  {
   }
 }

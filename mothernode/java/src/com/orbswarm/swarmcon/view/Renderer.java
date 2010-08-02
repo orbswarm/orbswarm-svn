@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import com.orbswarm.swarmcon.SwarmCon.MouseMobject;
 import com.orbswarm.swarmcon.orb.IOrb;
 import com.orbswarm.swarmcon.orb.Phantom;
+import com.orbswarm.swarmcon.path.SmoothPath;
 import com.orbswarm.swarmcon.vobject.IVobject;
 import com.orbswarm.swarmcon.vobject.IVobjects;
 
@@ -26,6 +27,9 @@ public class Renderer
     },
     {
       MouseMobject.class, MouseMobjectRenderer.class
+    },
+    {
+      SmoothPath.class, SmoothPathRenderer.class
     },
     {
       IVobjects.class, MobjectsRenderer.class
@@ -51,7 +55,8 @@ public class Renderer
       if (map[0].isInstance(mobject))
         return getRenderer(map[0], map[1]);
 
-    throw new Error("no renderer found for " + mobject.getClass().getSimpleName());
+    throw new Error("no renderer found for " +
+      mobject.getClass().getSimpleName());
   }
 
   private static IRenderer<?> getRenderer(Class<?> mobjectType,

@@ -8,7 +8,6 @@ import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Area;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 
@@ -16,8 +15,6 @@ import com.orbswarm.swarmcon.Constants;
 import com.orbswarm.swarmcon.orb.IOrb;
 import com.orbswarm.swarmcon.orb.Orb;
 import com.orbswarm.swarmcon.path.SmoothPath;
-import com.orbswarm.swarmcon.path.Target;
-import com.orbswarm.swarmcon.path.Waypoint;
 import com.orbswarm.swarmcon.vobject.IVobject;
 
 import static java.lang.Math.sin;
@@ -71,7 +68,9 @@ public class OrbRenderer extends ARenderer<IOrb>
     {
       // draw the command path
 
-      renderPath(g, orb);
+      SmoothPath path = orb.getModel().getActivePath();
+      if (null != path)
+        Renderer.render(g, path);
 
       // draw orb history
 
@@ -153,48 +152,6 @@ public class OrbRenderer extends ARenderer<IOrb>
     // restore old transform
 
     g.setTransform(old);
-  }
-
-  private static final Ellipse2D.Double bigDot = new Ellipse2D.Double(-.3,
-    -.3, .6, .6);
-  private static final Ellipse2D.Double smallDot = new Ellipse2D.Double(-.1,
-    -.1, .2, .2);
-  private static final Color SmoothPathColor = new Color(255, 0, 0, 16);
-  private static final Color CurrentWaypointColor = new Color(255, 0, 0, 128);
-
-  /** render the current active path */
-
-  public void renderPath(Graphics2D g, IOrb orb)
-  {
-    SmoothPath sp = orb.getModel().getActivePath();
-
-    if (sp == null)
-      return;
-
-    // draw the path
-
-    for (Waypoint wp : sp)
-    {
-      g.setColor(sp.getCurrentWaypoint() == wp
-        ? CurrentWaypointColor
-        : SmoothPathColor);
-
-      AffineTransform t = g.getTransform();
-      g.translate(wp.getX(), wp.getY());
-      g.fill(bigDot);
-      g.setTransform(t);
-    }
-
-    // draw the target points
-
-    g.setColor(Color.BLACK);
-    for (Target target : sp.getTargets())
-    {
-      AffineTransform t = g.getTransform();
-      g.translate(target.getX(), target.getY());
-      g.fill(smallDot);
-      g.setTransform(t);
-    }
   }
 
   // draw text at a given location
