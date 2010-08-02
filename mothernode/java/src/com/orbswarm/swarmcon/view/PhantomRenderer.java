@@ -42,4 +42,15 @@ public class PhantomRenderer extends ARenderer<Phantom>
 
     g.setTransform(oldTransform);
   }
+
+  public Shape getShape(Phantom p)
+  {
+    IVobject o = p.getMobject();
+    return Renderer.getRenderer(o).getShape(o);
+  }
+
+  public IVobject getSelected(Point2D selectionPoint, Phantom o)
+  {
+    return null;
+  }
 }

@@ -1,6 +1,8 @@
 package com.orbswarm.swarmcon.view;
 
 import java.awt.Graphics2D;
+import java.awt.Shape;
+import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,10 +19,8 @@ import com.orbswarm.swarmcon.vobject.IVobjects;
 public class Renderer
 {
   private static Logger log = Logger.getLogger(Renderer.class);
-
-
-  private static Map<Class<? extends IVobject>, Class<? extends IRenderer<? extends IVobject>>> mRendererClassMap = 
-    new HashMap<Class<? extends IVobject>, Class<? extends IRenderer<? extends IVobject>>>()
+  
+  private static Map<Class<? extends IVobject>, Class<? extends IRenderer<? extends IVobject>>> mRendererClassMap = new HashMap<Class<? extends IVobject>, Class<? extends IRenderer<? extends IVobject>>>()
   {
     private static final long serialVersionUID = -2767952369723326950L;
 
@@ -33,8 +33,7 @@ public class Renderer
     }
   };
 
-  private static Map<Class<? extends IVobject>, IRenderer<?>> mRendererInstanceMap = 
-    new HashMap<Class<? extends IVobject>, IRenderer<? extends IVobject>>();
+  private static Map<Class<? extends IVobject>, IRenderer<?>> mRendererInstanceMap = new HashMap<Class<? extends IVobject>, IRenderer<? extends IVobject>>();
 
   public static <Type extends IVobject> void render(Graphics2D g, Type vobject)
   {
@@ -50,11 +49,12 @@ public class Renderer
 
   /**
    * Get the {@link IRenderer} for a specific type of {@link IVobject}.
+   * 
    * @param <Type>
    * @param mobject
    * @return
    */
-  
+
   @SuppressWarnings("unchecked")
   public static <Type extends IVobject> IRenderer<Type> getRenderer(
     Type mobject)
@@ -67,7 +67,7 @@ public class Renderer
         return getRenderer((Class<Type>)entry.getKey(),
           (Class<IRenderer<Type>>)entry.getValue());
     }
-    
+
     throw new Error("no renderer found for " +
       mobject.getClass().getSimpleName());
   }
@@ -76,7 +76,8 @@ public class Renderer
   private static <Type extends IVobject> IRenderer<Type> getRenderer(
     Class<Type> mobjectType, Class<IRenderer<Type>> rendererType)
   {
-    IRenderer<Type> renderer = (IRenderer<Type>)mRendererInstanceMap.get(mobjectType);
+    IRenderer<Type> renderer = (IRenderer<Type>)mRendererInstanceMap
+      .get(mobjectType);
 
     if (renderer == null)
     {
@@ -98,5 +99,23 @@ public class Renderer
     }
 
     return renderer;
+  }
+  
+  /**
+   * Establish this {@link IVobject} is selected by clicking at
+   * selectionPoint. A {@link IVobject} is selected if the {@link Shape}
+   * returned by {@link #getShape(IVobject)}
+   * {@link Shape#contains(Point2D)} selectionPoint, and the
+   * {@link IVobject} is the closest to the selectionPoint.
+   * 
+   * @param selectionPoint the point to select from
+   * @param o the object to search for candidate {@link IVobject}s.
+   * @return the selected {@link IVobject} or null if no valid candidates
+   *         exist.
+   */
+  
+  public static IVobject getSelected(Point2D selectionPoint, IVobject o)
+  {
+    return getRenderer(o).getSelected(selectionPoint, o);
   }
 }

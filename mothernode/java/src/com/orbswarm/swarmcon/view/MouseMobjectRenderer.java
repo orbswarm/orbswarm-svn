@@ -4,10 +4,13 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 
 import org.trebor.util.ShapeTools;
 
 import com.orbswarm.swarmcon.SwarmCon;
+import com.orbswarm.swarmcon.SwarmCon.MouseMobject;
+import com.orbswarm.swarmcon.vobject.IVobject;
 
 import static com.orbswarm.swarmcon.Constants.ORB_DIAMETER;
 
@@ -21,6 +24,16 @@ public class MouseMobjectRenderer extends ARenderer<SwarmCon.MouseMobject>
   public void render(Graphics2D g, SwarmCon.MouseMobject mo)
   {
     g.setColor(Color.RED);
-    g.fill(ShapeTools.translate(shape, mo.getX(), mo.getY()));
+    g.fill(getShape(mo));
+  }
+
+  public Shape getShape(MouseMobject mo)
+  {
+    return ShapeTools.translate(shape, mo.getX(), mo.getY());
+  }
+
+  public IVobject getSelected(Point2D selectionPoint, MouseMobject o)
+  {
+    return null;
   }
 }

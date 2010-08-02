@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+
+import org.apache.log4j.Logger;
 
 import com.orbswarm.swarmcon.path.Point;
 import com.orbswarm.swarmcon.vobject.IVobject;
@@ -11,6 +14,8 @@ import com.orbswarm.swarmcon.vobject.IVobject;
 public abstract class ARenderer<Type extends IVobject> implements
   IRenderer<Type>
 {
+  private static Logger log = Logger.getLogger(ARenderer.class);
+  
   private boolean isPhantom = false;
 
   private double masterAlpha = 1.0d;
@@ -67,5 +72,18 @@ public abstract class ARenderer<Type extends IVobject> implements
   {
     assert (masterAlpha >= 0 && masterAlpha <= 1);
     this.masterAlpha = masterAlpha;
+  }
+
+  public double getDistanceTo(Point2D point, Type o)
+  {
+    Rectangle2D bounds = getShape(o).getBounds2D();
+    return point.distance(new Point2D.Double(bounds.getCenterX(), bounds.getCenterY()));
+  }
+
+  public IVobject getSelected(Point2D selectionPoint, Type o)
+  {
+    return getShape(o).contains(selectionPoint)
+      ? o
+      : null;
   }
 }

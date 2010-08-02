@@ -26,6 +26,7 @@ import static org.trebor.util.ShapeTools.*;
 import static com.orbswarm.swarmcon.Constants.*;
 
 import org.apache.log4j.Logger;
+import org.trebor.util.ShapeTools;
 
 /** Representation of an orb. */
 
@@ -236,5 +237,13 @@ public class OrbRenderer extends ARenderer<IOrb> implements IRenderer<IOrb>
       g.fill(shape);
       g.setTransform(ot);
     }
+  }
+
+  public Shape getShape(IOrb o)
+  {
+    Shape shape = createOrbShape();
+    shape = ShapeTools.scale(shape, ORB_DIAMETER, ORB_DIAMETER);
+    shape = ShapeTools.translate(shape, o.getX(), o.getY());
+    return shape;
   }
 }

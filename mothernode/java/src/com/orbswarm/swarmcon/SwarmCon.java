@@ -1314,7 +1314,45 @@ public class SwarmCon extends JFrame
 
     // select an orb for zoom display
 
-    public void selectOrb(MouseEvent e)
+    private void selectOrb(MouseEvent e)
+    {
+      // find nearest selectable mobject
+
+      final IVobject selected = Renderer.getSelected(screenToWorld(e.getPoint()), mSwarm);
+
+      // if shift is not down, clear selected
+
+      if (!e.isShiftDown())
+      {
+        mSelected.setSelected(false);
+        mSelected.clear();
+        mPhantoms.clear();
+      }
+      
+      // if nearest found, ad to selected set
+
+      if (selected != null)
+      {
+        // set selected
+
+        selected.setSelected(true);
+
+        // add to selected mobjects
+
+        mSelected.add(selected);
+
+        // add phantom for this mobject
+
+        Phantom p = new Phantom(selected, PHANTOM_PERIOD);
+        mPhantoms.add(p);
+
+        // tell the phantoms to reconfigure themselves
+
+        configurePhantoms();
+      }
+    }
+
+    private void selectOrbOld(MouseEvent e)
     {
       // find nearest selectable mobject
 

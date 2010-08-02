@@ -2,12 +2,15 @@ package com.orbswarm.swarmcon.view;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 
 import com.orbswarm.swarmcon.path.SmoothPath;
 import com.orbswarm.swarmcon.path.Target;
 import com.orbswarm.swarmcon.path.Waypoint;
+import com.orbswarm.swarmcon.vobject.IVobject;
 
 // smooth path for printing on display
 
@@ -51,5 +54,15 @@ public class SmoothPathRenderer extends ARenderer<SmoothPath>
       g.fill(smallDot);
       g.setTransform(t);
     }
+  }
+
+  public Shape getShape(SmoothPath o)
+  {
+    return null;
+  }
+
+  public IVobject getSelected(Point2D selectionPoint, SmoothPath o)
+  {
+    return null;
   }
 }
