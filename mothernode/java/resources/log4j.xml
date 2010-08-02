@@ -12,11 +12,19 @@
     </logger>
 
     <logger name="com.orbswarm.swarmcon.model.SimModel">
-        <level value="debug"/>
+        <level value="warn"/>
     </logger>
 
     <logger name="com.orbswarm.swarmcon.SwarmCon">
+        <level value="warn"/>
+    </logger>
+
+    <logger name="com.orbswarm.swarmcon.SwarmProperties">
         <level value="debug"/>
+    </logger>
+
+    <logger name="com.orbswarm.swarmcon.view.Renderer">
+        <level value="warn"/>
     </logger>
 
     <root>

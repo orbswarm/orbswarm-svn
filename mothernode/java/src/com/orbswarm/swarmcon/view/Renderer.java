@@ -3,6 +3,7 @@ package com.orbswarm.swarmcon.view;
 import java.awt.Graphics2D;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
@@ -15,32 +16,30 @@ import com.orbswarm.swarmcon.vobject.IVobjects;
 
 public class Renderer
 {
-  private static Logger log = Logger.getLogger(OrbRenderer.class);
+  private static Logger log = Logger.getLogger(Renderer.class);
 
-  private static Class<?> renderClasses[][] =
+
+  private static Map<Class<? extends IVobject>, Class<? extends IRenderer<? extends IVobject>>> mRendererClassMap = 
+    new HashMap<Class<? extends IVobject>, Class<? extends IRenderer<? extends IVobject>>>()
   {
+    private static final long serialVersionUID = -2767952369723326950L;
+
     {
-      IOrb.class, OrbRenderer.class
-    },
-    {
-      Phantom.class, PhantomRenderer.class
-    },
-    {
-      MouseMobject.class, MouseMobjectRenderer.class
-    },
-    {
-      SmoothPath.class, SmoothPathRenderer.class
-    },
-    {
-      IVobjects.class, MobjectsRenderer.class
-    },
+      put(IOrb.class, OrbRenderer.class);
+      put(Phantom.class, PhantomRenderer.class);
+      put(MouseMobject.class, MouseMobjectRenderer.class);
+      put(SmoothPath.class, SmoothPathRenderer.class);
+      put(IVobjects.class, MobjectsRenderer.class);
+    }
   };
 
-  private static Map<Class<?>, IRenderer<?>> mRendererInstanceMap = new HashMap<Class<?>, IRenderer<?>>();
+  private static Map<Class<? extends IVobject>, IRenderer<?>> mRendererInstanceMap = 
+    new HashMap<Class<? extends IVobject>, IRenderer<? extends IVobject>>();
 
-  public static void render(Graphics2D g, IVobject mobject)
+  public static <Type extends IVobject> void render(Graphics2D g, Type vobject)
   {
-    getRenderer(mobject).render(g, mobject);
+    log.debug("render for: " + vobject.getClass().getSimpleName());
+    getRenderer(vobject).render(g, vobject);
   }
 
   public static void renderAsPhantom(Graphics2D g, IVobject mobject,
@@ -49,26 +48,41 @@ public class Renderer
     getRenderer(mobject).renderAsPhantom(g, mobject, phantomAlpha);
   }
 
-  public static IRenderer<?> getRenderer(IVobject mobject)
+  /**
+   * Get the {@link IRenderer} for a specific type of {@link IVobject}.
+   * @param <Type>
+   * @param mobject
+   * @return
+   */
+  
+  @SuppressWarnings("unchecked")
+  public static <Type extends IVobject> IRenderer<Type> getRenderer(
+    Type mobject)
   {
-    for (Class<?>[] map : renderClasses)
-      if (map[0].isInstance(mobject))
-        return getRenderer(map[0], map[1]);
-
+    for (Entry<Class<? extends IVobject>, Class<? extends IRenderer<? extends IVobject>>> entry : mRendererClassMap
+      .entrySet())
+    {
+      log.debug("checking: " + entry);
+      if (entry.getKey().isInstance(mobject))
+        return getRenderer((Class<Type>)entry.getKey(),
+          (Class<IRenderer<Type>>)entry.getValue());
+    }
+    
     throw new Error("no renderer found for " +
       mobject.getClass().getSimpleName());
   }
 
-  private static IRenderer<?> getRenderer(Class<?> mobjectType,
-    Class<?> rendererType)
+  @SuppressWarnings("unchecked")
+  private static <Type extends IVobject> IRenderer<Type> getRenderer(
+    Class<Type> mobjectType, Class<IRenderer<Type>> rendererType)
   {
-    IRenderer<?> renderer = mRendererInstanceMap.get(mobjectType);
+    IRenderer<Type> renderer = (IRenderer<Type>)mRendererInstanceMap.get(mobjectType);
 
     if (renderer == null)
     {
       try
       {
-        renderer = (IRenderer<?>)rendererType.newInstance();
+        renderer = (IRenderer<Type>)rendererType.newInstance();
         mRendererInstanceMap.put(mobjectType, renderer);
       }
       catch (InstantiationException e)

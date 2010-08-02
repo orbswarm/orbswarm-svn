@@ -1329,6 +1329,7 @@ public class SwarmCon extends JFrame
         mSelected.clear();
         mPhantoms.clear();
       }
+      
       // if nearest found, ad to selected set
 
       if (nearest != null)

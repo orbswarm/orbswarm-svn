@@ -8,7 +8,6 @@ import java.awt.geom.Ellipse2D;
 import com.orbswarm.swarmcon.path.SmoothPath;
 import com.orbswarm.swarmcon.path.Target;
 import com.orbswarm.swarmcon.path.Waypoint;
-import com.orbswarm.swarmcon.vobject.IVobject;
 
 // smooth path for printing on display
 
@@ -23,10 +22,8 @@ public class SmoothPathRenderer extends ARenderer<SmoothPath>
 
   /** render the current active path */
 
-  public void render(Graphics2D g, IVobject o)
+  public void render(Graphics2D g, SmoothPath sp)
   {
-    SmoothPath sp = (SmoothPath)o;
-
     if (sp == null)
       return;
 

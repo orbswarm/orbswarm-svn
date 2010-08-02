@@ -15,7 +15,7 @@ public abstract class ARenderer<Type extends IVobject> implements
 
   private double masterAlpha = 1.0d;
 
-  public void renderAsPhantom(Graphics2D g, IVobject o, double phantomAlpha)
+  public void renderAsPhantom(Graphics2D g, Type o, double phantomAlpha)
   {
     setPhantom(true);
     double oldAlpha = getMasterAlpha();

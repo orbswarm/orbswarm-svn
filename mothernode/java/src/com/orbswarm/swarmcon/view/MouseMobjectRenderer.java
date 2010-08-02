@@ -8,7 +8,6 @@ import java.awt.geom.Ellipse2D;
 import org.trebor.util.ShapeTools;
 
 import com.orbswarm.swarmcon.SwarmCon;
-import com.orbswarm.swarmcon.vobject.IVobject;
 
 import static com.orbswarm.swarmcon.Constants.ORB_DIAMETER;
 
@@ -19,9 +18,9 @@ public class MouseMobjectRenderer extends ARenderer<SwarmCon.MouseMobject>
   Shape shape = new Ellipse2D.Double(-ORB_DIAMETER / 4, -ORB_DIAMETER / 4,
     ORB_DIAMETER / 2, ORB_DIAMETER / 2);
 
-  public void render(Graphics2D g, IVobject o)
+  public void render(Graphics2D g, SwarmCon.MouseMobject mo)
   {
     g.setColor(Color.RED);
-    g.fill(ShapeTools.translate(shape, o.getX(), o.getY()));
+    g.fill(ShapeTools.translate(shape, mo.getX(), mo.getY()));
   }
 }

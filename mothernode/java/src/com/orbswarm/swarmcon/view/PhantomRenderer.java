@@ -8,9 +8,8 @@ import com.orbswarm.swarmcon.vobject.IVobject;
 
 public class PhantomRenderer extends ARenderer<Phantom>
 {
-  public void render(Graphics2D g, IVobject o)
+  public void render(Graphics2D g, Phantom phantom)
   {
-    Phantom phantom = (Phantom)o;
     IVobject mobject = phantom.getMobject();
 
     // record transform and scale

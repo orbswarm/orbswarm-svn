@@ -7,9 +7,23 @@ import com.orbswarm.swarmcon.vobject.IVobject;
 
 public interface IRenderer<Type extends IVobject>
 {
-  public void render(Graphics2D g, IVobject o);
+  /**
+   * Render a given Vobject onto a given graphics context
+   * 
+   * @param g the graphics onto which to render the vobject
+   * @param o the vobject to render
+   */
+  
+  public void render(Graphics2D g, Type o);
 
-  public void renderAsPhantom(Graphics2D g, IVobject o, double phantomAlpha);
+  /**
+   * Render a given Vobject in phantom form onto a given graphics context
+   * 
+   * @param g the graphics onto which to render the vobject
+   * @param o the vobject to render in phantom form
+   */
+
+  public void renderAsPhantom(Graphics2D g, Type o, double phantomAlpha);
 
   public void drawText(Graphics2D g, double x, double y, String text);
 
