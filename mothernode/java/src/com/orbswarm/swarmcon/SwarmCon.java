@@ -70,6 +70,11 @@ import com.orbswarm.swarmcon.orb.Orb;
 import com.orbswarm.swarmcon.orb.OrbControl;
 import com.orbswarm.swarmcon.orb.Phantom;
 import com.orbswarm.swarmcon.orb.Swarm;
+import com.orbswarm.swarmcon.path.BlockPath;
+import com.orbswarm.swarmcon.path.Curve;
+import com.orbswarm.swarmcon.path.Head;
+import com.orbswarm.swarmcon.path.IBlock;
+import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.path.Path;
 import com.orbswarm.swarmcon.path.Point;
 import com.orbswarm.swarmcon.path.Target;
@@ -104,6 +109,8 @@ import static java.awt.event.KeyEvent.VK_UP;
 import static com.orbswarm.swarmcon.Constants.*;
 
 import org.apache.log4j.Logger;
+import org.trebor.util.Angle;
+import org.trebor.util.Angle.Type;
 
 @SuppressWarnings("serial")
 public class SwarmCon extends JFrame
@@ -309,6 +316,20 @@ public class SwarmCon extends JFrame
     // create a place to put all visual objects
     
     mVisualObjects = new Vobjects();
+    
+    // create a test block path
+    
+//    IBlockPath path = new BlockPath();
+    IBlock head = new Head();
+    IBlock curve1 = new Curve(head, new Angle(180, Type.DEGREES), 5, Curve.Type.RIGHT);
+    IBlock curve2 = new Curve(curve1, new Angle(180, Type.DEGREES), 5, Curve.Type.LEFT);
+//    path.add(head);
+//    path.add(curve1);
+//    path.add(curve2);
+    mVisualObjects.add(head);
+    mVisualObjects.add(curve1);
+    mVisualObjects.add(curve2);
+//    mVisualObjects.add(path);
     
     // create the place for the swarm and add it to visual objects
     

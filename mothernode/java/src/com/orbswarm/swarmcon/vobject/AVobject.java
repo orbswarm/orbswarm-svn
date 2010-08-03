@@ -60,14 +60,14 @@ public abstract class AVobject implements IVobject
 
   public double getX()
   {
-    return mPosition.getX();
+    return getPosition().getX();
   }
 
   // get y position
 
   public double getY()
   {
-    return mPosition.getY();
+    return getPosition().getY();
   }
 
   // position setter

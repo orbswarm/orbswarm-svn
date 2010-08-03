@@ -3,8 +3,11 @@ package com.orbswarm.swarmcon.view;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.Vector;
 import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
@@ -12,6 +15,9 @@ import org.apache.log4j.Logger;
 import com.orbswarm.swarmcon.SwarmCon.MouseMobject;
 import com.orbswarm.swarmcon.orb.IOrb;
 import com.orbswarm.swarmcon.orb.Phantom;
+import com.orbswarm.swarmcon.path.Head;
+import com.orbswarm.swarmcon.path.IBlock;
+import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.path.SmoothPath;
 import com.orbswarm.swarmcon.vobject.IVobject;
 import com.orbswarm.swarmcon.vobject.IVobjects;
@@ -19,21 +25,63 @@ import com.orbswarm.swarmcon.vobject.IVobjects;
 public class Renderer
 {
   private static Logger log = Logger.getLogger(Renderer.class);
+
+  // an ordered list of keys used by mRendererClassMap to permit control of
+  // which renderers are match to vobjects first
   
-  private static Map<Class<? extends IVobject>, Class<? extends IRenderer<? extends IVobject>>> mRendererClassMap = new HashMap<Class<? extends IVobject>, Class<? extends IRenderer<? extends IVobject>>>()
-  {
-    private static final long serialVersionUID = -2767952369723326950L;
+  private static Vector<Class<? extends IVobject>> mKeyOrder =
+    new Vector<Class<? extends IVobject>>();
 
+  // the comparator used to control renderer selection order
+  
+  private static Comparator<Class<? extends IVobject>> mRendererComparator =
+    new Comparator<Class<? extends IVobject>>()
     {
-      put(IOrb.class, OrbRenderer.class);
-      put(Phantom.class, PhantomRenderer.class);
-      put(MouseMobject.class, MouseMobjectRenderer.class);
-      put(SmoothPath.class, SmoothPathRenderer.class);
-      put(IVobjects.class, MobjectsRenderer.class);
-    }
-  };
+      public int compare(Class<? extends IVobject> o1,
+        Class<? extends IVobject> o2)
+      {
+        return mKeyOrder.indexOf(o1) - mKeyOrder.indexOf(o2);
+      }
+    };
 
-  private static Map<Class<? extends IVobject>, IRenderer<?>> mRendererInstanceMap = new HashMap<Class<? extends IVobject>, IRenderer<? extends IVobject>>();
+  // a map of vobjects to renderers
+    
+  private static Map<Class<? extends IVobject>, Class<? extends IRenderer<? extends IVobject>>> mRendererClassMap =
+    new TreeMap<Class<? extends IVobject>, Class<? extends IRenderer<? extends IVobject>>>(
+      mRendererComparator)
+    {
+      private static final long serialVersionUID = -2767952369723326950L;
+
+      // add your renderer here, the order in which they appear in this
+      // list is the order in which they are tested, so put the more
+      // specific renderers earlier in the list 
+      
+      {
+        put(Phantom.class, PhantomRenderer.class);
+        put(MouseMobject.class, MouseMobjectRenderer.class);
+        put(SmoothPath.class, SmoothPathRenderer.class);
+        put(Head.class, HeadRenderer.class);
+        put(IBlock.class, BlockRenderer.class);
+        put(IOrb.class, OrbRenderer.class);
+        put(IVobjects.class, MobjectsRenderer.class);
+        put(IBlockPath.class, BlockPathRenderer.class);
+      }
+
+      // override of put to capture key order
+      
+      @Override
+      public Class<? extends IRenderer<? extends IVobject>> put(
+        Class<? extends IVobject> key,
+        Class<? extends IRenderer<? extends IVobject>> value)
+      {
+        mKeyOrder.add(key);
+        return super.put(key, value);
+      }
+
+    };
+
+  private static Map<Class<? extends IVobject>, IRenderer<?>> mRendererInstanceMap =
+    new HashMap<Class<? extends IVobject>, IRenderer<? extends IVobject>>();
 
   public static <Type extends IVobject> void render(Graphics2D g, Type vobject)
   {
@@ -76,8 +124,8 @@ public class Renderer
   private static <Type extends IVobject> IRenderer<Type> getRenderer(
     Class<Type> mobjectType, Class<IRenderer<Type>> rendererType)
   {
-    IRenderer<Type> renderer = (IRenderer<Type>)mRendererInstanceMap
-      .get(mobjectType);
+    IRenderer<Type> renderer =
+      (IRenderer<Type>)mRendererInstanceMap.get(mobjectType);
 
     if (renderer == null)
     {
@@ -100,7 +148,7 @@ public class Renderer
 
     return renderer;
   }
-  
+
   /**
    * Establish this {@link IVobject} is selected by clicking at
    * selectionPoint. A {@link IVobject} is selected if the {@link Shape}
@@ -113,7 +161,7 @@ public class Renderer
    * @return the selected {@link IVobject} or null if no valid candidates
    *         exist.
    */
-  
+
   public static IVobject getSelected(Point2D selectionPoint, IVobject o)
   {
     return getRenderer(o).getSelected(selectionPoint, o);
