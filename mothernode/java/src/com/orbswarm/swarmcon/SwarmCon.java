@@ -53,7 +53,6 @@ import java.util.Vector;
 import java.util.HashMap;
 import java.util.Calendar;
 
-import com.orbswarm.swarmcon.behavior.AvoidBehavior;
 import com.orbswarm.swarmcon.behavior.Behavior;
 import com.orbswarm.swarmcon.behavior.ClusterBehavior;
 import com.orbswarm.swarmcon.behavior.FollowBehavior;
@@ -515,7 +514,7 @@ public class SwarmCon extends JFrame
       // get the controllers for the new orb, but we're not doing
       // anything with them at the moment
 
-      Orb orb = new Orb(mSwarm, model, id);
+      Orb orb = new Orb(model, id);
 
       // register the new orb or orb IO so it can get messages
 
@@ -535,13 +534,9 @@ public class SwarmCon extends JFrame
         Behavior wb = new WanderBehavior();
         Behavior rb = new RandomBehavior();
         Behavior cb = new ClusterBehavior(mSwarm);
-        Behavior fab = new AvoidBehavior(fb);
-        Behavior cab = new AvoidBehavior(cb);
         orb.add(wb);
         orb.add(rb);
         orb.add(cb);
-        orb.add(fab);
-        orb.add(cab);
         orb.add(fb);
         orb.add(nb);
       }

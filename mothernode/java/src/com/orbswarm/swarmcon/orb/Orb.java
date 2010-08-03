@@ -1,6 +1,7 @@
 package com.orbswarm.swarmcon.orb;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 
 import java.util.Vector;
 import java.util.concurrent.Delayed;
@@ -11,9 +12,7 @@ import com.orbswarm.swarmcon.behavior.Behavior;
 import com.orbswarm.swarmcon.io.Message;
 import com.orbswarm.swarmcon.io.OrbIo.IOrbListener;
 import com.orbswarm.swarmcon.model.MotionModel;
-import com.orbswarm.swarmcon.path.Point;
 import com.orbswarm.swarmcon.vobject.AVobject;
-import com.orbswarm.swarmcon.vobject.IVobject;
 
 import org.trebor.util.Angle;
 
@@ -58,24 +57,15 @@ public class Orb extends AVobject implements IOrbListener, IOrb
 
   // nearest mobject
 
-  private IVobject nearest = null;
-  private double nearestDistance = Double.MAX_VALUE;
-
-  /** distances to all the other orbs. Calculated once per cycle. */
-
-  private double[] distances;
-
   // miscellaneous globals
 
   protected Swarm swarm = null;
 
   // construct an orb
 
-  public Orb(Swarm swarm, MotionModel model, int id)
+  public Orb(MotionModel model, int id)
   {
     this.model = model;
-    this.swarm = swarm;
-    this.distances = new double[6]; // how to get swarm size here?
     this.id = id;
   }
 
@@ -314,110 +304,6 @@ public class Orb extends AVobject implements IOrbListener, IOrb
     // set location to the model location
 
     setPosition(model.getPosition());
-
-    // we no longer know what's nearest
-
-    resetNearest();
-  }
-
-  // get nearest mobject
-
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#getNearest()
-   */
-  public IVobject getNearest()
-  {
-    if (nearest == null)
-      findNearest();
-    return nearest;
-  }
-
-  // get distance to nearest mobject
-
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#getNearestDistance()
-   */
-  public double getNearestDistance()
-  {
-    if (nearest == null)
-      findNearest();
-    return nearestDistance;
-  }
-
-  // reset nearest
-
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#resetNearest()
-   */
-  public void resetNearest()
-  {
-    nearest = null;
-    nearestDistance = Double.MAX_VALUE;
-  }
-
-  // check candidate for nearness
-
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#findNearest()
-   */
-  public void findNearest()
-  {
-    // find nearest other orb in the swarm
-
-    for (IVobject other : swarm)
-      if (other != this)
-      {
-        double distance = distanceTo(other);
-        if (distance < nearestDistance)
-        {
-          nearest = other;
-          nearestDistance = distance;
-        }
-      }
-  }
-
-  // calculate distances to all the other orbs
-
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#calculateDistances()
-   */
-  public double[] calculateDistances()
-  {
-    int i = 0;
-    for (IVobject other : swarm)
-    {
-      if (other instanceof Orb)
-      {
-        if (other != this)
-        {
-          double distance = distanceTo(other);
-          distances[i] = distance;
-        }
-
-        else
-        {
-          distances[i] = 0.d;
-        }
-        i++;
-      }
-    }
-    return distances;
-  }
-
-  // return the distances array
-
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#getDistances()
-   */
-  public double[] getDistances()
-  {
-    return distances;
   }
 
   /** Object used to store historical information about the orb. */
@@ -426,7 +312,7 @@ public class Orb extends AVobject implements IOrbListener, IOrb
   {
     /** position of orb */
 
-    public Point position;
+    public Point2D position;
 
     /** the velocity of the orb */
 
@@ -480,7 +366,7 @@ public class Orb extends AVobject implements IOrbListener, IOrb
      * @return position of the orb
      */
 
-    public Point getPosition()
+    public Point2D getPosition()
     {
       return position;
     }

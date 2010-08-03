@@ -5,8 +5,6 @@ import org.trebor.util.Angle;
 import com.orbswarm.swarmcon.model.MotionModel;
 import com.orbswarm.swarmcon.vobject.IVobject;
 
-import static org.trebor.util.Angle.Type.HEADING;
-
 public class FollowBehavior extends Behavior
 {
   // target to follow
@@ -25,6 +23,6 @@ public class FollowBehavior extends Behavior
 
   public void update(double time, MotionModel model)
   {
-    model.setTargetYaw(new Angle(orb.headingTo(target), HEADING));
+    model.setTargetYaw(new Angle(orb.getPosition(), target.getPosition()));
   }
 }

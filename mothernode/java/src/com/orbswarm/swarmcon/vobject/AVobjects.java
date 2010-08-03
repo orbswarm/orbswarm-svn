@@ -1,5 +1,6 @@
 package com.orbswarm.swarmcon.vobject;
 
+import java.awt.geom.Point2D;
 import java.util.Vector;
 
 import com.orbswarm.swarmcon.path.Point;
@@ -20,7 +21,7 @@ public class AVobjects<E extends IVobject> extends Vector<E>
     return getPosition().distance(other.getPosition());
   }
 
-  public double distanceTo(java.awt.geom.Point2D.Double point)
+  public double distanceTo(Point2D point)
   {
     return getPosition().distance(point);
   }
@@ -65,7 +66,7 @@ public class AVobjects<E extends IVobject> extends Vector<E>
     throw new UnsupportedOperationException();
   }
 
-  public double headingTo(java.awt.geom.Point2D.Double point)
+  public double headingTo(Point2D point)
   {
     throw new UnsupportedOperationException();
   }
@@ -75,12 +76,12 @@ public class AVobjects<E extends IVobject> extends Vector<E>
     throw new UnsupportedOperationException();
   }
 
-  public boolean isSelectedBy(java.awt.geom.Point2D.Double clickPoint)
+  public boolean isSelectedBy(Point2D clickPoint)
   {
     throw new UnsupportedOperationException();
   }
 
-  public void setPosition(java.awt.geom.Point2D.Double position)
+  public void setPosition(Point2D position)
   {
     throw new UnsupportedOperationException();
   }

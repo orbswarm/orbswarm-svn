@@ -2,11 +2,6 @@ package com.orbswarm.swarmcon.vobject;
 
 import java.awt.geom.Point2D;
 
-import com.orbswarm.swarmcon.path.Point;
-
-import static java.lang.Math.atan2;
-import static java.lang.Math.toDegrees;
-
 /**
  * A visible object in the system.
  * 
@@ -17,11 +12,11 @@ public abstract class AVobject implements IVobject
 {
   /** position of mobject in space */
 
-  private Point position = new Point();
+  private final Point2D mPosition;
 
   /** has this mobject been selected */
 
-  private boolean selected = false;
+  private boolean mSelected = false;
 
   /**
    * Create a vobject.
@@ -29,6 +24,7 @@ public abstract class AVobject implements IVobject
 
   public AVobject()
   {
+    mPosition = new Point2D.Double();
   }
 
   /**
@@ -45,38 +41,38 @@ public abstract class AVobject implements IVobject
 
   public boolean isSelected()
   {
-    return selected;
+    return mSelected;
   }
 
   public void setSelected(boolean selected)
   {
-    this.selected = selected;
+    this.mSelected = selected;
   }
 
   // position getter
 
-  public Point getPosition()
+  public Point2D getPosition()
   {
-    return new Point(getX(), getY());
+    return (Point2D)mPosition.clone();
   }
 
   // get x position
 
   public double getX()
   {
-    return position.getX();
+    return mPosition.getX();
   }
 
   // get y position
 
   public double getY()
   {
-    return position.getY();
+    return mPosition.getY();
   }
 
   // position setter
 
-  public void setPosition(Point2D.Double position)
+  public void setPosition(Point2D position)
   {
     setPosition(position.getX(), position.getY());
   }
@@ -85,50 +81,10 @@ public abstract class AVobject implements IVobject
 
   public void setPosition(double x, double y)
   {
-    this.position.setLocation(x, y);
-  }
-
-  // set delta position
-
-  void deltaPosition(double dX, double dY)
-  {
-    setPosition(getX() + dX, getY() + dY);
+    this.mPosition.setLocation(x, y);
   }
 
   // update state of this object
 
   public abstract void update(double time);
-
-  // compute heading to some point
-
-  public double headingTo(IVobject other)
-  {
-    return headingTo(other.getPosition());
-  }
-
-  // compute heading to some point
-
-  public double headingTo(Point2D.Double point)
-  {
-    double dx = point.getX() - getPosition().getX();
-    double dy = point.getY() - getPosition().getY();
-    double angle = atan2(dx, dy);
-    return toDegrees(angle) + (dx < 0
-      ? 360
-      : 0);
-  }
-
-  // compute distance to some point
-
-  public double distanceTo(IVobject other)
-  {
-    return distanceTo(other.getPosition());
-  }
-
-  // compute distance to some point
-
-  public double distanceTo(Point2D.Double point)
-  {
-    return getPosition().distance(point);
-  }
 }

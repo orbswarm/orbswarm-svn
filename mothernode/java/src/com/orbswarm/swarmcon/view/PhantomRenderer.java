@@ -22,7 +22,7 @@ public class PhantomRenderer extends ARenderer<Phantom>
 
     // record and scale current position
 
-    Point2D.Double tmpPos = phantom.getPosition();
+    Point2D tmpPos = phantom.getPosition();
 
     // position the phantom
 

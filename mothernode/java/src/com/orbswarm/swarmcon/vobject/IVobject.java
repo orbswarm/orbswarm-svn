@@ -2,15 +2,12 @@ package com.orbswarm.swarmcon.vobject;
 
 import java.awt.geom.Point2D;
 
-import com.orbswarm.swarmcon.path.Point;
-
 public interface IVobject
 {
-
   /**
    * Is this mobject selected?
    * 
-   * @return true if object selected
+   * @return true if vobject selected
    */
 
   public boolean isSelected();
@@ -23,17 +20,9 @@ public interface IVobject
 
   public void setSelected(boolean selected);
 
-  /**
-   * Get the size of this mobject.
-   * 
-   * @return the nominal of this mobject
-   */
-
-//  public double getSize();
-
   // position getter
 
-  public Point getPosition();
+  public Point2D getPosition();
 
   // get x position
 
@@ -45,7 +34,7 @@ public interface IVobject
 
   // position setter
 
-  public void setPosition(Point2D.Double position);
+  public void setPosition(Point2D position);
 
   // position setter
 
@@ -54,20 +43,4 @@ public interface IVobject
   // set delta position
 
   public void update(double time);
-
-  // compute heading to some point
-
-  public double headingTo(IVobject other);
-
-  // compute heading to some point
-
-  public double headingTo(Point2D.Double point);
-
-  // compute distance to some point
-
-  public double distanceTo(IVobject other);
-
-  // compute distance to some point
-
-  public double distanceTo(Point2D.Double point);
 }

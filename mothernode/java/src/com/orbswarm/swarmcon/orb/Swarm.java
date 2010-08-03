@@ -36,10 +36,4 @@ public class Swarm extends AVobjects<IOrb>
 
     return null;
   }
-
-  public void updateOrbDistances()
-  {
-    for (IOrb orb: this)
-      orb.calculateDistances();
-  }
 }

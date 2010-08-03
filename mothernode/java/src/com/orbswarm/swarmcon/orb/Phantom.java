@@ -16,11 +16,11 @@ public class Phantom extends AVobject
 
   /** origin of phantom */
 
-  private Point2D.Double origin;
+  private Point2D origin;
 
   /** target of phantom */
 
-  private Point2D.Double target;
+  private Point2D target;
 
   /** target scale */
 

@@ -9,6 +9,7 @@ import java.awt.geom.CubicCurve2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 import java.util.Vector;
 
@@ -495,5 +496,17 @@ public class SmoothPath extends Vector<Waypoint> implements IVobject
 
   public void update(double time)
   {
+  }
+
+  public double distanceTo(Point2D point)
+  {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
+  public void setPosition(Point2D position)
+  {
+    // TODO Auto-generated method stub
+    
   }
 }

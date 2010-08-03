@@ -18,10 +18,6 @@ public interface IOrb extends IVobject
 
   public MotionModel getModel();
 
-  // get swarm
-
-  public Swarm getSwarm();
-
   // get orb id
 
   public int getId();
@@ -71,26 +67,6 @@ public interface IOrb extends IVobject
   public double getSpeed();
 
   public void onOrbMessage(Message message);
-
-  // get nearest mobject
-
-  public IVobject getNearest();
-
-  // get distance to nearest mobject
-
-  public double getNearestDistance();
-
-  // reset nearest
-
-  public void resetNearest();
-
-  // check candidate for nearness
-
-  public void findNearest();
-
-  public double[] calculateDistances();
-
-  public double[] getDistances();
 
   public HistoryQueue getHistory();
 }
