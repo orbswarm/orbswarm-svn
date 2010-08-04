@@ -2,7 +2,6 @@ package com.orbswarm.swarmcon.path;
 
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 
@@ -14,8 +13,8 @@ import com.orbswarm.swarmcon.vobject.AVobject;
 public abstract class ABlock extends AVobject implements IBlock
 {
   private IBlock mPrevious;
-  private Angle mDeltaAngle;
-  private Shape mSegmentShape;
+  protected Angle mDeltaAngle;
+  private Shape mPathShape;
   
   public ABlock()
   {
@@ -92,6 +91,7 @@ public abstract class ABlock extends AVobject implements IBlock
   protected void setDeltaAngle(Angle deltaAngle)
   {
     mDeltaAngle = deltaAngle;
+    computePath();
   }
 
   protected Angle getDeltaAngle()
@@ -113,33 +113,43 @@ public abstract class ABlock extends AVobject implements IBlock
     super.setPosition(position);
   }
 
-  public void setSegmentShape(Shape segmentShape)
+  protected void setPathShape(Shape segmentShape)
   {
-    mSegmentShape = segmentShape;
+    mPathShape = segmentShape;
   }
 
-  public Shape getSegmentShape()
+  protected Shape getPathShape()
   {
-    return mSegmentShape;
+    return mPathShape;
   }
   
-  public GeneralPath getPath()
+  public Shape getPath()
   {
-    Shape shape = mSegmentShape;
+    Shape shape = mPathShape;
+    IBlock previous = getPrevious();
+    Point2D startPoint = new Point2D.Double();
+    Angle startAngle = new Angle();
+
+    if (null != previous)
+    {
+      startPoint = previous.getEndPosition();
+      startAngle = previous.getEndAngle();
+    }
 
     // rotate the curve the correct amount
 
-    shape = AffineTransform.getRotateInstance(
-      getPrevious().getEndAngle().as(Type.RADIANS)).createTransformedShape(
-      shape);
+    shape =
+      AffineTransform.getRotateInstance(startAngle.as(Type.RADIANS))
+        .createTransformedShape(shape);
 
     // translate the curve to the correct location
 
-    shape = AffineTransform.getTranslateInstance(getPrevious().getX(),
-      getPrevious().getY()).createTransformedShape(shape);
+    shape =
+      AffineTransform.getTranslateInstance(startPoint.getX(),
+        startPoint.getY()).createTransformedShape(shape);
 
     // return the path
 
-    return new GeneralPath(shape);
+    return shape;
   }
 }

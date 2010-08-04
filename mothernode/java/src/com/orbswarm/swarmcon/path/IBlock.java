@@ -1,6 +1,6 @@
 package com.orbswarm.swarmcon.path;
 
-import java.awt.geom.GeneralPath;
+import java.awt.Shape;
 import java.awt.geom.Point2D;
 
 import org.trebor.util.Angle;
@@ -41,9 +41,16 @@ public interface IBlock extends IVobject
   Point2D getEndPosition();
   
   /**
-   * Return the general path for this block.
+   * Return the shape of the path for this block.
+   * 
    * @return the path for this block.
    */
   
-  GeneralPath getPath();
+  Shape getPath();
+  
+  /**
+   * Compute the path of this block.
+   */
+  
+  void computePath();
 }

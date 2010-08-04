@@ -57,14 +57,14 @@ public class Renderer
       // specific renderers earlier in the list 
       
       {
+        //put(IBlockPath.class, BlockPathRenderer.class);        
         put(Phantom.class, PhantomRenderer.class);
         put(MouseMobject.class, MouseMobjectRenderer.class);
         put(SmoothPath.class, SmoothPathRenderer.class);
         put(Head.class, HeadRenderer.class);
+        put(IVobjects.class, MobjectsRenderer.class);
         put(IBlock.class, BlockRenderer.class);
         put(IOrb.class, OrbRenderer.class);
-        put(IVobjects.class, MobjectsRenderer.class);
-        put(IBlockPath.class, BlockPathRenderer.class);
       }
 
       // override of put to capture key order

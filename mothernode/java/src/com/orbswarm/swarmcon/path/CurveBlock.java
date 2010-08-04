@@ -7,7 +7,7 @@ import java.awt.geom.Rectangle2D;
 
 import org.trebor.util.Angle;
 
-public class Curve extends ABlock
+public class CurveBlock extends ABlock
 {
   public static enum Type
   {
@@ -17,28 +17,32 @@ public class Curve extends ABlock
   private double mRadius;
   private Type mType;
   
-  public Curve(IBlock previous, Angle delta, double radius, Type type)
+  public CurveBlock(IBlock previous, Angle delta, double radius, Type type)
   {
     super(previous);
+    mRadius = radius;
+    mType = type;
     setDeltaAngle(delta);
-    setRadius(radius);
-
-    double diameter = 2 * radius;
-    Rectangle2D extent = new Rectangle2D.Double(-diameter, -radius, diameter,
-      diameter);
-
-    Shape shape = new Arc2D.Double(extent, 0, -delta.as(Angle.Type.DEGREES),
-      Arc2D.OPEN);
     
-    if (type == Type.RIGHT)
-      shape = AffineTransform.getScaleInstance(-1, 1).createTransformedShape(shape);
-
-    setSegmentShape(shape);
   }
 
-  private void computeCurveShape()
+  public void computePath()
   {
+    double diameter = 2 * getRadius();
+    Rectangle2D extent = new Rectangle2D.Double(-diameter, -getRadius(), diameter,
+      diameter);
+
+
+    Shape shape = new Arc2D.Double(extent, 0, -getDeltaAngle().as(Angle.Type.DEGREES),
+      Arc2D.OPEN);
     
+    if (getType() == Type.RIGHT)
+    {
+      shape = AffineTransform.getScaleInstance(-1, 1).createTransformedShape(shape);
+      mDeltaAngle = new Angle(-getDeltaAngle().as(Angle.Type.DEGREE_RATE), Angle.Type.DEGREE_RATE);
+    }
+    
+    setPathShape(shape);
   }
   
   public double getRadius()
@@ -50,13 +54,13 @@ public class Curve extends ABlock
   public void setRadius(double radius)
   {
     mRadius = radius;
-    computeCurveShape();
+    computePath();
   }
 
   public void setType(Type type)
   {
     mType = type;
-    computeCurveShape();
+    computePath();
   }
 
   public Type getType()

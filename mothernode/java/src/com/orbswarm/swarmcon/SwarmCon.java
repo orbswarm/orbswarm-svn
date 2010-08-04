@@ -71,12 +71,13 @@ import com.orbswarm.swarmcon.orb.OrbControl;
 import com.orbswarm.swarmcon.orb.Phantom;
 import com.orbswarm.swarmcon.orb.Swarm;
 import com.orbswarm.swarmcon.path.BlockPath;
-import com.orbswarm.swarmcon.path.Curve;
+import com.orbswarm.swarmcon.path.CurveBlock;
 import com.orbswarm.swarmcon.path.Head;
 import com.orbswarm.swarmcon.path.IBlock;
 import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.path.Path;
 import com.orbswarm.swarmcon.path.Point;
+import com.orbswarm.swarmcon.path.StraightBlock;
 import com.orbswarm.swarmcon.path.Target;
 import com.orbswarm.swarmcon.view.Renderer;
 import com.orbswarm.swarmcon.vobject.AVobject;
@@ -319,17 +320,26 @@ public class SwarmCon extends JFrame
     
     // create a test block path
     
-//    IBlockPath path = new BlockPath();
+    IBlockPath path = new BlockPath();
     IBlock head = new Head();
-    IBlock curve1 = new Curve(head, new Angle(180, Type.DEGREES), 5, Curve.Type.RIGHT);
-    IBlock curve2 = new Curve(curve1, new Angle(180, Type.DEGREES), 5, Curve.Type.LEFT);
-//    path.add(head);
-//    path.add(curve1);
-//    path.add(curve2);
-    mVisualObjects.add(head);
-    mVisualObjects.add(curve1);
-    mVisualObjects.add(curve2);
-//    mVisualObjects.add(path);
+    IBlock curve1 = new CurveBlock(head, new Angle(90, Type.DEGREES), 5, CurveBlock.Type.RIGHT);
+    IBlock straight1 = new StraightBlock(curve1, 5);
+    IBlock curve2 = new CurveBlock(straight1, new Angle(180, Type.DEGREES), 3, CurveBlock.Type.LEFT);
+    IBlock curve3 = new CurveBlock(curve2, new Angle(90, Type.DEGREES), 2, CurveBlock.Type.LEFT);
+    IBlock straight2 = new StraightBlock(curve3, 5);
+    
+    IBlock[] blocks =
+    {
+      head, curve1, straight1, curve2, curve3, straight2,
+    };
+    
+    for (IBlock block: blocks)
+    {
+//      mVisualObjects.add(block);
+      path.add(block);
+    }
+    
+    mVisualObjects.add(path);
     
     // create the place for the swarm and add it to visual objects
     

@@ -18,7 +18,6 @@ public class BlockRenderer extends ARenderer<IBlock>
 {
   private static final Color PATH_COLOR = new Color(255, 0, 0, 128);
   private static final Stroke PATH_STROKE = new BasicStroke((float)(ORB_DIAMETER * 2), BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
-  private static final double HEAD_SIZE = ORB_DIAMETER * 3;
 
   public IVobject getSelected(Point2D selectionPoint, MouseMobject o)
   {
@@ -33,10 +32,13 @@ public class BlockRenderer extends ARenderer<IBlock>
   public void render(Graphics2D g, IBlock b)
   {
     Point2D e = b.getEndPosition();
-    Shape start = new Ellipse2D.Double(b.getX() - HEAD_SIZE / 2, b.getY() -
-      HEAD_SIZE / 2, HEAD_SIZE, HEAD_SIZE);
-    Shape end = new Ellipse2D.Double(e.getX() - HEAD_SIZE / 2, e.getY() -
-      HEAD_SIZE / 2, HEAD_SIZE, HEAD_SIZE);
+    double startSize = ORB_DIAMETER * 3;
+    double endSize = ORB_DIAMETER * 3.5;
+    
+    Shape start = new Ellipse2D.Double(b.getX() - startSize / 2, b.getY() -
+      startSize / 2, startSize, startSize);
+    Shape end = new Ellipse2D.Double(e.getX() - endSize / 2, e.getY() -
+      endSize / 2, endSize, endSize);
     
     g.setColor(new Color(0, 0, 255, 128));
     g.fill(start);

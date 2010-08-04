@@ -7,23 +7,25 @@ import org.trebor.util.Angle;
 
 public class Head extends ABlock
 {
-  private GeneralPath mPath = new GeneralPath();
+  public Head()
+  {
+    computePath();
+  }
   
   @Override
   public Point2D getEndPosition()
   {
     return getPosition();
   }
-
-  @Override
-  public GeneralPath getPath()
-  {
-    return mPath;
-  }
-
+  
   @Override
   public Angle getEndAngle()
   {
     return new Angle();
+  }
+
+  public void computePath()
+  {
+    setPathShape(new GeneralPath());
   }
 }

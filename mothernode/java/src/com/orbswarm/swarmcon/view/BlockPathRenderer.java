@@ -15,8 +15,8 @@ import static com.orbswarm.swarmcon.Constants.ORB_DIAMETER;
 
 public class BlockPathRenderer extends ARenderer<IBlockPath>
 {
-  private static final Color PATH_COLOR = Color.PINK;
-  private static Stroke mPathStroke = new BasicStroke((float)(ORB_DIAMETER * 2));
+  private static final Color PATH_COLOR = new Color(255, 0, 0, 128);
+  private static final Stroke PATH_STROKE = new BasicStroke((float)(ORB_DIAMETER * 2), BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
 
   public IVobject getSelected(Point2D selectionPoint, MouseMobject o)
   {
@@ -31,7 +31,7 @@ public class BlockPathRenderer extends ARenderer<IBlockPath>
   public void render(Graphics2D g, IBlockPath bp)
   {
     g.setColor(PATH_COLOR);
-    g.setStroke(mPathStroke);
+    g.setStroke(PATH_STROKE);
     g.draw(getShape(bp));
   }
 }
