@@ -39,7 +39,7 @@ public class CurveBlock extends ABlock
       ? -getDeltaAngle().as(Angle.Type.DEGREE_RATE)
       : getDeltaAngle().as(Angle.Type.DEGREE_RATE);
 
-    Shape shape = new Arc2D.Double(extent, 0, angle, Arc2D.OPEN);
+    Shape shape = new Arc2D.Double(extent, 0, angle == 0 ? 360 : angle, Arc2D.OPEN);
 
     if (getType() == Type.RIGHT)
       shape =
