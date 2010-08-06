@@ -27,6 +27,10 @@
         <level value="warn"/>
     </logger>
 
+    <logger name="com.orbswarm.swarmcon.path.CurveBlock">
+        <level value="warn"/>
+    </logger>
+
     <logger name="com.orbswarm.swarmcon.view.ARenderer">
         <level value="warn"/>
     </logger>
