@@ -6,6 +6,7 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
+import java.util.Collection;
 
 import com.orbswarm.swarmcon.path.SmoothPath;
 import com.orbswarm.swarmcon.path.Target;
@@ -46,13 +47,18 @@ public class SmoothPathRenderer extends ARenderer<SmoothPath>
 
     // draw the target points
 
-    g.setColor(Color.BLACK);
-    for (Target target : sp.getTargets())
+    Collection<Target> targets = sp.getTargets();
+    if (null != targets)
     {
-      AffineTransform t = g.getTransform();
-      g.translate(target.getX(), target.getY());
-      g.fill(smallDot);
-      g.setTransform(t);
+      g.setColor(Color.BLACK);
+
+      for (Target target : targets)
+      {
+        AffineTransform t = g.getTransform();
+        g.translate(target.getX(), target.getY());
+        g.fill(smallDot);
+        g.setTransform(t);
+      }
     }
   }
 

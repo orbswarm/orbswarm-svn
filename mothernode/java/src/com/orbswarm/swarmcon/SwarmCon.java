@@ -105,6 +105,7 @@ import static java.awt.event.KeyEvent.VK_ESCAPE;
 import static java.awt.event.KeyEvent.VK_MINUS;
 import static java.awt.event.KeyEvent.VK_R;
 import static java.awt.event.KeyEvent.VK_S;
+import static java.awt.event.KeyEvent.VK_X;
 import static java.awt.event.KeyEvent.VK_SPACE;
 import static java.awt.event.KeyEvent.VK_UP;
 import static com.orbswarm.swarmcon.Constants.*;
@@ -116,12 +117,15 @@ import org.trebor.util.Angle.Type;
 @SuppressWarnings("serial")
 public class SwarmCon extends JFrame
 {
+  protected IBlockPath mTestBlockPath;
+
   private static Logger log = Logger.getLogger(SwarmCon.class);
 
   /** The robot used for screen capture. */
   private final Robot mRobot;
 
   /** scale for graphics */
+  
   private double mPixelsPerMeter = DEFAULT_PIXELS_PER_METER;
 
   /** operational mode (live or simulated) */
@@ -338,7 +342,8 @@ public class SwarmCon extends JFrame
 //      mVisualObjects.add(block);
       path.add(block);
     }
-    
+   
+    mTestBlockPath = path;
     mVisualObjects.add(path);
     
     // create the place for the swarm and add it to visual objects
@@ -1537,6 +1542,19 @@ public class SwarmCon extends JFrame
     }
   };
 
+  /** Emergency stop all orbs. */
+
+  SwarmAction testBlockPath = new SwarmAction("Test Block Path", getKeyStroke(
+    VK_X, 0), "run a block path test")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      IOrb orb = mSwarm.getOrb(0);
+      orb.setPosition(mTestBlockPath.getPosition());
+      orb.getModel().setTargetPath(mTestBlockPath);
+    }
+  };
+  
   /** action to exist the system */
 
   SwarmAction exit = new SwarmAction("Exit", getKeyStroke(VK_ESCAPE, 0),
@@ -1572,6 +1590,7 @@ public class SwarmCon extends JFrame
     zoomOut,
     captureScreen,
     exit,
+    testBlockPath,
   };
 
   /** a convenience class for a really big button */

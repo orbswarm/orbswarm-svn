@@ -44,6 +44,20 @@ public class BlockPath extends AVobjects<IBlock> implements IBlockPath
     
     mBlock.setPathShape(gp);
   }
+
+  public Point2D getPosition()
+  {
+    if (isEmpty())
+      return new Point2D.Double();
+    else
+      return get(0).getPosition();
+  }
+  
+  public void setPosition(Point2D position)
+  {
+    if (!isEmpty())
+      get(0).setPosition(position);
+  }
   
   public IBlock getPrevious()
   {

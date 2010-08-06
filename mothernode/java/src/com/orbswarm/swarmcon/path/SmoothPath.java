@@ -117,6 +117,36 @@ public class SmoothPath extends Vector<Waypoint> implements IVobject
 
     continousePath = computeContinousePath(path, smoothness,
       initialDirection, curves = new Vector<CubicCurve2D.Double>());
+    
+    // initialize the rest of the smooth path
+    
+    initialize(velocity, interval, flatness);
+  }
+
+  /**
+   * Construct a smoothed path from a block path which is assumed to be
+   * properly configures such that the orb can safely follow it.
+   * 
+   * @param path the path of target points to generate a smooth path from
+   * @param velocity the velocity rate constraints
+   * @param interval interval to update the path, in seconds
+   * @return a smoothed path composed of waypoints
+   */
+
+  public SmoothPath(IBlockPath path, Rate velocity, double interval,
+    double flatness)
+  {
+    // compute the smoothed continuous path to work from
+
+    continousePath = new GeneralPath(path.getPath());
+
+    // initialize the rest of the smooth path
+
+    initialize(velocity, interval, flatness);
+  }
+
+  private void initialize(Rate velocity, double interval, double flatness)
+  {
     PathIterator pi = continousePath.getPathIterator(null, flatness);
 
     // variables used during the iteration along the path

@@ -17,7 +17,6 @@ import com.orbswarm.swarmcon.orb.IOrb;
 import com.orbswarm.swarmcon.orb.Phantom;
 import com.orbswarm.swarmcon.path.Head;
 import com.orbswarm.swarmcon.path.IBlock;
-import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.path.SmoothPath;
 import com.orbswarm.swarmcon.vobject.IVobject;
 import com.orbswarm.swarmcon.vobject.IVobjects;
@@ -57,7 +56,7 @@ public class Renderer
       // specific renderers earlier in the list 
       
       {
-        //put(IBlockPath.class, BlockPathRenderer.class);        
+//        put(IBlockPath.class, BlockPathRenderer.class);        
         put(Phantom.class, PhantomRenderer.class);
         put(MouseMobject.class, MouseMobjectRenderer.class);
         put(SmoothPath.class, SmoothPathRenderer.class);

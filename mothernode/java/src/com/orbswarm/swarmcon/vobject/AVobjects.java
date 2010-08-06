@@ -26,7 +26,7 @@ public class AVobjects<E extends IVobject> extends Vector<E>
     return getPosition().distance(point);
   }
 
-  public Point getPosition()
+  public Point2D getPosition()
   {
     double x = 0;
     double y = 0;

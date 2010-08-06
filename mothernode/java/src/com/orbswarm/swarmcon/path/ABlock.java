@@ -13,7 +13,7 @@ import com.orbswarm.swarmcon.vobject.AVobject;
 public abstract class ABlock extends AVobject implements IBlock
 {
   private IBlock mPrevious;
-  protected Angle mDeltaAngle;
+  private Angle mDeltaAngle;
   private Shape mPathShape;
   
   public ABlock()

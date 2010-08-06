@@ -4,6 +4,7 @@ import org.trebor.util.Angle;
 
 import com.orbswarm.swarmcon.SwarmCon;
 import com.orbswarm.swarmcon.io.OrbIo.IOrbListener;
+import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.path.Path;
 import com.orbswarm.swarmcon.path.Point;
 import com.orbswarm.swarmcon.path.SmoothPath;
@@ -280,6 +281,19 @@ abstract public class MotionModel implements IOrbListener
     activeSmoothPath = new SmoothPath(path, velocityRate,
       SMOOTH_PATH_UPDATE_RATE, SMOOTHNESS, CURVE_FLATNESS, yaw, HEADROOM);
 
+    return startPathCommander();
+  }
+
+  public SmoothPath setTargetPath(IBlockPath path)
+  {
+    activeSmoothPath = new SmoothPath(path, velocityRate,
+      SMOOTH_PATH_UPDATE_RATE, CURVE_FLATNESS);
+
+    return startPathCommander();
+  }
+  
+  private SmoothPath startPathCommander()
+  {
     // if there is a live path commander kill it
 
     if (pathCommander != null)
@@ -295,6 +309,8 @@ abstract public class MotionModel implements IOrbListener
     return activeSmoothPath;
   }
 
+  
+  
   /** Stop the orb. */
 
   public void stop()
