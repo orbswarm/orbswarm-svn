@@ -1,55 +1,35 @@
 package com.orbswarm.swarmcon.path;
 
 import java.awt.Shape;
-import java.awt.geom.Point2D;
 
-import org.trebor.util.Angle;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.orbswarm.swarmcon.vobject.IVobject;
+import com.orbswarm.swarmcon.xml.IBlockAdapter;
 
-public interface IBlock extends IVobject
+@XmlJavaTypeAdapter(IBlockAdapter.class)
+public interface IBlock
 {
   /**
-   * Get the preceding block before this one. This may be null in which
-   * case this is the head of path. 
+   * Return the change in state as a result of this block.
    * 
-   * @return the previous block.
+   * @return the relative change in state produced by this block.
    */
-
-  IBlock getPrevious();
-
+  
+  BlockState getDeltaState();
+  
   /**
-   * Set previous block.
+   * Return the shape of the path for this block properly positioned and
+   * oriented.
    * 
-   * @param previous the block which precedes this block.
+   * @param startAngle the starting angle of this block
+   * @param startPosition the starting position of this block
+   * @return the absolutely positioned and oriented block path as a shape
    */
   
-  void setPreviouse(IBlock previous);
+  Shape getPath(BlockState startState);
   
   /**
-   * Get the angle at which this block ends.
-   * 
-   * @return the end angle of this block.
-   */
-  
-  Angle getEndAngle();
-  
-  /**
-   * Get the end position of this this block.
-   */
-  
-  Point2D getEndPosition();
-  
-  /**
-   * Return the shape of the path for this block.
-   * 
-   * @return the path for this block.
-   */
-  
-  Shape getPath();
-  
-  /**
-   * Compute the path of this block.
+   * Compute the path shape of this block.
    */
   
   void computePath();

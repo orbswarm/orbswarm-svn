@@ -1,43 +1,47 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
-<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">    <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern"
-                value="%d %p [%t] %c{1}.%M(%L) | %m%n"/>
-        </layout>
-    </appender>
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+	<!--
+		Uncomment if you are using the logback plugin for eclipse
+	-->
+	<consolePlugin />
+	<appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d %p [%t] %c{1}.%M(%L) | %m%n" />
+		</layout>
+	</appender>
 
-    <logger name="com.orbswarm">
-        <level value="warn"/>
-    </logger>
+	<logger name="com.orbswarm">
+		<level value="warn" />
+	</logger>
 
-    <logger name="com.orbswarm.swarmcon.model.SimModel">
-        <level value="warn"/>
-    </logger>
+	<logger name="com.orbswarm.swarmcon.model.SimModel">
+		<level value="warn" />
+	</logger>
 
-    <logger name="com.orbswarm.swarmcon.SwarmCon">
-        <level value="warn"/>
-    </logger>
+	<logger name="com.orbswarm.swarmcon.SwarmCon">
+		<level value="warn" />
+	</logger>
 
-    <logger name="com.orbswarm.swarmcon.SwarmProperties">
-        <level value="debug"/>
-    </logger>
+	<logger name="com.orbswarm.swarmcon.SwarmProperties">
+		<level value="debug" />
+	</logger>
 
-    <logger name="com.orbswarm.swarmcon.view.Renderer">
-        <level value="warn"/>
-    </logger>
+	<logger name="com.orbswarm.swarmcon.view.Renderer">
+		<level value="warn" />
+	</logger>
 
-    <logger name="com.orbswarm.swarmcon.path.CurveBlock">
-        <level value="warn"/>
-    </logger>
+	<logger name="com.orbswarm.swarmcon.path.CurveBlock">
+		<level value="warn" />
+	</logger>
 
-    <logger name="com.orbswarm.swarmcon.view.ARenderer">
-        <level value="warn"/>
-    </logger>
+	<logger name="com.orbswarm.swarmcon.view.ARenderer">
+		<level value="warn" />
+	</logger>
 
-    <root>
-        <level value=""/>
-        <appender-ref ref="CONSOLE"/>
-    </root>
+	<root>
+		<level value="" />
+		<appender-ref ref="CONSOLE" />
+	</root>
 
 </log4j:configuration>

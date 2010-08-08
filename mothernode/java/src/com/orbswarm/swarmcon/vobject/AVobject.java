@@ -2,6 +2,11 @@ package com.orbswarm.swarmcon.vobject;
 
 import java.awt.geom.Point2D;
 
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import com.orbswarm.swarmcon.xml.PointAdapter;
+
 /**
  * A visible object in the system.
  * 
@@ -12,6 +17,7 @@ public abstract class AVobject implements IVobject
 {
   /** position of mobject in space */
 
+  @XmlTransient
   private final Point2D mPosition;
 
   /** has this mobject been selected */
@@ -39,6 +45,7 @@ public abstract class AVobject implements IVobject
    * @see com.orbswarm.swarmcon.orb.IMobject#isSelected()
    */
 
+  @XmlTransient
   public boolean isSelected()
   {
     return mSelected;
@@ -51,6 +58,7 @@ public abstract class AVobject implements IVobject
 
   // position getter
 
+  @XmlJavaTypeAdapter(PointAdapter.class)  
   public Point2D getPosition()
   {
     return (Point2D)mPosition.clone();

@@ -7,6 +7,6 @@
 	<classpathentry kind="lib" path="/Users/trebor/Documents/personal/swarmcon/lib/log4j.jar"/>
 	<classpathentry kind="lib" path="/Users/trebor/Documents/personal/swarmcon/lib/pid.jar"/>
 	<classpathentry kind="lib" path="/Users/trebor/Documents/personal/swarmcon/lib/RXTXcomm.jar"/>
-	<classpathentry kind="lib" path="/Users/trebor/Documents/personal/swarmcon/lib/util.jar"/>
+	<classpathentry kind="lib" path="/Users/trebor/Documents/personal/swarmcon/lib/util.jar" sourcepath="/trebor-utils"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

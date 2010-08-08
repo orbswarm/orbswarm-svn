@@ -6,8 +6,10 @@ import java.awt.geom.Arc2D;
 import java.awt.geom.Rectangle2D;
 
 import org.apache.log4j.Logger;
-import org.trebor.util.Angle;
 
+import com.sun.xml.internal.txw2.annotation.XmlElement;
+
+@XmlElement
 public class CurveBlock extends ABlock
 {
   @SuppressWarnings("unused")
@@ -18,28 +20,25 @@ public class CurveBlock extends ABlock
     LEFT, RIGHT
   }
   
+  private double mExtent;
   private double mRadius;
   private Type mType;
-  
-  public CurveBlock(IBlock previous, Angle delta, double radius, Type type)
+
+  public CurveBlock(double extent, double radius, Type type)
   {
-    super(previous);
+    mExtent = extent;
     mRadius = radius;
     mType = type;
-    setDeltaAngle(delta);
+    computePath();
   }
 
   public void computePath()
   {
     double diameter = 2 * getRadius();
-    Rectangle2D extent =
-      new Rectangle2D.Double(-diameter, -getRadius(), diameter, diameter);
 
-    double angle = getType() == Type.LEFT
-      ? -getDeltaAngle().as(Angle.Type.DEGREE_RATE)
-      : getDeltaAngle().as(Angle.Type.DEGREE_RATE);
-
-    Shape shape = new Arc2D.Double(extent, 0, angle == 0 ? 360 : angle, Arc2D.OPEN);
+    Shape shape =
+      new Arc2D.Double(new Rectangle2D.Double(-diameter, -getRadius(),
+        diameter, diameter), 0, -mExtent, Arc2D.OPEN);
 
     if (getType() == Type.RIGHT)
       shape =
@@ -47,21 +46,11 @@ public class CurveBlock extends ABlock
 
     setPathShape(shape);
   }
-  
-  protected void setDeltaAngle(Angle deltaAngle)
-  {
-    if (getType() == Type.RIGHT)
-      super.setDeltaAngle(new Angle(-deltaAngle.as(Angle.Type.DEGREES),
-        Angle.Type.DEGREES));
-    else
-      super.setDeltaAngle(deltaAngle);
-  }
 
   public double getRadius()
   {
     return mRadius;
   }
-
 
   public void setRadius(double radius)
   {
@@ -78,5 +67,16 @@ public class CurveBlock extends ABlock
   public Type getType()
   {
     return mType;
+  }
+
+  public void setExtent(double extent)
+  {
+    mExtent = extent;
+    computePath();
+  }
+
+  public double getExtent()
+  {
+    return mExtent;
   }
 }

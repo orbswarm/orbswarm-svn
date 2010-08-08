@@ -73,7 +73,8 @@ public class AVobjects<E extends IVobject> extends Vector<E>
 
   public boolean isSelected()
   {
-    throw new UnsupportedOperationException();
+    return false;
+    //throw new UnsupportedOperationException();
   }
 
   public boolean isSelectedBy(Point2D clickPoint)

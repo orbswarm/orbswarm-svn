@@ -2,76 +2,94 @@ package com.orbswarm.swarmcon.path;
 
 import java.awt.Shape;
 import java.awt.geom.GeneralPath;
-import java.awt.geom.Point2D;
+import java.util.Vector;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.apache.log4j.Logger;
 import org.trebor.util.Angle;
 
-import com.orbswarm.swarmcon.vobject.AVobjects;
+import com.orbswarm.swarmcon.vobject.AVobject;
 
-public class BlockPath extends AVobjects<IBlock> implements IBlockPath
+@XmlRootElement
+public class BlockPath extends AVobject implements IBlockPath
 {
   private static final long serialVersionUID = -8911696643772151060L;
-  
-  ABlock mBlock = new ABlock()
-  {
-    public void computePath()
-    {
-      BlockPath.this.computePath();
-    }
-  };
+  @SuppressWarnings("unused")
+  private static Logger log = Logger.getLogger(BlockPath.class);
+
+  private Vector<IBlock> mBlocks;
+  private Angle mHeading;
 
   public BlockPath()
   {
-    computePath();
-  }
-  
-  public Angle getEndAngle()
-  {
-    return lastElement().getEndAngle();
+    mBlocks = new Vector<IBlock>();
+    mHeading = new Angle();
   }
 
-  public Point2D getEndPosition()
-  {
-    return lastElement().getEndPosition();
-  }
-
-  public void computePath()
-  {
-    GeneralPath gp = new GeneralPath();
-    
-    for (IBlock block: this)
-      gp.append(block.getPath(), true);
-    
-    mBlock.setPathShape(gp);
-  }
-
-  public Point2D getPosition()
-  {
-    if (isEmpty())
-      return new Point2D.Double();
-    else
-      return get(0).getPosition();
-  }
-  
-  public void setPosition(Point2D position)
-  {
-    if (!isEmpty())
-      get(0).setPosition(position);
-  }
-  
-  public IBlock getPrevious()
+  public void update(double time)
   {
     throw new UnsupportedOperationException();
   }
 
-  public void setPreviouse(IBlock previous)
+  public void setBlocks(Vector<IBlock> blocks)
   {
-    throw new UnsupportedOperationException();
+    mBlocks = blocks;
   }
 
+  public Vector<IBlock> getBlocks()
+  {
+    return mBlocks;
+  }
+
+  public void add(IBlock block)
+  {
+    mBlocks.add(block);
+  }
+
+  public IBlock lastElement()
+  {
+    return mBlocks.lastElement();
+  }
+
+  public int size()
+  {
+    return mBlocks.size();
+  }
+
+  public void removeElement(IBlock block)
+  {
+    mBlocks.removeElement(block);
+  }
+
+  public void setHeading(Angle heading)
+  {
+    mHeading = heading;
+  }
+
+  public Angle getHeading()
+  {
+    return mHeading;
+  }
+  
   public Shape getPath()
   {
-    computePath();
-    return mBlock.getPath();
+    BlockState state = getState();
+    
+    GeneralPath gp = new GeneralPath();
+    gp.moveTo(state.getX(), state.getY());
+    
+    for (IBlock block: getBlocks())
+    {
+      gp.append(block.getPath(state), true);
+      state = state.add(block.getDeltaState());
+    }
+    
+    return gp;
+  }
+
+  public BlockState getState()
+  {
+    return new BlockState(getHeading(), getPosition());
   }
 }

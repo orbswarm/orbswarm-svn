@@ -5,151 +5,118 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 
+import javax.xml.bind.annotation.XmlSeeAlso;
+
+import org.apache.log4j.Logger;
 import org.trebor.util.Angle;
 import org.trebor.util.Angle.Type;
 
-import com.orbswarm.swarmcon.vobject.AVobject;
-
-public abstract class ABlock extends AVobject implements IBlock
+@XmlSeeAlso({com.orbswarm.swarmcon.path.CurveBlock.class, com.orbswarm.swarmcon.path.StraightBlock.class})
+public abstract class ABlock implements IBlock
 {
-  private IBlock mPrevious;
-  private Angle mDeltaAngle;
+  private static Logger log = Logger.getLogger(ABlock.class);
+
+  
   private Shape mPathShape;
+  private BlockState mDeltaState;
   
   public ABlock()
   {
-    setPreviouse(null);
-  }
-  
-  public ABlock(IBlock previous)
-  {
-    if (null == previous)
-      throw new IllegalArgumentException();
-    setPreviouse(previous);
-  }
-  
-  public void update(double time)
-  {
   }
 
-  public Point2D getEndPosition()
+  /**
+   * Set the shape of this path. This shape should be a open path
+   * originating at 0,0 and and heading north.
+   * 
+   * @param pathShape the path shape
+   */
+
+  protected void setPathShape(Shape pathShape)
   {
-    PathIterator pi = getPath().getPathIterator(null);
+    mPathShape = pathShape;
+
+    PathIterator pi = mPathShape.getPathIterator(null);
     double[] coords = new double[6];
-    int type = PathIterator.SEG_CLOSE;
+
+    double x1 = 0;
+    double y1 = 0;
+    double x2 = 0;
+    double y2 = 0;
 
     while (!pi.isDone())
     {
-      type = pi.currentSegment(coords);
+      int type = pi.currentSegment(coords);
+      switch (type)
+      {
+      case PathIterator.SEG_MOVETO:
+        log.debug(String.format(" MOVE: %fx%f, %fx%f, %fx%f", coords[0],
+          coords[1], coords[2], coords[3], coords[4], coords[5]));
+        x1 = x2;
+        y1 = y2;
+        x2 = coords[0];
+        y2 = coords[1];
+        break;
+      case PathIterator.SEG_LINETO:
+        log.debug(String.format(" LINE: %fx%f, %fx%f, %fx%f", coords[0],
+          coords[1], coords[2], coords[3], coords[4], coords[5]));
+        x1 = x2;
+        y1 = y2;
+        x2 = coords[0];
+        y2 = coords[1];
+        break;
+      case PathIterator.SEG_QUADTO:
+        log.debug(String.format(" QUAD: %fx%f, %fx%f, %fx%f", coords[0],
+          coords[1], coords[2], coords[3], coords[4], coords[5]));
+        x1 = coords[0];
+        y1 = coords[1];
+        x2 = coords[2];
+        y2 = coords[3];
+        break;
+      case PathIterator.SEG_CUBICTO:
+        log.debug(String.format("CUBIC: %fx%f, %fx%f, %fx%f", coords[0],
+          coords[1], coords[2], coords[3], coords[4], coords[5]));
+        x1 = coords[2];
+        y1 = coords[3];
+        x2 = coords[4];
+        y2 = coords[5];
+        break;
+      default:
+        throw new Error("unknown path element type: " + type);
+      }
+
       pi.next();
     }
 
-    double x = 0;
-    double y = 0;
+    mDeltaState =
+      new BlockState(new Angle(x2 - x1, y2 - y1)
+        .rotate(-90, Type.DEGREE_RATE), new Point2D.Double(x2, y2));
 
-    switch (type)
-    {
-    case PathIterator.SEG_MOVETO:
-    case PathIterator.SEG_LINETO:
-      x = coords[0];
-      y = coords[1];
-      break;
-    case PathIterator.SEG_QUADTO:
-      x = coords[2];
-      y = coords[3];
-      break;
-    case PathIterator.SEG_CUBICTO:
-      x = coords[4];
-      y = coords[5];
-      break;
-    default:
-      throw new Error();
-    }
-    
-    return new Point2D.Double(x, y);
+    log.debug("new state: " + mDeltaState);
   }
 
-  public Angle getEndAngle()
-  {
-    Angle startAngle = getPrevious() != null
-      ? getPrevious().getEndAngle()
-      : new Angle();
-
-    return startAngle.rotate(mDeltaAngle);
-  }
-
-  public IBlock getPrevious()
-  {
-    return mPrevious;
-  }
-
-  public void setPreviouse(IBlock previous)
-  {
-    mPrevious = previous;
-  }
-
-  protected void setDeltaAngle(Angle deltaAngle)
-  {
-    mDeltaAngle = deltaAngle;
-    computePath();
-  }
-
-  protected Angle getDeltaAngle()
-  {
-    return mDeltaAngle;
-  }
-
-  public Point2D getPosition()
-  {
-    if (getPrevious() != null)
-      return getPrevious().getEndPosition();
-    return super.getPosition();
-  }
-
-  public void setPosition(Point2D position)
-  {
-    if (getPrevious() != null)
-      throw new IllegalArgumentException();
-    super.setPosition(position);
-  }
-
-  protected void setPathShape(Shape segmentShape)
-  {
-    mPathShape = segmentShape;
-  }
-
+  /**
+   * Get the shape of this path. The shape returned will be start at 0,0
+   * heading north.
+   * 
+   * @return path shape.
+   */
+  
   protected Shape getPathShape()
   {
     return mPathShape;
   }
-  
-  public Shape getPath()
+
+  /** {@inheritDoc} */
+
+  public Shape getPath(BlockState startState)
   {
-    Shape shape = mPathShape;
-    IBlock previous = getPrevious();
-    Point2D startPoint = new Point2D.Double();
-    Angle startAngle = new Angle();
-
-    if (null != previous)
-    {
-      startPoint = previous.getEndPosition();
-      startAngle = previous.getEndAngle();
-    }
-
-    // rotate the curve the correct amount
-
-    shape =
-      AffineTransform.getRotateInstance(startAngle.as(Type.RADIANS))
-        .createTransformedShape(shape);
-
-    // translate the curve to the correct location
-
-    shape =
-      AffineTransform.getTranslateInstance(startPoint.getX(),
-        startPoint.getY()).createTransformedShape(shape);
-
-    // return the path
-
-    return shape;
+    return startState.creatTransformedShape(mPathShape);
+  }
+  
+  /** {@inheritDoc} */
+  
+  public BlockState getDeltaState()
+  {
+    return mDeltaState;
   }
 }

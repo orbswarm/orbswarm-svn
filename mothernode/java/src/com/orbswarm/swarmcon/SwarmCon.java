@@ -68,7 +68,6 @@ import com.orbswarm.swarmcon.orb.Phantom;
 import com.orbswarm.swarmcon.orb.Swarm;
 import com.orbswarm.swarmcon.path.BlockPath;
 import com.orbswarm.swarmcon.path.CurveBlock;
-import com.orbswarm.swarmcon.path.Head;
 import com.orbswarm.swarmcon.path.IBlock;
 import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.path.Path;
@@ -107,8 +106,6 @@ import static java.awt.event.KeyEvent.VK_UP;
 import static com.orbswarm.swarmcon.Constants.*;
 
 import org.apache.log4j.Logger;
-import org.trebor.util.Angle;
-import org.trebor.util.Angle.Type;
 
 @SuppressWarnings("serial")
 public class SwarmCon extends JFrame
@@ -311,29 +308,24 @@ public class SwarmCon extends JFrame
     // create a test block path
 
     IBlockPath path = new BlockPath();
-    IBlock head = new Head();
     IBlock curve1 =
-      new CurveBlock(head, new Angle(90, Type.DEGREES), 5,
-        CurveBlock.Type.RIGHT);
-    IBlock straight1 = new StraightBlock(curve1, 5);
+      new CurveBlock(90, 5, CurveBlock.Type.RIGHT);
+    IBlock straight1 = new StraightBlock(5);
     IBlock curve2 =
-      new CurveBlock(straight1, new Angle(180, Type.DEGREES), 3,
+      new CurveBlock(180, 3,
         CurveBlock.Type.LEFT);
     IBlock curve3 =
-      new CurveBlock(curve2, new Angle(90, Type.DEGREES), 2,
+      new CurveBlock(90, 2,
         CurveBlock.Type.LEFT);
-    IBlock straight2 = new StraightBlock(curve3, 5);
+    IBlock straight2 = new StraightBlock(5);
 
     IBlock[] blocks =
     {
-      head, curve1, straight1, curve2, curve3, straight2,
+      curve1, straight1, curve2, curve3, straight2,
     };
 
     for (IBlock block : blocks)
-    {
-      // mVisualObjects.add(block);
       path.add(block);
-    }
 
     mTestBlockPath = path;
     mVisualObjects.add(path);

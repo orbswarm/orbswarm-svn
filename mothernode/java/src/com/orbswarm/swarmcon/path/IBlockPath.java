@@ -1,7 +1,25 @@
 package com.orbswarm.swarmcon.path;
 
-import com.orbswarm.swarmcon.vobject.IVobjects;
+import java.awt.Shape;
+import java.util.Collection;
 
-public interface IBlockPath extends IVobjects<IBlock>, IBlock
+import org.trebor.util.Angle;
+
+import com.orbswarm.swarmcon.vobject.IVobject;
+
+public interface IBlockPath extends IVobject
 {
+  Angle getHeading();
+
+  Shape getPath();
+  
+  void add(IBlock block);
+
+  IBlock lastElement();
+
+  int size();
+
+  Collection<IBlock> getBlocks();
+
+  BlockState getState();
 }
