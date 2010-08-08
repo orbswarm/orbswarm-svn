@@ -27,11 +27,6 @@ public class BlockPath extends AVobject implements IBlockPath
     mHeading = new Angle();
   }
 
-  public void update(double time)
-  {
-    throw new UnsupportedOperationException();
-  }
-
   public void setBlocks(Vector<IBlock> blocks)
   {
     mBlocks = blocks;
@@ -91,5 +86,9 @@ public class BlockPath extends AVobject implements IBlockPath
   public BlockState getState()
   {
     return new BlockState(getHeading(), getPosition());
+  }
+
+  public void update(double time)
+  {
   }
 }
