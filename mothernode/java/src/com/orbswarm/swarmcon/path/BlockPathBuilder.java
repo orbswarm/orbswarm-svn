@@ -7,9 +7,11 @@ import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.Vector;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
@@ -21,17 +23,26 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
+import org.trebor.util.Angle;
+import org.trebor.util.Angle.Type;
 
 import com.orbswarm.swarmcon.view.ArenaPanel;
 import com.orbswarm.swarmcon.view.Renderer;
+import com.orbswarm.swarmcon.xml.ABar;
+import com.orbswarm.swarmcon.xml.Bar1;
+import com.orbswarm.swarmcon.xml.Bar2;
+import com.orbswarm.swarmcon.xml.Foo;
+import com.orbswarm.swarmcon.xml.IBar;
+
+import static java.lang.Math.PI;
+import static java.lang.Math.round;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+import static java.lang.Math.sin;
 
 @SuppressWarnings("serial")
 public class BlockPathBuilder extends JFrame
@@ -43,18 +54,25 @@ public class BlockPathBuilder extends JFrame
 
   // radius constants
 
-  private static final double DEFAULT_RADIUS_STEP = 0.5;
-  private static final double DEFAULT_MINIMUM_RADIUS = 1;
+  public static final double MINIMUM_RADIUS = 1;
+  public static final double MAXIMUM_RADIUS = 10;
+  public static final double START_RADIUS = 2;
+  public static final double MINIMUM_LENGTH = 2;
+
+  public static final double DEFAULT_RADIUS_STEP = 1;
   public static final double DEFAULT_RADIUS = 3;
 
   // length constants
 
-  public static final double DEFAULT_LENGTH = 4;
+  public static final double DEFAULT_LENGTH = 3;
   public static final double DEFAULT_LENGTH_CHANGE = 1;
 
   // default angle constants
 
-  private static final double DEFAULT_ANGLE_CHANGE = 15;
+  private static final double DEFAULT_ANGLE_QUANTA = 15;
+  private static final double DEFAULT_RADIUS_QUANTA = 0.5;
+  private static final double DEFAULT_LENGTH_QUANTA = 1;
+
   private static final double DEFAULT_CURVE_EXTENT = 90;
 
   private double mCurrentRadius = DEFAULT_RADIUS;
@@ -63,71 +81,9 @@ public class BlockPathBuilder extends JFrame
 
   private BlockPath mBlockPath;
   private IBlock mCurrentBlock;
-  
-  @XmlRootElement
-  static class Foo
-  {
-    private Vector<IBar> mBars = new Vector<IBar>();
 
-    public void add(IBar bar)
-    {
-      getBars().add(bar);
-    }
-
-    public void setBars(Vector<IBar> bars)
-    {
-      mBars = bars;
-    }
-
-    public Vector<IBar> getBars()
-    {
-      return mBars;
-    }
-
-    public String toString()
-    {
-      return "Foo [mBars=" + mBars + "]";
-    }
-  }
-  
-  @XmlJavaTypeAdapter(IBarAdapter.class)
-  static interface IBar
-  {
-    public String getName();
-    public Point2D getPos();
-  }
-  
-  @XmlSeeAlso({Bar1.class, Bar2.class})
-  static abstract class ABar implements IBar
-  {
-    private String name;
-
-    @XmlTransient
-    private Point2D mPos;
-    
-    public void setName(String name)
-    {
-      this.name = name;
-    }
-
-    public String getName()
-    {
-      return name;
-    }
-
-    @XmlJavaTypeAdapter(Point2DAdapter.class)
-    public void setPos(Point2D pos)
-    {
-      this.mPos = pos;
-    }
-
-    public Point2D getPos()
-    {
-      return mPos;
-    }
-  }
-  
-  static class Point2DAdapter extends XmlAdapter<Point2D.Double, Point2D>
+  public static class Point2DAdapter extends
+    XmlAdapter<Point2D.Double, Point2D>
   {
     public Point2D.Double marshal(Point2D v) throws Exception
     {
@@ -139,9 +95,8 @@ public class BlockPathBuilder extends JFrame
       return v;
     }
   }
-  
-  
-  static class IBarAdapter extends XmlAdapter<ABar, IBar>
+
+  public static class IBarAdapter extends XmlAdapter<ABar, IBar>
   {
     public ABar marshal(IBar v) throws Exception
     {
@@ -153,89 +108,35 @@ public class BlockPathBuilder extends JFrame
       return v;
     }
   }
-  
-  @XmlRootElement
-  static class Bar1 extends ABar
-  {
-    public Bar1()
-    {
-    }
-    
-    public Bar1(String name, double x, double y)
-    {
-      setName(name);
-      setPos(new Point2D.Double(x, y));
-    }
-
-    public String toString()
-    {
-      return "Bar1 [getName()=" + getName() + ", getPos()=" + getPos() + "]";
-    }
-  }
-  
-  @XmlRootElement
-  static class Bar2 extends ABar
-  {
-    @XmlTransient
-    private long mSize;
-    
-    public Bar2()
-    {
-    }
-    
-    public Bar2(String name, double x, double y, long size)
-    {
-      setName(name);
-      setPos(new Point2D.Double(x, y));
-      setSize(size);
-    }
-
-    public void setSize(long size)
-    {
-      this.mSize = size;
-    }
-
-    public long getSize()
-    {
-      return mSize;
-    }
-
-    public String toString()
-    {
-      return "Bar2 [getSize()=" + getSize() + ", getName()=" + getName() +
-        ", getPos()=" + getPos() + "]";
-    }
-  }
 
   public static void main(String[] args)
   {
     BasicConfigurator.configure();
     new BlockPathBuilder();
-    //test();
+    // test();
   }
-  
-  
+
   public static void test()
   {
     Foo foo = new Foo();
     IBar bar1 = new Bar1("fred", 1.1d, 2.2d);
     IBar bar2 = new Bar2("barny", 3.3d, 4.4d, 999);
-    
+
     foo.add(bar1);
     foo.add(bar2);
     System.out.println("foo: " + foo);
     try
     {
       StringWriter writer = new StringWriter();
-      
+
       JAXBContext context = JAXBContext.newInstance(foo.getClass());
       Marshaller marshaller = context.createMarshaller();
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
       marshaller.marshal(foo, writer);
-      
+
       System.out.println(writer.getBuffer());
       StringReader reader = new StringReader(writer.getBuffer().toString());
-      
+
       Unmarshaller unmarshaller = context.createUnmarshaller();
       Foo qux = (Foo)unmarshaller.unmarshal(reader);
       System.out.println("qux: " + qux);
@@ -252,12 +153,14 @@ public class BlockPathBuilder extends JFrame
 
   public BlockPathBuilder()
   {
-    mBlockPath = new BlockPath();
-    mCurrentBlock = null;
-
-    // construct the frame
+    // make the frame
 
     constructFrame();
+
+    // make the path
+
+    mBlockPath = new BlockPath();
+    addBlock(new StraightBlock(mCurrentLength));
 
     // show the frame
 
@@ -292,6 +195,7 @@ public class BlockPathBuilder extends JFrame
     JMenu fileMenu = new JMenu("File");
     menuBar.add(fileMenu);
     fileMenu.add(new JMenuItem(mSaveAction));
+    fileMenu.add(new JMenuItem(mLoadAction));
 
     // make edit menu
 
@@ -331,19 +235,209 @@ public class BlockPathBuilder extends JFrame
 
   protected void save()
   {
-
     try
     {
-      JAXBContext context = JAXBContext.newInstance(mBlockPath.getClass());
+      JAXBContext context =
+        JAXBContext.newInstance(mBlockPath.getClass(), ABlock.class);
       Marshaller marshaller = context.createMarshaller();
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-      marshaller.marshal(mBlockPath, System.out);
-//      marshaller.marshal(mBlockPath, new FileWriter("test.xml"));
+      marshaller.marshal(mBlockPath, new FileWriter("test.xml"));
     }
     catch (JAXBException e)
     {
       e.printStackTrace();
     }
+    catch (IOException e)
+    {
+      e.printStackTrace();
+    }
+  }
+
+  protected void load()
+  {
+    try
+    {
+      JAXBContext context =
+        JAXBContext.newInstance(mBlockPath.getClass(), ABlock.class);
+      Unmarshaller unmarshaller = context.createUnmarshaller();
+      mBlockPath =
+        (BlockPath)unmarshaller.unmarshal(new FileReader("test.xml"));
+      repaint();
+    }
+    catch (JAXBException e)
+    {
+      e.printStackTrace();
+    }
+    catch (IOException e)
+    {
+      e.printStackTrace();
+    }
+  }
+
+  private void curveRight()
+  {
+    if (null == mCurrentBlock)
+      return;
+
+    if (mCurrentBlock instanceof StraightBlock)
+    {
+      CurveBlock cb =
+        convertToCurve((StraightBlock)mCurrentBlock, CurveBlock.Type.RIGHT);
+      removeLastBlock();
+      addBlock(cb);
+    }
+    else if (mCurrentBlock instanceof CurveBlock)
+    {
+      CurveBlock cb = (CurveBlock)mCurrentBlock;
+      double radius = cb.getRadius();
+      double radiusStep = computeRadiusStep(radius);
+
+      if (cb.getType() == CurveBlock.Type.LEFT)
+      {
+        if (radius < MAXIMUM_RADIUS)
+          cb.setRadius(radius + radiusStep);
+        else
+        {
+          StraightBlock sb = convertToStraight(cb);
+          removeLastBlock();
+          addBlock(sb);
+        }
+      }
+      else
+      {
+        if (radius > MINIMUM_RADIUS)
+          cb.setRadius(Math.max(radius - radiusStep, MINIMUM_RADIUS));
+      }
+
+      repaint();
+    }
+  }
+
+  private void curveLeft()
+  {
+    if (null == mCurrentBlock)
+      return;
+
+    if (mCurrentBlock instanceof StraightBlock)
+    {
+      CurveBlock cb =
+        convertToCurve((StraightBlock)mCurrentBlock, CurveBlock.Type.LEFT);
+      removeLastBlock();
+      addBlock(cb);
+    }
+    else if (mCurrentBlock instanceof CurveBlock)
+    {
+      CurveBlock cb = (CurveBlock)mCurrentBlock;
+      double radius = cb.getRadius();
+      double radiusStep = computeRadiusStep(radius);
+
+      if (cb.getType() == CurveBlock.Type.RIGHT)
+      {
+        if (radius < MAXIMUM_RADIUS)
+          cb.setRadius(radius + radiusStep);
+        else
+        {
+          StraightBlock sb = convertToStraight(cb);
+          removeLastBlock();
+          addBlock(sb);
+        }
+      }
+      else
+      {
+        if (radius > MINIMUM_RADIUS)
+          cb.setRadius(Math.max(radius - radiusStep, MINIMUM_RADIUS));
+      }
+
+      repaint();
+    }
+  }
+
+  public void setRadiusFixLength(CurveBlock cb, double radius)
+  {
+    double dLength =
+      cb.getLength() - CurveBlock.getArcLength(cb.getExtent(), radius);
+    double dExtent = 360 * (dLength / (2 * PI * radius));
+    cb.setRadius(radius);
+    cb.setExtent(quantize(cb.getExtent() + dExtent, DEFAULT_ANGLE_QUANTA));
+  }
+
+  public static double quantize(double value, double quanta)
+  {
+    return round(value / quanta) * quanta;
+  }
+
+  private double computeRadiusStep(double radius)
+  {
+    double range = MAXIMUM_RADIUS - MINIMUM_RADIUS;
+    double theta = (((radius - MINIMUM_RADIUS) / range) * PI / 2) - PI / 2;
+
+    double step =
+      max(quantize((MAXIMUM_RADIUS / 2) * (sin(theta) + 1),
+        DEFAULT_RADIUS_QUANTA), DEFAULT_RADIUS_QUANTA);
+
+    log.debug("step: " + step);
+    return step;
+
+    // pow(radius, 4) / 2000
+  }
+
+  private void embiggen()
+  {
+    if (null == mCurrentBlock)
+      return;
+
+    if (mCurrentBlock instanceof StraightBlock)
+    {
+      StraightBlock sb = (StraightBlock)mCurrentBlock;
+      sb.setLength(sb.getLength() + DEFAULT_LENGTH_CHANGE);
+      repaint();
+    }
+    else if (mCurrentBlock instanceof CurveBlock)
+    {
+      CurveBlock cb = (CurveBlock)mCurrentBlock;
+      cb.setExtent(min(cb.getExtent() + DEFAULT_ANGLE_QUANTA, 360));
+      repaint();
+    }
+  }
+
+  private void ensmallen()
+  {
+
+    if (null == mCurrentBlock)
+      return;
+
+    if (mCurrentBlock instanceof StraightBlock)
+    {
+      StraightBlock sb = (StraightBlock)mCurrentBlock;
+      sb
+        .setLength(max(sb.getLength() - DEFAULT_LENGTH_CHANGE, MINIMUM_LENGTH));
+      repaint();
+    }
+    else if (mCurrentBlock instanceof CurveBlock)
+    {
+      CurveBlock cb = (CurveBlock)mCurrentBlock;
+      cb.setExtent(max(cb.getExtent() - DEFAULT_ANGLE_QUANTA,
+        DEFAULT_ANGLE_QUANTA));
+      repaint();
+    }
+  }
+
+  private static CurveBlock convertToCurve(StraightBlock sb,
+    CurveBlock.Type type)
+  {
+    Angle extent =
+      new Angle((2 * PI) * (sb.getLength() / (START_RADIUS * 2 * PI)),
+        Type.RADIANS);
+    double extentDegrees =
+      round(extent.as(Angle.Type.DEGREES) / DEFAULT_ANGLE_QUANTA) *
+        DEFAULT_ANGLE_QUANTA;
+
+    return new CurveBlock(extentDegrees, START_RADIUS, type);
+  }
+
+  private static StraightBlock convertToStraight(CurveBlock cb)
+  {
+    return new StraightBlock(quantize(cb.getLength(), DEFAULT_LENGTH_QUANTA));
   }
 
   private void addBlock(IBlock block)
@@ -372,9 +466,9 @@ public class BlockPathBuilder extends JFrame
     {
       CurveBlock cb = (CurveBlock)mCurrentBlock;
       double extent = cb.getExtent();
-      if (extent > DEFAULT_ANGLE_CHANGE)
+      if (extent > DEFAULT_ANGLE_QUANTA)
       {
-        cb.setExtent(extent - DEFAULT_ANGLE_CHANGE);
+        cb.setExtent(extent - DEFAULT_ANGLE_QUANTA);
         mArena.repaint();
       }
     }
@@ -396,7 +490,7 @@ public class BlockPathBuilder extends JFrame
       double extent = cb.getExtent();
       if (extent < 360)
       {
-        cb.setExtent(extent + DEFAULT_ANGLE_CHANGE);
+        cb.setExtent(extent + DEFAULT_ANGLE_QUANTA);
         mArena.repaint();
       }
     }
@@ -415,7 +509,7 @@ public class BlockPathBuilder extends JFrame
       CurveBlock cb = (CurveBlock)mCurrentBlock;
       if (cb.getType() == CurveBlock.Type.RIGHT)
         cb.setRadius(cb.getRadius() + DEFAULT_RADIUS_STEP);
-      else if (cb.getRadius() > DEFAULT_MINIMUM_RADIUS)
+      else if (cb.getRadius() > MINIMUM_RADIUS)
         cb.setRadius(cb.getRadius() - DEFAULT_RADIUS_STEP);
 
       mArena.repaint();
@@ -429,7 +523,7 @@ public class BlockPathBuilder extends JFrame
       CurveBlock cb = (CurveBlock)mCurrentBlock;
       if (cb.getType() == CurveBlock.Type.LEFT)
         cb.setRadius(cb.getRadius() + DEFAULT_RADIUS_STEP);
-      else if (cb.getRadius() > DEFAULT_MINIMUM_RADIUS)
+      else if (cb.getRadius() > MINIMUM_RADIUS)
         cb.setRadius(cb.getRadius() - DEFAULT_RADIUS_STEP);
 
       mArena.repaint();
@@ -476,35 +570,33 @@ public class BlockPathBuilder extends JFrame
 
   private Action mCurveLeftAction =
     new Action("Left", KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0),
-      "add path block wich curves left")
+      "curve to the left")
     {
       private static final long serialVersionUID = -895535667108572039L;
 
       public void actionPerformed(ActionEvent e)
       {
-        addBlock(new CurveBlock(mCurrentCurveExtent, mCurrentRadius,
-          CurveBlock.Type.LEFT));
+        curveLeft();
       }
     };
 
   private Action mCurveRightAction =
     new Action("Right", KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0),
-      "add path block wich curves left")
+      "curve to the right")
     {
       private static final long serialVersionUID = -191894994114298776L;
 
       public void actionPerformed(ActionEvent e)
       {
-        addBlock(new CurveBlock(mCurrentCurveExtent, mCurrentRadius,
-          CurveBlock.Type.RIGHT));
+        curveRight();
       }
     };
 
   /** Action to select simulated rather live operation. */
 
   private Action mGoStraightAction =
-    new Action("Straight", KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0),
-      "add path block wich goes straight forward")
+    new Action("Straight", KeyStroke.getKeyStroke(KeyEvent.VK_UP,
+      KeyEvent.SHIFT_DOWN_MASK), "add path block wich goes straight forward")
     {
       private static final long serialVersionUID = 4754414744672359329L;
 
@@ -517,8 +609,8 @@ public class BlockPathBuilder extends JFrame
   /** Action to select simulated rather live operation. */
 
   private Action mBackupAction =
-    new Action("Backup", KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0),
-      "remove last block form path")
+    new Action("Backup", KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,
+      KeyEvent.SHIFT_DOWN_MASK), "remove last block form path")
     {
       private static final long serialVersionUID = 3836535220370440971L;
 
@@ -531,28 +623,28 @@ public class BlockPathBuilder extends JFrame
   /** Action to select simulated rather live operation. */
 
   private Action mShortenAction =
-    new Action("Shorten Block", KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,
-      KeyEvent.SHIFT_DOWN_MASK), "shorten the current path segment")
+    new Action("Ensmallen", KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0),
+      "decrease the length of the block")
     {
       private static final long serialVersionUID = 4754414744672359329L;
 
       public void actionPerformed(ActionEvent e)
       {
-        shortenSegment();
+        ensmallen();
       }
     };
 
   /** Action to select simulated rather live operation. */
 
   private final Action mLengthenAction =
-    new Action("Lengthend Block", KeyStroke.getKeyStroke(KeyEvent.VK_UP,
-      KeyEvent.SHIFT_DOWN_MASK), "shorten the current path segment")
+    new Action("Embiggen", KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0),
+      "increase the length of the block")
     {
       private static final long serialVersionUID = 5229008455547924307L;
 
       public void actionPerformed(ActionEvent e)
       {
-        lengthenSegment();
+        embiggen();
       }
     };
 
@@ -605,12 +697,22 @@ public class BlockPathBuilder extends JFrame
   /** Zoom display out. */
 
   Action mSaveAction =
-    new Action("Save", KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.META_DOWN_MASK),
-      "save this path")
+    new Action("Save", KeyStroke.getKeyStroke(KeyEvent.VK_S,
+      KeyEvent.META_DOWN_MASK), "save this path")
     {
       public void actionPerformed(ActionEvent e)
       {
         save();
+      }
+    };
+
+  Action mLoadAction =
+    new Action("Load", KeyStroke.getKeyStroke(KeyEvent.VK_L,
+      KeyEvent.META_DOWN_MASK), "load a path")
+    {
+      public void actionPerformed(ActionEvent e)
+      {
+        load();
       }
     };
 }

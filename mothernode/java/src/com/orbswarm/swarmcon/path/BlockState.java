@@ -47,15 +47,10 @@ public class BlockState
     AffineTransform t =
       AffineTransform.getRotateInstance(rotAngle.as(Type.RADIAN_RATE));
 
-    log.debug("start: " + this);
-    log.debug("  add: " + other);
-
     // t.concatenate(AffineTransform.getScaleInstance(1, -1));
 
-    log.debug("before: " + other.getPosition());
     Point2D rotatedDelta = new Point2D.Double();
     t.deltaTransform(other.getPosition(), rotatedDelta);
-    log.debug("after: " + rotatedDelta);
 
     return new BlockState(mAngle.rotate(other.getAngle()),
       new Point2D.Double(mPosition.getX() + rotatedDelta.getX(), mPosition

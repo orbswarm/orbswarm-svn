@@ -1,7 +1,6 @@
 package com.orbswarm.swarmcon.path;
 
 import java.awt.Shape;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 
@@ -11,7 +10,7 @@ import org.apache.log4j.Logger;
 import org.trebor.util.Angle;
 import org.trebor.util.Angle.Type;
 
-@XmlSeeAlso({com.orbswarm.swarmcon.path.CurveBlock.class, com.orbswarm.swarmcon.path.StraightBlock.class})
+@XmlSeeAlso({CurveBlock.class, StraightBlock.class})
 public abstract class ABlock implements IBlock
 {
   private static Logger log = Logger.getLogger(ABlock.class);

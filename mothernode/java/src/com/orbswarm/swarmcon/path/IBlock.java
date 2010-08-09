@@ -33,4 +33,12 @@ public interface IBlock
    */
   
   void computePath();
+  
+  /** 
+   * Get the length of this block.
+   * 
+   * @return the path length of this block.
+   */
+
+  double getLength();
 }

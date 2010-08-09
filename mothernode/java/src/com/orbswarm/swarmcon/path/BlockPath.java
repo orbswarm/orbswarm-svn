@@ -21,6 +21,8 @@ public class BlockPath extends AVobject implements IBlockPath
   private Vector<IBlock> mBlocks;
   private Angle mHeading;
 
+  ABlock x;
+  
   public BlockPath()
   {
     mBlocks = new Vector<IBlock>();

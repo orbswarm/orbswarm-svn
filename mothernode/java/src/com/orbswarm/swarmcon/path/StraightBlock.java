@@ -2,13 +2,15 @@ package com.orbswarm.swarmcon.path;
 
 import java.awt.geom.Line2D;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
-@XmlRootElement
 public class StraightBlock extends ABlock
 {
   private double mLength;
 
+  public StraightBlock()
+  {
+    mLength = 0;
+  }
+  
   public StraightBlock(double length)
   {
     mLength = length;
