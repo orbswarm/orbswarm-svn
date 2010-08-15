@@ -15,7 +15,7 @@ public class MobjectsRenderer extends ARenderer<IVobjects<?>>
   public void render(Graphics2D g, IVobjects<?> vobjects)
   {
     for (IVobject vobject: vobjects)
-      Renderer.render(g, vobject);
+      RendererSet.render(g, vobject);
   }
 
   public Shape getShape(IVobjects<?> vobjects)
@@ -29,7 +29,7 @@ public class MobjectsRenderer extends ARenderer<IVobjects<?>>
 
     for (IVobject vobject : vobjects)
     {
-      IVobject candidate = Renderer.getRenderer(vobject).getSelected(
+      IVobject candidate = RendererSet.getRenderer(vobject).getSelected(
         selectionPoint, vobject);
       
       if (null != candidate)
@@ -40,7 +40,7 @@ public class MobjectsRenderer extends ARenderer<IVobjects<?>>
     IVobject closest = null;
     for (IVobject vobject : candidates)
     {
-      double distance = Renderer.getRenderer(vobject).getDistanceTo(
+      double distance = RendererSet.getRenderer(vobject).getDistanceTo(
         selectionPoint, vobject);
       if (distance < shortestDistance)
       {

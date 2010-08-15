@@ -17,6 +17,7 @@ import org.trebor.util.Angle.Type;
 
 public class BlockState
 {
+  @SuppressWarnings("unused")
   private static Logger log = Logger.getLogger(BlockState.class);
 
   private final Angle mAngle;

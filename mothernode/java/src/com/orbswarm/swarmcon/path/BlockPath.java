@@ -9,10 +9,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.log4j.Logger;
 import org.trebor.util.Angle;
 
+import com.orbswarm.swarmcon.store.INamed;
 import com.orbswarm.swarmcon.vobject.AVobject;
 
 @XmlRootElement
-public class BlockPath extends AVobject implements IBlockPath
+public class BlockPath extends AVobject implements IBlockPath, INamed
 {
   private static final long serialVersionUID = -8911696643772151060L;
   @SuppressWarnings("unused")
@@ -20,13 +21,21 @@ public class BlockPath extends AVobject implements IBlockPath
 
   private Vector<IBlock> mBlocks;
   private Angle mHeading;
-
+  private String mName;
+  
   ABlock x;
   
   public BlockPath()
   {
     mBlocks = new Vector<IBlock>();
     mHeading = new Angle();
+    mName = "earl";
+  }
+
+  public BlockPath(IBlock... blocks)
+  {
+    this();
+    add(blocks);
   }
 
   public void setBlocks(Vector<IBlock> blocks)
@@ -39,6 +48,12 @@ public class BlockPath extends AVobject implements IBlockPath
     return mBlocks;
   }
 
+  public void add(IBlock... blocks)
+  {
+    for (IBlock block : blocks)
+      mBlocks.add(block);
+  }
+  
   public void add(IBlock block)
   {
     mBlocks.add(block);
@@ -92,5 +107,10 @@ public class BlockPath extends AVobject implements IBlockPath
 
   public void update(double time)
   {
+  }
+
+  public String getName()
+  {
+    return mName;
   }
 }

@@ -1,7 +1,9 @@
 package com.orbswarm.swarmcon.view;
 
-
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputAdapter;
 
@@ -12,13 +14,18 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 import static com.orbswarm.swarmcon.Constants.*;
 
+import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
 public class ArenaPanel extends JPanel
@@ -26,10 +33,6 @@ public class ArenaPanel extends JPanel
   private static final long serialVersionUID = 344644834801700307L;
   @SuppressWarnings("unused")
   private static Logger log = Logger.getLogger(ArenaPanel.class);
-
-  /** scale for graphics */
-  
-  private double mPixelsPerMeter = DEFAULT_PIXELS_PER_METER;
 
   /** Grid related values */
 
@@ -42,33 +45,66 @@ public class ArenaPanel extends JPanel
 
   // stroke used to paint the reticle at the center of the worked
 
+  private static final Color mReticleColor = new Color(128, 128, 128);
   private static final Stroke mReticleStroke = new BasicStroke(.10f,
     BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 
-  /** the global word offset to correct the orbs position by */
+  private final AffineTransform mViewTransform;
 
-  private final Point2D mGlobalOffset = new Point2D.Double(0, 0);
+  /** should the reticle be painted */
+
   private boolean mPaintReticle;
 
+  /** if set scale and translate view to said view port */
+  
+  private boolean mPaintGrid;
+
+  @SuppressWarnings("serial")
   public static void main(String[] args)
   {
-    JFrame jf = new JFrame();
-    Container frame = jf.getContentPane();
-    frame.add(new ArenaPanel(true));
-    jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    jf.pack();
-    jf.setSize(new Dimension(800, 600));
-    jf.setVisible(true);
+    System.setProperty("apple.laf.useScreenMenuBar", "true");
+    System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Arena Test");
+    
+    java.awt.EventQueue.invokeLater(new Runnable() {
+      public void run() {
+        BasicConfigurator.configure();
+        JFrame jf = new JFrame();
+        final ArenaPanel arena = new ArenaPanel();
+        final Container frame = jf.getContentPane();
+        JMenuBar menuBar = new JMenuBar();
+        JMenu view = new JMenu("View");
+        JMenuItem zoomIn = new JMenuItem("zoomIn");
+        view.add(zoomIn);
+        menuBar.add(view);
+        jf.setJMenuBar(menuBar);
+        arena.setPreferredSize(new Dimension(800, 600));
+        frame.add(arena);
+        jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        jf.pack();
+        jf.setVisible(true);
+      }
+    });
+    
   }
 
-  // construct a swarm
-
-  public ArenaPanel(boolean paintReticle)
+  public ArenaPanel()
   {
-    MouseInputAdapter mia = new MouseListener();
-    addMouseMotionListener(mia);
-    addMouseListener(mia);
+    this(true, true, true);
+  }
+
+  public ArenaPanel(boolean paintReticle, boolean paintGrid, boolean dragable)
+  {
+    mViewTransform = new AffineTransform();
+    mViewTransform.scale(DEFAULT_PIXELS_PER_METER, -DEFAULT_PIXELS_PER_METER);
+    
+    setPaintGrid(paintGrid);
     setPaintReticle(paintReticle);
+    MouseInputAdapter mia = new MouseListener();
+    if (dragable)
+    {
+      addMouseMotionListener(mia);
+      addMouseListener(mia);
+    }
   }
 
   /**
@@ -88,28 +124,29 @@ public class ArenaPanel extends JPanel
     g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
       RenderingHints.VALUE_ANTIALIAS_ON);
 
-    // set 0,0 to lower left corner, and scale for meters
-
-    g.scale(mPixelsPerMeter, -mPixelsPerMeter);
-
-    // apply the global offset
-
-    g.translate(getGlobalOffset().getX(), getGlobalOffset().getY());
+    // set to view transform
+    
+    g.setTransform(mViewTransform);
 
     // draw the grid
 
-    paintGrid(g, mGrid1Size, mGrid1Color, mGridStroke);
-    paintGrid(g, mGrid2Size, mGrid2Color, mGridStroke);
+    if (isPaintGrid())
+    {
+      paintGrid(g, mGrid1Size, mGrid1Color, mGridStroke);
+      paintGrid(g, mGrid2Size, mGrid2Color, mGridStroke);
+    }
 
     // indicate the center of the world
 
-    if (mPaintReticle)
+    if (isPaintReticle())
     {
-      g.setColor(new Color(128, 128, 128));
+      g.setColor(mReticleColor);
       g.setStroke(mReticleStroke);
       g.draw(new Line2D.Double(-mGrid2Size, 0, mGrid2Size, 0));
       g.draw(new Line2D.Double(0, -mGrid2Size, 0, mGrid2Size));
     }
+    
+    g.setColor(new Color(0, 255, 255, 32));
   }
 
   /**
@@ -125,54 +162,60 @@ public class ArenaPanel extends JPanel
     Stroke gridStroke)
   {
     // width and height of grid
-
-    int width = getWidth();
-    int height = getHeight();
-
-    // compute the grid starting position
-
-    double gridX = -(getGlobalOffset().getX() - getGlobalOffset().getX() %
-      gridSize);
-    double gridY = -(getGlobalOffset().getY() - getGlobalOffset().getY() %
-      gridSize);
+    
+    Rectangle2D frame = screenToWorld(getVisibleRect()).getBounds2D();
 
     // set the color and stroke
 
     g.setColor(gridColor);
     g.setStroke(gridStroke);
 
-    // draw the verticals
+    double xOff =
+      (mViewTransform.getTranslateX() / mViewTransform.getScaleX()) %
+        gridSize;
+    for (double x = frame.getMinX(); x < frame.getMaxX(); x += gridSize)
+      g.draw(new Line2D.Double(x + xOff, frame.getMinY(), x + xOff, frame
+        .getMaxY()));
 
-    for (double x = gridX; x <= gridX + 1.5 * width / mPixelsPerMeter; x += gridSize)
-      g.draw(new Line2D.Double(x, -getGlobalOffset().getY(), x,
-        -getGlobalOffset().getY() - height / mPixelsPerMeter));
-
-    // draw the horizontal
-
-    for (double y = gridY; y >= gridY - 1.5 * height / mPixelsPerMeter; y -= gridSize)
-      g.draw(new Line2D.Double(-getGlobalOffset().getX(), y,
-        -getGlobalOffset().getX() + width / mPixelsPerMeter, y));
+    double yOff =
+      ((mViewTransform.getTranslateY() / mViewTransform.getScaleY()) + frame
+        .getHeight()) %
+        gridSize;
+    for (double y = frame.getMinY(); y < frame.getMaxY(); y += gridSize)
+      g.draw(new Line2D.Double(frame.getMinX(), y + yOff, frame.getMaxX(), y +
+        yOff));
   }
-
+  
   /** Get the global offset. */
 
   public Point2D getGlobalOffset()
   {
-    return new Point2D.Double(mGlobalOffset.getX() +
-      (getWidth() / mPixelsPerMeter / 2), mGlobalOffset.getY() -
-      (getHeight() / mPixelsPerMeter / 2));
+    return new Point2D.Double(mViewTransform.getTranslateX(), mViewTransform
+      .getTranslateY());
   }
 
   /** Set the global offset. */
 
-  public void setGlobalOffset(Point2D globalOffset)
+  public void changeGlobalOffset(double deltaX, double deltaY)
   {
-    mGlobalOffset.setLocation(globalOffset);
+    mViewTransform.translate(deltaX, deltaY);
     repaint();
   }
 
   /**
-   * Convert screen coordinates to world coordinates.
+   * Convert a screen coordinate to a world coordinates.
+   * 
+   * @param screenPos a position in screen coordinates
+   * @return the point converted to world coordinates.
+   */
+
+  public Point2D screenToWorld(double x, double y)
+  {
+    return screenToWorld(new Point2D.Double(x, y));
+  }
+
+  /**
+   * Convert a screen coordinate to a world coordinates.
    * 
    * @param screenPos a position in screen coordinates
    * @return the point converted to world coordinates.
@@ -180,14 +223,171 @@ public class ArenaPanel extends JPanel
 
   public Point2D screenToWorld(Point2D screenPos)
   {
-    return new Point2D.Double(screenPos.getX() / mPixelsPerMeter -
-      getGlobalOffset().getX(), screenPos.getY() / -mPixelsPerMeter -
-      getGlobalOffset().getY());
+    invertViewTransform();
+    Point2D worldPos = new Point2D.Double();
+    mViewTransform.transform(screenPos, worldPos);
+    invertViewTransform();
+    return worldPos;
   }
 
+  /**
+   * Convert a shape in screen units to a shape in world units.
+   * 
+   * @param screenUnitShape the shape represented in screen units.
+   * @return the shape converted to world units.
+   */
+
+  public Shape screenToWorld(Shape screenUnitShape)
+  {
+    invertViewTransform();
+    Shape worldUnitShape = mViewTransform.createTransformedShape(screenUnitShape);
+    invertViewTransform();
+    return worldUnitShape;
+  }
+
+  private void invertViewTransform()
+  {
+    try
+    {
+      mViewTransform.invert();
+    }
+    catch (NoninvertibleTransformException e)
+    {
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * Zoom in view.
+   */
+  
+  public void zoomIn()
+  {
+    double scale = 0.9;
+    mViewTransform.scale(scale, scale);
+    repaint();
+  }
+  
+  /**
+   * Zoom out view.
+   */
+  
+  public void zoomOut()
+  {
+    double scale = 1.1;
+    mViewTransform.scale(scale, scale);
+    repaint();
+  }
+
+  /**
+   * Set this view to paint a big cross at 0,0 in the arena.
+   * 
+   * @param paintReticle
+   */
+  
+  public void setPaintReticle(boolean paintReticle)
+  {
+    mPaintReticle = paintReticle;
+  }
+
+  /**
+   * @return true if the reticle is going to be painted.
+   */
+  
+  public boolean isPaintReticle()
+  {
+    return mPaintReticle;
+  }
+
+
+  /**
+   * Sets the view to center on provided point in world units.
+   * 
+   * @param the point to place at the center of the display.
+   */
+
+  public void setViewCenter(Point2D target)
+  {
+    if (getVisibleRect().getWidth() == 0)
+      return;
+
+    // reset the view port to zero zero
+
+    Point2D center = screenToWorld(getVisibleRect().getCenterX(), getVisibleRect().getCenterY());
+    mViewTransform.translate(center.getX() - target.getX(), center.getY() - target.getY());
+    repaint();
+  }
+
+
+  /**
+   * Sets the view center to the point 0,0.
+   */
+
+  public void setViewCenter()
+  {
+    setViewCenter(new Point2D.Double());
+  }
+
+    /**
+   * Sets the view port to completely view the given rectangle in world
+   * units.
+   * 
+   * @param viewPort the view port in world units to view
+   */
+
+  public void setViewPort(Rectangle2D viewPort)
+  {
+    if (getVisibleRect().getWidth() == 0)
+      return;
+    
+    // reset the view transform
+
+    mViewTransform.setToIdentity();
+
+    // set scale
+
+    double scale =
+      Math.min(getWidth() / viewPort.getWidth(), getHeight() /
+        viewPort.getHeight());
+    mViewTransform.scale(scale, -scale);
+
+    // set translate
+
+    Rectangle2D frame = screenToWorld(getVisibleRect()).getBounds2D();
+    double centerX = (viewPort.getWidth() - frame.getWidth()) / 2;
+    double centerY = (viewPort.getHeight() - frame.getHeight()) / 2;
+    mViewTransform.translate(
+      -(viewPort.getX() + centerX), -(viewPort.getY() + viewPort.getHeight() - centerY));
+    
+    // repaint
+    
+    repaint();
+  }
+  
+  /**
+   * Set this view to paint a grid.
+   * 
+   * @param paintGrid true if grid is to be painted.
+   */
+  
+  public void setPaintGrid(boolean paintGrid)
+  {
+    mPaintGrid = paintGrid;
+    repaint();
+  }
+
+  /**
+   * @return true if grid will be painted.
+   */
+  
+  public boolean isPaintGrid()
+  {
+    return mPaintGrid;
+  }
+  
   /** swarm mouse input adapter */
 
-  class MouseListener extends MouseInputAdapter
+  private class MouseListener extends MouseInputAdapter
   {
     private MouseEvent clickEvent = null;
     
@@ -196,6 +396,9 @@ public class ArenaPanel extends JPanel
     public void mousePressed(MouseEvent e)
     {
       clickEvent = e;
+      setViewCenter();
+//      log.debug(String.format("screen: %s, world: %s", e.getPoint(),
+//        screenToWorld(e.getPoint())));
     }
 
     // mouse dragged event
@@ -206,9 +409,8 @@ public class ArenaPanel extends JPanel
       {
         Point2D start = screenToWorld(clickEvent.getPoint());
         Point2D end = screenToWorld(e.getPoint());
-        setGlobalOffset(new Point2D.Double(mGlobalOffset.getX() +
-          (end.getX() - start.getX()), mGlobalOffset.getY() +
-          (end.getY() - start.getY())));
+        mViewTransform.translate(end.getX() - start.getX(), end.getY() - start.getY());
+        repaint();
         clickEvent = e;
       }
     }
@@ -219,27 +421,5 @@ public class ArenaPanel extends JPanel
     {
       clickEvent = null;
     }
-  }
-
-  public void zoomIn()
-  {
-    mPixelsPerMeter /= 1.1;
-    repaint();
-  }
-  
-  public void zoomOut()
-  {
-    mPixelsPerMeter *= 1.1;
-    repaint();
-  }
-
-  public void setPaintReticle(boolean paintReticle)
-  {
-    mPaintReticle = paintReticle;
-  }
-
-  public boolean isPaintReticle()
-  {
-    return mPaintReticle;
   }
 }

@@ -7,7 +7,6 @@ import java.awt.geom.Point2D;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.orbswarm.swarmcon.path.BlockPathBuilder;
 import com.orbswarm.swarmcon.path.IBlock;
 import com.orbswarm.swarmcon.path.BlockPathBuilder.IBarAdapter;
 

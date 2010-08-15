@@ -75,7 +75,7 @@ import com.orbswarm.swarmcon.path.Point;
 import com.orbswarm.swarmcon.path.StraightBlock;
 import com.orbswarm.swarmcon.path.Target;
 import com.orbswarm.swarmcon.view.ArenaPanel;
-import com.orbswarm.swarmcon.view.Renderer;
+import com.orbswarm.swarmcon.view.RendererSet;
 import com.orbswarm.swarmcon.vobject.AVobject;
 import com.orbswarm.swarmcon.vobject.AVobjects;
 import com.orbswarm.swarmcon.vobject.IVobject;
@@ -86,7 +86,6 @@ import static org.trebor.util.ShapeTools.scale;
 import static org.trebor.util.ShapeTools.translate;
 import static org.trebor.util.Angle.Type.DEGREE_RATE;
 import static org.trebor.util.Angle.Type.HEADING;
-import static java.lang.Math.min;
 import static java.lang.Math.round;
 import static java.lang.Math.PI;
 import static java.lang.Math.cos;
@@ -116,10 +115,6 @@ public class SwarmCon extends JFrame
 
   /** The robot used for screen capture. */
   private final Robot mRobot;
-
-  /** scale for graphics */
-
-  private double mPixelsPerMeter = DEFAULT_PIXELS_PER_METER;
 
   /** operational mode (live or simulated) */
 
@@ -152,7 +147,7 @@ public class SwarmCon extends JFrame
 
   /** arena in which we play */
 
-  private final ArenaPanel mArena = new ArenaPanel(true)
+  private final ArenaPanel mArena = new ArenaPanel()
   {
     private static final long serialVersionUID = 6473960062741753128L;
 
@@ -296,6 +291,8 @@ public class SwarmCon extends JFrame
 
   public SwarmCon(String[] args) throws AWTException
   {
+    System.setProperty("apple.laf.useScreenMenuBar", "true");
+    
     // establish all properties
 
     mProperties = new SwarmProperties(args);
@@ -365,10 +362,6 @@ public class SwarmCon extends JFrame
       new OrbControl(this, mSendCommandsToOrbs, mSimulateColors,
         mSimulateSounds);
 
-    // construct the frame
-
-    constructFrame();
-
     // get the graphics device from the local graphic environment
 
     GraphicsDevice gv =
@@ -376,11 +369,13 @@ public class SwarmCon extends JFrame
 
     // if full screen is supported setup frame accordingly
 
-    // boolean fullScreenSupported = gv.isFullScreenSupported();
-    boolean fullScreenSupported = false;
+    boolean fullScreenSupported = gv.isFullScreenSupported();
+    fullScreenSupported = false;
 
     if (fullScreenSupported)
     {
+      System.setProperty("apple.laf.useScreenMenuBar", "false");
+      constructFrame();
       setUndecorated(true);
       setVisible(true);
       pack();
@@ -390,6 +385,7 @@ public class SwarmCon extends JFrame
 
     else
     {
+      constructFrame();
       pack();
       setExtendedState(MAXIMIZED_BOTH);
       setVisible(true);
@@ -886,7 +882,7 @@ public class SwarmCon extends JFrame
 
     JMenuBar menuBar = new JMenuBar();
     menuBar.setBorder(null);
-    add(menuBar, BorderLayout.NORTH);
+    setJMenuBar(menuBar);
     JMenu fileMenu = new JMenu("file");
     fileMenu.setForeground(MENU_CLR);
     fileMenu.setFont(MENU_FONT);
@@ -920,8 +916,9 @@ public class SwarmCon extends JFrame
     // compute 90 % of minimum dimension which is the maximum
     // size to take up
 
-    double maxSize =
-      min(mArena.getWidth(), mArena.getHeight()) * 0.9d / mPixelsPerMeter;
+    double maxSize = 10;
+//      min(mArena.getWidth(), mArena.getHeight()) * 0.9d / mPixelsPerMeter;
+    // TODO: fix
 
     // find the center of the arena
 
@@ -982,7 +979,7 @@ public class SwarmCon extends JFrame
   {
     // render vobjects
 
-    Renderer.render(g, mVisualObjects);
+    RendererSet.render(g, mVisualObjects);
 
     // return to a pristine transform to draw text onto
 
@@ -1136,7 +1133,7 @@ public class SwarmCon extends JFrame
     public void commandOrb(MouseEvent e)
     {
       Point2D worldPos = mArena.screenToWorld(e.getPoint());
-      final IVobject selected = Renderer.getSelected(worldPos, mSwarm);
+      final IVobject selected = RendererSet.getSelected(worldPos, mSwarm);
 
       if (selected != null)
       {
@@ -1167,7 +1164,7 @@ public class SwarmCon extends JFrame
       // find nearest selectable mobject
 
       final IVobject selected =
-        Renderer.getSelected(mArena.screenToWorld(e.getPoint()), mSwarm);
+        RendererSet.getSelected(mArena.screenToWorld(e.getPoint()), mSwarm);
 
       // if shift is not down, clear selected
 
@@ -1345,7 +1342,7 @@ public class SwarmCon extends JFrame
     {
       public void actionPerformed(ActionEvent e)
       {
-        mPixelsPerMeter /= 1.1;
+        mArena.zoomIn();
       }
     };
 
@@ -1357,7 +1354,7 @@ public class SwarmCon extends JFrame
     {
       public void actionPerformed(ActionEvent e)
       {
-        mPixelsPerMeter *= 1.1;
+        mArena.zoomOut();
       }
     };
 

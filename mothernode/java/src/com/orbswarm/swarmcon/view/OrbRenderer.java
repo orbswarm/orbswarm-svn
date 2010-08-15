@@ -70,7 +70,7 @@ public class OrbRenderer extends ARenderer<IOrb> implements IRenderer<IOrb>
 
       SmoothPath path = orb.getModel().getActivePath();
       if (null != path)
-        Renderer.render(g, path);
+        RendererSet.render(g, path);
 
       // draw orb history
 

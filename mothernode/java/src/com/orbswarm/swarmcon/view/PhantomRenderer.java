@@ -32,7 +32,7 @@ public class PhantomRenderer extends ARenderer<Phantom>
 
     // paint phantom
 
-    Renderer.renderAsPhantom(g, mobject, 0.35);
+    RendererSet.renderAsPhantom(g, mobject, 0.35);
 
     // restore position
 
@@ -46,7 +46,7 @@ public class PhantomRenderer extends ARenderer<Phantom>
   public Shape getShape(Phantom p)
   {
     IVobject o = p.getMobject();
-    return Renderer.getRenderer(o).getShape(o);
+    return RendererSet.getRenderer(o).getShape(o);
   }
 
   public IVobject getSelected(Point2D selectionPoint, Phantom o)

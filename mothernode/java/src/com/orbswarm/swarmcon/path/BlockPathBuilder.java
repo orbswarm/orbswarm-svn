@@ -1,12 +1,14 @@
 package com.orbswarm.swarmcon.path;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -31,7 +33,7 @@ import org.trebor.util.Angle;
 import org.trebor.util.Angle.Type;
 
 import com.orbswarm.swarmcon.view.ArenaPanel;
-import com.orbswarm.swarmcon.view.Renderer;
+import com.orbswarm.swarmcon.view.RendererSet;
 import com.orbswarm.swarmcon.xml.ABar;
 import com.orbswarm.swarmcon.xml.Bar1;
 import com.orbswarm.swarmcon.xml.Bar2;
@@ -73,14 +75,18 @@ public class BlockPathBuilder extends JFrame
   private static final double DEFAULT_RADIUS_QUANTA = 0.5;
   private static final double DEFAULT_LENGTH_QUANTA = 1;
 
-  private static final double DEFAULT_CURVE_EXTENT = 90;
+//  private static final double DEFAULT_CURVE_EXTENT = 90;
 
-  private double mCurrentRadius = DEFAULT_RADIUS;
+//  private double mCurrentRadius = DEFAULT_RADIUS;
   private double mCurrentLength = DEFAULT_LENGTH;
-  private double mCurrentCurveExtent = DEFAULT_CURVE_EXTENT;
+//  private double mCurrentCurveExtent = DEFAULT_CURVE_EXTENT;
 
   private BlockPath mBlockPath;
   private IBlock mCurrentBlock;
+
+  private ArenaPanel mArena;
+
+  private double mBorder = 2;
 
   public static class Point2DAdapter extends
     XmlAdapter<Point2D.Double, Point2D>
@@ -111,6 +117,8 @@ public class BlockPathBuilder extends JFrame
 
   public static void main(String[] args)
   {
+    System.setProperty("apple.laf.useScreenMenuBar", "true");
+    System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Arena Test");
     BasicConfigurator.configure();
     new BlockPathBuilder();
     // test();
@@ -146,8 +154,6 @@ public class BlockPathBuilder extends JFrame
       e.printStackTrace();
     }
   }
-
-  private ArenaPanel mArena;
 
   // construct a swarm
 
@@ -188,7 +194,7 @@ public class BlockPathBuilder extends JFrame
     // make menu bar
 
     JMenuBar menuBar = new JMenuBar();
-    add(menuBar, BorderLayout.NORTH);
+    setJMenuBar(menuBar);
 
     // make edit menu
 
@@ -220,17 +226,37 @@ public class BlockPathBuilder extends JFrame
 
     // add drawing area
 
-    mArena = new ArenaPanel(false)
+    mArena = new ArenaPanel()
     {
       private static final long serialVersionUID = -4817333022169216465L;
 
       public void paint(Graphics g)
       {
         super.paint(g);
-        Renderer.render((Graphics2D)g, mBlockPath);
+        g.setColor(new Color(0, 255, 255, 32));
+        ((Graphics2D)g).fill(RendererSet.getShape(mBlockPath).getBounds());
+        RendererSet.render((Graphics2D)g, mBlockPath);
       }
     };
     frame.add(mArena, BorderLayout.CENTER);
+  }
+
+  // private boolean mIsRepainting = false;
+
+  @Override
+  public void repaint()
+  {
+    // if (mIsRepainting)
+    // return;
+
+    // mIsRepainting = true;
+    Rectangle2D bounds = RendererSet.getShape(mBlockPath).getBounds();
+    bounds.setRect(bounds.getX() - mBorder , bounds.getY() - mBorder, bounds
+      .getWidth() +
+      2 * mBorder, bounds.getHeight() + 2 * mBorder);
+    mArena.setViewPort(bounds);
+    super.repaint();
+    // mIsRepainting = false;
   }
 
   protected void save()
@@ -238,7 +264,7 @@ public class BlockPathBuilder extends JFrame
     try
     {
       JAXBContext context =
-        JAXBContext.newInstance(mBlockPath.getClass(), ABlock.class);
+        JAXBContext.newInstance(BlockPath.class, ABlock.class);
       Marshaller marshaller = context.createMarshaller();
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
       marshaller.marshal(mBlockPath, new FileWriter("test.xml"));
@@ -258,7 +284,7 @@ public class BlockPathBuilder extends JFrame
     try
     {
       JAXBContext context =
-        JAXBContext.newInstance(mBlockPath.getClass(), ABlock.class);
+        JAXBContext.newInstance(BlockPath.class, ABlock.class);
       Unmarshaller unmarshaller = context.createUnmarshaller();
       mBlockPath =
         (BlockPath)unmarshaller.unmarshal(new FileReader("test.xml"));
@@ -295,7 +321,7 @@ public class BlockPathBuilder extends JFrame
       if (cb.getType() == CurveBlock.Type.LEFT)
       {
         if (radius < MAXIMUM_RADIUS)
-          cb.setRadius(radius + radiusStep);
+          setRadiusFixLength(cb, radius + radiusStep);
         else
         {
           StraightBlock sb = convertToStraight(cb);
@@ -306,7 +332,7 @@ public class BlockPathBuilder extends JFrame
       else
       {
         if (radius > MINIMUM_RADIUS)
-          cb.setRadius(Math.max(radius - radiusStep, MINIMUM_RADIUS));
+          setRadiusFixLength(cb, Math.max(radius - radiusStep, MINIMUM_RADIUS));
       }
 
       repaint();
@@ -334,7 +360,7 @@ public class BlockPathBuilder extends JFrame
       if (cb.getType() == CurveBlock.Type.RIGHT)
       {
         if (radius < MAXIMUM_RADIUS)
-          cb.setRadius(radius + radiusStep);
+          setRadiusFixLength(cb, radius + radiusStep);
         else
         {
           StraightBlock sb = convertToStraight(cb);
@@ -345,7 +371,7 @@ public class BlockPathBuilder extends JFrame
       else
       {
         if (radius > MINIMUM_RADIUS)
-          cb.setRadius(Math.max(radius - radiusStep, MINIMUM_RADIUS));
+          setRadiusFixLength(cb, Math.max(radius - radiusStep, MINIMUM_RADIUS));
       }
 
       repaint();
@@ -385,7 +411,7 @@ public class BlockPathBuilder extends JFrame
   {
     if (null == mCurrentBlock)
       return;
-
+    
     if (mCurrentBlock instanceof StraightBlock)
     {
       StraightBlock sb = (StraightBlock)mCurrentBlock;
@@ -402,7 +428,6 @@ public class BlockPathBuilder extends JFrame
 
   private void ensmallen()
   {
-
     if (null == mCurrentBlock)
       return;
 
@@ -444,7 +469,7 @@ public class BlockPathBuilder extends JFrame
   {
     mCurrentBlock = block;
     mBlockPath.add(mCurrentBlock);
-    mArena.repaint();
+    repaint();
   }
 
   private void removeLastBlock()
@@ -456,7 +481,7 @@ public class BlockPathBuilder extends JFrame
         mCurrentBlock = mBlockPath.lastElement();
       else
         mCurrentBlock = null;
-      mArena.repaint();
+      repaint();
     }
   }
 
@@ -469,7 +494,7 @@ public class BlockPathBuilder extends JFrame
       if (extent > DEFAULT_ANGLE_QUANTA)
       {
         cb.setExtent(extent - DEFAULT_ANGLE_QUANTA);
-        mArena.repaint();
+        repaint();
       }
     }
     else if (mCurrentBlock instanceof StraightBlock)
@@ -478,7 +503,7 @@ public class BlockPathBuilder extends JFrame
       double length = sb.getLength();
       if (length > DEFAULT_LENGTH_CHANGE)
         sb.setLength(length - DEFAULT_LENGTH_CHANGE);
-      mArena.repaint();
+      repaint();
     }
   }
 
@@ -491,14 +516,14 @@ public class BlockPathBuilder extends JFrame
       if (extent < 360)
       {
         cb.setExtent(extent + DEFAULT_ANGLE_QUANTA);
-        mArena.repaint();
+        repaint();
       }
     }
     else if (mCurrentBlock instanceof StraightBlock)
     {
       StraightBlock sb = (StraightBlock)mCurrentBlock;
       sb.setLength(sb.getLength() + DEFAULT_LENGTH_CHANGE);
-      mArena.repaint();
+      repaint();
     }
   }
 
@@ -512,7 +537,7 @@ public class BlockPathBuilder extends JFrame
       else if (cb.getRadius() > MINIMUM_RADIUS)
         cb.setRadius(cb.getRadius() - DEFAULT_RADIUS_STEP);
 
-      mArena.repaint();
+      repaint();
     }
   }
 
@@ -526,7 +551,7 @@ public class BlockPathBuilder extends JFrame
       else if (cb.getRadius() > MINIMUM_RADIUS)
         cb.setRadius(cb.getRadius() - DEFAULT_RADIUS_STEP);
 
-      mArena.repaint();
+      repaint();
     }
   }
 
@@ -644,6 +669,7 @@ public class BlockPathBuilder extends JFrame
 
       public void actionPerformed(ActionEvent e)
       {
+        repaint();
         embiggen();
       }
     };

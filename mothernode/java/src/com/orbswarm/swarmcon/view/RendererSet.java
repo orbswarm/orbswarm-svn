@@ -20,9 +20,9 @@ import com.orbswarm.swarmcon.path.SmoothPath;
 import com.orbswarm.swarmcon.vobject.IVobject;
 import com.orbswarm.swarmcon.vobject.IVobjects;
 
-public class Renderer
+public class RendererSet
 {
-  private static Logger log = Logger.getLogger(Renderer.class);
+  private static Logger log = Logger.getLogger(RendererSet.class);
 
   // an ordered list of keys used by mRendererClassMap to permit control of
   // which renderers are match to vobjects first
@@ -81,7 +81,6 @@ public class Renderer
 
   public static <Type extends IVobject> void render(Graphics2D g, Type vobject)
   {
-    log.debug("render for: " + vobject.getClass().getSimpleName());
     getRenderer(vobject).render(g, vobject);
   }
 
@@ -106,7 +105,6 @@ public class Renderer
     for (Entry<Class<? extends IVobject>, Class<? extends IRenderer<? extends IVobject>>> entry : mRendererClassMap
       .entrySet())
     {
-      log.debug("checking: " + entry);
       if (entry.getKey().isInstance(mobject))
         return getRenderer((Class<Type>)entry.getKey(),
           (Class<IRenderer<Type>>)entry.getValue());
@@ -161,5 +159,10 @@ public class Renderer
   public static IVobject getSelected(Point2D selectionPoint, IVobject o)
   {
     return getRenderer(o).getSelected(selectionPoint, o);
+  }
+  
+  public static <Type extends IVobject> Shape getShape(Type vobject)
+  {
+    return getRenderer(vobject).getShape(vobject);
   }
 }
