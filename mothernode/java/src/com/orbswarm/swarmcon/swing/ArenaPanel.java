@@ -1,4 +1,4 @@
-package com.orbswarm.swarmcon.view;
+package com.orbswarm.swarmcon.swing;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;

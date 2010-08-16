@@ -1,9 +1,9 @@
 package com.orbswarm.swarmcon.orb;
 
-import com.orbswarm.swarmcon.SwarmCon;
 import com.orbswarm.swarmcon.path.Path;
 import com.orbswarm.swarmcon.path.SmoothPath;
 import com.orbswarm.swarmcon.path.Target;
+import com.orbswarm.swarmcon.swing.SwarmCon;
 
 public interface IOrbControl
 {

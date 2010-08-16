@@ -1,4 +1,4 @@
-package com.orbswarm.swarmcon;
+package com.orbswarm.swarmcon.swing;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -49,6 +49,7 @@ import java.util.Vector;
 import java.util.HashMap;
 import java.util.Calendar;
 
+import com.orbswarm.swarmcon.Constants;
 import com.orbswarm.swarmcon.behavior.Behavior;
 import com.orbswarm.swarmcon.behavior.ClusterBehavior;
 import com.orbswarm.swarmcon.behavior.FollowBehavior;
@@ -74,7 +75,6 @@ import com.orbswarm.swarmcon.path.Path;
 import com.orbswarm.swarmcon.path.Point;
 import com.orbswarm.swarmcon.path.StraightBlock;
 import com.orbswarm.swarmcon.path.Target;
-import com.orbswarm.swarmcon.view.ArenaPanel;
 import com.orbswarm.swarmcon.view.RendererSet;
 import com.orbswarm.swarmcon.vobject.AVobject;
 import com.orbswarm.swarmcon.vobject.AVobjects;

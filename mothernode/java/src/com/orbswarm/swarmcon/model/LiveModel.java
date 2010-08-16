@@ -2,11 +2,11 @@ package com.orbswarm.swarmcon.model;
 
 import org.trebor.util.Angle;
 
-import com.orbswarm.swarmcon.SwarmCon;
 import com.orbswarm.swarmcon.io.Message;
 import com.orbswarm.swarmcon.io.OrbIo;
 import com.orbswarm.swarmcon.path.Point;
 import com.orbswarm.swarmcon.path.Waypoint;
+import com.orbswarm.swarmcon.swing.SwarmCon;
 
 import static com.orbswarm.swarmcon.io.Message.Field.*;
 import static com.orbswarm.swarmcon.io.Message.Type.*;

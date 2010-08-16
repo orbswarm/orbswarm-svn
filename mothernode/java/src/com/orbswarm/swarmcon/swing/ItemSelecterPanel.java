@@ -1,4 +1,4 @@
-package com.orbswarm.swarmcon.store;
+package com.orbswarm.swarmcon.swing;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -15,13 +15,12 @@ import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
-import org.apache.log4j.Appender;
-import org.apache.log4j.BasicConfigurator;
-
-import com.orbswarm.swarmcon.view.ArenaPanel;
+import com.orbswarm.swarmcon.store.IItem;
+import com.orbswarm.swarmcon.store.IItemStore;
+import com.orbswarm.swarmcon.store.TestStore;
 import com.orbswarm.swarmcon.view.RendererSet;
 
-public class Library extends JPanel
+public class ItemSelecterPanel extends JPanel
 {
   private static final long serialVersionUID = 2017028152849656592L;
 
@@ -33,7 +32,7 @@ public class Library extends JPanel
 
   private final IItemStore mStore;
   
-  public Library(IItemStore store)
+  public ItemSelecterPanel(IItemStore store)
   {
     mItemPanels = new Vector<ItemPanel>();
     mStore = store;
@@ -70,7 +69,7 @@ public class Library extends JPanel
   public static void main(String[] args)
   {
     JFrame f = new JFrame();
-    f.getContentPane().add(new Library(new TestStore()));
+    f.getContentPane().add(new ItemSelecterPanel(new TestStore()));
     f.pack();
     f.setVisible(true);
   }

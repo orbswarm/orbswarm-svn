@@ -2,7 +2,6 @@ package com.orbswarm.swarmcon.model;
 
 import org.trebor.util.Angle;
 
-import com.orbswarm.swarmcon.SwarmCon;
 import com.orbswarm.swarmcon.io.OrbIo.IOrbListener;
 import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.path.Path;
@@ -10,6 +9,7 @@ import com.orbswarm.swarmcon.path.Point;
 import com.orbswarm.swarmcon.path.SmoothPath;
 import com.orbswarm.swarmcon.path.Target;
 import com.orbswarm.swarmcon.path.Waypoint;
+import com.orbswarm.swarmcon.swing.SwarmCon;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.min;

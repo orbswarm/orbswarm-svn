@@ -12,11 +12,11 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
-import com.orbswarm.swarmcon.SwarmCon.MouseMobject;
 import com.orbswarm.swarmcon.orb.IOrb;
 import com.orbswarm.swarmcon.orb.Phantom;
 import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.path.SmoothPath;
+import com.orbswarm.swarmcon.swing.SwarmCon.MouseMobject;
 import com.orbswarm.swarmcon.vobject.IVobject;
 import com.orbswarm.swarmcon.vobject.IVobjects;
 

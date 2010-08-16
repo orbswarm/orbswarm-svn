@@ -5,10 +5,10 @@ import java.awt.Shape;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 
-import com.orbswarm.swarmcon.SwarmCon.MouseMobject;
 import com.orbswarm.swarmcon.path.BlockState;
 import com.orbswarm.swarmcon.path.IBlock;
 import com.orbswarm.swarmcon.path.IBlockPath;
+import com.orbswarm.swarmcon.swing.SwarmCon.MouseMobject;
 import com.orbswarm.swarmcon.vobject.IVobject;
 
 public class BlockPathRenderer extends ARenderer<IBlockPath>

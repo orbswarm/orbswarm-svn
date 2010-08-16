@@ -8,8 +8,8 @@ import java.awt.geom.Point2D;
 
 import org.trebor.util.ShapeTools;
 
-import com.orbswarm.swarmcon.SwarmCon;
-import com.orbswarm.swarmcon.SwarmCon.MouseMobject;
+import com.orbswarm.swarmcon.swing.SwarmCon;
+import com.orbswarm.swarmcon.swing.SwarmCon.MouseMobject;
 import com.orbswarm.swarmcon.vobject.IVobject;
 
 import static com.orbswarm.swarmcon.Constants.ORB_DIAMETER;

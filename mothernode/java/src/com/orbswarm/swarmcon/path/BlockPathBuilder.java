@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 import org.trebor.util.Angle;
 import org.trebor.util.Angle.Type;
 
-import com.orbswarm.swarmcon.view.ArenaPanel;
+import com.orbswarm.swarmcon.swing.ArenaPanel;
 import com.orbswarm.swarmcon.view.RendererSet;
 
 import static java.lang.Math.PI;
