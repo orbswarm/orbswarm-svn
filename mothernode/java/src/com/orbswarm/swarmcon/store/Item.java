@@ -3,16 +3,32 @@ package com.orbswarm.swarmcon.store;
 import java.util.Calendar;
 import java.util.UUID;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 import com.orbswarm.swarmcon.vobject.IVobject;
 
+@XmlRootElement
 class Item<T extends IVobject> implements IItem<T>
 {
+  @XmlElement(name="item")
   private T mItem;
+  @XmlElement(name="uuid")
   private final UUID mId;
+  @XmlElement(name="author")
   private final String mAuthor;
+  @XmlElement(name="created")
   private final Calendar mCreated;
+  @XmlElement(name="modified")
   private Calendar mModified;
+  @XmlElement(name="name")
   private String mName;
+
+  public Item()
+  {
+    this(null, "");
+  }
   
   Item(T item, String name)
   {
@@ -24,31 +40,37 @@ class Item<T extends IVobject> implements IItem<T>
     mAuthor = System.getProperty("user.name");
   }
   
+  @XmlTransient
   public String getAuthor()
   {
     return mAuthor;
   }
 
+  @XmlTransient
   public Calendar getCreateTime()
   {
     return mCreated;
   }
 
+  @XmlTransient
   public UUID getId()
   {
     return mId;
   }
 
+  @XmlTransient
   public T getItem()
   {
     return mItem;
   }
 
+  @XmlTransient
   public Calendar getModifiedTime()
   {
     return mModified;
   }
 
+  @XmlTransient
   public String getName()
   {
     return mName;

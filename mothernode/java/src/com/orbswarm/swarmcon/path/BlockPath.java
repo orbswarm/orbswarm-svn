@@ -12,7 +12,7 @@ import org.trebor.util.Angle;
 import com.orbswarm.swarmcon.store.INamed;
 import com.orbswarm.swarmcon.vobject.AVobject;
 
-@XmlRootElement
+@XmlRootElement(name="blockpath")
 public class BlockPath extends AVobject implements IBlockPath, INamed
 {
   private static final long serialVersionUID = -8911696643772151060L;

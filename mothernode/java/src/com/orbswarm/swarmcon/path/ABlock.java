@@ -14,7 +14,6 @@ import org.trebor.util.Angle.Type;
 public abstract class ABlock implements IBlock
 {
   private static Logger log = Logger.getLogger(ABlock.class);
-
   
   private Shape mPathShape;
   private BlockState mDeltaState;

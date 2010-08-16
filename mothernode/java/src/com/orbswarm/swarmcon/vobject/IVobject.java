@@ -2,6 +2,11 @@ package com.orbswarm.swarmcon.vobject;
 
 import java.awt.geom.Point2D;
 
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import com.orbswarm.swarmcon.store.IVobjectAdapter;
+
+@XmlJavaTypeAdapter(IVobjectAdapter.class)
 public interface IVobject
 {
   /**

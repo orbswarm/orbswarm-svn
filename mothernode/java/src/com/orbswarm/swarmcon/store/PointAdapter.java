@@ -1,4 +1,4 @@
-package com.orbswarm.swarmcon.xml;
+package com.orbswarm.swarmcon.store;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;

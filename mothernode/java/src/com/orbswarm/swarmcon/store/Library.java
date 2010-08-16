@@ -15,13 +15,10 @@ import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
-import com.orbswarm.swarmcon.path.BlockPath;
-import com.orbswarm.swarmcon.path.CurveBlock;
-import com.orbswarm.swarmcon.path.StraightBlock;
+import org.apache.log4j.BasicConfigurator;
+
 import com.orbswarm.swarmcon.view.ArenaPanel;
-import com.orbswarm.swarmcon.view.IRenderer;
 import com.orbswarm.swarmcon.view.RendererSet;
-import com.orbswarm.swarmcon.vobject.IVobject;
 
 public class Library extends JPanel
 {
@@ -31,20 +28,31 @@ public class Library extends JPanel
 
   public static final int PANEL_HEIGHT = 70;
 
-  private final Collection<ItemPanel<?>> mItems;
+  private final Collection<ItemPanel> mItemPanels;
+
+  private final IItemStore mStore;
   
-  public Library()
+  public Library(IItemStore store)
   {
-    mItems = new Vector<ItemPanel<?>>();
+    mItemPanels = new Vector<ItemPanel>();
+    mStore = store;
     update();
   }
 
+  public void update()
+  {
+    mItemPanels.clear();
+    for (IItem<?> item: mStore.getItems())
+      mItemPanels.add(new ItemPanel(item));
+    layoutItems();
+  }
+  
   public void layoutItems()
   {
     removeAll();
     setLayout(new GridLayout());
-//    setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-    for (ItemPanel<?> itemPanel : mItems)
+
+    for (ItemPanel itemPanel : mItemPanels)
     {
       JPanel wrapper = new JPanel();
       wrapper.setLayout(new BorderLayout());
@@ -58,77 +66,61 @@ public class Library extends JPanel
     repaint();
   }
   
-  public void update()
-  {
-    CurveBlock cbl = new CurveBlock(90, 4, CurveBlock.Type.LEFT);
-    CurveBlock cbr = new CurveBlock(90, 4, CurveBlock.Type.LEFT);
-    StraightBlock sb = new StraightBlock(4);
-    
-    BlockPath bp1 = new BlockPath(cbl, sb, cbl, cbr, cbr);
-    BlockPath bp2 = new BlockPath(cbr, sb, cbl, cbr, cbr);
-    BlockPath bp3 = new BlockPath(sb, cbl, cbr, cbr);
-    
-    mItems.add(new ItemPanel<BlockPath>(bp1, RendererSet.getRenderer(bp1)));
-    mItems.add(new ItemPanel<BlockPath>(bp2, RendererSet.getRenderer(bp2)));
-    mItems.add(new ItemPanel<BlockPath>(bp3, RendererSet.getRenderer(bp3)));
-    layoutItems();
-  }
-  
   public static void main(String[] args)
   {
-    System.out.println( System.getProperty("user.name") );
-    System.exit(0);
-    
+    BasicConfigurator.configure();
     JFrame f = new JFrame();
-    f.getContentPane().add(new Library());
+    f.getContentPane().add(new Library(new TestStore()));
     f.pack();
-//    f.setSize(new Dimension(3 * PANEL_WIDTH, 3 * PANEL_HEIGHT));
     f.setVisible(true);
   }
   
   
-  public Collection<ItemPanel<?>> getItems()
+  public Collection<ItemPanel> getItems()
   {
-    return mItems;
+    return mItemPanels;
   }
 
-  class ItemPanel<T extends IVobject & INamed> extends ArenaPanel
+  class ItemPanel extends ArenaPanel
   {
-    private final T mItem;
-    private final IRenderer<T> mRenderer;
+    private final IItem<?> mItem;
     private double mBorder = 2;
     
     private static final long serialVersionUID = 7883183615949305291L;
     
-    public ItemPanel(T item, IRenderer<T> renderer)
+    public ItemPanel(IItem<?> item)
     {
-      super();
+      super(false, true, false);
       mItem = item;
-      mRenderer = renderer;
       setSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
       setMinimumSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
       setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
       setMinimumSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
     }
 
-    public T getItem()
+    public IItem<?> getItem()
     {
       return mItem;
     }
 
     public void paint(Graphics graphics)
     {
-      Rectangle2D bounds = RendererSet.getShape(mItem).getBounds();
+      // view only the item
+      
+      Rectangle2D bounds = RendererSet.getShape(mItem.getItem()).getBounds();
       bounds.setRect(bounds.getX() - mBorder , bounds.getY() - mBorder , bounds
         .getWidth() +
         2 * mBorder, bounds.getHeight() + 2 * mBorder);
       setViewPort(bounds);
       
+      // paint the view
+      
       Graphics2D g = (Graphics2D)graphics;
-      
-      
       super.paint(g);
-      mRenderer.render(g, mItem);
+      
+      // render the item
+      
+      RendererSet.render(g, mItem.getItem());
     }
   }
 }

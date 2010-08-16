@@ -23,44 +23,54 @@ public abstract class AItemStore implements IItemStore
 {
   public static final String GUID_PATTERN =
     "[a-f0-9]{8}\\-[a-f0-9]{4}\\-[a-f0-9]{4}\\-[a-f0-9]{4}\\-[a-f0-9]{12}";
-  private final Map<UUID, IItem<? extends IVobject>> mItems;
+  private final Map<UUID, IItem<? extends IVobject>> mItemCache;
   private final Set<IStoreListener> mListeners;
-  private final JAXBContext mContext;
+  private final Marshaller mMarshaller;
+  private final Unmarshaller mUnmarshaller;
 
   AItemStore()
   {
     // initialize containers
-    
-    mItems = new HashMap<UUID, IItem<? extends IVobject>>();
+
+    mItemCache = new HashMap<UUID, IItem<? extends IVobject>>();
     mListeners = new HashSet<IStoreListener>();
 
     // initialize JAXB context
-    
-    JAXBContext context = null;
+
+    Marshaller marshaller = null;
+    Unmarshaller unmarshaller = null;
     try
     {
-      context = JAXBContext.newInstance(IItem.class, BlockPath.class, ABlock.class);
+      JAXBContext context =
+        JAXBContext.newInstance(Item.class, BlockPath.class, ABlock.class);
+      marshaller = context.createMarshaller();
+      unmarshaller = context.createUnmarshaller();
+      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
     }
     catch (JAXBException e)
     {
       e.printStackTrace();
     }
-    mContext = context;
+    mMarshaller = marshaller;
+    mUnmarshaller = unmarshaller;
+  }
 
-    // synch store to catalog
-    
-    for (UUID id: catalog())
+  // synch cache to the store
+  
+  protected void initialize()
+  {
+    for (UUID id : catalog())
     {
       IItem<?> wrapped = unmarshal(restore(id));
-      mItems.put(id, wrapped);
+      mItemCache.put(id, wrapped);
     }
   }
 
   public <T extends IVobject> IItem<T> add(T item, String name)
   {
     IItem<T> wrapped = new Item<T>(item, name);
-    mItems.put(wrapped.getId(), wrapped);
     save(wrapped.getId(), marshal(wrapped));
+    mItemCache.put(wrapped.getId(), wrapped);
     for (IStoreListener listener : mListeners)
       listener.itemAdded(wrapped);
     return wrapped;
@@ -89,7 +99,7 @@ public abstract class AItemStore implements IItemStore
 
   public Collection<IItem<? extends IVobject>> getItems()
   {
-    return Collections.unmodifiableCollection(mItems.values());
+    return Collections.unmodifiableCollection(mItemCache.values());
   }
 
   <T extends IVobject> String marshal(IItem<T> item)
@@ -97,10 +107,7 @@ public abstract class AItemStore implements IItemStore
     StringWriter writer = new StringWriter();
     try
     {
-      Marshaller marshaller;
-      marshaller = mContext.createMarshaller();
-      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-      marshaller.marshal(item, writer);
+      mMarshaller.marshal(item, writer);
     }
     catch (JAXBException e)
     {
@@ -113,16 +120,11 @@ public abstract class AItemStore implements IItemStore
   @SuppressWarnings("unchecked")
   <T extends IVobject> Item<T> unmarshal(String xml)
   {
-    StringReader reader = new StringReader(xml);
     Item<T> wrapped = null;
 
     try
     {
-      Unmarshaller unmarshaller;
-      unmarshaller = mContext.createUnmarshaller();
-      unmarshaller
-        .setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-      wrapped = (Item<T>)unmarshaller.unmarshal(reader);
+      wrapped = (Item<T>)mUnmarshaller.unmarshal(new StringReader(xml));
     }
     catch (JAXBException e)
     {

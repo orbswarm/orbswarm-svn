@@ -5,7 +5,7 @@ import java.awt.geom.Point2D;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.orbswarm.swarmcon.xml.PointAdapter;
+import com.orbswarm.swarmcon.store.PointAdapter;
 
 /**
  * A visible object in the system.
