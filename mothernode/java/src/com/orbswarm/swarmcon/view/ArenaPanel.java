@@ -396,9 +396,8 @@ public class ArenaPanel extends JPanel
     public void mousePressed(MouseEvent e)
     {
       clickEvent = e;
-      setViewCenter();
-//      log.debug(String.format("screen: %s, world: %s", e.getPoint(),
-//        screenToWorld(e.getPoint())));
+      log.debug(String.format("screen: %s, world: %s", e.getPoint(),
+        screenToWorld(e.getPoint())));
     }
 
     // mouse dragged event

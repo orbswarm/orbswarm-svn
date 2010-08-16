@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
+import org.apache.log4j.Appender;
 import org.apache.log4j.BasicConfigurator;
 
 import com.orbswarm.swarmcon.view.ArenaPanel;
@@ -68,7 +69,6 @@ public class Library extends JPanel
   
   public static void main(String[] args)
   {
-    BasicConfigurator.configure();
     JFrame f = new JFrame();
     f.getContentPane().add(new Library(new TestStore()));
     f.pack();
