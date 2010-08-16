@@ -63,28 +63,32 @@ public class ArenaPanel extends JPanel
   public static void main(String[] args)
   {
     System.setProperty("apple.laf.useScreenMenuBar", "true");
-    System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Arena Test");
-    
-    java.awt.EventQueue.invokeLater(new Runnable() {
-      public void run() {
-        BasicConfigurator.configure();
-        JFrame jf = new JFrame();
-        final ArenaPanel arena = new ArenaPanel();
-        final Container frame = jf.getContentPane();
-        JMenuBar menuBar = new JMenuBar();
-        JMenu view = new JMenu("View");
-        JMenuItem zoomIn = new JMenuItem("zoomIn");
-        view.add(zoomIn);
-        menuBar.add(view);
-        jf.setJMenuBar(menuBar);
-        arena.setPreferredSize(new Dimension(800, 600));
-        frame.add(arena);
-        jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        jf.pack();
-        jf.setVisible(true);
+    System.setProperty("com.apple.mrj.application.apple.menu.about.name",
+      "Arena Test");
+
+    BasicConfigurator.configure();
+    JFrame jf = new JFrame();
+    final ArenaPanel arena = new ArenaPanel();
+    final Container frame = jf.getContentPane();
+    JMenuBar menuBar = new JMenuBar();
+    JMenu view = new JMenu("View");
+    JMenuItem zoomIn = new JMenuItem("zoomIn");
+    view.add(zoomIn);
+    menuBar.add(view);
+    jf.setJMenuBar(menuBar);
+    arena.setPreferredSize(new Dimension(800, 600));
+    frame.add(arena);
+    jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    jf.pack();
+    jf.setVisible(true);
+
+    arena.setViewCenter();
+    java.awt.EventQueue.invokeLater(new Runnable()
+    {
+      public void run()
+      {
       }
     });
-    
   }
 
   public ArenaPanel()

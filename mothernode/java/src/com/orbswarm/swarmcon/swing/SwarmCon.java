@@ -391,7 +391,14 @@ public class SwarmCon extends JFrame
       setVisible(true);
     }
     mCardLayout.first(mCenterPanel);
-
+    java.awt.EventQueue.invokeLater(new Runnable()
+    {
+      public void run()
+      {
+        mArena.setViewCenter();
+      }
+    });
+    
     // initialization Swarm
 
     createOrbs();
