@@ -7,13 +7,10 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
@@ -25,7 +22,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
@@ -34,11 +30,6 @@ import org.trebor.util.Angle.Type;
 
 import com.orbswarm.swarmcon.view.ArenaPanel;
 import com.orbswarm.swarmcon.view.RendererSet;
-import com.orbswarm.swarmcon.xml.ABar;
-import com.orbswarm.swarmcon.xml.Bar1;
-import com.orbswarm.swarmcon.xml.Bar2;
-import com.orbswarm.swarmcon.xml.Foo;
-import com.orbswarm.swarmcon.xml.IBar;
 
 import static java.lang.Math.PI;
 import static java.lang.Math.round;
@@ -88,33 +79,6 @@ public class BlockPathBuilder extends JFrame
 
   private double mBorder = 2;
 
-  public static class Point2DAdapter extends
-    XmlAdapter<Point2D.Double, Point2D>
-  {
-    public Point2D.Double marshal(Point2D v) throws Exception
-    {
-      return (Point2D.Double)v;
-    }
-
-    public Point2D unmarshal(Point2D.Double v) throws Exception
-    {
-      return v;
-    }
-  }
-
-  public static class IBarAdapter extends XmlAdapter<ABar, IBar>
-  {
-    public ABar marshal(IBar v) throws Exception
-    {
-      return (ABar)v;
-    }
-
-    public IBar unmarshal(ABar v) throws Exception
-    {
-      return v;
-    }
-  }
-
   public static void main(String[] args)
   {
     System.setProperty("apple.laf.useScreenMenuBar", "true");
@@ -123,38 +87,7 @@ public class BlockPathBuilder extends JFrame
     new BlockPathBuilder();
     // test();
   }
-
-  public static void test()
-  {
-    Foo foo = new Foo();
-    IBar bar1 = new Bar1("fred", 1.1d, 2.2d);
-    IBar bar2 = new Bar2("barny", 3.3d, 4.4d, 999);
-
-    foo.add(bar1);
-    foo.add(bar2);
-    System.out.println("foo: " + foo);
-    try
-    {
-      StringWriter writer = new StringWriter();
-
-      JAXBContext context = JAXBContext.newInstance(foo.getClass());
-      Marshaller marshaller = context.createMarshaller();
-      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-      marshaller.marshal(foo, writer);
-
-      System.out.println(writer.getBuffer());
-      StringReader reader = new StringReader(writer.getBuffer().toString());
-
-      Unmarshaller unmarshaller = context.createUnmarshaller();
-      Foo qux = (Foo)unmarshaller.unmarshal(reader);
-      System.out.println("qux: " + qux);
-    }
-    catch (JAXBException e)
-    {
-      e.printStackTrace();
-    }
-  }
-
+  
   // construct a swarm
 
   public BlockPathBuilder()

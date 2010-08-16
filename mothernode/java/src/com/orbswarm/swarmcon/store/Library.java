@@ -76,6 +76,9 @@ public class Library extends JPanel
   
   public static void main(String[] args)
   {
+    System.out.println( System.getProperty("user.name") );
+    System.exit(0);
+    
     JFrame f = new JFrame();
     f.getContentPane().add(new Library());
     f.pack();

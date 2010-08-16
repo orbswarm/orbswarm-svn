@@ -10,7 +10,7 @@ public interface IVobject
    * @return true if vobject selected
    */
 
-  public boolean isSelected();
+  boolean isSelected();
 
   /**
    * Set the selection state of this mobject.
@@ -18,29 +18,29 @@ public interface IVobject
    * @param selected selection state of mobject
    */
 
-  public void setSelected(boolean selected);
+  void setSelected(boolean selected);
 
   // position getter
 
-  public Point2D getPosition();
+  Point2D getPosition();
 
   // get x position
 
-  public double getX();
+  double getX();
 
   // get y position
 
-  public double getY();
+  double getY();
 
   // position setter
 
-  public void setPosition(Point2D position);
+  void setPosition(Point2D position);
 
   // position setter
 
-  public void setPosition(double x, double y);
+  void setPosition(double x, double y);
 
   // set delta position
 
-  public void update(double time);
+  void update(double time);
 }

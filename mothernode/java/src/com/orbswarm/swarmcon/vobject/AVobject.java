@@ -18,7 +18,7 @@ public abstract class AVobject implements IVobject
   /** position of mobject in space */
 
   @XmlTransient
-  private final Point2D mPosition;
+  private Point2D mPosition;
 
   /** has this mobject been selected */
 
@@ -38,11 +38,6 @@ public abstract class AVobject implements IVobject
    * 
    * @param shape the shape of the object use for selection and to compute
    *        arrangement of object
-   */
-
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IMobject#isSelected()
    */
 
   @XmlTransient
@@ -95,4 +90,14 @@ public abstract class AVobject implements IVobject
   // update state of this object
 
   public abstract void update(double time);
+  
+  
+  // clone
+  
+  public IVobject clone() throws CloneNotSupportedException
+  {
+    AVobject clone = (AVobject)super.clone();
+    clone.mPosition = (Point2D)mPosition.clone();
+    return clone;
+  }
 }
