@@ -164,8 +164,6 @@ public class SwarmCon extends JFrame
     }
   };
 
-  /** card layout for main view area */
-
   private CardLayout mCardLayout;
 
   /** center panel which is the main view area */

@@ -322,6 +322,22 @@ public class ArenaPanel extends JPanel
     repaint();
   }
 
+  
+  /**
+   * Set the view to the center of the window later, (presumably after the
+   * frame has been laid out).
+   */
+
+  public void setViewCenterLater()
+  {
+    java.awt.EventQueue.invokeLater(new Runnable()
+    {
+      public void run()
+      {
+        setViewCenter();
+      }
+    });
+  }
 
   /**
    * Sets the view center to the point 0,0.

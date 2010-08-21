@@ -1,5 +1,6 @@
 package com.orbswarm.swarmcon.path;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -35,7 +36,6 @@ import static java.lang.Math.PI;
 import static java.lang.Math.round;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
-import static java.lang.Math.sin;
 
 @SuppressWarnings("serial")
 public class BlockPathBuilder extends JFrame
@@ -48,8 +48,8 @@ public class BlockPathBuilder extends JFrame
   // radius constants
 
   public static final double MINIMUM_RADIUS = 1;
-  public static final double MAXIMUM_RADIUS = 10;
-  public static final double START_RADIUS = 2;
+  public static final double MAXIMUM_RADIUS = 7;
+  public static final double START_RADIUS = 7;
   public static final double MINIMUM_LENGTH = 2;
 
   public static final double DEFAULT_RADIUS_STEP = 1;
@@ -106,6 +106,7 @@ public class BlockPathBuilder extends JFrame
     pack();
     setSize(800, 600);
     setVisible(true);
+    mArena.setViewCenterLater();
   }
 
   /**
@@ -163,33 +164,37 @@ public class BlockPathBuilder extends JFrame
     {
       private static final long serialVersionUID = -4817333022169216465L;
 
-      public void paint(Graphics g)
+      public void paint(Graphics graphics)
       {
+        Graphics2D g = (Graphics2D)graphics;
         super.paint(g);
-        g.setColor(new Color(0, 255, 255, 32));
-        ((Graphics2D)g).fill(RendererSet.getShape(mBlockPath).getBounds());
-        RendererSet.render((Graphics2D)g, mBlockPath);
+        RendererSet.render(g, mBlockPath);
+
+        g.setColor(new Color(0, 255, 0, 128));
+        g.setStroke(new BasicStroke(0.1f));
+        g.draw(RendererSet.getShape(mBlockPath));
+        Rectangle2D bounds = RendererSet.getShape(mBlockPath).getBounds2D();
+        g.setColor(new Color(0, 0, 255, 32));
+        g.fill(bounds);
+        bounds.setRect(bounds.getX() - mBorder , bounds.getY() - mBorder, bounds
+          .getWidth() +
+          2 * mBorder, bounds.getHeight() + 2 * mBorder);
+        g.setColor(new Color(255, 0, 0, 32));
+        g.fill(bounds);
       }
     };
     frame.add(mArena, BorderLayout.CENTER);
   }
 
-  // private boolean mIsRepainting = false;
-
   @Override
   public void repaint()
   {
-    // if (mIsRepainting)
-    // return;
-
-    // mIsRepainting = true;
-    Rectangle2D bounds = RendererSet.getShape(mBlockPath).getBounds();
+    Rectangle2D bounds = RendererSet.getShape(mBlockPath).getBounds2D();
     bounds.setRect(bounds.getX() - mBorder , bounds.getY() - mBorder, bounds
       .getWidth() +
       2 * mBorder, bounds.getHeight() + 2 * mBorder);
     mArena.setViewPort(bounds);
     super.repaint();
-    // mIsRepainting = false;
   }
 
   protected void save()
@@ -235,6 +240,7 @@ public class BlockPathBuilder extends JFrame
 
   private void curveRight()
   {
+    log.debug("curveRight");
     if (null == mCurrentBlock)
       return;
 
@@ -248,13 +254,12 @@ public class BlockPathBuilder extends JFrame
     else if (mCurrentBlock instanceof CurveBlock)
     {
       CurveBlock cb = (CurveBlock)mCurrentBlock;
-      double radius = cb.getRadius();
-      double radiusStep = computeRadiusStep(radius);
 
       if (cb.getType() == CurveBlock.Type.LEFT)
       {
+        double radius = computeRadius(cb.getRadius(), true);
         if (radius < MAXIMUM_RADIUS)
-          setRadiusFixLength(cb, radius + radiusStep);
+          setRadiusFixLength(cb, radius);
         else
         {
           StraightBlock sb = convertToStraight(cb);
@@ -264,8 +269,9 @@ public class BlockPathBuilder extends JFrame
       }
       else
       {
-        if (radius > MINIMUM_RADIUS)
-          setRadiusFixLength(cb, Math.max(radius - radiusStep, MINIMUM_RADIUS));
+        double radius = computeRadius(cb.getRadius(), false);
+        if (radius >= MINIMUM_RADIUS)
+          setRadiusFixLength(cb, Math.max(radius, MINIMUM_RADIUS));
       }
 
       repaint();
@@ -274,6 +280,7 @@ public class BlockPathBuilder extends JFrame
 
   private void curveLeft()
   {
+    log.debug("curveLeft");
     if (null == mCurrentBlock)
       return;
 
@@ -287,13 +294,12 @@ public class BlockPathBuilder extends JFrame
     else if (mCurrentBlock instanceof CurveBlock)
     {
       CurveBlock cb = (CurveBlock)mCurrentBlock;
-      double radius = cb.getRadius();
-      double radiusStep = computeRadiusStep(radius);
 
       if (cb.getType() == CurveBlock.Type.RIGHT)
       {
+        double radius = computeRadius(cb.getRadius(), true);
         if (radius < MAXIMUM_RADIUS)
-          setRadiusFixLength(cb, radius + radiusStep);
+          setRadiusFixLength(cb, radius);
         else
         {
           StraightBlock sb = convertToStraight(cb);
@@ -303,8 +309,9 @@ public class BlockPathBuilder extends JFrame
       }
       else
       {
-        if (radius > MINIMUM_RADIUS)
-          setRadiusFixLength(cb, Math.max(radius - radiusStep, MINIMUM_RADIUS));
+        double radius = computeRadius(cb.getRadius(), false);
+        if (radius >= MINIMUM_RADIUS)
+          setRadiusFixLength(cb, Math.max(radius, MINIMUM_RADIUS));
       }
 
       repaint();
@@ -325,21 +332,30 @@ public class BlockPathBuilder extends JFrame
     return round(value / quanta) * quanta;
   }
 
-  private double computeRadiusStep(double radius)
+  private double computeRadius(double radius, boolean increase)
   {
-    double range = MAXIMUM_RADIUS - MINIMUM_RADIUS;
-    double theta = (((radius - MINIMUM_RADIUS) / range) * PI / 2) - PI / 2;
+    double exponent = 1.2;
+    double result = (increase
+      ? Math.pow(radius, exponent)
+      : Math.pow(radius, 1 / exponent));
 
-    double step =
-      max(quantize((MAXIMUM_RADIUS / 2) * (sin(theta) + 1),
-        DEFAULT_RADIUS_QUANTA), DEFAULT_RADIUS_QUANTA);
+    log.debug(String.format(" pre quantize: %f", result));
+    result = quantize(result, DEFAULT_RADIUS_QUANTA);
+    log.debug(String.format("post quantize: %f", result));
 
-    log.debug("step: " + step);
-    return step;
+    
+    if (result == radius)
+    {
+      if (increase)
+        result += DEFAULT_RADIUS_QUANTA;
+      if (!increase && result > DEFAULT_RADIUS_QUANTA)
+        result -= DEFAULT_RADIUS_QUANTA;
+    }
 
-    // pow(radius, 4) / 2000
+    log.debug(String.format("%f -> %f: increase %s", radius, result, increase));
+    return result;
   }
-
+  
   private void embiggen()
   {
     if (null == mCurrentBlock)

@@ -22,7 +22,7 @@ public class Constants
   /** the "way too close do something about it" distance */
   public static final double CRITICAL_DISTANCE = 2.0; // meters
   /** default scale */
-  public static final double DEFAULT_PIXELS_PER_METER = 30;
+  public static final double DEFAULT_PIXELS_PER_METER = 40;
   /** location of default properties file. */
   public static final String DEFAULT_PROPERTIES_FILE = RESOURCES_PATH +
     "/swarmcon.properties";
