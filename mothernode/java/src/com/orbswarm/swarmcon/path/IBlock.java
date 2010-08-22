@@ -2,11 +2,6 @@ package com.orbswarm.swarmcon.path;
 
 import java.awt.Shape;
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import com.orbswarm.swarmcon.store.IBlockAdapter;
-
-@XmlJavaTypeAdapter(IBlockAdapter.class)
 public interface IBlock
 {
   /**

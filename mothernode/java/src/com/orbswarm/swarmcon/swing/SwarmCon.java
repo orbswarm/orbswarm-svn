@@ -491,7 +491,7 @@ public class SwarmCon extends JFrame
   {
     // update all the objects
 
-    mVisualObjects.update(time);
+    mSwarm.update(time);
 
     // repaint the screen
 

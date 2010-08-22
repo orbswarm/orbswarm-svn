@@ -2,9 +2,16 @@ package com.orbswarm.swarmcon.path;
 
 import java.awt.Shape;
 import java.awt.geom.GeneralPath;
+import java.util.Collection;
 import java.util.Vector;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAnyElement;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.log4j.Logger;
 import org.trebor.util.Angle;
@@ -13,17 +20,20 @@ import com.orbswarm.swarmcon.store.INamed;
 import com.orbswarm.swarmcon.vobject.AVobject;
 
 @XmlRootElement(name="blockpath")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class BlockPath extends AVobject implements IBlockPath, INamed
 {
   private static final long serialVersionUID = -8911696643772151060L;
   @SuppressWarnings("unused")
   private static Logger log = Logger.getLogger(BlockPath.class);
 
-  private Vector<IBlock> mBlocks;
+  @XmlElementWrapper(name="blocks")
+  @XmlAnyElement
+  private Collection<IBlock> mBlocks;
+  @XmlElement(name="heading")
   private Angle mHeading;
+  @XmlElement(name="name")
   private String mName;
-  
-  ABlock x;
   
   public BlockPath()
   {
@@ -43,7 +53,8 @@ public class BlockPath extends AVobject implements IBlockPath, INamed
     mBlocks = blocks;
   }
 
-  public Vector<IBlock> getBlocks()
+  @XmlTransient
+  public Collection<IBlock> getBlocks()
   {
     return mBlocks;
   }
@@ -61,9 +72,9 @@ public class BlockPath extends AVobject implements IBlockPath, INamed
 
   public IBlock lastElement()
   {
-    return mBlocks.lastElement();
+    return ((Vector<IBlock>)mBlocks).lastElement();
   }
-
+  
   public int size()
   {
     return mBlocks.size();
@@ -71,7 +82,7 @@ public class BlockPath extends AVobject implements IBlockPath, INamed
 
   public void removeElement(IBlock block)
   {
-    mBlocks.removeElement(block);
+    ((Vector<IBlock>)mBlocks).removeElement(block);
   }
 
   public void setHeading(Angle heading)
@@ -86,7 +97,7 @@ public class BlockPath extends AVobject implements IBlockPath, INamed
   
   public Shape getPath()
   {
-    BlockState state = getState();
+    BlockState state = new BlockState();
     
     GeneralPath gp = new GeneralPath();
     gp.moveTo(state.getX(), state.getY());
@@ -98,11 +109,6 @@ public class BlockPath extends AVobject implements IBlockPath, INamed
     }
     
     return gp;
-  }
-
-  public BlockState getState()
-  {
-    return new BlockState(getHeading(), getPosition());
   }
 
   public void update(double time)

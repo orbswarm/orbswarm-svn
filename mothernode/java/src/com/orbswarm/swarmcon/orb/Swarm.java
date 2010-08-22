@@ -36,4 +36,10 @@ public class Swarm extends AVobjects<IOrb>
 
     return null;
   }
+  
+  public void update(double time)
+  {
+    for (IOrb orb: this)
+      orb.update(time);
+  }
 }

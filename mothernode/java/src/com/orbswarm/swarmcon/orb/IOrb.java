@@ -69,4 +69,6 @@ public interface IOrb extends IVobject
   public void onOrbMessage(Message message);
 
   public HistoryQueue getHistory();
+  
+  public void update(double time);
 }

@@ -20,7 +20,7 @@ public class MobjectsRenderer extends ARenderer<IVobjects<?>>
 
   public Shape getShape(IVobjects<?> vobjects)
   {
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   public IVobject getSelected(Point2D selectionPoint, IVobjects<?> vobjects)

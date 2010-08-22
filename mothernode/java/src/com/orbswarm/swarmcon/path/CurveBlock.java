@@ -5,13 +5,18 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Rectangle2D;
 
-import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.log4j.Logger;
 import org.trebor.util.Angle;
 
 import static java.lang.Math.PI;
 
+@XmlRootElement(name = "curveBlock")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class CurveBlock extends ABlock
 {
   @SuppressWarnings("unused")
@@ -22,8 +27,11 @@ public class CurveBlock extends ABlock
     LEFT, RIGHT
   }
   
+  @XmlElement(name="extent")
   private double mExtent;
+  @XmlElement(name="radius")
   private double mRadius;
+  @XmlElement(name="type")
   private Type mType;
 
   public CurveBlock(double extent, double radius, Type type)
@@ -101,7 +109,6 @@ public class CurveBlock extends ABlock
     return mExtent;
   }
   
-  @XmlTransient
   public double getLength()
   {
     return getArcLength(getExtent(), getRadius());

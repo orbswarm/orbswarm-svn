@@ -1,7 +1,10 @@
 package com.orbswarm.swarmcon.vobject;
 
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.Vector;
+
+import org.trebor.util.Angle;
 
 import com.orbswarm.swarmcon.path.Point;
 
@@ -9,12 +12,6 @@ public class AVobjects<E extends IVobject> extends Vector<E>
   implements IVobjects<E>
 {
   private static final long serialVersionUID = -1347610749830598878L;
-
-  public void update(double time)
-  {
-    for (E vobject: this)
-      vobject.update(time);
-  }
 
   public double distanceTo(IVobject other)
   {
@@ -96,6 +93,16 @@ public class AVobjects<E extends IVobject> extends Vector<E>
   {
     for (E vobject: this)
       vobject.setSelected(selected);
+  }
+
+  public void setHeading(Angle heading)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  public AffineTransform getTransform()
+  {
+    throw new UnsupportedOperationException();
   }
 }
 

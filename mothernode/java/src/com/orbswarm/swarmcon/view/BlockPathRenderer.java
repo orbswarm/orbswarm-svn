@@ -15,7 +15,7 @@ public class BlockPathRenderer extends ARenderer<IBlockPath>
 {
   private final Shape mArrowShape;
   
-  private boolean mRenderComponents = true;
+  private boolean mRenderComponents = false; //true;
 
 
   public BlockPathRenderer()
@@ -36,7 +36,7 @@ public class BlockPathRenderer extends ARenderer<IBlockPath>
 
   public Shape getShape(IBlockPath bp)
   {
-    return bp.getPath();
+    return RenderingConstants.PATH_STROKE.createStrokedShape(bp.getPath());
   }
 
   public void render(Graphics2D g, IBlockPath bp)
@@ -44,9 +44,11 @@ public class BlockPathRenderer extends ARenderer<IBlockPath>
     g.setColor(RenderingConstants.PATH_COLOR);
     g.setStroke(RenderingConstants.PATH_STROKE);
     
+    g.transform(bp.getTransform());
+    
     if (mRenderComponents)
     {
-      BlockState state = bp.getState();
+      BlockState state = new BlockState();
       
       for (IBlock b : bp.getBlocks())
       {
@@ -56,6 +58,6 @@ public class BlockPathRenderer extends ARenderer<IBlockPath>
       }
     }
     else
-      g.draw(getShape(bp));
+      g.draw(bp.getPath());
   }
 }

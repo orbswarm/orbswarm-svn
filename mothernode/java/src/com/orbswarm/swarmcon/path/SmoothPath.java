@@ -5,6 +5,7 @@ import org.trebor.util.Angle;
 import com.orbswarm.swarmcon.model.Rate;
 import com.orbswarm.swarmcon.vobject.IVobject;
 
+import java.awt.geom.AffineTransform;
 import java.awt.geom.CubicCurve2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
@@ -528,15 +529,18 @@ public class SmoothPath extends Vector<Waypoint> implements IVobject
   {
   }
 
-  public double distanceTo(Point2D point)
+  public void setHeading(Angle heading)
   {
-    // TODO Auto-generated method stub
-    return 0;
+    throw new UnsupportedOperationException();
   }
 
   public void setPosition(Point2D position)
   {
-    // TODO Auto-generated method stub
-    
+    throw new UnsupportedOperationException();
+  }
+
+  public AffineTransform getTransform()
+  {
+    throw new UnsupportedOperationException();
   }
 }

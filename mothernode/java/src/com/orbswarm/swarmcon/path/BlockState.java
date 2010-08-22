@@ -95,5 +95,4 @@ public class BlockState
     t.rotate(getAngleAs(Type.RADIANS));
     return t.createTransformedShape(shape);
   }
-  
 }

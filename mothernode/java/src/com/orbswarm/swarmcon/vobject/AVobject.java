@@ -1,11 +1,14 @@
 package com.orbswarm.swarmcon.vobject;
 
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.orbswarm.swarmcon.store.PointAdapter;
+import org.trebor.util.Angle;
 
 /**
  * A visible object in the system.
@@ -13,15 +16,18 @@ import com.orbswarm.swarmcon.store.PointAdapter;
  * @author trebor
  */
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public abstract class AVobject implements IVobject
 {
-  /** position of mobject in space */
-
-  @XmlTransient
-  private Point2D mPosition;
-
+  @XmlElement(name="heading")
+  private Angle mHeading;
+  
+  @XmlElement(name="position")
+  private final Point2D mPosition;
+  
   /** has this mobject been selected */
 
+  @XmlTransient
   private boolean mSelected = false;
 
   /**
@@ -30,6 +36,7 @@ public abstract class AVobject implements IVobject
 
   public AVobject()
   {
+    mHeading = new Angle();
     mPosition = new Point2D.Double();
   }
 
@@ -40,7 +47,6 @@ public abstract class AVobject implements IVobject
    *        arrangement of object
    */
 
-  @XmlTransient
   public boolean isSelected()
   {
     return mSelected;
@@ -53,24 +59,23 @@ public abstract class AVobject implements IVobject
 
   // position getter
 
-  @XmlJavaTypeAdapter(PointAdapter.class)  
   public Point2D getPosition()
   {
-    return (Point2D)mPosition.clone();
+    return mPosition;
   }
 
   // get x position
 
   public double getX()
   {
-    return getPosition().getX();
+    return mPosition.getX();
   }
 
   // get y position
 
   public double getY()
   {
-    return getPosition().getY();
+    return mPosition.getY();
   }
 
   // position setter
@@ -84,20 +89,34 @@ public abstract class AVobject implements IVobject
 
   public void setPosition(double x, double y)
   {
-    this.mPosition.setLocation(x, y);
+    mPosition.setLocation(x, y);
   }
 
-  // update state of this object
-
-  public abstract void update(double time);
-  
-  
   // clone
   
   public IVobject clone() throws CloneNotSupportedException
   {
     AVobject clone = (AVobject)super.clone();
-    clone.mPosition = (Point2D)mPosition.clone();
+    clone.mHeading = mHeading;
+    clone.mPosition.setLocation(mPosition);
     return clone;
+  }
+
+  public void setHeading(Angle heading)
+  {
+    mHeading = heading;
+  }
+  
+  public Angle getHeading()
+  {
+    return mHeading;
+  }
+  
+  public AffineTransform getTransform()
+  {
+    AffineTransform t =
+      AffineTransform.getRotateInstance(mHeading.as(Angle.Type.RADIANS));
+    t.translate(mPosition.getX(), mPosition.getY());
+    return t;
   }
 }

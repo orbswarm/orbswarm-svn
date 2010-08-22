@@ -1,8 +1,11 @@
 package com.orbswarm.swarmcon.vobject;
 
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import org.trebor.util.Angle;
 
 import com.orbswarm.swarmcon.store.IVobjectAdapter;
 
@@ -45,7 +48,15 @@ public interface IVobject
 
   void setPosition(double x, double y);
 
-  // set delta position
+  // set the heading
+  
+  void setHeading(Angle heading);
+  
+  /**
+   * Get the transform for this vobject.
+   * 
+   * @return this VObjects transform.
+   */
 
-  void update(double time);
+  AffineTransform getTransform();
 }

@@ -89,7 +89,7 @@ public class OrbRenderer extends ARenderer<IOrb> implements IRenderer<IOrb>
 
     setColor(g, orb.isSelected()
       ? SEL_ORB_CLR
-      : orb.getOrbColor()); // was: ORB_CLR
+      : orb.getOrbColor());
     g.fill(shape);
 
     // if fancy orb is to be drawn

@@ -2,6 +2,7 @@ package com.orbswarm.swarmcon.view;
 
 import java.awt.Graphics2D;
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -15,6 +16,7 @@ import org.apache.log4j.Logger;
 import com.orbswarm.swarmcon.orb.IOrb;
 import com.orbswarm.swarmcon.orb.Phantom;
 import com.orbswarm.swarmcon.path.IBlockPath;
+import com.orbswarm.swarmcon.path.IDance;
 import com.orbswarm.swarmcon.path.SmoothPath;
 import com.orbswarm.swarmcon.swing.SwarmCon.MouseMobject;
 import com.orbswarm.swarmcon.vobject.IVobject;
@@ -55,6 +57,7 @@ public class RendererSet
       // specific renderers earlier in the list 
       
       {
+        put(IDance.class, DanceRenderer.class);        
         put(IBlockPath.class, BlockPathRenderer.class);        
         put(Phantom.class, PhantomRenderer.class);
         put(MouseMobject.class, MouseMobjectRenderer.class);
@@ -81,7 +84,9 @@ public class RendererSet
 
   public static <Type extends IVobject> void render(Graphics2D g, Type vobject)
   {
+    AffineTransform t = g.getTransform();
     getRenderer(vobject).render(g, vobject);
+    g.setTransform(t);
   }
 
   public static void renderAsPhantom(Graphics2D g, IVobject mobject,
