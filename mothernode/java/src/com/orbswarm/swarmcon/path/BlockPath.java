@@ -110,10 +110,6 @@ public class BlockPath extends AVobject implements IBlockPath, INamed
     return gp;
   }
 
-  public void update(double time)
-  {
-  }
-
   public String getName()
   {
     return mName;

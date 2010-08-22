@@ -34,4 +34,20 @@ public interface IBlock
    */
   
   AffineTransform getBlockTransform();
+  
+  /**
+   * Returns true is this block is selected.
+   * 
+   * @return true if selected
+   */
+  
+  boolean isSelected();
+
+  /**
+   * Set the selected state of this block.
+   * 
+   * @param selected true if selected
+   */
+
+  void setSelected(boolean selected);
 }

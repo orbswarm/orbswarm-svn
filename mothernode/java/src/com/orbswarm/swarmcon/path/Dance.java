@@ -1,9 +1,13 @@
 package com.orbswarm.swarmcon.path;
 
+import java.awt.Shape;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Vector;
+import java.util.HashSet;
+import java.util.Iterator;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -70,7 +74,7 @@ public class Dance extends AVobject implements IDance
   {
     mSeperation = seperation;
     mLayout = layout;
-    mPaths = new Vector<IBlockPath>();
+    mPaths = new HashSet<IBlockPath>();
   }
 
   /* (non-Javadoc)
@@ -141,11 +145,64 @@ public class Dance extends AVobject implements IDance
     return mSeperation;
   }
 
+  public Shape getPath()
+  {
+    GeneralPath gp = new GeneralPath();
+    for (IBlockPath bp: mPaths)
+    {
+      AffineTransform t = getTransform();
+      t.concatenate(bp.getTransform());
+      gp.append(t.createTransformedShape(bp.getPath()), false);
+    }
+    
+    return gp;
+  }
+  
   public Rectangle2D getBounds()
   {
-    Rectangle2D bounds = new Rectangle2D.Double();
-    for (IBlockPath bp: mPaths)
-      bounds.add(bp.getPath().getBounds2D());
-    return bounds;
+    return getPath().getBounds2D();
+  }
+
+  public IBlockPath previouse(IBlockPath currentPath)
+  {
+    IBlockPath result = null;
+
+    for (IBlockPath path : mPaths)
+    {
+      if (path == currentPath)
+      {
+        if (result != null)
+          break;
+      }
+      result = path;
+    }
+
+    return result;
+  }
+  
+  public IBlockPath next(IBlockPath currentPath)
+  {
+    IBlockPath result = null;
+    IBlockPath first = null;
+
+    Iterator<IBlockPath> paths = mPaths.iterator();
+
+    while (paths.hasNext())
+    {
+      result = paths.next();
+      if (first == null)
+        first = result;
+
+      if (result == currentPath)
+      {
+        if (paths.hasNext())
+          result = paths.next();
+        else
+          result = first;
+        break;
+      }
+    }
+    
+    return result;
   }
 }

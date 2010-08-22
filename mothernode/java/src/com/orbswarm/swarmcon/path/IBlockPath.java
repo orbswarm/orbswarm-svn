@@ -24,4 +24,6 @@ public interface IBlockPath extends IVobject
   int size();
 
   Collection<IBlock> getBlocks();
+  
+  void removeElement(IBlock block);
 }

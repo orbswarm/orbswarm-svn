@@ -1,5 +1,6 @@
 package com.orbswarm.swarmcon.path;
 
+import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 
@@ -15,6 +16,8 @@ public interface IDance extends IVobject
   boolean remove(IBlockPath path);
 
   Collection<IBlockPath> getPaths();
+  
+  Shape getPath();
 
   void setLayout(Layout layout);
 
@@ -23,4 +26,8 @@ public interface IDance extends IVobject
   void setSeperation(double distance);
 
   double getSeperation();
+
+  IBlockPath previouse(IBlockPath currentPath);
+  
+  IBlockPath next(IBlockPath currentPath);
 }

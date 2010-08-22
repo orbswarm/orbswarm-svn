@@ -17,6 +17,7 @@ public abstract class ABlock implements IBlock
   
   private AffineTransform mTransform;
   private Shape mPathShape;
+  private boolean mSelected;
   
   /**
    * Set the shape of this path. This shape should be a open path
@@ -111,5 +112,15 @@ public abstract class ABlock implements IBlock
   public AffineTransform getBlockTransform()
   {
     return mTransform;
+  }
+
+  public boolean isSelected()
+  {
+    return mSelected;
+  }
+
+  public void setSelected(boolean selected)
+  {
+    mSelected = selected;
   }
 }

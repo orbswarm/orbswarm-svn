@@ -67,14 +67,14 @@ public class BlockPathBuilder extends JFrame
   private static final double DEFAULT_RADIUS_QUANTA = 0.5;
   private static final double DEFAULT_LENGTH_QUANTA = 1;
 
-//  private static final double DEFAULT_CURVE_EXTENT = 90;
+  // private static final double DEFAULT_CURVE_EXTENT = 90;
 
-//  private double mCurrentRadius = DEFAULT_RADIUS;
+  // private double mCurrentRadius = DEFAULT_RADIUS;
   private double mCurrentLength = DEFAULT_LENGTH;
-//  private double mCurrentCurveExtent = DEFAULT_CURVE_EXTENT;
+  // private double mCurrentCurveExtent = DEFAULT_CURVE_EXTENT;
 
   private final IDance mDance;
-  private BlockPath mCurrentBlockPath;
+  private IBlockPath mCurrentPath;
   private IBlock mCurrentBlock;
 
   private ArenaPanel mArena;
@@ -83,11 +83,12 @@ public class BlockPathBuilder extends JFrame
 
   public static void main(String[] args)
   {
-    System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Arena Test");
+    System.setProperty("com.apple.mrj.application.apple.menu.about.name",
+      "Arena Test");
     System.setProperty("apple.laf.useScreenMenuBar", "true");
     new BlockPathBuilder();
   }
-  
+
   // construct a swarm
 
   public BlockPathBuilder()
@@ -101,9 +102,9 @@ public class BlockPathBuilder extends JFrame
     mDance = new Dance();
     for (int i = 0; i < 6; ++i)
     {
-      mCurrentBlockPath = new BlockPath();
+      mCurrentPath = new BlockPath();
       addBlock(new StraightBlock(mCurrentLength));
-      mDance.add(mCurrentBlockPath);
+      mDance.add(mCurrentPath);
     }
 
     // show the frame
@@ -155,6 +156,9 @@ public class BlockPathBuilder extends JFrame
     editMenu.add(new JMenuItem(mShortenAction));
     editMenu.add(new JMenuItem(mShiftRight));
     editMenu.add(new JMenuItem(mShiftLeft));
+    editMenu.addSeparator();
+    editMenu.add(new JMenuItem(mPreviousePath));
+    editMenu.add(new JMenuItem(mNextPath));
 
     // make view menu
 
@@ -174,10 +178,10 @@ public class BlockPathBuilder extends JFrame
         Graphics2D g = (Graphics2D)graphics;
         super.paint(g);
         RendererSet.render(g, mDance);
-        
+
         g.setColor(new Color(0, 255, 0, 128));
         g.setStroke(new BasicStroke(0.1f));
-        g.draw(RendererSet.getShape(mCurrentBlockPath));
+        g.draw(RendererSet.getShape(mCurrentPath));
         g.setColor(new Color(0, 0, 255, 32));
         g.fill(computeViewBounds());
       }
@@ -188,12 +192,12 @@ public class BlockPathBuilder extends JFrame
   public Rectangle2D computeViewBounds()
   {
     Rectangle2D bounds = mDance.getBounds();
-    bounds.setRect(bounds.getX() - mBorder , bounds.getY() - mBorder, bounds
+    bounds.setRect(bounds.getX() - mBorder, bounds.getY() - mBorder, bounds
       .getWidth() +
       2 * mBorder, bounds.getHeight() + 2 * mBorder);
     return bounds;
   }
-  
+
   @Override
   public void repaint()
   {
@@ -206,24 +210,25 @@ public class BlockPathBuilder extends JFrame
     try
     {
       JAXBContext context =
-        JAXBContext.newInstance(BlockPath.class, ABlock.class, Dance.class, AffineTransform.class);
+        JAXBContext.newInstance(BlockPath.class, ABlock.class, Dance.class,
+          AffineTransform.class);
       Marshaller marshaller = context.createMarshaller();
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
       marshaller.marshal(mDance, new FileWriter("test.xml"));
       StringWriter sw = new StringWriter();
-      marshaller.marshal(mDance, sw); 
-      
-//      IBlock b1 = new CurveBlock(25, 5, CurveBlock.Type.RIGHT);
-//      IBlock b2 = new StraightBlock(3);
-//      IBlockPath bp = new BlockPath();
-//      bp.add(b1);
-//      bp.add(b2);  
-//    marshaller.marshal(bp, sw);
-//      marshaller.marshal(b1, sw);
-//      marshaller.marshal(b2, sw);
-//      AffineTransform foo = new AffineTransform();
-//      marshaller.marshal( new JAXBElement<AffineTransform>(
-//        new QName("top","bot"), AffineTransform.class, foo), sw);
+      marshaller.marshal(mDance, sw);
+
+      // IBlock b1 = new CurveBlock(25, 5, CurveBlock.Type.RIGHT);
+      // IBlock b2 = new StraightBlock(3);
+      // IBlockPath bp = new BlockPath();
+      // bp.add(b1);
+      // bp.add(b2);
+      // marshaller.marshal(bp, sw);
+      // marshaller.marshal(b1, sw);
+      // marshaller.marshal(b2, sw);
+      // AffineTransform foo = new AffineTransform();
+      // marshaller.marshal( new JAXBElement<AffineTransform>(
+      // new QName("top","bot"), AffineTransform.class, foo), sw);
 
       log.debug(sw.toString());
     }
@@ -244,7 +249,7 @@ public class BlockPathBuilder extends JFrame
       JAXBContext context =
         JAXBContext.newInstance(BlockPath.class, ABlock.class);
       Unmarshaller unmarshaller = context.createUnmarshaller();
-      mCurrentBlockPath =
+      mCurrentPath =
         (BlockPath)unmarshaller.unmarshal(new FileReader("test.xml"));
       repaint();
     }
@@ -363,7 +368,6 @@ public class BlockPathBuilder extends JFrame
     result = quantize(result, DEFAULT_RADIUS_QUANTA);
     log.debug(String.format("post quantize: %f", result));
 
-    
     if (result == radius)
     {
       if (increase)
@@ -372,15 +376,32 @@ public class BlockPathBuilder extends JFrame
         result -= DEFAULT_RADIUS_QUANTA;
     }
 
-    log.debug(String.format("%f -> %f: increase %s", radius, result, increase));
+    log.debug(String
+      .format("%f -> %f: increase %s", radius, result, increase));
     return result;
   }
-  
+
+  private void previousePath()
+  {
+    mCurrentPath.setSelected(false);
+    mCurrentPath = mDance.previouse(mCurrentPath);
+    mCurrentPath.setSelected(true);
+    repaint();
+  }
+
+  private void nextPath()
+  {
+    mCurrentPath.setSelected(false);
+    mCurrentPath = mDance.next(mCurrentPath);
+    mCurrentPath.setSelected(true);
+    repaint();
+  }
+
   private void embiggen()
   {
     if (null == mCurrentBlock)
       return;
-    
+
     if (mCurrentBlock instanceof StraightBlock)
     {
       StraightBlock sb = (StraightBlock)mCurrentBlock;
@@ -437,17 +458,17 @@ public class BlockPathBuilder extends JFrame
   private void addBlock(IBlock block)
   {
     mCurrentBlock = block;
-    mCurrentBlockPath.add(mCurrentBlock);
+    mCurrentPath.add(mCurrentBlock);
     repaint();
   }
 
   private void removeLastBlock()
   {
-    if (mCurrentBlockPath.size() > 0)
+    if (mCurrentPath.size() > 0)
     {
-      mCurrentBlockPath.removeElement(mCurrentBlockPath.lastElement());
-      if (mCurrentBlockPath.size() > 0)
-        mCurrentBlock = mCurrentBlockPath.lastElement();
+      mCurrentPath.removeElement(mCurrentPath.lastElement());
+      if (mCurrentPath.size() > 0)
+        mCurrentBlock = mCurrentPath.lastElement();
       else
         mCurrentBlock = null;
       repaint();
@@ -566,8 +587,6 @@ public class BlockPathBuilder extends JFrame
     new Action("Left", KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0),
       "curve to the left")
     {
-      private static final long serialVersionUID = -895535667108572039L;
-
       public void actionPerformed(ActionEvent e)
       {
         curveLeft();
@@ -578,8 +597,6 @@ public class BlockPathBuilder extends JFrame
     new Action("Right", KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0),
       "curve to the right")
     {
-      private static final long serialVersionUID = -191894994114298776L;
-
       public void actionPerformed(ActionEvent e)
       {
         curveRight();
@@ -592,8 +609,6 @@ public class BlockPathBuilder extends JFrame
     new Action("Straight", KeyStroke.getKeyStroke(KeyEvent.VK_UP,
       KeyEvent.SHIFT_DOWN_MASK), "add path block wich goes straight forward")
     {
-      private static final long serialVersionUID = 4754414744672359329L;
-
       public void actionPerformed(ActionEvent e)
       {
         addBlock(new StraightBlock(mCurrentLength));
@@ -606,8 +621,6 @@ public class BlockPathBuilder extends JFrame
     new Action("Backup", KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,
       KeyEvent.SHIFT_DOWN_MASK), "remove last block form path")
     {
-      private static final long serialVersionUID = 3836535220370440971L;
-
       public void actionPerformed(ActionEvent e)
       {
         removeLastBlock();
@@ -620,8 +633,6 @@ public class BlockPathBuilder extends JFrame
     new Action("Ensmallen", KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0),
       "decrease the length of the block")
     {
-      private static final long serialVersionUID = 4754414744672359329L;
-
       public void actionPerformed(ActionEvent e)
       {
         ensmallen();
@@ -634,11 +645,8 @@ public class BlockPathBuilder extends JFrame
     new Action("Embiggen", KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0),
       "increase the length of the block")
     {
-      private static final long serialVersionUID = 5229008455547924307L;
-
       public void actionPerformed(ActionEvent e)
       {
-        repaint();
         embiggen();
       }
     };
@@ -647,8 +655,6 @@ public class BlockPathBuilder extends JFrame
     new Action("Left Adjust", KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,
       KeyEvent.SHIFT_DOWN_MASK), "widen right curves, narrow left curves")
     {
-      private static final long serialVersionUID = 7782924027907598941L;
-
       public void actionPerformed(ActionEvent e)
       {
         shiftLeft();
@@ -659,11 +665,29 @@ public class BlockPathBuilder extends JFrame
     new Action("Right Adjust", KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,
       KeyEvent.SHIFT_DOWN_MASK), "widen left curvs, narrow right curves")
     {
-      private static final long serialVersionUID = -4713332280456535335L;
-
       public void actionPerformed(ActionEvent e)
       {
         shiftRight();
+      }
+    };
+
+  private final Action mPreviousePath =
+    new Action("Previouse Path", KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,
+      KeyEvent.META_DOWN_MASK), "select previouse bath")
+    {
+      public void actionPerformed(ActionEvent e)
+      {
+        previousePath();
+      }
+    };
+
+  private final Action mNextPath =
+    new Action("Previouse Path", KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,
+      KeyEvent.META_DOWN_MASK), "select next bath")
+    {
+      public void actionPerformed(ActionEvent e)
+      {
+        nextPath();
       }
     };
 

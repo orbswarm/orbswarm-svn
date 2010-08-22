@@ -42,28 +42,30 @@ public class BlockPathRenderer extends ARenderer<IBlockPath>
   {
     g.setColor(RenderingConstants.PATH_COLOR);
     g.setStroke(RenderingConstants.PATH_STROKE);
-    
+
     g.transform(bp.getTransform());
-    
+
     if (mRenderComponents)
     {
-//      BlockState state = new BlockState();
-//      
-//      for (IBlock b : bp.getBlocks())
-//      {
-//        g.draw(b.getPath(state));
-//        g.fill(state.creatTransformedShape(mArrowShape));
-//        state = state.add(b.getDeltaState());
-//      }
-      
       for (IBlock b : bp.getBlocks())
       {
+        g.setColor(b.isSelected()
+          ? RenderingConstants.SELECTED_BLOCK_COLOR
+          : bp.isSelected()
+            ? RenderingConstants.SELECTED_PATH_COLOR
+            : RenderingConstants.PATH_COLOR);
+
         g.draw(b.getPath());
         g.fill(mArrowShape);
         g.transform(b.getBlockTransform());
       }
     }
     else
+    {
+      g.setColor(bp.isSelected()
+        ? RenderingConstants.SELECTED_PATH_COLOR
+        : RenderingConstants.PATH_COLOR);
       g.draw(bp.getPath());
+    }
   }
 }
