@@ -58,10 +58,6 @@ public class OrbRenderer extends ARenderer<IOrb> implements IRenderer<IOrb>
   {
     IOrb orb = (IOrb)mobject;
 
-    // record old transform and scale to orb.
-
-    AffineTransform old = g.getTransform();
-
     // if not a phantom,
 
     if (!isPhantom())
@@ -148,10 +144,6 @@ public class OrbRenderer extends ARenderer<IOrb> implements IRenderer<IOrb>
       drawText(g, txX, txY, " YAW: " + (int)(orb.getYaw().as(HEADING)));
       txY -= dTxY;
     }
-
-    // restore old transform
-
-    g.setTransform(old);
   }
 
   // draw text at a given location
@@ -226,10 +218,8 @@ public class OrbRenderer extends ARenderer<IOrb> implements IRenderer<IOrb>
     AffineTransform ot = g.getTransform();
 
     // draw orb history
-
-    Color historyColor = new Color(0, 0, 255, 32);
-    g.setColor(historyColor);
-
+    
+    g.setColor(new Color(0, 0, 255, 32));
     for (Orb.HistoryElement he : orb.getHistory())
     {
       g.translate(he.position.getX(), he.position.getY());

@@ -21,7 +21,7 @@
 	</logger>
 
 	<logger name="com.orbswarm.swarmcon.path.BlockPathBuilder">
-		<level value="debug" />
+		<level value="warn" />
 	</logger>
 
 	<logger name="com.orbswarm.swarmcon.SwarmCon">
@@ -33,6 +33,14 @@
 	</logger>
 
 	<logger name="com.orbswarm.swarmcon.view.Renderer">
+		<level value="warn" />
+	</logger>
+
+	<logger name="com.orbswarm.swarmcon.view.OrbRenderer">
+		<level value="warn" />
+	</logger>
+
+	<logger name="com.orbswarm.swarmcon.orb.Orb">
 		<level value="warn" />
 	</logger>
 

@@ -149,8 +149,6 @@ public class ArenaPanel extends JPanel
       g.draw(new Line2D.Double(-mGrid2Size, 0, mGrid2Size, 0));
       g.draw(new Line2D.Double(0, -mGrid2Size, 0, mGrid2Size));
     }
-    
-    g.setColor(new Color(0, 255, 255, 32));
   }
 
   /**

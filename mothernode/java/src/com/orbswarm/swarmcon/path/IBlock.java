@@ -1,27 +1,17 @@
 package com.orbswarm.swarmcon.path;
 
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 
 public interface IBlock
 {
   /**
-   * Return the change in state as a result of this block.
-   * 
-   * @return the relative change in state produced by this block.
+   * Return the shape of the path north facing and located at 0,0.
+
+   * @return the block path as a shape
    */
   
-  BlockState getDeltaState();
-  
-  /**
-   * Return the shape of the path for this block properly positioned and
-   * oriented.
-   * 
-   * @param startAngle the starting angle of this block
-   * @param startPosition the starting position of this block
-   * @return the absolutely positioned and oriented block path as a shape
-   */
-  
-  Shape getPath(BlockState startState);
+  Shape getPath();
   
   /**
    * Compute the path shape of this block.
@@ -36,4 +26,12 @@ public interface IBlock
    */
 
   double getLength();
+  
+  /**
+   * Return the transform which should be applied to subsequent blocks.
+   * 
+   * @return the transform effect of this block.
+   */
+  
+  AffineTransform getBlockTransform();
 }

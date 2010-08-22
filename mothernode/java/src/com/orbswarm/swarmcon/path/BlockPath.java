@@ -1,6 +1,7 @@
 package com.orbswarm.swarmcon.path;
 
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.util.Collection;
 import java.util.Vector;
@@ -97,15 +98,13 @@ public class BlockPath extends AVobject implements IBlockPath, INamed
   
   public Shape getPath()
   {
-    BlockState state = new BlockState();
-    
+    AffineTransform t = new AffineTransform();
+
     GeneralPath gp = new GeneralPath();
-    gp.moveTo(state.getX(), state.getY());
-    
     for (IBlock block: getBlocks())
     {
-      gp.append(block.getPath(state), true);
-      state = state.add(block.getDeltaState());
+      gp.append(t.createTransformedShape(block.getPath()), true);
+      t.concatenate(block.getBlockTransform());
     }
     
     return gp;

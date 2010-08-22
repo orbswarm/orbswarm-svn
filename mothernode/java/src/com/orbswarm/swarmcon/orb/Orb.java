@@ -44,7 +44,7 @@ public class Orb extends AVobject implements IOrbListener, IOrb
 
   /** history of were this orb has been */
 
-  private HistoryQueue history = new HistoryQueue();
+  private HistoryQueue mHistory = new HistoryQueue();
 
   /** library of behaviors available to the orb */
 
@@ -78,8 +78,8 @@ public class Orb extends AVobject implements IOrbListener, IOrb
 
     // record our history
 
-    history.add(this);
-    history.removeOld();
+    mHistory.add(this);
+    mHistory.removeOld();
   }
 
   void setOrbColor(Color val)
@@ -418,6 +418,6 @@ public class Orb extends AVobject implements IOrbListener, IOrb
 
   public HistoryQueue getHistory()
   {
-    return history;
+    return mHistory;
   };
 }

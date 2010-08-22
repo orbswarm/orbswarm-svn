@@ -5,7 +5,6 @@ import java.awt.Shape;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 
-import com.orbswarm.swarmcon.path.BlockState;
 import com.orbswarm.swarmcon.path.IBlock;
 import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.swing.SwarmCon.MouseMobject;
@@ -15,7 +14,7 @@ public class BlockPathRenderer extends ARenderer<IBlockPath>
 {
   private final Shape mArrowShape;
   
-  private boolean mRenderComponents = false; //true;
+  private boolean mRenderComponents = true;
 
 
   public BlockPathRenderer()
@@ -48,13 +47,20 @@ public class BlockPathRenderer extends ARenderer<IBlockPath>
     
     if (mRenderComponents)
     {
-      BlockState state = new BlockState();
+//      BlockState state = new BlockState();
+//      
+//      for (IBlock b : bp.getBlocks())
+//      {
+//        g.draw(b.getPath(state));
+//        g.fill(state.creatTransformedShape(mArrowShape));
+//        state = state.add(b.getDeltaState());
+//      }
       
       for (IBlock b : bp.getBlocks())
       {
-        g.draw(b.getPath(state));
-        g.fill(state.creatTransformedShape(mArrowShape));
-        state = state.add(b.getDeltaState());
+        g.draw(b.getPath());
+        g.fill(mArrowShape);
+        g.transform(b.getBlockTransform());
       }
     }
     else

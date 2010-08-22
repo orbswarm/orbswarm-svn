@@ -1,8 +1,8 @@
 package com.orbswarm.swarmcon.path;
 
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
-import java.awt.geom.Point2D;
 
 import javax.xml.bind.annotation.XmlSeeAlso;
 
@@ -15,13 +15,9 @@ public abstract class ABlock implements IBlock
 {
   private static Logger log = Logger.getLogger(ABlock.class);
   
+  private AffineTransform mTransform;
   private Shape mPathShape;
-  private BlockState mDeltaState;
   
-  public ABlock()
-  {
-  }
-
   /**
    * Set the shape of this path. This shape should be a open path
    * originating at 0,0 and and heading north.
@@ -85,11 +81,10 @@ public abstract class ABlock implements IBlock
       pi.next();
     }
 
-    mDeltaState =
-      new BlockState(new Angle(x2 - x1, y2 - y1)
-        .rotate(-90, Type.DEGREE_RATE), new Point2D.Double(x2, y2));
-
-    log.debug("new state: " + mDeltaState);
+    mTransform =
+      AffineTransform.getRotateInstance(new Angle(x2 - x1, y2 - y1).rotate(
+        -90, Type.DEGREE_RATE).as(Angle.Type.RADIANS));
+    mTransform.translate(-x2, y2);
   }
 
   /**
@@ -105,16 +100,16 @@ public abstract class ABlock implements IBlock
   }
 
   /** {@inheritDoc} */
-
-  public Shape getPath(BlockState startState)
+  
+  public Shape getPath()
   {
-    return startState.creatTransformedShape(mPathShape);
+    return mPathShape;
   }
   
   /** {@inheritDoc} */
   
-  public BlockState getDeltaState()
+  public AffineTransform getBlockTransform()
   {
-    return mDeltaState;
+    return mTransform;
   }
 }

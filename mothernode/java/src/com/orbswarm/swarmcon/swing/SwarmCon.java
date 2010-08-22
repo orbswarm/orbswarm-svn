@@ -25,6 +25,7 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -385,7 +386,8 @@ public class SwarmCon extends JFrame
     {
       constructFrame();
       pack();
-      setExtendedState(MAXIMIZED_BOTH);
+      //setExtendedState(MAXIMIZED_BOTH);
+      setSize(new Dimension(800, 600));
       setVisible(true);
     }
     mCardLayout.first(mCenterPanel);

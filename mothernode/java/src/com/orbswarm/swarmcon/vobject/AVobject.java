@@ -61,7 +61,7 @@ public abstract class AVobject implements IVobject
 
   public Point2D getPosition()
   {
-    return mPosition;
+    return (Point2D)mPosition.clone();
   }
 
   // get x position
