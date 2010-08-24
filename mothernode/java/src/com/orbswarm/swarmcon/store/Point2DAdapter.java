@@ -5,7 +5,7 @@ import java.awt.geom.Point2D.Double;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-public class PointAdapter extends XmlAdapter<Point2D.Double, Point2D>
+public class Point2DAdapter extends XmlAdapter<Point2D.Double, Point2D>
 {
 
   public Double marshal(Point2D v) throws Exception

@@ -13,7 +13,7 @@ public interface IDance extends IVobject
   
   void add(IBlockPath path);
   
-  boolean remove(IBlockPath path);
+  boolean remove();
 
   Collection<IBlockPath> getPaths();
   
@@ -27,7 +27,9 @@ public interface IDance extends IVobject
 
   double getSeperation();
 
-  IBlockPath previouse(IBlockPath currentPath);
+  boolean previousePath();
   
-  IBlockPath next(IBlockPath currentPath);
+  boolean nextPath();
+  
+  IBlockPath getCurrentPath();
 }

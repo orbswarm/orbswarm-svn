@@ -4,25 +4,24 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.ListIterator;
 import java.util.Vector;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAnyElement;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.log4j.Logger;
-import org.trebor.util.Angle;
 
-import com.orbswarm.swarmcon.store.INamed;
 import com.orbswarm.swarmcon.vobject.AVobject;
 
 @XmlRootElement(name="blockpath")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class BlockPath extends AVobject implements IBlockPath, INamed
+public class BlockPath extends AVobject implements IBlockPath
 {
   private static final long serialVersionUID = -8911696643772151060L;
   @SuppressWarnings("unused")
@@ -31,71 +30,99 @@ public class BlockPath extends AVobject implements IBlockPath, INamed
   @XmlElementWrapper(name="blocks")
   @XmlAnyElement
   private Collection<IBlock> mBlocks;
-  @XmlElement(name="heading")
-  private Angle mHeading;
-  @XmlElement(name="name")
-  private String mName;
+  @XmlTransient
+  private ListIterator<IBlock> mBlockItr;
   
   public BlockPath()
   {
     mBlocks = new Vector<IBlock>();
-    mHeading = new Angle();
-    mName = "earl";
+    mBlockItr = ((Vector<IBlock>)mBlocks).listIterator();
   }
 
   public BlockPath(IBlock... blocks)
   {
     this();
-    add(blocks);
+    for (IBlock block: blocks)
+      addAfter(block);
   }
 
-  public void setBlocks(Vector<IBlock> blocks)
-  {
-    mBlocks = blocks;
-  }
-
-  @XmlTransient
   public Collection<IBlock> getBlocks()
   {
-    return mBlocks;
+    return Collections.unmodifiableCollection(mBlocks);
   }
 
-  public void add(IBlock... blocks)
+  public void addBefore(IBlock... blocks)
   {
+    select(false);
     for (IBlock block : blocks)
-      mBlocks.add(block);
-  }
-  
-  public void add(IBlock block)
-  {
-    mBlocks.add(block);
+    {
+      if (mBlockItr.hasPrevious())
+        mBlockItr.previous();
+      mBlockItr.add(block);
+    }
+    select(true);
   }
 
-  public IBlock lastElement()
+  public void addAfter(IBlock... blocks)
   {
-    return ((Vector<IBlock>)mBlocks).lastElement();
+    if (blocks.length > 0)
+    {
+      select(false);
+      if (mBlockItr.hasNext())
+        mBlockItr.next();
+      for (IBlock block : blocks)
+        mBlockItr.add(block);
+      mBlockItr.previous();
+      select(true);
+    }
   }
   
+  private void select(boolean selected)
+  {
+    if (!mBlocks.isEmpty())
+      getCurrentBlock().setSelected(selected);
+  }
+  
+  public IBlock getCurrentBlock()
+  {
+    IBlock current = null;
+    
+    if (!mBlocks.isEmpty())
+    {
+      current = mBlockItr.next();
+      mBlockItr.previous();
+    }
+    
+    return current;
+  }
+  
+  public void replace(IBlock block)
+  {
+    select(false);
+    mBlockItr.set(block);
+    select(true);
+  }
+
   public int size()
   {
     return mBlocks.size();
   }
 
-  public void removeElement(IBlock block)
+  public boolean remove()
   {
-    ((Vector<IBlock>)mBlocks).removeElement(block);
+    log.debug("remove block");
+    if (!mBlocks.isEmpty())
+    {
+      select(false);
+      mBlockItr.remove();
+      if (!mBlockItr.hasNext() && mBlockItr.hasPrevious())
+        mBlockItr.previous();
+      select(true);
+      return true;
+    }
+    return false;
   }
 
-  public void setHeading(Angle heading)
-  {
-    mHeading = heading;
-  }
-
-  public Angle getHeading()
-  {
-    return mHeading;
-  }
-  
   public Shape getPath()
   {
     AffineTransform t = new AffineTransform();
@@ -110,8 +137,25 @@ public class BlockPath extends AVobject implements IBlockPath, INamed
     return gp;
   }
 
-  public String getName()
+  public void nextBlock()
   {
-    return mName;
+    if (mBlockItr.hasNext())
+    {
+      select(false);
+      mBlockItr.next();
+      if (!mBlockItr.hasNext())
+        mBlockItr.previous();
+      select(true);
+    }
+  }
+
+  public void previouseBlock()
+  {
+    if (mBlockItr.hasPrevious())
+    {
+      select(false);
+      mBlockItr.previous();
+      select(true);
+    }
   }
 }

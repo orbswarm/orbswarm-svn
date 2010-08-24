@@ -28,7 +28,7 @@ public class DanceRenderer extends ARenderer<IDance>
 
   public void render(Graphics2D g, IDance dance)
   {
-//    g.transform(dance.getTransform());
+    g.transform(dance.getTransform());
     for (IBlockPath bp: dance.getPaths())
       RendererSet.render(g, bp);
   }

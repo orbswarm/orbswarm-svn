@@ -320,8 +320,7 @@ public class SwarmCon extends JFrame
       curve1, straight1, curve2, curve3, straight2,
     };
 
-    for (IBlock block : blocks)
-      path.add(block);
+    path.addAfter(blocks);
 
     mTestBlockPath = path;
     mVisualObjects.add(path);

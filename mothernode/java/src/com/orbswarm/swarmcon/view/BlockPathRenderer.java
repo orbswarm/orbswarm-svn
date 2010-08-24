@@ -14,9 +14,6 @@ public class BlockPathRenderer extends ARenderer<IBlockPath>
 {
   private final Shape mArrowShape;
   
-  private boolean mRenderComponents = true;
-
-
   public BlockPathRenderer()
   {
     GeneralPath arrowShape = new GeneralPath();
@@ -45,15 +42,13 @@ public class BlockPathRenderer extends ARenderer<IBlockPath>
 
     g.transform(bp.getTransform());
 
-    if (mRenderComponents)
+    if (bp.isSelected())
     {
       for (IBlock b : bp.getBlocks())
       {
         g.setColor(b.isSelected()
           ? RenderingConstants.SELECTED_BLOCK_COLOR
-          : bp.isSelected()
-            ? RenderingConstants.SELECTED_PATH_COLOR
-            : RenderingConstants.PATH_COLOR);
+          : RenderingConstants.SELECTED_PATH_COLOR);
 
         g.draw(b.getPath());
         g.fill(mArrowShape);
@@ -62,9 +57,7 @@ public class BlockPathRenderer extends ARenderer<IBlockPath>
     }
     else
     {
-      g.setColor(bp.isSelected()
-        ? RenderingConstants.SELECTED_PATH_COLOR
-        : RenderingConstants.PATH_COLOR);
+      g.setColor(RenderingConstants.PATH_COLOR);
       g.draw(bp.getPath());
     }
   }

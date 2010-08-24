@@ -6,12 +6,14 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.ListIterator;
+import java.util.Vector;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
+import org.apache.log4j.Logger;
 import org.trebor.util.Angle;
 
 import com.orbswarm.swarmcon.vobject.AVobject;
@@ -19,12 +21,16 @@ import com.orbswarm.swarmcon.vobject.AVobject;
 @XmlRootElement(name="dance")
 public class Dance extends AVobject implements IDance
 {
+  @SuppressWarnings("unused")
+  private static Logger log = Logger.getLogger(Dance.class);
   @XmlElement(name="paths")
   private final Collection<IBlockPath> mPaths;
   @XmlElement(name="seperation")
   private double mSeperation;
   @XmlElement(name="layout")
   private Layout mLayout;
+  @XmlTransient
+  private IBlockPath mCurrentPath;
   
   public enum Layout
   {
@@ -74,7 +80,7 @@ public class Dance extends AVobject implements IDance
   {
     mSeperation = seperation;
     mLayout = layout;
-    mPaths = new HashSet<IBlockPath>();
+    mPaths = new Vector<IBlockPath>();
   }
 
   /* (non-Javadoc)
@@ -82,7 +88,11 @@ public class Dance extends AVobject implements IDance
    */
   public void add(IBlockPath path)
   {
+    if (null == path)
+      throw new IllegalArgumentException();
+    
     mPaths.add(path);
+    setCurrentPath(path);
     mLayout.layout(this);
   }
   
@@ -90,11 +100,18 @@ public class Dance extends AVobject implements IDance
    * @see com.orbswarm.swarmcon.path.IDance#remove(com.orbswarm.swarmcon.path.IBlockPath)
    */
   
-  public boolean remove(IBlockPath path)
+  public boolean remove()
   {
-    boolean result = mPaths.remove(path);
-    mLayout.layout(this);
-    return result;
+    if (mCurrentPath != null)
+    {
+      IBlockPath target = mCurrentPath;
+      nextPath();
+      boolean result = mPaths.remove(target);
+      mLayout.layout(this);
+      return result;
+    }
+    
+    return false;
   }
 
   /* (non-Javadoc)
@@ -163,46 +180,54 @@ public class Dance extends AVobject implements IDance
     return getPath().getBounds2D();
   }
 
-  public IBlockPath previouse(IBlockPath currentPath)
+  public boolean nextPath()
   {
-    IBlockPath result = null;
-
-    for (IBlockPath path : mPaths)
-    {
-      if (path == currentPath)
-      {
-        if (result != null)
-          break;
-      }
-      result = path;
-    }
-
-    return result;
-  }
-  
-  public IBlockPath next(IBlockPath currentPath)
-  {
-    IBlockPath result = null;
-    IBlockPath first = null;
-
-    Iterator<IBlockPath> paths = mPaths.iterator();
+    log.debug("next path " + mCurrentPath);
+    ListIterator<IBlockPath> paths =
+      ((Vector<IBlockPath>)mPaths).listIterator();
 
     while (paths.hasNext())
-    {
-      result = paths.next();
-      if (first == null)
-        first = result;
+      if (paths.next() == getCurrentPath())
+        return setCurrentPath(paths.hasNext()
+          ? paths.next()
+          : ((Vector<IBlockPath>)mPaths).firstElement());
 
-      if (result == currentPath)
+    return false;
+  }
+
+  public boolean previousePath()
+  {
+    log.debug("prev path " + mCurrentPath);
+    ListIterator<IBlockPath> paths =
+      ((Vector<IBlockPath>)mPaths).listIterator();
+
+    while (paths.hasNext())
+      if (paths.next() == getCurrentPath())
       {
-        if (paths.hasNext())
-          result = paths.next();
-        else
-          result = first;
-        break;
+        paths.previous();
+        return setCurrentPath(paths.hasPrevious()
+          ? paths.previous()
+          : ((Vector<IBlockPath>)mPaths).lastElement());
       }
-    }
     
-    return result;
+    return false;
+  }
+  
+  private boolean setCurrentPath(IBlockPath path)
+  {
+    if (mCurrentPath == path)
+      return false;
+    
+    if (null != mCurrentPath)
+      mCurrentPath.setSelected(false);
+    mCurrentPath = path;
+    if (null != mCurrentPath)
+      mCurrentPath.setSelected(true);
+    return true;
+  }
+
+  public IBlockPath getCurrentPath()
+  {
+    return mCurrentPath;
   }
 }

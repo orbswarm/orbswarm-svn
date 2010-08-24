@@ -36,7 +36,7 @@ public abstract class AVobject implements IVobject
 
   public AVobject()
   {
-    mHeading = new Angle();
+    mHeading = new Angle(0, Angle.Type.HEADING);
     mPosition = new Point2D.Double();
   }
 
@@ -115,8 +115,10 @@ public abstract class AVobject implements IVobject
   public AffineTransform getTransform()
   {
     AffineTransform t =
-      AffineTransform.getRotateInstance(mHeading.as(Angle.Type.RADIANS));
-    t.translate(mPosition.getX(), mPosition.getY());
+      AffineTransform
+        .getTranslateInstance(mPosition.getX(), mPosition.getY());
+    t.rotate(mHeading.rotate(90, Angle.Type.HEADING_RATE).as(
+      Angle.Type.RADIANS));
     return t;
   }
 }

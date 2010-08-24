@@ -1,6 +1,5 @@
 package com.orbswarm.swarmcon.path;
 
-import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -73,9 +72,7 @@ public class BlockPathBuilder extends JFrame
   private double mCurrentLength = DEFAULT_LENGTH;
   // private double mCurrentCurveExtent = DEFAULT_CURVE_EXTENT;
 
-  private final IDance mDance;
-  private IBlockPath mCurrentPath;
-  private IBlock mCurrentBlock;
+  private IDance mDance;
 
   private ArenaPanel mArena;
 
@@ -99,20 +96,21 @@ public class BlockPathBuilder extends JFrame
 
     // make the path
 
-    mDance = new Dance();
+    mDance = new Dance(Dance.Layout.CIRLCE, 2);
     for (int i = 0; i < 6; ++i)
     {
-      mCurrentPath = new BlockPath();
+      addPath(new BlockPath());
       addBlock(new StraightBlock(mCurrentLength));
-      mDance.add(mCurrentPath);
     }
+    getCurrentPath().setSelected(true);
 
     // show the frame
 
     pack();
     setSize(800, 600);
     setVisible(true);
-    mArena.setViewCenterLater();
+    repaint();
+    // mArena.setViewCenterLater();
   }
 
   /**
@@ -150,15 +148,17 @@ public class BlockPathBuilder extends JFrame
     editMenu.add(new JMenuItem(mCurveLeftAction));
     editMenu.add(new JMenuItem(mGoStraightAction));
     editMenu.add(new JMenuItem(mCurveRightAction));
-    editMenu.add(new JMenuItem(mBackupAction));
+    editMenu.add(new JMenuItem(mDeleteBlockAction));
     editMenu.addSeparator();
     editMenu.add(new JMenuItem(mLengthenAction));
     editMenu.add(new JMenuItem(mShortenAction));
     editMenu.add(new JMenuItem(mShiftRight));
     editMenu.add(new JMenuItem(mShiftLeft));
     editMenu.addSeparator();
-    editMenu.add(new JMenuItem(mPreviousePath));
+    editMenu.add(new JMenuItem(mNextBlock));
+    editMenu.add(new JMenuItem(mPreviouseBlock));
     editMenu.add(new JMenuItem(mNextPath));
+    editMenu.add(new JMenuItem(mPreviousePath));
 
     // make view menu
 
@@ -177,15 +177,12 @@ public class BlockPathBuilder extends JFrame
       {
         Graphics2D g = (Graphics2D)graphics;
         super.paint(g);
-        RendererSet.render(g, mDance);
-
-        g.setColor(new Color(0, 255, 0, 128));
-        g.setStroke(new BasicStroke(0.1f));
-        g.draw(RendererSet.getShape(mCurrentPath));
-        g.setColor(new Color(0, 0, 255, 32));
+        g.setColor(new Color(0, 0, 255, 16));
         g.fill(computeViewBounds());
+        RendererSet.render(g, mDance);
       }
     };
+
     frame.add(mArena, BorderLayout.CENTER);
   }
 
@@ -217,19 +214,6 @@ public class BlockPathBuilder extends JFrame
       marshaller.marshal(mDance, new FileWriter("test.xml"));
       StringWriter sw = new StringWriter();
       marshaller.marshal(mDance, sw);
-
-      // IBlock b1 = new CurveBlock(25, 5, CurveBlock.Type.RIGHT);
-      // IBlock b2 = new StraightBlock(3);
-      // IBlockPath bp = new BlockPath();
-      // bp.add(b1);
-      // bp.add(b2);
-      // marshaller.marshal(bp, sw);
-      // marshaller.marshal(b1, sw);
-      // marshaller.marshal(b2, sw);
-      // AffineTransform foo = new AffineTransform();
-      // marshaller.marshal( new JAXBElement<AffineTransform>(
-      // new QName("top","bot"), AffineTransform.class, foo), sw);
-
       log.debug(sw.toString());
     }
     catch (JAXBException e)
@@ -247,10 +231,10 @@ public class BlockPathBuilder extends JFrame
     try
     {
       JAXBContext context =
-        JAXBContext.newInstance(BlockPath.class, ABlock.class);
+        JAXBContext.newInstance(BlockPath.class, ABlock.class, Dance.class,
+          AffineTransform.class);
       Unmarshaller unmarshaller = context.createUnmarshaller();
-      mCurrentPath =
-        (BlockPath)unmarshaller.unmarshal(new FileReader("test.xml"));
+      mDance = (IDance)unmarshaller.unmarshal(new FileReader("test.xml"));
       repaint();
     }
     catch (JAXBException e)
@@ -266,19 +250,19 @@ public class BlockPathBuilder extends JFrame
   private void curveRight()
   {
     log.debug("curveRight");
-    if (null == mCurrentBlock)
+    if (null == getCurrentBlock())
       return;
 
-    if (mCurrentBlock instanceof StraightBlock)
+    if (getCurrentBlock() instanceof StraightBlock)
     {
-      CurveBlock cb =
-        convertToCurve((StraightBlock)mCurrentBlock, CurveBlock.Type.RIGHT);
-      removeLastBlock();
-      addBlock(cb);
+      getCurrentPath().replace(
+        convertToCurve((StraightBlock)getCurrentBlock(),
+          CurveBlock.Type.RIGHT));
+      repaint();
     }
-    else if (mCurrentBlock instanceof CurveBlock)
+    else if (getCurrentBlock() instanceof CurveBlock)
     {
-      CurveBlock cb = (CurveBlock)mCurrentBlock;
+      CurveBlock cb = (CurveBlock)getCurrentBlock();
 
       if (cb.getType() == CurveBlock.Type.LEFT)
       {
@@ -286,11 +270,7 @@ public class BlockPathBuilder extends JFrame
         if (radius < MAXIMUM_RADIUS)
           setRadiusFixLength(cb, radius);
         else
-        {
-          StraightBlock sb = convertToStraight(cb);
-          removeLastBlock();
-          addBlock(sb);
-        }
+          getCurrentPath().replace(convertToStraight(cb));
       }
       else
       {
@@ -306,19 +286,19 @@ public class BlockPathBuilder extends JFrame
   private void curveLeft()
   {
     log.debug("curveLeft");
-    if (null == mCurrentBlock)
+    if (null == getCurrentBlock())
       return;
 
-    if (mCurrentBlock instanceof StraightBlock)
+    if (getCurrentBlock() instanceof StraightBlock)
     {
-      CurveBlock cb =
-        convertToCurve((StraightBlock)mCurrentBlock, CurveBlock.Type.LEFT);
-      removeLastBlock();
-      addBlock(cb);
+      getCurrentPath().replace(
+        convertToCurve((StraightBlock)getCurrentBlock(),
+          CurveBlock.Type.LEFT));
+      repaint();
     }
-    else if (mCurrentBlock instanceof CurveBlock)
+    else if (getCurrentBlock() instanceof CurveBlock)
     {
-      CurveBlock cb = (CurveBlock)mCurrentBlock;
+      CurveBlock cb = (CurveBlock)getCurrentBlock();
 
       if (cb.getType() == CurveBlock.Type.RIGHT)
       {
@@ -326,11 +306,7 @@ public class BlockPathBuilder extends JFrame
         if (radius < MAXIMUM_RADIUS)
           setRadiusFixLength(cb, radius);
         else
-        {
-          StraightBlock sb = convertToStraight(cb);
-          removeLastBlock();
-          addBlock(sb);
-        }
+          getCurrentPath().replace(convertToStraight(cb));
       }
       else
       {
@@ -383,34 +359,42 @@ public class BlockPathBuilder extends JFrame
 
   private void previousePath()
   {
-    mCurrentPath.setSelected(false);
-    mCurrentPath = mDance.previouse(mCurrentPath);
-    mCurrentPath.setSelected(true);
+    mDance.previousePath();
     repaint();
   }
 
   private void nextPath()
   {
-    mCurrentPath.setSelected(false);
-    mCurrentPath = mDance.next(mCurrentPath);
-    mCurrentPath.setSelected(true);
+    mDance.nextPath();
+    repaint();
+  }
+
+  private void previouseBlock()
+  {
+    getCurrentPath().previouseBlock();
+    repaint();
+  }
+
+  private void nextBlock()
+  {
+    getCurrentPath().nextBlock();
     repaint();
   }
 
   private void embiggen()
   {
-    if (null == mCurrentBlock)
+    if (null == getCurrentBlock())
       return;
 
-    if (mCurrentBlock instanceof StraightBlock)
+    if (getCurrentBlock() instanceof StraightBlock)
     {
-      StraightBlock sb = (StraightBlock)mCurrentBlock;
+      StraightBlock sb = (StraightBlock)getCurrentBlock();
       sb.setLength(sb.getLength() + DEFAULT_LENGTH_CHANGE);
       repaint();
     }
-    else if (mCurrentBlock instanceof CurveBlock)
+    else if (getCurrentBlock() instanceof CurveBlock)
     {
-      CurveBlock cb = (CurveBlock)mCurrentBlock;
+      CurveBlock cb = (CurveBlock)getCurrentBlock();
       cb.setExtent(min(cb.getExtent() + DEFAULT_ANGLE_QUANTA, 360));
       repaint();
     }
@@ -418,19 +402,19 @@ public class BlockPathBuilder extends JFrame
 
   private void ensmallen()
   {
-    if (null == mCurrentBlock)
+    if (null == getCurrentBlock())
       return;
 
-    if (mCurrentBlock instanceof StraightBlock)
+    if (getCurrentBlock() instanceof StraightBlock)
     {
-      StraightBlock sb = (StraightBlock)mCurrentBlock;
+      StraightBlock sb = (StraightBlock)getCurrentBlock();
       sb
         .setLength(max(sb.getLength() - DEFAULT_LENGTH_CHANGE, MINIMUM_LENGTH));
       repaint();
     }
-    else if (mCurrentBlock instanceof CurveBlock)
+    else if (getCurrentBlock() instanceof CurveBlock)
     {
-      CurveBlock cb = (CurveBlock)mCurrentBlock;
+      CurveBlock cb = (CurveBlock)getCurrentBlock();
       cb.setExtent(max(cb.getExtent() - DEFAULT_ANGLE_QUANTA,
         DEFAULT_ANGLE_QUANTA));
       repaint();
@@ -455,31 +439,28 @@ public class BlockPathBuilder extends JFrame
     return new StraightBlock(quantize(cb.getLength(), DEFAULT_LENGTH_QUANTA));
   }
 
+  private void addPath(IBlockPath path)
+  {
+    mDance.add(path);
+  }
+  
   private void addBlock(IBlock block)
   {
-    mCurrentBlock = block;
-    mCurrentPath.add(mCurrentBlock);
+    getCurrentPath().addAfter(block);
     repaint();
   }
 
-  private void removeLastBlock()
+  private void removeBlock()
   {
-    if (mCurrentPath.size() > 0)
-    {
-      mCurrentPath.removeElement(mCurrentPath.lastElement());
-      if (mCurrentPath.size() > 0)
-        mCurrentBlock = mCurrentPath.lastElement();
-      else
-        mCurrentBlock = null;
-      repaint();
-    }
+    getCurrentPath().remove();
+    repaint();
   }
 
   protected void shortenSegment()
   {
-    if (mCurrentBlock instanceof CurveBlock)
+    if (getCurrentBlock() instanceof CurveBlock)
     {
-      CurveBlock cb = (CurveBlock)mCurrentBlock;
+      CurveBlock cb = (CurveBlock)getCurrentBlock();
       double extent = cb.getExtent();
       if (extent > DEFAULT_ANGLE_QUANTA)
       {
@@ -487,9 +468,9 @@ public class BlockPathBuilder extends JFrame
         repaint();
       }
     }
-    else if (mCurrentBlock instanceof StraightBlock)
+    else if (getCurrentBlock() instanceof StraightBlock)
     {
-      StraightBlock sb = (StraightBlock)mCurrentBlock;
+      StraightBlock sb = (StraightBlock)getCurrentBlock();
       double length = sb.getLength();
       if (length > DEFAULT_LENGTH_CHANGE)
         sb.setLength(length - DEFAULT_LENGTH_CHANGE);
@@ -499,9 +480,9 @@ public class BlockPathBuilder extends JFrame
 
   protected void lengthenSegment()
   {
-    if (mCurrentBlock instanceof CurveBlock)
+    if (getCurrentBlock() instanceof CurveBlock)
     {
-      CurveBlock cb = (CurveBlock)mCurrentBlock;
+      CurveBlock cb = (CurveBlock)getCurrentBlock();
       double extent = cb.getExtent();
       if (extent < 360)
       {
@@ -509,9 +490,9 @@ public class BlockPathBuilder extends JFrame
         repaint();
       }
     }
-    else if (mCurrentBlock instanceof StraightBlock)
+    else if (getCurrentBlock() instanceof StraightBlock)
     {
-      StraightBlock sb = (StraightBlock)mCurrentBlock;
+      StraightBlock sb = (StraightBlock)getCurrentBlock();
       sb.setLength(sb.getLength() + DEFAULT_LENGTH_CHANGE);
       repaint();
     }
@@ -519,9 +500,9 @@ public class BlockPathBuilder extends JFrame
 
   protected void shiftLeft()
   {
-    if (mCurrentBlock instanceof CurveBlock)
+    if (getCurrentBlock() instanceof CurveBlock)
     {
-      CurveBlock cb = (CurveBlock)mCurrentBlock;
+      CurveBlock cb = (CurveBlock)getCurrentBlock();
       if (cb.getType() == CurveBlock.Type.RIGHT)
         cb.setRadius(cb.getRadius() + DEFAULT_RADIUS_STEP);
       else if (cb.getRadius() > MINIMUM_RADIUS)
@@ -533,9 +514,9 @@ public class BlockPathBuilder extends JFrame
 
   protected void shiftRight()
   {
-    if (mCurrentBlock instanceof CurveBlock)
+    if (getCurrentBlock() instanceof CurveBlock)
     {
-      CurveBlock cb = (CurveBlock)mCurrentBlock;
+      CurveBlock cb = (CurveBlock)getCurrentBlock();
       if (cb.getType() == CurveBlock.Type.LEFT)
         cb.setRadius(cb.getRadius() + DEFAULT_RADIUS_STEP);
       else if (cb.getRadius() > MINIMUM_RADIUS)
@@ -543,6 +524,16 @@ public class BlockPathBuilder extends JFrame
 
       repaint();
     }
+  }
+
+  public IBlock getCurrentBlock()
+  {
+    return getCurrentPath().getCurrentBlock();
+  }
+
+  public IBlockPath getCurrentPath()
+  {
+    return mDance.getCurrentPath();
   }
 
   /** SwarmCon action class */
@@ -617,13 +608,13 @@ public class BlockPathBuilder extends JFrame
 
   /** Action to select simulated rather live operation. */
 
-  private Action mBackupAction =
-    new Action("Backup", KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,
-      KeyEvent.SHIFT_DOWN_MASK), "remove last block form path")
+  private Action mDeleteBlockAction =
+    new Action("Delete", KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0),
+      "delete current block")
     {
       public void actionPerformed(ActionEvent e)
       {
-        removeLastBlock();
+        removeBlock();
       }
     };
 
@@ -688,6 +679,26 @@ public class BlockPathBuilder extends JFrame
       public void actionPerformed(ActionEvent e)
       {
         nextPath();
+      }
+    };
+
+  private final Action mPreviouseBlock =
+    new Action("Previouse Block", KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,
+      KeyEvent.META_DOWN_MASK), "select previouse block on current path")
+    {
+      public void actionPerformed(ActionEvent e)
+      {
+        previouseBlock();
+      }
+    };
+
+  private final Action mNextBlock =
+    new Action("Next Block", KeyStroke.getKeyStroke(KeyEvent.VK_UP,
+      KeyEvent.META_DOWN_MASK), "select next block on current path")
+    {
+      public void actionPerformed(ActionEvent e)
+      {
+        nextBlock();
       }
     };
 

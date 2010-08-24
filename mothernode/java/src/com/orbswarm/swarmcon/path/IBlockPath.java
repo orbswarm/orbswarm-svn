@@ -17,13 +17,21 @@ public interface IBlockPath extends IVobject
 
   Shape getPath();
   
-  void add(IBlock block);
+  void addBefore(IBlock... blocks);
 
-  IBlock lastElement();
+  void addAfter(IBlock... blocks);
 
+  void replace(IBlock block);
+  
   int size();
 
   Collection<IBlock> getBlocks();
   
-  void removeElement(IBlock block);
+  boolean remove();
+  
+  void nextBlock();
+  
+  void previouseBlock();
+
+  IBlock getCurrentBlock();
 }
