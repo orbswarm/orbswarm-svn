@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.log4j.Logger;
 import org.trebor.util.Angle;
@@ -16,7 +17,7 @@ import org.trebor.util.Angle;
 import static java.lang.Math.PI;
 
 @XmlRootElement(name = "curveBlock")
-@XmlAccessorType(XmlAccessType.FIELD)
+@XmlAccessorType(XmlAccessType.PROPERTY)
 public class CurveBlock extends ABlock
 {
   @SuppressWarnings("unused")
@@ -27,11 +28,8 @@ public class CurveBlock extends ABlock
     LEFT, RIGHT
   }
   
-  @XmlElement(name="extent")
   private double mExtent;
-  @XmlElement(name="radius")
   private double mRadius;
-  @XmlElement(name="type")
   private Type mType;
 
   public CurveBlock(double extent, double radius, Type type)
@@ -68,6 +66,7 @@ public class CurveBlock extends ABlock
     setPathShape(shape);
   }
 
+  @XmlElement(name="radius")
   public double getRadius()
   {
     return mRadius;
@@ -79,13 +78,6 @@ public class CurveBlock extends ABlock
     computePath();
   }
 
-  public void setLength(double length)
-  {
-    double dLength = length - getLength();
-    double dExtent = 360 * (dLength / (2 * PI * getRadius()));
-    mExtent += dExtent;
-    computePath();
-  }
   
   public void setType(Type type)
   {
@@ -93,6 +85,7 @@ public class CurveBlock extends ABlock
     computePath();
   }
 
+  @XmlElement(name="type")
   public Type getType()
   {
     return mType;
@@ -104,11 +97,21 @@ public class CurveBlock extends ABlock
     computePath();
   }
 
+  @XmlElement(name="extent")
   public double getExtent()
   {
     return mExtent;
   }
   
+  public void setLength(double length)
+  {
+    double dLength = length - getLength();
+    double dExtent = 360 * (dLength / (2 * PI * getRadius()));
+    mExtent += dExtent;
+    computePath();
+  }
+ 
+  @XmlTransient
   public double getLength()
   {
     return getArcLength(getExtent(), getRadius());
@@ -118,5 +121,4 @@ public class CurveBlock extends ABlock
   {
     return (Math.toRadians(extent) / (2 * PI)) * (radius  * 2 * PI);
   }
-
 }

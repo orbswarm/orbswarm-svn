@@ -8,10 +8,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "straightBlock")
-@XmlAccessorType(XmlAccessType.FIELD)
+@XmlAccessorType(XmlAccessType.PROPERTY)
 public class StraightBlock extends ABlock
 {
-  @XmlElement(name="lenght")
   private double mLength;
 
   public StraightBlock()
@@ -36,6 +35,7 @@ public class StraightBlock extends ABlock
     computePath();
   }
 
+  @XmlElement(name="length")
   public double getLength()
   {
     return mLength;

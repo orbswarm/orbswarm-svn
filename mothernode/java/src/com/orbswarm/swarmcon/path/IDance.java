@@ -10,15 +10,21 @@ import com.orbswarm.swarmcon.vobject.IVobject;
 public interface IDance extends IVobject
 {
   Rectangle2D getBounds();
+
+  Shape getPath();
   
-  void add(IBlockPath path);
-  
+  void addBefore(IBlockPath... paths);
+
+  void addAfter(IBlockPath... paths);
+
+  void replace(IBlockPath path);
+
   boolean remove();
+
+  int size();
 
   Collection<IBlockPath> getPaths();
   
-  Shape getPath();
-
   void setLayout(Layout layout);
 
   Layout getLayout();
@@ -27,9 +33,9 @@ public interface IDance extends IVobject
 
   double getSeperation();
 
-  boolean previousePath();
+  void previousePath();
   
-  boolean nextPath();
+  void nextPath();
   
   IBlockPath getCurrentPath();
 }

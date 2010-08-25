@@ -4,19 +4,26 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.log4j.Logger;
 import org.trebor.util.Angle;
 import org.trebor.util.Angle.Type;
 
 @XmlSeeAlso({CurveBlock.class, StraightBlock.class})
+@XmlAccessorType(XmlAccessType.FIELD)
 public abstract class ABlock implements IBlock
 {
   private static Logger log = Logger.getLogger(ABlock.class);
   
   private AffineTransform mTransform;
+  @XmlTransient
   private Shape mPathShape;
+  @XmlElement(name="selected")
   private boolean mSelected;
   
   /**

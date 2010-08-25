@@ -43,7 +43,7 @@ public class BlockPathBuilder extends JFrame
   @SuppressWarnings("unused")
   private static Logger log = Logger.getLogger(BlockPathBuilder.class);
 
-  private static final long serialVersionUID = -770543339999194325L;
+  private JAXBContext mContext;
 
   // radius constants
 
@@ -78,6 +78,8 @@ public class BlockPathBuilder extends JFrame
 
   private double mBorder = 2;
 
+  protected IBlockPath mTestPath;
+
   public static void main(String[] args)
   {
     System.setProperty("com.apple.mrj.application.apple.menu.about.name",
@@ -90,6 +92,17 @@ public class BlockPathBuilder extends JFrame
 
   public BlockPathBuilder()
   {
+    try
+    {
+      mContext =
+        JAXBContext.newInstance(BlockPath.class, StraightBlock.class, 
+          CurveBlock.class, ABlock.class, Dance.class, AffineTransform.class);
+    }
+    catch (JAXBException e)
+    {
+      e.printStackTrace();
+    }
+
     // make the frame
 
     constructFrame();
@@ -180,6 +193,10 @@ public class BlockPathBuilder extends JFrame
         g.setColor(new Color(0, 0, 255, 16));
         g.fill(computeViewBounds());
         RendererSet.render(g, mDance);
+        if (mTestPath != null)
+          RendererSet.render(g, mTestPath);
+//        if (getCurrentPath() != null)
+//          RendererSet.render(g, getCurrentPath());
       }
     };
 
@@ -206,10 +223,7 @@ public class BlockPathBuilder extends JFrame
   {
     try
     {
-      JAXBContext context =
-        JAXBContext.newInstance(BlockPath.class, ABlock.class, Dance.class,
-          AffineTransform.class);
-      Marshaller marshaller = context.createMarshaller();
+      Marshaller marshaller = mContext.createMarshaller();
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
       marshaller.marshal(mDance, new FileWriter("test.xml"));
       StringWriter sw = new StringWriter();
@@ -230,11 +244,12 @@ public class BlockPathBuilder extends JFrame
   {
     try
     {
-      JAXBContext context =
-        JAXBContext.newInstance(BlockPath.class, ABlock.class, Dance.class,
-          AffineTransform.class);
-      Unmarshaller unmarshaller = context.createUnmarshaller();
+      Unmarshaller unmarshaller = mContext.createUnmarshaller();
+      log.debug(" pre: " + mDance);
       mDance = (IDance)unmarshaller.unmarshal(new FileReader("test.xml"));
+      log.debug("post:" + mDance);
+      
+      //mDance = (IDance)unmarshaller.unmarshal(new FileReader("test.xml"));
       repaint();
     }
     catch (JAXBException e)
@@ -291,9 +306,10 @@ public class BlockPathBuilder extends JFrame
 
     if (getCurrentBlock() instanceof StraightBlock)
     {
-      getCurrentPath().replace(
-        convertToCurve((StraightBlock)getCurrentBlock(),
-          CurveBlock.Type.LEFT));
+      getCurrentPath()
+        .replace(
+          convertToCurve((StraightBlock)getCurrentBlock(),
+            CurveBlock.Type.LEFT));
       repaint();
     }
     else if (getCurrentBlock() instanceof CurveBlock)
@@ -441,9 +457,9 @@ public class BlockPathBuilder extends JFrame
 
   private void addPath(IBlockPath path)
   {
-    mDance.add(path);
+    mDance.addAfter(path);
   }
-  
+
   private void addBlock(IBlock block)
   {
     getCurrentPath().addAfter(block);

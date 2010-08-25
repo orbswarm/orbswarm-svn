@@ -6,7 +6,6 @@ import java.awt.geom.Point2D;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 import org.trebor.util.Angle;
 
@@ -27,7 +26,7 @@ public abstract class AVobject implements IVobject
   
   /** has this mobject been selected */
 
-  @XmlTransient
+  @XmlElement(name="selected")
   private boolean mSelected = false;
 
   /**

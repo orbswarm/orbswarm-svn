@@ -7,27 +7,12 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.trebor.util.Angle;
 
+import com.orbswarm.swarmcon.path.ISelectable;
 import com.orbswarm.swarmcon.store.IVobjectAdapter;
 
 @XmlJavaTypeAdapter(IVobjectAdapter.class)
-public interface IVobject
+public interface IVobject extends ISelectable
 {
-  /**
-   * Is this mobject selected?
-   * 
-   * @return true if vobject selected
-   */
-
-  boolean isSelected();
-
-  /**
-   * Set the selection state of this mobject.
-   * 
-   * @param selected selection state of mobject
-   */
-
-  void setSelected(boolean selected);
-
   // position getter
 
   Point2D getPosition();
