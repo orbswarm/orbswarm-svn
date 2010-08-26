@@ -1,10 +1,10 @@
 package com.orbswarm.swarmcon.path;
 
-import com.orbswarm.swarmcon.vobject.AVobject;
+import com.orbswarm.swarmcon.view.ARenderable;
 
 // smooth path for printing on display
 
-public class SmoothMobject extends AVobject
+public class SmoothMobject extends ARenderable
 {
   private final SmoothPath mSmoothPath;
 

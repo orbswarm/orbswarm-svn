@@ -3,6 +3,7 @@ package com.orbswarm.swarmcon.path;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -12,11 +13,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.log4j.Logger;
 
-import com.orbswarm.swarmcon.vobject.AVobject;
+import com.orbswarm.swarmcon.util.ISelectableList;
+import com.orbswarm.swarmcon.util.SelectableList;
+import com.orbswarm.swarmcon.view.ARenderable;
 
 @XmlRootElement(name = "blockpath")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class BlockPath extends AVobject implements IBlockPath
+public class BlockPath extends ARenderable implements IBlockPath
 {
   @SuppressWarnings("unused")
   private static Logger log = Logger.getLogger(BlockPath.class);
@@ -83,6 +86,11 @@ public class BlockPath extends AVobject implements IBlockPath
     }
 
     return gp;
+  }
+
+  public Rectangle2D getBounds()
+  {
+    return getPath().getBounds2D();
   }
 
   public void nextBlock()

@@ -1,8 +1,7 @@
-package com.orbswarm.swarmcon.path;
+package com.orbswarm.swarmcon.util;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.AbstractList;
 import java.util.ListIterator;
 import java.util.Vector;
 

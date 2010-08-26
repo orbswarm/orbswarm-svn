@@ -5,9 +5,9 @@ import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 
 import com.orbswarm.swarmcon.path.Dance.Layout;
-import com.orbswarm.swarmcon.vobject.IVobject;
+import com.orbswarm.swarmcon.view.IRenderable;
 
-public interface IDance extends IVobject
+public interface IDance extends IRenderable
 {
   Rectangle2D getBounds();
 

@@ -6,30 +6,28 @@ import java.awt.geom.Point2D;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.orbswarm.swarmcon.vobject.IVobject;
-import com.orbswarm.swarmcon.vobject.IVobjects;
 
-public class MobjectsRenderer extends ARenderer<IVobjects<?>>
+public class RenderablesRenderer extends ARenderer<IRenderables<?>>
 {
   @SuppressWarnings("unchecked")
-  public void render(Graphics2D g, IVobjects<?> vobjects)
+  public void render(Graphics2D g, IRenderables<?> vobjects)
   {
-    for (IVobject vobject: vobjects)
+    for (IRenderable vobject: vobjects)
       RendererSet.render(g, vobject);
   }
 
-  public Shape getShape(IVobjects<?> vobjects)
+  public Shape getShape(IRenderables<?> vobjects)
   {
     throw new UnsupportedOperationException();
   }
 
-  public IVobject getSelected(Point2D selectionPoint, IVobjects<?> vobjects)
+  public IRenderable getSelected(Point2D selectionPoint, IRenderables<?> vobjects)
   {
-    Set<IVobject> candidates = new HashSet<IVobject>();
+    Set<IRenderable> candidates = new HashSet<IRenderable>();
 
-    for (IVobject vobject : vobjects)
+    for (IRenderable vobject : vobjects)
     {
-      IVobject candidate = RendererSet.getRenderer(vobject).getSelected(
+      IRenderable candidate = RendererSet.getRenderer(vobject).getSelected(
         selectionPoint, vobject);
       
       if (null != candidate)
@@ -37,8 +35,8 @@ public class MobjectsRenderer extends ARenderer<IVobjects<?>>
     }
 
     double shortestDistance = Double.MAX_VALUE;
-    IVobject closest = null;
-    for (IVobject vobject : candidates)
+    IRenderable closest = null;
+    for (IRenderable vobject : candidates)
     {
       double distance = RendererSet.getRenderer(vobject).getDistanceTo(
         selectionPoint, vobject);

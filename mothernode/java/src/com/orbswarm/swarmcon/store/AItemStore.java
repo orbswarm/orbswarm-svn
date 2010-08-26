@@ -17,13 +17,13 @@ import javax.xml.bind.Unmarshaller;
 
 import com.orbswarm.swarmcon.path.ABlock;
 import com.orbswarm.swarmcon.path.BlockPath;
-import com.orbswarm.swarmcon.vobject.IVobject;
+import com.orbswarm.swarmcon.view.IRenderable;
 
 public abstract class AItemStore implements IItemStore
 {
   public static final String GUID_PATTERN =
     "[a-f0-9]{8}\\-[a-f0-9]{4}\\-[a-f0-9]{4}\\-[a-f0-9]{4}\\-[a-f0-9]{12}";
-  private final Map<UUID, IItem<? extends IVobject>> mItemCache;
+  private final Map<UUID, IItem<? extends IRenderable>> mItemCache;
   private final Set<IStoreListener> mListeners;
   private final Marshaller mMarshaller;
   private final Unmarshaller mUnmarshaller;
@@ -32,7 +32,7 @@ public abstract class AItemStore implements IItemStore
   {
     // initialize containers
 
-    mItemCache = new HashMap<UUID, IItem<? extends IVobject>>();
+    mItemCache = new HashMap<UUID, IItem<? extends IRenderable>>();
     mListeners = new HashSet<IStoreListener>();
 
     // initialize JAXB context
@@ -66,7 +66,7 @@ public abstract class AItemStore implements IItemStore
     }
   }
 
-  public <T extends IVobject> IItem<T> add(T item, String name)
+  public <T extends IRenderable> IItem<T> add(T item, String name)
   {
     IItem<T> wrapped = new Item<T>(item, name);
     save(wrapped.getId(), marshal(wrapped));
@@ -87,7 +87,7 @@ public abstract class AItemStore implements IItemStore
   }
 
   @SuppressWarnings("unchecked")
-  public <T extends IVobject> boolean remove(IItem<T> item)
+  public <T extends IRenderable> boolean remove(IItem<T> item)
   {
     throw new UnsupportedOperationException();
 //    Item<T> wrapped = (Item<T>)mItems.remove(item.getId());
@@ -97,12 +97,12 @@ public abstract class AItemStore implements IItemStore
 //    return wrapped;
   }
 
-  public Collection<IItem<? extends IVobject>> getItems()
+  public Collection<IItem<? extends IRenderable>> getItems()
   {
     return Collections.unmodifiableCollection(mItemCache.values());
   }
 
-  <T extends IVobject> String marshal(IItem<T> item)
+  <T extends IRenderable> String marshal(IItem<T> item)
   {
     StringWriter writer = new StringWriter();
     try
@@ -118,7 +118,7 @@ public abstract class AItemStore implements IItemStore
   }
 
   @SuppressWarnings("unchecked")
-  <T extends IVobject> Item<T> unmarshal(String xml)
+  <T extends IRenderable> Item<T> unmarshal(String xml)
   {
     Item<T> wrapped = null;
 

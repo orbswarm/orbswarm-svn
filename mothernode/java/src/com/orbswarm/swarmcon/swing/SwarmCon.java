@@ -50,7 +50,6 @@ import java.util.Vector;
 import java.util.HashMap;
 import java.util.Calendar;
 
-import com.orbswarm.swarmcon.Constants;
 import com.orbswarm.swarmcon.behavior.Behavior;
 import com.orbswarm.swarmcon.behavior.ClusterBehavior;
 import com.orbswarm.swarmcon.behavior.FollowBehavior;
@@ -76,11 +75,13 @@ import com.orbswarm.swarmcon.path.Path;
 import com.orbswarm.swarmcon.path.Point;
 import com.orbswarm.swarmcon.path.StraightBlock;
 import com.orbswarm.swarmcon.path.Target;
+import com.orbswarm.swarmcon.util.Constants;
+import com.orbswarm.swarmcon.util.SwarmProperties;
+import com.orbswarm.swarmcon.view.ARenderable;
+import com.orbswarm.swarmcon.view.ARenderables;
+import com.orbswarm.swarmcon.view.IRenderable;
+import com.orbswarm.swarmcon.view.Renderables;
 import com.orbswarm.swarmcon.view.RendererSet;
-import com.orbswarm.swarmcon.vobject.AVobject;
-import com.orbswarm.swarmcon.vobject.AVobjects;
-import com.orbswarm.swarmcon.vobject.IVobject;
-import com.orbswarm.swarmcon.vobject.Vobjects;
 
 import static org.trebor.util.ShapeTools.normalize;
 import static org.trebor.util.ShapeTools.scale;
@@ -103,7 +104,7 @@ import static java.awt.event.KeyEvent.VK_S;
 import static java.awt.event.KeyEvent.VK_X;
 import static java.awt.event.KeyEvent.VK_SPACE;
 import static java.awt.event.KeyEvent.VK_UP;
-import static com.orbswarm.swarmcon.Constants.*;
+import static com.orbswarm.swarmcon.util.Constants.*;
 
 import org.apache.log4j.Logger;
 
@@ -199,15 +200,15 @@ public class SwarmCon extends JFrame
 
   /** all visual objects in the system */
 
-  private final Vobjects mVisualObjects;
+  private final Renderables mVisualObjects;
 
   /** selected objects */
 
-  private final Vobjects mSelected;
+  private final Renderables mSelected;
 
   /** phantom objects */
 
-  private final AVobjects<Phantom> mPhantoms;
+  private final ARenderables<Phantom> mPhantoms;
 
   /** last time mobects were updated */
 
@@ -299,7 +300,7 @@ public class SwarmCon extends JFrame
 
     // create a place to put all visual objects
 
-    mVisualObjects = new Vobjects();
+    mVisualObjects = new Renderables();
 
     // create a test block path
 
@@ -332,12 +333,12 @@ public class SwarmCon extends JFrame
 
     // create a place to put phantoms and add it to visual objects
 
-    mPhantoms = new AVobjects<Phantom>();
+    mPhantoms = new ARenderables<Phantom>();
     mVisualObjects.add(mPhantoms);
 
     // create a place record selected vobject
 
-    mSelected = new Vobjects();
+    mSelected = new Renderables();
 
     // create robot for capturing images
 
@@ -503,7 +504,7 @@ public class SwarmCon extends JFrame
 
   public void createOrbs()
   {
-    IVobject mouseDot = new MouseMobject(mArena);
+    IRenderable mouseDot = new MouseMobject(mArena);
     mVisualObjects.add(mouseDot);
 
     // create the orbs
@@ -599,7 +600,7 @@ public class SwarmCon extends JFrame
       // extract just the orbs from the swarm
 
       Vector<Orb> orbs = new Vector<Orb>();
-      for (IVobject m : mSwarm)
+      for (IRenderable m : mSwarm)
         if (m instanceof Orb)
           orbs.add((Orb)m);
 
@@ -1082,7 +1083,7 @@ public class SwarmCon extends JFrame
 
   // object which is always set to the position of the mouse
 
-  public class MouseMobject extends AVobject
+  public class MouseMobject extends ARenderable
   {
     // construct a MouseMobject
 
@@ -1139,7 +1140,7 @@ public class SwarmCon extends JFrame
     public void commandOrb(MouseEvent e)
     {
       Point2D worldPos = mArena.screenToWorld(e.getPoint());
-      final IVobject selected = RendererSet.getSelected(worldPos, mSwarm);
+      final IRenderable selected = RendererSet.getSelected(worldPos, mSwarm);
 
       if (selected != null)
       {
@@ -1169,7 +1170,7 @@ public class SwarmCon extends JFrame
     {
       // find nearest selectable mobject
 
-      final IVobject selected =
+      final IRenderable selected =
         RendererSet.getSelected(mArena.screenToWorld(e.getPoint()), mSwarm);
 
       // if shift is not down, clear selected
@@ -1372,7 +1373,7 @@ public class SwarmCon extends JFrame
     {
       public void actionPerformed(ActionEvent e)
       {
-        for (IVobject mo : mSwarm)
+        for (IRenderable mo : mSwarm)
           if (mo instanceof Orb)
             ((IOrb)mo).getModel().stop();
       }

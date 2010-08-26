@@ -1,4 +1,4 @@
-package com.orbswarm.swarmcon;
+package com.orbswarm.swarmcon.util;
 
 import static java.awt.Color.WHITE;
 

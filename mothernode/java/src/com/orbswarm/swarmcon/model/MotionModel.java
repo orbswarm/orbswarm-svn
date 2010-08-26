@@ -17,7 +17,7 @@ import static java.lang.Math.max;
 import static org.trebor.util.Angle.Type.DEGREE_RATE;
 import static org.trebor.util.Angle.Type.DEGREES;
 import static org.trebor.util.Angle.Type.HEADING;
-import static com.orbswarm.swarmcon.Constants.*;
+import static com.orbswarm.swarmcon.util.Constants.*;
 
 /**
  * This class models the motion of an orb. It may be a simulated motion

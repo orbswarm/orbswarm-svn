@@ -15,7 +15,7 @@ import static java.lang.Math.hypot;
 import static org.trebor.util.Angle.Type.DEGREE_RATE;
 import static org.trebor.util.Angle.Type.RADIAN_RATE;
 import static org.trebor.util.Angle.Type.HEADING_RATE;
-import static com.orbswarm.swarmcon.Constants.*;
+import static com.orbswarm.swarmcon.util.Constants.*;
 
 /** A simple motion simulation model based on rates */
 

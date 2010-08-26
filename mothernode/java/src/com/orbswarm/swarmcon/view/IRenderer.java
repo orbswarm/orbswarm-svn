@@ -4,9 +4,8 @@ import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
 
-import com.orbswarm.swarmcon.vobject.IVobject;
 
-public interface IRenderer<Type extends IVobject>
+public interface IRenderer<Type extends IRenderable>
 {
   /**
    * Render a given Vobject onto a given graphics context
@@ -31,34 +30,34 @@ public interface IRenderer<Type extends IVobject>
   public void drawText(Graphics2D g, Point2D point, String text);
 
   /**
-   * Establish this {@link IVobject} is selected by clicking at
-   * selectionPoint. A {@link IVobject} is selected if the {@link Shape}
-   * returned by {@link #getShape(IVobject)}
+   * Establish this {@link IRenderable} is selected by clicking at
+   * selectionPoint. A {@link IRenderable} is selected if the {@link Shape}
+   * returned by {@link #getShape(IRenderable)}
    * {@link Shape#contains(Point2D)} selectionPoint, and the
-   * {@link IVobject} is the closest to the selectionPoint.
+   * {@link IRenderable} is the closest to the selectionPoint.
    * 
    * @param selectionPoint the point to select from
-   * @param o the object to search for candidate {@link IVobject}s.
-   * @return the selected {@link IVobject} or null if no valid candidates
+   * @param o the object to search for candidate {@link IRenderable}s.
+   * @return the selected {@link IRenderable} or null if no valid candidates
    *         exist.
    */
   
-  public IVobject getSelected(Point2D selectionPoint, Type o);
+  public IRenderable getSelected(Point2D selectionPoint, Type o);
   
   /**
-   * Get the bounding shape of the {@link IVobject}, used for selection.
+   * Get the bounding shape of the {@link IRenderable}, used for selection.
    * 
-   * @return the bounding shape of the {@link IVobject}.
+   * @return the bounding shape of the {@link IRenderable}.
    */
   
   public Shape getShape(Type o);
   
   /**
-   * Get the distance to the {@link IVobject}, used for selection.
+   * Get the distance to the {@link IRenderable}, used for selection.
    * 
    * @param point the point to compute the distance from.
    * 
-   * @return the distance from the point to the {@link IVobject}.
+   * @return the distance from the point to the {@link IRenderable}.
    */
   
   public double getDistanceTo(Point2D point, Type o);

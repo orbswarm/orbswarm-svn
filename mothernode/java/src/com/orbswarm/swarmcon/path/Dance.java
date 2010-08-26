@@ -15,11 +15,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.log4j.Logger;
 import org.trebor.util.Angle;
 
-import com.orbswarm.swarmcon.vobject.AVobject;
+import com.orbswarm.swarmcon.util.ISelectableList;
+import com.orbswarm.swarmcon.util.SelectableList;
+import com.orbswarm.swarmcon.view.ARenderable;
 
 @XmlRootElement(name="dance")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Dance extends AVobject implements IDance
+public class Dance extends ARenderable implements IDance
 {
   @SuppressWarnings("unused")
   private static Logger log = Logger.getLogger(Dance.class);

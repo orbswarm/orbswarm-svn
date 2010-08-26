@@ -6,7 +6,7 @@ import com.orbswarm.swarmcon.io.JoystickManager;
 import com.orbswarm.swarmcon.model.MotionModel;
 
 import static org.trebor.util.Angle.Type.DEGREE_RATE;
-import static com.orbswarm.swarmcon.Constants.*;
+import static com.orbswarm.swarmcon.util.Constants.*;
 
 public class JoyBehavior extends Behavior implements JoystickManager.Listener
 {

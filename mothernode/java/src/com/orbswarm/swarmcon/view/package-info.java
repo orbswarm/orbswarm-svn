@@ -4,7 +4,7 @@
   @XmlJavaTypeAdapter(value=Point2DAdapter.class,type=Point2D.class)
 })
 
-package com.orbswarm.swarmcon.vobject;
+package com.orbswarm.swarmcon.view;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 

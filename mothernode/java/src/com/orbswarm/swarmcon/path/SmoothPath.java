@@ -3,7 +3,7 @@ package com.orbswarm.swarmcon.path;
 import org.trebor.util.Angle;
 
 import com.orbswarm.swarmcon.model.Rate;
-import com.orbswarm.swarmcon.vobject.IVobject;
+import com.orbswarm.swarmcon.view.IRenderable;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.CubicCurve2D;
@@ -20,7 +20,7 @@ import static org.trebor.util.Angle.Type.HEADING_RATE;
 import static java.lang.Math.abs;
 
 @SuppressWarnings("serial")
-public class SmoothPath extends Vector<Waypoint> implements IVobject
+public class SmoothPath extends Vector<Waypoint> implements IRenderable
 {
   /** Continuous path representing the smooth path */
 
@@ -460,7 +460,7 @@ public class SmoothPath extends Vector<Waypoint> implements IVobject
     return duration;
   }
 
-  public double distanceTo(IVobject other)
+  public double distanceTo(IRenderable other)
   {
     throw new UnsupportedOperationException();
   }
@@ -490,7 +490,7 @@ public class SmoothPath extends Vector<Waypoint> implements IVobject
     throw new UnsupportedOperationException();
   }
 
-  public double headingTo(IVobject other)
+  public double headingTo(IRenderable other)
   {
     throw new UnsupportedOperationException();
   }

@@ -2,7 +2,7 @@ package com.orbswarm.swarmcon.store;
 
 import java.util.Collection;
 
-import com.orbswarm.swarmcon.vobject.IVobject;
+import com.orbswarm.swarmcon.view.IRenderable;
 
 public interface IItemStore
 {
@@ -16,7 +16,7 @@ public interface IItemStore
    * @return the item wrapped in an item wrapper
    */
   
-  <T extends IVobject> IItem<T> add(T item, String name);
+  <T extends IRenderable> IItem<T> add(T item, String name);
   
   /**
    * Remove an {@link @IItem} from the store.
@@ -25,7 +25,7 @@ public interface IItemStore
    * @return true if the item was removed
    */
   
-  <T extends IVobject> boolean remove(IItem<T> item);
+  <T extends IRenderable> boolean remove(IItem<T> item);
 
   /**
    * Return the collected items in this store.
@@ -33,7 +33,7 @@ public interface IItemStore
    * @return a collection of contained items
    */
   
-  Collection<IItem<? extends IVobject>> getItems();
+  Collection<IItem<? extends IRenderable>> getItems();
 
   /**
    * Add a listener to the store.

@@ -7,10 +7,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import com.orbswarm.swarmcon.vobject.IVobject;
+import com.orbswarm.swarmcon.view.IRenderable;
 
 @XmlRootElement
-class Item<T extends IVobject> implements IItem<T>
+class Item<T extends IRenderable> implements IItem<T>
 {
   @XmlElement(name="item")
   private T mItem;

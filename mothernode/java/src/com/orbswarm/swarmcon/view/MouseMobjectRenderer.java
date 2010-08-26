@@ -10,9 +10,8 @@ import org.trebor.util.ShapeTools;
 
 import com.orbswarm.swarmcon.swing.SwarmCon;
 import com.orbswarm.swarmcon.swing.SwarmCon.MouseMobject;
-import com.orbswarm.swarmcon.vobject.IVobject;
 
-import static com.orbswarm.swarmcon.Constants.ORB_DIAMETER;
+import static com.orbswarm.swarmcon.util.Constants.ORB_DIAMETER;
 
 public class MouseMobjectRenderer extends ARenderer<SwarmCon.MouseMobject>
 {
@@ -32,7 +31,7 @@ public class MouseMobjectRenderer extends ARenderer<SwarmCon.MouseMobject>
     return ShapeTools.translate(shape, mo.getX(), mo.getY());
   }
 
-  public IVobject getSelected(Point2D selectionPoint, MouseMobject o)
+  public IRenderable getSelected(Point2D selectionPoint, MouseMobject o)
   {
     return null;
   }

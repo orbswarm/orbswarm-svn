@@ -8,7 +8,6 @@ import java.awt.geom.Point2D;
 import com.orbswarm.swarmcon.path.IBlock;
 import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.swing.SwarmCon.MouseMobject;
-import com.orbswarm.swarmcon.vobject.IVobject;
 
 public class BlockPathRenderer extends ARenderer<IBlockPath>
 {
@@ -25,7 +24,7 @@ public class BlockPathRenderer extends ARenderer<IBlockPath>
     mArrowShape = arrowShape;
   }  
   
-  public IVobject getSelected(Point2D selectionPoint, MouseMobject o)
+  public IRenderable getSelected(Point2D selectionPoint, MouseMobject o)
   {
     throw new UnsupportedOperationException();
   }

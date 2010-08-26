@@ -8,9 +8,9 @@ import com.orbswarm.swarmcon.behavior.Behavior;
 import com.orbswarm.swarmcon.io.Message;
 import com.orbswarm.swarmcon.model.MotionModel;
 import com.orbswarm.swarmcon.orb.Orb.HistoryQueue;
-import com.orbswarm.swarmcon.vobject.IVobject;
+import com.orbswarm.swarmcon.view.IRenderable;
 
-public interface IOrb extends IVobject
+public interface IOrb extends IRenderable
 {
   public Color getOrbColor();
 

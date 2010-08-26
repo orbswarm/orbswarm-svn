@@ -4,13 +4,12 @@ import java.awt.*;
 import java.awt.geom.*;
 
 import com.orbswarm.swarmcon.orb.Phantom;
-import com.orbswarm.swarmcon.vobject.IVobject;
 
 public class PhantomRenderer extends ARenderer<Phantom>
 {
   public void render(Graphics2D g, Phantom phantom)
   {
-    IVobject mobject = phantom.getMobject();
+    IRenderable mobject = phantom.getMobject();
 
     // record transform and scale
 
@@ -45,11 +44,11 @@ public class PhantomRenderer extends ARenderer<Phantom>
 
   public Shape getShape(Phantom p)
   {
-    IVobject o = p.getMobject();
+    IRenderable o = p.getMobject();
     return RendererSet.getRenderer(o).getShape(o);
   }
 
-  public IVobject getSelected(Point2D selectionPoint, Phantom o)
+  public IRenderable getSelected(Point2D selectionPoint, Phantom o)
   {
     return null;
   }

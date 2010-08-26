@@ -1,4 +1,4 @@
-package com.orbswarm.swarmcon.swing;
+package com.orbswarm.swarmcon.util;
 
 import static com.orbswarm.swarmcon.util.Constants.DEFAULT_PROPERTIES_FILE;
 import static com.orbswarm.swarmcon.util.Constants.PROPERTIES_FILE_LOCATION;

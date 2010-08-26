@@ -12,18 +12,18 @@ import com.orbswarm.swarmcon.behavior.Behavior;
 import com.orbswarm.swarmcon.io.Message;
 import com.orbswarm.swarmcon.io.OrbIo.IOrbListener;
 import com.orbswarm.swarmcon.model.MotionModel;
-import com.orbswarm.swarmcon.vobject.AVobject;
+import com.orbswarm.swarmcon.view.ARenderable;
 
 import org.trebor.util.Angle;
 
 import static java.lang.System.currentTimeMillis;
-import static com.orbswarm.swarmcon.Constants.ORB_CLR;
+import static com.orbswarm.swarmcon.util.Constants.ORB_CLR;
 
 import org.apache.log4j.Logger;
 
 /** Representation of an orb. */
 
-public class Orb extends AVobject implements IOrbListener, IOrb
+public class Orb extends ARenderable implements IOrbListener, IOrb
 {
   private static Logger log = Logger.getLogger(Orb.class);
 

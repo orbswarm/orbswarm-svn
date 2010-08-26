@@ -3,10 +3,10 @@ package com.orbswarm.swarmcon.io;
 import java.util.HashMap;
 import org.apache.log4j.Logger;
 
-import com.orbswarm.swarmcon.Constants;
 import com.orbswarm.swarmcon.orb.Orb;
 import com.orbswarm.swarmcon.path.Point;
 import com.orbswarm.swarmcon.path.Waypoint;
+import com.orbswarm.swarmcon.util.Constants;
 
 import static org.trebor.util.Angle.Type.RADIANS;
 import static org.trebor.util.Angle.Type.RADIAN_RATE;

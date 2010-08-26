@@ -1,6 +1,6 @@
 package com.orbswarm.swarmcon.store;
 
-import com.orbswarm.swarmcon.vobject.IVobject;
+import com.orbswarm.swarmcon.view.IRenderable;
 
 /**
  * A store listen which is called when changes are made to the store.
@@ -10,6 +10,6 @@ import com.orbswarm.swarmcon.vobject.IVobject;
 
 public interface IStoreListener
 {
-  <T extends IVobject> void itemAdded(IItem<T> item);
-  <T extends IVobject> void itemRemoved(IItem<T> item);
+  <T extends IRenderable> void itemAdded(IItem<T> item);
+  <T extends IRenderable> void itemRemoved(IItem<T> item);
 }

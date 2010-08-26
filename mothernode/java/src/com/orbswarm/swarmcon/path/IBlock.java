@@ -3,6 +3,8 @@ package com.orbswarm.swarmcon.path;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 
+import com.orbswarm.swarmcon.util.ISelectable;
+
 public interface IBlock extends ISelectable
 {
   /**

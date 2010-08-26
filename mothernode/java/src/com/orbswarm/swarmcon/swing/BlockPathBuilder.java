@@ -1,7 +1,6 @@
-package com.orbswarm.swarmcon.path;
+package com.orbswarm.swarmcon.swing;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -14,7 +13,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 
-import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -29,7 +27,13 @@ import org.apache.log4j.Logger;
 import org.trebor.util.Angle;
 import org.trebor.util.Angle.Type;
 
-import com.orbswarm.swarmcon.swing.ArenaPanel;
+import com.orbswarm.swarmcon.path.ABlock;
+import com.orbswarm.swarmcon.path.BlockPath;
+import com.orbswarm.swarmcon.path.CurveBlock;
+import com.orbswarm.swarmcon.path.Dance;
+import com.orbswarm.swarmcon.path.IBlock;
+import com.orbswarm.swarmcon.path.IBlockPath;
+import com.orbswarm.swarmcon.path.StraightBlock;
 import com.orbswarm.swarmcon.view.RendererSet;
 
 import static java.lang.Math.PI;
@@ -72,13 +76,19 @@ public class BlockPathBuilder extends JFrame
   private double mCurrentLength = DEFAULT_LENGTH;
   // private double mCurrentCurveExtent = DEFAULT_CURVE_EXTENT;
 
-  private IDance mDance;
+  private IBlockPath mPath;
 
   private ArenaPanel mArena;
 
   private double mBorder = 2;
 
-  protected IBlockPath mTestPath;
+  protected JMenu mEditMenu;
+
+  private JMenuBar mMenuBar;
+
+  private JMenu mFileMenu;
+
+  private JMenu mViewMenu;
 
   public static void main(String[] args)
   {
@@ -109,13 +119,9 @@ public class BlockPathBuilder extends JFrame
 
     // make the path
 
-    mDance = new Dance(Dance.Layout.CIRLCE, 2);
-    for (int i = 0; i < 6; ++i)
-    {
-      addPath(new BlockPath());
-      addBlock(new StraightBlock(mCurrentLength));
-    }
-    getCurrentPath().setSelected(true);
+    mPath = new BlockPath();
+    mPath.setSelected(true);
+    addBlock(new StraightBlock(mCurrentLength));
 
     // show the frame
 
@@ -123,7 +129,6 @@ public class BlockPathBuilder extends JFrame
     setSize(800, 600);
     setVisible(true);
     repaint();
-    // mArena.setViewCenterLater();
   }
 
   /**
@@ -144,41 +149,39 @@ public class BlockPathBuilder extends JFrame
 
     // make menu bar
 
-    JMenuBar menuBar = new JMenuBar();
-    setJMenuBar(menuBar);
+    mMenuBar = new JMenuBar();
+    setJMenuBar(mMenuBar);
 
     // make edit menu
 
-    JMenu fileMenu = new JMenu("File");
-    menuBar.add(fileMenu);
-    fileMenu.add(new JMenuItem(mSaveAction));
-    fileMenu.add(new JMenuItem(mLoadAction));
+    mFileMenu = new JMenu("File");
+    mMenuBar.add(mFileMenu);
+    mFileMenu.add(new JMenuItem(mSaveAction));
+    mFileMenu.add(new JMenuItem(mLoadAction));
 
     // make edit menu
 
-    JMenu editMenu = new JMenu("Edit");
-    menuBar.add(editMenu);
-    editMenu.add(new JMenuItem(mCurveLeftAction));
-    editMenu.add(new JMenuItem(mGoStraightAction));
-    editMenu.add(new JMenuItem(mCurveRightAction));
-    editMenu.add(new JMenuItem(mDeleteBlockAction));
-    editMenu.addSeparator();
-    editMenu.add(new JMenuItem(mLengthenAction));
-    editMenu.add(new JMenuItem(mShortenAction));
-    editMenu.add(new JMenuItem(mShiftRight));
-    editMenu.add(new JMenuItem(mShiftLeft));
-    editMenu.addSeparator();
-    editMenu.add(new JMenuItem(mNextBlock));
-    editMenu.add(new JMenuItem(mPreviouseBlock));
-    editMenu.add(new JMenuItem(mNextPath));
-    editMenu.add(new JMenuItem(mPreviousePath));
+    mEditMenu = new JMenu("Edit");
+    mMenuBar.add(mEditMenu);
+    mEditMenu.add(new JMenuItem(mCurveLeftAction));
+    mEditMenu.add(new JMenuItem(mGoStraightAction));
+    mEditMenu.add(new JMenuItem(mCurveRightAction));
+    mEditMenu.add(new JMenuItem(mDeleteBlockAction));
+    mEditMenu.addSeparator();
+    mEditMenu.add(new JMenuItem(mLengthenAction));
+    mEditMenu.add(new JMenuItem(mShortenAction));
+    mEditMenu.add(new JMenuItem(mShiftRight));
+    mEditMenu.add(new JMenuItem(mShiftLeft));
+    mEditMenu.addSeparator();
+    mEditMenu.add(new JMenuItem(mNextBlock));
+    mEditMenu.add(new JMenuItem(mPreviouseBlock));
 
     // make view menu
 
-    JMenu viewMenu = new JMenu("View");
-    menuBar.add(viewMenu);
-    viewMenu.add(mZoomIn);
-    viewMenu.add(mZoomOut);
+    mViewMenu = new JMenu("View");
+    mMenuBar.add(mViewMenu);
+    mViewMenu.add(mZoomIn);
+    mViewMenu.add(mZoomOut);
 
     // add drawing area
 
@@ -190,22 +193,23 @@ public class BlockPathBuilder extends JFrame
       {
         Graphics2D g = (Graphics2D)graphics;
         super.paint(g);
-        g.setColor(new Color(0, 0, 255, 16));
-        g.fill(computeViewBounds());
-        RendererSet.render(g, mDance);
-        if (mTestPath != null)
-          RendererSet.render(g, mTestPath);
-//        if (getCurrentPath() != null)
-//          RendererSet.render(g, getCurrentPath());
+        paintArena(g);
       }
     };
 
     frame.add(mArena, BorderLayout.CENTER);
   }
 
+  protected void paintArena(Graphics2D g)
+  {
+//    g.setColor(new Color(0, 0, 255, 16));
+//    g.fill(computeViewBounds());
+    RendererSet.render(g, mPath);
+  }
+  
   public Rectangle2D computeViewBounds()
   {
-    Rectangle2D bounds = mDance.getBounds();
+    Rectangle2D bounds = mPath.getBounds();
     bounds.setRect(bounds.getX() - mBorder, bounds.getY() - mBorder, bounds
       .getWidth() +
       2 * mBorder, bounds.getHeight() + 2 * mBorder);
@@ -225,9 +229,9 @@ public class BlockPathBuilder extends JFrame
     {
       Marshaller marshaller = mContext.createMarshaller();
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-      marshaller.marshal(mDance, new FileWriter("test.xml"));
+      marshaller.marshal(mPath, new FileWriter("path-test.xml"));
       StringWriter sw = new StringWriter();
-      marshaller.marshal(mDance, sw);
+      marshaller.marshal(mPath, sw);
       log.debug(sw.toString());
     }
     catch (JAXBException e)
@@ -245,11 +249,9 @@ public class BlockPathBuilder extends JFrame
     try
     {
       Unmarshaller unmarshaller = mContext.createUnmarshaller();
-      log.debug(" pre: " + mDance);
-      mDance = (IDance)unmarshaller.unmarshal(new FileReader("test.xml"));
-      log.debug("post:" + mDance);
-      
-      //mDance = (IDance)unmarshaller.unmarshal(new FileReader("test.xml"));
+      log.debug(" pre: " + mPath);
+      mPath = (IBlockPath)unmarshaller.unmarshal(new FileReader("path-test.xml"));
+      log.debug("post:" + mPath);
       repaint();
     }
     catch (JAXBException e)
@@ -373,27 +375,15 @@ public class BlockPathBuilder extends JFrame
     return result;
   }
 
-  private void previousePath()
-  {
-    mDance.previousePath();
-    repaint();
-  }
-
-  private void nextPath()
-  {
-    mDance.nextPath();
-    repaint();
-  }
-
   private void previouseBlock()
   {
-    getCurrentPath().previouseBlock();
+    mPath.previouseBlock();
     repaint();
   }
 
   private void nextBlock()
   {
-    getCurrentPath().nextBlock();
+    mPath.nextBlock();
     repaint();
   }
 
@@ -453,11 +443,6 @@ public class BlockPathBuilder extends JFrame
   private static StraightBlock convertToStraight(CurveBlock cb)
   {
     return new StraightBlock(quantize(cb.getLength(), DEFAULT_LENGTH_QUANTA));
-  }
-
-  private void addPath(IBlockPath path)
-  {
-    mDance.addAfter(path);
   }
 
   private void addBlock(IBlock block)
@@ -549,49 +534,11 @@ public class BlockPathBuilder extends JFrame
 
   public IBlockPath getCurrentPath()
   {
-    return mDance.getCurrentPath();
+    return mPath;
   }
 
-  /** SwarmCon action class */
-
-  protected abstract class Action extends AbstractAction
-  {
-    private static final long serialVersionUID = 2376655282485450773L;
-
-    // construct the action
-    public Action(String name, KeyStroke key, String description)
-    {
-      super(name);
-      putValue(NAME, name);
-      putValue(SHORT_DESCRIPTION, description);
-      putValue(ACCELERATOR_KEY, key);
-    }
-
-    /**
-     * Return accelerator key for this action.
-     * 
-     * @return accelerator key for this action
-     */
-
-    public KeyStroke getAccelerator()
-    {
-      return (KeyStroke)getValue(ACCELERATOR_KEY);
-    }
-
-    /**
-     * Return name of this action.
-     * 
-     * @return name of this action
-     */
-
-    public String getName()
-    {
-      return (String)getValue(NAME);
-    }
-  }
-
-  private Action mCurveLeftAction =
-    new Action("Left", KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0),
+  private SwarmAction mCurveLeftAction =
+    new SwarmAction("Left", KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0),
       "curve to the left")
     {
       public void actionPerformed(ActionEvent e)
@@ -600,8 +547,8 @@ public class BlockPathBuilder extends JFrame
       }
     };
 
-  private Action mCurveRightAction =
-    new Action("Right", KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0),
+  private SwarmAction mCurveRightAction =
+    new SwarmAction("Right", KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0),
       "curve to the right")
     {
       public void actionPerformed(ActionEvent e)
@@ -612,8 +559,8 @@ public class BlockPathBuilder extends JFrame
 
   /** Action to select simulated rather live operation. */
 
-  private Action mGoStraightAction =
-    new Action("Straight", KeyStroke.getKeyStroke(KeyEvent.VK_UP,
+  private SwarmAction mGoStraightAction =
+    new SwarmAction("Straight", KeyStroke.getKeyStroke(KeyEvent.VK_UP,
       KeyEvent.SHIFT_DOWN_MASK), "add path block wich goes straight forward")
     {
       public void actionPerformed(ActionEvent e)
@@ -624,8 +571,8 @@ public class BlockPathBuilder extends JFrame
 
   /** Action to select simulated rather live operation. */
 
-  private Action mDeleteBlockAction =
-    new Action("Delete", KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0),
+  private SwarmAction mDeleteBlockAction =
+    new SwarmAction("Delete", KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0),
       "delete current block")
     {
       public void actionPerformed(ActionEvent e)
@@ -636,8 +583,8 @@ public class BlockPathBuilder extends JFrame
 
   /** Action to select simulated rather live operation. */
 
-  private Action mShortenAction =
-    new Action("Ensmallen", KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0),
+  private SwarmAction mShortenAction =
+    new SwarmAction("Ensmallen", KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0),
       "decrease the length of the block")
     {
       public void actionPerformed(ActionEvent e)
@@ -648,8 +595,8 @@ public class BlockPathBuilder extends JFrame
 
   /** Action to select simulated rather live operation. */
 
-  private final Action mLengthenAction =
-    new Action("Embiggen", KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0),
+  private final SwarmAction mLengthenAction =
+    new SwarmAction("Embiggen", KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0),
       "increase the length of the block")
     {
       public void actionPerformed(ActionEvent e)
@@ -658,8 +605,8 @@ public class BlockPathBuilder extends JFrame
       }
     };
 
-  private final Action mShiftLeft =
-    new Action("Left Adjust", KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,
+  private final SwarmAction mShiftLeft =
+    new SwarmAction("Left Adjust", KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,
       KeyEvent.SHIFT_DOWN_MASK), "widen right curves, narrow left curves")
     {
       public void actionPerformed(ActionEvent e)
@@ -668,8 +615,8 @@ public class BlockPathBuilder extends JFrame
       }
     };
 
-  private final Action mShiftRight =
-    new Action("Right Adjust", KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,
+  private final SwarmAction mShiftRight =
+    new SwarmAction("Right Adjust", KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,
       KeyEvent.SHIFT_DOWN_MASK), "widen left curvs, narrow right curves")
     {
       public void actionPerformed(ActionEvent e)
@@ -678,28 +625,8 @@ public class BlockPathBuilder extends JFrame
       }
     };
 
-  private final Action mPreviousePath =
-    new Action("Previouse Path", KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,
-      KeyEvent.META_DOWN_MASK), "select previouse bath")
-    {
-      public void actionPerformed(ActionEvent e)
-      {
-        previousePath();
-      }
-    };
-
-  private final Action mNextPath =
-    new Action("Previouse Path", KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,
-      KeyEvent.META_DOWN_MASK), "select next bath")
-    {
-      public void actionPerformed(ActionEvent e)
-      {
-        nextPath();
-      }
-    };
-
-  private final Action mPreviouseBlock =
-    new Action("Previouse Block", KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,
+  private final SwarmAction mPreviouseBlock =
+    new SwarmAction("Previouse Block", KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,
       KeyEvent.META_DOWN_MASK), "select previouse block on current path")
     {
       public void actionPerformed(ActionEvent e)
@@ -708,8 +635,8 @@ public class BlockPathBuilder extends JFrame
       }
     };
 
-  private final Action mNextBlock =
-    new Action("Next Block", KeyStroke.getKeyStroke(KeyEvent.VK_UP,
+  private final SwarmAction mNextBlock =
+    new SwarmAction("Next Block", KeyStroke.getKeyStroke(KeyEvent.VK_UP,
       KeyEvent.META_DOWN_MASK), "select next block on current path")
     {
       public void actionPerformed(ActionEvent e)
@@ -718,8 +645,8 @@ public class BlockPathBuilder extends JFrame
       }
     };
 
-  private final Action mZoomIn =
-    new Action("Zoom in", KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, 0),
+  private final SwarmAction mZoomIn =
+    new SwarmAction("Zoom in", KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, 0),
       "zoom in on the display")
     {
       public void actionPerformed(ActionEvent e)
@@ -730,8 +657,8 @@ public class BlockPathBuilder extends JFrame
 
   /** Zoom display out. */
 
-  Action mZoomOut =
-    new Action("Zoom out", KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, 0),
+  SwarmAction mZoomOut =
+    new SwarmAction("Zoom out", KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, 0),
       "zoom out on the display")
     {
       public void actionPerformed(ActionEvent e)
@@ -742,8 +669,8 @@ public class BlockPathBuilder extends JFrame
 
   /** Zoom display out. */
 
-  Action mSaveAction =
-    new Action("Save", KeyStroke.getKeyStroke(KeyEvent.VK_S,
+  SwarmAction mSaveAction =
+    new SwarmAction("Save", KeyStroke.getKeyStroke(KeyEvent.VK_S,
       KeyEvent.META_DOWN_MASK), "save this path")
     {
       public void actionPerformed(ActionEvent e)
@@ -752,8 +679,8 @@ public class BlockPathBuilder extends JFrame
       }
     };
 
-  Action mLoadAction =
-    new Action("Load", KeyStroke.getKeyStroke(KeyEvent.VK_L,
+  SwarmAction mLoadAction =
+    new SwarmAction("Load", KeyStroke.getKeyStroke(KeyEvent.VK_L,
       KeyEvent.META_DOWN_MASK), "load a path")
     {
       public void actionPerformed(ActionEvent e)

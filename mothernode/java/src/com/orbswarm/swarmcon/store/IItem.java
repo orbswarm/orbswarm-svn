@@ -5,10 +5,10 @@ import java.util.UUID;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.orbswarm.swarmcon.vobject.IVobject;
+import com.orbswarm.swarmcon.view.IRenderable;
 
 @XmlJavaTypeAdapter(IItemAdapter.class)
-public interface IItem<T extends IVobject>
+public interface IItem<T extends IRenderable>
 {
   UUID getId();
   

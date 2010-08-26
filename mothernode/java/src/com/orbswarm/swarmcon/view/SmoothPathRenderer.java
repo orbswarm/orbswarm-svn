@@ -11,7 +11,6 @@ import java.util.Collection;
 import com.orbswarm.swarmcon.path.SmoothPath;
 import com.orbswarm.swarmcon.path.Target;
 import com.orbswarm.swarmcon.path.Waypoint;
-import com.orbswarm.swarmcon.vobject.IVobject;
 
 // smooth path for printing on display
 
@@ -67,7 +66,7 @@ public class SmoothPathRenderer extends ARenderer<SmoothPath>
     return null;
   }
 
-  public IVobject getSelected(Point2D selectionPoint, SmoothPath o)
+  public IRenderable getSelected(Point2D selectionPoint, SmoothPath o)
   {
     return null;
   }

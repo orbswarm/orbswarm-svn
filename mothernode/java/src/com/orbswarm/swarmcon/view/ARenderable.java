@@ -1,4 +1,4 @@
-package com.orbswarm.swarmcon.vobject;
+package com.orbswarm.swarmcon.view;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -16,7 +16,7 @@ import org.trebor.util.Angle;
  */
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public abstract class AVobject implements IVobject
+public abstract class ARenderable implements IRenderable
 {
   @XmlElement(name="heading")
   private Angle mHeading;
@@ -33,7 +33,7 @@ public abstract class AVobject implements IVobject
    * Create a vobject.
    */
 
-  public AVobject()
+  public ARenderable()
   {
     mHeading = new Angle(0, Angle.Type.HEADING);
     mPosition = new Point2D.Double();
@@ -93,9 +93,9 @@ public abstract class AVobject implements IVobject
 
   // clone
   
-  public IVobject clone() throws CloneNotSupportedException
+  public IRenderable clone() throws CloneNotSupportedException
   {
-    AVobject clone = (AVobject)super.clone();
+    ARenderable clone = (ARenderable)super.clone();
     clone.mHeading = mHeading;
     clone.mPosition.setLocation(mPosition);
     return clone;

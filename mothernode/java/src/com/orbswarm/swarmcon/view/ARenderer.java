@@ -9,9 +9,8 @@ import java.awt.geom.Rectangle2D;
 import org.apache.log4j.Logger;
 
 import com.orbswarm.swarmcon.path.Point;
-import com.orbswarm.swarmcon.vobject.IVobject;
 
-public abstract class ARenderer<Type extends IVobject> implements
+public abstract class ARenderer<Type extends IRenderable> implements
   IRenderer<Type>
 {
   @SuppressWarnings("unused")
@@ -81,7 +80,7 @@ public abstract class ARenderer<Type extends IVobject> implements
     return point.distance(new Point2D.Double(bounds.getCenterX(), bounds.getCenterY()));
   }
 
-  public IVobject getSelected(Point2D selectionPoint, Type o)
+  public IRenderable getSelected(Point2D selectionPoint, Type o)
   {
     return getShape(o).contains(selectionPoint)
       ? o

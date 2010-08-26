@@ -19,8 +19,6 @@ import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.path.IDance;
 import com.orbswarm.swarmcon.path.SmoothPath;
 import com.orbswarm.swarmcon.swing.SwarmCon.MouseMobject;
-import com.orbswarm.swarmcon.vobject.IVobject;
-import com.orbswarm.swarmcon.vobject.IVobjects;
 
 public class RendererSet
 {
@@ -29,16 +27,16 @@ public class RendererSet
   // an ordered list of keys used by mRendererClassMap to permit control of
   // which renderers are match to vobjects first
   
-  private static Vector<Class<? extends IVobject>> mKeyOrder =
-    new Vector<Class<? extends IVobject>>();
+  private static Vector<Class<? extends IRenderable>> mKeyOrder =
+    new Vector<Class<? extends IRenderable>>();
 
   // the comparator used to control renderer selection order
   
-  private static Comparator<Class<? extends IVobject>> mRendererComparator =
-    new Comparator<Class<? extends IVobject>>()
+  private static Comparator<Class<? extends IRenderable>> mRendererComparator =
+    new Comparator<Class<? extends IRenderable>>()
     {
-      public int compare(Class<? extends IVobject> o1,
-        Class<? extends IVobject> o2)
+      public int compare(Class<? extends IRenderable> o1,
+        Class<? extends IRenderable> o2)
       {
         return mKeyOrder.indexOf(o1) - mKeyOrder.indexOf(o2);
       }
@@ -46,8 +44,8 @@ public class RendererSet
 
   // a map of vobjects to renderers
     
-  private static Map<Class<? extends IVobject>, Class<? extends IRenderer<? extends IVobject>>> mRendererClassMap =
-    new TreeMap<Class<? extends IVobject>, Class<? extends IRenderer<? extends IVobject>>>(
+  private static Map<Class<? extends IRenderable>, Class<? extends IRenderer<? extends IRenderable>>> mRendererClassMap =
+    new TreeMap<Class<? extends IRenderable>, Class<? extends IRenderer<? extends IRenderable>>>(
       mRendererComparator)
     {
       private static final long serialVersionUID = -2767952369723326950L;
@@ -62,16 +60,16 @@ public class RendererSet
         put(Phantom.class, PhantomRenderer.class);
         put(MouseMobject.class, MouseMobjectRenderer.class);
         put(SmoothPath.class, SmoothPathRenderer.class);
-        put(IVobjects.class, MobjectsRenderer.class);
+        put(IRenderables.class, RenderablesRenderer.class);
         put(IOrb.class, OrbRenderer.class);
       }
 
       // override of put to capture key order
       
       @Override
-      public Class<? extends IRenderer<? extends IVobject>> put(
-        Class<? extends IVobject> key,
-        Class<? extends IRenderer<? extends IVobject>> value)
+      public Class<? extends IRenderer<? extends IRenderable>> put(
+        Class<? extends IRenderable> key,
+        Class<? extends IRenderer<? extends IRenderable>> value)
       {
         mKeyOrder.add(key);
         return super.put(key, value);
@@ -79,24 +77,24 @@ public class RendererSet
 
     };
 
-  private static Map<Class<? extends IVobject>, IRenderer<?>> mRendererInstanceMap =
-    new HashMap<Class<? extends IVobject>, IRenderer<? extends IVobject>>();
+  private static Map<Class<? extends IRenderable>, IRenderer<?>> mRendererInstanceMap =
+    new HashMap<Class<? extends IRenderable>, IRenderer<? extends IRenderable>>();
 
-  public static <Type extends IVobject> void render(Graphics2D g, Type vobject)
+  public static <Type extends IRenderable> void render(Graphics2D g, Type vobject)
   {
     AffineTransform t = g.getTransform();
     getRenderer(vobject).render(g, vobject);
     g.setTransform(t);
   }
 
-  public static void renderAsPhantom(Graphics2D g, IVobject mobject,
+  public static void renderAsPhantom(Graphics2D g, IRenderable mobject,
     double phantomAlpha)
   {
     getRenderer(mobject).renderAsPhantom(g, mobject, phantomAlpha);
   }
 
   /**
-   * Get the {@link IRenderer} for a specific type of {@link IVobject}.
+   * Get the {@link IRenderer} for a specific type of {@link IRenderable}.
    * 
    * @param <Type>
    * @param mobject
@@ -104,10 +102,10 @@ public class RendererSet
    */
 
   @SuppressWarnings("unchecked")
-  public static <Type extends IVobject> IRenderer<Type> getRenderer(
+  public static <Type extends IRenderable> IRenderer<Type> getRenderer(
     Type mobject)
   {
-    for (Entry<Class<? extends IVobject>, Class<? extends IRenderer<? extends IVobject>>> entry : mRendererClassMap
+    for (Entry<Class<? extends IRenderable>, Class<? extends IRenderer<? extends IRenderable>>> entry : mRendererClassMap
       .entrySet())
     {
       if (entry.getKey().isInstance(mobject))
@@ -120,7 +118,7 @@ public class RendererSet
   }
 
   @SuppressWarnings("unchecked")
-  private static <Type extends IVobject> IRenderer<Type> getRenderer(
+  private static <Type extends IRenderable> IRenderer<Type> getRenderer(
     Class<Type> mobjectType, Class<IRenderer<Type>> rendererType)
   {
     IRenderer<Type> renderer =
@@ -149,24 +147,24 @@ public class RendererSet
   }
 
   /**
-   * Establish this {@link IVobject} is selected by clicking at
-   * selectionPoint. A {@link IVobject} is selected if the {@link Shape}
-   * returned by {@link #getShape(IVobject)}
+   * Establish this {@link IRenderable} is selected by clicking at
+   * selectionPoint. A {@link IRenderable} is selected if the {@link Shape}
+   * returned by {@link #getShape(IRenderable)}
    * {@link Shape#contains(Point2D)} selectionPoint, and the
-   * {@link IVobject} is the closest to the selectionPoint.
+   * {@link IRenderable} is the closest to the selectionPoint.
    * 
    * @param selectionPoint the point to select from
-   * @param o the object to search for candidate {@link IVobject}s.
-   * @return the selected {@link IVobject} or null if no valid candidates
+   * @param o the object to search for candidate {@link IRenderable}s.
+   * @return the selected {@link IRenderable} or null if no valid candidates
    *         exist.
    */
 
-  public static IVobject getSelected(Point2D selectionPoint, IVobject o)
+  public static IRenderable getSelected(Point2D selectionPoint, IRenderable o)
   {
     return getRenderer(o).getSelected(selectionPoint, o);
   }
   
-  public static <Type extends IVobject> Shape getShape(Type vobject)
+  public static <Type extends IRenderable> Shape getShape(Type vobject)
   {
     return getRenderer(vobject).getShape(vobject);
   }

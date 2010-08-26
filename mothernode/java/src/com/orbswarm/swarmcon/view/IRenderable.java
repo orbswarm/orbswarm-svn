@@ -1,4 +1,4 @@
-package com.orbswarm.swarmcon.vobject;
+package com.orbswarm.swarmcon.view;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -7,11 +7,11 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.trebor.util.Angle;
 
-import com.orbswarm.swarmcon.path.ISelectable;
 import com.orbswarm.swarmcon.store.IVobjectAdapter;
+import com.orbswarm.swarmcon.util.ISelectable;
 
 @XmlJavaTypeAdapter(IVobjectAdapter.class)
-public interface IVobject extends ISelectable
+public interface IRenderable extends ISelectable
 {
   // position getter
 

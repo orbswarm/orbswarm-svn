@@ -2,10 +2,10 @@ package com.orbswarm.swarmcon.orb;
 
 import org.apache.log4j.Logger;
 
-import com.orbswarm.swarmcon.vobject.AVobjects;
+import com.orbswarm.swarmcon.view.ARenderables;
 
 @SuppressWarnings("serial")
-public class Swarm extends AVobjects<IOrb>
+public class Swarm extends ARenderables<IOrb>
 {
   @SuppressWarnings("unused")
   private static Logger log = Logger.getLogger(Orb.class);

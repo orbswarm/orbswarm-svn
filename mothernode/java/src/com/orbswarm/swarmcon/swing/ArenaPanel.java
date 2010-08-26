@@ -23,7 +23,7 @@ import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
-import static com.orbswarm.swarmcon.Constants.*;
+import static com.orbswarm.swarmcon.util.Constants.*;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;

@@ -1,4 +1,4 @@
-package com.orbswarm.swarmcon.path;
+package com.orbswarm.swarmcon.util;
 
 public interface ISelectable
 {

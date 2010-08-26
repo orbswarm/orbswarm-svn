@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.awt.Stroke;
 import java.awt.BasicStroke;
 
-import com.orbswarm.swarmcon.Constants;
+import com.orbswarm.swarmcon.util.Constants;
 
 public class RenderingConstants
 {

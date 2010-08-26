@@ -2,18 +2,18 @@ package com.orbswarm.swarmcon.store;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-import com.orbswarm.swarmcon.vobject.AVobject;
-import com.orbswarm.swarmcon.vobject.IVobject;
+import com.orbswarm.swarmcon.view.ARenderable;
+import com.orbswarm.swarmcon.view.IRenderable;
 
-public class IVobjectAdapter extends XmlAdapter<AVobject, IVobject>
+public class IVobjectAdapter extends XmlAdapter<ARenderable, IRenderable>
 {
 
-  public AVobject marshal(IVobject v) throws Exception
+  public ARenderable marshal(IRenderable v) throws Exception
   {
-    return (AVobject)v;
+    return (ARenderable)v;
   }
 
-  public IVobject unmarshal(AVobject v) throws Exception
+  public IRenderable unmarshal(ARenderable v) throws Exception
   {
     return v;
   }

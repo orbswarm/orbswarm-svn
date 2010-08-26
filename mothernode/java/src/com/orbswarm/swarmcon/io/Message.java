@@ -4,7 +4,7 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Map.Entry;
 
-import static com.orbswarm.swarmcon.Constants.ORB_OFFSET_ID;
+import static com.orbswarm.swarmcon.util.Constants.ORB_OFFSET_ID;
 
 /** The orb message class. */
 

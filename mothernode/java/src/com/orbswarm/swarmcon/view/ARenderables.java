@@ -1,4 +1,4 @@
-package com.orbswarm.swarmcon.vobject;
+package com.orbswarm.swarmcon.view;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -8,12 +8,12 @@ import org.trebor.util.Angle;
 
 import com.orbswarm.swarmcon.path.Point;
 
-public class AVobjects<E extends IVobject> extends Vector<E>
-  implements IVobjects<E>
+public class ARenderables<E extends IRenderable> extends Vector<E>
+  implements IRenderables<E>
 {
   private static final long serialVersionUID = -1347610749830598878L;
 
-  public double distanceTo(IVobject other)
+  public double distanceTo(IRenderable other)
   {
     return getPosition().distance(other.getPosition());
   }
@@ -58,7 +58,7 @@ public class AVobjects<E extends IVobject> extends Vector<E>
     return getPosition().getY();
   }
 
-  public double headingTo(IVobject other)
+  public double headingTo(IRenderable other)
   {
     throw new UnsupportedOperationException();
   }

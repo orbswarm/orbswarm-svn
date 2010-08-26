@@ -1,10 +1,9 @@
-package com.orbswarm.swarmcon.path;
+package com.orbswarm.swarmcon.util;
 
 import java.util.Collection;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.orbswarm.swarmcon.store.ISelectableListAdapter;
 
 @XmlJavaTypeAdapter(ISelectableListAdapter.class)
 public interface ISelectableList<T extends ISelectable>
