@@ -14,7 +14,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 
-import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -37,6 +36,7 @@ import com.orbswarm.swarmcon.path.IBlock;
 import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.path.IDance;
 import com.orbswarm.swarmcon.path.StraightBlock;
+import com.orbswarm.swarmcon.util.Constants;
 import com.orbswarm.swarmcon.view.RendererSet;
 
 import static java.lang.Math.PI;
@@ -212,7 +212,7 @@ public class DanceBuilder extends JFrame
 
   public Rectangle2D computeViewBounds()
   {
-    Rectangle2D bounds = mDance.getBounds();
+    Rectangle2D bounds = mDance.getBounds2D();
     bounds.setRect(bounds.getX() - mBorder, bounds.getY() - mBorder, bounds
       .getWidth() +
       2 * mBorder, bounds.getHeight() + 2 * mBorder);
@@ -222,7 +222,7 @@ public class DanceBuilder extends JFrame
   @Override
   public void repaint()
   {
-    mArena.setViewPort(computeViewBounds());
+    mArena.setViewPort(computeViewBounds(), Constants.ARENA_VIWPORT_BORDER);
     super.repaint();
   }
 
@@ -559,46 +559,8 @@ public class DanceBuilder extends JFrame
     return mDance.getCurrentPath();
   }
 
-  /** SwarmCon action class */
-
-  protected abstract class Action extends AbstractAction
-  {
-    private static final long serialVersionUID = 2376655282485450773L;
-
-    // construct the action
-    public Action(String name, KeyStroke key, String description)
-    {
-      super(name);
-      putValue(NAME, name);
-      putValue(SHORT_DESCRIPTION, description);
-      putValue(ACCELERATOR_KEY, key);
-    }
-
-    /**
-     * Return accelerator key for this action.
-     * 
-     * @return accelerator key for this action
-     */
-
-    public KeyStroke getAccelerator()
-    {
-      return (KeyStroke)getValue(ACCELERATOR_KEY);
-    }
-
-    /**
-     * Return name of this action.
-     * 
-     * @return name of this action
-     */
-
-    public String getName()
-    {
-      return (String)getValue(NAME);
-    }
-  }
-
-  private Action mCurveLeftAction =
-    new Action("Left", KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0),
+  private SwarmAction mCurveLeftAction =
+    new SwarmAction("Left", KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0),
       "curve to the left")
     {
       public void actionPerformed(ActionEvent e)
@@ -607,8 +569,8 @@ public class DanceBuilder extends JFrame
       }
     };
 
-  private Action mCurveRightAction =
-    new Action("Right", KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0),
+  private SwarmAction mCurveRightAction =
+    new SwarmAction("Right", KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0),
       "curve to the right")
     {
       public void actionPerformed(ActionEvent e)
@@ -619,8 +581,8 @@ public class DanceBuilder extends JFrame
 
   /** Action to select simulated rather live operation. */
 
-  private Action mGoStraightAction =
-    new Action("Straight", KeyStroke.getKeyStroke(KeyEvent.VK_UP,
+  private SwarmAction mGoStraightAction =
+    new SwarmAction("Straight", KeyStroke.getKeyStroke(KeyEvent.VK_UP,
       KeyEvent.SHIFT_DOWN_MASK), "add path block wich goes straight forward")
     {
       public void actionPerformed(ActionEvent e)
@@ -631,8 +593,8 @@ public class DanceBuilder extends JFrame
 
   /** Action to select simulated rather live operation. */
 
-  private Action mDeleteBlockAction =
-    new Action("Delete", KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0),
+  private SwarmAction mDeleteBlockAction =
+    new SwarmAction("Delete", KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0),
       "delete current block")
     {
       public void actionPerformed(ActionEvent e)
@@ -643,8 +605,8 @@ public class DanceBuilder extends JFrame
 
   /** Action to select simulated rather live operation. */
 
-  private Action mShortenAction =
-    new Action("Ensmallen", KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0),
+  private SwarmAction mShortenAction =
+    new SwarmAction("Ensmallen", KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0),
       "decrease the length of the block")
     {
       public void actionPerformed(ActionEvent e)
@@ -655,8 +617,8 @@ public class DanceBuilder extends JFrame
 
   /** Action to select simulated rather live operation. */
 
-  private final Action mLengthenAction =
-    new Action("Embiggen", KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0),
+  private final SwarmAction mLengthenAction =
+    new SwarmAction("Embiggen", KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0),
       "increase the length of the block")
     {
       public void actionPerformed(ActionEvent e)
@@ -665,8 +627,8 @@ public class DanceBuilder extends JFrame
       }
     };
 
-  private final Action mShiftLeft =
-    new Action("Left Adjust", KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,
+  private final SwarmAction mShiftLeft =
+    new SwarmAction("Left Adjust", KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,
       KeyEvent.SHIFT_DOWN_MASK), "widen right curves, narrow left curves")
     {
       public void actionPerformed(ActionEvent e)
@@ -675,8 +637,8 @@ public class DanceBuilder extends JFrame
       }
     };
 
-  private final Action mShiftRight =
-    new Action("Right Adjust", KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,
+  private final SwarmAction mShiftRight =
+    new SwarmAction("Right Adjust", KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,
       KeyEvent.SHIFT_DOWN_MASK), "widen left curvs, narrow right curves")
     {
       public void actionPerformed(ActionEvent e)
@@ -685,8 +647,8 @@ public class DanceBuilder extends JFrame
       }
     };
 
-  private final Action mPreviousePath =
-    new Action("Previouse Path", KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,
+  private final SwarmAction mPreviousePath =
+    new SwarmAction("Previouse Path", KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,
       KeyEvent.META_DOWN_MASK), "select previouse bath")
     {
       public void actionPerformed(ActionEvent e)
@@ -695,8 +657,8 @@ public class DanceBuilder extends JFrame
       }
     };
 
-  private final Action mNextPath =
-    new Action("Previouse Path", KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,
+  private final SwarmAction mNextPath =
+    new SwarmAction("Previouse Path", KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,
       KeyEvent.META_DOWN_MASK), "select next bath")
     {
       public void actionPerformed(ActionEvent e)
@@ -705,8 +667,8 @@ public class DanceBuilder extends JFrame
       }
     };
 
-  private final Action mPreviouseBlock =
-    new Action("Previouse Block", KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,
+  private final SwarmAction mPreviouseBlock =
+    new SwarmAction("Previouse Block", KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,
       KeyEvent.META_DOWN_MASK), "select previouse block on current path")
     {
       public void actionPerformed(ActionEvent e)
@@ -715,8 +677,8 @@ public class DanceBuilder extends JFrame
       }
     };
 
-  private final Action mNextBlock =
-    new Action("Next Block", KeyStroke.getKeyStroke(KeyEvent.VK_UP,
+  private final SwarmAction mNextBlock =
+    new SwarmAction("Next Block", KeyStroke.getKeyStroke(KeyEvent.VK_UP,
       KeyEvent.META_DOWN_MASK), "select next block on current path")
     {
       public void actionPerformed(ActionEvent e)
@@ -725,8 +687,8 @@ public class DanceBuilder extends JFrame
       }
     };
 
-  private final Action mZoomIn =
-    new Action("Zoom in", KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, 0),
+  private final SwarmAction mZoomIn =
+    new SwarmAction("Zoom in", KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, 0),
       "zoom in on the display")
     {
       public void actionPerformed(ActionEvent e)
@@ -737,8 +699,8 @@ public class DanceBuilder extends JFrame
 
   /** Zoom display out. */
 
-  Action mZoomOut =
-    new Action("Zoom out", KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, 0),
+  SwarmAction mZoomOut =
+    new SwarmAction("Zoom out", KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, 0),
       "zoom out on the display")
     {
       public void actionPerformed(ActionEvent e)
@@ -749,8 +711,8 @@ public class DanceBuilder extends JFrame
 
   /** Zoom display out. */
 
-  Action mSaveAction =
-    new Action("Save", KeyStroke.getKeyStroke(KeyEvent.VK_S,
+  SwarmAction mSaveAction =
+    new SwarmAction("Save", KeyStroke.getKeyStroke(KeyEvent.VK_S,
       KeyEvent.META_DOWN_MASK), "save this path")
     {
       public void actionPerformed(ActionEvent e)
@@ -759,8 +721,8 @@ public class DanceBuilder extends JFrame
       }
     };
 
-  Action mLoadAction =
-    new Action("Load", KeyStroke.getKeyStroke(KeyEvent.VK_L,
+  SwarmAction mLoadAction =
+    new SwarmAction("Load", KeyStroke.getKeyStroke(KeyEvent.VK_L,
       KeyEvent.META_DOWN_MASK), "load a path")
     {
       public void actionPerformed(ActionEvent e)

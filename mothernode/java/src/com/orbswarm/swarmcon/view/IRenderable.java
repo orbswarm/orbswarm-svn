@@ -2,6 +2,7 @@ package com.orbswarm.swarmcon.view;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -44,4 +45,12 @@ public interface IRenderable extends ISelectable
    */
 
   AffineTransform getTransform();
+
+  /**
+   * Compute the bounds of this particular renderable.
+   * 
+   * @return the rectangular bounds of this renderable.
+   */
+  
+  Rectangle2D getBounds2D();
 }

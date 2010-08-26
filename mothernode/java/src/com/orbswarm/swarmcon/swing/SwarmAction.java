@@ -5,11 +5,11 @@ import javax.swing.KeyStroke;
 
 /** SwarmCon action class */
 
+@SuppressWarnings("serial")
 public abstract class SwarmAction extends AbstractAction
 {
-  private static final long serialVersionUID = 2376655282485450773L;
-
   // construct the action
+  
   public SwarmAction(String name, KeyStroke key, String description)
   {
     super(name);

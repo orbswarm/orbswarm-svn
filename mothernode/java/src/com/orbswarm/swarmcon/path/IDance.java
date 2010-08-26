@@ -9,7 +9,7 @@ import com.orbswarm.swarmcon.view.IRenderable;
 
 public interface IDance extends IRenderable
 {
-  Rectangle2D getBounds();
+  Rectangle2D getBounds2D();
 
   Shape getPath();
   

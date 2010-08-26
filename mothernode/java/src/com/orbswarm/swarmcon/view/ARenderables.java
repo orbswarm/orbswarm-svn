@@ -2,6 +2,7 @@ package com.orbswarm.swarmcon.view;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.Vector;
 
 import org.trebor.util.Angle;
@@ -101,6 +102,11 @@ public class ARenderables<E extends IRenderable> extends Vector<E>
   }
 
   public AffineTransform getTransform()
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  public Rectangle2D getBounds2D()
   {
     throw new UnsupportedOperationException();
   }

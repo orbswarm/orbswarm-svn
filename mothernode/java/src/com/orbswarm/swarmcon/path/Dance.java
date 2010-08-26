@@ -112,7 +112,7 @@ public class Dance extends ARenderable implements IDance
     return mSeperation;
   }
 
-  public Rectangle2D getBounds()
+  public Rectangle2D getBounds2D()
   {
     return getPath().getBounds2D();
   }

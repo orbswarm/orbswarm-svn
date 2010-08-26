@@ -18,7 +18,7 @@ public interface IBlockPath extends IRenderable
 
   Shape getPath();
   
-  Rectangle2D getBounds();
+  Rectangle2D getBounds2D();
   
   void addBefore(IBlock... blocks);
 

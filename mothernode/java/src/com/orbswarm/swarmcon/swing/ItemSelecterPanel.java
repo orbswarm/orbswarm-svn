@@ -18,6 +18,7 @@ import javax.swing.border.TitledBorder;
 import com.orbswarm.swarmcon.store.IItem;
 import com.orbswarm.swarmcon.store.IItemStore;
 import com.orbswarm.swarmcon.store.TestStore;
+import com.orbswarm.swarmcon.util.Constants;
 import com.orbswarm.swarmcon.view.RendererSet;
 
 public class ItemSelecterPanel extends JPanel
@@ -110,7 +111,7 @@ public class ItemSelecterPanel extends JPanel
       bounds.setRect(bounds.getX() - mBorder , bounds.getY() - mBorder , bounds
         .getWidth() +
         2 * mBorder, bounds.getHeight() + 2 * mBorder);
-      setViewPort(bounds);
+      setViewPort(bounds, Constants.ARENA_VIWPORT_BORDER);
       
       // paint the view
       

@@ -1,5 +1,6 @@
 package com.orbswarm.swarmcon.store;
 
+import java.awt.geom.AffineTransform;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Collection;
@@ -17,6 +18,9 @@ import javax.xml.bind.Unmarshaller;
 
 import com.orbswarm.swarmcon.path.ABlock;
 import com.orbswarm.swarmcon.path.BlockPath;
+import com.orbswarm.swarmcon.path.CurveBlock;
+import com.orbswarm.swarmcon.path.Dance;
+import com.orbswarm.swarmcon.path.StraightBlock;
 import com.orbswarm.swarmcon.view.IRenderable;
 
 public abstract class AItemStore implements IItemStore
@@ -42,7 +46,8 @@ public abstract class AItemStore implements IItemStore
     try
     {
       JAXBContext context =
-        JAXBContext.newInstance(Item.class, BlockPath.class, ABlock.class);
+        JAXBContext.newInstance(Item.class, BlockPath.class, StraightBlock.class, 
+          CurveBlock.class, ABlock.class, Dance.class, AffineTransform.class);
       marshaller = context.createMarshaller();
       unmarshaller = context.createUnmarshaller();
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);

@@ -2,6 +2,7 @@ package com.orbswarm.swarmcon.view;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -119,5 +120,10 @@ public abstract class ARenderable implements IRenderable
     t.rotate(mHeading.rotate(90, Angle.Type.HEADING_RATE).as(
       Angle.Type.RADIANS));
     return t;
+  }
+
+  public Rectangle2D getBounds2D()
+  {
+    throw new UnsupportedOperationException();
   }
 }

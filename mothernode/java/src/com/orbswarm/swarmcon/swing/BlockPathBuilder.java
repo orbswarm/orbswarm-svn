@@ -7,16 +7,15 @@ import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -34,6 +33,11 @@ import com.orbswarm.swarmcon.path.Dance;
 import com.orbswarm.swarmcon.path.IBlock;
 import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.path.StraightBlock;
+import com.orbswarm.swarmcon.store.FileStore;
+import com.orbswarm.swarmcon.store.IItemStore;
+import com.orbswarm.swarmcon.store.TestStore;
+import com.orbswarm.swarmcon.util.Constants;
+import com.orbswarm.swarmcon.view.IRenderable;
 import com.orbswarm.swarmcon.view.RendererSet;
 
 import static java.lang.Math.PI;
@@ -76,32 +80,36 @@ public class BlockPathBuilder extends JFrame
   private double mCurrentLength = DEFAULT_LENGTH;
   // private double mCurrentCurveExtent = DEFAULT_CURVE_EXTENT;
 
-  private IBlockPath mPath;
-
-  private ArenaPanel mArena;
-
-  private double mBorder = 2;
+  private IRenderable mArtifact;
+  
+  protected ArenaPanel mArena;
 
   protected JMenu mEditMenu;
 
-  private JMenuBar mMenuBar;
+  protected JMenuBar mMenuBar;
 
-  private JMenu mFileMenu;
+  protected JMenu mFileMenu;
 
-  private JMenu mViewMenu;
+  protected JMenu mViewMenu;
+
+  private IItemStore mStore;
 
   public static void main(String[] args)
   {
     System.setProperty("com.apple.mrj.application.apple.menu.about.name",
       "Arena Test");
     System.setProperty("apple.laf.useScreenMenuBar", "true");
-    new BlockPathBuilder();
+    new BlockPathBuilder(new FileStore("/tmp/store"));
   }
 
   // construct a swarm
 
-  public BlockPathBuilder()
+  public BlockPathBuilder(IItemStore store)
   {
+    // get the item store
+    
+    mStore = store;
+
     try
     {
       mContext =
@@ -116,13 +124,11 @@ public class BlockPathBuilder extends JFrame
     // make the frame
 
     constructFrame();
-
-    // make the path
-
-    mPath = new BlockPath();
-    mPath.setSelected(true);
-    addBlock(new StraightBlock(mCurrentLength));
-
+    
+    // initialize the object
+    
+    initializeArtifact();
+    
     // show the frame
 
     pack();
@@ -132,10 +138,21 @@ public class BlockPathBuilder extends JFrame
   }
 
   /**
+   * Initialize the artifact to be edited.
+   */
+  
+  protected void initializeArtifact()
+  {
+    setArtifact(new BlockPath());
+    getCurrentPath().setSelected(true);
+    getCurrentPath().addAfter(new StraightBlock(mCurrentLength));
+  }
+
+  /**
    * Place GUI objects into frame.
    */
 
-  public void constructFrame()
+  protected void constructFrame()
   {
     Container frame = getContentPane();
 
@@ -156,25 +173,25 @@ public class BlockPathBuilder extends JFrame
 
     mFileMenu = new JMenu("File");
     mMenuBar.add(mFileMenu);
-    mFileMenu.add(new JMenuItem(mSaveAction));
-    mFileMenu.add(new JMenuItem(mLoadAction));
+    mFileMenu.add(mSaveAction);
+    mFileMenu.add(mLoadAction);
 
     // make edit menu
 
     mEditMenu = new JMenu("Edit");
     mMenuBar.add(mEditMenu);
-    mEditMenu.add(new JMenuItem(mCurveLeftAction));
-    mEditMenu.add(new JMenuItem(mGoStraightAction));
-    mEditMenu.add(new JMenuItem(mCurveRightAction));
-    mEditMenu.add(new JMenuItem(mDeleteBlockAction));
+    mEditMenu.add(mCurveLeftAction);
+    mEditMenu.add(mGoStraightAction);
+    mEditMenu.add(mCurveRightAction);
+    mEditMenu.add(mDeleteBlockAction);
     mEditMenu.addSeparator();
-    mEditMenu.add(new JMenuItem(mLengthenAction));
-    mEditMenu.add(new JMenuItem(mShortenAction));
-    mEditMenu.add(new JMenuItem(mShiftRight));
-    mEditMenu.add(new JMenuItem(mShiftLeft));
+    mEditMenu.add(mLengthenAction);
+    mEditMenu.add(mShortenAction);
+    mEditMenu.add(mShiftRight);
+    mEditMenu.add(mShiftLeft);
     mEditMenu.addSeparator();
-    mEditMenu.add(new JMenuItem(mNextBlock));
-    mEditMenu.add(new JMenuItem(mPreviouseBlock));
+    mEditMenu.add(mNextBlock);
+    mEditMenu.add(mPreviouseBlock);
 
     // make view menu
 
@@ -187,81 +204,36 @@ public class BlockPathBuilder extends JFrame
 
     mArena = new ArenaPanel()
     {
-      private static final long serialVersionUID = -4817333022169216465L;
-
       public void paint(Graphics graphics)
       {
         Graphics2D g = (Graphics2D)graphics;
         super.paint(g);
-        paintArena(g);
+        RendererSet.render(g, getArtifact());
       }
     };
 
     frame.add(mArena, BorderLayout.CENTER);
   }
-
-  protected void paintArena(Graphics2D g)
-  {
-//    g.setColor(new Color(0, 0, 255, 16));
-//    g.fill(computeViewBounds());
-    RendererSet.render(g, mPath);
-  }
   
-  public Rectangle2D computeViewBounds()
-  {
-    Rectangle2D bounds = mPath.getBounds();
-    bounds.setRect(bounds.getX() - mBorder, bounds.getY() - mBorder, bounds
-      .getWidth() +
-      2 * mBorder, bounds.getHeight() + 2 * mBorder);
-    return bounds;
-  }
-
   @Override
   public void repaint()
   {
-    mArena.setViewPort(computeViewBounds());
+    mArena.setViewPort(getArtifact().getBounds2D(), Constants.ARENA_VIWPORT_BORDER);
     super.repaint();
   }
 
   protected void save()
   {
-    try
-    {
-      Marshaller marshaller = mContext.createMarshaller();
-      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-      marshaller.marshal(mPath, new FileWriter("path-test.xml"));
-      StringWriter sw = new StringWriter();
-      marshaller.marshal(mPath, sw);
-      log.debug(sw.toString());
-    }
-    catch (JAXBException e)
-    {
-      e.printStackTrace();
-    }
-    catch (IOException e)
-    {
-      e.printStackTrace();
-    }
+    mStore.add(mArtifact, "name");
   }
 
   protected void load()
   {
-    try
-    {
-      Unmarshaller unmarshaller = mContext.createUnmarshaller();
-      log.debug(" pre: " + mPath);
-      mPath = (IBlockPath)unmarshaller.unmarshal(new FileReader("path-test.xml"));
-      log.debug("post:" + mPath);
-      repaint();
-    }
-    catch (JAXBException e)
-    {
-      e.printStackTrace();
-    }
-    catch (IOException e)
-    {
-      e.printStackTrace();
-    }
+    JDialog box = new JDialog(this, "Select Item", true);
+    Container frame = box.getContentPane();
+    frame.add(new ItemSelecterPanel(mStore));
+    box.pack();
+    box.setVisible(true);
   }
 
   private void curveRight()
@@ -377,13 +349,13 @@ public class BlockPathBuilder extends JFrame
 
   private void previouseBlock()
   {
-    mPath.previouseBlock();
+    getCurrentPath().previouseBlock();
     repaint();
   }
 
-  private void nextBlock()
+  protected void nextBlock()
   {
-    mPath.nextBlock();
+    getCurrentPath().nextBlock();
     repaint();
   }
 
@@ -534,7 +506,17 @@ public class BlockPathBuilder extends JFrame
 
   public IBlockPath getCurrentPath()
   {
-    return mPath;
+    return (IBlockPath)getArtifact();
+  }
+
+  public void setArtifact(IRenderable artifact)
+  {
+    mArtifact = artifact;
+  }
+
+  public IRenderable getArtifact()
+  {
+    return mArtifact;
   }
 
   private SwarmAction mCurveLeftAction =
@@ -635,7 +617,7 @@ public class BlockPathBuilder extends JFrame
       }
     };
 
-  private final SwarmAction mNextBlock =
+  protected final SwarmAction mNextBlock =
     new SwarmAction("Next Block", KeyStroke.getKeyStroke(KeyEvent.VK_UP,
       KeyEvent.META_DOWN_MASK), "select next block on current path")
     {

@@ -2,9 +2,9 @@ package com.orbswarm.swarmcon.store;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-import com.orbswarm.swarmcon.path.ISelectable;
-import com.orbswarm.swarmcon.path.ISelectableList;
-import com.orbswarm.swarmcon.path.SelectableList;
+import com.orbswarm.swarmcon.util.ISelectable;
+import com.orbswarm.swarmcon.util.ISelectableList;
+import com.orbswarm.swarmcon.util.SelectableList;
 
 public class ISelectableListAdapter
   extends

@@ -12,6 +12,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
+import java.awt.geom.Rectangle2D;
 import java.util.Vector;
 
 import static org.trebor.util.Angle.Type.DEGREES;
@@ -542,5 +543,10 @@ public class SmoothPath extends Vector<Waypoint> implements IRenderable
   public AffineTransform getTransform()
   {
     throw new UnsupportedOperationException();
+  }
+
+  public Rectangle2D getBounds2D()
+  {
+    return continousePath.getBounds2D();
   }
 }

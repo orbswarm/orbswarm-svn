@@ -88,7 +88,7 @@ public class BlockPath extends ARenderable implements IBlockPath
     return gp;
   }
 
-  public Rectangle2D getBounds()
+  public Rectangle2D getBounds2D()
   {
     return getPath().getBounds2D();
   }

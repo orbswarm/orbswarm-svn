@@ -102,4 +102,5 @@ public class Constants
     .getNumberInstance();
   public static final NumberFormat STANDARD_FORMAT = NumberFormat
     .getNumberInstance();
+  public static final double ARENA_VIWPORT_BORDER = 1;
 }

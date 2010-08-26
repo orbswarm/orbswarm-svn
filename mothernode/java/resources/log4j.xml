@@ -16,7 +16,6 @@
 		<level value="warn" />
 	</logger>
 
-
 	<logger name="com.orbswarm.swarmcon.path.SelectableList">
 		<level value="warn" />
 	</logger>
@@ -29,9 +28,13 @@
 		<level value="warn" />
 	</logger>
 
-	<logger name="com.orbswarm.swarmcon.path.BlockPathBuilder">
-		<level value="debug" />
-	</logger>
+  <logger name="com.orbswarm.swarmcon.swing.BlockPathBuilder">
+    <level value="debug" />
+  </logger>
+
+  <logger name="com.orbswarm.swarmcon.swing.DanceBuilder">
+    <level value="debug" />
+  </logger>
 
 	<logger name="com.orbswarm.swarmcon.path.BlockPath">
 		<level value="warn" />
@@ -66,7 +69,7 @@
 	</logger>
 
 	<root>
-		<level value="" />
+		<level value="debug" />
 		<appender-ref ref="CONSOLE" />
 	</root>
 

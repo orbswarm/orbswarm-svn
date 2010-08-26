@@ -346,18 +346,23 @@ public class ArenaPanel extends JPanel
     setViewCenter(new Point2D.Double());
   }
 
-    /**
+  /**
    * Sets the view port to completely view the given rectangle in world
    * units.
    * 
    * @param viewPort the view port in world units to view
+   * @param border the border to add around the view
    */
 
-  public void setViewPort(Rectangle2D viewPort)
+  public void setViewPort(Rectangle2D viewPort, double border)
   {
     if (getVisibleRect().getWidth() == 0)
       return;
-    
+
+    if (0 != border)
+      viewPort.setRect(viewPort.getX() - border, viewPort.getY() - border,
+        viewPort.getWidth() + 2 * border, viewPort.getHeight() + 2 * border);
+
     // reset the view transform
 
     mViewTransform.setToIdentity();
@@ -365,8 +370,8 @@ public class ArenaPanel extends JPanel
     // set scale
 
     double scale =
-      Math.min(getWidth() / viewPort.getWidth(), getHeight() /
-        viewPort.getHeight());
+      Math.min(getWidth() / viewPort.getWidth(),
+        getHeight() / viewPort.getHeight());
     mViewTransform.scale(scale, -scale);
 
     // set translate
@@ -374,11 +379,11 @@ public class ArenaPanel extends JPanel
     Rectangle2D frame = screenToWorld(getVisibleRect()).getBounds2D();
     double centerX = (viewPort.getWidth() - frame.getWidth()) / 2;
     double centerY = (viewPort.getHeight() - frame.getHeight()) / 2;
-    mViewTransform.translate(
-      -(viewPort.getX() + centerX), -(viewPort.getY() + viewPort.getHeight() - centerY));
-    
+    mViewTransform.translate(-(viewPort.getX() + centerX), -(viewPort.getY() +
+      viewPort.getHeight() - centerY));
+
     // repaint
-    
+
     repaint();
   }
   

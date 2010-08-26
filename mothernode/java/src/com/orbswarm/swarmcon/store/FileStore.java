@@ -12,8 +12,15 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
+
+import com.orbswarm.swarmcon.swing.DanceBuilder;
+
 public class FileStore extends AItemStore
 {
+  @SuppressWarnings("unused")
+  private static Logger log = Logger.getLogger(DanceBuilder.class);
+
   private static final Pattern FILE_PATTERN_RE =
     Pattern.compile("^(" + GUID_PATTERN + ")\\.xml$");
   private static final String FILE_FORMAT = "%s%s%s.xml";
@@ -78,7 +85,9 @@ public class FileStore extends AItemStore
   {
     try
     {
-      (new FileWriter(establishFile(id))).write(xml);
+      FileWriter writer = new FileWriter(establishFile(id));
+      writer.write(xml);
+      writer.close();
     }
     catch (IOException e)
     {
