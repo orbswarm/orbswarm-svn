@@ -1,5 +1,6 @@
 package com.orbswarm.swarmcon.store;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -15,11 +16,12 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 import com.orbswarm.swarmcon.swing.DanceBuilder;
+import com.orbswarm.swarmcon.view.IRenderable;
 
 public class FileStore extends AItemStore
 {
   @SuppressWarnings("unused")
-  private static Logger log = Logger.getLogger(DanceBuilder.class);
+  private static Logger log = Logger.getLogger(FileStore.class);
 
   private static final Pattern FILE_PATTERN_RE =
     Pattern.compile("^(" + GUID_PATTERN + ")\\.xml$");
@@ -41,6 +43,15 @@ public class FileStore extends AItemStore
     if (!mStore.canRead())
       throw new IllegalArgumentException("file store is not readable: " +
         mStore);
+    
+    initialize();
+    
+    for (IItem<? extends IRenderable> i: getItems())
+    {
+      log.debug("item: " + i);
+      log.debug("  id: " + i.getId());
+      log.debug("   i: " + i.getItem());
+    }
   }
 
   Collection<UUID> catalog()
@@ -50,7 +61,7 @@ public class FileStore extends AItemStore
     {
       Matcher m = FILE_PATTERN_RE.matcher(name);
       if (m.find())
-        catalog.add(UUID.fromString(m.group()));
+        catalog.add(UUID.fromString(m.group(1)));
     }
     return catalog;
   }
@@ -60,12 +71,22 @@ public class FileStore extends AItemStore
     StringBuffer buffer = new StringBuffer();
     try
     {
-      Reader reader = new FileReader(establishFile(id));
-      CharBuffer cbuffer = CharBuffer.allocate(1024);
-      while (reader.read(cbuffer) != -1)
+      BufferedReader input =
+        new BufferedReader(new FileReader(establishFile(id)));
+      
+      try
       {
-        buffer.append(cbuffer);
-        cbuffer.clear();
+        String separator = System.getProperty("line.separator");
+        String line = null;
+        while ((line = input.readLine()) != null)
+        {
+          buffer.append(line);
+          buffer.append(separator);
+        }
+      }
+      finally
+      {
+        input.close();
       }
     }
     catch (IOException e)

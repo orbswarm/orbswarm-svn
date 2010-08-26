@@ -11,7 +11,7 @@ public class Constants
 {
   // color
 
-  public static final Color BACKGROUND = WHITE;
+  public static final Color DEFAULT_ARENA_BACKGROUND = WHITE;
   public static final Color BUTTON_CLR = new Color(0, 0, 0, 164);
   /** Standard button font */
 
@@ -103,4 +103,5 @@ public class Constants
   public static final NumberFormat STANDARD_FORMAT = NumberFormat
     .getNumberInstance();
   public static final double ARENA_VIWPORT_BORDER = 1;
+  public static final Color NOT_SELECTED_BACKGROUND = new Color(192, 192, 192);
 }

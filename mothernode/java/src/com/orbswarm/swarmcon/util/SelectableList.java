@@ -128,11 +128,22 @@ public class SelectableList<T extends ISelectable> implements ISelectableList<T>
     return false;
   }
 
+  public boolean removeAll()
+  {
+    if (isEmpty())
+      return false;
+
+    while (!isEmpty())
+      remove();
+    return true;
+  }
+
   public void first()
   {
     select(false);
     while (mItemItr.hasPrevious())
       mItemItr.previous();
+    
     select(true);
   }
   

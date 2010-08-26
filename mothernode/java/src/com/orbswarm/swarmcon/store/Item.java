@@ -3,6 +3,7 @@ package com.orbswarm.swarmcon.store;
 import java.util.Calendar;
 import java.util.UUID;
 
+import javax.xml.bind.annotation.XmlAnyElement;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -12,7 +13,7 @@ import com.orbswarm.swarmcon.view.IRenderable;
 @XmlRootElement
 class Item<T extends IRenderable> implements IItem<T>
 {
-  @XmlElement(name="item")
+  @XmlAnyElement(lax=true)
   private T mItem;
   @XmlElement(name="uuid")
   private final UUID mId;

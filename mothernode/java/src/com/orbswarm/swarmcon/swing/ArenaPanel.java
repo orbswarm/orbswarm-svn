@@ -49,7 +49,13 @@ public class ArenaPanel extends JPanel
   private static final Stroke mReticleStroke = new BasicStroke(.10f,
     BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 
+  // transform to adjust view
+  
   private final AffineTransform mViewTransform;
+  
+  // background color
+  
+  private Color mBackground = DEFAULT_ARENA_BACKGROUND;
 
   /** should the reticle be painted */
 
@@ -123,7 +129,7 @@ public class ArenaPanel extends JPanel
 
     Graphics2D g = (Graphics2D)graphics;
 
-    g.setColor(BACKGROUND);
+    g.setColor(DEFAULT_ARENA_BACKGROUND);
     g.fillRect(0, 0, getWidth(), getHeight());
     g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
       RenderingHints.VALUE_ANTIALIAS_ON);
@@ -443,5 +449,15 @@ public class ArenaPanel extends JPanel
     {
       clickEvent = null;
     }
+  }
+
+  public Color getBackground()
+  {
+    return mBackground;
+  }
+
+  public void setBackground(Color background)
+  {
+    mBackground = background;
   }
 }

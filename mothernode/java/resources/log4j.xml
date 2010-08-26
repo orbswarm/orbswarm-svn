@@ -64,9 +64,13 @@
 		<level value="warn" />
 	</logger>
 
-	<logger name="com.orbswarm.swarmcon.view.ARenderer">
-		<level value="warn" />
-	</logger>
+  <logger name="com.orbswarm.swarmcon.view.ARenderer">
+    <level value="warn" />
+  </logger>
+
+  <logger name="com.orbswarm.swarmcon.store.FileStore">
+    <level value="debug" />
+  </logger>
 
 	<root>
 		<level value="debug" />

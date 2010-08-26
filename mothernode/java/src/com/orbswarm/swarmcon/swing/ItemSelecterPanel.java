@@ -6,9 +6,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
-import java.awt.geom.Rectangle2D;
 import java.util.Collection;
-import java.util.Vector;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -19,6 +17,9 @@ import com.orbswarm.swarmcon.store.IItem;
 import com.orbswarm.swarmcon.store.IItemStore;
 import com.orbswarm.swarmcon.store.TestStore;
 import com.orbswarm.swarmcon.util.Constants;
+import com.orbswarm.swarmcon.util.ISelectable;
+import com.orbswarm.swarmcon.util.ISelectableList;
+import com.orbswarm.swarmcon.util.SelectableList;
 import com.orbswarm.swarmcon.view.RendererSet;
 
 public class ItemSelecterPanel extends JPanel
@@ -29,22 +30,22 @@ public class ItemSelecterPanel extends JPanel
 
   public static final int PANEL_HEIGHT = 70;
 
-  private final Collection<ItemPanel> mItemPanels;
+  private final ISelectableList<ItemPanel> mItemPanels;
 
   private final IItemStore mStore;
   
   public ItemSelecterPanel(IItemStore store)
   {
-    mItemPanels = new Vector<ItemPanel>();
+    mItemPanels = new SelectableList<ItemPanel>();
     mStore = store;
     update();
   }
 
   public void update()
   {
-    mItemPanels.clear();
+    mItemPanels.removeAll();
     for (IItem<?> item: mStore.getItems())
-      mItemPanels.add(new ItemPanel(item));
+      mItemPanels.addAfter(new ItemPanel(item));
     layoutItems();
   }
   
@@ -53,7 +54,7 @@ public class ItemSelecterPanel extends JPanel
     removeAll();
     setLayout(new GridLayout());
 
-    for (ItemPanel itemPanel : mItemPanels)
+    for (ItemPanel itemPanel : mItemPanels.getAll())
     {
       JPanel wrapper = new JPanel();
       wrapper.setLayout(new BorderLayout());
@@ -75,16 +76,15 @@ public class ItemSelecterPanel extends JPanel
     f.setVisible(true);
   }
   
-  
   public Collection<ItemPanel> getItems()
   {
-    return mItemPanels;
+    return mItemPanels.getAll();
   }
 
-  class ItemPanel extends ArenaPanel
+  class ItemPanel extends ArenaPanel implements ISelectable
   {
+    private boolean mSelected;
     private final IItem<?> mItem;
-    private double mBorder = 2;
     
     private static final long serialVersionUID = 7883183615949305291L;
     
@@ -106,21 +106,34 @@ public class ItemSelecterPanel extends JPanel
     public void paint(Graphics graphics)
     {
       // view only the item
-      
-      Rectangle2D bounds = RendererSet.getShape(mItem.getItem()).getBounds();
-      bounds.setRect(bounds.getX() - mBorder , bounds.getY() - mBorder , bounds
-        .getWidth() +
-        2 * mBorder, bounds.getHeight() + 2 * mBorder);
-      setViewPort(bounds, Constants.ARENA_VIWPORT_BORDER);
-      
+
+      setViewPort(mItem.getItem().getBounds2D(),
+        Constants.ARENA_VIWPORT_BORDER);
+
+      // set background according to selectedness
+
+      setBackground(isSelected()
+        ? Constants.DEFAULT_ARENA_BACKGROUND
+        : Constants.NOT_SELECTED_BACKGROUND);
+
       // paint the view
-      
+
       Graphics2D g = (Graphics2D)graphics;
       super.paint(g);
-      
+
       // render the item
-      
+
       RendererSet.render(g, mItem.getItem());
+    }
+
+    public boolean isSelected()
+    {
+      return mSelected;
+    }
+
+    public void setSelected(boolean selected)
+    {
+      mSelected = selected;
     }
   }
 }

@@ -14,6 +14,8 @@ public interface ISelectableList<T extends ISelectable>
 
   boolean remove();
   
+  boolean removeAll();
+  
   void replace(T item);
 
   void first();
