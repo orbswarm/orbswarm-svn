@@ -13,17 +13,17 @@ import com.orbswarm.swarmcon.path.IDance;
 import com.orbswarm.swarmcon.store.FileStore;
 
 @SuppressWarnings("serial")
-public class DanceBuilder2 extends BlockPathBuilder
+public class DanceBuilder extends BlockPathBuilder
 {
   @SuppressWarnings("unused")
 
   public static void main(String[] args)
   {
     System.setProperty("apple.laf.useScreenMenuBar", "true");
-    new DanceBuilder2(new FileStore("/tmp/store"));
+    new DanceBuilder(new FileStore("/tmp/store"));
   }
 
-  public DanceBuilder2(FileStore fileStore)
+  public DanceBuilder(FileStore fileStore)
   {
     super(fileStore);
     mEditMenu.addSeparator();

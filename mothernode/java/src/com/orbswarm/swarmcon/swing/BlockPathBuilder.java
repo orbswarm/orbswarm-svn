@@ -6,36 +6,24 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.awt.geom.AffineTransform;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.StringWriter;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.KeyStroke;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 
 import org.apache.log4j.Logger;
 import org.trebor.util.Angle;
 import org.trebor.util.Angle.Type;
 
-import com.orbswarm.swarmcon.path.ABlock;
 import com.orbswarm.swarmcon.path.BlockPath;
 import com.orbswarm.swarmcon.path.CurveBlock;
-import com.orbswarm.swarmcon.path.Dance;
 import com.orbswarm.swarmcon.path.IBlock;
 import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.path.StraightBlock;
 import com.orbswarm.swarmcon.store.FileStore;
 import com.orbswarm.swarmcon.store.IItemStore;
-import com.orbswarm.swarmcon.store.TestStore;
 import com.orbswarm.swarmcon.util.Constants;
 import com.orbswarm.swarmcon.view.IRenderable;
 import com.orbswarm.swarmcon.view.RendererSet;
@@ -50,8 +38,6 @@ public class BlockPathBuilder extends JFrame
 {
   @SuppressWarnings("unused")
   private static Logger log = Logger.getLogger(BlockPathBuilder.class);
-
-  private JAXBContext mContext;
 
   // radius constants
 
@@ -109,17 +95,6 @@ public class BlockPathBuilder extends JFrame
     // get the item store
     
     mStore = store;
-
-    try
-    {
-      mContext =
-        JAXBContext.newInstance(BlockPath.class, StraightBlock.class, 
-          CurveBlock.class, ABlock.class, Dance.class, AffineTransform.class);
-    }
-    catch (JAXBException e)
-    {
-      e.printStackTrace();
-    }
 
     // make the frame
 
