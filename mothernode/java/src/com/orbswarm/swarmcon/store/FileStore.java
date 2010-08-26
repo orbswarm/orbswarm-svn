@@ -5,8 +5,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Reader;
-import java.nio.CharBuffer;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.Vector;
@@ -15,7 +13,6 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import com.orbswarm.swarmcon.swing.DanceBuilder;
 import com.orbswarm.swarmcon.view.IRenderable;
 
 public class FileStore extends AItemStore
