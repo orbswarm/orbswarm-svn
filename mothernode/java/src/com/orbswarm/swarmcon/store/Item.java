@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import com.orbswarm.swarmcon.view.IRenderable;
 
 @XmlRootElement
-class Item<T extends IRenderable> implements IItem<T>
+public class Item<T extends IRenderable> implements IItem<T>
 {
   @XmlAnyElement(lax=true)
   private T mItem;
@@ -31,7 +31,7 @@ class Item<T extends IRenderable> implements IItem<T>
     this(null, "");
   }
   
-  Item(T item, String name)
+  public Item(T item, String name)
   {
     mItem = item;
     mId = UUID.randomUUID();

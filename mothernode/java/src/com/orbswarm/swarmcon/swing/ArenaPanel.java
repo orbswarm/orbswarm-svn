@@ -129,7 +129,7 @@ public class ArenaPanel extends JPanel
 
     Graphics2D g = (Graphics2D)graphics;
 
-    g.setColor(DEFAULT_ARENA_BACKGROUND);
+    g.setColor(mBackground);
     g.fillRect(0, 0, getWidth(), getHeight());
     g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
       RenderingHints.VALUE_ANTIALIAS_ON);

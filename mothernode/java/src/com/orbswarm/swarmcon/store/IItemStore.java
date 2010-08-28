@@ -19,6 +19,15 @@ public interface IItemStore
   <T extends IRenderable> IItem<T> add(T item, String name);
   
   /**
+   * Update an item in the store. If the item is not already present it is
+   * added to the store.
+   * 
+   * @param item item to update in the store.
+   */
+  
+  <T extends IRenderable> void update(IItem<T> item);
+  
+  /**
    * Remove an {@link @IItem} from the store.
    * @param key the key used to uniquely identify the item.
    * 

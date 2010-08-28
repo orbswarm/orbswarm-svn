@@ -74,13 +74,18 @@ public abstract class AItemStore implements IItemStore
   public <T extends IRenderable> IItem<T> add(T item, String name)
   {
     IItem<T> wrapped = new Item<T>(item, name);
+    update(wrapped);
+    return wrapped;
+  }
+
+  public <T extends IRenderable> void update(IItem<T> wrapped)
+  {
     save(wrapped.getId(), marshal(wrapped));
     mItemCache.put(wrapped.getId(), wrapped);
     for (IStoreListener listener : mListeners)
       listener.itemAdded(wrapped);
-    return wrapped;
   }
-
+  
   public void addStoreListener(IStoreListener listner)
   {
     mListeners.add(listner);

@@ -11,6 +11,8 @@ import com.orbswarm.swarmcon.path.Dance;
 import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.path.IDance;
 import com.orbswarm.swarmcon.store.FileStore;
+import com.orbswarm.swarmcon.store.Item;
+import com.orbswarm.swarmcon.util.NameGenerator;
 
 @SuppressWarnings("serial")
 public class DanceBuilder extends BlockPathBuilder
@@ -34,7 +36,7 @@ public class DanceBuilder extends BlockPathBuilder
   @Override
   protected void initializeArtifact()
   {
-    setArtifact(new Dance(Dance.Layout.CIRLCE, 2));
+    setArtifact(new Item<Dance>(new Dance(Dance.Layout.CIRLCE, 2), NameGenerator.getName(2)));
     for (int i = 0; i < 6; ++i)
     {
       getCurrentDance().addAfter(new BlockPath());

@@ -2,14 +2,20 @@ package com.orbswarm.swarmcon.swing;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.Collection;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
@@ -33,19 +39,42 @@ public class ItemSelecterPanel extends JPanel
   private final ISelectableList<ItemPanel> mItemPanels;
 
   private final IItemStore mStore;
+  private final Window mParent;
+  private IItem<?> mSelectedItem = null;
   
-  public ItemSelecterPanel(IItemStore store)
+  public static void main(String[] args)
+  {
+    JFrame f = new JFrame();
+    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    f.getContentPane().add(new ItemSelecterPanel(new TestStore(), f));
+    f.pack();
+    f.setVisible(true);
+  }
+
+  public ItemSelecterPanel(IItemStore store, Window parent)
   {
     mItemPanels = new SelectableList<ItemPanel>();
     mStore = store;
+    mParent = parent;
+    addAction(mNext);
+    addAction(mPreviouseItem);
+    addAction(mSelectItem);
     update();
   }
+  
+  public void addAction(SwarmAction action)
+  {
+    getActionMap().put(action, action);
+    getInputMap().put(action.getAccelerator(), action);    
+  }
+  
 
   public void update()
   {
     mItemPanels.removeAll();
     for (IItem<?> item: mStore.getItems())
       mItemPanels.addAfter(new ItemPanel(item));
+    mItemPanels.first();
     layoutItems();
   }
   
@@ -68,19 +97,44 @@ public class ItemSelecterPanel extends JPanel
     repaint();
   }
   
-  public static void main(String[] args)
-  {
-    JFrame f = new JFrame();
-    f.getContentPane().add(new ItemSelecterPanel(new TestStore()));
-    f.pack();
-    f.setVisible(true);
-  }
-  
   public Collection<ItemPanel> getItems()
   {
     return mItemPanels.getAll();
   }
 
+  public IItem<?> getSelectedItem()
+  {
+    return mSelectedItem;
+  }
+  
+  protected void previouseItem()
+  {
+    mItemPanels.previouse();
+  }
+
+  protected void nextItem()
+  {
+    mItemPanels.next();
+  }
+  
+  protected void selectCurrent()
+  {
+    mSelectedItem = mItemPanels.getCurrent().getItem();
+    exit();
+  }
+  
+  protected void cancel()
+  {
+    mSelectedItem = null;
+    exit();
+  }
+
+  protected void exit()
+  {
+    mParent.dispose();
+    mParent.setVisible(false);
+  }
+  
   class ItemPanel extends ArenaPanel implements ISelectable
   {
     private boolean mSelected;
@@ -136,4 +190,48 @@ public class ItemSelecterPanel extends JPanel
       mSelected = selected;
     }
   }
+  
+  @SuppressWarnings("serial")
+  private final SwarmAction mPreviouseItem = new SwarmAction(
+    "Previouse", KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,
+      0), "move to previouse item")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      previouseItem();
+    }
+  };
+
+  @SuppressWarnings("serial")
+  private final SwarmAction mNext= new SwarmAction("Next",
+    KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0),
+    "move to next item")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      nextItem();
+    }
+  };
+  
+  @SuppressWarnings("serial")
+  private final SwarmAction mSelectItem = new SwarmAction("Select",
+    KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0),
+    "select this item")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      selectCurrent();
+    }
+  };
+  
+  @SuppressWarnings("serial")
+  private final SwarmAction mAbort = new SwarmAction("Cancel",
+    KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+    "exit without selecting an item")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      cancel();
+    }
+  };
 }

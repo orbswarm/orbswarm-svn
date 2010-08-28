@@ -23,8 +23,11 @@ import com.orbswarm.swarmcon.path.IBlock;
 import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.path.StraightBlock;
 import com.orbswarm.swarmcon.store.FileStore;
+import com.orbswarm.swarmcon.store.Item;
+import com.orbswarm.swarmcon.store.IItem;
 import com.orbswarm.swarmcon.store.IItemStore;
 import com.orbswarm.swarmcon.util.Constants;
+import com.orbswarm.swarmcon.util.NameGenerator;
 import com.orbswarm.swarmcon.view.IRenderable;
 import com.orbswarm.swarmcon.view.RendererSet;
 
@@ -66,7 +69,7 @@ public class BlockPathBuilder extends JFrame
   private double mCurrentLength = DEFAULT_LENGTH;
   // private double mCurrentCurveExtent = DEFAULT_CURVE_EXTENT;
 
-  private IRenderable mArtifact;
+  private IItem<?> mArtifact;
   
   protected ArenaPanel mArena;
 
@@ -118,7 +121,7 @@ public class BlockPathBuilder extends JFrame
   
   protected void initializeArtifact()
   {
-    setArtifact(new BlockPath());
+    setArtifact(new Item<BlockPath>(new BlockPath(), NameGenerator.getName(2)));
     getCurrentPath().setSelected(true);
     getCurrentPath().addAfter(new StraightBlock(mCurrentLength));
   }
@@ -199,16 +202,21 @@ public class BlockPathBuilder extends JFrame
 
   protected void save()
   {
-    mStore.add(mArtifact, "name");
+    mStore.update(mArtifact);
   }
 
   protected void load()
   {
     JDialog box = new JDialog(this, "Select Item", true);
     Container frame = box.getContentPane();
-    frame.add(new ItemSelecterPanel(mStore));
+    ItemSelecterPanel selector = new ItemSelecterPanel(mStore, box);
+    frame.add(selector);
     box.pack();
     box.setVisible(true);
+    IItem<?> item = selector.getSelectedItem();
+    if (null != item)
+      mArtifact = item;
+    repaint();
   }
 
   private void curveRight()
@@ -484,14 +492,14 @@ public class BlockPathBuilder extends JFrame
     return (IBlockPath)getArtifact();
   }
 
-  public void setArtifact(IRenderable artifact)
+  protected void setArtifact(IItem<?> artifact)
   {
     mArtifact = artifact;
   }
 
   public IRenderable getArtifact()
   {
-    return mArtifact;
+    return mArtifact.getItem();
   }
 
   private SwarmAction mCurveLeftAction =
