@@ -48,7 +48,8 @@ public class Dance extends ARenderable implements IDance
         for (IBlockPath bp : dance.getPaths())
         {
           bp.setPosition(theta.cartesian(radius));
-          bp.setHeading(theta.rotate(dance.getHeading()));
+//          bp.setHeading(theta.rotate(dance.getHeading()));
+          bp.setHeading(theta);
           theta = theta.rotate(dTheta);
         }
       }
@@ -63,6 +64,7 @@ public class Dance extends ARenderable implements IDance
         for (IBlockPath bp : dance.getPaths())
         {
           bp.setPosition(x, 0);
+          bp.setHeading(new Angle(0, Angle.Type.HEADING));
           x += dance.getSeperation();
         }
       }

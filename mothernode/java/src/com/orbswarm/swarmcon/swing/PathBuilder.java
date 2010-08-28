@@ -157,8 +157,10 @@ public class PathBuilder extends JFrame
     mFileMenu = new JMenu("File");
     mMenuBar.add(mFileMenu);
     mFileMenu.add(mNewAction);
+    mFileMenu.addSeparator();
     mFileMenu.add(mSaveAction);
     mFileMenu.add(mLoadAction);
+    mFileMenu.addSeparator();
     mFileMenu.add(mDanceAction);
 
     // make edit menu
@@ -759,8 +761,8 @@ public class PathBuilder extends JFrame
   };
 
   private final SwarmAction mPreviouseBlock = new SwarmAction(
-    "Previouse Block", KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,
-      KeyEvent.META_DOWN_MASK), "select previouse block on current path")
+    "Previouse Block", KeyStroke.getKeyStroke(KeyEvent.VK_S, 0),
+    "select previouse block on current path")
   {
     public void actionPerformed(ActionEvent e)
     {
@@ -769,7 +771,7 @@ public class PathBuilder extends JFrame
   };
 
   protected final SwarmAction mNextBlock = new SwarmAction("Next Block",
-    KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.META_DOWN_MASK),
+    KeyStroke.getKeyStroke(KeyEvent.VK_W, 0),
     "select next block on current path")
   {
     public void actionPerformed(ActionEvent e)
