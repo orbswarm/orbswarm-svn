@@ -54,10 +54,11 @@ public class PathBuilder extends JFrame
   public static final double MINIMUM_RADIUS = 1;
   public static final double MAXIMUM_RADIUS = 7;
   public static final double START_RADIUS = 7;
-  public static final double MINIMUM_LENGTH = 2;
+  public static final double MINIMUM_LENGTH = 1;
 
   public static final double DEFAULT_RADIUS_STEP = 1;
-  public static final double DEFAULT_RADIUS = 3;
+  public static final double DEFAULT_RADIUS = 1;
+  public static final double DEFAULT_CURVE_EXTENT = 30;
 
   // length constants
 
@@ -66,15 +67,15 @@ public class PathBuilder extends JFrame
 
   // default angle constants
 
-  private static final double DEFAULT_ANGLE_QUANTA = 15;
+  private static final double DEFAULT_ANGLE_QUANTA = 30;
   private static final double DEFAULT_RADIUS_QUANTA = 0.5;
   private static final double DEFAULT_LENGTH_QUANTA = 1;
 
   // private static final double DEFAULT_CURVE_EXTENT = 90;
 
-  // private double mCurrentRadius = DEFAULT_RADIUS;
+  private double mCurrentRadius = DEFAULT_RADIUS;
   private double mCurrentLength = DEFAULT_LENGTH;
-  // private double mCurrentCurveExtent = DEFAULT_CURVE_EXTENT;
+  private double mCurrentCurveExtent = DEFAULT_CURVE_EXTENT;
 
   private IItem<?> mArtifact;
 
@@ -315,7 +316,7 @@ public class PathBuilder extends JFrame
     repaint();
   }
 
-  private void curveRight()
+  private void oldCurveRight()
   {
     log.debug("curveRight");
     if (null == getCurrentBlock())
@@ -352,6 +353,65 @@ public class PathBuilder extends JFrame
   }
 
   private void curveLeft()
+  {
+    IBlock b = getCurrentBlock();
+
+    if (b instanceof CurveBlock &&
+      ((CurveBlock)b).getType() == CurveBlock.Type.LEFT)
+    {
+      CurveBlock cb = (CurveBlock)b;
+      cb.setExtent(cb.getExtent() + DEFAULT_ANGLE_QUANTA);
+    }
+    else
+    {
+      getCurrentPath().addAfter(
+        new CurveBlock(DEFAULT_CURVE_EXTENT, DEFAULT_RADIUS,
+          CurveBlock.Type.LEFT));
+    }
+
+    repaint();
+  }
+  
+  private void curveRight()
+  {
+    IBlock b = getCurrentBlock();
+
+    if (b instanceof CurveBlock &&
+      ((CurveBlock)b).getType() == CurveBlock.Type.RIGHT)
+    {
+      CurveBlock cb = (CurveBlock)b;
+      cb.setExtent(cb.getExtent() + DEFAULT_ANGLE_QUANTA);
+    }
+    else
+    {
+      getCurrentPath().addAfter(
+        new CurveBlock(DEFAULT_CURVE_EXTENT, DEFAULT_RADIUS,
+          CurveBlock.Type.RIGHT));
+    }
+
+    repaint();
+  }
+
+  private void embiggen()
+  {
+    IBlock b = getCurrentBlock();
+
+    if (b instanceof StraightBlock)
+    {
+      StraightBlock sb = (StraightBlock)b;
+      sb.setLength(sb.getLength() + DEFAULT_LENGTH_QUANTA);
+    }
+    else
+    {
+      getCurrentPath().addAfter(new StraightBlock(DEFAULT_LENGTH_QUANTA));
+    }
+
+    repaint();
+  }
+  
+  
+
+  private void oldCurveLeft()
   {
     log.debug("curveLeft");
     if (null == getCurrentBlock())
@@ -438,7 +498,7 @@ public class PathBuilder extends JFrame
     repaint();
   }
 
-  private void embiggen()
+  private void oldEmbiggen()
   {
     if (null == getCurrentBlock())
       return;
@@ -465,14 +525,21 @@ public class PathBuilder extends JFrame
     if (getCurrentBlock() instanceof StraightBlock)
     {
       StraightBlock sb = (StraightBlock)getCurrentBlock();
-      sb.setLength(max(sb.getLength() - DEFAULT_LENGTH_CHANGE, MINIMUM_LENGTH));
+      double newLength = sb.getLength() - DEFAULT_LENGTH_CHANGE;
+      if (newLength < MINIMUM_LENGTH)
+        getCurrentPath().remove();
+      else
+        sb.setLength(newLength);
       repaint();
     }
     else if (getCurrentBlock() instanceof CurveBlock)
     {
       CurveBlock cb = (CurveBlock)getCurrentBlock();
-      cb.setExtent(max(cb.getExtent() - DEFAULT_ANGLE_QUANTA,
-        DEFAULT_ANGLE_QUANTA));
+      double newExtent = cb.getExtent() - DEFAULT_ANGLE_QUANTA;
+      if (newExtent < DEFAULT_ANGLE_QUANTA)
+        getCurrentPath().remove();
+      else
+        cb.setExtent(newExtent);
       repaint();
     }
   }
