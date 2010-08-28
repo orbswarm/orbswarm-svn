@@ -5,6 +5,9 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.KeyStroke;
 
+import com.orbswarm.swarmcon.model.SimModel;
+import com.orbswarm.swarmcon.orb.IOrb;
+import com.orbswarm.swarmcon.orb.Orb;
 import com.orbswarm.swarmcon.path.BlockPath;
 import com.orbswarm.swarmcon.path.CurveBlock;
 import com.orbswarm.swarmcon.path.Dance;
@@ -66,6 +69,21 @@ public class DanceBuilder extends PathBuilder
   {
     getCurrentDance().previousePath();
     repaint();
+  }
+
+  @Override
+  protected void createSwarm()
+  {
+    int orbId = 0;
+    
+    for (IBlockPath path : getCurrentDance().getPaths())
+    {
+      IOrb orb = new Orb(new SimModel(), orbId++);
+      mSwarm.add(orb);
+      orb.setHeading(path.getHeading());
+      orb.setPosition(path.getPosition());
+      orb.getModel().setTargetPath(path);
+    }
   }
 
   private final SwarmAction mPreviousePath = new SwarmAction(

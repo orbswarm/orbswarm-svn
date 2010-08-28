@@ -140,7 +140,9 @@ public class SmoothPath extends Vector<Waypoint> implements IRenderable
   {
     // compute the smoothed continuous path to work from
 
-    continousePath = new GeneralPath(path.getPath());
+    continousePath =
+      new GeneralPath(path.getTransform().createTransformedShape(
+        path.getPath()));
 
     // initialize the rest of the smooth path
 

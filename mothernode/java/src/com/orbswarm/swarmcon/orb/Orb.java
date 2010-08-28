@@ -71,6 +71,7 @@ public class Orb extends ARenderable implements IOrbListener, IOrb
 
   // position setter
 
+  @Override
   public void setPosition(double x, double y)
   {
     super.setPosition(x, y);
@@ -82,6 +83,12 @@ public class Orb extends ARenderable implements IOrbListener, IOrb
     mHistory.removeOld();
   }
 
+  @Override
+  public void setHeading(Angle heading)
+  {
+    model.setYaw(heading);
+  }
+  
   void setOrbColor(Color val)
   {
     this.orbColor = val;

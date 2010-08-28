@@ -355,7 +355,7 @@ abstract public class MotionModel implements IOrbListener
 
   // set yaw
 
-  protected Angle setYaw(Angle newYaw)
+  public Angle setYaw(Angle newYaw)
   {
     Angle deltaYaw = yaw.difference(newYaw);
     yaw = newYaw;

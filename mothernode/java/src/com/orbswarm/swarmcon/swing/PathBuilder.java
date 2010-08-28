@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.Calendar;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -17,6 +18,10 @@ import org.apache.log4j.Logger;
 import org.trebor.util.Angle;
 import org.trebor.util.Angle.Type;
 
+import com.orbswarm.swarmcon.model.SimModel;
+import com.orbswarm.swarmcon.orb.IOrb;
+import com.orbswarm.swarmcon.orb.Orb;
+import com.orbswarm.swarmcon.orb.Swarm;
 import com.orbswarm.swarmcon.path.BlockPath;
 import com.orbswarm.swarmcon.path.CurveBlock;
 import com.orbswarm.swarmcon.path.IBlock;
@@ -31,10 +36,12 @@ import com.orbswarm.swarmcon.util.NameGenerator;
 import com.orbswarm.swarmcon.view.IRenderable;
 import com.orbswarm.swarmcon.view.RendererSet;
 
+import static com.orbswarm.swarmcon.util.Constants.MIN_FRAME_DELAY;
 import static java.lang.Math.PI;
 import static java.lang.Math.round;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.System.currentTimeMillis;
 
 @SuppressWarnings("serial")
 public class PathBuilder extends JFrame
@@ -71,6 +78,8 @@ public class PathBuilder extends JFrame
 
   private IItem<?> mArtifact;
 
+  protected final Swarm mSwarm;
+  
   protected ArenaPanel mArena;
 
   protected JMenu mEditMenu;
@@ -82,6 +91,8 @@ public class PathBuilder extends JFrame
   protected JMenu mViewMenu;
 
   private IItemStore mStore;
+
+  private boolean mSimulationRunning;
 
   public static void main(String[] args)
   {
@@ -99,6 +110,10 @@ public class PathBuilder extends JFrame
 
     mStore = store;
 
+    // make a swarm
+    
+    mSwarm = new Swarm();
+    
     // make the frame
 
     constructFrame();
@@ -178,6 +193,7 @@ public class PathBuilder extends JFrame
         Graphics2D g = (Graphics2D)graphics;
         super.paint(g);
         RendererSet.render(g, getArtifact());
+        RendererSet.render(g, mSwarm);
       }
     };
 
@@ -197,13 +213,94 @@ public class PathBuilder extends JFrame
     mStore.update(mArtifact);
   }
 
-  
   void dance()
   {
-    getArtifact().setSuppressed(true);
-    repaint();
+    if (!mSimulationRunning)
+    {
+      getArtifact().setSuppressed(true);
+      createSwarm();
+      startSimulation();
+    }
+    else
+    {
+      stopSimulation();
+      mSwarm.clear();
+      getArtifact().setSuppressed(false);
+      repaint();
+    }
+  }
+
+  protected void createSwarm()
+  {
+    IOrb orb = new Orb(new SimModel(), 0);
+    mSwarm.add(orb);
+    orb.setHeading(getCurrentPath().getHeading());
+    orb.setPosition(getCurrentPath().getPosition());
+    orb.getModel().setTargetPath(getCurrentPath());
   }
   
+  public void stopSimulation()
+  {
+    mSimulationRunning = false;
+  }
+  
+  public void startSimulation()
+  {
+    mSimulationRunning = true;
+
+    // start the animation thread
+
+    new Thread()
+    {
+      private Calendar mLastUpdate;
+
+      public void run()
+      {
+        try
+        {
+          repaint();
+          mLastUpdate = Calendar.getInstance();
+
+          // while still running
+
+          while (mSimulationRunning)
+          {
+            // delay until it's time for the next update
+
+            sleep(Math.max(0, MIN_FRAME_DELAY -
+              (currentTimeMillis() - mLastUpdate.getTimeInMillis())));
+
+            // if simulation stopped, stop this non-sense
+            
+            if (!mSimulationRunning)
+              break;
+            
+            // get now
+
+            Calendar now = Calendar.getInstance();
+
+            // update with the difference between now and last update
+
+            synchronized (mSwarm)
+            {
+              mSwarm.update(SwarmCon.millisecondsToSeconds(now.getTimeInMillis() -
+                mLastUpdate.getTimeInMillis()));
+              repaint();
+            }
+
+            // establish the time since last update
+
+            mLastUpdate = now;
+          }
+        }
+        catch (Exception e)
+        {
+          e.printStackTrace();
+        }
+      }
+    }.start();
+  }
+    
   protected void load()
   {
     JDialog box = new JDialog(this, "Select Item", true);
@@ -648,7 +745,7 @@ public class PathBuilder extends JFrame
   /** Zoom display out. */
 
   SwarmAction mSaveAction = new SwarmAction("Save", KeyStroke.getKeyStroke(
-    KeyEvent.VK_S, KeyEvent.META_DOWN_MASK), "save this path")
+    KeyEvent.VK_S, KeyEvent.META_DOWN_MASK), "save this artifact")
   {
     public void actionPerformed(ActionEvent e)
     {
@@ -657,7 +754,7 @@ public class PathBuilder extends JFrame
   };
 
   SwarmAction mLoadAction = new SwarmAction("Load", KeyStroke.getKeyStroke(
-    KeyEvent.VK_L, KeyEvent.META_DOWN_MASK), "load a path")
+    KeyEvent.VK_L, KeyEvent.META_DOWN_MASK), "load an artifact for editing")
   {
     public void actionPerformed(ActionEvent e)
     {
