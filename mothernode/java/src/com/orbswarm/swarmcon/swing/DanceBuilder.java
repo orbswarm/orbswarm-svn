@@ -15,7 +15,7 @@ import com.orbswarm.swarmcon.store.Item;
 import com.orbswarm.swarmcon.util.NameGenerator;
 
 @SuppressWarnings("serial")
-public class DanceBuilder extends BlockPathBuilder
+public class DanceBuilder extends PathBuilder
 {
   @SuppressWarnings("unused")
 

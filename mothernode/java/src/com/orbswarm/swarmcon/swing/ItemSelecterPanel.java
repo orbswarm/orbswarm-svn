@@ -2,8 +2,6 @@ package com.orbswarm.swarmcon.swing;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -59,6 +57,7 @@ public class ItemSelecterPanel extends JPanel
     addAction(mNext);
     addAction(mPreviouseItem);
     addAction(mSelectItem);
+    addAction(mCancel);
     update();
   }
   
@@ -225,7 +224,7 @@ public class ItemSelecterPanel extends JPanel
   };
   
   @SuppressWarnings("serial")
-  private final SwarmAction mAbort = new SwarmAction("Cancel",
+  private final SwarmAction mCancel = new SwarmAction("Cancel",
     KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
     "exit without selecting an item")
   {

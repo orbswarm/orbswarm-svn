@@ -37,10 +37,10 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 @SuppressWarnings("serial")
-public class BlockPathBuilder extends JFrame
+public class PathBuilder extends JFrame
 {
   @SuppressWarnings("unused")
-  private static Logger log = Logger.getLogger(BlockPathBuilder.class);
+  private static Logger log = Logger.getLogger(PathBuilder.class);
 
   // radius constants
 
@@ -88,12 +88,12 @@ public class BlockPathBuilder extends JFrame
     System.setProperty("com.apple.mrj.application.apple.menu.about.name",
       "Arena Test");
     System.setProperty("apple.laf.useScreenMenuBar", "true");
-    new BlockPathBuilder(new FileStore("/tmp/store"));
+    new PathBuilder(new FileStore("/tmp/store"));
   }
 
   // construct a swarm
 
-  public BlockPathBuilder(IItemStore store)
+  public PathBuilder(IItemStore store)
   {
     // get the item store
     
@@ -122,7 +122,6 @@ public class BlockPathBuilder extends JFrame
   protected void initializeArtifact()
   {
     setArtifact(new Item<BlockPath>(new BlockPath(), NameGenerator.getName(2)));
-    getCurrentPath().setSelected(true);
     getCurrentPath().addAfter(new StraightBlock(mCurrentLength));
   }
 
@@ -492,6 +491,12 @@ public class BlockPathBuilder extends JFrame
     return (IBlockPath)getArtifact();
   }
 
+
+  protected void createNewArtifact()
+  {
+    
+  }
+  
   protected void setArtifact(IItem<?> artifact)
   {
     mArtifact = artifact;
