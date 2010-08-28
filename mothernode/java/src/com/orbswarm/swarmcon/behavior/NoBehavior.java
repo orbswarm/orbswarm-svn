@@ -1,6 +1,6 @@
 package com.orbswarm.swarmcon.behavior;
 
-import com.orbswarm.swarmcon.model.MotionModel;
+import com.orbswarm.swarmcon.model.IMotionModel;
 
 public class NoBehavior extends Behavior
 {
@@ -9,7 +9,7 @@ public class NoBehavior extends Behavior
     super("Do Nothing");
   }
 
-  public void update(double time, MotionModel model)
+  public void update(double time, IMotionModel model)
   {
     // model.setTargetRollRate(new Angle());
     // model.setTargetPitchRate(new Angle());

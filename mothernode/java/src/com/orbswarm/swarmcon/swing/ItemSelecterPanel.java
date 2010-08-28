@@ -177,7 +177,9 @@ public class ItemSelecterPanel extends JPanel
 
       // render the item
 
+      mItem.getItem().setSuppressed(true);
       RendererSet.render(g, mItem.getItem());
+      mItem.getItem().setSuppressed(false);
     }
 
     public boolean isSelected()

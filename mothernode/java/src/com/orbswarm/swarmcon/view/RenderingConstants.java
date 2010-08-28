@@ -13,7 +13,8 @@ public class RenderingConstants
   public static final Color PATH_COLOR = new Color(64, 0, 0, 128);
   public static final Color SELECTED_PATH_COLOR = new Color(128, 0, 0, 128);
   public static final Color SELECTED_BLOCK_COLOR = new Color(255, 0, 0, 128);
-  public static final Stroke PATH_STROKE =
-    new BasicStroke((float)PATH_WIDTH, BasicStroke.CAP_BUTT,
-      BasicStroke.JOIN_ROUND);
+  public static final Stroke BLOCK_STROKE = new BasicStroke(
+    (float)PATH_WIDTH, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
+  public static final Stroke PATH_STROKE = new BasicStroke((float)PATH_WIDTH,
+    BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 }

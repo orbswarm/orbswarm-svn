@@ -19,7 +19,7 @@ import static com.orbswarm.swarmcon.util.Constants.*;
 
 /** A simple motion simulation model based on rates */
 
-public class SimModel extends MotionModel
+public class SimModel extends AMotionModel
 {
   @SuppressWarnings("unused")
   private static Logger log = Logger.getLogger(SimModel.class);
@@ -107,6 +107,7 @@ public class SimModel extends MotionModel
    * 
    * @param targetYawRate target yaw rate
    */
+  
   public void setTargetYawRate(Angle targetYawRate)
   {
     yawRateToRollRateCtrl.setTarget(targetYawRate.as(DEGREE_RATE));
@@ -242,6 +243,14 @@ public class SimModel extends MotionModel
     setVelocity(hypot(delta.getX(), delta.getY()) / time);
   }
 
+  public void stop()
+  {
+    log.debug("stop");
+    //super.stop();
+    setTargetVelocity(0);
+    setTargetYawRate(new Angle(0, DEGREE_RATE));
+  }
+  
   /**
    * Handle messages from the orb. This is stubbed out as the simulation
    * would not be connected to an orb.
@@ -255,6 +264,8 @@ public class SimModel extends MotionModel
 
   protected void commandWaypoint(Waypoint wp)
   {
+    log.debug("command " + wp);
+    
     // set target velocity based on waypoint velocity
 
     setTargetVelocity(wp.getVelocity());

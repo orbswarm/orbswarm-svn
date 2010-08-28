@@ -1,6 +1,6 @@
 package com.orbswarm.swarmcon.behavior;
 
-import com.orbswarm.swarmcon.model.MotionModel;
+import com.orbswarm.swarmcon.model.IMotionModel;
 
 // avoid wraps around another behavior and adds obstacle
 // avoidance when useful
@@ -21,7 +21,7 @@ public class AvoidBehavior extends Behavior
 
   // update
 
-  public void update(double time, MotionModel model)
+  public void update(double time, IMotionModel model)
   {
     throw new UnsupportedOperationException();
 //    

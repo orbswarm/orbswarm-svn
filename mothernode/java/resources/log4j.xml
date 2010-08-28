@@ -72,6 +72,14 @@
     <level value="warn" />
   </logger>
 
+  <logger name="com.orbswarm.swarmcon.model.MotionModel">
+    <level value="warn" />
+  </logger>
+
+  <logger name="com.orbswarm.swarmcon.model.SimModel">
+    <level value="warn" />
+  </logger>
+
 	<root>
 		<level value="debug" />
 		<appender-ref ref="CONSOLE" />

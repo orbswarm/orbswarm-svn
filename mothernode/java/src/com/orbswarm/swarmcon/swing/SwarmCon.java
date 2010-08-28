@@ -58,8 +58,9 @@ import com.orbswarm.swarmcon.behavior.RandomBehavior;
 import com.orbswarm.swarmcon.behavior.WanderBehavior;
 import com.orbswarm.swarmcon.io.OrbIo;
 import com.orbswarm.swarmcon.io.SerialIo;
+import com.orbswarm.swarmcon.model.IMotionModel;
 import com.orbswarm.swarmcon.model.LiveModel;
-import com.orbswarm.swarmcon.model.MotionModel;
+import com.orbswarm.swarmcon.model.AMotionModel;
 import com.orbswarm.swarmcon.model.SimModel;
 import com.orbswarm.swarmcon.orb.IOrbControl;
 import com.orbswarm.swarmcon.orb.IOrb;
@@ -529,7 +530,7 @@ public class SwarmCon extends JFrame
 
       // create the orb model
 
-      MotionModel model = mLiveMode
+      AMotionModel model = mLiveMode
         ? new LiveModel(mOrbIo, id, positionPollPeriodOffset)
         : new SimModel();
 
@@ -620,7 +621,7 @@ public class SwarmCon extends JFrame
 
           if (results.get(orb) == null)
           {
-            MotionModel mm = orb.getModel();
+            IMotionModel mm = orb.getModel();
 
             // if we got a result since we last checked, record that
 
@@ -665,7 +666,7 @@ public class SwarmCon extends JFrame
 
           if (results.get(orb) != null)
           {
-            MotionModel mm = orb.getModel();
+            IMotionModel mm = orb.getModel();
 
             // if we got an acknowledged, this orb is done
 

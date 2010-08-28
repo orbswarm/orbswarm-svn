@@ -6,7 +6,7 @@ import org.trebor.util.Angle;
 
 import com.orbswarm.swarmcon.behavior.Behavior;
 import com.orbswarm.swarmcon.io.Message;
-import com.orbswarm.swarmcon.model.MotionModel;
+import com.orbswarm.swarmcon.model.IMotionModel;
 import com.orbswarm.swarmcon.orb.Orb.HistoryQueue;
 import com.orbswarm.swarmcon.view.IRenderable;
 
@@ -16,7 +16,7 @@ public interface IOrb extends IRenderable
 
   /** Return the current orbs motion model */
 
-  public MotionModel getModel();
+  public IMotionModel getModel();
 
   // get orb id
 

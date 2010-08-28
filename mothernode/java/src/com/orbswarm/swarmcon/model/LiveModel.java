@@ -14,7 +14,7 @@ import static org.trebor.util.Angle.Type.*;
 
 /** This class is linkage to a live orb */
 
-public class LiveModel extends MotionModel
+public class LiveModel extends AMotionModel
 {
   /**
    * Note that we have not yet initialized the global offset, which is

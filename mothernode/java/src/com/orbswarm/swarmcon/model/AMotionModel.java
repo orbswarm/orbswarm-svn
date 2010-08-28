@@ -1,5 +1,8 @@
 package com.orbswarm.swarmcon.model;
 
+import java.util.Iterator;
+
+import org.apache.log4j.Logger;
 import org.trebor.util.Angle;
 
 import com.orbswarm.swarmcon.io.OrbIo.IOrbListener;
@@ -24,35 +27,10 @@ import static com.orbswarm.swarmcon.util.Constants.*;
  * model or a linkage to a live orb.
  */
 
-abstract public class MotionModel implements IOrbListener
+abstract public class AMotionModel implements IOrbListener, IMotionModel
 {
-  /** a nice clearly named zero degrees per second */
-
-  public static final Angle ZERO_DEGREES_PER_SECOND = new Angle(0,
-    DEGREE_RATE);
-
-  /** a nice clearly named zero degrees per second */
-
-  public static final Angle ZERO_DEGREES = new Angle(0, DEGREE_RATE);
-
-  /** Curve width for smooth path calculations. */
-
-  public static final double SMOOTHNESS = .4;
-
-  /**
-   * The distance from the orb to place a point to give the orb some room
-   * to turn.
-   */
-
-  public static final double HEADROOM = 5;
-
-  /** Time between points on a smooth path (seconds). */
-
-  public static final double SMOOTH_PATH_UPDATE_RATE = .1;
-
-  /** Flatness of waypoints. */
-
-  public static final double CURVE_FLATNESS = 0.00000001;
+  @SuppressWarnings("unused")
+  private static Logger log = Logger.getLogger(AMotionModel.class);
 
   /** Velocity rate profile to follow */
 
@@ -119,14 +97,14 @@ abstract public class MotionModel implements IOrbListener
 
   private SmoothPath activeSmoothPath;
 
-  /** Update the motion model. */
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#update(double)
+   */
 
   abstract public void update(double time);
 
-  /**
-   * Get the yaw rate of the orb.
-   * 
-   * @return yaw rate in degrees per second
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#getYawRate()
    */
 
   public Angle getYawRate()
@@ -145,12 +123,8 @@ abstract public class MotionModel implements IOrbListener
     this.yawRate = yawRate;
   }
 
-  /**
-   * Get the current speed of the orb. This takes into account which way
-   * the orb is facing and will return negative values if the orb is
-   * backing up.
-   * 
-   * @return velocity in meters per second
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#getSpeed()
    */
 
   public double getSpeed()
@@ -160,10 +134,8 @@ abstract public class MotionModel implements IOrbListener
       : -getVelocity();
   }
 
-  /**
-   * Get the current velocity of the orb. Always returns a positive value.
-   * 
-   * @return velocity in meters per second
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#getVelocity()
    */
 
   public double getVelocity()
@@ -182,10 +154,8 @@ abstract public class MotionModel implements IOrbListener
     this.velocity = velocity;
   }
 
-  /**
-   * Get the current direction of the orb.
-   * 
-   * @return direction as a heading
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#getDirection()
    */
 
   public Angle getDirection()
@@ -203,30 +173,24 @@ abstract public class MotionModel implements IOrbListener
     this.direction = direction;
   }
 
-  /**
-   * Command target roll.
-   * 
-   * @param targetRoll target roll
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#setTargetRoll(org.trebor.util.Angle)
    */
   public void setTargetRoll(Angle targetRoll)
   {
     this.targetRoll = targetRoll;
   }
 
-  /**
-   * Command target velocity.
-   * 
-   * @param targetVelocity target velocity
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#setTargetVelocity(double)
    */
   public void setTargetVelocity(double targetVelocity)
   {
     this.targetVelocity = targetVelocity;
   }
 
-  /**
-   * Report target velocity.
-   * 
-   * @return target velocity
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#getTargetVelocity()
    */
 
   public double getTargetVelocity()
@@ -234,10 +198,8 @@ abstract public class MotionModel implements IOrbListener
     return targetVelocity;
   }
 
-  /**
-   * Command target yaw.
-   * 
-   * @param targetYaw target yaw
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#setTargetYaw(org.trebor.util.Angle)
    */
 
   public void setTargetYaw(Angle targetYaw)
@@ -245,10 +207,8 @@ abstract public class MotionModel implements IOrbListener
     this.targetYaw = targetYaw;
   }
 
-  /**
-   * Command position.
-   * 
-   * @param target target position
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#setTargetPosition(com.orbswarm.swarmcon.path.Target)
    */
 
   public SmoothPath setTargetPosition(Target target)
@@ -270,10 +230,8 @@ abstract public class MotionModel implements IOrbListener
     return setTargetPath(path);
   }
 
-  /**
-   * Command a path.
-   * 
-   * @param path the path the orb should follow
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#setTargetPath(com.orbswarm.swarmcon.path.Path)
    */
 
   public SmoothPath setTargetPath(Path path)
@@ -284,6 +242,9 @@ abstract public class MotionModel implements IOrbListener
     return startPathCommander();
   }
 
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#setTargetPath(com.orbswarm.swarmcon.path.IBlockPath)
+   */
   public SmoothPath setTargetPath(IBlockPath path)
   {
     activeSmoothPath = new SmoothPath(path, velocityRate,
@@ -309,37 +270,45 @@ abstract public class MotionModel implements IOrbListener
     return activeSmoothPath;
   }
 
-  
-  
-  /** Stop the orb. */
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#stop()
+   */
 
   public void stop()
   {
     pathCommander.requestDeath();
   }
 
-  /** Get the active smooth path. */
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#getActivePath()
+   */
 
   public SmoothPath getActivePath()
   {
     return activeSmoothPath;
   }
 
-  /** Deactivate active smooth path. */
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#deactivatePath()
+   */
 
   public void deactivatePath()
   {
     activeSmoothPath = null;
   }
 
-  /** Get target yaw. */
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#getTargetYaw()
+   */
 
   public double getTargetYaw()
   {
     return targetYaw.as(DEGREES);
   }
 
-  /** Get target roll. */
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#getTargetRoll()
+   */
 
   public double getTargetRoll()
   {
@@ -348,6 +317,9 @@ abstract public class MotionModel implements IOrbListener
 
   // get yaw
 
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#getYaw()
+   */
   public Angle getYaw()
   {
     return yaw; // .as(DEGREES);
@@ -355,6 +327,9 @@ abstract public class MotionModel implements IOrbListener
 
   // set yaw
 
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#setYaw(org.trebor.util.Angle)
+   */
   public Angle setYaw(Angle newYaw)
   {
     Angle deltaYaw = yaw.difference(newYaw);
@@ -371,6 +346,9 @@ abstract public class MotionModel implements IOrbListener
 
   // get pitch
 
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#getPitch()
+   */
   public Angle getPitch()
   {
     return pitch;
@@ -394,6 +372,9 @@ abstract public class MotionModel implements IOrbListener
 
   // get roll
 
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#getRoll()
+   */
   public Angle getRoll()
   {
     return roll;
@@ -427,6 +408,9 @@ abstract public class MotionModel implements IOrbListener
 
   // reverse the sense of the vehicle
 
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#reverse()
+   */
   public void reverse()
   {
     yaw = yaw.rotate(180, DEGREES);
@@ -434,6 +418,9 @@ abstract public class MotionModel implements IOrbListener
 
   // position getter
 
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#getPosition()
+   */
   public Point getPosition()
   {
     return new Point(getX(), getY());
@@ -462,6 +449,9 @@ abstract public class MotionModel implements IOrbListener
 
   // position setter
 
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#setPosition(double, double)
+   */
   public void setPosition(double x, double y)
   {
     position.setLocation(x, y);
@@ -481,14 +471,18 @@ abstract public class MotionModel implements IOrbListener
     setPosition(getX() + dX, getY() + dY);
   }
 
-  /** Return the orb survey position, or null if we haven't got one yet. */
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#getSurveyPosition()
+   */
 
   public Point getSurveyPosition()
   {
     return null;
   }
 
-  /** Return true if the orb has acknowledged the origin command. */
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#isOriginAcked()
+   */
 
   public boolean isOriginAcked()
   {
@@ -520,26 +514,25 @@ abstract public class MotionModel implements IOrbListener
       {
         double lastTime = 0;
         SmoothPath sp = getActivePath();
+        Waypoint wp = null;
 
-        for (Waypoint wp : sp)
+        Iterator<Waypoint> wpIter = sp.iterator();
+
+        while (!deathRequest)
         {
-          // sleep until it's time to send it
-
-          sleep(SwarmCon.secondsToMilliseconds(wp.getTime() - lastTime));
-
-          // if requested to die, do so
-
-          if (deathRequest)
-            return;
-
-          // move orb to this waypoint
-
-          commandWaypoint(wp);
-          sp.setCurrentWaypoint(wp);
-
-          // update the last time a way point was set
-
-          lastTime = wp.getTime();
+          if (wpIter.hasNext())
+          {
+            wp = wpIter.next();
+            sleep(SwarmCon.secondsToMilliseconds(wp.getTime() - lastTime));
+            commandWaypoint(wp);
+            sp.setCurrentWaypoint(wp);
+            lastTime = wp.getTime();
+          }
+          else
+          {
+            sleep(SwarmCon.secondsToMilliseconds(SMOOTH_PATH_UPDATE_RATE));
+            AMotionModel.this.stop();
+          }
         }
       }
       catch (Exception e)
@@ -547,5 +540,17 @@ abstract public class MotionModel implements IOrbListener
         e.printStackTrace();
       }
     }
+  }
+
+  /* (non-Javadoc)
+   * @see com.orbswarm.swarmcon.model.IMotionModel#toString()
+   */
+  public String toString()
+  {
+    return "MotionModel [yaw=" + yaw + ", pitch=" + pitch + ", roll=" + roll +
+      ", direction=" + direction + ", position=" + position + ", velocity=" +
+      velocity + ", yawRate=" + yawRate + ", targetRoll=" + targetRoll +
+      ", targetVelocity=" + targetVelocity + ", targetYaw=" + targetYaw +
+      ", pathCommander=" + pathCommander + "]";
   }
 }

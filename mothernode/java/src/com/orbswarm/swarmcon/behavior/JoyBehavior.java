@@ -3,7 +3,7 @@ package com.orbswarm.swarmcon.behavior;
 import org.trebor.util.Angle;
 
 import com.orbswarm.swarmcon.io.JoystickManager;
-import com.orbswarm.swarmcon.model.MotionModel;
+import com.orbswarm.swarmcon.model.IMotionModel;
 
 import static org.trebor.util.Angle.Type.DEGREE_RATE;
 import static com.orbswarm.swarmcon.util.Constants.*;
@@ -73,7 +73,7 @@ public class JoyBehavior extends Behavior implements JoystickManager.Listener
 
   // update
 
-  public void update(double time, MotionModel model)
+  public void update(double time, IMotionModel model)
   {
     model.setTargetRoll(new Angle(steering * MAX_ROLL, DEGREE_RATE));
   }

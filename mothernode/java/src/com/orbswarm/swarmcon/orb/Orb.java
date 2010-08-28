@@ -11,7 +11,8 @@ import java.util.concurrent.TimeUnit;
 import com.orbswarm.swarmcon.behavior.Behavior;
 import com.orbswarm.swarmcon.io.Message;
 import com.orbswarm.swarmcon.io.OrbIo.IOrbListener;
-import com.orbswarm.swarmcon.model.MotionModel;
+import com.orbswarm.swarmcon.model.IMotionModel;
+import com.orbswarm.swarmcon.model.AMotionModel;
 import com.orbswarm.swarmcon.view.ARenderable;
 
 import org.trebor.util.Angle;
@@ -53,7 +54,7 @@ public class Orb extends ARenderable implements IOrbListener, IOrb
 
   /** physical model of the orb, either live or simulated */
 
-  private MotionModel model;
+  private AMotionModel model;
 
   // nearest mobject
 
@@ -63,7 +64,7 @@ public class Orb extends ARenderable implements IOrbListener, IOrb
 
   // construct an orb
 
-  public Orb(MotionModel model, int id)
+  public Orb(AMotionModel model, int id)
   {
     this.model = model;
     this.id = id;
@@ -115,7 +116,7 @@ public class Orb extends ARenderable implements IOrbListener, IOrb
    * @see com.orbswarm.swarmcon.orb.IOrbx#getModel()
    */
 
-  public MotionModel getModel()
+  public IMotionModel getModel()
   {
     return model;
   }

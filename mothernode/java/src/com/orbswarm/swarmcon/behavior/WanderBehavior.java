@@ -3,7 +3,7 @@ package com.orbswarm.swarmcon.behavior;
 import static com.orbswarm.swarmcon.util.Constants.RND;
 import static java.lang.Math.sin;
 
-import com.orbswarm.swarmcon.model.MotionModel;
+import com.orbswarm.swarmcon.model.IMotionModel;
 
 public class WanderBehavior extends Behavior
 {
@@ -22,7 +22,7 @@ public class WanderBehavior extends Behavior
 
   // update
 
-  public void update(double time, MotionModel model)
+  public void update(double time, IMotionModel model)
   {
     totalTime += time;
     double tp = adjust * sin(totalTime / 3);

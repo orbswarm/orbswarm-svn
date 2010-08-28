@@ -1,6 +1,6 @@
 package com.orbswarm.swarmcon.behavior;
 
-import com.orbswarm.swarmcon.model.MotionModel;
+import com.orbswarm.swarmcon.model.IMotionModel;
 import com.orbswarm.swarmcon.orb.IOrb;
 
 // a behavior object controls the behavior of an orb by setting the
@@ -33,7 +33,7 @@ public abstract class Behavior
 
   // update the state of the orb, time (in seconds) provided
 
-  abstract public void update(double time, MotionModel model);
+  abstract public void update(double time, IMotionModel model);
 
   // convert to a string
 
