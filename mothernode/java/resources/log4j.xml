@@ -69,7 +69,7 @@
   </logger>
 
   <logger name="com.orbswarm.swarmcon.store.FileStore">
-    <level value="debug" />
+    <level value="warn" />
   </logger>
 
 	<root>

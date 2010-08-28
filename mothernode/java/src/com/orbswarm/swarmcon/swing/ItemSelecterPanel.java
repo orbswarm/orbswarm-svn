@@ -138,6 +138,7 @@ public class ItemSelecterPanel extends JPanel
   {
     private boolean mSelected;
     private final IItem<?> mItem;
+    private boolean mSuppressed;
     
     private static final long serialVersionUID = 7883183615949305291L;
     
@@ -181,12 +182,17 @@ public class ItemSelecterPanel extends JPanel
 
     public boolean isSelected()
     {
-      return mSelected;
+      return mSuppressed ? false : mSelected;
     }
 
     public void setSelected(boolean selected)
     {
       mSelected = selected;
+    }
+    
+    public void setSuppressed(boolean suppressed)
+    {
+      mSuppressed = suppressed;
     }
   }
   

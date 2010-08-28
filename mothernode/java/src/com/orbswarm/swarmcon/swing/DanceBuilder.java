@@ -34,7 +34,7 @@ public class DanceBuilder extends PathBuilder
   }
   
   @Override
-  protected void initializeArtifact()
+  protected void createNewArtifact()
   {
     setArtifact(new Item<Dance>(new Dance(Dance.Layout.CIRLCE, 2), NameGenerator.getName(2)));
     for (int i = 0; i < 6; ++i)
@@ -42,6 +42,7 @@ public class DanceBuilder extends PathBuilder
       getCurrentDance().addAfter(new BlockPath());
       getCurrentPath().addAfter(new CurveBlock(60, 2, CurveBlock.Type.RIGHT));
     }
+    repaint();
   }
 
   @Override

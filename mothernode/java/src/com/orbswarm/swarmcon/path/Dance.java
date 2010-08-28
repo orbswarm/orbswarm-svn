@@ -112,6 +112,14 @@ public class Dance extends ARenderable implements IDance
     return mSeperation;
   }
 
+  @Override
+  public void setSuppressed(boolean suppressed)
+  {
+    for (IBlockPath path: getPaths())
+      path.setSuppressed(suppressed);
+    super.setSuppressed(suppressed);
+  }
+
   public Rectangle2D getBounds2D()
   {
     return getPath().getBounds2D();

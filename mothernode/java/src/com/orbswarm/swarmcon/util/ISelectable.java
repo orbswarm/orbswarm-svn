@@ -17,4 +17,14 @@ public interface ISelectable
    */
 
   void setSelected(boolean selected);
+  
+  /**
+   * Suppress the selected state. The selected state is maintained but
+   * suppressed.
+   * 
+   * @param suppress if true selected state is suppressed, otherwise it
+   *        returns to it's original state.
+   */
+  
+  void setSuppressed(boolean suppress);
 }

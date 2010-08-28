@@ -25,6 +25,8 @@ public abstract class ABlock implements IBlock
   private Shape mPathShape;
   @XmlElement(name="selected")
   private boolean mSelected;
+  @XmlTransient
+  private boolean mSuppressed;
   
   /**
    * Set the shape of this path. This shape should be a open path
@@ -123,11 +125,16 @@ public abstract class ABlock implements IBlock
 
   public boolean isSelected()
   {
-    return mSelected;
+    return mSuppressed ? false : mSelected;
   }
 
   public void setSelected(boolean selected)
   {
     mSelected = selected;
+  }
+  
+  public void setSuppressed(boolean suppressed)
+  {
+    mSuppressed = suppressed;
   }
 }

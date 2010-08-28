@@ -93,6 +93,14 @@ public class BlockPath extends ARenderable implements IBlockPath
     return getPath().getBounds2D();
   }
 
+  @Override
+  public void setSuppressed(boolean suppressed)
+  {
+    for (IBlock block: getBlocks())
+      block.setSuppressed(suppressed);
+    super.setSuppressed(suppressed);
+  }
+
   public void nextBlock()
   {
     mBlocksHolder.next();

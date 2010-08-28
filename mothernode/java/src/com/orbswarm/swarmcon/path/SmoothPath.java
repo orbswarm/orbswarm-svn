@@ -525,6 +525,11 @@ public class SmoothPath extends Vector<Waypoint> implements IRenderable
   {
     throw new UnsupportedOperationException();
   }
+  
+  public void setSuppressed(boolean suppressed)
+  {
+    throw new UnsupportedOperationException();
+  }
 
   public void update(double time)
   {

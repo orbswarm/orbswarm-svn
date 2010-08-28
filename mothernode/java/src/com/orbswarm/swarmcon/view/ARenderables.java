@@ -75,6 +75,11 @@ public class ARenderables<E extends IRenderable> extends Vector<E>
     //throw new UnsupportedOperationException();
   }
 
+  public void setSuppressed(boolean suppressed)
+  {
+    throw new UnsupportedOperationException();
+  }
+  
   public boolean isSelectedBy(Point2D clickPoint)
   {
     throw new UnsupportedOperationException();

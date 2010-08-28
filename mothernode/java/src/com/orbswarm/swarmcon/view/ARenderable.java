@@ -7,6 +7,7 @@ import java.awt.geom.Rectangle2D;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.trebor.util.Angle;
 
@@ -29,7 +30,10 @@ public abstract class ARenderable implements IRenderable
 
   @XmlElement(name="selected")
   private boolean mSelected = false;
-
+  @XmlTransient
+  private boolean mSuppressed;
+  
+  
   /**
    * Create a vobject.
    */
@@ -49,7 +53,7 @@ public abstract class ARenderable implements IRenderable
 
   public boolean isSelected()
   {
-    return mSelected;
+    return mSuppressed ? false : mSelected;
   }
 
   public void setSelected(boolean selected)
@@ -57,6 +61,11 @@ public abstract class ARenderable implements IRenderable
     this.mSelected = selected;
   }
 
+  public void setSuppressed(boolean suppressed)
+  {
+    mSuppressed = suppressed;
+  }
+  
   // position getter
 
   public Point2D getPosition()

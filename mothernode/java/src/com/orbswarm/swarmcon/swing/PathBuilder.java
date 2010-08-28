@@ -70,7 +70,7 @@ public class PathBuilder extends JFrame
   // private double mCurrentCurveExtent = DEFAULT_CURVE_EXTENT;
 
   private IItem<?> mArtifact;
-  
+
   protected ArenaPanel mArena;
 
   protected JMenu mEditMenu;
@@ -96,33 +96,23 @@ public class PathBuilder extends JFrame
   public PathBuilder(IItemStore store)
   {
     // get the item store
-    
+
     mStore = store;
 
     // make the frame
 
     constructFrame();
-    
+
     // initialize the object
-    
-    initializeArtifact();
-    
+
+    createNewArtifact();
+
     // show the frame
 
     pack();
     setSize(800, 600);
     setVisible(true);
     repaint();
-  }
-
-  /**
-   * Initialize the artifact to be edited.
-   */
-  
-  protected void initializeArtifact()
-  {
-    setArtifact(new Item<BlockPath>(new BlockPath(), NameGenerator.getName(2)));
-    getCurrentPath().addAfter(new StraightBlock(mCurrentLength));
   }
 
   /**
@@ -150,8 +140,10 @@ public class PathBuilder extends JFrame
 
     mFileMenu = new JMenu("File");
     mMenuBar.add(mFileMenu);
+    mFileMenu.add(mNewAction);
     mFileMenu.add(mSaveAction);
     mFileMenu.add(mLoadAction);
+    mFileMenu.add(mDanceAction);
 
     // make edit menu
 
@@ -191,11 +183,12 @@ public class PathBuilder extends JFrame
 
     frame.add(mArena, BorderLayout.CENTER);
   }
-  
+
   @Override
   public void repaint()
   {
-    mArena.setViewPort(getArtifact().getBounds2D(), Constants.ARENA_VIWPORT_BORDER);
+    mArena.setViewPort(getArtifact().getBounds2D(),
+      Constants.ARENA_VIWPORT_BORDER);
     super.repaint();
   }
 
@@ -204,6 +197,13 @@ public class PathBuilder extends JFrame
     mStore.update(mArtifact);
   }
 
+  
+  void dance()
+  {
+    getArtifact().setSuppressed(true);
+    repaint();
+  }
+  
   protected void load()
   {
     JDialog box = new JDialog(this, "Select Item", true);
@@ -368,8 +368,7 @@ public class PathBuilder extends JFrame
     if (getCurrentBlock() instanceof StraightBlock)
     {
       StraightBlock sb = (StraightBlock)getCurrentBlock();
-      sb
-        .setLength(max(sb.getLength() - DEFAULT_LENGTH_CHANGE, MINIMUM_LENGTH));
+      sb.setLength(max(sb.getLength() - DEFAULT_LENGTH_CHANGE, MINIMUM_LENGTH));
       repaint();
     }
     else if (getCurrentBlock() instanceof CurveBlock)
@@ -491,12 +490,14 @@ public class PathBuilder extends JFrame
     return (IBlockPath)getArtifact();
   }
 
-
   protected void createNewArtifact()
   {
-    
+    setArtifact(new Item<BlockPath>(new BlockPath(), NameGenerator.getName(2)));
+    getCurrentPath().addAfter(new StraightBlock(mCurrentLength));
+    getCurrentPath().setSelected(true);
+    repaint();
   }
-  
+
   protected void setArtifact(IItem<?> artifact)
   {
     mArtifact = artifact;
@@ -507,43 +508,41 @@ public class PathBuilder extends JFrame
     return mArtifact.getItem();
   }
 
-  private SwarmAction mCurveLeftAction =
-    new SwarmAction("Left", KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0),
-      "curve to the left")
+  private SwarmAction mCurveLeftAction = new SwarmAction("Left",
+    KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "curve to the left")
+  {
+    public void actionPerformed(ActionEvent e)
     {
-      public void actionPerformed(ActionEvent e)
-      {
-        curveLeft();
-      }
-    };
+      curveLeft();
+    }
+  };
 
-  private SwarmAction mCurveRightAction =
-    new SwarmAction("Right", KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0),
-      "curve to the right")
+  private SwarmAction mCurveRightAction = new SwarmAction("Right",
+    KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "curve to the right")
+  {
+    public void actionPerformed(ActionEvent e)
     {
-      public void actionPerformed(ActionEvent e)
-      {
-        curveRight();
-      }
-    };
+      curveRight();
+    }
+  };
 
   /** Action to select simulated rather live operation. */
 
-  private SwarmAction mGoStraightAction =
-    new SwarmAction("Straight", KeyStroke.getKeyStroke(KeyEvent.VK_UP,
-      KeyEvent.SHIFT_DOWN_MASK), "add path block wich goes straight forward")
+  private SwarmAction mGoStraightAction = new SwarmAction("Straight",
+    KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.SHIFT_DOWN_MASK),
+    "add path block wich goes straight forward")
+  {
+    public void actionPerformed(ActionEvent e)
     {
-      public void actionPerformed(ActionEvent e)
-      {
-        addBlock(new StraightBlock(mCurrentLength));
-      }
-    };
+      addBlock(new StraightBlock(mCurrentLength));
+    }
+  };
 
   /** Action to select simulated rather live operation. */
 
   private SwarmAction mDeleteBlockAction =
-    new SwarmAction("Delete", KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0),
-      "delete current block")
+    new SwarmAction("Delete", KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE,
+      0), "delete current block")
     {
       public void actionPerformed(ActionEvent e)
       {
@@ -553,109 +552,125 @@ public class PathBuilder extends JFrame
 
   /** Action to select simulated rather live operation. */
 
-  private SwarmAction mShortenAction =
-    new SwarmAction("Ensmallen", KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0),
-      "decrease the length of the block")
+  private SwarmAction mShortenAction = new SwarmAction("Ensmallen",
+    KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0),
+    "decrease the length of the block")
+  {
+    public void actionPerformed(ActionEvent e)
     {
-      public void actionPerformed(ActionEvent e)
-      {
-        ensmallen();
-      }
-    };
+      ensmallen();
+    }
+  };
 
   /** Action to select simulated rather live operation. */
 
-  private final SwarmAction mLengthenAction =
-    new SwarmAction("Embiggen", KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0),
-      "increase the length of the block")
+  private final SwarmAction mLengthenAction = new SwarmAction("Embiggen",
+    KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0),
+    "increase the length of the block")
+  {
+    public void actionPerformed(ActionEvent e)
     {
-      public void actionPerformed(ActionEvent e)
-      {
-        embiggen();
-      }
-    };
+      embiggen();
+    }
+  };
 
-  private final SwarmAction mShiftLeft =
-    new SwarmAction("Left Adjust", KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,
-      KeyEvent.SHIFT_DOWN_MASK), "widen right curves, narrow left curves")
+  private final SwarmAction mShiftLeft = new SwarmAction("Left Adjust",
+    KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.SHIFT_DOWN_MASK),
+    "widen right curves, narrow left curves")
+  {
+    public void actionPerformed(ActionEvent e)
     {
-      public void actionPerformed(ActionEvent e)
-      {
-        shiftLeft();
-      }
-    };
+      shiftLeft();
+    }
+  };
 
-  private final SwarmAction mShiftRight =
-    new SwarmAction("Right Adjust", KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,
-      KeyEvent.SHIFT_DOWN_MASK), "widen left curvs, narrow right curves")
+  private final SwarmAction mShiftRight = new SwarmAction("Right Adjust",
+    KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, KeyEvent.SHIFT_DOWN_MASK),
+    "widen left curvs, narrow right curves")
+  {
+    public void actionPerformed(ActionEvent e)
     {
-      public void actionPerformed(ActionEvent e)
-      {
-        shiftRight();
-      }
-    };
+      shiftRight();
+    }
+  };
 
-  private final SwarmAction mPreviouseBlock =
-    new SwarmAction("Previouse Block", KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,
+  private final SwarmAction mPreviouseBlock = new SwarmAction(
+    "Previouse Block", KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,
       KeyEvent.META_DOWN_MASK), "select previouse block on current path")
+  {
+    public void actionPerformed(ActionEvent e)
     {
-      public void actionPerformed(ActionEvent e)
-      {
-        previouseBlock();
-      }
-    };
+      previouseBlock();
+    }
+  };
 
-  protected final SwarmAction mNextBlock =
-    new SwarmAction("Next Block", KeyStroke.getKeyStroke(KeyEvent.VK_UP,
-      KeyEvent.META_DOWN_MASK), "select next block on current path")
+  protected final SwarmAction mNextBlock = new SwarmAction("Next Block",
+    KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.META_DOWN_MASK),
+    "select next block on current path")
+  {
+    public void actionPerformed(ActionEvent e)
     {
-      public void actionPerformed(ActionEvent e)
-      {
-        nextBlock();
-      }
-    };
+      nextBlock();
+    }
+  };
 
-  private final SwarmAction mZoomIn =
-    new SwarmAction("Zoom in", KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, 0),
-      "zoom in on the display")
+  private final SwarmAction mZoomIn = new SwarmAction("Zoom in",
+    KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, 0), "zoom in on the display")
+  {
+    public void actionPerformed(ActionEvent e)
     {
-      public void actionPerformed(ActionEvent e)
-      {
-        mArena.zoomIn();
-      }
-    };
+      mArena.zoomIn();
+    }
+  };
 
   /** Zoom display out. */
 
-  SwarmAction mZoomOut =
-    new SwarmAction("Zoom out", KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, 0),
-      "zoom out on the display")
+  SwarmAction mZoomOut = new SwarmAction("Zoom out", KeyStroke.getKeyStroke(
+    KeyEvent.VK_EQUALS, 0), "zoom out on the display")
+  {
+    public void actionPerformed(ActionEvent e)
     {
-      public void actionPerformed(ActionEvent e)
-      {
-        mArena.zoomOut();
-      }
-    };
+      mArena.zoomOut();
+    }
+  };
 
   /** Zoom display out. */
 
-  SwarmAction mSaveAction =
-    new SwarmAction("Save", KeyStroke.getKeyStroke(KeyEvent.VK_S,
-      KeyEvent.META_DOWN_MASK), "save this path")
+  SwarmAction mNewAction = new SwarmAction("New", KeyStroke.getKeyStroke(
+    KeyEvent.VK_N, KeyEvent.META_DOWN_MASK), "create a new artifact to edit")
+  {
+    public void actionPerformed(ActionEvent e)
     {
-      public void actionPerformed(ActionEvent e)
-      {
-        save();
-      }
-    };
+      createNewArtifact();
+    }
+  };
 
-  SwarmAction mLoadAction =
-    new SwarmAction("Load", KeyStroke.getKeyStroke(KeyEvent.VK_L,
-      KeyEvent.META_DOWN_MASK), "load a path")
+  /** Zoom display out. */
+
+  SwarmAction mSaveAction = new SwarmAction("Save", KeyStroke.getKeyStroke(
+    KeyEvent.VK_S, KeyEvent.META_DOWN_MASK), "save this path")
+  {
+    public void actionPerformed(ActionEvent e)
     {
-      public void actionPerformed(ActionEvent e)
-      {
-        load();
-      }
-    };
+      save();
+    }
+  };
+
+  SwarmAction mLoadAction = new SwarmAction("Load", KeyStroke.getKeyStroke(
+    KeyEvent.VK_L, KeyEvent.META_DOWN_MASK), "load a path")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      load();
+    }
+  };
+  
+  SwarmAction mDanceAction = new SwarmAction("Dance", KeyStroke.getKeyStroke(
+    KeyEvent.VK_D, KeyEvent.META_DOWN_MASK), "dance my pritties, dance!")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      dance();
+    }
+  };
 }
