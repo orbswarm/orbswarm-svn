@@ -25,16 +25,14 @@ import com.orbswarm.swarmcon.util.Constants;
 import com.orbswarm.swarmcon.util.ISelectable;
 import com.orbswarm.swarmcon.util.ISelectableList;
 import com.orbswarm.swarmcon.util.SelectableList;
-import com.orbswarm.swarmcon.view.IRenderable;
 import com.orbswarm.swarmcon.view.RendererSet;
 
 public class ItemSelecterPanel extends JPanel
 {
   private static final long serialVersionUID = 2017028152849656592L;
 
-  public static final int PANEL_WIDTH = 70;
-
-  public static final int PANEL_HEIGHT = 70;
+  public static final int PANEL_WIDTH = 100;
+  public static final int PANEL_HEIGHT = 100;
 
   private final ISelectableList<ItemPanel> mItemPanels;
 
@@ -84,8 +82,11 @@ public class ItemSelecterPanel extends JPanel
   
   public void layoutItems()
   {
+    int rows = mItemPanels.size() / 5;
+    int cols = 5;
+    
     removeAll();
-    setLayout(new GridLayout());
+    setLayout(new GridLayout(rows, cols));
 
     for (ItemPanel itemPanel : mItemPanels.getAll())
     {
