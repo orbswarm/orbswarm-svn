@@ -28,6 +28,7 @@ import com.orbswarm.swarmcon.path.IBlock;
 import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.path.StraightBlock;
 import com.orbswarm.swarmcon.store.FileStore;
+import com.orbswarm.swarmcon.store.IItemFilter;
 import com.orbswarm.swarmcon.store.Item;
 import com.orbswarm.swarmcon.store.IItem;
 import com.orbswarm.swarmcon.store.IItemStore;
@@ -39,7 +40,6 @@ import com.orbswarm.swarmcon.view.RendererSet;
 import static com.orbswarm.swarmcon.util.Constants.MIN_FRAME_DELAY;
 import static java.lang.Math.PI;
 import static java.lang.Math.round;
-import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.System.currentTimeMillis;
 
@@ -56,7 +56,6 @@ public class PathBuilder extends JFrame
   public static final double START_RADIUS = 7;
   public static final double MINIMUM_LENGTH = 1;
 
-  public static final double DEFAULT_RADIUS_STEP = 1;
   public static final double DEFAULT_RADIUS = 1;
   public static final double DEFAULT_CURVE_EXTENT = 30;
 
@@ -73,9 +72,7 @@ public class PathBuilder extends JFrame
 
   // private static final double DEFAULT_CURVE_EXTENT = 90;
 
-  private double mCurrentRadius = DEFAULT_RADIUS;
   private double mCurrentLength = DEFAULT_LENGTH;
-  private double mCurrentCurveExtent = DEFAULT_CURVE_EXTENT;
 
   private IItem<?> mArtifact;
 
@@ -92,6 +89,8 @@ public class PathBuilder extends JFrame
   protected JMenu mViewMenu;
 
   private IItemStore mStore;
+  
+  private IItemFilter mItemFilter;
 
   private boolean mSimulationRunning;
 
@@ -123,6 +122,17 @@ public class PathBuilder extends JFrame
 
     createNewArtifact();
 
+    // set the item filter to only accept paths
+    
+    setItemFilter(new IItemFilter()
+    {
+      public <T extends IRenderable> boolean accept(IItem<T> item)
+      {
+        return item.getItem() instanceof IBlockPath;
+      }
+    });
+    
+    
     // show the frame
 
     pack();
@@ -308,14 +318,13 @@ public class PathBuilder extends JFrame
   {
     JDialog box = new JDialog(this, "Select Item", true);
     Container frame = box.getContentPane();
-    ItemSelecterPanel selector = new ItemSelecterPanel(mStore, box);
+    ItemSelecterPanel selector = new ItemSelecterPanel(mStore, getItemFilter(), box);
     frame.add(selector);
     box.pack();
     box.setVisible(true);
     IItem<?> item = selector.getSelectedItem();
     if (null != item)
-      mArtifact = item;
-    repaint();
+      setArtifact(item);
   }
 
   private void oldCurveRight()
@@ -618,29 +627,31 @@ public class PathBuilder extends JFrame
     }
   }
 
-  protected void shiftLeft()
+  protected void adjustRadiusLeft()
   {
     if (getCurrentBlock() instanceof CurveBlock)
     {
       CurveBlock cb = (CurveBlock)getCurrentBlock();
+
       if (cb.getType() == CurveBlock.Type.RIGHT)
-        cb.setRadius(cb.getRadius() + DEFAULT_RADIUS_STEP);
-      else if (cb.getRadius() > MINIMUM_RADIUS)
-        cb.setRadius(cb.getRadius() - DEFAULT_RADIUS_STEP);
+        cb.setRadius(Math.max(MINIMUM_RADIUS, cb.getRadius() - DEFAULT_RADIUS_QUANTA));
+      else
+        cb.setRadius(cb.getRadius() + DEFAULT_RADIUS_QUANTA);
 
       repaint();
     }
   }
 
-  protected void shiftRight()
+  protected void adjustRadiusRight()
   {
     if (getCurrentBlock() instanceof CurveBlock)
     {
       CurveBlock cb = (CurveBlock)getCurrentBlock();
+      
       if (cb.getType() == CurveBlock.Type.LEFT)
-        cb.setRadius(cb.getRadius() + DEFAULT_RADIUS_STEP);
-      else if (cb.getRadius() > MINIMUM_RADIUS)
-        cb.setRadius(cb.getRadius() - DEFAULT_RADIUS_STEP);
+        cb.setRadius(Math.max(MINIMUM_RADIUS, cb.getRadius() - DEFAULT_RADIUS_QUANTA));
+      else
+        cb.setRadius(cb.getRadius() + DEFAULT_RADIUS_QUANTA);
 
       repaint();
     }
@@ -667,11 +678,23 @@ public class PathBuilder extends JFrame
   protected void setArtifact(IItem<?> artifact)
   {
     mArtifact = artifact;
+    setTitle(mArtifact.getName() + " by " + mArtifact.getAuthor());
+    repaint();
   }
 
   public IRenderable getArtifact()
   {
     return mArtifact.getItem();
+  }
+
+  public void setItemFilter(IItemFilter itemFilter)
+  {
+    mItemFilter = itemFilter;
+  }
+
+  public IItemFilter getItemFilter()
+  {
+    return mItemFilter;
   }
 
   private SwarmAction mCurveLeftAction = new SwarmAction("Left",
@@ -740,13 +763,13 @@ public class PathBuilder extends JFrame
     }
   };
 
-  private final SwarmAction mShiftLeft = new SwarmAction("Left Adjust",
+  private final SwarmAction mShiftLeft = new SwarmAction("Left Adjust Radius",
     KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.SHIFT_DOWN_MASK),
     "widen right curves, narrow left curves")
   {
     public void actionPerformed(ActionEvent e)
     {
-      shiftLeft();
+      adjustRadiusLeft();
     }
   };
 
@@ -756,7 +779,7 @@ public class PathBuilder extends JFrame
   {
     public void actionPerformed(ActionEvent e)
     {
-      shiftRight();
+      adjustRadiusRight();
     }
   };
 

@@ -18,12 +18,14 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
 import com.orbswarm.swarmcon.store.IItem;
+import com.orbswarm.swarmcon.store.IItemFilter;
 import com.orbswarm.swarmcon.store.IItemStore;
 import com.orbswarm.swarmcon.store.TestStore;
 import com.orbswarm.swarmcon.util.Constants;
 import com.orbswarm.swarmcon.util.ISelectable;
 import com.orbswarm.swarmcon.util.ISelectableList;
 import com.orbswarm.swarmcon.util.SelectableList;
+import com.orbswarm.swarmcon.view.IRenderable;
 import com.orbswarm.swarmcon.view.RendererSet;
 
 public class ItemSelecterPanel extends JPanel
@@ -37,6 +39,7 @@ public class ItemSelecterPanel extends JPanel
   private final ISelectableList<ItemPanel> mItemPanels;
 
   private final IItemStore mStore;
+  private final IItemFilter mFilter;
   private final Window mParent;
   private IItem<?> mSelectedItem = null;
   
@@ -44,15 +47,17 @@ public class ItemSelecterPanel extends JPanel
   {
     JFrame f = new JFrame();
     f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    f.getContentPane().add(new ItemSelecterPanel(new TestStore(), f));
+    f.getContentPane().add(
+      new ItemSelecterPanel(new TestStore(), IItemStore.ACCEPT_ALL, f));
     f.pack();
     f.setVisible(true);
   }
 
-  public ItemSelecterPanel(IItemStore store, Window parent)
+  public ItemSelecterPanel(IItemStore store, IItemFilter filter, Window parent)
   {
     mItemPanels = new SelectableList<ItemPanel>();
     mStore = store;
+    mFilter = filter;
     mParent = parent;
     addAction(mNext);
     addAction(mPreviouseItem);
@@ -71,7 +76,7 @@ public class ItemSelecterPanel extends JPanel
   public void update()
   {
     mItemPanels.removeAll();
-    for (IItem<?> item: mStore.getItems())
+    for (IItem<?> item: mStore.getSome(mFilter))
       mItemPanels.addAfter(new ItemPanel(item));
     mItemPanels.first();
     layoutItems();

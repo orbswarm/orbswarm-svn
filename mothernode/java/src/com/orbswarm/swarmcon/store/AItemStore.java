@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Vector;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -107,9 +108,21 @@ public abstract class AItemStore implements IItemStore
 //    return wrapped;
   }
 
-  public Collection<IItem<? extends IRenderable>> getItems()
+  public Collection<IItem<? extends IRenderable>> getAll()
   {
     return Collections.unmodifiableCollection(mItemCache.values());
+  }
+  
+  public Collection<IItem<? extends IRenderable>> getSome(IItemFilter filter)
+  {
+    Collection<IItem<? extends IRenderable>> accepted =
+      new Vector<IItem<? extends IRenderable>>();
+
+    for (IItem<? extends IRenderable> item : mItemCache.values())
+      if (filter.accept(item))
+        accepted.add(item);
+
+    return accepted;
   }
 
   <T extends IRenderable> String marshal(IItem<T> item)

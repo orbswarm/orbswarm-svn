@@ -43,7 +43,7 @@ public class FileStore extends AItemStore
     
     initialize();
     
-    for (IItem<? extends IRenderable> i: getItems())
+    for (IItem<? extends IRenderable> i: getAll())
     {
       log.debug("item: " + i);
       log.debug("  id: " + i.getId());

@@ -10,14 +10,16 @@ import com.orbswarm.swarmcon.model.SimModel;
 import com.orbswarm.swarmcon.orb.IOrb;
 import com.orbswarm.swarmcon.orb.Orb;
 import com.orbswarm.swarmcon.path.BlockPath;
-import com.orbswarm.swarmcon.path.CurveBlock;
 import com.orbswarm.swarmcon.path.Dance;
 import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.path.IDance;
 import com.orbswarm.swarmcon.path.StraightBlock;
 import com.orbswarm.swarmcon.store.FileStore;
+import com.orbswarm.swarmcon.store.IItem;
+import com.orbswarm.swarmcon.store.IItemFilter;
 import com.orbswarm.swarmcon.store.Item;
 import com.orbswarm.swarmcon.util.NameGenerator;
+import com.orbswarm.swarmcon.view.IRenderable;
 
 @SuppressWarnings("serial")
 public class DanceBuilder extends PathBuilder
@@ -33,6 +35,17 @@ public class DanceBuilder extends PathBuilder
   public DanceBuilder(FileStore fileStore)
   {
     super(fileStore);
+    
+    // set the item filter to only accept dances
+    
+    setItemFilter(new IItemFilter()
+    {
+      public <T extends IRenderable> boolean accept(IItem<T> item)
+      {
+        return item.getItem() instanceof IDance;
+      }
+    });
+    
     mEditMenu.addSeparator();
     mEditMenu.add(mPreviousePath);
     mEditMenu.add(mNextPath);
