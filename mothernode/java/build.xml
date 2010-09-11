@@ -29,6 +29,12 @@ The text of the MIT license apears in the mit-license.txt file.
   <!-- java library files that belong in the class path and the jar -->
   
   <fileset dir = "${lib-dir}" id = "libraries">
+  	
+    <include name = "commons-httpclient-3.1.jar"/>
+    <include name = "httpcore-4.0.1.jar"/>
+    <include name = "commons-logging-api-1.1.1.jar"/>
+    <include name = "httpmime-4.0.1.jar"/>
+    <include name = "httpclient-4.0.1.jar"/>
     <include name = "GlgEval2.jar"/>
     <include name = "javagps.jar"/>
     <include name = "RXTXcomm.jar"/>
