@@ -26,8 +26,10 @@ import com.orbswarm.swarmcon.orb.Orb;
 import com.orbswarm.swarmcon.orb.Swarm;
 import com.orbswarm.swarmcon.path.BlockPath;
 import com.orbswarm.swarmcon.path.CurveBlock;
+import com.orbswarm.swarmcon.path.Dance;
 import com.orbswarm.swarmcon.path.IBlock;
 import com.orbswarm.swarmcon.path.IBlockPath;
+import com.orbswarm.swarmcon.path.IDance;
 import com.orbswarm.swarmcon.path.StraightBlock;
 import com.orbswarm.swarmcon.store.FileStore;
 import com.orbswarm.swarmcon.store.IItemFilter;
@@ -42,7 +44,6 @@ import com.orbswarm.swarmcon.view.RendererSet;
 import static com.orbswarm.swarmcon.util.Constants.MIN_FRAME_DELAY;
 import static java.lang.Math.PI;
 import static java.lang.Math.round;
-import static java.lang.Math.min;
 import static java.lang.System.currentTimeMillis;
 
 @SuppressWarnings("serial")
@@ -72,6 +73,23 @@ public class PathBuilder extends JFrame
   private static final double DEFAULT_RADIUS_QUANTA = 0.5;
   private static final double DEFAULT_LENGTH_QUANTA = 1;
 
+  
+  public static final IItemFilter PATH_FILTER = new IItemFilter()
+  {
+    public <T extends IRenderable> boolean accept(IItem<T> item)
+    {
+      return item.getItem() instanceof IBlockPath;
+    }
+  };
+  
+  public static final IItemFilter DANCE_FILTER = new IItemFilter()
+  {
+    public <T extends IRenderable> boolean accept(IItem<T> item)
+    {
+      return item.getItem() instanceof IDance;
+    }
+  };
+  
   // private static final double DEFAULT_CURVE_EXTENT = 90;
 
   private double mCurrentLength = DEFAULT_LENGTH;
@@ -92,18 +110,18 @@ public class PathBuilder extends JFrame
 
   private IItemStore mStore;
 
-  private IItemFilter mItemFilter;
-
   private boolean mAutoZoom;
 
   private boolean mSimulationRunning;
 
   private boolean mAutoRotate;
 
+  private JMenu mLayoutMenu;
+
   public static void main(String[] args)
   {
     System.setProperty("com.apple.mrj.application.apple.menu.about.name",
-      "Arena Test");
+      "Mother Node");
     System.setProperty("apple.laf.useScreenMenuBar", "true");
     new PathBuilder(new FileStore("/Users/trebor/.swarmstore"));
   }
@@ -124,19 +142,9 @@ public class PathBuilder extends JFrame
 
     constructFrame();
 
-    // initialize the object
+    // create a new dance
 
-    createNewArtifact();
-
-    // set the item filter to only accept paths
-
-    setItemFilter(new IItemFilter()
-    {
-      public <T extends IRenderable> boolean accept(IItem<T> item)
-      {
-        return item.getItem() instanceof IBlockPath;
-      }
-    });
+    createDance();
 
     // show the frame
 
@@ -171,10 +179,12 @@ public class PathBuilder extends JFrame
 
     mFileMenu = new JMenu("File");
     mMenuBar.add(mFileMenu);
-    mFileMenu.add(mNewAction);
+    mFileMenu.add(mNewDanceAction);
+    mFileMenu.add(mNewPathAction);
     mFileMenu.addSeparator();
     mFileMenu.add(mSaveAction);
-    mFileMenu.add(mLoadAction);
+    mFileMenu.add(mLoadDanceAction);
+    mFileMenu.add(mLoadPathAction);
     mFileMenu.addSeparator();
     mFileMenu.add(mDanceAction);
 
@@ -198,7 +208,29 @@ public class PathBuilder extends JFrame
     mEditMenu.addSeparator();
     mEditMenu.add(mPreviouseBlockAction);
     mEditMenu.add(mNextBlockAction);
-
+    mEditMenu.add(mPreviousePathAction);
+    mEditMenu.add(mNextPathAction);
+    mEditMenu.addSeparator();
+    mEditMenu.add(mInsertPathAction);
+    
+    mEditMenu.addSeparator();
+    mLayoutMenu = new JMenu("Set Layout");
+    mEditMenu.add(mLayoutMenu);
+    
+    for (Dance.Layout layout: Dance.Layout.values())
+    {
+      final Dance.Layout finalLayout = layout;
+      mLayoutMenu.add(new SwarmAction(layout.name(), null,
+        "set dance layout to " + layout.name().toLowerCase())
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          getCurrentDance().setLayout(finalLayout);
+          repaint();
+        }
+      });
+    }
+    
     // make view menu
 
     mViewMenu = new JMenu("View");
@@ -296,6 +328,10 @@ public class PathBuilder extends JFrame
   {
     if (!mSimulationRunning)
     {
+      mNewDanceAction.setEnabled(false);
+      mNewPathAction.setEnabled(false);
+      mLoadDanceAction.setEnabled(false);
+      mLoadPathAction.setEnabled(false);
       getArtifact().setSuppressed(true);
       createSwarm();
       startSimulation();
@@ -305,17 +341,37 @@ public class PathBuilder extends JFrame
       stopSimulation();
       mSwarm.clear();
       getArtifact().setSuppressed(false);
+      mNewDanceAction.setEnabled(true);
+      mNewPathAction.setEnabled(true);
+      mLoadDanceAction.setEnabled(true);
+      mLoadDanceAction.setEnabled(true);
       repaint();
     }
   }
 
   protected void createSwarm()
   {
-    IOrb orb = new Orb(new SimModel(), 0);
-    mSwarm.add(orb);
-    orb.setHeading(getCurrentPath().getHeading());
-    orb.setPosition(getCurrentPath().getPosition());
-    orb.getModel().setTargetPath(getCurrentPath());
+    if (getArtifact() instanceof IBlockPath)
+    {
+      IOrb orb = new Orb(new SimModel(), 0);
+      mSwarm.add(orb);
+      orb.setHeading(getCurrentPath().getHeading());
+      orb.setPosition(getCurrentPath().getPosition());
+      orb.getModel().setTargetPath(getCurrentPath());
+    }
+    else
+    {
+      int orbId = 0;
+
+      for (IBlockPath path : getCurrentDance().getPaths())
+      {
+        IOrb orb = new Orb(new SimModel(), orbId++);
+        mSwarm.add(orb);
+        orb.setHeading(path.getHeading());
+        orb.setPosition(path.getPosition());
+        orb.getModel().setTargetPath(path);
+      }
+    }
   }
 
   public void stopSimulation()
@@ -380,12 +436,12 @@ public class PathBuilder extends JFrame
     }.start();
   }
 
-  protected void load()
+  protected void load(IItemFilter filter)
   {
     JDialog box = new JDialog(this, "Select Item", true);
     Container frame = box.getContentPane();
     ItemSelecterPanel selector =
-      new ItemSelecterPanel(mStore, getItemFilter(), box);
+      new ItemSelecterPanel(mStore, filter, box);
     frame.add(selector);
     box.pack();
     box.setVisible(true);
@@ -414,43 +470,6 @@ public class PathBuilder extends JFrame
     box.setVisible(true);
     IItem<?> item = selector.getSelectedItem();
     return (null != item) ? (IBlockPath)item.getItem() : null;
-  }
-  
-  
-  private void oldCurveRight()
-  {
-    log.debug("curveRight");
-    if (null == getCurrentBlock())
-      return;
-
-    if (getCurrentBlock() instanceof StraightBlock)
-    {
-      getCurrentPath().replace(
-        convertToCurve((StraightBlock)getCurrentBlock(),
-          CurveBlock.Type.RIGHT));
-      repaint();
-    }
-    else if (getCurrentBlock() instanceof CurveBlock)
-    {
-      CurveBlock cb = (CurveBlock)getCurrentBlock();
-
-      if (cb.getType() == CurveBlock.Type.LEFT)
-      {
-        double radius = computeRadius(cb.getRadius(), true);
-        if (radius < MAXIMUM_RADIUS)
-          setRadiusFixLength(cb, radius);
-        else
-          getCurrentPath().replace(convertToStraight(cb));
-      }
-      else
-      {
-        double radius = computeRadius(cb.getRadius(), false);
-        if (radius >= MINIMUM_RADIUS)
-          setRadiusFixLength(cb, Math.max(radius, MINIMUM_RADIUS));
-      }
-
-      repaint();
-    }
   }
 
   private void curveLeft()
@@ -509,43 +528,6 @@ public class PathBuilder extends JFrame
     repaint();
   }
 
-  private void oldCurveLeft()
-  {
-    log.debug("curveLeft");
-    if (null == getCurrentBlock())
-      return;
-
-    if (getCurrentBlock() instanceof StraightBlock)
-    {
-      getCurrentPath()
-        .replace(
-          convertToCurve((StraightBlock)getCurrentBlock(),
-            CurveBlock.Type.LEFT));
-      repaint();
-    }
-    else if (getCurrentBlock() instanceof CurveBlock)
-    {
-      CurveBlock cb = (CurveBlock)getCurrentBlock();
-
-      if (cb.getType() == CurveBlock.Type.RIGHT)
-      {
-        double radius = computeRadius(cb.getRadius(), true);
-        if (radius < MAXIMUM_RADIUS)
-          setRadiusFixLength(cb, radius);
-        else
-          getCurrentPath().replace(convertToStraight(cb));
-      }
-      else
-      {
-        double radius = computeRadius(cb.getRadius(), false);
-        if (radius >= MINIMUM_RADIUS)
-          setRadiusFixLength(cb, Math.max(radius, MINIMUM_RADIUS));
-      }
-
-      repaint();
-    }
-  }
-
   public void setRadiusFixLength(CurveBlock cb, double radius)
   {
     double dLength =
@@ -560,6 +542,7 @@ public class PathBuilder extends JFrame
     return round(value / quanta) * quanta;
   }
 
+  @SuppressWarnings("unused")
   private double computeRadius(double radius, boolean increase)
   {
     double exponent = 1.1;
@@ -596,23 +579,21 @@ public class PathBuilder extends JFrame
     repaint();
   }
 
-  private void oldEmbiggen()
+  private void nextPath()
   {
-    if (null == getCurrentBlock())
-      return;
+    getCurrentDance().nextPath();
+    repaint();
+  }
 
-    if (getCurrentBlock() instanceof StraightBlock)
-    {
-      StraightBlock sb = (StraightBlock)getCurrentBlock();
-      sb.setLength(sb.getLength() + DEFAULT_LENGTH_CHANGE);
-      repaint();
-    }
-    else if (getCurrentBlock() instanceof CurveBlock)
-    {
-      CurveBlock cb = (CurveBlock)getCurrentBlock();
-      cb.setExtent(min(cb.getExtent() + DEFAULT_ANGLE_QUANTA, 360));
-      repaint();
-    }
+  private void previousePath()
+  {
+    getCurrentDance().previousePath();
+    repaint();
+  }
+  
+  public IDance getCurrentDance()
+  {
+    return (IDance)getArtifact();
   }
 
   private void ensmallen()
@@ -642,6 +623,7 @@ public class PathBuilder extends JFrame
     }
   }
 
+  @SuppressWarnings("unused")
   private static CurveBlock convertToCurve(StraightBlock sb,
     CurveBlock.Type type)
   {
@@ -655,6 +637,7 @@ public class PathBuilder extends JFrame
     return new CurveBlock(extentDegrees, START_RADIUS, type);
   }
 
+  @SuppressWarnings("unused")
   private static StraightBlock convertToStraight(CurveBlock cb)
   {
     return new StraightBlock(quantize(cb.getLength(), DEFAULT_LENGTH_QUANTA));
@@ -753,19 +736,47 @@ public class PathBuilder extends JFrame
 
   public IBlockPath getCurrentPath()
   {
-    return (IBlockPath)getArtifact();
+    IRenderable artifact = getArtifact();
+    if (artifact instanceof IBlockPath)
+      return (IBlockPath)artifact;
+      
+    return ((IDance)artifact).getCurrentPath();
   }
 
-  protected void createNewArtifact()
+  protected void createBlockPath()
   {
     setArtifact(new Item<BlockPath>(new BlockPath(), NameGenerator.getName(2)));
     getCurrentPath().setSelected(true);
     repaint();
   }
 
+  protected void createDance()
+  {
+    setArtifact(new Item<IDance>(new Dance(Dance.Layout.CIRLCE, 2), NameGenerator.getName(2)));
+    for (int i = 0; i < 6; ++i)
+      getCurrentDance().addAfter(new BlockPath());
+    getCurrentPath().setSelected(true);
+
+    repaint();
+  }
+
   protected void setArtifact(IItem<?> artifact)
   {
     mArtifact = artifact;
+    
+    if (mArtifact.getItem() instanceof IBlockPath)
+    {
+      mPreviousePathAction.setEnabled(false);
+      mNextPathAction.setEnabled(false);
+      mLayoutMenu.setEnabled(false);
+    }
+    else if (mArtifact.getItem() instanceof IDance)
+    {
+      mPreviousePathAction.setEnabled(true);
+      mNextPathAction.setEnabled(true);
+      mLayoutMenu.setEnabled(true);
+    }
+    
     setTitle(mArtifact.getName() + " by " + mArtifact.getAuthor());
     repaint();
   }
@@ -773,16 +784,6 @@ public class PathBuilder extends JFrame
   public IRenderable getArtifact()
   {
     return mArtifact.getItem();
-  }
-
-  public void setItemFilter(IItemFilter itemFilter)
-  {
-    mItemFilter = itemFilter;
-  }
-
-  public IItemFilter getItemFilter()
-  {
-    return mItemFilter;
   }
 
   private SwarmAction mCurveLeftAction = new SwarmAction("Left",
@@ -985,15 +986,27 @@ public class PathBuilder extends JFrame
 
   /** Create new artifact. */
 
-  SwarmAction mNewAction = new SwarmAction("New", KeyStroke.getKeyStroke(
-    KeyEvent.VK_N, KeyEvent.META_DOWN_MASK), "create a new artifact to edit")
+  SwarmAction mNewDanceAction = new SwarmAction("New Dance", KeyStroke.getKeyStroke(
+    KeyEvent.VK_N, KeyEvent.META_DOWN_MASK), "create a new dance to edit")
   {
     public void actionPerformed(ActionEvent e)
     {
-      createNewArtifact();
+      createDance();
     }
   };
 
+  /** Create new artifact. */
+
+  SwarmAction mNewPathAction = new SwarmAction("New Path",
+    KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.META_DOWN_MASK |
+      KeyEvent.SHIFT_DOWN_MASK), "create a new path to edit")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      createBlockPath();
+    }
+  };
+  
   /** Save the current artifact. */
 
   SwarmAction mSaveAction = new SwarmAction("Save", KeyStroke.getKeyStroke(
@@ -1007,12 +1020,24 @@ public class PathBuilder extends JFrame
 
   /** Load an existing artifact. */
 
-  SwarmAction mLoadAction = new SwarmAction("Load", KeyStroke.getKeyStroke(
-    KeyEvent.VK_L, KeyEvent.META_DOWN_MASK), "load an artifact for editing")
+  SwarmAction mLoadDanceAction = new SwarmAction("Load Dance", KeyStroke.getKeyStroke(
+    KeyEvent.VK_L, KeyEvent.META_DOWN_MASK), "load a dance for editing")
   {
     public void actionPerformed(ActionEvent e)
     {
-      load();
+      load(DANCE_FILTER);
+    }
+  };
+
+  /** Load an existing artifact. */
+
+  SwarmAction mLoadPathAction = new SwarmAction("Load Path",
+    KeyStroke.getKeyStroke(KeyEvent.VK_L, KeyEvent.META_DOWN_MASK |
+      KeyEvent.SHIFT_DOWN_MASK), "load a path editing")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      load(PATH_FILTER);
     }
   };
 
@@ -1024,6 +1049,42 @@ public class PathBuilder extends JFrame
     public void actionPerformed(ActionEvent e)
     {
       dance();
+    }
+  };
+  
+  private final SwarmAction mPreviousePathAction = new SwarmAction(
+    "Previouse Path", KeyStroke.getKeyStroke(KeyEvent.VK_A, 0),
+    "select previouse path")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      previousePath();
+    }
+  };
+
+  private final SwarmAction mNextPathAction = new SwarmAction("Next Path",
+    KeyStroke.getKeyStroke(KeyEvent.VK_D, 0), "select next path")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      nextPath();
+    }
+  };
+  
+  private final SwarmAction mInsertPathAction = new SwarmAction("Insert Path",
+    KeyStroke.getKeyStroke(KeyEvent.VK_I, KeyEvent.META_DOWN_MASK),
+    "insert blocks from another path into this path")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      IBlockPath current = getCurrentPath();
+      IBlockPath newPath = selectPath();
+      if (null != newPath)
+      {
+        for (IBlock block : newPath.getBlocks())
+          current.addAfter(block);
+        repaint();
+      }
     }
   };
 }
