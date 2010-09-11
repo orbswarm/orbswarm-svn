@@ -2,6 +2,7 @@ package com.orbswarm.swarmcon.swing;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -47,10 +48,10 @@ import static java.lang.Math.round;
 import static java.lang.System.currentTimeMillis;
 
 @SuppressWarnings("serial")
-public class PathBuilder extends JFrame
+public class Builder extends JFrame
 {
   @SuppressWarnings("unused")
-  private static Logger log = Logger.getLogger(PathBuilder.class);
+  private static Logger log = Logger.getLogger(Builder.class);
 
   // radius constants
 
@@ -123,12 +124,12 @@ public class PathBuilder extends JFrame
     System.setProperty("com.apple.mrj.application.apple.menu.about.name",
       "Mother Node");
     System.setProperty("apple.laf.useScreenMenuBar", "true");
-    new PathBuilder(new FileStore("/Users/trebor/.swarmstore"));
+    new Builder(new FileStore("/Users/trebor/.swarmstore"));
   }
 
   // construct a swarm
 
-  public PathBuilder(IItemStore store)
+  public Builder(IItemStore store)
   {
     // get the item store
 
@@ -149,9 +150,18 @@ public class PathBuilder extends JFrame
     // show the frame
 
     pack();
-    setSize(800, 600);
+    setExtendedState(MAXIMIZED_BOTH);
     setVisible(true);
-    repaint();
+
+    // be sure to repaint later to clean up view
+    
+    EventQueue.invokeLater(new Runnable()
+    {
+      public void run()
+      {
+        repaint();
+      }
+    });
   }
 
   /**
@@ -344,7 +354,7 @@ public class PathBuilder extends JFrame
       mNewDanceAction.setEnabled(true);
       mNewPathAction.setEnabled(true);
       mLoadDanceAction.setEnabled(true);
-      mLoadDanceAction.setEnabled(true);
+      mLoadPathAction.setEnabled(true);
       repaint();
     }
   }
