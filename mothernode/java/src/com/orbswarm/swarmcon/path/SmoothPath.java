@@ -556,4 +556,9 @@ public class SmoothPath extends Vector<Waypoint> implements IRenderable
   {
     return continousePath.getBounds2D();
   }
+
+  public Angle getHeading()
+  {
+    throw new UnsupportedOperationException();
+  }
 }

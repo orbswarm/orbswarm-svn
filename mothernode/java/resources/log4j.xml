@@ -28,7 +28,7 @@
 		<level value="warn" />
 	</logger>
 
-  <logger name="com.orbswarm.swarmcon.swing.BlockPathBuilder">
+  <logger name="com.orbswarm.swarmcon.swing.PathBuilder">
     <level value="debug" />
   </logger>
 
@@ -70,6 +70,10 @@
 
   <logger name="com.orbswarm.swarmcon.store.FileStore">
     <level value="warn" />
+  </logger>
+
+  <logger name="com.orbswarm.swarmcon.store.CloudStore">
+    <level value="debug" />
   </logger>
 
   <logger name="com.orbswarm.swarmcon.model.MotionModel">

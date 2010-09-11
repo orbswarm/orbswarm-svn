@@ -3,8 +3,8 @@ package com.orbswarm.swarmcon.swing;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.event.MouseInputAdapter;
 
 import java.awt.BasicStroke;
@@ -16,6 +16,8 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.Stroke;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
@@ -27,6 +29,8 @@ import static com.orbswarm.swarmcon.util.Constants.*;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
+import org.trebor.util.Angle;
+import org.trebor.util.Angle.Type;
 
 public class ArenaPanel extends JPanel
 {
@@ -75,11 +79,53 @@ public class ArenaPanel extends JPanel
     BasicConfigurator.configure();
     JFrame jf = new JFrame();
     final ArenaPanel arena = new ArenaPanel();
+
+    SwarmAction zoomIn =
+      new SwarmAction("Zoom In",
+        KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, 0), "zoom in")
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          arena.zoomIn();
+        }
+      };
+
+    SwarmAction zoomOut =
+      new SwarmAction("Zoom Out", KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS,
+        0), "zoom out")
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          arena.zoomOut();
+        }
+      };
+
+    SwarmAction rotLeft =
+      new SwarmAction("Rotate Left",
+        KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, 0), "rotate view left")
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          arena.rotateView(new Angle(-1, Type.HEADING_RATE));
+        }
+      };
+
+    SwarmAction rotRight=
+      new SwarmAction("Rotate Right",
+        KeyStroke.getKeyStroke(KeyEvent.VK_PERIOD, 0), "rotate view right")
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          arena.rotateView(new Angle(1, Type.HEADING_RATE));
+        }
+      };
     final Container frame = jf.getContentPane();
     JMenuBar menuBar = new JMenuBar();
     JMenu view = new JMenu("View");
-    JMenuItem zoomIn = new JMenuItem("zoomIn");
     view.add(zoomIn);
+    view.add(zoomOut);
+    view.add(rotLeft);
+    view.add(rotRight);
     menuBar.add(view);
     jf.setJMenuBar(menuBar);
     arena.setPreferredSize(new Dimension(800, 600));
@@ -89,12 +135,6 @@ public class ArenaPanel extends JPanel
     jf.setVisible(true);
 
     arena.setViewCenter();
-    java.awt.EventQueue.invokeLater(new Runnable()
-    {
-      public void run()
-      {
-      }
-    });
   }
 
   public ArenaPanel()
@@ -170,7 +210,7 @@ public class ArenaPanel extends JPanel
     Stroke gridStroke)
   {
     // width and height of grid
-    
+
     Rectangle2D frame = screenToWorld(getVisibleRect()).getBounds2D();
 
     // set the color and stroke
@@ -178,20 +218,17 @@ public class ArenaPanel extends JPanel
     g.setColor(gridColor);
     g.setStroke(gridStroke);
 
-    double xOff =
-      (mViewTransform.getTranslateX() / mViewTransform.getScaleX()) %
-        gridSize;
-    for (double x = frame.getMinX(); x < frame.getMaxX(); x += gridSize)
-      g.draw(new Line2D.Double(x + xOff, frame.getMinY(), x + xOff, frame
-        .getMaxY()));
+    // draw verticals
+    
+    for (double x = frame.getMinX() - frame.getMinX() % gridSize; x < frame
+      .getMaxX(); x += gridSize)
+      g.draw(new Line2D.Double(x, frame.getMinY(), x, frame.getMaxY()));
 
-    double yOff =
-      ((mViewTransform.getTranslateY() / mViewTransform.getScaleY()) + frame
-        .getHeight()) %
-        gridSize;
-    for (double y = frame.getMinY(); y < frame.getMaxY(); y += gridSize)
-      g.draw(new Line2D.Double(frame.getMinX(), y + yOff, frame.getMaxX(), y +
-        yOff));
+    // draw horizontal
+    
+    for (double y = frame.getMinY() - frame.getMinY() % gridSize; y < frame
+      .getMaxY(); y += gridSize)
+      g.draw(new Line2D.Double(frame.getMinX(), y, frame.getMaxX(), y));
   }
   
   /** Get the global offset. */
@@ -369,6 +406,10 @@ public class ArenaPanel extends JPanel
       viewPort.setRect(viewPort.getX() - border, viewPort.getY() - border,
         viewPort.getWidth() + 2 * border, viewPort.getHeight() + 2 * border);
 
+    viewPort =
+      AffineTransform.getRotateInstance(mCurrentAngle.as(Type.RADIANS))
+        .createTransformedShape(viewPort).getBounds2D();
+
     // reset the view transform
 
     mViewTransform.setToIdentity();
@@ -388,8 +429,38 @@ public class ArenaPanel extends JPanel
     mViewTransform.translate(-(viewPort.getX() + centerX), -(viewPort.getY() +
       viewPort.getHeight() - centerY));
 
+    // rotate view
+
+    rotateView(mCurrentAngle);
+//    mCurrentAngle =
+//      mCurrentAngle.rotate(-mCurrentAngle.as(Type.RADIAN_RATE),
+//        Type.RADIAN_RATE);
+    // setViewAngle(mCurrentAngle);
+
     // repaint
 
+    repaint();
+  }
+
+  public void setViewAngle(Angle angle)
+  {
+    mViewTransform.rotate(-mCurrentAngle.as(Type.RADIAN_RATE));
+    mCurrentAngle = new Angle();
+    rotateView(angle);
+  }
+  
+  /**
+   * Set the view angle.
+   * 
+   * @param angle angle of view
+   */
+
+  private Angle mCurrentAngle = new Angle();
+  
+  public void rotateView(Angle angle)
+  {
+    mCurrentAngle = mCurrentAngle.rotate(angle);
+    mViewTransform.rotate(angle.as(Type.RADIAN_RATE));
     repaint();
   }
   

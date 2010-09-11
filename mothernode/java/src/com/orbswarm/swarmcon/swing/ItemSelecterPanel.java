@@ -168,7 +168,7 @@ public class ItemSelecterPanel extends JPanel
       // view only the item
 
       setViewPort(mItem.getItem().getBounds2D(),
-        Constants.ARENA_VIWPORT_BORDER);
+        Constants.ARENA_VIEWPORT_BORDER);
 
       // set background according to selectedness
 

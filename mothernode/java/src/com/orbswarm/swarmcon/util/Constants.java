@@ -102,6 +102,6 @@ public class Constants
     .getNumberInstance();
   public static final NumberFormat STANDARD_FORMAT = NumberFormat
     .getNumberInstance();
-  public static final double ARENA_VIWPORT_BORDER = 1;
+  public static final double ARENA_VIEWPORT_BORDER = 1;
   public static final Color NOT_SELECTED_BACKGROUND = new Color(192, 192, 192);
 }

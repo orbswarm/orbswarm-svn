@@ -3,9 +3,7 @@ package com.orbswarm.swarmcon.view;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.GeneralPath;
-import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Double;
 
 import com.orbswarm.swarmcon.path.IBlock;
 import com.orbswarm.swarmcon.path.IBlockPath;
@@ -38,41 +36,38 @@ public class BlockPathRenderer extends ARenderer<IBlockPath>
 
   public void render(Graphics2D g, IBlockPath bp)
   {
-
     g.transform(bp.getTransform());
 
-//    if (bp.size() == 0)
-//    {
-//      g.setColor(bp.isSelected()
-//        ? RenderingConstants.SELECTED_PATH_COLOR
-//        : RenderingConstants.PATH_COLOR);
-//
-//      g.setStroke(RenderingConstants.PATH_STROKE);
-//      g.draw(new Line2D.Double(new Point2D.Double(0, 0), new Point2D.Double(
-//        0, 0)));
-//    }
-//    else 
-      
     if (bp.isSelected())
     {
       g.setStroke(RenderingConstants.BLOCK_STROKE);
 
-      for (IBlock b : bp.getBlocks())
+      if (bp.getBlocks().isEmpty())
       {
-        g.setColor(b.isSelected()
-          ? RenderingConstants.SELECTED_BLOCK_COLOR
-          : RenderingConstants.SELECTED_PATH_COLOR);
-
-        g.draw(b.getPath());
+        g.setColor(RenderingConstants.SELECTED_BLOCK_COLOR);
         g.fill(mArrowShape);
-        g.transform(b.getBlockTransform());
       }
+      else
+        for (IBlock b : bp.getBlocks())
+        {
+          g.setColor(b.isSelected()
+            ? RenderingConstants.SELECTED_BLOCK_COLOR
+            : RenderingConstants.SELECTED_PATH_COLOR);
+
+          g.draw(b.getPath());
+          g.fill(mArrowShape);
+          g.transform(b.getBlockTransform());
+        }
     }
     else
     {
       g.setStroke(RenderingConstants.PATH_STROKE);
       g.setColor(RenderingConstants.PATH_COLOR);
-      g.draw(bp.getPath());
+      
+      if (bp.getBlocks().isEmpty())
+        g.fill(mArrowShape);
+      else
+        g.draw(bp.getPath());
     }
   }
 }

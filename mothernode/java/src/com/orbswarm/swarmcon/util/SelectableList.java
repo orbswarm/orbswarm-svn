@@ -197,4 +197,24 @@ public class SelectableList<T extends ISelectable> implements ISelectableList<T>
 
     return current;
   }
+
+  public boolean isFirst()
+  {
+    if (isEmpty())
+      return true;
+    
+    return !mItemItr.hasPrevious();
+  }
+
+  public boolean isLast()
+  {
+    if (isEmpty())
+      return true;
+
+    mItemItr.next();
+    boolean result = !mItemItr.hasNext();
+    mItemItr.previous();
+    
+    return result;
+  }
 }

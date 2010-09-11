@@ -8,10 +8,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.Calendar;
 
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import org.apache.log4j.Logger;
@@ -77,7 +79,7 @@ public class PathBuilder extends JFrame
   private IItem<?> mArtifact;
 
   protected final Swarm mSwarm;
-  
+
   protected ArenaPanel mArena;
 
   protected JMenu mEditMenu;
@@ -89,17 +91,21 @@ public class PathBuilder extends JFrame
   protected JMenu mViewMenu;
 
   private IItemStore mStore;
-  
+
   private IItemFilter mItemFilter;
 
+  private boolean mAutoZoom;
+
   private boolean mSimulationRunning;
+
+  private boolean mAutoRotate;
 
   public static void main(String[] args)
   {
     System.setProperty("com.apple.mrj.application.apple.menu.about.name",
       "Arena Test");
     System.setProperty("apple.laf.useScreenMenuBar", "true");
-    new PathBuilder(new FileStore("/tmp/store"));
+    new PathBuilder(new FileStore("/Users/trebor/.swarmstore"));
   }
 
   // construct a swarm
@@ -111,9 +117,9 @@ public class PathBuilder extends JFrame
     mStore = store;
 
     // make a swarm
-    
+
     mSwarm = new Swarm();
-    
+
     // make the frame
 
     constructFrame();
@@ -123,7 +129,7 @@ public class PathBuilder extends JFrame
     createNewArtifact();
 
     // set the item filter to only accept paths
-    
+
     setItemFilter(new IItemFilter()
     {
       public <T extends IRenderable> boolean accept(IItem<T> item)
@@ -131,8 +137,7 @@ public class PathBuilder extends JFrame
         return item.getItem() instanceof IBlockPath;
       }
     });
-    
-    
+
     // show the frame
 
     pack();
@@ -177,25 +182,40 @@ public class PathBuilder extends JFrame
 
     mEditMenu = new JMenu("Edit");
     mMenuBar.add(mEditMenu);
-    mEditMenu.add(mCurveLeftAction);
-    mEditMenu.add(mGoStraightAction);
-    mEditMenu.add(mCurveRightAction);
-    mEditMenu.add(mDeleteBlockAction);
-    mEditMenu.addSeparator();
     mEditMenu.add(mLengthenAction);
     mEditMenu.add(mShortenAction);
-    mEditMenu.add(mShiftRight);
-    mEditMenu.add(mShiftLeft);
+    mEditMenu.add(mCurveLeftAction);
+    mEditMenu.add(mCurveRightAction);
     mEditMenu.addSeparator();
-    mEditMenu.add(mNextBlock);
-    mEditMenu.add(mPreviouseBlock);
+    mEditMenu.add(mAddStraightBlockAction);
+    mEditMenu.add(mAddLeftCurveAction);
+    mEditMenu.add(mAddRightCurveAction);
+    mEditMenu.addSeparator();
+    mEditMenu.add(mDeleteBlockAction);
+    mEditMenu.addSeparator();
+    mEditMenu.add(mRightAdjustRadiusAction);
+    mEditMenu.add(mLeftAdjustRadiusAction);
+    mEditMenu.addSeparator();
+    mEditMenu.add(mPreviouseBlockAction);
+    mEditMenu.add(mNextBlockAction);
 
     // make view menu
 
     mViewMenu = new JMenu("View");
     mMenuBar.add(mViewMenu);
-    mViewMenu.add(mZoomIn);
-    mViewMenu.add(mZoomOut);
+    mViewMenu.add(mZoomInAction);
+    mViewMenu.add(mZoomOutAction);
+//    mViewMenu.add(mRotateLeftAction);
+//    mViewMenu.add(mRotateRightAction);
+    mViewMenu.addSeparator();
+    JCheckBoxMenuItem cmbiZoom = new JCheckBoxMenuItem(mAutoZoomAction);
+    cmbiZoom.setSelected(true);
+    setAutoZoom(cmbiZoom);
+    mViewMenu.add(cmbiZoom);
+    JCheckBoxMenuItem cmbiRotate = new JCheckBoxMenuItem(mAutoRotateAction);
+    cmbiRotate.setSelected(false);
+    setAutoRotate(cmbiRotate);
+    mViewMenu.add(cmbiRotate);
 
     // add drawing area
 
@@ -213,17 +233,63 @@ public class PathBuilder extends JFrame
     frame.add(mArena, BorderLayout.CENTER);
   }
 
+
+  public boolean isAutoZoom()
+  {
+    return mAutoZoom;
+  }
+  
+  private void setAutoZoom(JCheckBoxMenuItem cmbi)
+  {
+    mAutoZoom = cmbi.isSelected();
+    mZoomInAction.setEnabled(!mAutoZoom);
+    mZoomOutAction.setEnabled(!mAutoZoom);
+  }
+
+  public boolean isAutoRotate()
+  {
+    return mAutoRotate;
+  }
+  
+  private void setAutoRotate(JCheckBoxMenuItem cmbi)
+  {
+    mAutoRotate = cmbi.isSelected();
+    mRotateLeftAction.setEnabled(!mAutoRotate);
+    mRotateRightAction.setEnabled(!mAutoRotate);
+    if (!mAutoRotate && null != mArena)
+      mArena.setViewAngle(new Angle());
+  }
+
   @Override
   public void repaint()
   {
-    mArena.setViewPort(getArtifact().getBounds2D(),
-      Constants.ARENA_VIWPORT_BORDER);
+    IBlockPath path = getCurrentPath();
+    
+    if (isAutoRotate() && null != path)
+      mArena.setViewAngle(path.getHeading().rotate(path.getFinalAngle()).difference(90,
+        Type.DEGREES));
+
+    if (isAutoZoom())
+      mArena.setViewPort(getArtifact().getBounds2D(),
+        Constants.ARENA_VIEWPORT_BORDER);
+
     super.repaint();
   }
 
   protected void save()
   {
-    mStore.update(mArtifact);
+    JOptionPane dialog =
+      new JOptionPane(String.format("Save %s by %s", mArtifact.getName(),
+        mArtifact.getAuthor()), JOptionPane.QUESTION_MESSAGE);
+    String save = "Save";
+    String cancel = "Cancel";
+    dialog.setOptions(new Object[]
+    {
+      save, cancel
+    });
+    dialog.createDialog("Save").setVisible(true);
+    if (dialog.getValue() == save)
+      mStore.update(mArtifact);
   }
 
   void dance()
@@ -251,12 +317,12 @@ public class PathBuilder extends JFrame
     orb.setPosition(getCurrentPath().getPosition());
     orb.getModel().setTargetPath(getCurrentPath());
   }
-  
+
   public void stopSimulation()
   {
     mSimulationRunning = false;
   }
-  
+
   public void startSimulation()
   {
     mSimulationRunning = true;
@@ -284,10 +350,10 @@ public class PathBuilder extends JFrame
               (currentTimeMillis() - mLastUpdate.getTimeInMillis())));
 
             // if simulation stopped, stop this non-sense
-            
+
             if (!mSimulationRunning)
               break;
-            
+
             // get now
 
             Calendar now = Calendar.getInstance();
@@ -296,8 +362,8 @@ public class PathBuilder extends JFrame
 
             synchronized (mSwarm)
             {
-              mSwarm.update(SwarmCon.millisecondsToSeconds(now.getTimeInMillis() -
-                mLastUpdate.getTimeInMillis()));
+              mSwarm.update(SwarmCon.millisecondsToSeconds(now
+                .getTimeInMillis() - mLastUpdate.getTimeInMillis()));
               repaint();
             }
 
@@ -313,12 +379,13 @@ public class PathBuilder extends JFrame
       }
     }.start();
   }
-    
+
   protected void load()
   {
     JDialog box = new JDialog(this, "Select Item", true);
     Container frame = box.getContentPane();
-    ItemSelecterPanel selector = new ItemSelecterPanel(mStore, getItemFilter(), box);
+    ItemSelecterPanel selector =
+      new ItemSelecterPanel(mStore, getItemFilter(), box);
     frame.add(selector);
     box.pack();
     box.setVisible(true);
@@ -327,6 +394,29 @@ public class PathBuilder extends JFrame
       setArtifact(item);
   }
 
+  protected IBlockPath selectPath()
+  {
+    JDialog box = new JDialog(this, "Select Path", true);
+    
+    IItemFilter pathFilter = new IItemFilter()
+    {
+      public <T extends IRenderable> boolean accept(IItem<T> item)
+      {
+        return item.getItem() instanceof IBlockPath;
+      }
+    };
+
+    Container frame = box.getContentPane();
+    ItemSelecterPanel selector =
+      new ItemSelecterPanel(mStore, pathFilter, box);
+    frame.add(selector);
+    box.pack();
+    box.setVisible(true);
+    IItem<?> item = selector.getSelectedItem();
+    return (null != item) ? (IBlockPath)item.getItem() : null;
+  }
+  
+  
   private void oldCurveRight()
   {
     log.debug("curveRight");
@@ -375,14 +465,13 @@ public class PathBuilder extends JFrame
     }
     else
     {
-      getCurrentPath().addAfter(
-        new CurveBlock(DEFAULT_CURVE_EXTENT, DEFAULT_RADIUS,
-          CurveBlock.Type.LEFT));
+      addBlock(new CurveBlock(DEFAULT_CURVE_EXTENT, DEFAULT_RADIUS,
+        CurveBlock.Type.LEFT));
     }
 
     repaint();
   }
-  
+
   private void curveRight()
   {
     IBlock b = getCurrentBlock();
@@ -419,8 +508,6 @@ public class PathBuilder extends JFrame
 
     repaint();
   }
-  
-  
 
   private void oldCurveLeft()
   {
@@ -634,7 +721,8 @@ public class PathBuilder extends JFrame
       CurveBlock cb = (CurveBlock)getCurrentBlock();
 
       if (cb.getType() == CurveBlock.Type.RIGHT)
-        cb.setRadius(Math.max(MINIMUM_RADIUS, cb.getRadius() - DEFAULT_RADIUS_QUANTA));
+        cb.setRadius(Math.max(MINIMUM_RADIUS, cb.getRadius() -
+          DEFAULT_RADIUS_QUANTA));
       else
         cb.setRadius(cb.getRadius() + DEFAULT_RADIUS_QUANTA);
 
@@ -647,9 +735,10 @@ public class PathBuilder extends JFrame
     if (getCurrentBlock() instanceof CurveBlock)
     {
       CurveBlock cb = (CurveBlock)getCurrentBlock();
-      
+
       if (cb.getType() == CurveBlock.Type.LEFT)
-        cb.setRadius(Math.max(MINIMUM_RADIUS, cb.getRadius() - DEFAULT_RADIUS_QUANTA));
+        cb.setRadius(Math.max(MINIMUM_RADIUS, cb.getRadius() -
+          DEFAULT_RADIUS_QUANTA));
       else
         cb.setRadius(cb.getRadius() + DEFAULT_RADIUS_QUANTA);
 
@@ -670,7 +759,6 @@ public class PathBuilder extends JFrame
   protected void createNewArtifact()
   {
     setArtifact(new Item<BlockPath>(new BlockPath(), NameGenerator.getName(2)));
-    getCurrentPath().addAfter(new StraightBlock(mCurrentLength));
     getCurrentPath().setSelected(true);
     repaint();
   }
@@ -717,18 +805,6 @@ public class PathBuilder extends JFrame
 
   /** Action to select simulated rather live operation. */
 
-  private SwarmAction mGoStraightAction = new SwarmAction("Straight",
-    KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.SHIFT_DOWN_MASK),
-    "add path block wich goes straight forward")
-  {
-    public void actionPerformed(ActionEvent e)
-    {
-      addBlock(new StraightBlock(mCurrentLength));
-    }
-  };
-
-  /** Action to select simulated rather live operation. */
-
   private SwarmAction mDeleteBlockAction =
     new SwarmAction("Delete", KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE,
       0), "delete current block")
@@ -763,9 +839,47 @@ public class PathBuilder extends JFrame
     }
   };
 
-  private final SwarmAction mShiftLeft = new SwarmAction("Left Adjust Radius",
-    KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.SHIFT_DOWN_MASK),
-    "widen right curves, narrow left curves")
+  /** Action to select simulated rather live operation. */
+
+  private SwarmAction mAddStraightBlockAction = new SwarmAction(
+    "Add Straight Block", KeyStroke.getKeyStroke(KeyEvent.VK_UP,
+      KeyEvent.SHIFT_DOWN_MASK), "add path block wich goes straight forward")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      addBlock(new StraightBlock(mCurrentLength));
+    }
+  };
+
+  /** Action to select simulated rather live operation. */
+
+  private SwarmAction mAddLeftCurveAction = new SwarmAction(
+    "Add Left Curve Block", KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,
+      KeyEvent.SHIFT_DOWN_MASK), "add new curve left block")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      addBlock(new CurveBlock(DEFAULT_CURVE_EXTENT, DEFAULT_RADIUS,
+        CurveBlock.Type.LEFT));
+    }
+  };
+
+  /** Action to select simulated rather live operation. */
+
+  private SwarmAction mAddRightCurveAction = new SwarmAction(
+    "Add Right Curve Block", KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,
+      KeyEvent.SHIFT_DOWN_MASK), "add new curve right block")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      addBlock(new CurveBlock(DEFAULT_CURVE_EXTENT, DEFAULT_RADIUS,
+        CurveBlock.Type.RIGHT));
+    }
+  };
+
+  private final SwarmAction mLeftAdjustRadiusAction = new SwarmAction(
+    "Left Adjust Radius", KeyStroke.getKeyStroke(KeyEvent.VK_E, 0),
+    "widen left curvs, narrow right curves")
   {
     public void actionPerformed(ActionEvent e)
     {
@@ -773,9 +887,9 @@ public class PathBuilder extends JFrame
     }
   };
 
-  private final SwarmAction mShiftRight = new SwarmAction("Right Adjust",
-    KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, KeyEvent.SHIFT_DOWN_MASK),
-    "widen left curvs, narrow right curves")
+  private final SwarmAction mRightAdjustRadiusAction = new SwarmAction(
+    "Right Adjust Radius", KeyStroke.getKeyStroke(KeyEvent.VK_Q, 0),
+    "widen right curves, narrow left curves")
   {
     public void actionPerformed(ActionEvent e)
     {
@@ -783,7 +897,7 @@ public class PathBuilder extends JFrame
     }
   };
 
-  private final SwarmAction mPreviouseBlock = new SwarmAction(
+  private final SwarmAction mPreviouseBlockAction = new SwarmAction(
     "Previouse Block", KeyStroke.getKeyStroke(KeyEvent.VK_S, 0),
     "select previouse block on current path")
   {
@@ -793,8 +907,8 @@ public class PathBuilder extends JFrame
     }
   };
 
-  protected final SwarmAction mNextBlock = new SwarmAction("Next Block",
-    KeyStroke.getKeyStroke(KeyEvent.VK_W, 0),
+  protected final SwarmAction mNextBlockAction = new SwarmAction(
+    "Next Block", KeyStroke.getKeyStroke(KeyEvent.VK_W, 0),
     "select next block on current path")
   {
     public void actionPerformed(ActionEvent e)
@@ -803,7 +917,9 @@ public class PathBuilder extends JFrame
     }
   };
 
-  private final SwarmAction mZoomIn = new SwarmAction("Zoom in",
+  /** Zoom display in. */
+
+  private final SwarmAction mZoomInAction = new SwarmAction("Zoom in",
     KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, 0), "zoom in on the display")
   {
     public void actionPerformed(ActionEvent e)
@@ -814,8 +930,8 @@ public class PathBuilder extends JFrame
 
   /** Zoom display out. */
 
-  SwarmAction mZoomOut = new SwarmAction("Zoom out", KeyStroke.getKeyStroke(
-    KeyEvent.VK_EQUALS, 0), "zoom out on the display")
+  SwarmAction mZoomOutAction = new SwarmAction("Zoom out",
+    KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, 0), "zoom out on the display")
   {
     public void actionPerformed(ActionEvent e)
     {
@@ -823,7 +939,51 @@ public class PathBuilder extends JFrame
     }
   };
 
-  /** Zoom display out. */
+  SwarmAction mRotateLeftAction = new SwarmAction("Rotate Left",
+    KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, 0), "rotate view left")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      mArena.rotateView(new Angle(-2, Type.HEADING_RATE));
+    }
+  };
+
+  SwarmAction mRotateRightAction = new SwarmAction("Rotate Right",
+    KeyStroke.getKeyStroke(KeyEvent.VK_PERIOD, 0), "rotate view right")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      mArena.rotateView(new Angle(2, Type.HEADING_RATE));
+    }
+  };
+
+  /** Toggle auto zoom display. */
+
+  SwarmAction mAutoZoomAction = new SwarmAction("Auto Zoom",
+    KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.META_DOWN_MASK),
+    "toggle auto zoom mode")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      setAutoZoom((JCheckBoxMenuItem)e.getSource());
+      repaint();
+    }
+  };
+
+  /** Toggle auto rotate display. */
+
+  SwarmAction mAutoRotateAction = new SwarmAction("Auto Rotate",
+    KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.META_DOWN_MASK),
+    "toggle auto rotate mode")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      setAutoRotate((JCheckBoxMenuItem)e.getSource());
+      repaint();
+    }
+  };
+
+  /** Create new artifact. */
 
   SwarmAction mNewAction = new SwarmAction("New", KeyStroke.getKeyStroke(
     KeyEvent.VK_N, KeyEvent.META_DOWN_MASK), "create a new artifact to edit")
@@ -834,7 +994,7 @@ public class PathBuilder extends JFrame
     }
   };
 
-  /** Zoom display out. */
+  /** Save the current artifact. */
 
   SwarmAction mSaveAction = new SwarmAction("Save", KeyStroke.getKeyStroke(
     KeyEvent.VK_S, KeyEvent.META_DOWN_MASK), "save this artifact")
@@ -845,6 +1005,8 @@ public class PathBuilder extends JFrame
     }
   };
 
+  /** Load an existing artifact. */
+
   SwarmAction mLoadAction = new SwarmAction("Load", KeyStroke.getKeyStroke(
     KeyEvent.VK_L, KeyEvent.META_DOWN_MASK), "load an artifact for editing")
   {
@@ -853,7 +1015,9 @@ public class PathBuilder extends JFrame
       load();
     }
   };
-  
+
+  /** Make the orbs dance */
+
   SwarmAction mDanceAction = new SwarmAction("Dance", KeyStroke.getKeyStroke(
     KeyEvent.VK_D, KeyEvent.META_DOWN_MASK), "dance my pritties, dance!")
   {

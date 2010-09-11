@@ -115,5 +115,10 @@ public class ARenderables<E extends IRenderable> extends Vector<E>
   {
     throw new UnsupportedOperationException();
   }
+
+  public Angle getHeading()
+  {
+    throw new UnsupportedOperationException();
+  }
 }
 

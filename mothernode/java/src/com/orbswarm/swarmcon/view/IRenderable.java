@@ -14,6 +14,10 @@ import com.orbswarm.swarmcon.util.ISelectable;
 @XmlJavaTypeAdapter(IVobjectAdapter.class)
 public interface IRenderable extends ISelectable
 {
+  // heading getter
+  
+  Angle getHeading();
+
   // position getter
 
   Point2D getPosition();

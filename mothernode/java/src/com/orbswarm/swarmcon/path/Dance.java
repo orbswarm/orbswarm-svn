@@ -124,7 +124,15 @@ public class Dance extends ARenderable implements IDance
 
   public Rectangle2D getBounds2D()
   {
-    return getPath().getBounds2D();
+    Rectangle2D bounds = new Rectangle2D.Double();
+    for (IBlockPath bp: getPaths())
+    {
+      AffineTransform t = getTransform();
+      t.concatenate(bp.getTransform());
+      bounds.add(t.createTransformedShape(bp.getBounds2D()).getBounds2D());
+    }
+      
+    return bounds;
   }
 
   public void layout()

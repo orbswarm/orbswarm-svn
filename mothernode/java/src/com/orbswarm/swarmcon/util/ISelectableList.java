@@ -12,6 +12,10 @@ public interface ISelectableList<T extends ISelectable>
 
   void addAfter(T... items);
 
+  boolean isFirst();
+
+  boolean isLast();
+  
   boolean remove();
   
   boolean removeAll();

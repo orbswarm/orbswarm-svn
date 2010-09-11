@@ -1,6 +1,5 @@
 package com.orbswarm.swarmcon.path;
 
-import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
@@ -12,8 +11,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.log4j.Logger;
+import org.trebor.util.Angle;
+import org.trebor.util.Angle.Type;
 
 import com.orbswarm.swarmcon.util.ISelectableList;
+import com.orbswarm.swarmcon.util.Path;
 import com.orbswarm.swarmcon.util.SelectableList;
 import com.orbswarm.swarmcon.view.ARenderable;
 
@@ -74,7 +76,7 @@ public class BlockPath extends ARenderable implements IBlockPath
     return mBlocksHolder.remove();
   }
 
-  public Shape getPath()
+  public GeneralPath getPath()
   {
     AffineTransform t = new AffineTransform();
 
@@ -90,6 +92,8 @@ public class BlockPath extends ARenderable implements IBlockPath
 
   public Rectangle2D getBounds2D()
   {
+    if (mBlocksHolder.isEmpty())
+      return new Rectangle2D.Double(getX(), getY(), 0, 0);
     return getPath().getBounds2D();
   }
 
@@ -111,8 +115,38 @@ public class BlockPath extends ARenderable implements IBlockPath
     mBlocksHolder.previouse();
   }
 
+  public void firstBlock()
+  {
+    mBlocksHolder.first();
+  }
+
+  public void lastBlock()
+  {
+    mBlocksHolder.last();
+  }
+
   public String toString()
   {
     return "BlockPath [mBlocks=" + mBlocksHolder.getAll() + "]";
+  }
+
+  public Angle getFinalAngle()
+  {
+    if (mBlocksHolder.isEmpty())
+      return new Angle();
+      
+    double[] t = Path.computePathTransfrom(getPath());
+
+    double x1 = t[0];
+    double y1 = t[1];
+    double x2 = t[2];
+    double y2 = t[3];
+
+    return new Angle(x2 - x1, y2 - y1).rotate(-90, Type.DEGREE_RATE);
+  }
+
+  public Angle getFinalPosition()
+  {
+    throw new UnsupportedOperationException();
   }
 }

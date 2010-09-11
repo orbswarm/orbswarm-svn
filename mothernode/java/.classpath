@@ -8,5 +8,10 @@
 	<classpathentry kind="lib" path="/Users/trebor/Documents/personal/swarmcon/lib/pid.jar"/>
 	<classpathentry kind="lib" path="/Users/trebor/Documents/personal/swarmcon/lib/RXTXcomm.jar"/>
 	<classpathentry kind="lib" path="/Users/trebor/Documents/personal/swarmcon/lib/util.jar" sourcepath="/trebor-utils"/>
+	<classpathentry kind="lib" path="lib/httpclient-4.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/httpmime-4.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/httpcore-4.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-httpclient-3.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging-api-1.1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

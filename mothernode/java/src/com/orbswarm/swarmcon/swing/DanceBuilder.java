@@ -11,9 +11,9 @@ import com.orbswarm.swarmcon.orb.IOrb;
 import com.orbswarm.swarmcon.orb.Orb;
 import com.orbswarm.swarmcon.path.BlockPath;
 import com.orbswarm.swarmcon.path.Dance;
+import com.orbswarm.swarmcon.path.IBlock;
 import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.path.IDance;
-import com.orbswarm.swarmcon.path.StraightBlock;
 import com.orbswarm.swarmcon.store.FileStore;
 import com.orbswarm.swarmcon.store.IItem;
 import com.orbswarm.swarmcon.store.IItemFilter;
@@ -29,7 +29,7 @@ public class DanceBuilder extends PathBuilder
   public static void main(String[] args)
   {
     System.setProperty("apple.laf.useScreenMenuBar", "true");
-    new DanceBuilder(new FileStore("/tmp/store"));
+    new DanceBuilder(new FileStore("/Users/trebor/.swarmstore"));
   }
 
   public DanceBuilder(FileStore fileStore)
@@ -47,8 +47,10 @@ public class DanceBuilder extends PathBuilder
     });
     
     mEditMenu.addSeparator();
-    mEditMenu.add(mPreviousePath);
-    mEditMenu.add(mNextPath);
+    mEditMenu.add(mPreviousePathAction);
+    mEditMenu.add(mNextPathAction);
+    mEditMenu.addSeparator();
+    mEditMenu.add(mInsertPath);
     mEditMenu.addSeparator();
     JMenu layoutMenu = new JMenu("Set Layout");
     mEditMenu.add(layoutMenu);
@@ -75,7 +77,6 @@ public class DanceBuilder extends PathBuilder
     for (int i = 0; i < 6; ++i)
     {
       getCurrentDance().addAfter(new BlockPath());
-      getCurrentPath().addAfter(new StraightBlock(1));
     }
     repaint();
   }
@@ -118,7 +119,7 @@ public class DanceBuilder extends PathBuilder
     }
   }
 
-  private final SwarmAction mPreviousePath = new SwarmAction(
+  private final SwarmAction mPreviousePathAction = new SwarmAction(
     "Previouse Path", KeyStroke.getKeyStroke(KeyEvent.VK_A, 0),
     "select previouse path")
   {
@@ -128,12 +129,29 @@ public class DanceBuilder extends PathBuilder
     }
   };
 
-  private final SwarmAction mNextPath = new SwarmAction("Next Path",
+  private final SwarmAction mNextPathAction = new SwarmAction("Next Path",
     KeyStroke.getKeyStroke(KeyEvent.VK_D, 0), "select next path")
   {
     public void actionPerformed(ActionEvent e)
     {
       nextPath();
+    }
+  };
+  
+  private final SwarmAction mInsertPath = new SwarmAction("Insert Path",
+    KeyStroke.getKeyStroke(KeyEvent.VK_I, KeyEvent.META_DOWN_MASK),
+    "insert blocks from another path into this path")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      IBlockPath current = getCurrentPath();
+      IBlockPath newPath = selectPath();
+      if (null != newPath)
+      {
+        for (IBlock block : newPath.getBlocks())
+          current.addAfter(block);
+        repaint();
+      }
     }
   };
 }

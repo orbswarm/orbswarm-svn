@@ -1,6 +1,6 @@
 package com.orbswarm.swarmcon.path;
 
-import java.awt.Shape;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 
@@ -14,9 +14,11 @@ import com.orbswarm.swarmcon.view.IRenderable;
 @XmlJavaTypeAdapter(IBlockPathAdapter.class)
 public interface IBlockPath extends IRenderable
 {
-  Angle getHeading();
-
-  Shape getPath();
+  Angle getFinalAngle();
+  
+  Angle getFinalPosition();
+  
+  GeneralPath getPath();
   
   Rectangle2D getBounds2D();
   
@@ -36,5 +38,9 @@ public interface IBlockPath extends IRenderable
   
   void previouseBlock();
 
+  void firstBlock();
+  
+  void lastBlock();
+  
   IBlock getCurrentBlock();
 }
