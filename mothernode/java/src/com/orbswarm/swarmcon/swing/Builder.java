@@ -56,6 +56,10 @@ public class Builder extends JFrame
   @SuppressWarnings("unused")
   private static Logger log = Logger.getLogger(Builder.class);
 
+  // default store path
+  
+  public static final String DEFALUT_STORE_PATH = System.getProperty("user.home") + File.separator + ".swarmstore";
+
   // radius constants
 
   public static final double MINIMUM_RADIUS = 1;
@@ -126,9 +130,7 @@ public class Builder extends JFrame
     System.setProperty("com.apple.mrj.application.apple.menu.about.name",
       "Mother Node");
     System.setProperty("apple.laf.useScreenMenuBar", "true");
-    File pathStore =
-      new File(System.getProperty("user.home") + File.separator + "teststore");
-    // ".swarmstore");
+    File pathStore = new File(DEFALUT_STORE_PATH);
 
     IItemStore store = null;
 
@@ -193,6 +195,19 @@ public class Builder extends JFrame
       public void run()
       {
         repaint();
+        if (mStore instanceof TestStore)
+        {
+          JOptionPane warning =
+            new JOptionPane(
+              "Unable to create a perminant store:\n\n   " +
+                DEFALUT_STORE_PATH +
+                "\n\nYou will be able to \"save\" and \"load\" paths and dances\n" +
+                "but they will NOT persist beyond this session.  Talk to trebor\n" +
+                "and he'll get it fix for you.", JOptionPane.WARNING_MESSAGE);
+
+          warning.createDialog(Builder.this, "Temporary Storage Only!")
+            .setVisible(true);
+        }
       }
     });
   }
