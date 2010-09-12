@@ -7,6 +7,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
 import java.util.Calendar;
 
 import javax.swing.JCheckBoxMenuItem;
@@ -37,6 +39,7 @@ import com.orbswarm.swarmcon.store.IItemFilter;
 import com.orbswarm.swarmcon.store.Item;
 import com.orbswarm.swarmcon.store.IItem;
 import com.orbswarm.swarmcon.store.IItemStore;
+import com.orbswarm.swarmcon.store.TestStore;
 import com.orbswarm.swarmcon.util.Constants;
 import com.orbswarm.swarmcon.util.NameGenerator;
 import com.orbswarm.swarmcon.view.IRenderable;
@@ -74,7 +77,6 @@ public class Builder extends JFrame
   private static final double DEFAULT_RADIUS_QUANTA = 0.5;
   private static final double DEFAULT_LENGTH_QUANTA = 1;
 
-  
   public static final IItemFilter PATH_FILTER = new IItemFilter()
   {
     public <T extends IRenderable> boolean accept(IItem<T> item)
@@ -82,7 +84,7 @@ public class Builder extends JFrame
       return item.getItem() instanceof IBlockPath;
     }
   };
-  
+
   public static final IItemFilter DANCE_FILTER = new IItemFilter()
   {
     public <T extends IRenderable> boolean accept(IItem<T> item)
@@ -90,7 +92,7 @@ public class Builder extends JFrame
       return item.getItem() instanceof IDance;
     }
   };
-  
+
   // private static final double DEFAULT_CURVE_EXTENT = 90;
 
   private double mCurrentLength = DEFAULT_LENGTH;
@@ -124,10 +126,41 @@ public class Builder extends JFrame
     System.setProperty("com.apple.mrj.application.apple.menu.about.name",
       "Mother Node");
     System.setProperty("apple.laf.useScreenMenuBar", "true");
-    new Builder(new FileStore("/Users/trebor/.swarmstore"));
+    File pathStore =
+      new File(System.getProperty("user.home") + File.separator + "teststore");
+    // ".swarmstore");
+
+    IItemStore store = null;
+
+    // if the path store does not exist
+
+    if (!pathStore.exists())
+    {
+      if (!pathStore.mkdir())
+      {
+        log
+          .error("unable to create storage directory: " + pathStore +
+            "\nUsing memory store which will NOT perminently store your items.");
+
+        store = new TestStore();
+      }
+      else
+        store = new FileStore(pathStore.toString());
+    }
+    else if (!pathStore.isDirectory())
+    {
+      log.error("path store is not a directory: " + pathStore +
+        "\nUsing memory store which will NOT perminently store your items.");
+
+      store = new TestStore();
+    }
+    else
+      store = new FileStore(pathStore.toString());
+
+    new Builder(store);
   }
 
-  // construct a swarm
+  // construct a builder
 
   public Builder(IItemStore store)
   {
@@ -154,7 +187,7 @@ public class Builder extends JFrame
     setVisible(true);
 
     // be sure to repaint later to clean up view
-    
+
     EventQueue.invokeLater(new Runnable()
     {
       public void run()
@@ -222,12 +255,12 @@ public class Builder extends JFrame
     mEditMenu.add(mNextPathAction);
     mEditMenu.addSeparator();
     mEditMenu.add(mInsertPathAction);
-    
+
     mEditMenu.addSeparator();
     mLayoutMenu = new JMenu("Set Layout");
     mEditMenu.add(mLayoutMenu);
-    
-    for (Dance.Layout layout: Dance.Layout.values())
+
+    for (Dance.Layout layout : Dance.Layout.values())
     {
       final Dance.Layout finalLayout = layout;
       mLayoutMenu.add(new SwarmAction(layout.name(), null,
@@ -240,15 +273,15 @@ public class Builder extends JFrame
         }
       });
     }
-    
+
     // make view menu
 
     mViewMenu = new JMenu("View");
     mMenuBar.add(mViewMenu);
     mViewMenu.add(mZoomInAction);
     mViewMenu.add(mZoomOutAction);
-//    mViewMenu.add(mRotateLeftAction);
-//    mViewMenu.add(mRotateRightAction);
+    // mViewMenu.add(mRotateLeftAction);
+    // mViewMenu.add(mRotateRightAction);
     mViewMenu.addSeparator();
     JCheckBoxMenuItem cmbiZoom = new JCheckBoxMenuItem(mAutoZoomAction);
     cmbiZoom.setSelected(true);
@@ -275,12 +308,11 @@ public class Builder extends JFrame
     frame.add(mArena, BorderLayout.CENTER);
   }
 
-
   public boolean isAutoZoom()
   {
     return mAutoZoom;
   }
-  
+
   private void setAutoZoom(JCheckBoxMenuItem cmbi)
   {
     mAutoZoom = cmbi.isSelected();
@@ -292,7 +324,7 @@ public class Builder extends JFrame
   {
     return mAutoRotate;
   }
-  
+
   private void setAutoRotate(JCheckBoxMenuItem cmbi)
   {
     mAutoRotate = cmbi.isSelected();
@@ -306,10 +338,10 @@ public class Builder extends JFrame
   public void repaint()
   {
     IBlockPath path = getCurrentPath();
-    
+
     if (isAutoRotate() && null != path)
-      mArena.setViewAngle(path.getHeading().rotate(path.getFinalAngle()).difference(90,
-        Type.DEGREES));
+      mArena.setViewAngle(path.getHeading().rotate(path.getFinalAngle())
+        .difference(90, Type.DEGREES));
 
     if (isAutoZoom())
       mArena.setViewPort(getArtifact().getBounds2D(),
@@ -338,10 +370,9 @@ public class Builder extends JFrame
   {
     if (!mSimulationRunning)
     {
-      mNewDanceAction.setEnabled(false);
-      mNewPathAction.setEnabled(false);
-      mLoadDanceAction.setEnabled(false);
-      mLoadPathAction.setEnabled(false);
+      for (SwarmAction action: mDisabledDuringDanceActions)
+        action.setEnabled(false);
+      mLayoutMenu.setEnabled(false);
       getArtifact().setSuppressed(true);
       createSwarm();
       startSimulation();
@@ -351,10 +382,9 @@ public class Builder extends JFrame
       stopSimulation();
       mSwarm.clear();
       getArtifact().setSuppressed(false);
-      mNewDanceAction.setEnabled(true);
-      mNewPathAction.setEnabled(true);
-      mLoadDanceAction.setEnabled(true);
-      mLoadPathAction.setEnabled(true);
+      for (SwarmAction action: mDisabledDuringDanceActions)
+        action.setEnabled(true);
+      mLayoutMenu.setEnabled(true);
       repaint();
     }
   }
@@ -450,8 +480,7 @@ public class Builder extends JFrame
   {
     JDialog box = new JDialog(this, "Select Item", true);
     Container frame = box.getContentPane();
-    ItemSelecterPanel selector =
-      new ItemSelecterPanel(mStore, filter, box);
+    ItemSelecterPanel selector = new ItemSelecterPanel(mStore, filter, box);
     frame.add(selector);
     box.pack();
     box.setVisible(true);
@@ -463,7 +492,7 @@ public class Builder extends JFrame
   protected IBlockPath selectPath()
   {
     JDialog box = new JDialog(this, "Select Path", true);
-    
+
     IItemFilter pathFilter = new IItemFilter()
     {
       public <T extends IRenderable> boolean accept(IItem<T> item)
@@ -479,7 +508,9 @@ public class Builder extends JFrame
     box.pack();
     box.setVisible(true);
     IItem<?> item = selector.getSelectedItem();
-    return (null != item) ? (IBlockPath)item.getItem() : null;
+    return (null != item)
+      ? (IBlockPath)item.getItem()
+      : null;
   }
 
   private void curveLeft()
@@ -600,7 +631,7 @@ public class Builder extends JFrame
     getCurrentDance().previousePath();
     repaint();
   }
-  
+
   public IDance getCurrentDance()
   {
     return (IDance)getArtifact();
@@ -749,7 +780,7 @@ public class Builder extends JFrame
     IRenderable artifact = getArtifact();
     if (artifact instanceof IBlockPath)
       return (IBlockPath)artifact;
-      
+
     return ((IDance)artifact).getCurrentPath();
   }
 
@@ -762,7 +793,8 @@ public class Builder extends JFrame
 
   protected void createDance()
   {
-    setArtifact(new Item<IDance>(new Dance(Dance.Layout.CIRLCE, 2), NameGenerator.getName(2)));
+    setArtifact(new Item<IDance>(new Dance(Dance.Layout.CIRLCE, 2),
+      NameGenerator.getName(2)));
     for (int i = 0; i < 6; ++i)
       getCurrentDance().addAfter(new BlockPath());
     getCurrentPath().setSelected(true);
@@ -773,7 +805,7 @@ public class Builder extends JFrame
   protected void setArtifact(IItem<?> artifact)
   {
     mArtifact = artifact;
-    
+
     if (mArtifact.getItem() instanceof IBlockPath)
     {
       mPreviousePathAction.setEnabled(false);
@@ -786,7 +818,7 @@ public class Builder extends JFrame
       mNextPathAction.setEnabled(true);
       mLayoutMenu.setEnabled(true);
     }
-    
+
     setTitle(mArtifact.getName() + " by " + mArtifact.getAuthor());
     repaint();
   }
@@ -996,8 +1028,9 @@ public class Builder extends JFrame
 
   /** Create new artifact. */
 
-  SwarmAction mNewDanceAction = new SwarmAction("New Dance", KeyStroke.getKeyStroke(
-    KeyEvent.VK_N, KeyEvent.META_DOWN_MASK), "create a new dance to edit")
+  SwarmAction mNewDanceAction = new SwarmAction("New Dance",
+    KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.META_DOWN_MASK),
+    "create a new dance to edit")
   {
     public void actionPerformed(ActionEvent e)
     {
@@ -1016,7 +1049,7 @@ public class Builder extends JFrame
       createBlockPath();
     }
   };
-  
+
   /** Save the current artifact. */
 
   SwarmAction mSaveAction = new SwarmAction("Save", KeyStroke.getKeyStroke(
@@ -1030,8 +1063,9 @@ public class Builder extends JFrame
 
   /** Load an existing artifact. */
 
-  SwarmAction mLoadDanceAction = new SwarmAction("Load Dance", KeyStroke.getKeyStroke(
-    KeyEvent.VK_L, KeyEvent.META_DOWN_MASK), "load a dance for editing")
+  SwarmAction mLoadDanceAction = new SwarmAction("Load Dance",
+    KeyStroke.getKeyStroke(KeyEvent.VK_L, KeyEvent.META_DOWN_MASK),
+    "load a dance for editing")
   {
     public void actionPerformed(ActionEvent e)
     {
@@ -1061,7 +1095,7 @@ public class Builder extends JFrame
       dance();
     }
   };
-  
+
   private final SwarmAction mPreviousePathAction = new SwarmAction(
     "Previouse Path", KeyStroke.getKeyStroke(KeyEvent.VK_A, 0),
     "select previouse path")
@@ -1080,9 +1114,10 @@ public class Builder extends JFrame
       nextPath();
     }
   };
-  
-  private final SwarmAction mInsertPathAction = new SwarmAction("Insert Path",
-    KeyStroke.getKeyStroke(KeyEvent.VK_I, KeyEvent.META_DOWN_MASK),
+
+  private final SwarmAction mInsertPathAction = new SwarmAction(
+    "Insert Path", KeyStroke.getKeyStroke(KeyEvent.VK_I,
+      KeyEvent.META_DOWN_MASK),
     "insert blocks from another path into this path")
   {
     public void actionPerformed(ActionEvent e)
@@ -1096,5 +1131,28 @@ public class Builder extends JFrame
         repaint();
       }
     }
+  };
+
+  private SwarmAction[] mDisabledDuringDanceActions =
+  {
+    mNewDanceAction,
+    mNewPathAction,
+    mLoadDanceAction,
+    mLoadPathAction,
+    mCurveRightAction,
+    mCurveLeftAction,
+    mDeleteBlockAction,
+    mShortenAction,
+    mLengthenAction,
+    mAddRightCurveAction,
+    mAddLeftCurveAction,
+    mAddStraightBlockAction,
+    mNextPathAction,
+    mPreviousePathAction,
+    mNextBlockAction,
+    mPreviouseBlockAction,
+    mLeftAdjustRadiusAction,
+    mRightAdjustRadiusAction,
+    mInsertPathAction,
   };
 }
