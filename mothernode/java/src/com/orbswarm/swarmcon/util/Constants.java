@@ -9,6 +9,8 @@ import java.util.Random;
 
 public class Constants
 {
+  public static final String SVN_VERSION = "$Id$";
+  
   // color
 
   public static final Color DEFAULT_ARENA_BACKGROUND = WHITE;
