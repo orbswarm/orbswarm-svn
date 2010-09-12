@@ -9,7 +9,10 @@ import java.util.Random;
 
 public class Constants
 {
-  public static final String SVN_VERSION = "$Id$";
+  // subversion keywords
+  
+  public static final String SVN_ID = "$Id$";
+  public static final String SVN_REVISION = "$Revision$";
   
   // color
 
