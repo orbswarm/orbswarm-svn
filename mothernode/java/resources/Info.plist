@@ -5,14 +5,16 @@
 	<key>CFBundleName</key>
 	<string>SwarmCon</string>
 	<key>CFBundleVersion</key>
-	<string>2.0 beta 1</string>
+	<string>2.0-0001</string>
 	<key>CFBundleAllowMixedLocalizations</key>
 	<string>true</string>
 	<key>CFBundleExecutable</key>
 	<string>JavaApplicationStub</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>(C) 2010 Robert B. Harris, orbswarm.com@trebor.org
-Released under the Creative Commons Attribution License 3.0.</string>
+	<string>Copyright (C) 2010 Robert B. Harris orbswarm.com@trebor.org This package is released under the terms the MIT license:
+opensource.org/licenses/mit-license.php</string>
+	<key>CFBundleIdentifier</key>
+	<string></string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundlePackageType</key>
@@ -28,7 +30,7 @@ Released under the Creative Commons Attribution License 3.0.</string>
 		<key>WorkingDirectory</key>
 		<string>$APP_PACKAGE/Contents/Resources/Java</string>
 		<key>MainClass</key>
-		<string>com.orbswarm.swarmcon.swing.Builder</string>
+		<string>com.orbswarm.swarmcon.swing.Startup</string>
 		<key>JVMVersion</key>
 		<string>1.5+</string>
 		<key>ClassPath</key>

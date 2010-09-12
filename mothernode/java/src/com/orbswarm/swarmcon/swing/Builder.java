@@ -127,8 +127,6 @@ public class Builder extends JFrame
 
   public static void main(String[] args)
   {
-    System.setProperty("com.apple.mrj.application.apple.menu.about.name",
-      "Mother Node");
     System.setProperty("apple.laf.useScreenMenuBar", "true");
     File pathStore = new File(DEFALUT_STORE_PATH);
 
