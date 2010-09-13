@@ -5,7 +5,7 @@
 	<key>CFBundleName</key>
 	<string>SwarmCon</string>
 	<key>CFBundleVersion</key>
-	<string>2.0-0001</string>
+	<string>2.0-0002</string>
 	<key>CFBundleAllowMixedLocalizations</key>
 	<string>true</string>
 	<key>CFBundleExecutable</key>

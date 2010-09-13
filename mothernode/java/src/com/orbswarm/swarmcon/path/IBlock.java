@@ -36,4 +36,12 @@ public interface IBlock extends ISelectable
    */
   
   AffineTransform getBlockTransform();
+
+  /**
+   * Create a copy of this block.
+   * 
+   * @return a separate copy of this block.
+   */
+  
+  IBlock copy();
 }

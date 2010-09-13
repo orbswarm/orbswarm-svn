@@ -40,4 +40,9 @@ public class StraightBlock extends ABlock
   {
     return mLength;
   }
+  
+  public IBlock copy()
+  {
+    return new StraightBlock(mLength);
+  }
 }

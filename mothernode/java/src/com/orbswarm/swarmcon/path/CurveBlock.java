@@ -49,8 +49,7 @@ public class CurveBlock extends ABlock
   {
     this(new Angle(), 1, Type.LEFT);
   }
-  
-  
+    
   public void computePath()
   {
     double diameter = 2 * getRadius();
@@ -120,5 +119,10 @@ public class CurveBlock extends ABlock
   public static double getArcLength(double extent, double radius)
   {
     return (Math.toRadians(extent) / (2 * PI)) * (radius  * 2 * PI);
+  }
+  
+  public IBlock copy()
+  {
+    return new CurveBlock(mExtent, mRadius, mType);
   }
 }

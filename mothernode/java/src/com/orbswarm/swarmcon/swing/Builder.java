@@ -8,7 +8,6 @@ import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
-import java.io.IOException;
 import java.util.Calendar;
 
 import javax.swing.JCheckBoxMenuItem;
@@ -268,6 +267,7 @@ public class Builder extends JFrame
     mEditMenu.add(mNextPathAction);
     mEditMenu.addSeparator();
     mEditMenu.add(mInsertPathAction);
+    mEditMenu.add(mInsertPathAllAction);
 
     mEditMenu.addSeparator();
     mLayoutMenu = new JMenu("Set Layout");
@@ -824,12 +824,14 @@ public class Builder extends JFrame
       mPreviousePathAction.setEnabled(false);
       mNextPathAction.setEnabled(false);
       mLayoutMenu.setEnabled(false);
+      mInsertPathAllAction.setEnabled(false);
     }
     else if (mArtifact.getItem() instanceof IDance)
     {
       mPreviousePathAction.setEnabled(true);
       mNextPathAction.setEnabled(true);
       mLayoutMenu.setEnabled(true);
+      mInsertPathAllAction.setEnabled(true);
     }
 
     setTitle(mArtifact.getName() + " by " + mArtifact.getAuthor());
@@ -1140,7 +1142,27 @@ public class Builder extends JFrame
       if (null != newPath)
       {
         for (IBlock block : newPath.getBlocks())
-          current.addAfter(block);
+          current.addAfter(block.copy());
+        repaint();
+      }
+    }
+  };
+
+  private final SwarmAction mInsertPathAllAction = new SwarmAction(
+    "Insert Path All", KeyStroke.getKeyStroke(KeyEvent.VK_I,
+      KeyEvent.META_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK),
+    "insert blocks from another path into all the paths in this dance")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      IBlockPath newPath = selectPath();
+      if (null != newPath)
+      {
+        IDance dance = getCurrentDance();
+        
+        for (IBlockPath path: dance.getPaths())
+          for (IBlock block : newPath.getBlocks())
+            path.addAfter(block.copy());
         repaint();
       }
     }
@@ -1167,5 +1189,6 @@ public class Builder extends JFrame
     mLeftAdjustRadiusAction,
     mRightAdjustRadiusAction,
     mInsertPathAction,
+    mInsertPathAllAction,
   };
 }

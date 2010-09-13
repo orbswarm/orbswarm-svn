@@ -103,7 +103,7 @@ public abstract class ARenderable implements IRenderable
 
   // clone
   
-  public IRenderable clone() throws CloneNotSupportedException
+  public IRenderable copy() throws CloneNotSupportedException
   {
     ARenderable clone = (ARenderable)super.clone();
     clone.mHeading = mHeading;

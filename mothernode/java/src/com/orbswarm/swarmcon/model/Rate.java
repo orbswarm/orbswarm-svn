@@ -28,7 +28,7 @@ public class Rate
 
   // clone this rate
 
-  public Rate clone()
+  public Rate copy()
   {
     Rate other = new Rate(mName, mMin, mMax, mAcceleration);
     other.setRate(getRate());
