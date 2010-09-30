@@ -5,7 +5,7 @@ import java.awt.geom.AffineTransform;
 
 import com.orbswarm.swarmcon.util.ISelectable;
 
-public interface IBlock extends ISelectable
+public interface IBlock extends ISelectable, Cloneable
 {
   /**
    * Return the shape of the path north facing and located at 0,0.
@@ -43,5 +43,5 @@ public interface IBlock extends ISelectable
    * @return a separate copy of this block.
    */
   
-  IBlock copy();
+  IBlock clone() throws CloneNotSupportedException;
 }

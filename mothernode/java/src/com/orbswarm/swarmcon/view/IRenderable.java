@@ -12,7 +12,7 @@ import com.orbswarm.swarmcon.store.IVobjectAdapter;
 import com.orbswarm.swarmcon.util.ISelectable;
 
 @XmlJavaTypeAdapter(IVobjectAdapter.class)
-public interface IRenderable extends ISelectable
+public interface IRenderable extends ISelectable, Cloneable
 {
   // heading getter
   
@@ -57,4 +57,12 @@ public interface IRenderable extends ISelectable
    */
   
   Rectangle2D getBounds2D();
+  
+  /**
+   * Clone this {@link IRenderable}.
+   * 
+   * @return a clone of this this {@link IRenderable}.
+   */
+  
+  IRenderable clone() throws CloneNotSupportedException;
 }

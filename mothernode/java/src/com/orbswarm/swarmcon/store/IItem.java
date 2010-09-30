@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import com.orbswarm.swarmcon.view.IRenderable;
 
 @XmlJavaTypeAdapter(IItemAdapter.class)
-public interface IItem<T extends IRenderable>
+public interface IItem<T extends IRenderable> extends Cloneable
 {
   UUID getId();
   
@@ -23,4 +23,6 @@ public interface IItem<T extends IRenderable>
   T getItem();
   
   void setItem(T item);
+  
+  IItem<T> clone() throws CloneNotSupportedException;
 }

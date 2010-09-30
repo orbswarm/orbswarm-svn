@@ -41,8 +41,9 @@ public class StraightBlock extends ABlock
     return mLength;
   }
   
-  public IBlock copy()
+  public StraightBlock clone() throws CloneNotSupportedException
   {
-    return new StraightBlock(mLength);
+    StraightBlock clone = (StraightBlock)super.clone();
+    return clone;
   }
 }

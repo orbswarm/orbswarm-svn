@@ -17,6 +17,8 @@ import javax.swing.KeyStroke;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
+import org.apache.log4j.Logger;
+
 import com.orbswarm.swarmcon.store.IItem;
 import com.orbswarm.swarmcon.store.IItemFilter;
 import com.orbswarm.swarmcon.store.IItemStore;
@@ -27,12 +29,17 @@ import com.orbswarm.swarmcon.util.ISelectableList;
 import com.orbswarm.swarmcon.util.SelectableList;
 import com.orbswarm.swarmcon.view.RendererSet;
 
+@SuppressWarnings("serial")
 public class ItemSelecterPanel extends JPanel
 {
-  private static final long serialVersionUID = 2017028152849656592L;
-
+  @SuppressWarnings("unused")
+  private static Logger log = Logger.getLogger(ItemSelecterPanel.class);
+  
   public static final int PANEL_WIDTH = 100;
   public static final int PANEL_HEIGHT = 100;
+
+  private static final int BORDER_WIDTH = 5;
+  private static final int COLUMNS = 8;
 
   private final ISelectableList<ItemPanel> mItemPanels;
 
@@ -59,6 +66,8 @@ public class ItemSelecterPanel extends JPanel
     mParent = parent;
     addAction(mNext);
     addAction(mPreviouseItem);
+    addAction(mUp);
+    addAction(mDown);
     addAction(mSelectItem);
     addAction(mCancel);
     update();
@@ -82,18 +91,19 @@ public class ItemSelecterPanel extends JPanel
   
   public void layoutItems()
   {
-    int rows = mItemPanels.size() / 5;
-    int cols = 5;
+    int cols = Math.min(mItemPanels.size(), COLUMNS);
     
     removeAll();
-    setLayout(new GridLayout(rows, cols));
+    GridLayout layout = new GridLayout(0, cols);
+    setLayout(layout);
 
+    log.debug("columns: " + layout.getColumns());
     for (ItemPanel itemPanel : mItemPanels.getAll())
     {
       JPanel wrapper = new JPanel();
       wrapper.setLayout(new BorderLayout());
       wrapper.add(itemPanel);
-      wrapper.setBorder(new TitledBorder(new LineBorder(Color.gray, 5), itemPanel
+      wrapper.setBorder(new TitledBorder(new LineBorder(Color.gray, BORDER_WIDTH), itemPanel
         .getItem().getName()));
       add(wrapper);
     }
@@ -122,6 +132,18 @@ public class ItemSelecterPanel extends JPanel
     mItemPanels.next();
   }
   
+  protected void nextRow()
+  {
+    for (int i = 0; i < Math.min(mItemPanels.size(), COLUMNS); ++i)
+    nextItem();
+  }
+
+  protected void previouseRow()
+  {
+    for (int i = 0; i < Math.min(mItemPanels.size(), COLUMNS); ++i)
+    previouseItem();
+  }
+
   protected void selectCurrent()
   {
     mSelectedItem = mItemPanels.getCurrent().getItem();
@@ -146,8 +168,6 @@ public class ItemSelecterPanel extends JPanel
     private final IItem<?> mItem;
     private boolean mSuppressed;
     
-    private static final long serialVersionUID = 7883183615949305291L;
-    
     public ItemPanel(IItem<?> item)
     {
       super(false, true, false);
@@ -158,6 +178,12 @@ public class ItemSelecterPanel extends JPanel
       setMinimumSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
     }
 
+    @Override
+    public ItemPanel clone() throws CloneNotSupportedException
+    {
+      throw new CloneNotSupportedException();
+    }
+    
     public IItem<?> getItem()
     {
       return mItem;
@@ -225,6 +251,30 @@ public class ItemSelecterPanel extends JPanel
       nextItem();
     }
   };
+
+  
+  @SuppressWarnings("serial")
+  private final SwarmAction mUp = new SwarmAction("Up",
+    KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0),
+    "move up to next row")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      previouseRow();
+    }
+  };
+
+  @SuppressWarnings("serial")
+  private final SwarmAction mDown = new SwarmAction("Down",
+    KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0),
+    "move down to next row")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      nextRow();
+    }
+  };
+  
   
   @SuppressWarnings("serial")
   private final SwarmAction mSelectItem = new SwarmAction("Select",

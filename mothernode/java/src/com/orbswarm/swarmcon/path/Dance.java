@@ -203,4 +203,23 @@ public class Dance extends ARenderable implements IDance
   {
     return Collections.unmodifiableCollection(mPathsHolder.getAll());
   }
+  
+  @Override
+  public IDance clone()
+  {
+    Dance other = null;
+    try
+    {
+      other = (Dance)super.clone();
+      other.mPathsHolder = mPathsHolder.clone();
+      other.mSeperation = mSeperation;
+      other.mLayout = mLayout;
+    }
+    catch (CloneNotSupportedException e)
+    {
+      e.printStackTrace();
+    }
+    
+    return other;
+  }
 }

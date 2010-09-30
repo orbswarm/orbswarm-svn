@@ -31,9 +31,9 @@ public class TestStore extends AItemStore
     BlockPath bp2 = new BlockPath(rt, st, rt, rt, lt);
     BlockPath bp3 = new BlockPath(st, lt, rt, rt);
 
-    add(bp1, "path 1");
-    add(bp2, "path 2");
-    add(bp3, "path 3");
+    create(bp1, "path 1");
+    create(bp2, "path 2");
+    create(bp3, "path 3");
     
     initialize();
   }

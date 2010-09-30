@@ -120,5 +120,11 @@ public class ARenderables<E extends IRenderable> extends Vector<E>
   {
     throw new UnsupportedOperationException();
   }
+  
+  @Override
+  public ARenderables<E> clone()
+  {
+    throw new UnsupportedOperationException();
+  }
 }
 

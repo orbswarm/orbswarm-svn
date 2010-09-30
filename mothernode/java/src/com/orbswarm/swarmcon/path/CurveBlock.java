@@ -121,8 +121,9 @@ public class CurveBlock extends ABlock
     return (Math.toRadians(extent) / (2 * PI)) * (radius  * 2 * PI);
   }
   
-  public IBlock copy()
+  public CurveBlock clone() throws CloneNotSupportedException
   {
-    return new CurveBlock(mExtent, mRadius, mType);
+    CurveBlock clone = (CurveBlock)super.clone();
+    return clone;
   }
 }

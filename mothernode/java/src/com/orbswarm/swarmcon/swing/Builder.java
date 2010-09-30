@@ -499,7 +499,17 @@ public class Builder extends JFrame
     box.setVisible(true);
     IItem<?> item = selector.getSelectedItem();
     if (null != item)
+    {
+      try
+      {
+        item = item.clone();
+      }
+      catch (CloneNotSupportedException e)
+      {
+        e.printStackTrace();
+      }
       setArtifact(item);
+    }
   }
 
   protected IBlockPath selectPath()
@@ -1141,8 +1151,15 @@ public class Builder extends JFrame
       IBlockPath newPath = selectPath();
       if (null != newPath)
       {
-        for (IBlock block : newPath.getBlocks())
-          current.addAfter(block.copy());
+        try
+        {
+          for (IBlock block : newPath.getBlocks())
+            current.addAfter(block.clone());
+        }
+        catch (CloneNotSupportedException e1)
+        {
+          e1.printStackTrace();
+        }
         repaint();
       }
     }
@@ -1159,10 +1176,17 @@ public class Builder extends JFrame
       if (null != newPath)
       {
         IDance dance = getCurrentDance();
-        
-        for (IBlockPath path: dance.getPaths())
-          for (IBlock block : newPath.getBlocks())
-            path.addAfter(block.copy());
+
+        try
+        {
+          for (IBlockPath path : dance.getPaths())
+            for (IBlock block : newPath.getBlocks())
+              path.addAfter(block.clone());
+        }
+        catch (CloneNotSupportedException e1)
+        {
+          e1.printStackTrace();
+        }
         repaint();
       }
     }

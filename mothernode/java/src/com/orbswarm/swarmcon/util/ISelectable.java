@@ -1,6 +1,6 @@
 package com.orbswarm.swarmcon.util;
 
-public interface ISelectable
+public interface ISelectable extends Cloneable
 {
   /**
    * Returns true is this object is selected.
@@ -27,4 +27,12 @@ public interface ISelectable
    */
   
   void setSuppressed(boolean suppress);
+  
+  /**
+   * Create a clone of this item.
+   * 
+   * @return clone of this selectable.
+   */
+  
+  ISelectable clone() throws CloneNotSupportedException;
 }

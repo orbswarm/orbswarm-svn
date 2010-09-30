@@ -77,6 +77,24 @@ public class SelectableList<T extends ISelectable> implements ISelectableList<T>
     select(true);
   }
 
+  @SuppressWarnings("unchecked")
+  public void addAfter(Collection<T> items)
+  {
+    try
+    {
+      mItems = new Vector<T>();
+      System.out.println("mItems: " + mItems);
+      System.out.println("items: " + items);
+      
+      for (T item: items)
+        addAfter((T)item.clone());
+    }
+    catch (CloneNotSupportedException e)
+    {
+      e.printStackTrace();
+    }
+  }
+  
   public void addAfter(T... items)
   {
     if (items.length > 0)
@@ -216,5 +234,16 @@ public class SelectableList<T extends ISelectable> implements ISelectableList<T>
     mItemItr.previous();
     
     return result;
+  }
+  
+  @SuppressWarnings("unchecked")
+  public ISelectableList<T> clone() throws CloneNotSupportedException
+  {
+    SelectableList<T> clone = (SelectableList<T>)super.clone();
+    clone.mItems = new Vector<T>();
+    for (T item: mItems)
+      clone.mItems.add((T)item.clone());
+    clone.initializeIterator();
+    return clone;
   }
 }

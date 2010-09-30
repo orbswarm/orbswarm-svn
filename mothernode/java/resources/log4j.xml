@@ -3,7 +3,7 @@
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 	<!--
 		Uncomment if you are using the logback plugin for eclipse
-	<consolePlugin />
+    <consolePlugin />
 		-->
 
 	<appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
@@ -28,7 +28,7 @@
 		<level value="warn" />
 	</logger>
 
-  <logger name="com.orbswarm.swarmcon.swing.PathBuilder">
+  <logger name="com.orbswarm.swarmcon.swing.ItemSelecterPanel">
     <level value="debug" />
   </logger>
 

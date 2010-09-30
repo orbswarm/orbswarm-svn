@@ -34,13 +34,48 @@ public class BlockPath extends ARenderable implements IBlockPath
     mBlocksHolder = new SelectableList<IBlock>();
   }
 
+  public static void main(String[] args)
+  {
+    try
+    {
+      IBlockPath path1 = new BlockPath(new CurveBlock(), new CurveBlock(), new CurveBlock());
+      IBlockPath path2 = path1.clone();
+      path1 = path2;
+    }
+    catch (CloneNotSupportedException e)
+    {
+      e.printStackTrace();
+    }
+  }
+  
   public BlockPath(IBlock... blocks)
   {
     this();
-    for (IBlock block : blocks)
-      addAfter(block);
+    try
+    {
+      for (IBlock block : blocks)
+        addAfter(block.clone());
+    }
+    catch (CloneNotSupportedException e)
+    {
+      e.printStackTrace();
+    }
   }
 
+  public BlockPath(IBlockPath other)
+  {
+    this();
+    try
+    {
+      for (IBlock block : other.getBlocks())
+        addAfter(block.clone());
+    }
+    catch (CloneNotSupportedException e)
+    {
+      e.printStackTrace();
+    }
+  }
+  
   public Collection<IBlock> getBlocks()
   {
     return mBlocksHolder.getAll();
@@ -148,5 +183,17 @@ public class BlockPath extends ARenderable implements IBlockPath
   public Angle getFinalPosition()
   {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public IBlockPath clone() throws CloneNotSupportedException
+  {
+    BlockPath other = (BlockPath)super.clone();
+    other.mBlocksHolder = mBlocksHolder.clone();
+    
+    log.debug("holder 1: " + mBlocksHolder);
+    log.debug("holder 2: " + other.mBlocksHolder);
+    
+    return other;
   }
 }

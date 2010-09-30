@@ -16,11 +16,11 @@ public class Item<T extends IRenderable> implements IItem<T>
   @XmlAnyElement(lax=true)
   private T mItem;
   @XmlElement(name="uuid")
-  private final UUID mId;
+  private UUID mId;
   @XmlElement(name="author")
-  private final String mAuthor;
+  private String mAuthor;
   @XmlElement(name="created")
-  private final Calendar mCreated;
+  private Calendar mCreated;
   @XmlElement(name="modified")
   private Calendar mModified;
   @XmlElement(name="name")
@@ -81,5 +81,20 @@ public class Item<T extends IRenderable> implements IItem<T>
   {
     mItem = item;
     mModified = Calendar.getInstance();
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public IItem<T> clone() throws CloneNotSupportedException
+  {
+    Item<T> other = (Item<T>)super.clone();
+    other.mItem = (T)mItem.clone();
+    other.mId = mId;
+    other.mAuthor = mAuthor;
+    other.mCreated = (Calendar)mCreated.clone();
+    other.mModified = (Calendar)mModified.clone();
+    other.mName = mName;
+    
+    return other;
   }
 }

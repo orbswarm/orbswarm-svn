@@ -72,7 +72,7 @@ public abstract class AItemStore implements IItemStore
     }
   }
 
-  public <T extends IRenderable> IItem<T> add(T item, String name)
+  public <T extends IRenderable> IItem<T> create(T item, String name)
   {
     IItem<T> wrapped = new Item<T>(item, name);
     update(wrapped);
@@ -98,7 +98,7 @@ public abstract class AItemStore implements IItemStore
   }
 
   @SuppressWarnings("unchecked")
-  public <T extends IRenderable> boolean remove(IItem<T> item)
+  public <T extends IRenderable> boolean delete(IItem<T> item)
   {
     throw new UnsupportedOperationException();
 //    Item<T> wrapped = (Item<T>)mItems.remove(item.getId());

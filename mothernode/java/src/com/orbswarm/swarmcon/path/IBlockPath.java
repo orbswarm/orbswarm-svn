@@ -43,4 +43,6 @@ public interface IBlockPath extends IRenderable
   void lastBlock();
   
   IBlock getCurrentBlock();
+  
+  IBlockPath clone() throws CloneNotSupportedException;
 }

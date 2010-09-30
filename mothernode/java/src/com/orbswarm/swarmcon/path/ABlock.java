@@ -94,4 +94,13 @@ public abstract class ABlock implements IBlock
   {
     mSuppressed = suppressed;
   }
+
+  // clone
+  
+  public ABlock clone() throws CloneNotSupportedException
+  {
+    ABlock clone = (ABlock)super.clone();
+    clone.mTransform = (AffineTransform)mTransform.clone();
+    return clone;
+  }
 }

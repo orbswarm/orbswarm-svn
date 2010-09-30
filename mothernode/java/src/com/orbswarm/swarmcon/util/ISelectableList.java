@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 
 @XmlJavaTypeAdapter(ISelectableListAdapter.class)
-public interface ISelectableList<T extends ISelectable>
+public interface ISelectableList<T extends ISelectable> extends Cloneable
 {
   void addBefore(T... items);
 
@@ -37,4 +37,6 @@ public interface ISelectableList<T extends ISelectable>
   boolean isEmpty();
   
   Collection<T> getAll();
+  
+  ISelectableList<T> clone() throws CloneNotSupportedException;
 }

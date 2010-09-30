@@ -561,4 +561,10 @@ public class SmoothPath extends Vector<Waypoint> implements IRenderable
   {
     throw new UnsupportedOperationException();
   }
+  
+  @Override
+  public SmoothPath clone()
+  {
+    throw new UnsupportedOperationException();
+  }
 }
