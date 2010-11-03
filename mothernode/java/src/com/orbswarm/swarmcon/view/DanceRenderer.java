@@ -30,5 +30,8 @@ public class DanceRenderer extends ARenderer<IDance>
     g.transform(dance.getTransform());
     for (IBlockPath bp: dance.getPaths())
       RendererSet.render(g, bp);
+    
+//    for (IMarker marker: dance.getMarkers())
+//      ;
   }
 }

@@ -25,6 +25,8 @@ public interface IDance extends IRenderable
 
   Collection<IBlockPath> getPaths();
   
+  Collection<IMarker> getMarkers();
+  
   void setLayout(Layout layout);
 
   Layout getLayout();

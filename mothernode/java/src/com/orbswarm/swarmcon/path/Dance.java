@@ -6,11 +6,13 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Vector;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.log4j.Logger;
 import org.trebor.util.Angle;
@@ -32,6 +34,8 @@ public class Dance extends ARenderable implements IDance
   private double mSeperation;
   @XmlElement(name="layout")
   private Layout mLayout;
+  @XmlTransient
+  private Collection<IMarker> mMarkers;
 
   public enum Layout
   {
@@ -82,8 +86,8 @@ public class Dance extends ARenderable implements IDance
   {
     mSeperation = seperation;
     mLayout = layout;
-    log.debug("creat PathsHolder");
     mPathsHolder = new SelectableList<IBlockPath>(true);
+    mMarkers = new Vector<IMarker>();
   }
 
   public void setLayout(Layout layout)
@@ -202,6 +206,11 @@ public class Dance extends ARenderable implements IDance
   public Collection<IBlockPath> getPaths()
   {
     return Collections.unmodifiableCollection(mPathsHolder.getAll());
+  }
+
+  public Collection<IMarker> getMarkers()
+  {
+    return Collections.unmodifiableCollection(mMarkers);
   }
   
   @Override

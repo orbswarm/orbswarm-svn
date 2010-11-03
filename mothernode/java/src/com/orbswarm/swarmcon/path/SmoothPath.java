@@ -1,8 +1,8 @@
 package com.orbswarm.swarmcon.path;
 
 import org.trebor.util.Angle;
+import org.trebor.util.Rate;
 
-import com.orbswarm.swarmcon.model.Rate;
 import com.orbswarm.swarmcon.view.IRenderable;
 
 import java.awt.geom.AffineTransform;
@@ -191,7 +191,7 @@ public class SmoothPath extends Vector<Waypoint> implements IRenderable
     // start at time zero and speed zero and traveled zero
 
     double time = 0;
-    velocity.setRate(0);
+    velocity.setVelocity(0);
     double travel = 0;
     double cruiseDist = NOT_CRUISING;
 
@@ -216,7 +216,7 @@ public class SmoothPath extends Vector<Waypoint> implements IRenderable
 
       // while we have not over stepped the segments, compute waypoints
 
-      while (travel < totalSegmentLen)
+      while (travel < totalSegmentLen) 
       {
         // compute the percentage down the segment to travel
 
@@ -226,20 +226,20 @@ public class SmoothPath extends Vector<Waypoint> implements IRenderable
         // add waypoint the correct distance along path
 
         Waypoint wp = new Waypoint(p1.x + (p2.x - p1.x) * segmentPercent,
-          p1.y + (p2.y - p1.y) * segmentPercent, time, velocity.getRate(),
+          p1.y + (p2.y - p1.y) * segmentPercent, time, velocity.getVelocity(),
           new Angle(p1, p2));
         add(wp);
 
         // update velocity, time and distance traveled
 
         velocity.update(interval);
-        travel += velocity.getRate() * interval;
+        travel += velocity.getVelocity() * interval;
         time += interval;
 
         // if the velocity is zero and travel distance is greater
         // then zero, then we have come to a stop, we're done
 
-        if (velocity.getRate() == 0 && travel > 0)
+        if (velocity.getVelocity() == 0 && travel > 0)
           break;
 
         // if we have not yet started slowing down
@@ -249,7 +249,7 @@ public class SmoothPath extends Vector<Waypoint> implements IRenderable
           // if we have reached cruise speed, note the distance
 
           if (cruiseDist == NOT_CRUISING &&
-            velocity.getRate() == velocity.getMax())
+            velocity.getVelocity() == velocity.getMax())
           {
             cruiseDist = travel;
           }
@@ -269,7 +269,7 @@ public class SmoothPath extends Vector<Waypoint> implements IRenderable
       // if the velocity is zero, we've stopped, we don't need to
       // process more line segments
 
-      if (velocity.getRate() == 0 && travel > 0)
+      if (velocity.getVelocity() == 0 && travel > 0)
         break;
     }
 

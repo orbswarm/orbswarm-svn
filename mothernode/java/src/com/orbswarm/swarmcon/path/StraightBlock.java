@@ -29,10 +29,9 @@ public class StraightBlock extends ABlock
     setPathShape(new Line2D.Double(0, 0, 0, getLength()));
   }
 
-  public void setLength(double length)
+  public StraightBlock setLength(double length)
   {
-    mLength = length;
-    computePath();
+    return new StraightBlock(length);
   }
 
   @XmlElement(name="length")

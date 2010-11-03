@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/JVM 1.6.0"/>
+	<classpathentry kind="lib" path="/System/Library/Frameworks/JavaVM.framework/Versions/A/Frameworks/JavaRuntimeSupport.framework/Versions/A/Resources/Java/JavaRuntimeSupport.jar"/>
 	<classpathentry kind="lib" path="/Users/trebor/Documents/personal/swarmcon/lib/GlgEval2.jar"/>
 	<classpathentry kind="lib" path="/Users/trebor/Documents/personal/swarmcon/lib/javagps.jar"/>
 	<classpathentry kind="lib" path="/Users/trebor/Documents/personal/swarmcon/lib/log4j.jar" sourcepath="/Users/trebor/.m2/repository/log4j/log4j/1.2.16/log4j-1.2.16-sources.jar"/>
@@ -13,5 +13,6 @@
 	<classpathentry kind="lib" path="lib/httpcore-4.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-httpclient-3.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-api-1.1.1.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

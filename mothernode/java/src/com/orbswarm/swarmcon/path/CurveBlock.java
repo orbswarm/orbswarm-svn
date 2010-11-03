@@ -71,17 +71,15 @@ public class CurveBlock extends ABlock
     return mRadius;
   }
 
-  public void setRadius(double radius)
+  public CurveBlock setRadius(double radius)
   {
-    mRadius = radius;
-    computePath();
+    return new CurveBlock(getExtent(), radius, getType());
   }
 
   
-  public void setType(Type type)
+  public CurveBlock setType(Type type)
   {
-    mType = type;
-    computePath();
+    return new CurveBlock(getExtent(), getRadius(), type);
   }
 
   @XmlElement(name="type")
@@ -90,10 +88,9 @@ public class CurveBlock extends ABlock
     return mType;
   }
 
-  public void setExtent(double extent)
+  public CurveBlock setExtent(double extent)
   {
-    mExtent = extent;
-    computePath();
+    return new CurveBlock(extent, getRadius(), getType());
   }
 
   @XmlElement(name="extent")
@@ -102,12 +99,11 @@ public class CurveBlock extends ABlock
     return mExtent;
   }
   
-  public void setLength(double length)
+  public CurveBlock setLength(double length)
   {
     double dLength = length - getLength();
     double dExtent = 360 * (dLength / (2 * PI * getRadius()));
-    mExtent += dExtent;
-    computePath();
+    return new CurveBlock(mExtent + dExtent, getRadius(), getType());
   }
  
   @XmlTransient

@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 import org.trebor.util.Angle;
+import org.trebor.util.Rate;
 
 import com.orbswarm.swarmcon.io.OrbIo.IOrbListener;
 import com.orbswarm.swarmcon.path.IBlockPath;

@@ -1,6 +1,7 @@
 package com.orbswarm.swarmcon.path;
 
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 
@@ -16,7 +17,7 @@ public interface IBlockPath extends IRenderable
 {
   Angle getFinalAngle();
   
-  Angle getFinalPosition();
+  Point2D getFinalPosition();
   
   GeneralPath getPath();
   

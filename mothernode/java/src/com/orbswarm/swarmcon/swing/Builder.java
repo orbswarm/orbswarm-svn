@@ -544,7 +544,7 @@ public class Builder extends JFrame
       ((CurveBlock)b).getType() == CurveBlock.Type.LEFT)
     {
       CurveBlock cb = (CurveBlock)b;
-      cb.setExtent(cb.getExtent() + DEFAULT_ANGLE_QUANTA);
+      getCurrentPath().replace(cb.setExtent(cb.getExtent() + DEFAULT_ANGLE_QUANTA));
     }
     else
     {
@@ -563,7 +563,7 @@ public class Builder extends JFrame
       ((CurveBlock)b).getType() == CurveBlock.Type.RIGHT)
     {
       CurveBlock cb = (CurveBlock)b;
-      cb.setExtent(cb.getExtent() + DEFAULT_ANGLE_QUANTA);
+      getCurrentPath().replace(cb.setExtent(cb.getExtent() + DEFAULT_ANGLE_QUANTA));
     }
     else
     {
@@ -582,7 +582,7 @@ public class Builder extends JFrame
     if (b instanceof StraightBlock)
     {
       StraightBlock sb = (StraightBlock)b;
-      sb.setLength(sb.getLength() + DEFAULT_LENGTH_QUANTA);
+      getCurrentPath().replace(sb.setLength(sb.getLength() + DEFAULT_LENGTH_QUANTA));
     }
     else
     {
@@ -598,7 +598,7 @@ public class Builder extends JFrame
       cb.getLength() - CurveBlock.getArcLength(cb.getExtent(), radius);
     double dExtent = 360 * (dLength / (2 * PI * radius));
     cb.setRadius(radius);
-    cb.setExtent(quantize(cb.getExtent() + dExtent, DEFAULT_ANGLE_QUANTA));
+    getCurrentPath().replace(cb.setExtent(quantize(cb.getExtent() + dExtent, DEFAULT_ANGLE_QUANTA)));
   }
 
   public static double quantize(double value, double quanta)
@@ -672,7 +672,7 @@ public class Builder extends JFrame
       if (newLength < MINIMUM_LENGTH)
         getCurrentPath().remove();
       else
-        sb.setLength(newLength);
+        getCurrentPath().replace(sb.setLength(newLength));
       repaint();
     }
     else if (getCurrentBlock() instanceof CurveBlock)
@@ -682,7 +682,7 @@ public class Builder extends JFrame
       if (newExtent < DEFAULT_ANGLE_QUANTA)
         getCurrentPath().remove();
       else
-        cb.setExtent(newExtent);
+        getCurrentPath().replace(cb.setExtent(newExtent));
       repaint();
     }
   }
@@ -727,7 +727,7 @@ public class Builder extends JFrame
       double extent = cb.getExtent();
       if (extent > DEFAULT_ANGLE_QUANTA)
       {
-        cb.setExtent(extent - DEFAULT_ANGLE_QUANTA);
+        getCurrentPath().replace(cb.setExtent(extent - DEFAULT_ANGLE_QUANTA));
         repaint();
       }
     }
@@ -736,7 +736,7 @@ public class Builder extends JFrame
       StraightBlock sb = (StraightBlock)getCurrentBlock();
       double length = sb.getLength();
       if (length > DEFAULT_LENGTH_CHANGE)
-        sb.setLength(length - DEFAULT_LENGTH_CHANGE);
+        getCurrentPath().replace(sb.setLength(length - DEFAULT_LENGTH_CHANGE));
       repaint();
     }
   }
@@ -749,14 +749,15 @@ public class Builder extends JFrame
       double extent = cb.getExtent();
       if (extent < 360)
       {
-        cb.setExtent(extent + DEFAULT_ANGLE_QUANTA);
+        getCurrentPath().replace(cb.setExtent(extent + DEFAULT_ANGLE_QUANTA));
         repaint();
       }
     }
     else if (getCurrentBlock() instanceof StraightBlock)
     {
       StraightBlock sb = (StraightBlock)getCurrentBlock();
-      sb.setLength(sb.getLength() + DEFAULT_LENGTH_CHANGE);
+      getCurrentPath().replace(
+        sb.setLength(sb.getLength() + DEFAULT_LENGTH_CHANGE));
       repaint();
     }
   }
@@ -768,10 +769,10 @@ public class Builder extends JFrame
       CurveBlock cb = (CurveBlock)getCurrentBlock();
 
       if (cb.getType() == CurveBlock.Type.RIGHT)
-        cb.setRadius(Math.max(MINIMUM_RADIUS, cb.getRadius() -
-          DEFAULT_RADIUS_QUANTA));
+        getCurrentPath().replace(cb.setRadius(Math.max(MINIMUM_RADIUS, cb.getRadius() -
+          DEFAULT_RADIUS_QUANTA)));
       else
-        cb.setRadius(cb.getRadius() + DEFAULT_RADIUS_QUANTA);
+        getCurrentPath().replace(cb.setRadius(cb.getRadius() + DEFAULT_RADIUS_QUANTA));
 
       repaint();
     }
@@ -784,10 +785,10 @@ public class Builder extends JFrame
       CurveBlock cb = (CurveBlock)getCurrentBlock();
 
       if (cb.getType() == CurveBlock.Type.LEFT)
-        cb.setRadius(Math.max(MINIMUM_RADIUS, cb.getRadius() -
-          DEFAULT_RADIUS_QUANTA));
+        getCurrentPath().replace(cb.setRadius(Math.max(MINIMUM_RADIUS, cb.getRadius() -
+          DEFAULT_RADIUS_QUANTA)));
       else
-        cb.setRadius(cb.getRadius() + DEFAULT_RADIUS_QUANTA);
+        getCurrentPath().replace(cb.setRadius(cb.getRadius() + DEFAULT_RADIUS_QUANTA));
 
       repaint();
     }

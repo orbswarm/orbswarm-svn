@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.trebor.pid.Controller;
 import org.trebor.pid.PController;
 import org.trebor.util.Angle;
+import org.trebor.util.Rate;
 
 import com.orbswarm.swarmcon.io.Message;
 import com.orbswarm.swarmcon.path.Point;
@@ -180,7 +181,7 @@ public class SimModel extends AMotionModel
   public void reverse()
   {
     super.reverse();
-    pitchRate.setRate(-pitchRate.getRate());
+    pitchRate.setVelocity(-pitchRate.getVelocity());
   }
 
   // update position
@@ -194,8 +195,8 @@ public class SimModel extends AMotionModel
 
     // compute delta pitch and roll
 
-    Angle dPitch = new Angle(pitchRate.getRate() * time, DEGREE_RATE);
-    Angle dRoll = new Angle(rollRate.getRate() * time, DEGREE_RATE);
+    Angle dPitch = new Angle(pitchRate.getVelocity() * time, DEGREE_RATE);
+    Angle dRoll = new Angle(rollRate.getVelocity() * time, DEGREE_RATE);
 
     // update absolute pitch and roll, overwrite deltas with achieved
     // values
@@ -206,8 +207,8 @@ public class SimModel extends AMotionModel
     // feed back to actual pitch and roll rate
     // in case the orb hit some limit
 
-    pitchRate.setRate(dPitch.as(DEGREE_RATE) / time);
-    rollRate.setRate(dRoll.as(DEGREE_RATE) / time);
+    pitchRate.setVelocity(dPitch.as(DEGREE_RATE) / time);
+    rollRate.setVelocity(dRoll.as(DEGREE_RATE) / time);
 
     // compute yaw
 

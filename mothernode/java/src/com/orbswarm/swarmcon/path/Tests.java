@@ -3,7 +3,7 @@ package com.orbswarm.swarmcon.path;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import com.orbswarm.swarmcon.model.Rate;
+import org.trebor.util.Rate;
 
 public class Tests
 {

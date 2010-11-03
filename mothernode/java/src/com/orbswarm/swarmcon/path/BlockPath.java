@@ -2,6 +2,7 @@ package com.orbswarm.swarmcon.path;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 
@@ -9,13 +10,13 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.log4j.Logger;
 import org.trebor.util.Angle;
-import org.trebor.util.Angle.Type;
+import org.trebor.util.PathTool;
 
 import com.orbswarm.swarmcon.util.ISelectableList;
-import com.orbswarm.swarmcon.util.Path;
 import com.orbswarm.swarmcon.util.SelectableList;
 import com.orbswarm.swarmcon.view.ARenderable;
 
@@ -29,9 +30,16 @@ public class BlockPath extends ARenderable implements IBlockPath
   @XmlElement(name = "blocks")
   private ISelectableList<IBlock> mBlocksHolder;
 
+  @XmlTransient
+  private PathTool mPathTool;
+
+  @XmlTransient
+  private GeneralPath mPath;
+
   public BlockPath()
   {
     mBlocksHolder = new SelectableList<IBlock>();
+    updatePath();
   }
 
   public static void main(String[] args)
@@ -84,11 +92,13 @@ public class BlockPath extends ARenderable implements IBlockPath
   public void addBefore(IBlock... blocks)
   {
     mBlocksHolder.addAfter(blocks);
+    updatePath();
   }
 
   public void addAfter(IBlock... blocks)
   {
     mBlocksHolder.addAfter(blocks);
+    updatePath();
   }
 
   public IBlock getCurrentBlock()
@@ -99,6 +109,7 @@ public class BlockPath extends ARenderable implements IBlockPath
   public void replace(IBlock block)
   {
     mBlocksHolder.replace(block);
+    updatePath();
   }
 
   public int size()
@@ -108,23 +119,29 @@ public class BlockPath extends ARenderable implements IBlockPath
 
   public boolean remove()
   {
-    return mBlocksHolder.remove();
+    boolean result = mBlocksHolder.remove();
+    updatePath();
+    return result;
   }
 
   public GeneralPath getPath()
   {
-    AffineTransform t = new AffineTransform();
-
-    GeneralPath gp = new GeneralPath();
-    for (IBlock block : getBlocks())
-    {
-      gp.append(t.createTransformedShape(block.getPath()), true);
-      t.concatenate(block.getBlockTransform());
-    }
-
-    return gp;
+    return mPath;
   }
 
+  private void updatePath()
+  {
+    AffineTransform t = new AffineTransform();
+
+    mPath = new GeneralPath();
+    for (IBlock block : getBlocks())
+    {
+      mPath.append(t.createTransformedShape(block.getPath()), true);
+      t.concatenate(block.getBlockTransform());
+    }
+    mPathTool = new PathTool(mPath, 0);
+  }
+  
   public Rectangle2D getBounds2D()
   {
     if (mBlocksHolder.isEmpty())
@@ -167,22 +184,12 @@ public class BlockPath extends ARenderable implements IBlockPath
 
   public Angle getFinalAngle()
   {
-    if (mBlocksHolder.isEmpty())
-      return new Angle();
-      
-    double[] t = Path.computePathTransfrom(getPath());
-
-    double x1 = t[0];
-    double y1 = t[1];
-    double x2 = t[2];
-    double y2 = t[3];
-
-    return new Angle(x2 - x1, y2 - y1).rotate(-90, Type.DEGREE_RATE);
+    return mPathTool.getEndPoint().getAngle();
   }
 
-  public Angle getFinalPosition()
+  public Point2D getFinalPosition()
   {
-    throw new UnsupportedOperationException();
+    return mPathTool.getEndPoint();
   }
 
   @Override
