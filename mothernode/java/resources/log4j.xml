@@ -4,7 +4,7 @@
 	<!--
 		Uncomment if you are using the logback plugin for eclipse
     <consolePlugin />
-		-->
+   -->
 
 	<appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
 		<layout class="org.apache.log4j.PatternLayout">
@@ -29,15 +29,15 @@
 	</logger>
 
   <logger name="com.orbswarm.swarmcon.swing.ItemSelecterPanel">
-    <level value="debug" />
+    <level value="warn" />
   </logger>
 
-  <logger name="com.orbswarm.swarmcon.swing.DanceBuilder">
+  <logger name="com.orbswarm.swarmcon.swing.Builder">
     <level value="debug" />
   </logger>
 
 	<logger name="com.orbswarm.swarmcon.path.BlockPath">
-		<level value="warn" />
+		<level value="debug" />
 	</logger>
 
 	<logger name="com.orbswarm.swarmcon.SwarmCon">
@@ -60,7 +60,7 @@
 		<level value="warn" />
 	</logger>
 
-	<logger name="com.orbswarm.swarmcon.path.CurveBlock">
+	<logger name="com.orbswarm.swarmcon.path.StraightBlock">
 		<level value="warn" />
 	</logger>
 
@@ -73,7 +73,15 @@
   </logger>
 
   <logger name="com.orbswarm.swarmcon.store.CloudStore">
-    <level value="debug" />
+    <level value="warn" />
+  </logger>
+
+  <logger name="com.orbswarm.swarmcon.store.TestStore">
+    <level value="warn" />
+  </logger>
+
+  <logger name="com.orbswarm.swarmcon.store.ItemStoreTest">
+    <level value="warn" />
   </logger>
 
   <logger name="com.orbswarm.swarmcon.model.MotionModel">

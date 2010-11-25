@@ -1,6 +1,6 @@
 package com.orbswarm.swarmcon.util;
 
-import java.util.Collection;
+import java.util.List;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -36,7 +36,7 @@ public interface ISelectableList<T extends ISelectable> extends Cloneable
   
   boolean isEmpty();
   
-  Collection<T> getAll();
+  List<T> getAll();
   
   ISelectableList<T> clone() throws CloneNotSupportedException;
 }

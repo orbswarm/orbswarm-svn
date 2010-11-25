@@ -30,6 +30,7 @@ public class CloudStore extends AItemStore
   
   public CloudStore(String host, int port)
   {
+    super(true);
     mHost = host;
     mPort = port;
 

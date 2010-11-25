@@ -2,6 +2,7 @@ package com.orbswarm.swarmcon.util;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.Vector;
 
@@ -21,7 +22,7 @@ public class SelectableList<T extends ISelectable> implements ISelectableList<T>
   @XmlTransient
   private ListIterator<T> mItemItr;
   @XmlAnyElement(lax = true)
-  private Collection<T> mItems;
+  private List<T> mItems;
   @XmlElement(name="wrap")
   private boolean mWrap;
   
@@ -60,9 +61,9 @@ public class SelectableList<T extends ISelectable> implements ISelectableList<T>
       }
   }
 
-  public Collection<T> getAll()
+  public List<T> getAll()
   {
-    return Collections.unmodifiableCollection(mItems);
+    return Collections.unmodifiableList(mItems);
   }
 
   public void addBefore(T... items)

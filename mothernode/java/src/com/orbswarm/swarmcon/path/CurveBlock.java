@@ -9,7 +9,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.log4j.Logger;
 import org.trebor.util.Angle;
@@ -17,7 +16,7 @@ import org.trebor.util.Angle;
 import static java.lang.Math.PI;
 
 @XmlRootElement(name = "curveBlock")
-@XmlAccessorType(XmlAccessType.PROPERTY)
+@XmlAccessorType(XmlAccessType.FIELD)
 public class CurveBlock extends ABlock
 {
   @SuppressWarnings("unused")
@@ -28,8 +27,11 @@ public class CurveBlock extends ABlock
     LEFT, RIGHT
   }
   
+  @XmlElement(name="extent")
   private double mExtent;
+  @XmlElement(name="radius")
   private double mRadius;
+  @XmlElement(name="type")
   private Type mType;
 
   public CurveBlock(double extent, double radius, Type type)
@@ -37,7 +39,6 @@ public class CurveBlock extends ABlock
     mExtent = extent;
     mRadius = radius;
     mType = type;
-    computePath();
   }
 
   public CurveBlock(Angle extent, double radius, Type type)
@@ -50,7 +51,7 @@ public class CurveBlock extends ABlock
     this(new Angle(), 1, Type.LEFT);
   }
     
-  public void computePath()
+  public Shape computePath()
   {
     double diameter = 2 * getRadius();
     
@@ -62,10 +63,9 @@ public class CurveBlock extends ABlock
       shape =
         AffineTransform.getScaleInstance(-1, 1).createTransformedShape(shape);
 
-    setPathShape(shape);
+    return shape;
   }
 
-  @XmlElement(name="radius")
   public double getRadius()
   {
     return mRadius;
@@ -73,40 +73,36 @@ public class CurveBlock extends ABlock
 
   public CurveBlock setRadius(double radius)
   {
-    return new CurveBlock(getExtent(), radius, getType());
+    return new CurveBlock(mExtent, radius, mType);
   }
 
-  
-  public CurveBlock setType(Type type)
-  {
-    return new CurveBlock(getExtent(), getRadius(), type);
-  }
-
-  @XmlElement(name="type")
   public Type getType()
   {
     return mType;
   }
-
-  public CurveBlock setExtent(double extent)
+  
+  public CurveBlock setType(Type type)
   {
-    return new CurveBlock(extent, getRadius(), getType());
+    return new CurveBlock(mExtent, mRadius, type);
   }
 
-  @XmlElement(name="extent")
   public double getExtent()
   {
     return mExtent;
   }
   
+  public CurveBlock setExtent(double extent)
+  {
+    return new CurveBlock(extent, mRadius, mType);
+  }
+
   public CurveBlock setLength(double length)
   {
     double dLength = length - getLength();
     double dExtent = 360 * (dLength / (2 * PI * getRadius()));
-    return new CurveBlock(mExtent + dExtent, getRadius(), getType());
+    return new CurveBlock(getExtent() + dExtent, mRadius, mType);
   }
  
-  @XmlTransient
   public double getLength()
   {
     return getArcLength(getExtent(), getRadius());
@@ -121,5 +117,11 @@ public class CurveBlock extends ABlock
   {
     CurveBlock clone = (CurveBlock)super.clone();
     return clone;
+  }
+
+  public String toString()
+  {
+    return "CurveBlock [mExtent=" + mExtent + ", mRadius=" + mRadius +
+      ", mType=" + mType + "]";
   }
 }

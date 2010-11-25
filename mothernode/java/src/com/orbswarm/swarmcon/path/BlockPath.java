@@ -1,10 +1,11 @@
 package com.orbswarm.swarmcon.path;
 
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.Collection;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -15,6 +16,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.apache.log4j.Logger;
 import org.trebor.util.Angle;
 import org.trebor.util.PathTool;
+import org.trebor.util.PathTool.PathPoint;
 
 import com.orbswarm.swarmcon.util.ISelectableList;
 import com.orbswarm.swarmcon.util.SelectableList;
@@ -32,14 +34,13 @@ public class BlockPath extends ARenderable implements IBlockPath
 
   @XmlTransient
   private PathTool mPathTool;
-
+  
   @XmlTransient
   private GeneralPath mPath;
 
   public BlockPath()
   {
-    mBlocksHolder = new SelectableList<IBlock>();
-    updatePath();
+    setBlocksHolder(new SelectableList<IBlock>());
   }
 
   public static void main(String[] args)
@@ -84,71 +85,84 @@ public class BlockPath extends ARenderable implements IBlockPath
     }
   }
   
-  public Collection<IBlock> getBlocks()
+  public List<IBlock> getBlocks()
   {
-    return mBlocksHolder.getAll();
+    return getBlocksHolder().getAll();
   }
 
   public void addBefore(IBlock... blocks)
   {
-    mBlocksHolder.addAfter(blocks);
-    updatePath();
+    getBlocksHolder().addAfter(blocks);
+    invalidatePath();
   }
 
   public void addAfter(IBlock... blocks)
   {
-    mBlocksHolder.addAfter(blocks);
-    updatePath();
+    getBlocksHolder().addAfter(blocks);
+    invalidatePath();
   }
 
   public IBlock getCurrentBlock()
   {
-    return mBlocksHolder.getCurrent();
+    return getBlocksHolder().getCurrent();
   }
 
   public void replace(IBlock block)
   {
-    mBlocksHolder.replace(block);
-    updatePath();
+    getBlocksHolder().replace(block);
+    invalidatePath();
   }
 
   public int size()
   {
-    return mBlocksHolder.size();
+    return getBlocksHolder().size();
   }
 
   public boolean remove()
   {
-    boolean result = mBlocksHolder.remove();
-    updatePath();
+    boolean result = getBlocksHolder().remove();
+    invalidatePath();
     return result;
   }
 
   public GeneralPath getPath()
   {
+    if (null == mPath)
+    {
+      mPath = new GeneralPath();
+      AffineTransform t = new AffineTransform();
+      for (IBlock block : getBlocks())
+      {
+        Shape shape = t.createTransformedShape(block.getPath());
+        mPath.append(shape, true);
+        t.concatenate(block.getBlockTransform());
+      }
+    }
     return mPath;
   }
 
-  private void updatePath()
+  protected void invalidatePath()
   {
-    AffineTransform t = new AffineTransform();
+    mPathTool = null;
+    mPath = null;
+  }
+  
+  protected PathTool getPathTool()
+  {
+    if (null == mPathTool)
+      mPathTool = new PathTool(getPath(), 0);
 
-    mPath = new GeneralPath();
-    for (IBlock block : getBlocks())
-    {
-      mPath.append(t.createTransformedShape(block.getPath()), true);
-      t.concatenate(block.getBlockTransform());
-    }
-    mPathTool = new PathTool(mPath, 0);
+    return mPathTool;
   }
   
   public Rectangle2D getBounds2D()
   {
-    if (mBlocksHolder.isEmpty())
+    if (getBlocksHolder().isEmpty())
       return new Rectangle2D.Double(getX(), getY(), 0, 0);
     return getPath().getBounds2D();
   }
 
+  @XmlTransient
   @Override
   public void setSuppressed(boolean suppressed)
   {
@@ -159,48 +173,80 @@ public class BlockPath extends ARenderable implements IBlockPath
 
   public void nextBlock()
   {
-    mBlocksHolder.next();
+    getBlocksHolder().next();
   }
 
   public void previouseBlock()
   {
-    mBlocksHolder.previouse();
+    getBlocksHolder().previouse();
   }
 
   public void firstBlock()
   {
-    mBlocksHolder.first();
+    getBlocksHolder().first();
   }
 
   public void lastBlock()
   {
-    mBlocksHolder.last();
+    getBlocksHolder().last();
   }
 
   public String toString()
   {
-    return "BlockPath [mBlocks=" + mBlocksHolder.getAll() + "]";
+    return "BlockPath [mBlocks=" + getBlocksHolder().getAll() + "]";
   }
 
   public Angle getFinalAngle()
   {
-    return mPathTool.getEndPoint().getAngle();
+    return getEndPoint().getAngle();
   }
 
   public Point2D getFinalPosition()
   {
-    return mPathTool.getEndPoint();
+    return getEndPoint();
   }
 
   @Override
   public IBlockPath clone() throws CloneNotSupportedException
   {
     BlockPath other = (BlockPath)super.clone();
-    other.mBlocksHolder = mBlocksHolder.clone();
+    other.setBlocksHolder(getBlocksHolder().clone());
     
-    log.debug("holder 1: " + mBlocksHolder);
-    log.debug("holder 2: " + other.mBlocksHolder);
+    log.debug("holder 1: " + getBlocksHolder());
+    log.debug("holder 2: " + other.getBlocksHolder());
     
     return other;
+  }
+
+  public double getLength()
+  {
+    return getPathTool().getLength();
+  }
+
+  public PathPoint getStartPoint()
+  {
+    return getPathTool().getStartPoint();
+  }
+
+  public PathPoint getPathPoint(double extent)
+  {
+    return getPathTool().getPathPoint(extent);
+  }
+
+  public PathPoint getEndPoint()
+  {
+    return getPathTool().getEndPoint();
+  }
+
+  public void setBlocksHolder(ISelectableList<IBlock> blocksHolder)
+  {
+    mBlocksHolder = blocksHolder;
+    invalidatePath();
+  }
+
+  @XmlElement(name = "blocks")
+  public ISelectableList<IBlock> getBlocksHolder()
+  {
+    return mBlocksHolder;
   }
 }

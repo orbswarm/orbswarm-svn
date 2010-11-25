@@ -27,6 +27,7 @@ public class FileStore extends AItemStore
 
   public FileStore(String storePath)
   {
+    super(false);
     mStore = new File(storePath);
     if (!mStore.exists())
       throw new IllegalArgumentException("file store does not exits: " +

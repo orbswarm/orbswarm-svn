@@ -1,5 +1,6 @@
 package com.orbswarm.swarmcon.path;
 
+import java.awt.Shape;
 import java.awt.geom.Line2D;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -7,10 +8,14 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.log4j.Logger;
+
 @XmlRootElement(name = "straightBlock")
-@XmlAccessorType(XmlAccessType.PROPERTY)
+@XmlAccessorType(XmlAccessType.FIELD)
 public class StraightBlock extends ABlock
 {
+  private static Logger log = Logger.getLogger(StraightBlock.class);
+  @XmlElement(name="length")
   private double mLength;
 
   public StraightBlock()
@@ -21,22 +26,22 @@ public class StraightBlock extends ABlock
   public StraightBlock(double length)
   {
     mLength = length;
-    computePath();
   }
 
-  public void computePath()
+  public Shape computePath()
   {
-    setPathShape(new Line2D.Double(0, 0, 0, getLength()));
+    return new Line2D.Double(0, 0, 0, getLength());
   }
 
   public StraightBlock setLength(double length)
   {
+    log.debug(this.hashCode() + ": set length: " + length);
     return new StraightBlock(length);
   }
 
-  @XmlElement(name="length")
   public double getLength()
   {
+    log.debug(this.hashCode() + ": get length: " + mLength);
     return mLength;
   }
   
@@ -44,5 +49,10 @@ public class StraightBlock extends ABlock
   {
     StraightBlock clone = (StraightBlock)super.clone();
     return clone;
+  }
+
+  public String toString()
+  {
+    return "StraightBlock [mLength=" + mLength + "]";
   }
 }

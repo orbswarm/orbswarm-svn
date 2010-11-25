@@ -15,12 +15,6 @@ public interface IBlock extends ISelectable, Cloneable
   
   Shape getPath();
   
-  /**
-   * Compute the path shape of this block.
-   */
-  
-  void computePath();
-  
   /** 
    * Get the length of this block.
    * 

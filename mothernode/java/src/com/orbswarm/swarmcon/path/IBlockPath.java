@@ -1,13 +1,12 @@
 package com.orbswarm.swarmcon.path;
 
 import java.awt.geom.GeneralPath;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.trebor.util.Angle;
+import org.trebor.util.PathTool.PathPoint;
 
 import com.orbswarm.swarmcon.store.IBlockPathAdapter;
 import com.orbswarm.swarmcon.view.IRenderable;
@@ -15,9 +14,13 @@ import com.orbswarm.swarmcon.view.IRenderable;
 @XmlJavaTypeAdapter(IBlockPathAdapter.class)
 public interface IBlockPath extends IRenderable
 {
-  Angle getFinalAngle();
+  double getLength();
   
-  Point2D getFinalPosition();
+  PathPoint getStartPoint();
+
+  PathPoint getPathPoint(double extent);
+  
+  PathPoint getEndPoint();
   
   GeneralPath getPath();
   

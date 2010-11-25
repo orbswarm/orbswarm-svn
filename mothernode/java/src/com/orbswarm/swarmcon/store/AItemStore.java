@@ -32,12 +32,15 @@ public abstract class AItemStore implements IItemStore
   private final Set<IStoreListener> mListeners;
   private final Marshaller mMarshaller;
   private final Unmarshaller mUnmarshaller;
+  private boolean mCache;
 
-  AItemStore()
+  AItemStore(boolean cache)
   {
+    mCache = cache;
+    
     // initialize containers
 
-    mItemCache = new HashMap<UUID, IItem<? extends IRenderable>>();
+    mItemCache = mCache ? new HashMap<UUID, IItem<? extends IRenderable>>() : null;
     mListeners = new HashSet<IStoreListener>();
 
     // initialize JAXB context
@@ -46,9 +49,7 @@ public abstract class AItemStore implements IItemStore
     Unmarshaller unmarshaller = null;
     try
     {
-      JAXBContext context =
-        JAXBContext.newInstance(Item.class, BlockPath.class, StraightBlock.class, 
-          CurveBlock.class, ABlock.class, Dance.class, AffineTransform.class);
+      JAXBContext context = createContext();
       marshaller = context.createMarshaller();
       unmarshaller = context.createUnmarshaller();
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
@@ -61,15 +62,22 @@ public abstract class AItemStore implements IItemStore
     mUnmarshaller = unmarshaller;
   }
 
-  // synch cache to the store
+  public static JAXBContext createContext() throws JAXBException
+  {
+    return JAXBContext.newInstance(Item.class, BlockPath.class, StraightBlock.class, 
+        CurveBlock.class, ABlock.class, Dance.class, AffineTransform.class);
+  }
   
+  // synch cache to the store
+
   protected void initialize()
   {
-    for (UUID id : catalog())
-    {
-      IItem<?> wrapped = unmarshal(restore(id));
-      mItemCache.put(id, wrapped);
-    }
+    if (mCache)
+      for (UUID id : catalog())
+      {
+        IItem<?> wrapped = unmarshal(restore(id));
+        mItemCache.put(id, wrapped);
+      }
   }
 
   public <T extends IRenderable> IItem<T> create(T item, String name)
@@ -82,7 +90,8 @@ public abstract class AItemStore implements IItemStore
   public <T extends IRenderable> void update(IItem<T> wrapped)
   {
     save(wrapped.getId(), marshal(wrapped));
-    mItemCache.put(wrapped.getId(), wrapped);
+    if (mCache)
+      mItemCache.put(wrapped.getId(), wrapped);
     for (IStoreListener listener : mListeners)
       listener.itemAdded(wrapped);
   }
@@ -110,7 +119,18 @@ public abstract class AItemStore implements IItemStore
 
   public Collection<IItem<? extends IRenderable>> getAll()
   {
-    return Collections.unmodifiableCollection(mItemCache.values());
+    Collection<IItem<? extends IRenderable>> all;
+
+    if (mCache)
+      all = Collections.unmodifiableCollection(mItemCache.values());
+    else
+    {
+      all = new Vector<IItem<? extends IRenderable>>();
+      for (UUID id : catalog())
+        all.add(unmarshal(restore(id)));
+    }
+
+    return all;
   }
   
   public Collection<IItem<? extends IRenderable>> getSome(IItemFilter filter)
@@ -118,7 +138,7 @@ public abstract class AItemStore implements IItemStore
     Collection<IItem<? extends IRenderable>> accepted =
       new Vector<IItem<? extends IRenderable>>();
 
-    for (IItem<? extends IRenderable> item : mItemCache.values())
+    for (IItem<? extends IRenderable> item : getAll())
       if (filter.accept(item))
         accepted.add(item);
 

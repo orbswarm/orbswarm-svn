@@ -8,10 +8,6 @@ import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
-import com.orbswarm.swarmcon.path.BlockPath;
-import com.orbswarm.swarmcon.path.CurveBlock;
-import com.orbswarm.swarmcon.path.StraightBlock;
-
 public class TestStore extends AItemStore
 {
   @SuppressWarnings("unused")
@@ -21,20 +17,8 @@ public class TestStore extends AItemStore
 
   public TestStore()
   {
+    super(false);
     mStore = new HashMap<UUID, String>();
-    
-    CurveBlock lt = new CurveBlock(90, 4, CurveBlock.Type.LEFT);
-    CurveBlock rt = new CurveBlock(90, 4, CurveBlock.Type.RIGHT);
-    StraightBlock st = new StraightBlock(4);
-    
-    BlockPath bp1 = new BlockPath(lt, st, lt, rt, rt);
-    BlockPath bp2 = new BlockPath(rt, st, rt, rt, lt);
-    BlockPath bp3 = new BlockPath(st, lt, rt, rt);
-
-    create(bp1, "path 1");
-    create(bp2, "path 2");
-    create(bp3, "path 3");
-    
     initialize();
   }
 

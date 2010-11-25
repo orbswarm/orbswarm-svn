@@ -155,7 +155,17 @@ public class Builder extends JFrame
     }
     else
       store = new FileStore(pathStore.toString());
-
+    
+//    Collection<IItem<? extends IRenderable>> some = store.getSome(PATH_FILTER);
+//    log.debug("got some: " + some.size());
+//    
+//    @SuppressWarnings("unchecked")
+//    IItem<IBlockPath> first = (IItem<IBlockPath>)some.iterator().next();
+//    IBlockPath path = first.getItem();
+//    log.debug("path: " + path);
+//    log.debug("start point: " + path.getStartPoint());
+//    log.debug("end point: " + path.getEndPoint());
+    
     new Builder(store);
   }
 
@@ -353,7 +363,7 @@ public class Builder extends JFrame
     IBlockPath path = getCurrentPath();
 
     if (isAutoRotate() && null != path)
-      mArena.setViewAngle(path.getHeading().rotate(path.getFinalAngle())
+      mArena.setViewAngle(path.getHeading().rotate(path.getEndPoint().getAngle())
         .difference(90, Type.DEGREES));
 
     if (isAutoZoom())
