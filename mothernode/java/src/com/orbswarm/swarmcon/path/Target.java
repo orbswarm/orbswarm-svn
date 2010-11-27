@@ -5,7 +5,7 @@ import java.awt.geom.Point2D;
 /** A place to which the orb should go */
 
 @SuppressWarnings("serial")
-public class Target extends Point
+public class Target extends Point2D.Double
 {
   /** Expected speed at this target. */
 
@@ -26,13 +26,6 @@ public class Target extends Point
     this.speed = speed;
   }
 
-  /** Construct a Target from a Point */
-
-  public Target(Point p, double speed)
-  {
-    this(p.x, p.y, speed);
-  }
-
   /** Construct a Target from a Point2D.Double */
 
   public Target(Point2D p, double speed)
@@ -46,13 +39,6 @@ public class Target extends Point
   {
     super(x, y);
     this.speed = 0;
-  }
-
-  /** Construct a Target from a Point, with default speed. */
-
-  public Target(Point p)
-  {
-    this(p.x, p.y);
   }
 
   /** Construct a Target from a Point2D.Double, with default speed. */

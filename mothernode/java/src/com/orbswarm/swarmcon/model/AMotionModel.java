@@ -1,5 +1,6 @@
 package com.orbswarm.swarmcon.model;
 
+import java.awt.geom.Point2D;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
@@ -9,7 +10,6 @@ import org.trebor.util.Rate;
 import com.orbswarm.swarmcon.io.OrbIo.IOrbListener;
 import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.path.Path;
-import com.orbswarm.swarmcon.path.Point;
 import com.orbswarm.swarmcon.path.SmoothPath;
 import com.orbswarm.swarmcon.path.Target;
 import com.orbswarm.swarmcon.path.Waypoint;
@@ -57,7 +57,7 @@ abstract public class AMotionModel implements IOrbListener, IMotionModel
 
   /** position of orb */
 
-  private Point position = new Point(0, 0);
+  private Point2D position = new Point2D.Double(0, 0);
 
   /** velocity of orb */
 
@@ -422,9 +422,9 @@ abstract public class AMotionModel implements IOrbListener, IMotionModel
   /* (non-Javadoc)
    * @see com.orbswarm.swarmcon.model.IMotionModel#getPosition()
    */
-  public Point getPosition()
+  public Point2D getPosition()
   {
-    return new Point(getX(), getY());
+    return new Point2D.Double(getX(), getY());
   }
 
   // get x position
@@ -443,7 +443,7 @@ abstract public class AMotionModel implements IOrbListener, IMotionModel
 
   // position setter
 
-  protected void setPosition(Point position)
+  protected void setPosition(Point2D position)
   {
     setPosition(position.getX(), position.getY());
   }
@@ -460,9 +460,9 @@ abstract public class AMotionModel implements IOrbListener, IMotionModel
 
   // set delta position
 
-  protected void translate(Point delta)
+  protected void translate(Point2D delta)
   {
-    position.translate(delta);
+    setPosition(getX() + delta.getX(), getY() + delta.getY());
   }
 
   // set delta position
@@ -476,7 +476,7 @@ abstract public class AMotionModel implements IOrbListener, IMotionModel
    * @see com.orbswarm.swarmcon.model.IMotionModel#getSurveyPosition()
    */
 
-  public Point getSurveyPosition()
+  public Point2D getSurveyPosition()
   {
     return null;
   }

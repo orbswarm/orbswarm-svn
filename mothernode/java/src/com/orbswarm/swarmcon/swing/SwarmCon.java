@@ -73,7 +73,6 @@ import com.orbswarm.swarmcon.path.CurveBlock;
 import com.orbswarm.swarmcon.path.IBlock;
 import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.path.Path;
-import com.orbswarm.swarmcon.path.Point;
 import com.orbswarm.swarmcon.path.StraightBlock;
 import com.orbswarm.swarmcon.path.Target;
 import com.orbswarm.swarmcon.util.Constants;
@@ -193,7 +192,7 @@ public class SwarmCon extends JFrame
 
   /** the global word offset to correct the orbs position by */
 
-  private final Point mGlobalOffset = new Point(0, 0);
+  private final Point2D mGlobalOffset = new Point2D.Double();
 
   /** swarm of orbs */
 
@@ -607,7 +606,7 @@ public class SwarmCon extends JFrame
 
       // create a place to put survey results
 
-      HashMap<Orb, Point> results = new HashMap<Orb, Point>();
+      HashMap<Orb, Point2D> results = new HashMap<Orb, Point2D>();
 
       // keep going until we have has many results as we do orbs
 
@@ -625,7 +624,7 @@ public class SwarmCon extends JFrame
 
             // if we got a result since we last checked, record that
 
-            Point p = mm.getSurveyPosition();
+            Point2D p = mm.getSurveyPosition();
 
             if (p != null)
             {
@@ -651,10 +650,12 @@ public class SwarmCon extends JFrame
       // now we have ALL the survey results compute the centroid of
       // the orbs
 
-      Point centroid = new Point();
-      for (Point p : results.values())
-        centroid.translate(p);
-      centroid.scale(results.values().size());
+      Point2D centroid = new Point2D.Double();
+      for (Point2D p : results.values())
+        centroid.setLocation(centroid.getX() + p.getX(),
+          centroid.getY() + p.getY());
+      centroid.setLocation(centroid.getX() / results.values().size(),
+        centroid.getY() / results.values().size());
 
       // now inform all the orbs of the new origin
 

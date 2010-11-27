@@ -1,11 +1,11 @@
 package com.orbswarm.swarmcon.io;
 
+import java.awt.geom.Point2D;
+
 import org.iu.gps.NMEA;
 import org.iu.gps.GPSInfo;
 
 import org.apache.log4j.Logger;
-
-import com.orbswarm.swarmcon.path.Point;
 
 /** GpsIo provids communication between this software and a GPS. */
 
@@ -36,8 +36,8 @@ public class GpsIo extends SerialIo
             ? -1
             : 1);
         log.debug("lat: " + record.latitude + " lon: " + record.longitude);
-        Point utm = latLonToUtm(record.latitude, record.longitude);
-        log.debug("easting: " + utm.y + " northing: " + utm.x);
+        Point2D utm = latLonToUtm(record.latitude, record.longitude);
+        log.debug("easting: " + utm.getX() + " northing: " + utm.getY());
       }
       else
       {
@@ -87,7 +87,7 @@ public class GpsIo extends SerialIo
    * @return a UTM coordinate
    */
 
-  static public Point nmeaLatLonToUtm(double latitude, double longitude)
+  static public Point2D nmeaLatLonToUtm(double latitude, double longitude)
   {
     return latLonToUtm(nmeaToDecimalDegress(latitude),
       nmeaToDecimalDegress(longitude));
@@ -101,11 +101,11 @@ public class GpsIo extends SerialIo
    * @return a UTM coordinate
    */
 
-  static public Point latLonToUtm(double latitude, double longitude)
+  static public Point2D latLonToUtm(double latitude, double longitude)
   {
     com.genlogic.GlgUtmPoint utm = new com.genlogic.GlgUtmPoint();
     com.genlogic.GlgUtmMgrs.LatLonToUtm(latitude, longitude, utm);
-    return new Point(utm.easting, utm.northing);
+    return new Point2D.Double(utm.easting, utm.northing);
   }
 
   /**

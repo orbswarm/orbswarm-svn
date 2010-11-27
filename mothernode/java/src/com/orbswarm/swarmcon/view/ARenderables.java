@@ -7,8 +7,6 @@ import java.util.Vector;
 
 import org.trebor.util.Angle;
 
-import com.orbswarm.swarmcon.path.Point;
-
 public class ARenderables<E extends IRenderable> extends Vector<E>
   implements IRenderables<E>
 {
@@ -41,7 +39,7 @@ public class ARenderables<E extends IRenderable> extends Vector<E>
       y /= size();
     }
     
-    return new Point(x,y);
+    return new Point2D.Double(x,y);
   }
 
   public double getSize()

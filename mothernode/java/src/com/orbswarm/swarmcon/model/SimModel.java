@@ -1,5 +1,7 @@
 package com.orbswarm.swarmcon.model;
 
+import java.awt.geom.Point2D;
+
 import org.apache.log4j.Logger;
 import org.trebor.pid.Controller;
 import org.trebor.pid.PController;
@@ -7,7 +9,6 @@ import org.trebor.util.Angle;
 import org.trebor.util.Rate;
 
 import com.orbswarm.swarmcon.io.Message;
-import com.orbswarm.swarmcon.path.Point;
 import com.orbswarm.swarmcon.path.Waypoint;
 
 import static java.lang.Math.sin;
@@ -223,7 +224,7 @@ public class SimModel extends AMotionModel
 
     // compute delta x and y
 
-    Point delta = new Point(getYaw().cartesian(dPitch.as(RADIAN_RATE) * p));
+    Point2D delta = getYaw().cartesian(dPitch.as(RADIAN_RATE) * p);
 
     // update the direction of the orb
 
@@ -235,8 +236,8 @@ public class SimModel extends AMotionModel
     // stands in place of a proper fix.
 
     Angle rollDir = new Angle(getYaw(), new Angle(90, DEGREE_RATE));
-    delta.translate(rollDir.cartesian(dRoll.as(RADIAN_RATE) * ORB_RADIUS, 0,
-      0));
+    Point2D pos = rollDir.cartesian(dRoll.as(RADIAN_RATE) * ORB_RADIUS, 0, 0);
+    delta.setLocation(delta.getX() + pos.getX(), delta.getY() + pos.getY());
 
     // set position and velocity
 

@@ -2,11 +2,12 @@ package com.orbswarm.swarmcon.model;
 
 import static org.trebor.util.Angle.Type.DEGREE_RATE;
 
+import java.awt.geom.Point2D;
+
 import org.trebor.util.Angle;
 
 import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.path.Path;
-import com.orbswarm.swarmcon.path.Point;
 import com.orbswarm.swarmcon.path.SmoothPath;
 import com.orbswarm.swarmcon.path.Target;
 
@@ -158,13 +159,13 @@ public interface IMotionModel
 
   void reverse();
 
-  Point getPosition();
+  Point2D getPosition();
 
   void setPosition(double x, double y);
 
   /** Return the orb survey position, or null if we haven't got one yet. */
 
-  Point getSurveyPosition();
+  Point2D getSurveyPosition();
 
   /** Return true if the orb has acknowledged the origin command. */
 

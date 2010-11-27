@@ -11,7 +11,7 @@ import static org.trebor.util.Angle.Type.HEADING;
 /** A place to which the orb should go */
 
 @SuppressWarnings("serial")
-public class Waypoint extends Point
+public class Waypoint extends Point2D.Double
 {
   /** Time expected to reach this waypoint in seconds. */
 
@@ -52,13 +52,6 @@ public class Waypoint extends Point
     this.time = time;
     this.velocity = velocity;
     this.yaw = yaw;
-  }
-
-  /** Construct a Waypoint from a Point */
-
-  public Waypoint(Point p, double time, double velocity, Angle yaw)
-  {
-    this(p.x, p.y, time, velocity, yaw);
   }
 
   /** Construct a Waypoint from a Point2D.Double */

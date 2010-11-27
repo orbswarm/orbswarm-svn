@@ -1,10 +1,11 @@
 package com.orbswarm.swarmcon.model;
 
+import java.awt.geom.Point2D;
+
 import org.trebor.util.Angle;
 
 import com.orbswarm.swarmcon.io.Message;
 import com.orbswarm.swarmcon.io.OrbIo;
-import com.orbswarm.swarmcon.path.Point;
 import com.orbswarm.swarmcon.path.Waypoint;
 import com.orbswarm.swarmcon.swing.SwarmCon;
 
@@ -33,7 +34,7 @@ public class LiveModel extends AMotionModel
 
   /** The initial location of the orb when it woke up. */
 
-  private Point surveyPosition = null;
+  private Point2D surveyPosition = null;
 
   /** Set to true if the orb has acknowledged the origin commanded. */
 
@@ -84,7 +85,7 @@ public class LiveModel extends AMotionModel
 
     if (message.getType() == SURVEY_REPORT)
     {
-      surveyPosition = new Point(message.getDoubleProperty(EASTING), message
+      surveyPosition = new Point2D.Double(message.getDoubleProperty(EASTING), message
         .getDoubleProperty(NORTHING));
     }
 
@@ -105,7 +106,7 @@ public class LiveModel extends AMotionModel
 
       // get current position
 
-      Point position = new Point(message.getDoubleProperty(EASTING), message
+      Point2D position = new Point2D.Double(message.getDoubleProperty(EASTING), message
         .getDoubleProperty(NORTHING));
 
       // if the global offset has not yet been initialized do that with
@@ -146,7 +147,7 @@ public class LiveModel extends AMotionModel
 
   /** Return the survey position, or null if we haven't got one yet. */
 
-  public Point getSurveyPosition()
+  public Point2D getSurveyPosition()
   {
     return surveyPosition;
   }

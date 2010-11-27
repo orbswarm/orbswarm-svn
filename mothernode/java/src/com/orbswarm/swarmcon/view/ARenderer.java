@@ -8,8 +8,6 @@ import java.awt.geom.Rectangle2D;
 
 import org.apache.log4j.Logger;
 
-import com.orbswarm.swarmcon.path.Point;
-
 public abstract class ARenderer<Type extends IRenderable> implements
   IRenderer<Type>
 {
@@ -32,7 +30,7 @@ public abstract class ARenderer<Type extends IRenderable> implements
 
   public void drawText(Graphics2D g, double x, double y, String text)
   {
-    drawText(g, new Point(x, y), text);
+    drawText(g, new Point2D.Double(x, y), text);
   }
 
   public void drawText(Graphics2D g, Point2D point, String text)

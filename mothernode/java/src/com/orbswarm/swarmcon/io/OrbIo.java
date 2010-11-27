@@ -1,10 +1,10 @@
 package com.orbswarm.swarmcon.io;
 
+import java.awt.geom.Point2D;
 import java.util.HashMap;
 import org.apache.log4j.Logger;
 
 import com.orbswarm.swarmcon.orb.Orb;
-import com.orbswarm.swarmcon.path.Point;
 import com.orbswarm.swarmcon.path.Waypoint;
 import com.orbswarm.swarmcon.util.Constants;
 
@@ -13,9 +13,9 @@ import static org.trebor.util.Angle.Type.RADIAN_RATE;
 import static com.orbswarm.swarmcon.io.Message.Type.*;
 
 /**
- * OrbIo provids all I/O between phycical orbs and the orb objects in this
+ * OrbIo provides all I/O between physical orbs and the orb objects in this
  * software. There will be one OrbIo object for all the orbs (one to rule
- * them all). Messages from physical orbs are dispached to the correct orb
+ * them all). Messages from physical orbs are dispatched to the correct orb
  * object.
  */
 
@@ -146,7 +146,7 @@ public class OrbIo
 
   /** Send the origin to an orb. */
 
-  public void commandOrigin(int orbId, Point origin)
+  public void commandOrigin(int orbId, Point2D origin)
   {
     String command = "[o" + " e=" + format(origin.getX()) + " n=" +
       format(origin.getY()) + "]";

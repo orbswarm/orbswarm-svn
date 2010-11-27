@@ -106,7 +106,7 @@ public class SmoothPath extends Vector<Waypoint> implements IRenderable
         ? 60
         : 300, HEADING_RATE);
       a = a.rotate(initialDirection);
-      Point p = new Point(a.cartesian(headRoom, path.get(0)));
+      Point2D p = a.cartesian(headRoom, path.get(0));
       double speed = (path.get(0).getSpeed() + path.get(1).getSpeed()) / 2;
       path.add(1, new Target(p, speed));
     }
@@ -158,9 +158,9 @@ public class SmoothPath extends Vector<Waypoint> implements IRenderable
     Vector<Line2D> lines = new Vector<Line2D>();
     double[] choords = new double[6];
     double pathLength = 0;
-    Point previouse = null;
-    Point p = null;
-    Point open = null;
+    Point2D previouse = null;
+    Point2D p = null;
+    Point2D open = null;
 
     // iterate along the path to compute length and collect line segments
 
@@ -170,11 +170,11 @@ public class SmoothPath extends Vector<Waypoint> implements IRenderable
       switch (type)
       {
       case PathIterator.SEG_MOVETO:
-        previouse = new Point(choords[0], choords[1]);
+        previouse = new Point2D.Double(choords[0], choords[1]);
         open = previouse;
         break;
       case PathIterator.SEG_LINETO:
-        p = new Point(choords[0], choords[1]);
+        p = new Point2D.Double(choords[0], choords[1]);
         lines.add(new Line2D.Double(previouse, p));
         pathLength += previouse.distance(p);
         previouse = p;
@@ -209,8 +209,8 @@ public class SmoothPath extends Vector<Waypoint> implements IRenderable
     {
       // establish segment metrics
 
-      Point p1 = new Point(segment.getP1());
-      Point p2 = new Point(segment.getP2());
+      Point2D p1 = (Point2D)segment.getP1().clone();
+      Point2D p2 = (Point2D)segment.getP2().clone();
       double segmentLen = p1.distance(p2);
       totalSegmentLen += segmentLen;
 
@@ -225,8 +225,8 @@ public class SmoothPath extends Vector<Waypoint> implements IRenderable
 
         // add waypoint the correct distance along path
 
-        Waypoint wp = new Waypoint(p1.x + (p2.x - p1.x) * segmentPercent,
-          p1.y + (p2.y - p1.y) * segmentPercent, time, velocity.getVelocity(),
+        Waypoint wp = new Waypoint(p1.getX() + (p2.getX() - p1.getX()) * segmentPercent,
+          p1.getY() + (p2.getY() - p1.getY()) * segmentPercent, time, velocity.getVelocity(),
           new Angle(p1, p2));
         add(wp);
 
@@ -373,8 +373,8 @@ public class SmoothPath extends Vector<Waypoint> implements IRenderable
     {
       // get end points of the line segment
 
-      Point p1 = path.get(i);
-      Point p2 = path.get(i + 1);
+      Point2D p1 = path.get(i);
+      Point2D p2 = path.get(i + 1);
       double length = p1.distance(p2);
 
       // establish angle of this line
@@ -383,13 +383,13 @@ public class SmoothPath extends Vector<Waypoint> implements IRenderable
 
       // define a place for the first control point
 
-      Point cp1;
+      Point2D cp1;
 
       // if this is the first segment the control point is headed in the
       // initial direction
 
       if (i == 0)
-        cp1 = new Point(initialDirection.cartesian(length * smoothness, p1));
+        cp1 = initialDirection.cartesian(length * smoothness, p1);
 
       // else this is NOT the first segment
 
@@ -401,12 +401,12 @@ public class SmoothPath extends Vector<Waypoint> implements IRenderable
 
         // compute control point at this intersection
 
-        cp1 = new Point(cpAngle.cartesian(length * smoothness, p1));
+        cp1 = cpAngle.cartesian(length * smoothness, p1);
 
         // compute new control point at intersection with old curve
 
         cpAngle = cpAngle.rotate(180, DEGREES);
-        Point cpOld = new Point(cpAngle.cartesian(oldLength * smoothness, p1));
+        Point2D cpOld = cpAngle.cartesian(oldLength * smoothness, p1);
 
         // get the older curve
 
@@ -421,8 +421,8 @@ public class SmoothPath extends Vector<Waypoint> implements IRenderable
 
       // create curve from end points and control points
 
-      CubicCurve2D.Double curve = new CubicCurve2D.Double(p1.x, p1.y, cp1.x,
-        cp1.y, p2.x, p2.y, p2.x, p2.y);
+      CubicCurve2D.Double curve = new CubicCurve2D.Double(p1.getX(), p1.getY(), cp1.getX(),
+        cp1.getY(), p2.getX(), p2.getY(), p2.getX(), p2.getY());
 
       // add curve to curves
 
@@ -473,7 +473,7 @@ public class SmoothPath extends Vector<Waypoint> implements IRenderable
     throw new UnsupportedOperationException();
   }
 
-  public Point getPosition()
+  public Point2D getPosition()
   {
     throw new UnsupportedOperationException();
   }
