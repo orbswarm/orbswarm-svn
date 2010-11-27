@@ -10,6 +10,8 @@ import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.Vector;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.trebor.util.PathTool;
 
 import com.orbswarm.swarmcon.path.IBlock;
@@ -18,6 +20,9 @@ import com.orbswarm.swarmcon.swing.SwarmCon.MouseMobject;
 
 public class BlockPathRenderer extends ARenderer<IBlockPath>
 {
+  @SuppressWarnings("unused")
+  private static Logger log = Logger.getLogger(BlockPathRenderer.class);
+  
   private final Shape mArrowShape;
   
   public BlockPathRenderer()
@@ -45,26 +50,31 @@ public class BlockPathRenderer extends ARenderer<IBlockPath>
   {
     g.transform(bp.getTransform());
 
-//    if (bp.getBlocks().size() > 0)
-//    {
-//      g.setColor(new Color(0, 0, 0, 128));
-//      g.setStroke(new BasicStroke(0.05f));
-//      PathTool pt = new PathTool(bp.getPath(), 0);
-//      double step = pt.getLength() / (pt.getLength() / .5);
-//      Collection<PathTool.PathPoint> points =
-//        new Vector<PathTool.PathPoint>();
-//      points.add(pt.getStartPoint());
-//      for (double d = 0; d < pt.getLength(); d += step)
-//        points.add(pt.getPathPoint(d));
-//      points.add(pt.getEndPoint());
-//      for (PathTool.PathPoint pp : points)
-//      {
-//        Point2D ep = pp.getAngle().cartesian(1, pp);
-//        Line2D line = new Line2D.Double(pp, ep);
-//        g.draw(line);
-//      }
-//    }
-
+    log.debug("log level: " + log.getLevel());
+    
+    if (log.getLevel() == Level.DEBUG)
+    {
+      if (bp.getBlocks().size() > 0)
+      {
+        g.setColor(new Color(0, 0, 0, 128));
+        g.setStroke(new BasicStroke(0.05f));
+        PathTool pt = new PathTool(bp.getPath(), 0);
+        double step = pt.getLength() / (pt.getLength() / .5);
+        Collection<PathTool.PathPoint> points =
+          new Vector<PathTool.PathPoint>();
+        points.add(pt.getStartPoint());
+        for (double d = 0; d < pt.getLength(); d += step)
+          points.add(pt.getPathPoint(d));
+        points.add(pt.getEndPoint());
+        for (PathTool.PathPoint pp : points)
+        {
+          Point2D ep = pp.getAngle().cartesian(1, pp);
+          Line2D line = new Line2D.Double(pp, ep);
+          g.draw(line);
+        }
+      }
+    }
+    
     if (bp.isSelected())
     {
       g.setStroke(RenderingConstants.BLOCK_STROKE);
@@ -96,6 +106,5 @@ public class BlockPathRenderer extends ARenderer<IBlockPath>
       else
         g.draw(bp.getPath());
     }
-
   }
 }

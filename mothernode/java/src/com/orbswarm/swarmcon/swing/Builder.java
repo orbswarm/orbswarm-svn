@@ -9,6 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Vector;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
@@ -414,26 +416,24 @@ public class Builder extends JFrame
 
   protected void createSwarm()
   {
+    Collection<IBlockPath> paths = null;
+
     if (getArtifact() instanceof IBlockPath)
     {
-      IOrb orb = new Orb(new SimModel(), 0);
-      mSwarm.add(orb);
-      orb.setHeading(getCurrentPath().getHeading());
-      orb.setPosition(getCurrentPath().getPosition());
-      orb.getModel().setTargetPath(getCurrentPath());
+      paths = new Vector<IBlockPath>();
+      paths.add(getCurrentPath());
     }
     else
-    {
-      int orbId = 0;
+      paths = getCurrentDance().getPaths();
 
-      for (IBlockPath path : getCurrentDance().getPaths())
-      {
-        IOrb orb = new Orb(new SimModel(), orbId++);
-        mSwarm.add(orb);
-        orb.setHeading(path.getHeading());
-        orb.setPosition(path.getPosition());
-        orb.getModel().setTargetPath(path);
-      }
+    int orbId = 0;
+    for (IBlockPath path : paths)
+    {
+      IOrb orb = new Orb(new SimModel(), orbId++);
+      mSwarm.add(orb);
+      orb.setHeading(path.getHeading());
+      orb.setPosition(path.getPosition());
+      orb.getModel().setTargetPath(path);
     }
   }
 
