@@ -6,7 +6,10 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 import java.util.Map.Entry;
@@ -162,6 +165,35 @@ public class RendererSet
   public static IRenderable getSelected(Point2D selectionPoint, IRenderable o)
   {
     return getRenderer(o).getSelected(selectionPoint, o);
+  }
+  
+  public static IRenderable getSelected(Point2D selectionPoint, List<? extends IRenderable> vobjects)
+  {
+    Set<IRenderable> candidates = new HashSet<IRenderable>();
+
+    for (IRenderable vobject : vobjects)
+    {
+      IRenderable candidate = RendererSet.getRenderer(vobject).getSelected(
+        selectionPoint, vobject);
+      
+      if (null != candidate)
+        candidates.add(candidate);
+    }
+
+    double shortestDistance = Double.MAX_VALUE;
+    IRenderable closest = null;
+    for (IRenderable vobject : candidates)
+    {
+      double distance = RendererSet.getRenderer(vobject).getDistanceTo(
+        selectionPoint, vobject);
+      if (distance < shortestDistance)
+      {
+        closest = vobject;
+        shortestDistance = distance;
+      }
+    }
+
+    return closest;
   }
   
   public static <Type extends IRenderable> Shape getShape(Type vobject)

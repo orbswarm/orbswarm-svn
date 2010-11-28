@@ -1,7 +1,5 @@
 package com.orbswarm.swarmcon.behavior;
 
-import org.trebor.util.Angle;
-
 import com.orbswarm.swarmcon.model.IMotionModel;
 import com.orbswarm.swarmcon.view.IRenderable;
 
@@ -23,6 +21,6 @@ public class FollowBehavior extends Behavior
 
   public void update(double time, IMotionModel model)
   {
-    model.setTargetYaw(new Angle(orb.getPosition(), target.getPosition()));
+    //model.setTargetYaw(new Angle(orb.getPosition(), target.getPosition()));
   }
 }

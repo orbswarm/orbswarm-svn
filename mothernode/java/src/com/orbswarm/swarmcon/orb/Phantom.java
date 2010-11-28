@@ -2,13 +2,13 @@ package com.orbswarm.swarmcon.orb;
 
 import java.awt.geom.Point2D;
 
-import com.orbswarm.swarmcon.view.ARenderable;
+import com.orbswarm.swarmcon.view.APositionable;
 import com.orbswarm.swarmcon.view.IRenderable;
 
 import static java.lang.Math.PI;
 import static java.lang.Math.sin;
 
-public class Phantom extends ARenderable
+public class Phantom extends APositionable implements IRenderable
 {
   /** the amount of wind-up before moving */
 
@@ -56,7 +56,7 @@ public class Phantom extends ARenderable
   public Phantom(IRenderable mobject, double period)
   {
     this.time = 0;
-    this.origin = mobject.getPosition();
+    this.origin = ((IOrb)mobject).getPosition();
     this.setPosition(origin);
     this.target = origin;
     this.period = period;

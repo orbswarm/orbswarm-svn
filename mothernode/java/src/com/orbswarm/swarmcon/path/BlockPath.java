@@ -20,11 +20,11 @@ import org.trebor.util.PathTool.PathPoint;
 
 import com.orbswarm.swarmcon.util.ISelectableList;
 import com.orbswarm.swarmcon.util.SelectableList;
-import com.orbswarm.swarmcon.view.ARenderable;
+import com.orbswarm.swarmcon.view.APositionable;
 
 @XmlRootElement(name = "blockpath")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class BlockPath extends ARenderable implements IBlockPath
+public class BlockPath extends APositionable implements IBlockPath
 {
   @SuppressWarnings("unused")
   private static Logger log = Logger.getLogger(BlockPath.class);
@@ -147,7 +147,7 @@ public class BlockPath extends ARenderable implements IBlockPath
     mPath = null;
   }
   
-  protected PathTool getPathTool()
+  public PathTool getPathTool()
   {
     if (null == mPathTool)
       mPathTool = new PathTool(getPath(), 0);

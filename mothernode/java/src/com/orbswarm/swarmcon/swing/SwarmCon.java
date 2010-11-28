@@ -46,6 +46,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
+import java.util.List;
 import java.util.Vector;
 import java.util.HashMap;
 import java.util.Calendar;
@@ -77,10 +78,8 @@ import com.orbswarm.swarmcon.path.StraightBlock;
 import com.orbswarm.swarmcon.path.Target;
 import com.orbswarm.swarmcon.util.Constants;
 import com.orbswarm.swarmcon.util.SwarmProperties;
-import com.orbswarm.swarmcon.view.ARenderable;
-import com.orbswarm.swarmcon.view.ARenderables;
+import com.orbswarm.swarmcon.view.APositionable;
 import com.orbswarm.swarmcon.view.IRenderable;
-import com.orbswarm.swarmcon.view.Renderables;
 import com.orbswarm.swarmcon.view.RendererSet;
 
 import static org.trebor.util.ShapeTools.normalize;
@@ -196,19 +195,19 @@ public class SwarmCon extends JFrame
 
   /** swarm of orbs */
 
-  private final Swarm mSwarm;
+  private final List<IOrb> mSwarm;
 
   /** all visual objects in the system */
 
-  private final Renderables mVisualObjects;
+  private final List<IRenderable> mVisualObjects;
 
   /** selected objects */
 
-  private final Renderables mSelected;
+  private final List<IRenderable> mSelected;
 
   /** phantom objects */
 
-  private final ARenderables<Phantom> mPhantoms;
+  private final List<Phantom> mPhantoms;
 
   /** last time mobects were updated */
 
@@ -271,7 +270,11 @@ public class SwarmCon extends JFrame
 
   public IOrb getOrb(int orbNum)
   {
-    return mSwarm.getOrb(orbNum);
+    for (IOrb orb: mSwarm)
+      if (orb.getId() == orbNum)
+        return orb;
+        
+    return null;
   }
 
   public static void main(String[] args)
@@ -300,7 +303,7 @@ public class SwarmCon extends JFrame
 
     // create a place to put all visual objects
 
-    mVisualObjects = new Renderables();
+    mVisualObjects = new Vector<IRenderable>();
 
     // create a test block path
 
@@ -329,16 +332,16 @@ public class SwarmCon extends JFrame
     // create the place for the swarm and add it to visual objects
 
     mSwarm = new Swarm();
-    mVisualObjects.add(mSwarm);
+    mVisualObjects.addAll(mSwarm);
 
     // create a place to put phantoms and add it to visual objects
 
-    mPhantoms = new ARenderables<Phantom>();
-    mVisualObjects.add(mPhantoms);
+    mPhantoms = new Vector<Phantom>();
+    mVisualObjects.addAll(mPhantoms);
 
     // create a place record selected vobject
 
-    mSelected = new Renderables();
+    mSelected = new Vector<IRenderable>();
 
     // create robot for capturing images
 
@@ -493,7 +496,8 @@ public class SwarmCon extends JFrame
   {
     // update all the objects
 
-    mSwarm.update(time);
+    for (IOrb orb: mSwarm)
+      orb.update(time);
 
     // repaint the screen
 
@@ -988,7 +992,8 @@ public class SwarmCon extends JFrame
   {
     // render vobjects
 
-    RendererSet.render(g, mVisualObjects);
+    for (IRenderable renderable: mVisualObjects)
+      RendererSet.render(g, renderable);
 
     // return to a pristine transform to draw text onto
 
@@ -1085,7 +1090,7 @@ public class SwarmCon extends JFrame
 
   // object which is always set to the position of the mouse
 
-  public class MouseMobject extends ARenderable
+  public class MouseMobject extends APositionable implements IRenderable
   {
     // construct a MouseMobject
 
@@ -1172,14 +1177,13 @@ public class SwarmCon extends JFrame
     {
       // find nearest selectable mobject
 
-      final IRenderable selected =
-        RendererSet.getSelected(mArena.screenToWorld(e.getPoint()), mSwarm);
+      final IRenderable selected = RendererSet.getSelected(mArena.screenToWorld(e.getPoint()), mSwarm);
 
       // if shift is not down, clear selected
 
       if (!e.isShiftDown())
       {
-        mSelected.setSelected(false);
+        //mSelected.setSelected(false);
         mSelected.clear();
         mPhantoms.clear();
       }
@@ -1327,7 +1331,8 @@ public class SwarmCon extends JFrame
     {
       public void actionPerformed(ActionEvent e)
       {
-        mSwarm.nextBehavior();
+        for (IOrb orb: mSwarm)
+          orb.nextBehavior();
       }
     };
 
@@ -1339,7 +1344,8 @@ public class SwarmCon extends JFrame
     {
       public void actionPerformed(ActionEvent e)
       {
-        mSwarm.previousBehavior();
+        for (IOrb orb: mSwarm)
+          orb.previousBehavior();
       }
     };
 
@@ -1389,7 +1395,7 @@ public class SwarmCon extends JFrame
     {
       public void actionPerformed(ActionEvent e)
       {
-        IOrb orb = mSwarm.getOrb(0);
+        IOrb orb = getOrb(0);
         orb.setPosition(mTestBlockPath.getPosition());
         orb.getModel().setTargetPath(mTestBlockPath);
       }

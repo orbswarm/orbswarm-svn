@@ -10,6 +10,7 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JCheckBoxMenuItem;
@@ -23,6 +24,7 @@ import javax.swing.KeyStroke;
 import org.apache.log4j.Logger;
 import org.trebor.util.Angle;
 import org.trebor.util.Angle.Type;
+import org.trebor.util.Rate;
 
 import com.orbswarm.swarmcon.model.SimModel;
 import com.orbswarm.swarmcon.orb.IOrb;
@@ -35,6 +37,8 @@ import com.orbswarm.swarmcon.path.IBlock;
 import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.path.IDance;
 import com.orbswarm.swarmcon.path.StraightBlock;
+import com.orbswarm.swarmcon.performance.IPerformance;
+import com.orbswarm.swarmcon.performance.PerformanceFactory;
 import com.orbswarm.swarmcon.store.FileStore;
 import com.orbswarm.swarmcon.store.IItemFilter;
 import com.orbswarm.swarmcon.store.Item;
@@ -326,7 +330,8 @@ public class Builder extends JFrame
         Graphics2D g = (Graphics2D)graphics;
         super.paint(g);
         RendererSet.render(g, getArtifact());
-        RendererSet.render(g, mSwarm);
+        for (IRenderable orb: mSwarm)
+          RendererSet.render(g, orb);
       }
     };
 
@@ -391,7 +396,7 @@ public class Builder extends JFrame
       mStore.update(mArtifact);
   }
 
-  void dance()
+  protected void dance()
   {
     if (!mSimulationRunning)
     {
@@ -414,6 +419,47 @@ public class Builder extends JFrame
     }
   }
 
+  protected void perform()
+  {
+    double timeStep = 0.25;
+
+    // establish a collection of paths
+
+    List<IBlockPath> paths = null;
+    if (getArtifact() instanceof IBlockPath)
+    {
+      paths = new Vector<IBlockPath>();
+      paths.add(getCurrentPath());
+    }
+    else
+      paths = getCurrentDance().getPaths();
+
+    // establish a collection of rates
+
+    List<Rate> rates = new Vector<Rate>();
+    for (int i = 0; i < paths.size(); ++i)
+      rates.add(new Rate("Velocity", 0, 1.0, 0.08));
+
+    // establish a collection of orbs
+
+    List<IOrb> orbs = new Vector<IOrb>();
+    int orbId = 0;
+    for (IBlockPath path : paths)
+    {
+      IOrb orb = new Orb(new SimModel(), orbId++);
+      orbs.add(orb);
+      orb.setHeading(path.getHeading());
+      orb.setPosition(path.getPosition());
+    }
+
+    for (int i = 0; i < paths.size(); ++i)
+    {
+      IPerformance performance =
+        PerformanceFactory.create(paths.get(i), orbs.get(i), rates.get(i),
+          timeStep);
+    }
+  }
+  
   protected void createSwarm()
   {
     Collection<IBlockPath> paths = null;
@@ -1132,6 +1178,18 @@ public class Builder extends JFrame
     }
   };
 
+  /** Make the orbs perform */
+
+  SwarmAction mPerformAction = new SwarmAction("Perform", KeyStroke.getKeyStroke(
+    KeyEvent.VK_P, KeyEvent.META_DOWN_MASK), "create and diplay a performance from a given artifact")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      perform();
+    }
+  };
+
+  
   private final SwarmAction mPreviousePathAction = new SwarmAction(
     "Previouse Path", KeyStroke.getKeyStroke(KeyEvent.VK_A, 0),
     "select previouse path")

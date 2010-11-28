@@ -26,8 +26,8 @@ public class PhantomRenderer extends ARenderer<Phantom>
     // position the phantom
 
     phantom.setPosition(phantom.getX() / scale, phantom.getY() / scale);
-    g.translate(phantom.getX() - mobject.getX(), phantom.getY() -
-      mobject.getY());
+//    g.translate(phantom.getX() - mobject.getX(), phantom.getY() -
+//      mobject.getY());
 
     // paint phantom
 

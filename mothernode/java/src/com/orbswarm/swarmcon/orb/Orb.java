@@ -13,7 +13,7 @@ import com.orbswarm.swarmcon.io.Message;
 import com.orbswarm.swarmcon.io.OrbIo.IOrbListener;
 import com.orbswarm.swarmcon.model.IMotionModel;
 import com.orbswarm.swarmcon.model.AMotionModel;
-import com.orbswarm.swarmcon.view.ARenderable;
+import com.orbswarm.swarmcon.view.APositionable;
 
 import org.trebor.util.Angle;
 
@@ -24,7 +24,7 @@ import org.apache.log4j.Logger;
 
 /** Representation of an orb. */
 
-public class Orb extends ARenderable implements IOrbListener, IOrb
+public class Orb extends APositionable implements IOrbListener, IOrb
 {
   private static Logger log = Logger.getLogger(Orb.class);
 

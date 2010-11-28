@@ -18,7 +18,7 @@ import org.trebor.util.Angle;
  */
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public abstract class ARenderable implements IRenderable
+public abstract class APositionable implements IPositionable
 {
   @XmlElement(name="heading")
   private Angle mHeading;
@@ -38,7 +38,7 @@ public abstract class ARenderable implements IRenderable
    * Create a vobject.
    */
 
-  public ARenderable()
+  public APositionable()
   {
     mHeading = new Angle(0, Angle.Type.HEADING);
     mPosition = new Point2D.Double();
@@ -103,9 +103,9 @@ public abstract class ARenderable implements IRenderable
 
   // clone
 
-  public IRenderable clone() throws CloneNotSupportedException
+  public IPositionable clone() throws CloneNotSupportedException
   {
-    ARenderable clone = (ARenderable)super.clone();
+    APositionable clone = (APositionable)super.clone();
     clone.mHeading = mHeading;
     clone.mPosition.setLocation(mPosition);
     return clone;

@@ -4,8 +4,8 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Vector;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -19,11 +19,11 @@ import org.trebor.util.Angle;
 
 import com.orbswarm.swarmcon.util.ISelectableList;
 import com.orbswarm.swarmcon.util.SelectableList;
-import com.orbswarm.swarmcon.view.ARenderable;
+import com.orbswarm.swarmcon.view.APositionable;
 
 @XmlRootElement(name="dance")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Dance extends ARenderable implements IDance
+public class Dance extends APositionable implements IDance
 {
   @SuppressWarnings("unused")
   private static Logger log = Logger.getLogger(Dance.class);
@@ -35,7 +35,7 @@ public class Dance extends ARenderable implements IDance
   @XmlElement(name="layout")
   private Layout mLayout;
   @XmlTransient
-  private Collection<IMarker> mMarkers;
+  private List<IMarker> mMarkers;
 
   public enum Layout
   {
@@ -203,14 +203,14 @@ public class Dance extends ARenderable implements IDance
 
   }
 
-  public Collection<IBlockPath> getPaths()
+  public List<IBlockPath> getPaths()
   {
-    return Collections.unmodifiableCollection(mPathsHolder.getAll());
+    return Collections.unmodifiableList(mPathsHolder.getAll());
   }
 
-  public Collection<IMarker> getMarkers()
+  public List<IMarker> getMarkers()
   {
-    return Collections.unmodifiableCollection(mMarkers);
+    return Collections.unmodifiableList(mMarkers);
   }
   
   @Override
