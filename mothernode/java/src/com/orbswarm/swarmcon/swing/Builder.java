@@ -250,6 +250,7 @@ public class Builder extends JFrame
     mFileMenu.add(mLoadPathAction);
     mFileMenu.addSeparator();
     mFileMenu.add(mDanceAction);
+    mFileMenu.add(mPerformAction);
 
     // make edit menu
 
@@ -415,6 +416,12 @@ public class Builder extends JFrame
 
   protected void perform()
   {
+    if (mPerformance != null)
+    {
+      mPerformance = null;
+      return;
+    }
+    
     double timeStep = 0.25;
 
     // establish a collection of paths
@@ -446,10 +453,10 @@ public class Builder extends JFrame
       orb.setPosition(path.getPosition());
     }
 
-    IPerformance performance = new Performance();
+    mPerformance = new Performance();
     for (int i = 0; i < paths.size(); ++i)
     {
-      PerformanceFactory.append(performance, paths.get(i), orbs.get(i), rates.get(i),
+      PerformanceFactory.append(mPerformance, paths.get(i), orbs.get(i), rates.get(i),
           timeStep);
     }
   }
