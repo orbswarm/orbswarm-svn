@@ -1,5 +1,7 @@
 package com.orbswarm.swarmcon.performance;
 
+import com.orbswarm.swarmcon.view.IRenderable;
+
 /**
  * A performance is a collection of decoupled events which form a
  * choreographic performance. An event might be a waypoint command,
@@ -10,7 +12,7 @@ package com.orbswarm.swarmcon.performance;
  * @author trebor
  */
 
-public interface IPerformance
+public interface IPerformance extends IRenderable
 {
   /**
    * Add an event to this performance. Events may be added in any order and

@@ -1,5 +1,6 @@
 package com.orbswarm.swarmcon.performance;
 
+import java.awt.geom.Rectangle2D;
 import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -98,5 +99,30 @@ public class Performance implements IPerformance
     return mStartTime == NOT_RUNNING
       ? false
       : getCurrentTime() > getDuration();
+  }
+
+  public Rectangle2D getBounds2D()
+  {
+    return new Rectangle2D.Double();
+  }
+
+  public boolean isSelected()
+  {
+    return false;
+  }
+
+  public void setSelected(boolean selected)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  public void setSuppressed(boolean suppress)
+  {
+    throw new UnsupportedOperationException();
+  }
+  
+  public IPerformance clone() throws CloneNotSupportedException
+  {
+    throw new CloneNotSupportedException();
   }
 }

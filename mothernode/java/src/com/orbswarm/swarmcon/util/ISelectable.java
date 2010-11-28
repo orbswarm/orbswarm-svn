@@ -27,11 +27,10 @@ public interface ISelectable extends Cloneable
    */
   
   void setSuppressed(boolean suppress);
-  
   /**
-   * Create a clone of this item.
+   * Clone this {@link IRenderable}.
    * 
-   * @return clone of this selectable.
+   * @return a clone of this this {@link IRenderable}.
    */
   
   ISelectable clone() throws CloneNotSupportedException;

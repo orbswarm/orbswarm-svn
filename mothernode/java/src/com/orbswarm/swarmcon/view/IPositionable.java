@@ -11,7 +11,7 @@ import com.orbswarm.swarmcon.store.IPositionableAdapter;
 import com.orbswarm.swarmcon.util.ISelectable;
 
 @XmlJavaTypeAdapter(IPositionableAdapter.class)
-public interface IPositionable extends ISelectable, Cloneable
+public interface IPositionable extends ISelectable
 {
   // get x position
 
@@ -48,12 +48,4 @@ public interface IPositionable extends ISelectable, Cloneable
    */
 
   AffineTransform getTransform();
-  
-  /**
-   * Clone this {@link IPositionable}.
-   * 
-   * @return a clone of this this {@link IPositionable}.
-   */
-  
-  IPositionable clone() throws CloneNotSupportedException;
 }

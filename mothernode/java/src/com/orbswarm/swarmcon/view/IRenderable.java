@@ -4,7 +4,7 @@ import java.awt.geom.Rectangle2D;
 
 import com.orbswarm.swarmcon.util.ISelectable;
 
-public interface IRenderable extends ISelectable, Cloneable
+public interface IRenderable extends ISelectable
 {
   /**
    * Compute the bounds of this particular renderable.

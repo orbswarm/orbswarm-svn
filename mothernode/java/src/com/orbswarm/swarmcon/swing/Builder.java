@@ -37,6 +37,7 @@ import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.path.IDance;
 import com.orbswarm.swarmcon.path.StraightBlock;
 import com.orbswarm.swarmcon.performance.IPerformance;
+import com.orbswarm.swarmcon.performance.Performance;
 import com.orbswarm.swarmcon.performance.PerformanceFactory;
 import com.orbswarm.swarmcon.store.FileStore;
 import com.orbswarm.swarmcon.store.IItemFilter;
@@ -109,6 +110,8 @@ public class Builder extends JFrame
 
   protected final List<IOrb> mSwarm;
 
+  protected IPerformance mPerformance;
+  
   protected ArenaPanel mArena;
 
   protected JMenu mEditMenu;
@@ -160,16 +163,6 @@ public class Builder extends JFrame
     }
     else
       store = new FileStore(pathStore.toString());
-    
-//    Collection<IItem<? extends IRenderable>> some = store.getSome(PATH_FILTER);
-//    log.debug("got some: " + some.size());
-//    
-//    @SuppressWarnings("unchecked")
-//    IItem<IBlockPath> first = (IItem<IBlockPath>)some.iterator().next();
-//    IBlockPath path = first.getItem();
-//    log.debug("path: " + path);
-//    log.debug("start point: " + path.getStartPoint());
-//    log.debug("end point: " + path.getEndPoint());
     
     new Builder(store);
   }
@@ -329,6 +322,8 @@ public class Builder extends JFrame
         Graphics2D g = (Graphics2D)graphics;
         super.paint(g);
         RendererSet.render(g, getArtifact());
+        if (null != mPerformance)
+          RendererSet.render(g, mPerformance);
         for (IRenderable orb: mSwarm)
           RendererSet.render(g, orb);
       }
@@ -451,10 +446,10 @@ public class Builder extends JFrame
       orb.setPosition(path.getPosition());
     }
 
+    IPerformance performance = new Performance();
     for (int i = 0; i < paths.size(); ++i)
     {
-      IPerformance performance =
-        PerformanceFactory.create(paths.get(i), orbs.get(i), rates.get(i),
+      PerformanceFactory.append(performance, paths.get(i), orbs.get(i), rates.get(i),
           timeStep);
     }
   }
