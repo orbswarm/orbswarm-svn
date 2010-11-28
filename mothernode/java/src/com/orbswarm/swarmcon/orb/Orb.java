@@ -56,12 +56,6 @@ public class Orb extends APositionable implements IOrbListener, IOrb
 
   private AMotionModel model;
 
-  // nearest mobject
-
-  // miscellaneous globals
-
-  protected Swarm swarm = null;
-
   // construct an orb
 
   public Orb(AMotionModel model, int id)
@@ -95,10 +89,6 @@ public class Orb extends APositionable implements IOrbListener, IOrb
     this.orbColor = val;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#getOrbColor()
-   */
   public Color getOrbColor()
   {
     if (this.orbColor == null)
@@ -111,57 +101,20 @@ public class Orb extends APositionable implements IOrbListener, IOrb
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#getModel()
-   */
-
   public IMotionModel getModel()
   {
     return model;
   }
 
-  // get swarm
-
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#getSwarm()
-   */
-  public Swarm getSwarm()
-  {
-    return swarm;
-  }
-
-  // get orb id
-
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#getId()
-   */
   public int getId()
   {
     return id;
   }
 
-  // handle message
-
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#handleMessage(java.lang.String)
-   */
   public void handleMessage(String message)
   {
     log.debug("Message: " + message);
   }
-
-  // add a behavior
-
-  /*
-   * (non-Javadoc)
-   * @see
-   * com.orbswarm.swarmcon.orb.IOrbx#add(com.orbswarm.swarmcon.orb.Behavior
-   * )
-   */
   public void add(Behavior behavior)
   {
     behavior.setOrb(this);
@@ -169,12 +122,6 @@ public class Orb extends APositionable implements IOrbListener, IOrb
     this.behavior = behavior;
   }
 
-  // select next behavior
-
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#nextBehavior()
-   */
   public void nextBehavior()
   {
     if (behavior != null)
@@ -184,23 +131,11 @@ public class Orb extends APositionable implements IOrbListener, IOrb
     }
   }
 
-  // return current behaviors
-
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#getBehavior()
-   */
   public Behavior getBehavior()
   {
     return behavior;
   }
 
-  // select previous behavior
-
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#previousBehavior()
-   */
   public void previousBehavior()
   {
     if (behavior != null)
@@ -211,92 +146,40 @@ public class Orb extends APositionable implements IOrbListener, IOrb
     }
   }
 
-  // get orb roll
-
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#getRoll()
-   */
   public Angle getRoll()
   {
     return model.getRoll();
   }
 
-  // get orb pitch
-
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#getPitch()
-   */
   public Angle getPitch()
   {
     return model.getPitch();
   }
 
-  // get orb yaw
-
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#getYaw()
-   */
   public Angle getYaw()
   {
     return model.getYaw();
   }
 
-  // get orb yaw rate
-
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#getYawRate()
-   */
   public Angle getYawRate()
   {
     return model.getYawRate();
   }
 
-  // get actual current velocity
-
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#getVelocity()
-   */
   public double getVelocity()
   {
     return model.getVelocity();
   }
 
-  // get actual current speed
-
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#getSpeed()
-   */
   public double getSpeed()
   {
     return model.getSpeed();
   }
 
-  // handle message from orb
-
-  /*
-   * (non-Javadoc)
-   * @see
-   * com.orbswarm.swarmcon.orb.IOrbx#onOrbMessage(com.orbswarm.swarmcon
-   * .io.Message)
-   */
-
   public void onOrbMessage(Message message)
   {
     model.onOrbMessage(message);
   }
-
-  // update position
-
-  /*
-   * (non-Javadoc)
-   * @see com.orbswarm.swarmcon.orb.IOrbx#update(double)
-   */
 
   public void update(double time)
   {

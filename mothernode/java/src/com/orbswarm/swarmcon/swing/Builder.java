@@ -29,7 +29,6 @@ import org.trebor.util.Rate;
 import com.orbswarm.swarmcon.model.SimModel;
 import com.orbswarm.swarmcon.orb.IOrb;
 import com.orbswarm.swarmcon.orb.Orb;
-import com.orbswarm.swarmcon.orb.Swarm;
 import com.orbswarm.swarmcon.path.BlockPath;
 import com.orbswarm.swarmcon.path.CurveBlock;
 import com.orbswarm.swarmcon.path.Dance;
@@ -108,7 +107,7 @@ public class Builder extends JFrame
 
   private IItem<?> mArtifact;
 
-  protected final Swarm mSwarm;
+  protected final List<IOrb> mSwarm;
 
   protected ArenaPanel mArena;
 
@@ -185,7 +184,7 @@ public class Builder extends JFrame
 
     // make a swarm
 
-    mSwarm = new Swarm();
+    mSwarm = new Vector<IOrb>();
 
     // make the frame
 
@@ -527,8 +526,10 @@ public class Builder extends JFrame
 
             synchronized (mSwarm)
             {
-              mSwarm.update(SwarmCon.millisecondsToSeconds(now
-                .getTimeInMillis() - mLastUpdate.getTimeInMillis()));
+              double timeStep = SwarmCon.millisecondsToSeconds(now
+                .getTimeInMillis() - mLastUpdate.getTimeInMillis());
+              for (IOrb orb: mSwarm)
+                orb.update(timeStep);
               repaint();
             }
 

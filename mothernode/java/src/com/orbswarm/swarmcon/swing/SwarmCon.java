@@ -68,7 +68,6 @@ import com.orbswarm.swarmcon.orb.IOrb;
 import com.orbswarm.swarmcon.orb.Orb;
 import com.orbswarm.swarmcon.orb.OrbControl;
 import com.orbswarm.swarmcon.orb.Phantom;
-import com.orbswarm.swarmcon.orb.Swarm;
 import com.orbswarm.swarmcon.path.BlockPath;
 import com.orbswarm.swarmcon.path.CurveBlock;
 import com.orbswarm.swarmcon.path.IBlock;
@@ -331,7 +330,7 @@ public class SwarmCon extends JFrame
 
     // create the place for the swarm and add it to visual objects
 
-    mSwarm = new Swarm();
+    mSwarm = new Vector<IOrb>();
     mVisualObjects.addAll(mSwarm);
 
     // create a place to put phantoms and add it to visual objects
