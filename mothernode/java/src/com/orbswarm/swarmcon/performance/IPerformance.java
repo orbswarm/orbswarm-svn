@@ -1,5 +1,7 @@
 package com.orbswarm.swarmcon.performance;
 
+import java.util.Set;
+
 import com.orbswarm.swarmcon.view.IRenderable;
 
 /**
@@ -44,6 +46,14 @@ public interface IPerformance extends IRenderable
    */
   
   IEvent getEvent(boolean block);
+
+  /**
+   * Get all the evens for this performance.
+   * 
+   * @return all the events for this performance.
+   */
+  
+  Set<IEvent> getEvents();
   
   /**
    * Start the performance. The performance will continue to run until the

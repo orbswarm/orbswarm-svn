@@ -2,11 +2,16 @@ package com.orbswarm.swarmcon.performance;
 
 import java.awt.geom.Rectangle2D;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.apache.log4j.Logger;
+
 public class Performance implements IPerformance
 {
+  private static final Logger log = Logger.getLogger(Performance.class);
+  
   public static double NOT_RUNNING = Long.MIN_VALUE;
   private final SortedSet<IEvent> mEvents;
   private double mStartTime = NOT_RUNNING;
@@ -20,6 +25,8 @@ public class Performance implements IPerformance
   
   public void add(IEvent event)
   {
+    log.debug(String.format("adding %s @ %s", event.hashCode(), event.getExecuteTime()));
+    log.debug(String.format("size: ", mEvents.size()));
     mEvents.add(event);
   }
 
@@ -124,5 +131,10 @@ public class Performance implements IPerformance
   public IPerformance clone() throws CloneNotSupportedException
   {
     throw new CloneNotSupportedException();
+  }
+
+  public Set<IEvent> getEvents()
+  {
+    return mEvents; //Collections.unmodifiableSet(mEvents);
   }
 }

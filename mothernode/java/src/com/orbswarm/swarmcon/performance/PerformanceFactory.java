@@ -8,11 +8,6 @@ import com.orbswarm.swarmcon.path.IBlockPath;
 
 public class PerformanceFactory
 {
-  /** Velocity rate profile to follow */
-
-  // private static Rate velocityRate = new Rate("Velocity", 0, 1.0, 0.08);
-  public static double SECONDS_BETWEEN_PATH_POINTS = 0.5;
-
   private static class PathProgress
   {
     private double mDistance;
@@ -62,8 +57,13 @@ public class PerformanceFactory
 
     void accumulatePositionPoints(double timeStep, double endPoint)
     {
-      while (getDistance() <= endPoint)
+      while (getDistance() <= endPoint && !stuck())
         mPerformance.add(computePositonEventAndUpdate(timeStep));
+    }
+    
+    boolean stuck()
+    {
+      return 0 == mRate.getTarget() && 0 == mRate.getVelocity();
     }
   }
 

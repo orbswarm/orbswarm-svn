@@ -16,6 +16,6 @@ public abstract class AEvent implements IEvent
 
   public int compareTo(IEvent other)
   {
-    return (int)(getExecuteTime() - other.getExecuteTime());
+    return Double.compare(getExecuteTime(), other.getExecuteTime());
   }
 }

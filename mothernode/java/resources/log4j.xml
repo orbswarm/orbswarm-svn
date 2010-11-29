@@ -85,6 +85,14 @@
   </logger>
 
   <logger name="com.orbswarm.swarmcon.store.ItemStoreTest">
+    <level value="debug" />
+  </logger>
+  
+  <logger name="com.orbswarm.swarmcon.performance.PerformanceFactoryTest">
+    <level value="debug" />
+  </logger>
+
+  <logger name="com.orbswarm.swarmcon.performance.Performance">
     <level value="warn" />
   </logger>
 

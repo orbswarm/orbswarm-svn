@@ -25,4 +25,10 @@ public class PositionEvent extends AEvent
   {
     return mOrb;
   }
+
+  public String toString()
+  {
+    return "PositionEvent [mPosition=" + mPosition + ", mOrb=" + mOrb +
+      ", getExecuteTime()=" + getExecuteTime() + "]";
+  }
 }

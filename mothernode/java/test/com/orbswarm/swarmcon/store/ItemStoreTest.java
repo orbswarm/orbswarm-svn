@@ -29,7 +29,6 @@ public class ItemStoreTest
 {
   IItemStore mStore;
 
-  @SuppressWarnings("unused")
   private static Logger log = Logger.getLogger(ItemStoreTest.class);
   private Marshaller mMarshaller;
   private Unmarshaller mUnmarshaller;
