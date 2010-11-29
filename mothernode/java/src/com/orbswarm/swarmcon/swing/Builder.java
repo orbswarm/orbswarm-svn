@@ -419,6 +419,7 @@ public class Builder extends JFrame
     if (mPerformance != null)
     {
       mPerformance = null;
+      repaint();
       return;
     }
     
@@ -453,12 +454,17 @@ public class Builder extends JFrame
       orb.setPosition(path.getPosition());
     }
 
+    log.debug("paths size: " + paths.size());
+    
     mPerformance = new Performance();
     for (int i = 0; i < paths.size(); ++i)
     {
       PerformanceFactory.append(mPerformance, paths.get(i), orbs.get(i), rates.get(i),
           timeStep);
     }
+
+    repaint();
+    log.debug("performance: " + mPerformance);
   }
   
   protected void createSwarm()

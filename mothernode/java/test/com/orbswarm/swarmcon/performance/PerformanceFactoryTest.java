@@ -1,7 +1,7 @@
 package com.orbswarm.swarmcon.performance;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.log4j.Logger;
 import org.junit.Test;
@@ -29,20 +29,21 @@ public class PerformanceFactoryTest
     IBlockPath path = new BlockPath(st);
 
     IPerformance p = PerformanceFactory.create(path, orb, rate, timeStep);
-    
+
     log.debug("size: " + p.getEvents().size());
 
     double oldY = -1;
-    for (IEvent e: p.getEvents())
+    for (IEvent e : p.getEvents())
     {
       PositionEvent pe = (PositionEvent)e;
       assertEquals(0, pe.getPosition().getX(), 0);
       assertTrue(pe.getPosition().getY() > oldY);
       oldY = pe.getPosition().getY();
-      
-      log.debug(String.format("t: %4.2f, y: %5.3f", e.getExecuteTime(), pe.getPosition().getY()));
+
+      log.debug(String.format("t: %4.2f, y: %5.3f", e.getExecuteTime(), pe
+        .getPosition().getY()));
     }
-    
+
     assertEquals(2, p.getEvents().size(), 0);
   }
 }

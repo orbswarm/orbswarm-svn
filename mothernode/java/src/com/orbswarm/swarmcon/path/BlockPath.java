@@ -130,7 +130,7 @@ public class BlockPath extends APositionable implements IBlockPath
     if (null == mPath)
     {
       mPath = new GeneralPath();
-      AffineTransform t = new AffineTransform();
+      AffineTransform t = (AffineTransform)getTransform().clone();
       for (IBlock block : getBlocks())
       {
         Shape shape = t.createTransformedShape(block.getPath());

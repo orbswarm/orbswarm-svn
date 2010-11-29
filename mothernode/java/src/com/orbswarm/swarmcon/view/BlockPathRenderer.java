@@ -48,10 +48,8 @@ public class BlockPathRenderer extends ARenderer<IBlockPath>
 
   public void render(Graphics2D g, IBlockPath bp)
   {
-    g.transform(bp.getTransform());
-
     log.debug("log level: " + log.getLevel());
-    
+
     if (log.getLevel() == Level.DEBUG)
     {
       if (bp.getBlocks().size() > 0)
@@ -74,9 +72,10 @@ public class BlockPathRenderer extends ARenderer<IBlockPath>
         }
       }
     }
-    
+
     if (bp.isSelected())
     {
+      g.transform(bp.getTransform());
       g.setStroke(RenderingConstants.BLOCK_STROKE);
 
       if (bp.getBlocks().isEmpty())
@@ -102,7 +101,10 @@ public class BlockPathRenderer extends ARenderer<IBlockPath>
       g.setColor(RenderingConstants.PATH_COLOR);
 
       if (bp.getBlocks().isEmpty())
+      {
+        g.transform(bp.getTransform());
         g.fill(mArrowShape);
+      }
       else
         g.draw(bp.getPath());
     }

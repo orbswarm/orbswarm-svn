@@ -6,14 +6,16 @@ import com.orbswarm.swarmcon.orb.IOrb;
 
 public class PositionEvent extends AEvent
 {
-  private final PathPoint mPosition;
   private final IOrb mOrb;
+  private final PathPoint mPosition;
+  private final double mVelocity;
   
-  public PositionEvent(double executeTime, IOrb orb, PathPoint position)
+  public PositionEvent(double executeTime, IOrb orb, PathPoint position, double velocity)
   {
     super(executeTime);
     mOrb = orb;
     mPosition = position;
+    mVelocity = velocity;
   }
 
   public PathPoint getPosition()
@@ -30,5 +32,10 @@ public class PositionEvent extends AEvent
   {
     return "PositionEvent [mPosition=" + mPosition + ", mOrb=" + mOrb +
       ", getExecuteTime()=" + getExecuteTime() + "]";
+  }
+
+  public double getVelocity()
+  {
+    return mVelocity;
   }
 }

@@ -50,7 +50,7 @@ public class PerformanceFactory
     {
       IEvent event =
         new PositionEvent(getTime(), mOrb,
-          mPathTool.getPathPoint(getDistance()));
+          mPathTool.getPathPoint(getDistance()), mRate.getVelocity());
       update(timeStep);
       return event;
     }

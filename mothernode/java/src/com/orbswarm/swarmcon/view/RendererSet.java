@@ -21,6 +21,7 @@ import com.orbswarm.swarmcon.orb.Phantom;
 import com.orbswarm.swarmcon.path.IBlockPath;
 import com.orbswarm.swarmcon.path.IDance;
 import com.orbswarm.swarmcon.path.SmoothPath;
+import com.orbswarm.swarmcon.performance.IPerformance;
 import com.orbswarm.swarmcon.swing.SwarmCon.MouseMobject;
 
 public class RendererSet
@@ -58,6 +59,7 @@ public class RendererSet
       // specific renderers earlier in the list 
       
       {
+        put(IPerformance.class, PerformanceRenderer.class);
         put(IDance.class, DanceRenderer.class);        
         put(IBlockPath.class, BlockPathRenderer.class);        
         put(Phantom.class, PhantomRenderer.class);
