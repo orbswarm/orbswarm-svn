@@ -4,11 +4,13 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 
 import org.apache.log4j.Logger;
 import org.trebor.util.Angle;
+import org.trebor.util.PathTool.PathPoint;
 
 import com.orbswarm.swarmcon.performance.IEvent;
 import com.orbswarm.swarmcon.performance.IPerformance;
@@ -43,20 +45,30 @@ public class PerformanceRenderer extends ARenderer<IPerformance>
   private Shape getShape(IEvent event)
   {
     Shape shape = null;
-    
+
     if (event instanceof PositionEvent)
     {
       PositionEvent pe = (PositionEvent)event;
-
-      Point2D ep =
-        pe.getPosition().getAngle().rotate(new Angle(90, Angle.Type.DEGREES))
-          .cartesian(2 * pe.getVelocity(), pe.getPosition());
-      shape = new Line2D.Double(pe.getPosition(), ep);
+      double l = RenderingConstants.PATH_WIDTH * pe.getVelocity() / 2;
+      PathPoint p = pe.getPosition();
+      Line2D line =
+        new Line2D.Double(p.getX() - l, p.getY(), p.getX() + l, p.getY());
+      AffineTransform t =
+        AffineTransform.getRotateInstance(
+          p.getAngle().rotate(new Angle(90,
+             Angle.Type.DEGREES)).as(Angle.Type.RADIANS), p.getX(), p.getY());
+      shape = t.createTransformedShape(line);
+      
+      //
+      // Point2D ep =
+      // pe.getPosition().getAngle())
+      // .cartesian(, pe.getPosition());
+      // shape = new Line2D.Double(pe.getPosition(), ep);
     }
     else
       throw new Error("unknown event type: " +
         event.getClass().getSimpleName());
-    
+
     return shape;
   }
 }

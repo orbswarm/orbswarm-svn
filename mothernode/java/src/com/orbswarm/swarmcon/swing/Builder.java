@@ -324,7 +324,10 @@ public class Builder extends JFrame
         super.paint(g);
         RendererSet.render(g, getArtifact());
         if (null != mPerformance)
+        {
           RendererSet.render(g, mPerformance);
+          mPerformance = null;
+        }
         for (IRenderable orb: mSwarm)
           RendererSet.render(g, orb);
       }
@@ -436,35 +439,34 @@ public class Builder extends JFrame
     else
       paths = getCurrentDance().getPaths();
 
-    // establish a collection of rates
-
-    List<Rate> rates = new Vector<Rate>();
-    for (int i = 0; i < paths.size(); ++i)
-      rates.add(new Rate("Velocity", 0, 1.0, 0.08));
-
-    // establish a collection of orbs
+    log.debug("paths size: " + paths.size());
+    
+    // establish a collections of rates and orbs
 
     List<IOrb> orbs = new Vector<IOrb>();
-    int orbId = 0;
-    for (IBlockPath path : paths)
+    List<Rate> rates = new Vector<Rate>();
+    for (int i = 0; i < paths.size(); ++i)
     {
-      IOrb orb = new Orb(new SimModel(), orbId++);
+      rates.add(new Rate("Velocity", 0, 1.0, 0.08));
+      IOrb orb = new Orb(new SimModel(), i);
       orbs.add(orb);
+      IBlockPath path = paths.get(i);
+      log.debug("path: " + path.hashCode());
       orb.setHeading(path.getHeading());
       orb.setPosition(path.getPosition());
     }
-
-    log.debug("paths size: " + paths.size());
     
+    // create the performance
+
     mPerformance = new Performance();
     for (int i = 0; i < paths.size(); ++i)
     {
       PerformanceFactory.append(mPerformance, paths.get(i), orbs.get(i), rates.get(i),
           timeStep);
     }
+    log.debug("performance: " + mPerformance);
 
     repaint();
-    log.debug("performance: " + mPerformance);
   }
   
   protected void createSwarm()

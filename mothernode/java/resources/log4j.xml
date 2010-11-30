@@ -93,7 +93,7 @@
   </logger>
 
   <logger name="com.orbswarm.swarmcon.performance.Performance">
-    <level value="warn" />
+    <level value="debug" />
   </logger>
 
   <logger name="com.orbswarm.swarmcon.model.MotionModel">

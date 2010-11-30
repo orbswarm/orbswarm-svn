@@ -1,10 +1,10 @@
 package com.orbswarm.swarmcon.performance;
 
 import java.awt.geom.Rectangle2D;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
 import org.apache.log4j.Logger;
 
@@ -13,21 +13,22 @@ public class Performance implements IPerformance
   private static final Logger log = Logger.getLogger(Performance.class);
   
   public static double NOT_RUNNING = Long.MIN_VALUE;
-  private final SortedSet<IEvent> mEvents;
+  private final Queue<IEvent> mEvents;
   private double mStartTime = NOT_RUNNING;
-  private Iterator<IEvent> mEventItr;
-  private IEvent mCurrentEvent;
+  private IEvent mOldestEvent;
   
   public Performance()
   {
-    mEvents = new TreeSet<IEvent>();
+    mEvents = new PriorityQueue<IEvent>();
   }
   
   public void add(IEvent event)
   {
-    log.debug(String.format("adding %s @ %s", event.hashCode(), event.getExecuteTime()));
-    log.debug(String.format("size: ", mEvents.size()));
-    mEvents.add(event);
+    if (null == mOldestEvent || event.getExecuteTime() > mOldestEvent.getExecuteTime())
+      mOldestEvent = event;
+    
+    if (!mEvents.add(event))
+      log.warn("failed to add event: " + event);
   }
 
   public boolean remove(IEvent event)
@@ -42,10 +43,10 @@ public class Performance implements IPerformance
 
     // while the current event is not ready, and should block, sleep a little
 
-    while(mCurrentEvent.getExecuteTime() < getCurrentTime() && block)
+    while(mEvents.peek().getExecuteTime() < getCurrentTime() && block)
       try
       {
-        Thread.sleep((long)(mCurrentEvent.getExecuteTime() - getCurrentTime()) * 1000l);
+        Thread.sleep((long)(mEvents.peek().getExecuteTime() - getCurrentTime()) * 1000l);
       }
       catch (InterruptedException e)
       {
@@ -54,34 +55,20 @@ public class Performance implements IPerformance
     
     // if the current element is STILL not ready, return null;
     
-    if (mCurrentEvent.getExecuteTime() < getCurrentTime())
+    if (mEvents.peek().getExecuteTime() < getCurrentTime())
       return null;
     
     // return the current event;
     
-    IEvent event = mCurrentEvent;
-    updateCurrentEvent();
+    IEvent event = mEvents.poll();
+    if (mEvents.size() == 0)
+      mStartTime = NOT_RUNNING;
     return event;
   }
 
-  private void updateCurrentEvent()
-  {
-    if (mEventItr.hasNext())
-    {
-      mCurrentEvent = mEventItr.next();
-    }
-    else
-    {
-      mCurrentEvent = null;
-      mStartTime = NOT_RUNNING;
-    }
-  }
-  
   public void start()
   {
-    mEventItr = mEvents.iterator();
     mStartTime = System.currentTimeMillis();
-    updateCurrentEvent();
   }
 
   public void reset()
@@ -91,7 +78,7 @@ public class Performance implements IPerformance
 
   public double getDuration()
   {
-    return mEvents.last().getExecuteTime();
+    return mOldestEvent.getExecuteTime();
   }
 
   public double getCurrentTime()
@@ -133,8 +120,8 @@ public class Performance implements IPerformance
     throw new CloneNotSupportedException();
   }
 
-  public Set<IEvent> getEvents()
+  public Collection<IEvent> getEvents()
   {
-    return mEvents; //Collections.unmodifiableSet(mEvents);
+    return Collections.unmodifiableCollection(mEvents);
   }
 }

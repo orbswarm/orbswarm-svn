@@ -1,6 +1,6 @@
 package com.orbswarm.swarmcon.performance;
 
-import java.util.Set;
+import java.util.Collection;
 
 import com.orbswarm.swarmcon.view.IRenderable;
 
@@ -53,7 +53,7 @@ public interface IPerformance extends IRenderable
    * @return all the events for this performance.
    */
   
-  Set<IEvent> getEvents();
+  Collection<IEvent> getEvents();
   
   /**
    * Start the performance. The performance will continue to run until the

@@ -3,6 +3,9 @@ package com.orbswarm.swarmcon.performance;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.PriorityQueue;
+import java.util.Queue;
+
 import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.trebor.util.Rate;
@@ -45,5 +48,46 @@ public class PerformanceFactoryTest
     }
 
     assertEquals(2, p.getEvents().size(), 0);
+  }
+  
+  @Test
+  public void treeTest()
+  {
+    class Foo implements Comparable<Foo>
+    {
+      private final double mValue;
+      
+      public Foo(double value)
+      {
+        mValue = value;
+      }
+      
+      @Override 
+      public boolean equals(Object other)
+      {
+        return this.hashCode() == other.hashCode();
+      }
+      
+      public int compareTo(Foo o)
+      {
+        return Double.compare(mValue, ((Foo)o).mValue);
+      }
+    };
+    
+    Queue<Foo> queue = new PriorityQueue<Foo>();
+    
+    assertTrue(queue.add(new Foo(1)));
+    assertTrue(queue.add(new Foo(2)));
+    assertTrue(queue.add(new Foo(3)));
+    assertTrue(queue.add(new Foo(1)));
+    assertEquals(4, queue.size(), 0);
+    
+    double current = 0;
+    while (!queue.isEmpty())
+    {
+      Foo foo = queue.poll();
+      assertTrue(foo.mValue >= current);
+      current = foo.mValue;
+    }
   }
 }
