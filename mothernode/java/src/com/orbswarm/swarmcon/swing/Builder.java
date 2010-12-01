@@ -305,6 +305,10 @@ public class Builder extends JFrame
     // mViewMenu.add(mRotateLeftAction);
     // mViewMenu.add(mRotateRightAction);
     mViewMenu.addSeparator();
+    JCheckBoxMenuItem cmbiGrid = new JCheckBoxMenuItem(mDisplaGridAction);
+    cmbiGrid.setSelected(true);
+    setAutoZoom(cmbiGrid);
+    mViewMenu.add(cmbiGrid);
     JCheckBoxMenuItem cmbiZoom = new JCheckBoxMenuItem(mAutoZoomAction);
     cmbiZoom.setSelected(true);
     setAutoZoom(cmbiZoom);
@@ -1091,6 +1095,19 @@ public class Builder extends JFrame
     public void actionPerformed(ActionEvent e)
     {
       mArena.rotateView(new Angle(2, Type.HEADING_RATE));
+    }
+  };
+
+  /** Toggle display graph. */
+
+  SwarmAction mDisplaGridAction = new SwarmAction("Display Grid",
+    KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.META_DOWN_MASK),
+    "toggle display of background grid")
+  {
+    public void actionPerformed(ActionEvent e)
+    {
+      mArena.setPaintGrid(((JCheckBoxMenuItem)e.getSource()).isSelected());
+      repaint();
     }
   };
 
