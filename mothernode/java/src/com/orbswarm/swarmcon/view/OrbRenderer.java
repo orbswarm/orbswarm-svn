@@ -13,7 +13,6 @@ import java.awt.geom.Line2D;
 
 import com.orbswarm.swarmcon.orb.IOrb;
 import com.orbswarm.swarmcon.orb.Orb;
-import com.orbswarm.swarmcon.path.SmoothPath;
 import com.orbswarm.swarmcon.util.Constants;
 
 import static java.lang.Math.sin;
@@ -64,9 +63,9 @@ public class OrbRenderer extends ARenderer<IOrb> implements IRenderer<IOrb>
     {
       // draw the command path
 
-      SmoothPath path = orb.getModel().getActivePath();
-      if (null != path)
-        RendererSet.render(g, path);
+//      SmoothPath path = orb.getModel().getActivePath();
+//      if (null != path)
+//        RendererSet.render(g, path);
 
       // draw orb history
 

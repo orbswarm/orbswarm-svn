@@ -9,6 +9,11 @@ import java.util.Random;
 
 public class Constants
 {
+  // basic orb motion constants 
+  
+  public static final double ORB_ACCELERATION = 0.25; 
+  public static final double ORB_MAX_SPEED = 1.0;   // meters per second
+  
   // subversion keywords
   
   public static final String SVN_ID = "$Id$";

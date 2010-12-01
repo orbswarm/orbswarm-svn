@@ -44,6 +44,10 @@
     <level value="warn" />
   </logger>
 
+  <logger name="com.orbswarm.swarmcon.view.PerformanceRenderer">
+    <level value="warn" />
+  </logger>
+
 	<logger name="com.orbswarm.swarmcon.SwarmCon">
 		<level value="warn" />
 	</logger>
