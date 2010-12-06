@@ -6,10 +6,12 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
+import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -31,7 +33,11 @@ public class BlockPath extends APositionable implements IBlockPath
 
   @XmlElement(name = "blocks")
   private ISelectableList<IBlock> mBlocksHolder;
-
+  
+  @XmlID
+  @SuppressWarnings("unused")
+  private final String mId;
+  
   @XmlTransient
   private PathTool mPathTool;
   
@@ -41,22 +47,9 @@ public class BlockPath extends APositionable implements IBlockPath
   public BlockPath()
   {
     setBlocksHolder(new SelectableList<IBlock>());
+    mId = UUID.randomUUID().toString();
   }
 
-  public static void main(String[] args)
-  {
-    try
-    {
-      IBlockPath path1 = new BlockPath(new CurveBlock(), new CurveBlock(), new CurveBlock());
-      IBlockPath path2 = path1.clone();
-      path1 = path2;
-    }
-    catch (CloneNotSupportedException e)
-    {
-      e.printStackTrace();
-    }
-  }
-  
   public BlockPath(IBlock... blocks)
   {
     this();
@@ -162,7 +155,6 @@ public class BlockPath extends APositionable implements IBlockPath
     return getPath().getBounds2D();
   }
 
-  @XmlTransient
   @Override
   public void setSuppressed(boolean suppressed)
   {
@@ -244,7 +236,6 @@ public class BlockPath extends APositionable implements IBlockPath
     invalidatePath();
   }
 
-  @XmlElement(name = "blocks")
   public ISelectableList<IBlock> getBlocksHolder()
   {
     return mBlocksHolder;

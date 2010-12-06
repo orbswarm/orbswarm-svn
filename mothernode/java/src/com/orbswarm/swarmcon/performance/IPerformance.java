@@ -17,6 +17,14 @@ import com.orbswarm.swarmcon.view.IRenderable;
 public interface IPerformance extends IRenderable
 {
   /**
+   * Add a collection of events to a performance with the same semantics as {@link add()}.
+   * 
+   * @param events to be added to the performance
+   */
+  
+  void addAll(Collection<IEvent> events);
+
+  /**
    * Add an event to this performance. Events may be added in any order and
    * will be inserted into the performance based on execution time.
    * 

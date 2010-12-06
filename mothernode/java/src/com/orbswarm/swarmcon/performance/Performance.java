@@ -22,6 +22,12 @@ public class Performance implements IPerformance
     mEvents = new PriorityQueue<IEvent>();
   }
   
+  public void addAll(Collection<IEvent> events)
+  {
+    for (IEvent event: events)
+      add(event);
+  }
+  
   public void add(IEvent event)
   {
     if (null == mOldestEvent || event.getExecuteTime() > mOldestEvent.getExecuteTime())

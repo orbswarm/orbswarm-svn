@@ -6,13 +6,11 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.log4j.Logger;
 import org.trebor.util.Angle;
@@ -34,8 +32,8 @@ public class Dance extends APositionable implements IDance
   private double mSeperation;
   @XmlElement(name="layout")
   private Layout mLayout;
-  @XmlTransient
-  private List<IMarker> mMarkers;
+  @XmlElement(name="markers")
+  private MarkerHolder mMarkers;
 
   public enum Layout
   {
@@ -52,7 +50,6 @@ public class Dance extends APositionable implements IDance
         for (IBlockPath bp : dance.getPaths())
         {
           bp.setPosition(theta.cartesian(radius));
-//          bp.setHeading(theta.rotate(dance.getHeading()));
           bp.setHeading(theta);
           theta = theta.rotate(dTheta);
         }
@@ -87,7 +84,7 @@ public class Dance extends APositionable implements IDance
     mSeperation = seperation;
     mLayout = layout;
     mPathsHolder = new SelectableList<IBlockPath>(true);
-    mMarkers = new Vector<IMarker>();
+    mMarkers = new MarkerHolder();
   }
 
   public void setLayout(Layout layout)
@@ -208,9 +205,14 @@ public class Dance extends APositionable implements IDance
     return Collections.unmodifiableList(mPathsHolder.getAll());
   }
 
+  public void add(IMarker marker)
+  {
+    mMarkers.add(marker);
+  }
+  
   public List<IMarker> getMarkers()
   {
-    return Collections.unmodifiableList(mMarkers);
+    return mMarkers.getAll();
   }
   
   @Override

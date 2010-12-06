@@ -2,6 +2,7 @@ package com.orbswarm.swarmcon.store;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -9,11 +10,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Vector;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlID;
+import javax.xml.bind.annotation.XmlIDREF;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.log4j.Logger;
 import org.junit.Before;
@@ -21,8 +28,14 @@ import org.junit.Test;
 
 import com.orbswarm.swarmcon.path.BlockPath;
 import com.orbswarm.swarmcon.path.CurveBlock;
+import com.orbswarm.swarmcon.path.Dance;
 import com.orbswarm.swarmcon.path.IBlock;
+import com.orbswarm.swarmcon.path.IBlockPath;
+import com.orbswarm.swarmcon.path.IDance;
+import com.orbswarm.swarmcon.path.IMarker;
+import com.orbswarm.swarmcon.path.Marker;
 import com.orbswarm.swarmcon.path.StraightBlock;
+import com.orbswarm.swarmcon.path.SyncAction;
 import com.orbswarm.swarmcon.view.IRenderable;
 
 public class ItemStoreTest
@@ -32,6 +45,61 @@ public class ItemStoreTest
   private static Logger log = Logger.getLogger(ItemStoreTest.class);
   private Marshaller mMarshaller;
   private Unmarshaller mUnmarshaller;
+
+  @SuppressWarnings("serial")
+  @XmlRootElement(name = "testItems")
+  @XmlAccessorType(XmlAccessType.FIELD)
+  static class TestItems extends Vector<TestItem>
+  {
+    @SuppressWarnings("unused")
+    private final List<TestItem> mItems;
+    
+    public TestItems()
+    {
+      mItems = this;
+    }
+  }
+  
+  @XmlRootElement(name = "testItem")
+  @XmlAccessorType(XmlAccessType.FIELD)
+  static class TestItem 
+  {
+    public static int baseId = 100;
+    private final String mValue;
+    @SuppressWarnings("unused")
+    @XmlID
+    private final String mId;
+    @XmlIDREF
+    private final TestItem mOther;
+
+    public TestItem(String value, TestItem other)
+    {
+      mValue = value;
+      mOther = other;
+      mId = "" + baseId++;
+    }
+    
+    public TestItem()
+    {
+      this("-empty-", null);
+    }
+
+    public String getValue()
+    {
+      return mValue;
+    }
+
+    public TestItem getOther()
+    {
+      return mOther;
+    }
+
+    public String toString()
+    {
+      return "TestItem [mValue=" + mValue + ", mId=" + mId + ", mOther=" +
+        mOther + "]";
+    }
+  };
   
   @Before
   public void setup()
@@ -50,6 +118,57 @@ public class ItemStoreTest
     }
   }
 
+  @Test
+  public void refIdTest()
+  {
+
+    TestItem ti1 = new TestItem("ti-1", null);
+    TestItem ti2 = new TestItem("ti-2", ti1);
+    TestItem ti3 = new TestItem("ti-3", ti2);
+    TestItems items1 = new TestItems();
+
+    items1.add(ti1);
+    items1.add(ti2);
+    items1.add(ti3);
+
+    try
+    {
+      JAXBContext context =
+        JAXBContext.newInstance(TestItem.class, TestItems.class);
+      Marshaller marshaller = context.createMarshaller();
+      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+      Unmarshaller unmarshaller = context.createUnmarshaller();
+
+      StringWriter writer = new StringWriter();
+      marshaller.marshal(items1, writer);
+      log.debug("xml: " + writer.toString());
+
+      StringReader reader = new StringReader(writer.toString());
+      TestItems items2 = (TestItems)unmarshaller.unmarshal(reader);
+
+      log.debug("result: " + items2);
+
+      log.debug("id: " + items2.get(0).mId);
+
+      for (int i = 0; i < items1.size(); ++i)
+      {
+        log.debug(String.format("1: %s 2: %s", items1.get(i), items2.get(i)));
+        assertEquals(items1.get(i).mId, items2.get(i).mId);
+        assertEquals(items1.get(i).mValue, items2.get(i).mValue);
+        if (items1.get(i).mOther != null)
+          assertTrue(items1.get(i).mOther.hashCode() != items2.get(i).mOther
+            .hashCode());
+        else
+          assertTrue(items1.get(i).mOther == items2.get(i).mOther);
+      }
+
+    }
+    catch (JAXBException e)
+    {
+      e.printStackTrace();
+    }
+  }
+  
   @Test
   public void blockTest()
   {
@@ -172,5 +291,74 @@ public class ItemStoreTest
 
     assertEquals(4, straightCount);
     assertEquals(11, curveCount);
+  }
+
+  @Test
+  public void testDanceMarshal()
+  {
+    try
+    {
+      StringWriter writer = new StringWriter();
+      mMarshaller.marshal(createTestDance(), writer);
+      log.debug("dance xml: " + writer.toString());
+      IDance dance = (IDance)mUnmarshaller.unmarshal(new StringReader(writer.toString()));
+      validateDance(dance);
+    }
+    catch (JAXBException e)
+    {
+      e.printStackTrace();
+    }
+  }
+  
+  @Test
+  public void testDanceTest()
+  {
+    validateDance(createTestDance());
+  }
+  
+  public static void validateDance(IDance dance)
+  {
+    List<IBlockPath> paths = dance.getPaths();
+    assertEquals(2, paths.size());
+    assertEquals(2, paths.get(0).getBlocks().size());
+    assertEquals(2, paths.get(1).getBlocks().size());
+    List<IMarker> markers = dance.getMarkers();
+    assertEquals(4, markers.size());
+    assertTrue(null == markers.get(1).getSyncAction());
+    assertTrue(null == markers.get(3).getSyncAction());
+    assertEquals(markers.get(1), markers.get(0).getSyncAction().getSyncTo());
+    assertEquals(markers.get(3), markers.get(2).getSyncAction().getSyncTo());
+  }
+  
+  public static IDance createTestDance()
+  {
+    IDance dance = new Dance();
+    dance.setLayout(Dance.Layout.LINE);
+  
+    // create the paths
+  
+    IBlockPath bp1 = new BlockPath();
+    bp1.addAfter(new StraightBlock(1));
+    bp1.addAfter(new StraightBlock(2));
+    IBlockPath bp2 = new BlockPath();
+    bp2.addAfter(new StraightBlock(3));
+    bp2.addAfter(new StraightBlock(4));
+    dance.addAfter(bp1);
+    dance.addAfter(bp2);
+  
+    // add markers to the path
+  
+    IMarker m1 = new Marker(bp1, bp1.getLength() * 0.25);
+    IMarker m2 = new Marker(bp2, bp2.getLength() * 0.5);
+    m1.setSyncAction(new SyncAction(m2));
+    IMarker m3 = new Marker(bp1, bp1.getLength() * 0.5);
+    IMarker m4 = new Marker(bp2, bp2.getLength() * 0.75);
+    m3.setSyncAction(new SyncAction(m4));
+    dance.add(m1);
+    dance.add(m2);
+    dance.add(m3);
+    dance.add(m4);
+    
+    return dance;
   }
 }

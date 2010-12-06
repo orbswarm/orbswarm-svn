@@ -17,10 +17,12 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import com.orbswarm.swarmcon.path.AAction;
 import com.orbswarm.swarmcon.path.ABlock;
 import com.orbswarm.swarmcon.path.BlockPath;
 import com.orbswarm.swarmcon.path.CurveBlock;
 import com.orbswarm.swarmcon.path.Dance;
+import com.orbswarm.swarmcon.path.Marker;
 import com.orbswarm.swarmcon.path.StraightBlock;
 import com.orbswarm.swarmcon.view.IRenderable;
 
@@ -64,8 +66,9 @@ public abstract class AItemStore implements IItemStore
 
   public static JAXBContext createContext() throws JAXBException
   {
-    return JAXBContext.newInstance(Item.class, BlockPath.class, StraightBlock.class, 
-        CurveBlock.class, ABlock.class, Dance.class, AffineTransform.class);
+    return JAXBContext.newInstance(Item.class, BlockPath.class,
+      StraightBlock.class, CurveBlock.class, ABlock.class, Dance.class,
+      AffineTransform.class, Marker.class, AAction.class);
   }
   
   // synch cache to the store

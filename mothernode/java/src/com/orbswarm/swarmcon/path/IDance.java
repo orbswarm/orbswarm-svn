@@ -27,8 +27,10 @@ public interface IDance extends IPositionable, IRenderable
 
   List<IBlockPath> getPaths();
   
-  List<IMarker> getMarkers();
+  void add(IMarker m1);
   
+  List<IMarker> getMarkers();
+
   void setLayout(Layout layout);
 
   Layout getLayout();

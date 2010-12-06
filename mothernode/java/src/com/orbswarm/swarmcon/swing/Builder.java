@@ -38,7 +38,7 @@ import com.orbswarm.swarmcon.path.IDance;
 import com.orbswarm.swarmcon.path.StraightBlock;
 import com.orbswarm.swarmcon.performance.IPerformance;
 import com.orbswarm.swarmcon.performance.Performance;
-import com.orbswarm.swarmcon.performance.PerformanceFactory;
+import com.orbswarm.swarmcon.performance.EventFactory;
 import com.orbswarm.swarmcon.store.FileStore;
 import com.orbswarm.swarmcon.store.IItemFilter;
 import com.orbswarm.swarmcon.store.Item;
@@ -130,11 +130,18 @@ public class Builder extends JFrame
 
   private boolean mAutoRotate;
 
-  private JMenu mLayoutMenu;
-
+  private JMenu mLayoutMenu;  
+  
   public static void main(String[] args)
   {
     System.setProperty("apple.laf.useScreenMenuBar", "true");
+    new Builder(establishItemStore());
+  }
+
+  // establish the item store
+  
+  public static IItemStore establishItemStore()
+  {
     File pathStore = new File(DEFALUT_STORE_PATH);
 
     IItemStore store = null;
@@ -163,10 +170,10 @@ public class Builder extends JFrame
     }
     else
       store = new FileStore(pathStore.toString());
-    
-    new Builder(store);
-  }
 
+    return store;
+  }
+  
   // construct a builder
 
   public Builder(IItemStore store)
@@ -430,7 +437,7 @@ public class Builder extends JFrame
       return;
     }
 
-    double timeStep = 0.1;
+    double timeStep = 0.5;
 
     // establish a collection of paths
 
@@ -466,8 +473,8 @@ public class Builder extends JFrame
     mPerformance = new Performance();
     for (int i = 0; i < paths.size(); ++i)
     {
-      PerformanceFactory.append(mPerformance, paths.get(i), orbs.get(i),
-        rates.get(i), timeStep);
+      mPerformance.addAll(EventFactory.create(paths.get(i), orbs.get(i),
+        rates.get(i), timeStep));
     }
     log.debug("performance: " + mPerformance);
 

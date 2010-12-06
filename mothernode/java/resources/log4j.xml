@@ -40,6 +40,10 @@
     <level value="warn" />
   </logger>
 
+  <logger name="com.orbswarm.swarmcon.view.DanceRenderer">
+    <level value="debug" />
+  </logger>
+
   <logger name="com.orbswarm.swarmcon.view.BlockPathRenderer">
     <level value="warn" />
   </logger>
@@ -92,7 +96,11 @@
     <level value="debug" />
   </logger>
   
-  <logger name="com.orbswarm.swarmcon.performance.PerformanceFactoryTest">
+  <logger name="com.orbswarm.swarmcon.performance.EventFactoryTest">
+    <level value="debug" />
+  </logger>
+
+  <logger name="com.orbswarm.swarmcon.performance.EventFactory">
     <level value="debug" />
   </logger>
 
