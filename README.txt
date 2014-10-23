@@ -1,5 +1,5 @@
-This is a Subversion repository; use the 'svnadmin' tool to examine
-it.  Do not add, delete, or modify files here unless you know how
-to avoid corrupting the repository.
+An import of the Orbswarm subversion repository (http://svn.lee.org/swarm/)
+into git, for archival purposes.
 
-Visit http://subversion.tigris.org/ for more information.
+                                -- Michael Toren <mct@toren.net>
+                                   Thu Oct 23 01:54:14 PDT 2014
